@@ -1,0 +1,178 @@
+/* ══════════════════════════════════════════════════════════════
+   FINA — Bausteine
+   Alles, was in mehreren Ansichten vorkommt: Schaltflächen, Siegel,
+   Notizlampen, Formulare, Fenster, Listen, Hinweise.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Schaltflächen ────────────────────────────────────────────
+   Die Kopfzeile bleibt bewusst einfarbig: was gerade wichtig ist,
+   sagt der Dateiname daneben, nicht die Farbe der Knöpfe. Rot
+   trägt nur, was Daten überschreibt (.danger). */
+button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
+.btn{background:transparent;border:1px solid var(--rule-strong);color:var(--ink);padding:7px 13px;border-radius:2px;
+  transition:background .15s,border-color .15s}
+.btn:hover{background:var(--paper-2);border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.seal:focus-visible,.qmark:focus-visible,.mtab:focus-visible,.vtab:focus-visible,.namebtn:focus-visible,.mhead:focus-visible,a:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+.btn.primary{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+.btn.primary:hover{background:#2E3A35}
+.btn.danger{background:var(--seal);border-color:var(--seal);color:#FBF1EF}
+.btn.danger:hover{background:#93302A;border-color:#93302A}
+.btn.small{padding:4px 9px;font-size:12px}
+.linkish{background:none;border:0;color:var(--ink-2);text-decoration:underline;padding:0;font-size:12px;cursor:pointer}
+.linkish:hover{color:var(--seal)}
+.namebtn{background:none;border:0;padding:0;font-family:var(--font-ui);font-size:15px;color:inherit;text-align:left;
+  border-bottom:1px dotted var(--rule-strong);line-height:1.3}
+.namebtn:hover{border-bottom-color:var(--ink);color:var(--ink)}
+.rowbtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer;
+  border-bottom:1px dotted var(--rule-strong)}
+.rowbtn:hover{color:var(--seal)}
+
+/* ── Bezahlt-Siegel ───────────────────────────────────────── */
+.marks{display:flex;gap:6px;align-items:center}
+.seal{width:30px;height:30px;border-radius:50%;border:1.5px dashed var(--rule-strong);background:transparent;
+  display:grid;place-items:center;padding:0;transition:transform .12s ease,border-color .15s;flex:0 0 auto}
+.seal:hover{border-color:var(--ink)}
+.seal svg{width:17px;height:17px;opacity:0;transform:scale(.5) rotate(-14deg);transition:opacity .12s,transform .12s;stroke:var(--ok)}
+.seal[aria-pressed="true"]{border:2px solid var(--ok);border-style:solid;background:rgba(46,106,76,.13);
+  box-shadow:0 0 0 2px rgba(46,106,76,.06);transform:rotate(-7deg)}
+.seal.est{border:2px solid var(--amber);background:#F6E3A8}
+.seal[aria-pressed="true"] svg{opacity:1;transform:none}
+.seal[aria-pressed="true"]:active{transform:rotate(-7deg) scale(.86)}
+.seal.mini{width:23px;height:23px;border-width:1.5px}
+.seal.mini svg{width:13px;height:13px}
+.seal.mini[aria-pressed="true"]{border-width:2px;box-shadow:none;transform:rotate(-6deg)}
+.seal.mini:disabled{opacity:.55;cursor:not-allowed}
+.qmark{width:24px;height:24px;border-radius:50%;border:1.5px dotted var(--rule-strong);background:transparent;
+  color:var(--rule-strong);font-family:var(--font-data);font-weight:600;font-size:13px;line-height:1;padding:0;flex:0 0 auto}
+.qmark:hover{border-color:var(--amber);color:var(--amber)}
+.qmark[aria-pressed="true"]{border:2px solid var(--amber);border-style:solid;background:#F6E9B8;color:#6E5410}
+
+/* ── Stift, Notizlampe und Beleglink ──────────────────────────
+   Die drei Symbole stehen in jeder Ansicht nebeneinander und
+   bekommen deshalb dasselbe 20px-Feld: nur dann sitzen sie in
+   einer Flucht und ihre Abstände sind gleich. */
+.pencil{background:none;border:0;padding:0;width:20px;height:20px;cursor:pointer;color:var(--ink-2);
+  font-size:17px;font-weight:700;line-height:1;border-radius:2px;
+  display:inline-grid;place-items:center;vertical-align:middle}
+.pencil:hover{color:var(--seal);background:rgba(0,0,0,.05)}
+.lamp{background:none;border:0;padding:0;width:20px;height:20px;cursor:pointer;color:var(--rule-strong);
+  display:inline-grid;place-items:center;vertical-align:middle}
+.lamp svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lamp:hover{color:var(--seal)}
+.lamp.on{color:#7A5B00}
+.lamp.on svg{fill:#F5CE4A}
+/* Die Lampe zur ganzen Position steht neben dem Namen. */
+.lamp.pos{margin-left:5px;vertical-align:-4px}
+.modal h3 .lamp.pos{vertical-align:-2px}
+.linkicon{display:inline-grid;place-items:center;width:20px;height:20px;color:var(--ink-2);text-decoration:none}
+.linkicon:hover{color:var(--seal)}
+.linkicon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+
+/* ── Marken, Plaketten, Legende ───────────────────────────── */
+.pill{display:inline-block;font-family:var(--font-data);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--rule-strong);padding:1px 6px;color:var(--ink-2);margin-left:8px}
+.pill.last{border-color:var(--seal);color:var(--seal)}
+.pill.corrp{border-color:var(--seal);color:var(--seal)}
+.lock{color:var(--seal);font-family:var(--font-data);font-size:8.5px;letter-spacing:.08em}
+.lock.imp{color:var(--ok)}
+.lock.corr{color:var(--seal)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--ink-2);align-items:center}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-2px}
+.legend .l-open{border:1.5px dashed var(--rule-strong)}
+.legend .l-paid{border:2px solid var(--ok);background:rgba(46,106,76,.16)}
+.legend .l-unc{border:2px solid var(--amber);background:#F6E3A8}
+.meta{font-family:var(--font-data);font-size:10.5px;color:var(--ink-2);margin-top:3px;letter-spacing:.02em}
+.meta span+span::before{content:" · ";opacity:.6}
+.meta a{color:var(--ink-2)}
+
+/* ── Filterleiste ─────────────────────────────────────────── */
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.filterbar button[aria-pressed="true"]{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+
+/* ── Formularfelder ───────────────────────────────────────── */
+input,select,textarea{font-family:var(--font-ui);font-size:14px;background:var(--paper-2);color:var(--ink);
+  border:1px solid var(--rule-strong);border-radius:2px;padding:6px 8px}
+input.num{font-family:var(--font-data);text-align:right}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
+input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;border-style:dashed}
+.field{margin-bottom:12px}
+.field label{display:block;font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%}
+.cols{display:grid;gap:10px}
+.c2{grid-template-columns:1fr 1fr}
+.c3{grid-template-columns:1fr 1fr 1fr}
+.c4{grid-template-columns:repeat(4,1fr)}
+.c6{grid-template-columns:repeat(6,1fr)}
+.span4{grid-column:span 4}
+@media(max-width:900px){.c4{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.c2,.c3,.c4,.c6,.quick .qrow{grid-template-columns:1fr!important}.span4{grid-column:span 1}.mgrid{grid-template-columns:repeat(2,1fr)!important}}
+
+/* ── Fenster (Modal) ──────────────────────────────────────── */
+.modal{position:fixed;inset:0;background:rgba(27,35,32,.42);display:grid;place-items:center;padding:18px;z-index:50}
+.modal .box{background:var(--paper-2);border:1px solid var(--ink);max-width:1080px;width:100%;max-height:92vh;overflow:auto;padding:22px}
+/* ── Anleitung ────────────────────────────────────────────── */
+.guide h4{font-family:var(--font-data);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);margin:22px 0 6px;border-top:1px solid var(--rule);padding-top:14px}
+.guide p,.guide li{font-size:14px;line-height:1.55;margin:0 0 8px}
+.guide ul,.guide ol{margin:0 0 8px;padding-left:20px}
+.guide .shot{margin:12px 0 4px;padding:0}
+.guide .shot img{width:100%;display:block;border:1px solid var(--rule);background:var(--paper)}
+.guide .shot figcaption{font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.modal h3{font-family:var(--font-display);font-size:21px;margin:0 0 4px}
+.modal .subline{font-size:12.5px;color:var(--ink-2);margin:0 0 16px}
+.row-end{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+/* ── Schnelleingabe und Monatsraster im Fenster ───────────── */
+.quick{border:1px solid var(--rule-strong);background:var(--paper);padding:12px;margin:14px 0}
+.quick .qrow{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:8px}
+.mgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.mgrid .cell{border:1px solid var(--rule);padding:6px;background:var(--paper)}
+.mgrid .cell.lockedcell{background:var(--shade)}
+.mgrid .cell>label{font-family:var(--font-data);font-size:9.5px;letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase;
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.mgrid input{width:100%;padding:4px 5px;font-size:12.5px}
+.mgrid .cell .cellhead{display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px}
+.mgrid .cell .mlab{font-family:var(--font-data);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.mgrid .cell .mlab.curm{color:var(--seal);font-weight:700}
+.mgrid .cell .ctools{display:flex;align-items:center;gap:3px}
+.mgrid .cell .cellnote{font-size:10.5px;line-height:1.35;color:var(--ink-2);margin-top:4px;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+
+/* ── Sortierbare Listen (Banken, Zahlungsarten, Kategorien) ── */
+.listrow{display:grid;grid-template-columns:16px 68px 1fr 22px;gap:6px;margin-bottom:6px;align-items:center;
+  background:var(--paper-2);border:1px solid transparent;padding:1px 2px}
+.listrow.onecol{grid-template-columns:16px 1fr 22px}
+.listrow .grip{cursor:grab;color:var(--ink);font-size:14px;font-weight:700;line-height:1;letter-spacing:-2px;user-select:none}
+.listrow .grip:hover{color:var(--seal)}
+.listrow.dragging{opacity:.4}
+.listrow.over{border-color:var(--seal);background:var(--bg-out)}
+.listrow input{width:100%}
+.liststack{align-items:start}
+.liststack .field{margin-bottom:0}
+.liststack .field+.field{margin-top:20px}
+/* Das Pluszeichen steht direkt hinter der Beschriftung der Liste
+   und bleibt zurückhaltend — es soll die Überschrift nicht
+   überstimmen, sondern nur bereitstehen. */
+.plusmini{background:none;border:0;padding:0;margin-left:8px;width:16px;height:16px;
+  color:var(--rule-strong);font-family:var(--font-data);font-size:15px;font-weight:600;line-height:1;
+  display:inline-grid;place-items:center;vertical-align:-3px;cursor:pointer;border-radius:2px}
+.plusmini:hover{color:var(--seal);background:rgba(0,0,0,.05)}
+.plusmini:focus-visible{outline:2px solid var(--seal);outline-offset:1px}
+@media(max-width:760px){.liststack{grid-template-columns:1fr!important}}
+
+/* ── Kurzmeldung ──────────────────────────────────────────── */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--ink);color:var(--paper-2);
+  padding:11px 18px;font-size:13px;border-radius:2px;z-index:60;max-width:90vw}
+
+/* ── Sofort-Tooltip (data-tip) ────────────────────────────────
+   Ersetzt title= dort, wo der Text ohne Verzögerung lesbar sein
+   soll — vor allem an der Notizlampe. Wird von js/ui.js
+   positioniert, deshalb hier nur das Aussehen. */
+.tip{position:fixed;z-index:80;max-width:300px;pointer-events:none;
+  background:var(--ink);color:var(--paper-2);padding:7px 10px;border-radius:2px;
+  font-size:12.5px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;
+  box-shadow:0 4px 14px -6px rgba(0,0,0,.55)}
+.tip[hidden]{display:none}
+
+@media(prefers-reduced-motion:reduce){.seal,.seal svg{transition:none}}

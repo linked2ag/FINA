@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FINA — Cash book</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Gestaltung — Reihenfolge zählt: allgemeine Regeln zuerst,
+     spezielle danach. -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/ledger.css">
+<link rel="stylesheet" href="css/matrix.css">
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <div class="masthead">
+    <div class="brand"><h1>FINA</h1><span class="sub" id="yearLbl"></span></div>
+    <div class="tools">
+      <!-- Die Beschriftungen kommen aus js/i18n.js: data-t setzt den
+           Text, data-ttip den Tooltip (siehe renderChrome). -->
+      <span class="filepath" id="filePath"></span>
+      <button class="btn" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
+      <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
+      <button class="btn" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
+      <button class="btn" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
+      <button class="btn" id="btnGuide" data-t="app.guide" data-ttip="app.guideTip"></button>
+    </div>
+  </div>
+  <nav class="views" id="views" role="tablist"></nav>
+  <div class="months" id="months" role="tablist"></div>
+</header>
+
+<!-- Hier zeichnet js/app.js die gewählte Ansicht. -->
+<main id="view"></main>
+<p class="status" id="storeStatus"></p>
+</div>
+
+<!-- Symbol der Notizlampe -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ic-lamp" viewBox="0 0 24 24">
+<path d="M9.5 18.5h5M10.5 21h3M12 3a6 6 0 0 0-3.6 10.8c.6.45.9 1.15.9 1.9v.3h5.4v-.3c0-.75.3-1.45.9-1.9A6 6 0 0 0 12 3z"/></symbol></svg>
+
+<!-- Dateiauswahl, wird über die Schaltflächen ausgelöst -->
+<input type="file" id="fileCsv" accept=".csv,text/csv" hidden>
+<input type="file" id="fileJson" accept=".json,application/json" hidden>
+
+<!-- Logik — die Reihenfolge ist verbindlich:
+     Sprache zuerst (MONTHS, YEAR und t() hängen daran), dann
+     Konstanten und Werkzeuge, dann Zustand und Rechnen, dann die
+     Ansichten, zuletzt die Steuerung in app.js. -->
+<script src="js/i18n.js"></script>
+<script src="js/config.js"></script>
+<script src="js/format.js"></script>
+<script src="js/state.js"></script>
+<script src="js/categories.js"></script>
+<script src="js/calc.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/ui.js"></script>
+
+<script src="js/views/jahr.js"></script>
+<script src="js/views/monat.js"></script>
+<script src="js/views/prognose.js"></script>
+<script src="js/views/kakeibo.js"></script>
+
+<script src="js/dialogs/item.js"></script>
+<script src="js/dialogs/kakeibo-betraege.js"></script>
+<script src="js/dialogs/settings.js"></script>
+<script src="js/dialogs/csv-import.js"></script>
+<script src="js/dialogs/guide.js"></script>
+
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+/* ══════════════════════════════════════════════════════════════
+   FINA — Jahresmatrix
+   Die große Tabelle der Jahresansicht mit festgepinnter linker
+   Spaltengruppe und zwei Zellen je Monat (Betrag + Haken).
+   ══════════════════════════════════════════════════════════════ */
+
+/* Die Matrix scrollt nur waagerecht — senkrecht scrollt die Seite,
+   die Tabelle steht also in voller Länge im Dokument. Damit gibt es
+   nur einen senkrechten Rollbalken. Die Spaltenköpfe bleiben über
+   --headY stehen, das syncMatrixHead() in js/app.js setzt. */
+.yearscroll{overflow-x:auto;overflow-y:hidden}
+
+/* Die Knopfleiste über der Tabelle bleibt beim Scrollen unter der
+   Kopfzeile der Seite stehen; ihr top setzt syncMatrixHead(),
+   weil die Kopfzeile je nach Ansicht unterschiedlich hoch ist.
+   Die Spaltenköpfe der Tabelle richten sich danach aus. */
+.yearbar{position:sticky;top:0;z-index:30;background:var(--paper);
+  margin:0 0 0;padding:6px 0 10px;box-shadow:0 8px 10px -10px rgba(0,0,0,.4)}
+.matrix{border-collapse:separate;border-spacing:0;table-layout:fixed;font-variant-numeric:tabular-nums;margin:0;
+  width:calc(394px + var(--labw,250px) + 12 * (var(--monw,100px) + 46px))}
+
+/* ── Spaltenbreiten ───────────────────────────────────────────
+   Die festen Spalten links ergeben zusammen mit der Gesamtspalte
+   die 394px der Tabellenbreite: 30+30+30+38+38+38+50+140.
+
+   Stift, Beleglink und Notizlampe stehen in drei gleich breiten
+   Spalten — nur so sind die Abstände zwischen den drei Symbolen
+   untereinander gleich. Der Abstand von der Lampe zur Beschriftung
+   ergibt sich aus dem Innenabstand von td.lab (8px) und entspricht
+   damit dem Abstand der Symbole zueinander. */
+.matrix col.c-ed{width:30px}.matrix col.c-ln{width:30px}.matrix col.c-nt{width:30px}.matrix col.c-lab{width:var(--labw,250px)}
+.matrix col.c-b{width:38px}.matrix col.c-z{width:38px}.matrix col.c-f{width:38px}.matrix col.c-e{width:50px}
+.matrix col.c-m{width:var(--monw,100px)}.matrix col.c-mk{width:46px}.matrix col.c-t{width:140px}
+
+/* ── Zellen ───────────────────────────────────────────────── */
+.matrix th,.matrix td{padding:6px 8px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.matrix thead th{font-family:var(--font-data);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
+  text-align:right;font-weight:500;background:var(--paper-2);position:relative;z-index:2;border-bottom:1px solid var(--rule-strong);
+  transform:translateY(var(--headY,0px))}
+.matrix thead th.ed,.matrix thead th.ln,.matrix thead th.lab{text-align:left}
+.matrix thead th.code{text-align:center}
+.matrix td.num{text-align:right;font-family:var(--font-data)}
+.matrix td.mk{text-align:center;padding:6px 2px;font-size:14px;font-weight:800;border-bottom:1px solid rgba(0,0,0,.10);vertical-align:middle}
+.matrix td.code{font-family:var(--font-data);font-size:11px;color:var(--ink-2);text-align:center;padding:6px 2px}
+
+/* ── Festgepinnte Spalten links ───────────────────────────────
+   Waagerecht hält position:sticky die Spalten am linken Rand des
+   Rollrahmens fest; senkrecht bleiben die Köpfe über --headY
+   stehen (siehe oben). */
+.matrix thead th.ed{left:0;position:sticky;z-index:4}
+.matrix thead th.ln{left:30px;position:sticky;z-index:4}
+.matrix thead th.nt{left:60px;position:sticky;z-index:4}
+.matrix thead th.lab{left:90px;position:sticky;z-index:4}
+.matrix thead th.cB{left:calc(90px + var(--labw,250px));position:sticky;z-index:4}
+.matrix thead th.cZ{left:calc(128px + var(--labw,250px));position:sticky;z-index:4}
+.matrix thead th.cF{left:calc(166px + var(--labw,250px));position:sticky;z-index:4}
+.matrix thead th.cE{left:calc(204px + var(--labw,250px));position:sticky;z-index:4;border-right:2px solid var(--rule-strong)}
+.matrix td.ed,.matrix td.ln,.matrix td.nt,.matrix td.lab,.matrix td.cB,.matrix td.cZ,.matrix td.cF,.matrix td.cE{position:sticky;background:var(--paper-2);z-index:1}
+.matrix td.ed{left:0;padding:4px 0;text-align:center}
+.matrix td.ln{left:30px;padding:4px 0;text-align:center}
+.matrix td.nt{left:60px;padding:4px 0;text-align:center}
+.matrix td.lab{left:90px;text-align:left;white-space:normal}
+.matrix td.cB{left:calc(90px + var(--labw,250px))}
+.matrix td.cZ{left:calc(128px + var(--labw,250px))}
+.matrix td.cF{left:calc(166px + var(--labw,250px))}
+.matrix td.cE{left:calc(204px + var(--labw,250px));font-size:10.5px;border-right:2px solid var(--rule-strong)}
+
+/* ── Ampel der Spalte „Ende" ──────────────────────────────────
+   Nur die Zelle, nicht die Zeile. Gerechnet wird vom laufenden
+   Monat aus (endClass in js/format.js): dieser Monat · bis zwei ·
+   drei bis sechs · mehr. Ohne Ende oder bereits ausgelaufen
+   bleibt die Zelle wie die übrige Spalte. */
+.matrix td.cE.e-now{background:var(--end-now)}
+.matrix td.cE.e-soon{background:var(--end-soon)}
+.matrix td.cE.e-mid{background:var(--end-mid)}
+.matrix td.cE.e-far{background:var(--end-far)}
+.endkey{display:inline-block;margin-left:7px;padding:1px 6px;border:1px solid var(--rule);border-radius:2px;color:var(--ink)}
+.endkey.e-now{background:var(--end-now)}.endkey.e-soon{background:var(--end-soon)}
+.endkey.e-mid{background:var(--end-mid)}.endkey.e-far{background:var(--end-far)}
+
+/* ── Schaltflächen in der Matrix ──────────────────────────── */
+.matrix .mhead{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer;text-transform:inherit;letter-spacing:inherit}
+.matrix .mhead:hover{text-decoration:underline}
+.matrix .mhead.done{text-decoration:line-through;text-decoration-thickness:2px;color:var(--ok)}
+.matrix .codehead{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}
+.matrix .codehead:hover{color:var(--ink);text-decoration:underline}
+
+/* ── Zeilentypen ──────────────────────────────────────────── */
+.matrix tr.sec td{font-weight:700;font-family:var(--font-data);font-size:11.5px;
+  letter-spacing:.12em;text-transform:uppercase;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.matrix tr.grp td{font-weight:600;font-family:var(--font-data);font-size:10.5px;
+  letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(0,0,0,.22)}
+.matrix tr.spacer td{height:16px;background:var(--paper);border-bottom:0;padding:0}
+.matrix tr.r-in td{background:var(--bg-in)}
+.matrix tr.r-flex td{background:var(--bg-flex)}
+.matrix tr.r-out td{background:var(--bg-out)}
+.matrix tr.r-bal td{background:var(--bg-bal)}
+.matrix tr.sec.r-in td{background:var(--bg-in-2)}
+.matrix tr.sec.r-flex td{background:var(--bg-flex-2)}
+.matrix tr.sec.r-out td{background:var(--bg-out-2)}
+.matrix tr.sec.r-bal td{background:var(--bg-bal-2)}
+.matrix tr.grp.r-out td{background:#F6E5E1}
+/* Abbezahlt: nichts steht mehr aus (yearSettled in js/calc.js).
+   Die ganze Zeile tritt grau zurück und überschreibt dabei die
+   Blockfarbe — deshalb steht die Regel hinter allen anderen. */
+.matrix tr.settled td{background:var(--shade)}
+.matrix tr.settled td.lab{color:var(--ink-2)}
+
+/* ── Trennlinien ──────────────────────────────────────────── */
+.matrix td.mk,.matrix th.mkh{border-right:1px solid rgba(0,0,0,.16)}
+.matrix td.tot,.matrix th.toth{border-left:2px solid var(--ink);border-right:2px solid var(--ink)}
+
+/* Laufender Monat: je eine rote Linie links und rechts.
+   Beide werden als inset-Schatten gezeichnet, damit sie identisch
+   rendern. Die graue Trennlinie des Monats davor wird entfernt
+   (.cm-pre) — sonst stünde links grau+rot nebeneinander und die
+   linke Markierung sähe dicker aus als die rechte. */
+.matrix th.cm-l,.matrix td.cm-l{box-shadow:inset 1px 0 0 var(--seal)}
+.matrix th.cm-r,.matrix td.cm-r{border-right:0;box-shadow:inset -1px 0 0 var(--seal)}
+.matrix td.mk.cm-pre,.matrix th.mkh.cm-pre{border-right:0}
+.matrix thead th.cm-l{color:var(--seal);font-weight:700}
+
+/* ── Beträge ──────────────────────────────────────────────────
+   Kategorien- und Summenzeilen bleiben schwarz; nur die einzelnen
+   Positionen (.itemrow) werden nach Vorzeichen eingefärbt — dazu
+   zählen auch die Kakeibo-Zeilen. Gelb steht dabei über der
+   Vorzeichenfarbe, gilt aber nur für Monate, die geschätzt und
+   noch offen sind (estAt in js/views/jahr.js). */
+.matrix td.num.pos,.matrix td.num.neg{color:var(--ink)}
+.matrix tr.itemrow td.num.pos{color:var(--ok)}
+.matrix tr.itemrow td.num.neg{color:var(--seal)}
+.matrix td.num.est{color:var(--amber)!important;font-weight:400}
+.matrix tr:not(.itemrow) td.num.est{color:var(--ink)!important}
+/* Die Saldokorrektur wird wie eine Kategorie gesetzt, ihr
+   Vorzeichen bleibt aber farbig — ob nach oben oder nach unten
+   korrigiert wird, ist die eigentliche Aussage der Zeile. */
+.matrix tr.r-bal td.num.pos{color:var(--ok)}
+.matrix tr.r-bal td.num.neg{color:var(--seal)}
+
+/* ── Haken, Fragezeichen, Notizlampe je Monatszelle ───────── */
+.mk-ok{color:var(--ok)}
+.mk-q{color:var(--amber)}
+.mkcell{display:grid;grid-template-columns:13px 20px;gap:3px;align-items:center;justify-items:center;
+  width:36px;margin:0 auto}
+.mkcell .mksym{width:13px;text-align:center;line-height:1}
+
+/* ── Breitenregler in der Kopfzeile der Jahresansicht ─────── */
+.widthctl{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2)}
+.widthctl input[type=number]{width:74px;padding:4px 6px;cursor:default;caret-color:transparent}
