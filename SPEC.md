@@ -180,10 +180,6 @@ Ablauf von `applyImport(rows, monate)`:
 Nicht angetastet werden dabei `plan`, `notes` und `paid` der Kategorien sowie jeder
 nicht gewählte Monat. Geschrieben wird die Datei erst über „Daten speichern".
 
-Zum Ausprobieren liegt `fina-demo-2026.json` bei: 22 Positionen in fünf Kategorien
-(KREDITE, AUTO, TOOLS, VERSICHERUNGEN, WOHNKOSTEN), zwei Einnahmen, sieben importierte
-Monate mit 238 erfundenen Buchungen.
-
 ## 6. Ansichten
 
 **Jahr** (Startansicht) — eine gemeinsam scrollende Matrix. Feste Spalten links: Stift, Link,

@@ -203,7 +203,7 @@ Datei ausschließlich über „Daten speichern".
 
 ## Prüfen
 
-Es gibt keine Testsuite. Änderungen im Browser gegen `fina-demo-2026.json` prüfen und dabei
+Es gibt keine Testsuite. Änderungen im Browser gegen eine eigene Datei prüfen und dabei
 auf die Konsole achten. Sinnvolle Durchgänge: leerer Start ohne Datei (darf nirgends
 abstürzen), Datei laden, alle vier Ansichten, **beide Sprachen**, Einstellungsfenster mit
 Umbenennen **plus** einer zweiten Aktion, CSV-Import, Saldokorrektur eintragen und im Saldo

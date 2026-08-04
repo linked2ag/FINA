@@ -23,8 +23,6 @@ Die Seite öffnen und auf **Load data** klicken. Bearbeiten, dann **Save data**.
   Einzelposten und den vier Listen. Alle diese Einstellungen stehen in der JSON-Datei und
   kommen beim Laden mit ihr zurück.
 - **Guide** öffnet die Anleitung in der gewählten Sprache.
-- Zum Ausprobieren liegt `fina-demo-2026.json` bei: erfundene Zahlen, sieben importierte
-  Monate, alle Kategorien besetzt.
 
 Lokal genügt ein Doppelklick auf `index.html` — es wird nichts nachgeladen, was
 ein Browser bei `file://` blockieren würde.
@@ -36,7 +34,6 @@ Struktur, Gestaltung und Logik liegen getrennt. Wer etwas ändern will, findet d
 
 ```
 index.html              Gerüst der Seite und die Ladereihenfolge
-fina-demo-2026.json     Beispieldatei zum Ausprobieren
 
 css/
   tokens.css            Farben, Schriften, Reset — hier wirkt jede Änderung global

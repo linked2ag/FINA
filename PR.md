@@ -50,8 +50,7 @@ Nur `EINNAHMEN` ist fest verdrahtet, weil die Saldo-Rechnung daran hängt.
 
 Die vierzig Positionen der ursprünglichen Tabelle wurden in eine Startdatei überführt:
 Monatsbeträge, Bank, Zahlungsart, Fälligkeit, Enddatum, Bezahlt-Status und die Kakeibo-Ist-Werte
-für Januar bis April. Diese Datei liegt beim Nutzer, nicht im Repository; zum Ausprobieren
-dient `fina-demo-2026.json` mit erfundenen Zahlen.
+für Januar bis April. Diese Datei liegt beim Nutzer, nicht im Repository.
 
 Der Bezahlt-Status wurde Zeile für Zeile aus der Ursprungstabelle abgeleitet: Ein Minus oder
 Fragezeichen hinter dem Betrag bedeutet offen, ein leeres Feld bezahlt. Daraus ergeben sich
@@ -67,7 +66,6 @@ Kontrollsummen gegen den CSV-Export: Mai −1.760,00 · Juni −2.385,00 · Juli
 | `index.html` | Gerüst der Seite und die Ladereihenfolge der Skripte, rund 80 Zeilen |
 | `css/` | Fünf Stylesheets, rund 500 Zeilen: Tokens, Layout, Komponenten, Ledger, Matrix |
 | `js/` | Sechzehn klassische Skripte, rund 2.700 Zeilen: Werkzeuge, vier Ansichten in `js/views/`, fünf Fenster in `js/dialogs/` |
-| `fina-demo-2026.json` | Beispieldatei zum Ausprobieren, alle Ansichten und Kategorien besetzt |
 | `SPEC.md` | Datenmodell, Rechenregeln, Importlogik, Ansichten |
 | `PR.md` | Dieses Dokument |
 
@@ -78,8 +76,7 @@ Nutzer selbst gehalten.
 ## Erste Schritte
 
 1. `index.html` lokal öffnen, am besten in Chrome oder Edge.
-2. Auf **Daten hochladen** klicken und die eigene Startdatei wählen — oder
-   `fina-demo-2026.json`, um die Anwendung erst einmal anzusehen.
+2. Auf **Daten hochladen** klicken und die eigene Startdatei wählen.
 3. Auf **Daten speichern** klicken und unter eigenem Namen ablegen, gerne in einem
    Cloud-Ordner. Ab hier ist diese Datei die einzige Datenquelle.
 4. Im Bereich **Kakeibo** den aktuellen Fast-Budget-Export einlesen.
