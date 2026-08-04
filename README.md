@@ -14,6 +14,10 @@ sie startet leer und liest alles aus einer JSON-Datei, die auf dem eigenen Rechn
 
 Die Seite öffnen und auf **Load data** klicken. Bearbeiten, dann **Save data**.
 
+- Mit geladener Datei beginnt FINA im **laufenden Monat** — dort wird gearbeitet. Ohne
+  Datei steht die **Jahresansicht** vorn, denn dort legt man an. (Gehört die Datei zu einem
+  anderen Jahr, ist der „laufende" Monat der Januar.)
+
 - Chrome und Edge schreiben direkt in dieselbe Datei zurück.
 - Firefox und Safari können das nicht; dort wird die Datei heruntergeladen.
 - Gespeichert wird nur auf Klick. Ungespeichertes steht **fett und rot** am Dateinamen in der

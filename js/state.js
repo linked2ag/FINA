@@ -73,6 +73,19 @@ function blankKak(v){
 function afterLoad(){
   ui.kakDetail=!!(state&&state.tx&&state.tx.length);
   ui.kakPick=null;
+
+  /* Womit man begrüßt wird. Mit Datei fängt man im laufenden
+     Monat an — das ist die Ansicht, in der gearbeitet wird:
+     abhaken, nachtragen, nachsehen, was noch offen ist. Ohne
+     Datei wäre dort nur ein leerer Monat zu sehen; dann steht
+     das Jahr vorn, denn dort legt man an.
+
+     `fileName` gehört js/storage.js und wird gesetzt, bevor
+     afterLoad() läuft — beim Trennen ebenso, dort auf ''.
+     Der Monat kommt aus CUR: in einer Datei aus einem anderen
+     Jahr ist das der Januar. */
+  ui.view=fileName?'monat':'jahr';
+  ui.month=CUR;
 }
 
 /* Bringt eine geladene Datei auf den aktuellen Aufbau. */

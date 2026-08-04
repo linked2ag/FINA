@@ -211,7 +211,16 @@ keine Unterkategorien, der Knopf dazu ist dann in `js/views/kakeibo.js` auch ges
 View erzwingt das zusätzlich (`canDetail`), damit Anzeige und Knopf nie auseinanderlaufen.
 Kommen die ersten Buchungen per Import herein, schaltet `js/dialogs/csv-import.js` die
 Unterkategorien ein — aber nur, wenn vorher gar keine da waren; eine spätere eigene Wahl
-bleibt unangetastet. Wer weitere Vorgaben ans Öffnen hängen will, hängt sie in `afterLoad()`.
+bleibt unangetastet.
+
+Dort steht auch, **womit man begrüßt wird**: mit Datei der laufende Monat
+(`ui.view='monat'`, `ui.month=CUR`), ohne Datei die Jahresansicht. Der Unterschied ist der
+Zweck der beiden Ansichten — im Monat wird gearbeitet, im Jahr angelegt, und ein leerer
+Monat zeigt nichts. Die Unterscheidung hängt an `fileName` aus `js/storage.js`: der Name
+steht schon, bevor `afterLoad()` läuft, und ist beim Trennen wieder leer. `ui` selbst wird
+nie gespeichert — die Wahl gehört zur Anzeige, nicht in die Datei.
+
+Wer weitere Vorgaben ans Öffnen hängen will, hängt sie in `afterLoad()`.
 
 ## Tab läuft nur durch die Felder
 
