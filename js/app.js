@@ -61,7 +61,12 @@ function syncMatrixHead(){
   const top=bar?bar.getBoundingClientRect().bottom
                 :document.querySelector('header').getBoundingClientRect().bottom;
   const r=box.getBoundingClientRect();
-  const y=Math.max(0,Math.min(top-r.top,r.height-head.offsetHeight));
+  /* Die Saldozeile wandert mit demselben Maß mit — sie muss beim
+     Anschlag am unteren Rand also mitgerechnet werden, sonst
+     schöbe sie sich aus der Tabelle heraus. */
+  const pin=box.querySelector('tr.balpin');
+  const keep=head.offsetHeight+(pin?pin.offsetHeight:0);
+  const y=Math.max(0,Math.min(top-r.top,r.height-keep));
   box.style.setProperty('--headY',y+'px');
 }
 addEventListener('scroll',syncMatrixHead,{passive:true});

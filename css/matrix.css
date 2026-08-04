@@ -106,10 +106,12 @@
 .matrix tr.sec.r-flex td{background:var(--bg-flex-3)}
 .matrix tr.sec.r-out td{background:var(--bg-out-3)}
 .matrix tr.sec.r-bal td{background:var(--bg-bal-3)}
+.matrix tr.sec.r-sal td{background:var(--bg-sal-3)}
 .matrix tr.sec.r-in td.ed{box-shadow:inset 5px 0 0 var(--edge-in)}
 .matrix tr.sec.r-flex td.ed{box-shadow:inset 5px 0 0 var(--edge-flex)}
 .matrix tr.sec.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
 .matrix tr.sec.r-bal td.ed{box-shadow:inset 5px 0 0 var(--edge-bal)}
+.matrix tr.sec.r-sal td.ed{box-shadow:inset 5px 0 0 var(--edge-sal)}
 .matrix tr.grp.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
 
 /* Zweizeilige Blockzeile: oben der Name, darunter klein der
@@ -128,6 +130,21 @@
    Zusatz und soll den Namen nicht überstimmen. */
 .matrix tr.settled td.lab{color:var(--ink)}
 .matrix tr.settled td.lab .noteprev{color:var(--ink-2)}
+
+/* ── Die Saldozeile bleibt stehen ─────────────────────────────
+   Sie fasst alles zusammen, was darunter steht — beim Scrollen
+   durch hundert Posten soll sie nicht verschwinden. Senkrecht
+   geht das wie bei den Spaltenköpfen über --headY: position:
+   sticky griffe hier nicht, weil der Rollrahmen der Matrix nur
+   waagerecht rollt (siehe .yearscroll). syncMatrixHead() in
+   js/app.js rechnet den Wert und lässt Platz für diese Zeile.
+   Die links festgepinnten Zellen behalten ihr sticky, sonst
+   liefen sie beim seitlichen Rollen mit. */
+.matrix tr.balpin td{transform:translateY(var(--headY,0px));position:relative;z-index:3;
+  border-bottom:1px solid var(--edge-sal)}
+.matrix tr.balpin td.ed,.matrix tr.balpin td.ln,.matrix tr.balpin td.nt,.matrix tr.balpin td.lab,
+.matrix tr.balpin td.cB,.matrix tr.balpin td.cZ,.matrix tr.balpin td.cF,.matrix tr.balpin td.cE{
+  position:sticky;z-index:4}
 
 /* ── Trennlinien ──────────────────────────────────────────── */
 .matrix td.mk,.matrix th.mkh{border-right:1px solid rgba(0,0,0,.16)}

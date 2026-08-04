@@ -105,7 +105,10 @@ const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(8)}${visMonths().map(m
 
 function viewJahr(){
   let body='';
-  body+=mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec'});
+  /* Der Saldo je Monat bleibt beim Scrollen unter den Spalten-
+     köpfen stehen (.balpin in css/matrix.css) — er fasst zusammen,
+     was darunter Zeile für Zeile aufgeschlüsselt wird. */
+  body+=mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'});
   body+=spacer();
 
   /* „Abgeschlossene ausblenden" versteckt nur Zeilen, in denen

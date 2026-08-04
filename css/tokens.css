@@ -19,6 +19,10 @@
   /* Saldokorrektur: ein ganz helles Blau, das sich von Grün,
      Gelb und Rot der drei Geldarten deutlich absetzt. */
   --bg-bal:#EFF4F9; --bg-bal-2:#DFEAF4; --bg-bal-3:#C6DCEE; --edge-bal:#7EA4C4;
+  /* Saldo je Monat: die Zeile über allem. Ein helles Violett —
+     es gehört zu keiner der drei Geldarten, weil es sie alle
+     zusammenfasst. */
+  --bg-sal:#F4F0FB; --bg-sal-2:#E7DFF6; --bg-sal-3:#DDD0F0; --edge-sal:#9B85C9;
   /* Restlaufzeit in der Spalte „Ende": auslaufend → weit weg */
   --end-now:#B7DFC6; --end-soon:#BBD6EC; --end-mid:#EDDDA0; --end-far:#EFC7BF;
   --font-display:'Zilla Slab',Georgia,serif;
