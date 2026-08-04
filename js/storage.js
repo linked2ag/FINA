@@ -38,6 +38,7 @@ async function loadData(){
       if(!txt.trim()) throw new Error(t('store.empty'));
       state=migrate(JSON.parse(txt));
       fileHandle=h; fileName=h.name; dirty=false;
+      afterLoad();
       render(); toast(t('store.loaded',fileName));
     } else {
       document.getElementById('fileJson').click();
@@ -62,7 +63,7 @@ async function saveData(){
 function unlinkData(){
   if(dirty && !confirm(t('store.unlinkAsk'))) return;
   fileHandle=null; fileName=''; dirty=false;
-  state=emptyState(); render();
+  state=emptyState(); afterLoad(); render();
   toast(t('store.unlinked'));
 }
 

@@ -8,12 +8,17 @@
   --paper:#E9EAE3; --paper-2:#F4F5F0; --ink:#1B2320; --ink-2:#5A625C;
   --rule:#C7CBC0; --rule-strong:#A9AFA2; --seal:#B23A2E; --ok:#2E6A4C; --amber:#9A6A00;
   --shade:#DDDFD6;
-  --bg-in:#EDF4EE; --bg-in-2:#DCEBE0; --edge-in:#8FB79B;
-  --bg-flex:#FAF5E4; --bg-flex-2:#F0E6C8; --edge-flex:#C7AE63;
-  --bg-out:#FBF0EE; --bg-out-2:#F3DFDA; --edge-out:#C99287;
+  /* Drei Stufen je Geldart, von hell nach kräftig:
+     -1 die Posten, -2 die Kategorie darüber, -3 die Kopfzeile des
+     Blocks. Die Stufen sind der Grund, warum man in der
+     Jahresmatrix auf einen Blick sieht, worin man gerade liest.
+     --edge-* ist die dazugehörige Kante. */
+  --bg-in:#EDF4EE; --bg-in-2:#D2E7D9; --bg-in-3:#B4D7C0; --edge-in:#6FA07F;
+  --bg-flex:#FAF5E4; --bg-flex-2:#EFE3BE; --bg-flex-3:#E2D096; --edge-flex:#B79A45;
+  --bg-out:#FBF0EE; --bg-out-2:#F2D9D3; --bg-out-3:#E9BFB5; --edge-out:#BE7C6E;
   /* Saldokorrektur: ein ganz helles Blau, das sich von Grün,
      Gelb und Rot der drei Geldarten deutlich absetzt. */
-  --bg-bal:#EFF4F9; --bg-bal-2:#DFEAF4; --edge-bal:#93B2CD;
+  --bg-bal:#EFF4F9; --bg-bal-2:#DFEAF4; --bg-bal-3:#C6DCEE; --edge-bal:#7EA4C4;
   /* Restlaufzeit in der Spalte „Ende": auslaufend → weit weg */
   --end-now:#B7DFC6; --end-soon:#BBD6EC; --end-mid:#EDDDA0; --end-far:#EFC7BF;
   --font-display:'Zilla Slab',Georgia,serif;
@@ -35,3 +40,9 @@ body{background:var(--paper);
 .est{color:var(--amber)}
 .note{font-size:11.5px;color:var(--ink-2)}
 .itemnote{font-size:11.5px;color:var(--ink);font-style:italic;margin-top:2px}
+/* Vorschau der Notiz zur ganzen Position: zwei Zeilen unter dem
+   Namen, danach Auslassungspunkte. Der volle Text steht in der
+   Sprechblase und im Notizfenster. */
+.noteprev{font-size:10.5px;line-height:1.35;color:var(--ink-2);margin-top:3px;
+  white-space:normal;overflow-wrap:anywhere;overflow:hidden;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}

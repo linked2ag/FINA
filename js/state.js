@@ -56,10 +56,23 @@ function emptyState(){
   };
 }
 
-/* Neue Kakeibo-Kategorie: Planwerte, Haken, Notizen, Korrekturen. */
+/* Neue Kakeibo-Kategorie: Planwerte, Haken, Notizen, Korrekturen
+   und ein Link — dieselbe Ausstattung wie ein regelmäßiger
+   Posten, nur ohne Bank, Zahlungsart und Fälligkeit. */
 function blankKak(v){
   return {plan:Array(12).fill(v||0),paid:Array(12).fill(false),estimated:true,
-    note:'',notes:Array(12).fill(''),override:Array(12).fill(null)};
+    note:'',notes:Array(12).fill(''),override:Array(12).fill(null),url:''};
+}
+
+/* Einmal beim Öffnen einer Datei: was die Ansicht daraus macht.
+   Ohne importierte Buchungen gibt es keine Unterkategorien — dann
+   startet die Flexible-Payments-Ansicht bei den Hauptkategorien,
+   sonst stünde man vor einer Gliederung, die es nicht gibt.
+   Danach entscheidet der Nutzer; deshalb steht das hier und nicht
+   in der View, die bei jedem Zeichnen läuft. */
+function afterLoad(){
+  ui.kakDetail=!!(state&&state.tx&&state.tx.length);
+  ui.kakPick=null;
 }
 
 /* Bringt eine geladene Datei auf den aktuellen Aufbau. */
@@ -98,6 +111,12 @@ function migrate(s){
   s.balance.id=BALANCE_ID;
   if(!s.balance.name) s.balance.name='Balance Correction';
   s.balance.group='';
+  /* Sie wird nicht abgehakt und ist nie „geschätzt": ihr Betrag
+     IST die Korrektur, die der Nutzer von Hand einträgt. Ältere
+     Dateien tragen dort noch Haken — die haben keine Bedeutung
+     mehr und werden beim Laden zurückgesetzt. */
+  s.balance.paid=Array(12).fill(false);
+  s.balance.estimated=false;
   if(!s.plan) s.plan={};
   if(!s.kakCats||!s.kakCats.length) s.kakCats=s.kak?Object.keys(s.kak):[];
   if(!s.kak) s.kak={};
@@ -111,6 +130,7 @@ function migrate(s){
     if(!Array.isArray(e.override)) e.override=Array(12).fill(null);
     while(e.override.length<12) e.override.push(null);
     if(e.estimated===undefined) e.estimated=true;
+    if(typeof e.url!=='string') e.url='';
   });
   if(!s.labWidth) s.labWidth=250;
   if(!s.monWidth) s.monWidth=100;

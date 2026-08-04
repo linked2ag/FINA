@@ -82,16 +82,48 @@ function kakDone(k,m){
 }
 const planSum=m=>kakCats().reduce((s,k)=>s+((state.kak[k]&&state.kak[k].plan[(m||1)-1])||0),0);
 
-/* Grundlage der Prognose-Annahme: die letzten drei Monate mit
-   Fast-Budget-Import und der Durchschnitt einer Kategorie darin. */
-function avgMonths(){
-  const ms=[]; for(let m=1;m<=12;m++) if(hasActual(m)) ms.push(m);
-  return ms.slice(-3);
+/* Wie weit ist das Jahr gelaufen? Im laufenden Jahr bis zum
+   heutigen Monat, in einem vergangenen bis Dezember, in einem
+   künftigen noch gar nicht. CUR allein reicht dafür nicht: dort
+   steht für jedes fremde Jahr eine 1. */
+function elapsedMonths(){
+  const y=new Date().getFullYear();
+  if(y>YEAR) return 12;
+  if(y<YEAR) return 0;
+  return CUR;
 }
+
+/* Und wie viele davon sind ganz vorbei? Der laufende Monat zählt
+   hier nicht mit — er ist noch nicht abgerechnet. Alles, was
+   „abschließen" heißt, hört deshalb einen Monat früher auf als
+   elapsedMonths(). */
+function completedMonths(){
+  const y=new Date().getFullYear();
+  if(y>YEAR) return 12;
+  if(y<YEAR) return 0;
+  return CUR-1;
+}
+
+/* Grundlage der Prognose-Annahme: **alle** bisherigen Monate,
+   deren Werte feststehen — nicht nur die letzten paar. Feststehen
+   heißt kakDone(): aus dem Import, aus einer Korrektur, abgehakt
+   oder als fester Wert eingetippt. Ein Monat, in dem nur die
+   geschätzte Annahme steht, zählt nicht mit; sonst rechnete die
+   Annahme ihren eigenen Durchschnitt aus. */
+function avgMonths(){
+  const ms=[], last=elapsedMonths();
+  for(let m=1;m<=last;m++) if(hasActual(m)||kakCats().some(k=>kakDone(k,m))) ms.push(m);
+  return ms;
+}
+
+/* Der Durchschnitt einer Kategorie über diese Monate — gezählt
+   werden nur die, in denen sie selbst einen feststehenden Wert
+   hat. So zieht ein Monat, den eine andere Kategorie beigesteuert
+   hat, den Schnitt nicht auf null. */
 function avgActual(k,ms){
-  const use=ms||avgMonths();
+  const use=(ms||avgMonths()).filter(m=>kakDone(k,m));
   if(!use.length) return null;
-  return Math.round(use.reduce((s,m)=>s+(state.flexActual[m][k]||0),0)/use.length*100)/100;
+  return Math.round(use.reduce((s,m)=>s+kakVal(k,m),0)/use.length*100)/100;
 }
 const kakeiboFor=m=>kakCats().reduce((s,k)=>s+kakVal(k,m),0);
 

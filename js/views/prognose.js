@@ -23,14 +23,16 @@ function viewPrognose(){
   }).join('');
 
   /* Zwei Spalten je Kategorie: die Annahme, mit der gerechnet
-     wird, und daneben der Durchschnitt der letzten Ist-Monate als
-     Vorschlag. Übernommen wird er nur über den Knopf darunter. */
+     wird, und daneben der Durchschnitt über alle bisherigen
+     Monate mit feststehenden Werten. Übernommen wird er nur über
+     den Knopf darunter. */
   const useM=avgMonths();
   const planRows=kakCats().filter(k=>state.kak[k]).map(k=>{
     const a=avgActual(k,useM);
-    return `<tr><td>${esc(keyLabel(k))}${lampPos('kak',k)}</td>
+    const mine=useM.filter(m=>kakDone(k,m)).length;
+    return `<tr><td>${lampPos('kak',k)}${esc(keyLabel(k))}</td>
       <td class="num planin"><input class="num" type="text" data-plan="${esc(k)}" value="${nf.format(state.kak[k].plan[Math.max(CUR,1)-1]||0)}"></td>
-      <td class="num ${a==null?'':cls(a)}">${a==null?'—':eur(a)}</td></tr>`;
+      <td class="num ${a==null?'':cls(a)}"${mine?` title="${esc(t('prog.avgOfN',mine))}"`:''}>${a==null?'—':eur(a)}</td></tr>`;
   }).join('');
 
   /* Kennzahlen: was ab dem laufenden Monat noch kommt, und die
@@ -42,7 +44,12 @@ function viewPrognose(){
   const yearEnd=cum;
   const istMonths=[];for(let m=1;m<=12;m++) if(hasActual(m)) istMonths.push(MONTHS[m-1]);
 
+  /* Die Kennzahlen bleiben beim Scrollen stehen: die Tabelle
+     darunter ist lang, und sie sind die Zusammenfassung dazu.
+     Der Rahmen ringsum trägt den Papiergrund — die .kpi selbst
+     braucht ihre eigene Farbe für die Trennlinien. */
   return `
+  <div class="stickybar">
   <div class="kpi">
     <div class="t-in"><div class="lab">${t('prog.kpiIncome',from)}</div><div class="val pos">${eur(incRest)}</div></div>
     <div class="t-out"><div class="lab">${t('prog.kpiFixed',from)}</div><div class="val neg">${eur(fixRest)}</div>
@@ -53,7 +60,7 @@ function viewPrognose(){
       <div class="note">${CUR>1?t('prog.kpiSoFarSub',MONTHS[CUR-2]):t('prog.kpiSoFarNone')}</div></div>
     <div><div class="lab">${t('prog.kpiEnd')}</div><div class="val ${cls(yearEnd)}">${eur(yearEnd)}</div>
       <div class="note">${t('prog.kpiEndSub',YEAR)}</div></div>
-  </div>
+  </div></div>
   <div class="grid">
     <div class="card"><h2>${t('prog.title',YEAR)}</h2>
       <div class="scroll" style="border:0"><table class="ledger">
@@ -66,8 +73,11 @@ function viewPrognose(){
       <p class="note" style="margin:0 0 12px">${t('prog.cardHint',istMonths.join(', ')||t('prog.noMonth'))}</p>
       ${planRows?`<table class="ledger plantable">
         <tr><th>${t('g.category')}</th><th class="num">${t('prog.colCurrent')}</th>
-          <th class="num">${t('prog.colAvg',useM.length?useM.map(m=>MONTHS[m-1]).join(', '):t('prog.avgMonths'))}</th></tr>
-        ${planRows}</table>`:`<p class="note">${t('prog.noCats')}</p>`}
+          <th class="num" title="${esc(t('prog.colAvgTip'))}">${t('prog.colAvg')}</th></tr>
+        ${planRows}</table>
+      <p class="note" style="margin:10px 0 0">${useM.length
+        ? t('prog.avgFrom',useM.length,useM.map(m=>MONTHS[m-1]).join(', '))
+        : t('prog.avgFromNone')}</p>`:`<p class="note">${t('prog.noCats')}</p>`}
       <button class="btn" id="btnAvg" style="margin-top:12px">${t('prog.takeAvg')}</button>
       <p class="note" style="margin-top:8px">${t('prog.takeHint')}</p></div>
   </div>`;

@@ -1,6 +1,6 @@
 # FINA — Technische Spezifikation
 
-Stand: 2. August 2026 · Version 1.2 · Einstieg: `fina-dashboard.html`
+Stand: 2. August 2026 · Version 1.2 · Einstieg: `index.html`
 
 ## 1. Zweck
 
@@ -25,7 +25,7 @@ Kategorienauswertung.
 
 | Punkt | Entscheidung |
 |---|---|
-| Auslieferung | Statische Dateien: `fina-dashboard.html` plus `css/` und `js/`. Läuft auf GitHub Pages und ebenso lokal per Doppelklick |
+| Auslieferung | Statische Dateien: `index.html` plus `css/` und `js/`. Läuft auf GitHub Pages und ebenso lokal per Doppelklick |
 | Aufbau | Gestaltung in `css/`, Logik in `js/`, Struktur in der HTML-Datei. Klassische `<script>`-Dateien in fester Reihenfolge, keine Module und kein `fetch` — damit auch `file://` funktioniert |
 | Abhängigkeiten | Keine Frameworks. Google Fonts (Zilla Slab, Archivo, IBM Plex Mono) per CDN, mit Fallbacks |
 | Persistenz | Ausschließlich eine vom Nutzer gewählte JSON-Datei. Kein `localStorage`, kein Server |
@@ -87,7 +87,8 @@ Der gesamte Zustand liegt in einem Objekt `state`, das unverändert als JSON ges
       "override": [null, …],    // Korrektur eines importierten Werts
       "note":     "",           // Notiz zur ganzen Kategorie
       "notes":    ["", …],      // je Monat eine
-      "estimated": true
+      "estimated": true,
+      "url":      ""            // Beleg oder Vertrag, oder ""
     }
   },
 
@@ -105,9 +106,11 @@ Funktion, ältere Dateien bleiben also lesbar.
 
 Die Anwendung selbst enthält **keine** Beispieldaten. Banken, Zahlungsarten, Kategorien und
 Posten stehen ausschließlich in der JSON-Datei; ohne geladene Datei startet FINA leer. Alle
-vier Listen werden im Fenster „Einstellungen" gepflegt — auch die Flexible-Payments-Kategorien.
-Beim Umbenennen einer solchen Kategorie wandern `kak`, `plan`,
-`flexActual` und die `main`-Felder in `tx` mit, damit die Beträge am Namen hängen bleiben.
+vier Listen werden im Fenster „Einstellungen" gepflegt; eine Flexible-Payments-Kategorie
+lässt sich zusätzlich in ihrem eigenen Fenster anlegen, umbenennen und löschen (`editKak`,
+`editKak(null)` für eine neue). Beim Umbenennen wandern `kak`, `plan`, `flexActual` und die
+`main`-Felder in `tx` mit, damit die Beträge am Namen hängen bleiben — deshalb immer
+`renameKakCat()`, nie eine direkte Zuweisung.
 
 `state.balance` steht bewusst **neben** `fixed`: in der Liste geriete die Zeile in
 `income()`, `fixedCost()`, die Filter und die Kategoriesummen. `findItem(id)` in
@@ -232,15 +235,19 @@ nach Betrag; der Wechsel
 zwischen Haupt- und Unterkategorien schaltet ebenfalls dorthin zurück. Spalten rechts:
 Datum · Beschreibung mit Notiz · Betrag. Hier liegt auch der CSV-Import.
 
-**Einstellungen** (Knopf in der Kopfzeile) — Sprache, Abrechnungsjahr, die beiden
-Spaltenbreiten der Jahresmatrix, die Grenze für die größten Einzelposten (`topMin`, 0 zeigt
-alle) und die vier Listen. Jede Liste trägt ihr Pluszeichen direkt hinter der Überschrift.
-Alles davon steht in der JSON-Datei.
+**Einstellungen** (Knopf in der Kopfzeile) — links ein Menü mit fünf Bereichen, rechts der
+gewählte: *Allgemein* (Sprache, Abrechnungsjahr), *Darstellung* (die beiden Spaltenbreiten
+der Jahresmatrix, die Grenze für die größten Einzelposten `topMin`, 0 zeigt alle),
+*Banken & Zahlungsarten*, *Regelmäßige Kategorien*, *Flexible-Payments-Kategorien*. Jede
+Liste trägt ihr Pluszeichen direkt hinter der Überschrift. Gebaut werden immer alle
+Bereiche, umgeschaltet wird nur die Sichtbarkeit — getippte Änderungen überleben deshalb
+den Wechsel, und der gewählte Bereich (`setPane`) überlebt den Neuaufbau des Fensters beim
+Hinzufügen, Entfernen und Sortieren. Alles davon steht in der JSON-Datei.
 Die Sprache wirkt sofort, das Fenster wechselt mit.
 
 **Anleitung** (Knopf in der Kopfzeile) — die Bedienung auf einer Seite, in der gewählten
-Sprache, mit Bildern aus `doc/`. Text und Bilder liegen in `js/dialogs/guide.js`; fehlt ein
-Bild, bleibt der Text stehen.
+Sprache. Der Text liegt in `js/dialogs/guide.js` und kommt bewusst ohne Bildschirmfotos
+aus: sie veralten mit jeder Änderung an der Oberfläche.
 
 ## 7. Bedienelemente und Zeichen
 
@@ -261,7 +268,7 @@ Bild, bleibt der Text stehen.
 | Gelbe Glühbirne | Notiz vorhanden, Text im Tooltip |
 | `IMPORTED` | Wert stammt aus dem CSV-Import |
 | `CORRECTED` | importierter Wert wurde von Hand überschrieben |
-| Hellblaue Zeile / Spalte | Saldokorrektur — von Hand nachgetragener Ausgleich, geht in den Saldo ein |
+| Hellblaue Zeile | Saldokorrektur — von Hand nachgetragener Ausgleich, geht in den Saldo ein; wird nicht abgehakt |
 
 ## 8. Bekannte Grenzen
 

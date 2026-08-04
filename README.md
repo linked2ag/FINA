@@ -26,7 +26,7 @@ Die Seite öffnen und auf **Load data** klicken. Bearbeiten, dann **Save data**.
 - Zum Ausprobieren liegt `fina-demo-2026.json` bei: erfundene Zahlen, sieben importierte
   Monate, alle Kategorien besetzt.
 
-Lokal genügt ein Doppelklick auf `fina-dashboard.html` — es wird nichts nachgeladen, was
+Lokal genügt ein Doppelklick auf `index.html` — es wird nichts nachgeladen, was
 ein Browser bei `file://` blockieren würde.
 
 ## Aufbau
@@ -35,9 +35,8 @@ Struktur, Gestaltung und Logik liegen getrennt. Wer etwas ändern will, findet d
 über den Dateinamen.
 
 ```
-fina-dashboard.html     Gerüst der Seite und die Ladereihenfolge
+index.html              Gerüst der Seite und die Ladereihenfolge
 fina-demo-2026.json     Beispieldatei zum Ausprobieren
-doc/                    Bilder der Anleitung
 
 css/
   tokens.css            Farben, Schriften, Reset — hier wirkt jede Änderung global
@@ -64,7 +63,7 @@ js/
 Die `<script>`-Dateien sind klassische Skripte in fester Reihenfolge, keine ES-Module.
 Das ist Absicht: Module würden über `file://` an der CORS-Regel scheitern und die Datei
 ließe sich nicht mehr per Doppelklick öffnen. Neue Dateien deshalb in
-`fina-dashboard.html` an der passenden Stelle eintragen — Werkzeuge vor Ansichten,
+`index.html` an der passenden Stelle eintragen — Werkzeuge vor Ansichten,
 `app.js` bleibt die letzte.
 
 ## Einstellungen und Listen
@@ -72,7 +71,8 @@ ließe sich nicht mehr per Doppelklick öffnen. Neue Dateien deshalb in
 Sprache, Abrechnungsjahr, Spaltenbreiten der Jahresmatrix, die Grenze für die größten
 Einzelposten und alle vier Listen — Banken,
 Zahlungsarten, regelmäßige Kategorien und Flexible-Payments-Kategorien — liegen im Fenster
-**Settings**; das Pluszeichen zum Anlegen steht direkt hinter der jeweiligen Überschrift.
+**Settings**. Es ist in fünf Bereiche geteilt: links das Menü, rechts der gewählte Bereich;
+das Pluszeichen zum Anlegen steht direkt hinter der jeweiligen Überschrift.
 Alle vier lassen sich anlegen,
 umbenennen, per Ziehen sortieren und entfernen. Benennt man eine Flexible-Payments-Kategorie
 um, wandern Planwerte, Ist-Werte, Korrekturen und die importierten Buchungen mit. Entfernt

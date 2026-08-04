@@ -13,7 +13,8 @@ was im laufenden Monat noch offen ist.
 
 ## Was diese Änderung liefert
 
-Eine eigenständige HTML-Datei, die lokal im Browser läuft und die Tabelle vollständig ersetzt.
+Eine Sammlung statischer Dateien ohne Build und ohne Server, die lokal im Browser läuft und
+die Tabelle vollständig ersetzt.
 
 - **CSV-Import aus Fast Budget.** Die Hauptkategorien des Exports decken sich mit den
   Kakeibo-Zeilen der Tabelle. Ein Import füllt die betroffenen Monate, ersetzt vorhandene
@@ -47,9 +48,10 @@ Nur `EINNAHMEN` ist fest verdrahtet, weil die Saldo-Rechnung daran hängt.
 
 ## Datenübernahme
 
-Die vierzig Positionen der ursprünglichen Tabelle liegen in `fina-2026-start.json`:
+Die vierzig Positionen der ursprünglichen Tabelle wurden in eine Startdatei überführt:
 Monatsbeträge, Bank, Zahlungsart, Fälligkeit, Enddatum, Bezahlt-Status und die Kakeibo-Ist-Werte
-für Januar bis April.
+für Januar bis April. Diese Datei liegt beim Nutzer, nicht im Repository; zum Ausprobieren
+dient `fina-demo-2026.json` mit erfundenen Zahlen.
 
 Der Bezahlt-Status wurde Zeile für Zeile aus der Ursprungstabelle abgeleitet: Ein Minus oder
 Fragezeichen hinter dem Betrag bedeutet offen, ein leeres Feld bezahlt. Daraus ergeben sich
@@ -62,15 +64,22 @@ Kontrollsummen gegen den CSV-Export: Mai −1.760,00 · Juni −2.385,00 · Juli
 
 | Datei | Inhalt |
 |---|---|
-| `fina-dashboard.html` | Die gesamte Anwendung, rund 2.000 Zeilen, keine Abhängigkeiten außer Webfonts |
-| `fina-2026-start.json` | Übernommene Daten aus dem Google Sheet |
+| `index.html` | Gerüst der Seite und die Ladereihenfolge der Skripte, rund 80 Zeilen |
+| `css/` | Fünf Stylesheets, rund 500 Zeilen: Tokens, Layout, Komponenten, Ledger, Matrix |
+| `js/` | Sechzehn klassische Skripte, rund 2.700 Zeilen: Werkzeuge, vier Ansichten in `js/views/`, fünf Fenster in `js/dialogs/` |
+| `fina-demo-2026.json` | Beispieldatei zum Ausprobieren, alle Ansichten und Kategorien besetzt |
 | `SPEC.md` | Datenmodell, Rechenregeln, Importlogik, Ansichten |
 | `PR.md` | Dieses Dokument |
 
+Keine Abhängigkeiten außer den Webfonts. Die übernommenen Daten aus dem Google Sheet liegen
+nicht im Repository — sie enthalten echte Beträge und werden wie jede andere Datendatei vom
+Nutzer selbst gehalten.
+
 ## Erste Schritte
 
-1. `fina-dashboard.html` lokal öffnen, am besten in Chrome oder Edge.
-2. Auf **Daten hochladen** klicken und `fina-2026-start.json` wählen.
+1. `index.html` lokal öffnen, am besten in Chrome oder Edge.
+2. Auf **Daten hochladen** klicken und die eigene Startdatei wählen — oder
+   `fina-demo-2026.json`, um die Anwendung erst einmal anzusehen.
 3. Auf **Daten speichern** klicken und unter eigenem Namen ablegen, gerne in einem
    Cloud-Ordner. Ab hier ist diese Datei die einzige Datenquelle.
 4. Im Bereich **Kakeibo** den aktuellen Fast-Budget-Export einlesen.

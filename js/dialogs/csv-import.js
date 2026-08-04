@@ -23,7 +23,7 @@ function openImport(rows,fileName){
   const shell=inner=>{
     const box=document.createElement('div');
     box.className='modal'; box.innerHTML=inner;
-    document.body.appendChild(box);
+    document.body.appendChild(box); tabThroughFields(box);
     box.onclick=ev=>{ if(ev.target===box) closeModal(box); };
     return box;
   };
@@ -99,7 +99,14 @@ function openImport(rows,fileName){
     box.querySelector('#iBack').onclick=()=>{ box.remove(); step1(); };
     box.querySelector('#iCancel').onclick=()=>closeModal(box);
     box.querySelector('#iGo').onclick=()=>{
+      /* Gab es vorher keine Buchungen, stand die Ansicht auf
+         „Nur Hauptkategorien" und der Knopf daneben war gesperrt
+         (siehe afterLoad in js/state.js). Mit dem ersten Import
+         gibt es Unterkategorien — dann sollen sie auch zu sehen
+         sein. Wer sie später selbst abwählt, behält seine Wahl. */
+      const hadTx=state.tx.length>0;
       const res=applyImport(scan.rows,pick);
+      if(!hadTx) ui.kakDetail=true;
       box.remove();
       ui.view='kakeibo'; ui.month=pick[0]; render();
       let msg=t('imp.done',res.count,res.months.map(m=>MONTHS[m-1]).join(', '));

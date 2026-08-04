@@ -42,22 +42,70 @@ header{padding:20px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 @media(max-width:860px){.grid{grid-template-columns:1fr}}
 .card{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:16px 18px;margin-bottom:22px}
 .card h2{font-family:var(--font-data);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin:0 0 10px;font-weight:500}
-.card.sec-in{border-left:4px solid var(--edge-in);background:var(--bg-in)}
-.card.sec-flex{border-left:4px solid var(--edge-flex);background:var(--bg-flex)}
-.card.sec-out{border-left:4px solid var(--edge-out);background:var(--bg-out)}
+/* Jede Geldart trägt ihre Farbe an drei Stellen: als Kante links,
+   als Grund der Karte und als Linie unter der Überschrift. Erst
+   die Linie macht den Kopf der Karte zum Kopf. */
+.card.sec-in{border-left:5px solid var(--edge-in);background:var(--bg-in)}
+.card.sec-flex{border-left:5px solid var(--edge-flex);background:var(--bg-flex)}
+.card.sec-out{border-left:5px solid var(--edge-out);background:var(--bg-out)}
+.card.sec-in>.sechead{border-bottom:2px solid var(--edge-in)}
+.card.sec-flex>.sechead{border-bottom:2px solid var(--edge-flex)}
+.card.sec-out>.sechead{border-bottom:2px solid var(--edge-out)}
+.card.sec-in>.sechead,.card.sec-flex>.sechead,.card.sec-out>.sechead{padding-bottom:8px}
 /* Die Saldokorrektur ist eine einzige Zeile — die Karte fällt
    entsprechend flach aus und braucht keine Kopfzeile. */
-.card.sec-bal{border-left:4px solid var(--edge-bal);background:var(--bg-bal);padding:4px 18px}
+.card.sec-bal{border-left:5px solid var(--edge-bal);background:var(--bg-bal);padding:4px 18px}
 .card.sec-in h2,.card.sec-flex h2,.card.sec-out h2{color:var(--ink);font-weight:600}
 .sechead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+/* Zweizeilige Überschrift: oben der Name, darunter der Satz, der
+   sagt, woher die Zahlen kommen. Beides gehört zusammen und
+   bleibt deshalb ein Block — die Knöpfe rechts daneben rücken
+   nicht dazwischen. */
+.sechead .headstack{display:flex;flex-direction:column;gap:3px;min-width:0}
+.sechead .subhead{margin:0;font-size:12px;line-height:1.45;color:var(--ink-2);max-width:78ch}
 .sechead .tot{font-family:var(--font-data);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
 
-/* ── Kennzahlenleiste ─────────────────────────────────────── */
-.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:22px}
-.kpi>div{background:var(--paper-2);padding:12px 14px}
+/* ── Leisten, die stehen bleiben ──────────────────────────────
+   Alles mit .stickybar klebt unter der Kopfzeile. Deren Höhe
+   hängt von der Ansicht ab — nur im Monat gibt es die Reiterzeile
+   —, deshalb setzt syncStickyTops() in js/app.js das top-Maß und
+   misst es, statt es zu raten. Der Papiergrund und die Polster
+   sind kein Zierrat: ohne sie schiene der Inhalt durch, der
+   darunter wegscrollt. */
+.stickybar{position:sticky;top:0;z-index:30;background:var(--paper);
+  padding:8px 0 14px;box-shadow:0 8px 10px -10px rgba(0,0,0,.4)}
+/* Der Abstand nach unten kommt aus dem Polster, nicht aus einem
+   Rand: ein Rand ist durchsichtig, dort schiene der Inhalt
+   durch, der darunter wegscrollt. */
+.stickybar .kpi,.stickybar.filterbar{margin-bottom:0}
+
+/* ── Kennzahlenleiste ─────────────────────────────────────────
+   Drei Zeilen: Beschriftung, Betrag, Hinweis. Damit sie über alle
+   Kästchen hinweg auf einer Linie liegen — auch wenn die eine
+   Beschriftung zweizeilig wird und dem Nachbarn ein Hinweis fehlt
+   —, teilen sich die Kästchen die Zeilen der äußeren Tabelle
+   (subgrid). Wo das nicht geht, sorgt der Rückfall darunter
+   wenigstens für einen festen Platz je Teil. */
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+  grid-template-rows:auto auto auto;
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:22px}
+/* Kein eigenes gap am Kästchen: die 1px-Fugen der äußeren
+   Tabelle zeichnen die Trennlinien, den Abstand im Kästchen
+   machen die Ränder an .val und .note. */
+.kpi>div{background:var(--paper-2);padding:12px 14px;
+  display:grid;grid-row:span 3;grid-template-rows:subgrid}
 .kpi>div.t-in{background:var(--bg-in)}.kpi>div.t-out{background:var(--bg-out)}.kpi>div.t-flex{background:var(--bg-flex)}
 .kpi .lab{font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
-.kpi .val{font-family:var(--font-data);font-size:21px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums}
+.kpi .val{font-family:var(--font-data);font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;
+  margin-top:2px;align-self:end}
+.kpi .note{margin:3px 0 0;align-self:start}
+
+@supports not (grid-template-rows:subgrid){
+  .kpi>div{display:flex;flex-direction:column;grid-row:auto}
+  .kpi .lab{min-height:2.6em}
+  .kpi .val{margin-top:3px}
+  .kpi .note{margin-top:auto}
+}
 
 /* ── Restliches Gerüst ────────────────────────────────────── */
 .scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--paper-2)}

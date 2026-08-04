@@ -78,6 +78,45 @@ document.addEventListener('focusout',hideTip);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') hideTip(); });
 window.addEventListener('scroll',hideTip,true);
 
+/* ── Tab läuft durch die Felder ───────────────────────────────
+   Zwischen den Eingabefeldern stehen überall Symbole: Notizlampe,
+   Siegel, Stift, Beleglink. Mit der Maus stören sie nicht, mit
+   Tab schon — man käme nur jeden dritten Sprung an ein Feld.
+   Deshalb nimmt diese Funktion alles aus der Tab-Reihenfolge, was
+   kein Eingabefeld ist; anklickbar bleibt es unverändert.
+
+   Zwei Ausnahmen mit Absicht: die Knöpfe der Fußzeile (.row-end)
+   bleiben drin — sie sind der Weg aus dem Fenster heraus —, und
+   die Kopfzeile der Seite wird gar nicht erst angefasst, damit
+   Ansicht, Monat und Datei weiter mit der Tastatur erreichbar
+   sind. */
+function tabThroughFields(root){
+  if(!root) return;
+  root.querySelectorAll('button,a[href]').forEach(el=>{
+    if(el.closest('.row-end')) return;
+    el.tabIndex=-1;
+  });
+}
+
+/* ── Link öffnen ──────────────────────────────────────────────
+   Neben dem Eingabefeld für den Beleg steht ein Knopf, der ihn
+   sofort öffnet — man muss zum Nachsehen nicht erst speichern.
+   Gelesen wird der getippte Stand, nicht der gespeicherte.
+   data-go trägt die Kennung des Feldes daneben. */
+function bindUrlGo(box){
+  box.querySelectorAll('[data-go]').forEach(b=>{
+    const inp=box.querySelector('#'+b.dataset.go);
+    if(!inp) return;
+    const sync=()=>{ b.disabled=!inp.value.trim(); };
+    inp.oninput=sync; sync();
+    b.onclick=()=>{
+      const u=inp.value.trim(); if(!u) return;
+      /* Ohne Schema hält der Browser die Adresse für einen Pfad. */
+      window.open(/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u,'_blank','noopener');
+    };
+  });
+}
+
 /* ── Notizen ──────────────────────────────────────────────────
    kind ist 'item' (regelmäßiger Posten) oder 'kak' (Kakeibo).
    m = 1…12 meint die Notiz eines Monats, m = 0 die Notiz zur
@@ -109,6 +148,19 @@ function lampPos(kind,key){
   const n=noteOf(kind,key,0);
   return `<button class="lamp pos${n?' on':''}" data-note="${esc(kind+'|'+key+'|0')}"
     ${n?`data-tip="${esc(n)}"`:''} aria-label="${esc(n?t('note.isPos',n):t('note.addPos'))}">${LAMP_SVG}</button>`;
+}
+
+/* Die ersten Zeilen der Notiz, klein unter dem Namen. Sie stehen
+   dort, damit man eine Notiz überhaupt bemerkt, ohne die Maus zu
+   bewegen — nach zwei Zeilen bricht css/tokens.css sie ab.
+
+   Bewusst ohne data-tip: die Sprechblase gehört der Lampe. Führe
+   die Maus über die Vorschau, passiert nichts; erst die Lampe
+   zeigt den vollen Text. Sonst spränge die Blase schon beim
+   Überqueren der Zeile auf. */
+function notePreview(kind,key){
+  const n=noteOf(kind,key,0);
+  return n?`<div class="noteprev">${esc(n)}</div>`:'';
 }
 
 /* Hängt an alle Lampen unterhalb von root das Notizfenster. */
@@ -144,7 +196,7 @@ function openNote(kind,key,m,done){
       ${cur?`<button class="linkish" id="nDel" style="margin-right:auto">${t('note.del')}</button>`:''}
       <button class="btn" id="nCancel">${t('g.cancel')}</button>
       <button class="btn primary" id="nSave">${t('g.save')}</button></div></div>`;
-  document.body.appendChild(box);
+  document.body.appendChild(box); tabThroughFields(box);
   const finish=()=>{save();box.remove();if(done)done();};
   box.querySelector('#nCancel').onclick=()=>closeModal(box);
   box.onclick=ev=>{if(ev.target===box)closeModal(box);};
@@ -152,5 +204,19 @@ function openNote(kind,key,m,done){
   const del=box.querySelector('#nDel');
   if(del) del.onclick=()=>{ put(''); finish(); };
   box.querySelector('#nSave').onclick=()=>{ put(box.querySelector('#nTxt').value.trim()); finish(); };
-  box.querySelector('#nTxt').focus();
+
+  /* Das Feld wächst mit dem Text: eine lange Notiz soll ganz zu
+     sehen sein, ohne im Feld zu scrollen. Nach unten eine feste
+     Mindesthöhe, damit ein leeres Feld nicht zum Schlitz wird,
+     nach oben das Fensterhöhenmaß — sonst wüchse das Fenster aus
+     dem Bildschirm heraus. */
+  const ta=box.querySelector('#nTxt');
+  const grow=()=>{
+    ta.style.height='auto';
+    const max=Math.max(200,Math.round(window.innerHeight*0.62));
+    ta.style.height=Math.min(Math.max(ta.scrollHeight+2,150),max)+'px';
+  };
+  grow();
+  ta.addEventListener('input',grow);
+  ta.focus();
 }

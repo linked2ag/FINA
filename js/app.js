@@ -31,6 +31,19 @@ function renderChrome(){
   vEl.querySelectorAll('.vtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;render();});
 }
 
+/* ── Leisten, die stehen bleiben ──────────────────────────────
+   Die Kopfzeile klebt oben, alles mit .stickybar klebt darunter:
+   die Knopfleiste der Jahresmatrix, die Bedienleiste der
+   Flexible Payments, die Kennzahlen von Monat und Prognose. Die
+   Höhe der Kopfzeile ist je nach Ansicht verschieden — die
+   Monatsreiter gibt es nur im Monat —, deshalb wird sie gemessen
+   statt geraten. */
+function syncStickyTops(){
+  const h=document.querySelector('header'); if(!h) return;
+  const top=h.offsetHeight+'px';
+  document.querySelectorAll('.stickybar').forEach(el=>{ el.style.top=top; });
+}
+
 /* ── Mitlaufende Spaltenköpfe der Jahresmatrix ────────────────
    Die Matrix scrollt nur waagerecht, senkrecht scrollt die Seite.
    position:sticky richtet sich immer am nächsten Rollrahmen aus —
@@ -39,12 +52,12 @@ function renderChrome(){
    die Tabelle unter die Kopfzeile der Seite gewandert ist.
    matrix.css liest den Wert aus --headY. */
 function syncMatrixHead(){
+  syncStickyTops();
   const box=document.getElementById('yearScroll'); if(!box) return;
   const head=box.querySelector('thead'); if(!head) return;
   /* Die Knopfleiste klebt unter der Kopfzeile, die Spaltenköpfe
      kleben unter der Knopfleiste. */
   const bar=document.getElementById('yearBar');
-  if(bar) bar.style.top=document.querySelector('header').offsetHeight+'px';
   const top=bar?bar.getBoundingClientRect().bottom
                 :document.querySelector('header').getBoundingClientRect().bottom;
   const r=box.getBoundingClientRect();
@@ -91,6 +104,7 @@ function wire(){
      danach wieder die größten Einzelposten, nicht die Auswahl
      einer Zeile, die es so vielleicht gar nicht mehr gibt. */
   document.querySelectorAll('[data-kd]').forEach(b=>b.onclick=()=>{
+    if(b.disabled) return;
     ui.kakDetail=b.dataset.kd==='1'; ui.kakPick=null; render();});
   document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{ui.month=+b.dataset.goto;ui.view='monat';render();});
 
@@ -118,14 +132,17 @@ function wire(){
   document.querySelectorAll('[data-lists]').forEach(b=>b.onclick=()=>editLists());
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editItem(findItem(b.dataset.edit)));
   document.querySelectorAll('[data-kedit]').forEach(b=>b.onclick=()=>editKak(b.dataset.kedit));
+  /* Neu anlegen — in beiden Ansichten und in beiden Arten. Der
+     Wert von data-newitem ist der vorgewählte Block ("1" = der
+     erste der Liste). */
+  document.querySelectorAll('[data-newitem]').forEach(b=>b.onclick=()=>editItem(null,b.dataset.newitem));
+  document.querySelectorAll('[data-newkak]').forEach(b=>b.onclick=()=>newKakCat());
   bindNotes(document,()=>render());
 
   const fb=document.getElementById('btnFold');
   if(fb) fb.onclick=()=>{ui.showAll=!ui.showAll;render();};
   const hs=document.getElementById('btnHideSettled');
   if(hs) hs.onclick=()=>{ui.hideSettled=!ui.hideSettled;render();};
-  const nw=document.getElementById('btnNew');
-  if(nw) nw.onclick=()=>editItem(null);
 
   /* Prognose: Kakeibo-Annahme je Kategorie */
   document.querySelectorAll('[data-plan]').forEach(i=>i.onchange=()=>{
@@ -159,6 +176,11 @@ function wire(){
   const imp=document.getElementById('btnImportK');
   if(imp) imp.onclick=()=>document.getElementById('fileCsv').click();
 
+  /* Zum Schluss: Tab springt in der Ansicht nur noch von Feld zu
+     Feld. Die Kopfzeile bleibt außen vor — über sie erreicht man
+     Ansicht, Monat und Datei weiter mit der Tastatur. */
+  tabThroughFields(document.getElementById('view'));
+
   syncMatrixHead();
 }
 
@@ -174,7 +196,7 @@ document.getElementById('fileJson').onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=()=>{ try{ state=migrate(JSON.parse(r.result)); fileName=f.name; fileHandle=null; dirty=false;
-      render(); toast(t('store.loaded',f.name)); }
+      afterLoad(); render(); toast(t('store.loaded',f.name)); }
     catch(err){ toast(t('store.readFail')); } };
   r.readAsText(f,'utf-8'); e.target.value='';
 };
@@ -199,4 +221,5 @@ document.getElementById('fileCsv').onchange=e=>{
    Leer und auf Englisch beginnen. Inhalte und Einstellungen
    kommen über „Load data" aus der JSON-Datei. */
 state=emptyState();
+afterLoad();
 render();

@@ -44,7 +44,9 @@ const endLabel=it=>it.end?`${MONTHS[it.end.m-1]} ${it.end.y}`:'';
 const isLastRate=(it,m)=>it.end&&it.end.y===YEAR&&it.end.m===m;
 
 /* Wie viele Monate stehen noch an, den laufenden mitgezählt?
-   August und letzte Rate im August ergibt 1, im Oktober 3.
+   Fällt die letzte Rate in den laufenden Monat, ergibt das 1;
+   zwei Monate später 3. Gerechnet wird immer gegen CUR, nie
+   gegen einen festen Monat.
    0 oder weniger heißt „schon gelaufen", null „kein Ende". */
 function endIn(it){
   if(!it||!it.end) return null;

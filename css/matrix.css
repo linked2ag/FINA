@@ -85,26 +85,49 @@
 .matrix .codehead{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}
 .matrix .codehead:hover{color:var(--ink);text-decoration:underline}
 
-/* ── Zeilentypen ──────────────────────────────────────────── */
+/* ── Zeilentypen ──────────────────────────────────────────────
+   Drei Stufen, damit man ohne Suchen sieht, worin man liest:
+   die Kopfzeile eines Blocks (.sec) am kräftigsten, die Kategorie
+   darunter (.grp) eine Stufe heller, die Posten am hellsten. Die
+   Kante links am ersten Feld wiederholt die Farbe schmal und
+   kräftig — sie trägt auch dann, wenn die Zeile weit nach rechts
+   gescrollt ist. */
 .matrix tr.sec td{font-weight:700;font-family:var(--font-data);font-size:11.5px;
   letter-spacing:.12em;text-transform:uppercase;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
 .matrix tr.grp td{font-weight:600;font-family:var(--font-data);font-size:10.5px;
-  letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(0,0,0,.22)}
+  letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--edge-out)}
 .matrix tr.spacer td{height:16px;background:var(--paper);border-bottom:0;padding:0}
 .matrix tr.r-in td{background:var(--bg-in)}
 .matrix tr.r-flex td{background:var(--bg-flex)}
 .matrix tr.r-out td{background:var(--bg-out)}
 .matrix tr.r-bal td{background:var(--bg-bal)}
-.matrix tr.sec.r-in td{background:var(--bg-in-2)}
-.matrix tr.sec.r-flex td{background:var(--bg-flex-2)}
-.matrix tr.sec.r-out td{background:var(--bg-out-2)}
-.matrix tr.sec.r-bal td{background:var(--bg-bal-2)}
-.matrix tr.grp.r-out td{background:#F6E5E1}
+.matrix tr.grp.r-out td{background:var(--bg-out-2)}
+.matrix tr.sec.r-in td{background:var(--bg-in-3)}
+.matrix tr.sec.r-flex td{background:var(--bg-flex-3)}
+.matrix tr.sec.r-out td{background:var(--bg-out-3)}
+.matrix tr.sec.r-bal td{background:var(--bg-bal-3)}
+.matrix tr.sec.r-in td.ed{box-shadow:inset 5px 0 0 var(--edge-in)}
+.matrix tr.sec.r-flex td.ed{box-shadow:inset 5px 0 0 var(--edge-flex)}
+.matrix tr.sec.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
+.matrix tr.sec.r-bal td.ed{box-shadow:inset 5px 0 0 var(--edge-bal)}
+.matrix tr.grp.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
+
+/* Zweizeilige Blockzeile: oben der Name, darunter klein der
+   Hinweis. Die Zeile selbst ist versal und gesperrt gesetzt —
+   der Hinweis nimmt beides zurück, sonst läse er sich wie eine
+   zweite Überschrift. */
+.matrix tr.sec td.lab .rowtitle{display:block}
+.matrix tr.sec td.lab .rowsub{display:block;margin-top:3px;font-size:9.5px;line-height:1.4;
+  letter-spacing:.02em;text-transform:none;font-weight:400;color:var(--ink-2)}
 /* Abbezahlt: nichts steht mehr aus (yearSettled in js/calc.js).
    Die ganze Zeile tritt grau zurück und überschreibt dabei die
    Blockfarbe — deshalb steht die Regel hinter allen anderen. */
 .matrix tr.settled td{background:var(--shade)}
-.matrix tr.settled td.lab{color:var(--ink-2)}
+/* Der Name bleibt schwarz: grau ist der Hintergrund, nicht die
+   Position. Nur die Notiz darunter tritt zurück — sie ist ein
+   Zusatz und soll den Namen nicht überstimmen. */
+.matrix tr.settled td.lab{color:var(--ink)}
+.matrix tr.settled td.lab .noteprev{color:var(--ink-2)}
 
 /* ── Trennlinien ──────────────────────────────────────────── */
 .matrix td.mk,.matrix th.mkh{border-right:1px solid rgba(0,0,0,.16)}

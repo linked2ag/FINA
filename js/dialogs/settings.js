@@ -6,6 +6,13 @@
    Listen — Banken, Zahlungsarten, regelmäßige Kategorien,
    Kakeibo-Kategorien.
 
+   Das ist zu viel für eine Seite, deshalb steht links ein Menü
+   und rechts der gewählte Bereich. Gebaut werden immer ALLE
+   Bereiche; umgeschaltet wird nur die Sichtbarkeit. Das ist keine
+   Bequemlichkeit, sondern Absicht: collect() liest die Felder
+   aller Bereiche ein, und getippte Änderungen überleben so den
+   Wechsel des Bereichs.
+
    Wichtig: Das Fenster baut sich bei Hinzufügen, Entfernen und
    Sortieren komplett neu auf. Jeder dieser Wege läuft über
    applyEdits(), das getippte Umbenennungen sofort übernimmt —
@@ -13,6 +20,11 @@
    hingen in der Luft. Das Umbenennen selbst erledigt
    js/categories.js.
    ══════════════════════════════════════════════════════════════ */
+
+/* Der gewählte Bereich überlebt den Neuaufbau des Fensters —
+   sonst landete man nach jedem „+" wieder ganz vorn. Er gehört
+   nicht in den Zustand: er wird nicht gespeichert. */
+let setPane='general';
 
 /* Überschrift einer Liste. Das Pluszeichen steht direkt hinter
    der Beschriftung, nicht unter der Liste — so bleibt es auch bei
@@ -52,38 +64,69 @@ function openSettings(){
     return n?t('set.monthsWith',n):'';
   });
 
+  /* Ein Bereich: Überschrift, ein Satz dazu, Inhalt. Alle werden
+     gebaut, sichtbar ist einer. */
+  const pane=(key,title,hint,inner)=>`<section class="setpane" data-pane="${key}"${key===setPane?'':' hidden'}>
+    <h4>${title}</h4>${hint?`<p class="note" style="margin:-2px 0 14px">${hint}</p>`:''}${inner}</section>`;
+
+  const NAV=[['general',t('set.navGeneral')],['view',t('set.navView')],
+    ['banks',t('set.navBanks')],['groups',t('set.groups')],['kak',t('set.kak')]];
+
   box.innerHTML=`<div class="box">
     <h3>${t('set.title')}</h3>
     <p class="subline">${t('set.sub')}</p>
 
-    <div class="field"><label>${t('set.general')}</label></div>
-    <div class="cols c4">
-      <div class="field"><label for="sLang">${t('set.lang')}</label>
-        <select id="sLang">${LANGS.map(([k,l])=>`<option value="${k}"${LANG()===k?' selected':''}>${l}</option>`).join('')}</select></div>
-      <div class="field"><label for="sYear">${t('set.year')}</label>
-        <input type="number" id="sYear" class="num" min="2000" max="2099" step="1" value="${YEAR}"></div>
-      <div class="field"><label for="sLabW">${t('set.labw')} (px)</label>
-        <input type="number" id="sLabW" class="num" min="50" max="800" step="10" value="${state.labWidth}"></div>
-      <div class="field"><label for="sMonW">${t('set.monw')} (px)</label>
-        <input type="number" id="sMonW" class="num" min="50" max="400" step="10" value="${state.monWidth}"></div>
-      <div class="field"><label for="sTopMin">${t('set.topmin')}</label>
-        <input type="number" id="sTopMin" class="num" min="0" max="100000" step="5" value="${state.topMin}"></div>
-    </div>
-    <p class="note" style="margin:-4px 0 18px">${t('set.yearHint')} ${t('set.widthHint')} ${t('set.topminHint')}</p>
+    <div class="setlayout">
+      <nav class="setnav" aria-label="${t('set.navLabel')}">${NAV.map(([k,l])=>
+        `<button type="button" data-sect="${k}" aria-pressed="${k===setPane}">${l}</button>`).join('')}</nav>
 
-    <div class="field"><label>${t('set.lists')}</label></div>
-    <p class="note" style="margin:-4px 0 12px">${t('set.listsSub')}</p>
-    <div class="cols c3 liststack">
-      <div>
-        <div class="field">${listHead(t('set.banks'),'banks',t('set.addBank'))}<div>${pairRows(state.banks,'banks')}</div></div>
-        <div class="field">${listHead(t('set.pays'),'pays',t('set.addPay'))}<div>${pairRows(state.pays,'pays')}</div></div>
+      <div class="setpanes">
+        ${pane('general',t('set.navGeneral'),t('set.generalSub'),`
+          <div class="cols c2">
+            <div class="field"><label for="sLang">${t('set.lang')}</label>
+              <select id="sLang">${LANGS.map(([k,l])=>`<option value="${k}"${LANG()===k?' selected':''}>${l}</option>`).join('')}</select></div>
+            <div class="field"><label for="sYear">${t('set.year')}</label>
+              <input type="number" id="sYear" class="num" min="2000" max="2099" step="1" value="${YEAR}"></div>
+          </div>
+          <p class="note">${t('set.yearHint')}</p>`)}
+
+        ${pane('view',t('set.navView'),t('set.viewSub'),`
+          <div class="cols c3">
+            <div class="field"><label for="sLabW">${t('set.labw')} (px)</label>
+              <input type="number" id="sLabW" class="num" min="50" max="800" step="10" value="${state.labWidth}"></div>
+            <div class="field"><label for="sMonW">${t('set.monw')} (px)</label>
+              <input type="number" id="sMonW" class="num" min="50" max="400" step="10" value="${state.monWidth}"></div>
+            <div class="field"><label for="sTopMin">${t('set.topmin')}</label>
+              <input type="number" id="sTopMin" class="num" min="0" max="100000" step="5" value="${state.topMin}"></div>
+          </div>
+          <p class="note">${t('set.widthHint')} ${t('set.topminHint')}</p>`)}
+
+        ${pane('banks',t('set.navBanks'),t('set.banksSub'),`
+          <div class="cols c2 liststack">
+            <div class="field">${listHead(t('set.banks'),'banks',t('set.addBank'))}<div>${pairRows(state.banks,'banks')}</div></div>
+            <div class="field">${listHead(t('set.pays'),'pays',t('set.addPay'))}<div>${pairRows(state.pays,'pays')}</div></div>
+          </div>`)}
+
+        ${pane('groups',t('set.groups'),t('set.groupsSub'),`
+          <div class="field">${listHead(t('set.groups'),'groups',t('set.addGroup'))}<div>${groupRows}</div></div>`)}
+
+        ${pane('kak',t('set.kak'),t('set.kakSub'),`
+          <div class="field">${listHead(t('set.kak'),'kakCats',t('set.addKak'))}<div>${kakRows}</div></div>`)}
       </div>
-      <div><div class="field">${listHead(t('set.groups'),'groups',t('set.addGroup'))}<div>${groupRows}</div></div></div>
-      <div><div class="field">${listHead(t('set.kak'),'kakCats',t('set.addKak'))}<div>${kakRows}</div></div></div>
     </div>
+
     <div class="row-end"><button class="btn" id="lCancel">${t('g.cancel')}</button><button class="btn primary" id="lSave">${t('g.save')}</button></div>
   </div>`;
-  document.body.appendChild(box);
+  document.body.appendChild(box); tabThroughFields(box);
+
+  /* Bereich wechseln — nur Sichtbarkeit, nichts wird neu gebaut.
+     Getipptes bleibt dadurch stehen, auch in den Bereichen, die
+     gerade nicht zu sehen sind. */
+  box.querySelectorAll('[data-sect]').forEach(b=>b.onclick=()=>{
+    setPane=b.dataset.sect;
+    box.querySelectorAll('[data-sect]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sect===setPane));
+    box.querySelectorAll('.setpane').forEach(p=>{ p.hidden=p.dataset.pane!==setPane; });
+  });
 
   /* Liest den aktuellen Stand aller vier Listen aus dem Fenster. */
   const collect=()=>{
@@ -116,6 +159,49 @@ function openSettings(){
     const tm=num('#sTopMin',0,100000); if(tm!=null) state.topMin=tm;
   };
 
+  /* ── Geänderte Kürzel ─────────────────────────────────────────
+     Banken und Zahlungsarten hängen über ihr Kürzel an den Posten
+     (`it.bank`, `it.pay`). Wird ein Kürzel geändert, passen die
+     Posten zu keinem Listeneintrag mehr.
+
+     Anders als bei den Kategorien (Regel 2) wandern sie hier
+     nicht selbständig mit: das Kürzel steht auch so in der
+     Jahresübersicht, und ein alter Wert kann gewollt sein. Der
+     Nutzer entscheidet — gefragt wird einmal für alle Änderungen
+     zusammen, mit Zahl und Folge. */
+  const codeField=key=>key==='banks'?'bank':'pay';
+  const codedItems=()=>state.fixed.concat(state.balance?[state.balance]:[]);
+  const codeUse=(field,code)=>code?codedItems().filter(it=>it[field]===code).length:0;
+
+  /* Vergleicht Zeile für Zeile mit dem Stand VOR der Zuweisung.
+     Muss also laufen, bevor state.banks/state.pays überschrieben
+     werden. */
+  const scanCodes=(key,arr)=>{
+    const field=codeField(key), before=state[key], moves=[];
+    arr.forEach((x,i)=>{
+      const old=before[i]&&before[i].code;
+      if(!old||!x.code||x.code===old) return;
+      const n=codeUse(field,old);
+      if(n) moves.push({old,neu:x.code,n});
+    });
+    return {field,moves};
+  };
+
+  const askCarryCodes=changes=>{
+    const hit=changes.filter(c=>c.moves.length);
+    if(!hit.length) return;
+    const list=hit.flatMap(c=>c.moves.map(m=>`${m.old} → ${m.neu} (${m.n})`)).join(', ');
+    const total=hit.reduce((s,c)=>s+c.moves.reduce((a,m)=>a+m.n,0),0);
+    if(!confirm(t('set.codeAsk',list,total))){ toast(t('set.codeKept',total)); return; }
+    /* Ein Durchgang je Posten, über eine Zuordnung — sonst würde
+       ein Tausch zweier Kürzel (A→B, B→A) sich selbst überholen. */
+    hit.forEach(c=>{
+      const map=new Map(c.moves.map(m=>[m.old,m.neu]));
+      codedItems().forEach(it=>{ if(map.has(it[c.field])) it[c.field]=map.get(it[c.field]); });
+    });
+    toast(t('set.codeDone',total));
+  };
+
   /* Vergleicht Zeile für Zeile mit dem Stand vor dem Tippen und
      benennt um. Ein bereits vergebener Name wird zurückgesetzt. */
   const applyRenames=(key,names)=>{
@@ -137,7 +223,11 @@ function openSettings(){
     applyGeneral();
     const d=collect();
     const taken=[...applyRenames('groups',d.groups),...applyRenames('kakCats',d.kakCats)];
+    /* Erst schauen, was sich am Kürzel geändert hat — danach
+       überschreiben und fragen. */
+    const codeChanges=[scanCodes('banks',d.banks),scanCodes('pays',d.pays)];
     state.banks=d.banks; state.pays=d.pays;
+    askCarryCodes(codeChanges);
     state.groups=d.groups; state.kakCats=d.kakCats;
     state.kakCats.forEach(ensureKakCat);
     if(taken.length) toast(t('set.taken',taken.join(', ')));

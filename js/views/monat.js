@@ -4,6 +4,14 @@
    regelmäßigen Kosten mit Filtern und Bezahlt-Siegeln.
    ══════════════════════════════════════════════════════════════ */
 
+/* Unter dem Namen steht in dieser Ansicht nur, was zu genau
+   diesem Monat gehört: die Metazeile und die Monatsnotiz. Die
+   Notiz zur ganzen Position (notePreview) bleibt draußen — sie
+   gilt in jedem Monat und geriete hier neben Siegel und
+   Monatsnotiz in die Abbuchungslogik. Sie steht in der
+   Jahresmatrix und im Flexible-Payments-Reiter; hier führt die
+   Lampe zu ihr. */
+
 /* Zeile unter dem Namen: Bank, Zahlungsart, Fälligkeit, Ende, Beleg. */
 function metaLine(it){
   const p=[];
@@ -27,15 +35,19 @@ function itemRow(it,m){
 }
 
 /* Die Saldokorrektur: eine einzige Zeile über den Einnahmen.
-   Gepflegt wird sie wie ein Posten — Siegel, Stift, Notizlampe —
-   gezeigt wird sie wie eine Kategorie (.balrow in css/ledger.css).
-   Ein Löschknopf fehlt bewusst, die Zeile bleibt immer stehen. */
+   Gepflegt wird sie über Stift und Notizlampe, gezeigt wird sie
+   wie eine Kategorie (.balrow in css/ledger.css). Ein Löschknopf
+   fehlt bewusst, die Zeile bleibt immer stehen.
+
+   Ein Siegel hat sie nicht: der Betrag ist die Korrektur, die der
+   Nutzer selbst einträgt — es gibt nichts zu bestätigen. Die
+   leere Zelle bleibt trotzdem stehen, damit die Zeile mit den
+   Karten darunter fluchtet. */
 function balanceRow(m){
-  const it=state.balance, p=paidAt(it,m), v=it.amounts[m-1], note=it.notes[m-1];
+  const it=state.balance, v=it.amounts[m-1], note=it.notes[m-1];
   return `<div class="card sec-bal">
-    <table class="ledger"><tr class="balrow${p?' paid':''}">
-      <td class="markcell"><button class="seal" aria-pressed="${p}" data-paid="${BALANCE_ID}"
-        title="${p?t('month.markOpen'):t('month.markDone')}">${CHECK_SVG}</button></td>
+    <table class="ledger"><tr class="balrow">
+      <td class="markcell"></td>
       <td class="num amt ${cls(v)}">${eur(v)}</td>
       <td class="pencell"><div class="ptools"><button class="pencil" data-edit="${BALANCE_ID}"
         title="${t('bal.editTip')}">&#9998;</button>${lampHtml('item',BALANCE_ID,m)}</div></td>
@@ -52,7 +64,7 @@ function kakRow(k,m){
       ${imported?`disabled title="${t('month.imported')}"`:`title="${done?t('month.markOpen'):t('month.markDone')}"`}>${CHECK_SVG}</button></td>
     <td class="num amt ${est?'est':cls(v)}">${eur(v)}</td>
     <td class="pencell"><div class="ptools"><button class="pencil" data-kedit="${esc(k)}" title="${t('month.editKak')}">&#9998;</button>${lampHtml('kak',k,m)}</div></td>
-    <td><span class="iname">${esc(keyLabel(k))}</span>${kakOv(k,m)!=null?'<span class="pill corrp">corrected</span>':(imported?'<span class="pill">imported</span>':(e.estimated?`<span class="pill">${t('g.estimated')}</span>`:''))}
+    <td>${e.url?`<a class="linkicon" href="${esc(e.url)}" target="_blank" rel="noopener" title="${t('month.receiptTip')}">${LINK_SVG}</a> `:''}<span class="iname">${esc(keyLabel(k))}</span>${kakOv(k,m)!=null?'<span class="pill corrp">corrected</span>':(imported?'<span class="pill">imported</span>':(e.estimated?`<span class="pill">${t('g.estimated')}</span>`:''))}
       ${e.notes[m-1]?`<div class="itemnote">${esc(e.notes[m-1])}</div>`:''}</td></tr>`;
 }
 
@@ -80,7 +92,12 @@ function viewMonat(){
     items.forEach(it=>{outRows+=itemRow(it,m);});
   });
 
+  /* Die Kennzahlen bleiben beim Scrollen stehen — wie die
+     Monatsreiter in der Kopfzeile darüber. Die Karten darunter
+     werden lang, und die Frage „wie viel bleibt mir" soll man
+     nicht durch Hochscrollen beantworten müssen. */
   return `
+  <div class="stickybar">
   <div class="kpi">
     <div class="t-in"><div class="lab">${t('month.kpiIncome')}</div><div class="val pos">${eur(income(m))}</div></div>
     <div class="t-flex"><div class="lab">${t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned'))}</div><div class="val neg">${eur(kakeiboFor(m))}</div></div>
@@ -88,26 +105,36 @@ function viewMonat(){
     <div class="t-out"><div class="lab">${t('month.kpiOpen')}</div><div class="val ${openN?'neg':''}">${eur(openCost(m))}</div>
       <div class="note">${t('month.kpiOpenN',openN,due.length,uncN?t('month.kpiUnclear',uncN):'')}</div></div>
     <div><div class="lab">${t('month.kpiBalance')}</div><div class="val ${cls(saldo(m))}">${eur(saldo(m))}</div></div>
-  </div>
+  </div></div>
 
   ${balanceRow(m)}
 
   <div class="card sec-in">
-    <div class="sechead"><h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}</h2><span class="tot pos">${eur(income(m))}</span></div>
+    <div class="sechead"><h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}</h2>
+      <span style="display:flex;gap:12px;align-items:center">
+        <button class="btn small" data-newitem="EINNAHMEN">${t('year.addIncome')}</button>
+        <span class="tot pos">${eur(income(m))}</span></span></div>
     <table class="ledger">${incRows||`<tr><td class="note">${t('month.noIncome')}</td></tr>`}</table>
   </div>
 
   <div class="card sec-flex">
-    <div class="sechead"><h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span></h2>
+    <div class="sechead"><div class="headstack">
+        <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span></h2>
+        <p class="subhead">${hasActual(m)
+          ? t('month.flexSub',esc(state.flexSource[m]||'Fast Budget'))
+          : t('month.flexSubNone')}</p></div>
       <span style="display:flex;gap:12px;align-items:center">
+        <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
         <button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>
         <span class="tot neg">${eur(kakeiboFor(m))}</span></span></div>
     <table class="ledger">${flexRows||`<tr><td class="note">${t('month.noKak')}</td></tr>`}</table>
-    ${hasActual(m)?'':`<p class="note" style="margin-top:10px">${t('month.noImport')}</p>`}
   </div>
 
   <div class="card sec-out">
-    <div class="sechead"><h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}</h2><span class="tot neg">${eur(fixedCost(m))}</span></div>
+    <div class="sechead"><h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}</h2>
+      <span style="display:flex;gap:12px;align-items:center">
+        <button class="btn small" data-newitem="1">${t('year.addItem')}</button>
+        <span class="tot neg">${eur(fixedCost(m))}</span></span></div>
     <div class="filterbar">
       <button class="btn small" data-filter="alle" aria-pressed="${ui.filter==='alle'}">${t('g.all')}</button>
       <button class="btn small" data-filter="offen" aria-pressed="${ui.filter==='offen'}">${t('month.fOpen')}</button>

@@ -14,6 +14,14 @@
 /* ── Zeilentypen ──────────────────────────────────────────── */
 .ledger tr.group td{background:rgba(0,0,0,.05);font-family:var(--font-data);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink);padding:9px 6px 8px;border-bottom:1px solid var(--rule-strong);vertical-align:middle}
+/* Die Kategoriezeile im Block der regelmäßigen Kosten trägt
+   dessen Farbe, eine Stufe kräftiger als die Posten darunter —
+   ein Grau von 5 % hob sie kaum von der Karte ab. Anderswo bleibt
+   tr.group neutral: im Flexible-Payments-Bereich gliedert dieselbe
+   Zeile Monate und Hauptkategorien, nicht Kostenblöcke. */
+.card.sec-out .ledger tr.group td{background:var(--bg-out-2);font-weight:600;
+  border-bottom:1px solid var(--edge-out);border-top:1px solid var(--edge-out)}
+.card.sec-out .ledger tr.group td:first-child{box-shadow:inset 5px 0 0 var(--edge-out)}
 .ledger tr.sum td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0;vertical-align:middle}
 /* Saldokorrektur: wie eine Kategoriezeile gesetzt, aber ohne
    deren graue Hinterlegung — die Karte darunter ist schon blau. */
@@ -22,9 +30,9 @@
 .ledger tr.balrow .balname{font-family:var(--font-data);font-size:10.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--ink);cursor:help}
 
-/* Die Spalte „Balance corr." der Prognose trägt dieselbe helle
-   Farbe wie die Zeile in Monats- und Jahresansicht. */
-.ledger .balcol{background:var(--bg-bal-2)}
+/* Die Spalte „Balance corr." der Prognose steht wie jede andere
+   Spalte da — die Zeile in Monats- und Jahresansicht behält ihre
+   Farbe, die Tabelle hier bleibt ruhig. */
 .ledger tr.paid td{color:var(--ink-2)}
 /* Der Betrag behält auch in einer abgehakten Zeile seine
    Vorzeichenfarbe — nur der Text daneben tritt zurück. */
