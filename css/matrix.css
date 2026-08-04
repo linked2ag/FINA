@@ -146,6 +146,18 @@
 .matrix tr.balpin td.cB,.matrix tr.balpin td.cZ,.matrix tr.balpin td.cF,.matrix tr.balpin td.cE{
   position:sticky;z-index:4}
 
+/* ── Die Blockzeilen bleiben stehen ───────────────────────────
+   Einnahmen, Flexible Payments, Regelmäßige Kosten: dieselbe
+   Mechanik wie bei der Saldozeile, nur mit einem eigenen Maß je
+   Zeile — syncSecRows() in js/app.js rechnet es und begrenzt es
+   auf das Ende des jeweiligen Blocks. Sie liegen eine Stufe
+   tiefer im Stapel als die Saldozeile: die gehört immer nach
+   oben. */
+.matrix tr.secpin td{transform:translateY(var(--secY,0px));position:relative;z-index:2}
+.matrix tr.secpin td.ed,.matrix tr.secpin td.ln,.matrix tr.secpin td.nt,.matrix tr.secpin td.lab,
+.matrix tr.secpin td.cB,.matrix tr.secpin td.cZ,.matrix tr.secpin td.cF,.matrix tr.secpin td.cE{
+  position:sticky;z-index:3}
+
 /* ── Trennlinien ──────────────────────────────────────────── */
 .matrix td.mk,.matrix th.mkh{border-right:1px solid rgba(0,0,0,.16)}
 .matrix td.tot,.matrix th.toth{border-left:2px solid var(--ink);border-right:2px solid var(--ink)}

@@ -31,6 +31,42 @@ function closeModal(box){
   if(ys&&yTop!=null){ ys.scrollTop=yTop; ys.scrollLeft=yLeft; }
 }
 
+/* ── Filterzeile ──────────────────────────────────────────────
+   Zwei Bausteine, die Monats- und Jahresansicht sich teilen.
+
+   Ein Filterknopf trägt seinen Wert im data-Attribut, das ihn in
+   wire() verdrahtet: `data-filter`, `data-duefilter`. Er zeigt am
+   dunklen Grund, dass er angewendet ist, und ein zweiter Klick
+   nimmt ihn wieder zurück (siehe wire()). Die Erklärung steht als
+   data-tip daran und erscheint ohne Verzögerung.
+
+   Das Suchfeld bekommt `title` statt data-tip: die Sprechblase
+   erscheint auch beim Hineinspringen mit dem Tabulator und stünde
+   dann die ganze Zeit neben dem Feld, in das man gerade tippt. */
+function fbtn(kind,val,label,tip,cur){
+  return `<button class="btn small" data-${kind}="${esc(val)}" aria-pressed="${cur===val}"
+    data-tip="${esc(tip)}">${label}</button>`;
+}
+
+function filterField(extra){
+  return `<input class="fltq${extra?' '+extra:''}" data-q type="search" value="${esc(ui.q||'')}"
+    placeholder="${t('g.filter')}" aria-label="${t('g.filter')}" title="${esc(t('g.filterTip'))}">`;
+}
+
+/* ── Doppelklick öffnet die Position ──────────────────────────
+   In jeder Ansicht dasselbe: ein Doppelklick auf den Betrag oder
+   auf die Bezeichnung öffnet das Fenster, das auch der Stift
+   öffnet. Das Merkmal sitzt an der Zeile; welche Zelle getroffen
+   war, prüft wire() in js/app.js — es zählen nur Betrag und
+   Bezeichnung (td.num, td.amt, td.lab, td.nm), und nichts, worauf
+   man ohnehin klickt: Knöpfe, Links, Eingabefelder.
+
+   Die Bezeichnungsspalte trägt dafür überall `nm` (die Jahres-
+   matrix nennt sie `lab`), damit die Regel nicht an der Stellung
+   der Zelle hängt. */
+const dblItem=id=>` data-dbledit="${esc(id)}"`;
+const dblKak=k=>` data-dblkedit="${esc(k)}"`;
+
 /* ── Sofort-Tooltip ───────────────────────────────────────────
    Der Browser zeigt title= erst nach etwa einer Sekunde. Alles
    mit data-tip="…" bekommt stattdessen sofort eine Sprechblase

@@ -42,7 +42,12 @@ function askFillRange(endM,then){
    Einnahme an. "1" oder nichts heißt: der erste Block der Liste. */
 function editItem(item,group){
   const isNew=!item;
-  const firstGroup=(group&&group!=='1'&&allGroups().includes(group))?group:(costGroups()[0]||'');
+  /* Ein neuer Posten bekommt nur dann einen Block, wenn der
+     Aufrufer einen nennt — „Neue Einnahme" tut das. Sonst bleibt
+     die Auswahl leer: welcher Block gemeint ist, weiß nur der
+     Nutzer, und eine stille Vorauswahl landet unbemerkt in der
+     Datei. Gespeichert wird erst mit Block (siehe #fSave). */
+  const firstGroup=(group&&group!=='1'&&allGroups().includes(group))?group:'';
   const it=item||normalize({id:uid(),name:'',group:firstGroup,amounts:Array(12).fill(0)});
   const lockN=it.paid.filter((p,i)=>p&&it.amounts[i]!==0).length;
   /* So weit ist das Jahr abgerechnet: bis dahin reicht der Knopf
@@ -62,7 +67,9 @@ function editItem(item,group){
     <p class="subline">${isBal?t('bal.hint'):(lockN?t('item.lockedN',lockN):t('item.allOpen'))}</p>
     <div class="cols ${isBal?'':'c2'}">
       <div class="field"><label>${t('item.name')}</label><input id="fName" value="${esc(it.name)}" placeholder="${t('item.namePh')}"></div>
-      ${isBal?'':`<div class="field"><label>${t('item.block')}</label><select id="fGroup">${allGroups().map(g=>`<option value="${esc(g)}"${g===it.group?' selected':''}>${esc(keyLabel(g))}</option>`).join('')}</select></div>`}
+      ${isBal?'':`<div class="field"><label>${t('item.block')}</label><select id="fGroup">
+        ${it.group?'':`<option value="" selected>${t('item.blockPick')}</option>`}
+        ${allGroups().map(g=>`<option value="${esc(g)}"${g===it.group?' selected':''}>${esc(keyLabel(g))}</option>`).join('')}</select></div>`}
     </div>
     <div class="cols c3">
       <div class="field"><label>${t('item.bank')}</label><select id="fBank">${optList(state.banks,it.bank)}</select></div>
@@ -213,9 +220,15 @@ function editItem(item,group){
 
   box.querySelector('#fSave').onclick=()=>{
     const name=box.querySelector('#fName').value.trim();
-    if(!name){box.querySelector('#fName').focus();return;}
+    if(!name){box.querySelector('#fName').focus();toast(t('item.needName'));return;}
+    /* Ohne Block gehört der Posten nirgendwohin: er stünde in
+       keiner Kategorie der Monatsansicht und in keiner Gruppe der
+       Jahresmatrix. Deshalb hier die Grenze — nicht erst beim
+       Zeichnen. */
+    const gEl=box.querySelector('#fGroup');
+    if(gEl&&!gEl.value){ gEl.focus(); toast(t('item.needBlock')); return; }
     it.name=name;
-    const gEl=box.querySelector('#fGroup'); if(gEl) it.group=gEl.value;
+    if(gEl) it.group=gEl.value;
     it.bank=box.querySelector('#fBank').value; it.pay=box.querySelector('#fPay').value;
     it.dueDay=box.querySelector('#fDue').value; it.url=box.querySelector('#fUrl').value.trim();
     const estEl=box.querySelector('#fEst');

@@ -66,7 +66,13 @@ if(only){
     if(sym) document.body.appendChild(sym);
     document.body.appendChild(frame); frame.appendChild(el);
     el.style.margin='0';
+    /* Im Abzug klebt nichts: die klebenden Teile (Kartenkopf,
+       Filterzeile) tragen ein top-Maß, das zur ganzen Seite passt
+       und im Ausschnitt mitten in die Liste rutschen würde. */
     if(getComputedStyle(el).position==='sticky') el.style.position='static';
+    el.querySelectorAll('*').forEach(x=>{
+      if(getComputedStyle(x).position==='sticky') x.style.position='static';
+    });
   }
 }
 /* Die Höhe des Abzugs ist die Höhe dessen, was zu sehen sein soll —

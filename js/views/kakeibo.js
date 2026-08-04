@@ -134,7 +134,7 @@ function viewKakeibo(){
 
   let rows='';
   order.forEach(mk=>{
-    rows+=`<tr class="kmain"><td>${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kLink(mk)}${state.kak[mk]?notePreview('kak',mk):''}</td>
+    rows+=`<tr class="kmain"${state.kak[mk]?dblKak(mk):''}><td class="nm">${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kLink(mk)}${state.kak[mk]?notePreview('kak',mk):''}</td>
       ${mainBar(mk)?bar(val[mk]):'<td></td>'}
       <td class="num ${cls(val[mk])}">${eur(val[mk])}</td>${arrow(mk)}</tr>`;
     if(!detail) return;

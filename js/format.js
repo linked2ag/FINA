@@ -24,6 +24,12 @@ function parseGermanNumber(s){
   const v=parseFloat(s); return isNaN(v)?0:v;
 }
 
+/* Vergleichsform für das Suchfeld: Kleinschreibung, und Punkt wie
+   Komma. Der Betrag steht als „1.234,56" auf dem Schirm und als
+   „1234.56" in der Datei — beide Schreibweisen sollen dasselbe
+   finden. */
+const norm=s=>String(s).toLowerCase().replace(/\./g,',');
+
 /* ── Fälligkeit ───────────────────────────────────────────────
    Gespeichert wird entweder A/M/E oder ein Tag als Zahl. */
 const DUE_LABEL=v=>({A:t('due.A'),M:t('due.M'),E:t('due.E')}[v]||(v?t('due.day',v):''));
@@ -53,14 +59,20 @@ function endIn(it){
   return (it.end.y-YEAR)*12+(it.end.m-CUR)+1;
 }
 
-/* Ampel für die Spalte „Ende" der Jahresansicht: je näher die
-   letzte Rate, desto ruhiger die Farbe. Nur die Zelle wird
-   eingefärbt, die Farben stehen in css/tokens.css. */
+/* Ampel für die Spalte LP der Jahresansicht: je näher die letzte
+   Rate, desto ruhiger die Farbe. Vier Stufen, den laufenden Monat
+   jeweils mitgezählt — grün nur noch dieser, blau 2 bis 3, gelb
+   4 bis 6, rot 7 und mehr. Nur die Zelle wird eingefärbt, die
+   Farben stehen in css/tokens.css.
+
+   Wer die Grenzen verschiebt, verschiebt sie auch in den
+   Beschriftungen der Legende (year.key2, year.key36, year.endTip
+   in js/i18n.js) und in der Anleitung. */
 function endClass(it){
   const n=endIn(it);
   if(n==null||n<1) return '';
   if(n===1) return 'e-now';
-  if(n===2) return 'e-soon';
+  if(n<=3) return 'e-soon';
   if(n<=6) return 'e-mid';
   return 'e-far';
 }

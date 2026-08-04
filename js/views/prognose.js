@@ -30,7 +30,7 @@ function viewPrognose(){
   const planRows=kakCats().filter(k=>state.kak[k]).map(k=>{
     const a=avgActual(k,useM);
     const mine=useM.filter(m=>kakDone(k,m)).length;
-    return `<tr><td>${lampPos('kak',k)}${esc(keyLabel(k))}</td>
+    return `<tr${dblKak(k)}><td class="nm">${lampPos('kak',k)}${esc(keyLabel(k))}</td>
       <td class="num planin"><input class="num" type="text" data-plan="${esc(k)}" value="${nf.format(state.kak[k].plan[Math.max(CUR,1)-1]||0)}"></td>
       <td class="num ${a==null?'':cls(a)}"${mine?` title="${esc(t('prog.avgOfN',mine))}"`:''}>${a==null?'—':eur(a)}</td></tr>`;
   }).join('');

@@ -106,9 +106,32 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 .meta span+span::before{content:" · ";opacity:.6}
 .meta a{color:var(--ink-2)}
 
-/* ── Filterleiste ─────────────────────────────────────────── */
-.filterbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-.filterbar button[aria-pressed="true"]{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+/* ── Filterleiste ─────────────────────────────────────────────
+   Eine Zeile: links die Fälligkeiten und das Suchfeld, rechts der
+   Zahlungsstand. Wird es eng, rutscht die rechte Gruppe als
+   Ganzes darunter — die Knöpfe einer Gruppe bleiben zusammen. */
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+/* Angewendet heißt dunkel — in der Filterzeile der Monatsansicht
+   wie in der Knopfleiste der Jahresmatrix. Beide stecken ihre
+   Filter in eine `.fbgroup`; Knöpfe ohne aria-pressed (anlegen)
+   bleiben davon unberührt. */
+.filterbar button[aria-pressed="true"],.fbgroup button[aria-pressed="true"]{
+  background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+/* Eine Zeile, drei Abschnitte: Suchfeld · Fälligkeit · Stand.
+   Zwischen den Gruppen mehr Luft als zwischen ihren Knöpfen,
+   damit man sieht, was zusammengehört. */
+.filterbar.fbrow{justify-content:flex-start;gap:10px 8px}
+.fbgroup{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fbgroup+.fbgroup{margin-left:10px}
+/* Das Suchfeld ist so breit wie die drei Spalten vor der
+   Bezeichnung (--leadw in css/ledger.css): die Knöpfe dahinter
+   fangen dann genau über der Bezeichnungsspalte an. Wird es eng,
+   gibt das Feld nach — die Knöpfe sollen nicht umbrechen, bloß
+   weil das Feld auf seiner Breite besteht. */
+.fltq{flex:0 1 calc(var(--leadw) - 8px);width:calc(var(--leadw) - 8px);min-width:150px;padding:4px 9px;font-size:12.5px}
+/* In der Jahresansicht steht das Feld neben der Überschrift und
+   richtet sich nach keiner Spalte. */
+.fltq.fltyear{flex:0 0 auto;width:230px}
 
 /* Eingabefeld mit Knopf daneben — der Beleglink lässt sich so
    öffnen, ohne vorher zu speichern. */
@@ -125,7 +148,30 @@ input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;bor
 .field{margin-bottom:12px}
 .field label{display:block;font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
 .field input,.field select,.field textarea{width:100%}
-.cols{display:grid;gap:10px}
+
+/* ── Felder nebeneinander ─────────────────────────────────────
+   Beschriftung und Eingabe sind zwei Zeilen des äußeren Rasters,
+   die sich alle Felder einer Reihe teilen (subgrid). Nur so
+   fluchten die Eingaben, wenn eine Beschriftung zweizeilig wird
+   und die daneben einzeilig — „Last payment (LP) — month" neben
+   „Link to receipt or contract". Ohne das säße jedes Feld auf
+   eigener Höhe.
+
+   Die Fugen: 4px zwischen Beschriftung und Feld (die setzt das
+   Feld selbst), 14px zwischen zwei Reihen von Feldern (die kommt
+   vom Raster). Kennt ein Browser subgrid nicht, bekommt jede
+   Beschriftung stattdessen die Höhe von zwei Zeilen — dasselbe
+   Bild, nur unnachgiebiger. */
+/* Der Abstand nach unten saß früher am einzelnen Feld; jetzt
+   trägt ihn die Reihe, denn die Felder darin sollen keinen
+   eigenen haben. */
+.cols{display:grid;column-gap:10px;row-gap:14px;margin-bottom:12px}
+.cols>.field{display:grid;grid-row:span 2;grid-template-rows:subgrid;row-gap:4px;margin-bottom:0}
+.cols>.field>label{margin-bottom:0;align-self:end}
+@supports not (grid-template-rows:subgrid){
+  .cols>.field{display:block}
+  .cols>.field>label{margin-bottom:4px;min-height:2.6em}
+}
 .c2{grid-template-columns:1fr 1fr}
 .c3{grid-template-columns:1fr 1fr 1fr}
 .c4{grid-template-columns:repeat(4,1fr)}
@@ -272,7 +318,7 @@ body.gresize{user-select:none;cursor:col-resize}
    sonst hinge die rechte Liste um genau diesen Rand tiefer als
    die linke. Untereinander (schmaler Schirm) braucht es den Rand
    dagegen sehr wohl, deshalb steht er unten in der Abfrage. */
-.liststack{align-items:start;gap:10px 24px}
+.liststack{column-gap:24px}
 .liststack .field{margin-bottom:0}
 /* Das Pluszeichen steht direkt hinter der Beschriftung der Liste
    und bleibt zurückhaltend — es soll die Überschrift nicht

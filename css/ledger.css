@@ -4,10 +4,22 @@
    Kakeibo-Ansicht. Die Jahresmatrix liegt in matrix.css.
    ══════════════════════════════════════════════════════════════ */
 
+/* Die drei Spalten vor der Bezeichnung — Siegel, Betrag,
+   Werkzeuge — haben feste Breiten. Ihre Summe steht als --leadw
+   bereit: das Suchfeld der Filterzeile ist genau so breit, und die
+   Knöpfe dahinter fangen damit auf der Höhe der Bezeichnungsspalte
+   an. Wer eine der drei Breiten ändert, ändert sie hier. */
+:root{--markw:46px;--penw:66px;--leadw:calc(var(--markw) + var(--monw,100px) + 30px + var(--penw))}
+
 .ledger{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .ledger td,.ledger th{border-bottom:1px solid rgba(0,0,0,.10);padding:7px 6px;text-align:left;font-weight:400;vertical-align:top}
 .ledger th{font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
 .ledger .num{text-align:right;font-family:var(--font-data);font-size:14px;white-space:nowrap;vertical-align:middle}
+/* Name links, Marke rechts am Rand der Zeile. Die Marke sagt
+   etwas über die Zahl, nicht über den Namen — direkt hinter dem
+   Namen las sie sich wie ein Teil davon. */
+.ledger .rowline{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.ledger .rowline .pill{margin-left:0;flex:0 0 auto}
 .ledger td.amt{vertical-align:top;padding-top:9px!important;width:calc(var(--monw,100px) + 30px)}
 .ledger td.num.est{color:var(--amber)!important;font-weight:400}
 
@@ -40,7 +52,7 @@
 .ledger tr.paid td.num.pos{color:var(--ok)}
 
 /* ── Zellen mit Siegel und Stift ──────────────────────────── */
-.markcell{width:46px;vertical-align:top}
+.markcell{width:var(--markw);vertical-align:top}
 /* Stift links, Notizlampe genau mittig zwischen Stift und
    Positionsnamen. Der Raum, in dem die Lampe zentriert wird, muss
    dafür bis zum ersten Buchstaben des Namens reichen — also über
@@ -48,7 +60,7 @@
    Namensspalte (6px) hinaus. Genau diese 12px holt der negative
    Außenabstand zurück; ohne ihn säße die Lampe 6px zu weit
    links. */
-.pencell{width:66px;vertical-align:top;padding-top:7px!important;white-space:nowrap}
+.pencell{width:var(--penw);vertical-align:top;padding-top:7px!important;white-space:nowrap}
 .pencell .ptools{display:grid;grid-template-columns:auto 1fr;align-items:center;margin-right:-12px}
 .pencell .ptools .lamp{justify-self:center}
 .iname{line-height:1.3}

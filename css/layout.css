@@ -5,14 +5,20 @@
 
 .wrap{max-width:none;margin:0;padding:0 24px 80px;--monw:100px}
 
-/* ── Kopfzeile ────────────────────────────────────────────── */
-header{padding:20px 0 0;position:sticky;top:0;z-index:40;background:var(--paper);box-shadow:0 6px 12px -8px rgba(0,0,0,.35)}
-.masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
-  border-bottom:2px solid var(--ink);padding-bottom:10px}
-.brand{display:flex;align-items:baseline;gap:12px}
-.brand h1{font-family:var(--font-display);font-weight:700;font-size:34px;letter-spacing:.04em;margin:0}
-.brand .sub{font-family:var(--font-data);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2)}
-.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* ── Kopfzeile ────────────────────────────────────────────────
+   So flach wie möglich: sie klebt oben und nimmt damit auf jedem
+   Bildschirm dauerhaft Platz weg, den die Tabelle darunter
+   braucht. Deshalb kleine Polster, ein kleineres Wortzeichen und
+   flachere Reiter — nichts davon kostet Verständlichkeit, jedes
+   davon zwei bis vier Zeilen Tabelle. */
+header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper);box-shadow:0 6px 12px -8px rgba(0,0,0,.35)}
+.masthead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  border-bottom:2px solid var(--ink);padding-bottom:7px}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand h1{font-family:var(--font-display);font-weight:700;font-size:23px;letter-spacing:.04em;margin:0;line-height:1.1}
+.brand .sub{font-family:var(--font-data);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
+.tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tools .btn{padding:5px 10px;font-size:12.5px}
 .filepath{font-family:var(--font-data);font-size:11.5px;color:var(--ink-2);max-width:320px;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;user-select:text;cursor:default;padding-right:4px}
 .filepath.on{color:var(--ink)}
@@ -20,27 +26,31 @@ header{padding:20px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .filepath.warnpath{color:var(--seal);font-weight:700}
 
 /* ── Monatsreiter ─────────────────────────────────────────── */
-.months{display:flex;border-bottom:1px solid var(--rule);overflow-x:auto;margin:0 0 18px}
-.mtab{flex:1 0 auto;min-width:62px;background:transparent;border:0;border-bottom:3px solid transparent;padding:9px 4px 7px;
-  font-family:var(--font-data);font-size:12px;letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase}
+.months{display:flex;border-bottom:1px solid var(--rule);overflow-x:auto;margin:0}
+.mtab{flex:1 0 auto;min-width:58px;background:transparent;border:0;border-bottom:3px solid transparent;padding:5px 4px 4px;
+  font-family:var(--font-data);font-size:11.5px;letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase}
 .mtab:hover{color:var(--ink)}
 .mtab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--seal);font-weight:600}
 .mtab.alldone{text-decoration:line-through;text-decoration-thickness:2px;color:var(--ok)}
 .mtab.current{color:var(--seal);font-weight:600}
-.mtab .dot{display:block;width:5px;height:5px;border-radius:50%;margin:4px auto 0;background:transparent;border:1px solid var(--rule-strong)}
+.mtab .dot{display:block;width:5px;height:5px;border-radius:50%;margin:3px auto 0;background:transparent;border:1px solid var(--rule-strong)}
 .mtab .dot.done{background:var(--ok);border-color:var(--ok)}
 .mtab .dot.partial{background:linear-gradient(90deg,var(--ok) 50%,transparent 50%);border-color:var(--ok)}
 
 /* ── Ansichtsreiter ───────────────────────────────────────── */
-.views{display:flex;gap:22px;flex-wrap:wrap;margin:14px 0 12px}
-.vtab{background:none;border:0;padding:0 0 3px;font-size:14px;color:var(--ink-2);border-bottom:2px solid transparent}
+.views{display:flex;gap:20px;flex-wrap:wrap;margin:7px 0 6px}
+.vtab{background:none;border:0;padding:0 0 3px;font-size:13.5px;color:var(--ink-2);border-bottom:2px solid transparent}
 .vtab[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+/* Rechts auf Höhe der Reiter: was die Zeichen der Jahresmatrix
+   bedeuten. Es gehört nicht zu den Reitern, deshalb schiebt es
+   der eigene Außenabstand ganz nach rechts. */
+.viewkey{margin-left:auto;font-size:11.5px;color:var(--ink-2);align-self:center}
 .vtab:hover{color:var(--ink)}
 
 /* ── Karten und Raster ────────────────────────────────────── */
 .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;align-items:start}
 @media(max-width:860px){.grid{grid-template-columns:1fr}}
-.card{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:16px 18px;margin-bottom:22px}
+.card{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:12px 16px;margin-bottom:16px}
 .card h2{font-family:var(--font-data);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin:0 0 10px;font-weight:500}
 /* Jede Geldart trägt ihre Farbe an drei Stellen: als Kante links,
    als Grund der Karte und als Linie unter der Überschrift. Erst
@@ -48,10 +58,32 @@ header{padding:20px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .card.sec-in{border-left:5px solid var(--edge-in);background:var(--bg-in)}
 .card.sec-flex{border-left:5px solid var(--edge-flex);background:var(--bg-flex)}
 .card.sec-out{border-left:5px solid var(--edge-out);background:var(--bg-out)}
-.card.sec-in>.sechead{border-bottom:2px solid var(--edge-in)}
-.card.sec-flex>.sechead{border-bottom:2px solid var(--edge-flex)}
-.card.sec-out>.sechead{border-bottom:2px solid var(--edge-out)}
-.card.sec-in>.sechead,.card.sec-flex>.sechead,.card.sec-out>.sechead{padding-bottom:8px}
+.card.sec-in>.sechead{border-bottom:2px solid var(--edge-in);background:var(--bg-in)}
+.card.sec-flex>.sechead{border-bottom:2px solid var(--edge-flex);background:var(--bg-flex)}
+.card.sec-out>.sechead{border-bottom:2px solid var(--edge-out);background:var(--bg-out)}
+/* ── Der Kopf einer Karte bleibt stehen ───────────────────────
+   Wer sich durch die regelmäßigen Kosten scrollt, soll immer
+   sehen, in welchem Block er liest und was er zusammen kostet.
+   Der Kopf klebt deshalb, solange die Karte im Bild ist — und
+   verschwindet mit ihr, weil position:sticky nicht über den
+   Rand des Elternteils hinausreicht.
+
+   Das Maß für `top` steht nicht hier: es hängt davon ab, wie hoch
+   Kopfzeile und Kennzahlenleiste in der jeweiligen Ansicht sind.
+   syncStickyTops() in js/app.js misst und setzt es.
+
+   Zwei Dinge muss ein klebender Kopf mitbringen: einen deckenden
+   Grund — sonst schiene die Zeile durch, die darunter wegläuft —
+   und die Breite der ganzen Karte. Deshalb ziehen die negativen
+   Außenabstände ihn über das Polster der Karte hinaus, und sein
+   eigenes Polster stellt den Abstand innen wieder her. */
+.card.sec-in>.sechead,.card.sec-flex>.sechead,.card.sec-out>.sechead{
+  position:sticky;z-index:20;margin:-12px -16px 10px;padding:12px 16px 8px}
+/* Die Filterzeile gehört zum Kopf der regelmäßigen Kosten: sie
+   klebt direkt darunter, damit man auch weit unten in der Liste
+   noch filtern kann, ohne nach oben zu scrollen. */
+.card.sec-out>.filterbar{position:sticky;z-index:19;background:var(--bg-out);
+  margin:0 -16px 8px;padding:2px 16px 8px}
 /* Die Saldokorrektur ist eine einzige Zeile — die Karte fällt
    entsprechend flach aus und braucht keine Kopfzeile. */
 .card.sec-bal{border-left:5px solid var(--edge-bal);background:var(--bg-bal);padding:4px 18px}
@@ -73,7 +105,7 @@ header{padding:20px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    sind kein Zierrat: ohne sie schiene der Inhalt durch, der
    darunter wegscrollt. */
 .stickybar{position:sticky;top:0;z-index:30;background:var(--paper);
-  padding:8px 0 14px;box-shadow:0 8px 10px -10px rgba(0,0,0,.4)}
+  padding:8px 0 10px;box-shadow:0 8px 10px -10px rgba(0,0,0,.4)}
 /* Der Abstand nach unten kommt aus dem Polster, nicht aus einem
    Rand: ein Rand ist durchsichtig, dort schiene der Inhalt
    durch, der darunter wegscrollt. */
@@ -86,17 +118,17 @@ header{padding:20px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    —, teilen sich die Kästchen die Zeilen der äußeren Tabelle
    (subgrid). Wo das nicht geht, sorgt der Rückfall darunter
    wenigstens für einen festen Platz je Teil. */
-.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(124px,1fr));
   grid-template-rows:auto auto auto;
-  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:22px}
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:16px}
 /* Kein eigenes gap am Kästchen: die 1px-Fugen der äußeren
    Tabelle zeichnen die Trennlinien, den Abstand im Kästchen
    machen die Ränder an .val und .note. */
-.kpi>div{background:var(--paper-2);padding:12px 14px;
+.kpi>div{background:var(--paper-2);padding:9px 12px;
   display:grid;grid-row:span 3;grid-template-rows:subgrid}
 .kpi>div.t-in{background:var(--bg-in)}.kpi>div.t-out{background:var(--bg-out)}.kpi>div.t-flex{background:var(--bg-flex)}
 .kpi .lab{font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
-.kpi .val{font-family:var(--font-data);font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;
+.kpi .val{font-family:var(--font-data);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;
   margin-top:2px;align-self:end}
 .kpi .note{margin:3px 0 0;align-self:start}
 

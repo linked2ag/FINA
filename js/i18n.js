@@ -76,6 +76,7 @@ const STR={
    dann die Beschreibung dessen, was die Anwendung kann. */
 'guide.tabSteps':{en:'Step by step',de:'Schritt für Schritt'},
 'guide.tabProduct':{en:'What FINA can do',de:'Was FINA kann'},
+'guide.tabNews':{en:"What's New",de:'Was ist neu'},
 'guide.zoom':{en:'Click a picture to open it full size.',de:'Klick auf ein Bild öffnet es in voller Größe.'},
 'app.chooseView':{en:'Choose view',de:'Ansicht wählen'},
 'app.chooseMonth':{en:'Choose month',de:'Monat wählen'},
@@ -110,6 +111,11 @@ const STR={
 'g.booking':{en:'booking',de:'Buchung'},
 'g.transactions':{en:'transactions',de:'Transaktionen'},
 'g.wholeYear':{en:'Whole year',de:'Ganzes Jahr'},
+/* Das Suchfeld gibt es in Monats- und Jahresansicht; der Text
+   gehört deshalb zu den allgemeinen Wörtern. */
+'g.filter':{en:'Filter…',de:'Filtern…'},
+'g.filterTip':{en:'Filters the list while you type — name, amount, bank, payment type, category or note. Part of a word or of a figure is enough.',
+  de:'Filtert die Liste beim Tippen — Name, Betrag, Bank, Zahlungsart, Kategorie oder Notiz. Ein Wortteil oder ein Stück der Zahl genügt.'},
 
 /* ── Notizfenster ─────────────────────────────────────────── */
 'note.title':{en:'Note — {0}',de:'Notiz — {0}'},
@@ -150,12 +156,11 @@ const STR={
 'store.fileKind':{en:'FINA data',de:'FINA Daten'},
 
 /* ── Jahresansicht ────────────────────────────────────────── */
-'year.title':{en:'Year overview {0}',de:'Jahresübersicht {0}'},
 'year.legend':{en:'<span class="mk-ok">&#10003;</span> paid &nbsp; <span class="mk-q">?</span> estimated &nbsp; empty = open',
   de:'<span class="mk-ok">&#10003;</span> bezahlt &nbsp; <span class="mk-q">?</span> geschätzt &nbsp; leer = offen'},
-'year.showAll':{en:'Show whole year',de:'Ganzes Jahr zeigen'},
-'year.showAllN':{en:'Show whole year ({0} collapsed)',de:'Ganzes Jahr zeigen ({0} zugeklappt)'},
 'year.hideDone':{en:'Hide completed months',de:'Erledigte Monate ausblenden'},
+'year.hideDoneTip':{en:'Fold away every month in which nothing is left open. The total column still counts all twelve.',
+  de:'Klappt jeden Monat weg, in dem nichts mehr offen ist. Die Gesamtspalte zählt weiter alle zwölf.'},
 /* Die drei Anlege-Knöpfe. Sie benennen, was entsteht, nicht die
    Technik dahinter — „Position" sagt niemandem, in welchem Block
    sie landet. */
@@ -163,7 +168,8 @@ const STR={
 'year.addKak':{en:'Add new flexible cost',de:'Neue flexible Kosten hinzufügen'},
 'year.addIncome':{en:'Add new income',de:'Neue Einnahme hinzufügen'},
 'year.hideSettled':{en:'Hide finished items',de:'Abgeschlossene ausblenden'},
-'year.showSettled':{en:'Show finished items ({0})',de:'Abgeschlossene zeigen ({0})'},
+'year.hideSettledTip':{en:'Hide every item that is fully paid for this year. The sums stay as they are.',
+  de:'Blendet jede Position aus, die für dieses Jahr abbezahlt ist. Die Summen bleiben, wie sie sind.'},
 'year.balanceRow':{en:'Balance per month',de:'Saldo je Monat'},
 /* Die Blockzeile der Jahresmatrix ist zweizeilig: oben der
    Name, darunter klein, woher die Zahlen kommen können. */
@@ -171,8 +177,8 @@ const STR={
 'year.kakRowSub':{en:'Works with the Fast Budget app — bookings can be imported as CSV',
   de:'Zusammen mit der App Fast Budget — Buchungen lassen sich als CSV importieren'},
 'year.end':{en:'LP',de:'LP'},
-'year.endTip':{en:'Last payment — month.year. The colour shows the remaining term including the current month: green only this one, blue two, yellow three to six, red more.',
-  de:'Letzte Zahlung — Monat.Jahr. Die Farbe zeigt die Restlaufzeit mit dem laufenden Monat: grün noch dieser eine, blau zwei, gelb drei bis sechs, rot mehr.'},
+'year.endTip':{en:'Last payment — month.year. The colour shows the remaining term including the current month: green only this one, blue two to three, yellow four to six, red seven and more.',
+  de:'Letzte Zahlung — Monat.Jahr. Die Farbe zeigt die Restlaufzeit mit dem laufenden Monat: grün noch dieser eine, blau zwei bis drei, gelb vier bis sechs, rot sieben und mehr.'},
 'year.bankTip':{en:'Edit banks',de:'Banken bearbeiten'},
 'year.payTip':{en:'Edit payment types',de:'Zahlungsarten bearbeiten'},
 'year.dueTip':{en:'Due date: A = start of month, M = mid month, E = end of month, otherwise the day',
@@ -181,15 +187,15 @@ const STR={
 'year.monthDone':{en:'Everything recorded and paid — ',de:'Alles erfasst und bezahlt — '},
 'year.editTip':{en:'Edit item',de:'Position ändern'},
 'year.linkTip':{en:'Open receipt or contract',de:'Beleg oder Vertrag öffnen'},
-'year.hint':{en:'The pencil opens the item · clicking a month jumps to the month view · B (bank) and PT (payment type) open the lists · DD (due date) is A/M/E or the day, LP the last payment.',
-  de:'Stift öffnet die Position · Klick auf einen Monat springt in die Monatsansicht · Klick auf B (bank) oder PT (payment type) öffnet die Listen · DD (due date) ist A/M/E oder der Tag, LP die letzte Zahlung.'},
+'year.hint':{en:'The pencil — or a double-click on any amount — opens the item · clicking a month jumps to the month view · B (bank) and PT (payment type) open the lists · DD (due date) is A/M/E or the day, LP the last payment.',
+  de:'Stift oder Doppelklick auf einen Betrag öffnet die Position · Klick auf einen Monat springt in die Monatsansicht · Klick auf B (bank) oder PT (payment type) öffnet die Listen · DD (due date) ist A/M/E oder der Tag, LP die letzte Zahlung.'},
 /* Kein Monatsname in der Regel selbst — welcher Monat gerade
    läuft, sagt weiter unten „year.current". */
 'year.hintTerm':{en:'The LP cell shows the remaining term including the current month:',
   de:'Die Zelle LP zeigt die Restlaufzeit einschließlich des laufenden Monats:'},
 'year.keyNow':{en:'this one only',de:'nur noch dieser'},
-'year.key2':{en:'2 months',de:'2 Monate'},
-'year.key36':{en:'3 to 6',de:'3 bis 6'},
+'year.key2':{en:'2 to 3 months',de:'2 bis 3 Monate'},
+'year.key36':{en:'4 to 6',de:'4 bis 6'},
 'year.keyMore':{en:'more',de:'mehr'},
 'year.hintGrey':{en:'Rows on grey are fully paid — nothing is left for this year.',
   de:'Grau hinterlegte Zeilen sind abbezahlt — dort steht im Jahr nichts mehr aus.'},
@@ -215,18 +221,22 @@ const STR={
 'month.noKak':{en:'No Flexible Payments categories yet — add them under Settings.',
   de:'Noch keine Flexible-Payments-Kategorien angelegt — anzulegen unter Einstellungen.'},
 'month.noItems':{en:'No items for this filter.',de:'Keine Posten für diesen Filter.'},
-/* Die zweite Zeile der Überschrift im Flexible-Payments-Block:
-   sie sagt, woher die Zahlen des Monats stammen — und wo der
-   Import liegt, solange es keinen gibt. */
-'month.flexSub':{en:'Imported from {0} — the figures below are the real ones. Correct one and the month is marked as corrected; the import is not lost.',
-  de:'Aus {0} importiert — die Zahlen unten sind die echten. Korrigierst du eine, gilt der Monat als korrigiert; der Import geht dabei nicht verloren.'},
-'month.flexSubNone':{en:'No import for this month — the figures below are the ones you entered. Import from the Fast Budget app is available in the Flexible Payments view.',
-  de:'Kein Import für diesen Monat — die Zahlen unten stammen aus deiner eigenen Eingabe. Der Import aus der Fast-Budget-App liegt im Bereich Flexible Payments.'},
 'month.openEval':{en:'Open analysis',de:'Auswertung öffnen'},
 'month.openEvalTip':{en:'Go to the Flexible Payments analysis for {0}',de:'Zur Flexible-Payments-Auswertung für {0}'},
-'month.fOpen':{en:'Only open',de:'Nur offen'},
-'month.fEst':{en:'Only estimated',de:'Nur geschätzte'},
+/* Die Filterzeile. Jeder Knopf erklärt sich beim Überfahren
+   selbst — die vier Wörter darauf können es nicht. */
+'month.fAll':{en:'Any state',de:'Jeder Stand'},
+'month.fAllTip':{en:'Every item, whatever its state',de:'Alle Posten, gleich in welchem Stand'},
+'month.fOpen':{en:'Open',de:'Offen'},
+'month.fOpenTip':{en:'Only what is not ticked off yet',de:'Nur was noch nicht abgehakt ist'},
+'month.fEst':{en:'Estimated',de:'Geschätzt'},
+'month.fEstTip':{en:'Only items whose amount is marked as an estimate',
+  de:'Nur Posten, deren Betrag als geschätzt gekennzeichnet ist'},
+'month.fPaid':{en:'Settled',de:'Bezahlt'},
+'month.fPaidTip':{en:'Only what is already ticked off',de:'Nur was schon abgehakt ist'},
 'month.fDueAll':{en:'All due dates',de:'Alle Fälligkeiten'},
+'month.fDueAllTip':{en:'Every due date — start, middle and end of the month',
+  de:'Jede Fälligkeit — Anfang, Mitte und Ende des Monats'},
 'month.fDueA':{en:'Start of month',de:'Monatsanfang'},
 'month.fDueM':{en:'Mid month',de:'Monatsmitte'},
 'month.fDueE':{en:'End of month',de:'Monatsende'},
@@ -356,6 +366,12 @@ const STR={
 'item.name':{en:'Name',de:'Name'},
 'item.namePh':{en:'e.g. Netflix',de:'z. B. Netflix'},
 'item.block':{en:'Block',de:'Block'},
+/* Ein neuer Posten kommt ohne Block — er wird gewählt, nicht
+   vorgegeben. Gespeichert wird erst mit. */
+'item.blockPick':{en:'— please choose —',de:'— bitte wählen —'},
+'item.needName':{en:'Please give the item a name.',de:'Bitte gib der Position einen Namen.'},
+'item.needBlock':{en:'Please choose a block. Every item belongs to one — new blocks are created under Settings.',
+  de:'Bitte wähle einen Block. Jede Position gehört in einen — neue Blöcke legst du in den Einstellungen an.'},
 'item.bank':{en:'Bank (B)',de:'Bank (B)'},
 'item.pay':{en:'Payment type (PT)',de:'Zahlungsart (PT)'},
 'item.due':{en:'Due date (DD)',de:'Fälligkeit (DD)'},

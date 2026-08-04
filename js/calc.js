@@ -10,6 +10,29 @@ const allGroups=()=>['EINNAHMEN'].concat(costGroups());
 const bankLabel=c=>{const b=(state.banks||[]).find(x=>x.code===c);return b?b.label:c;};
 const payLabel=c=>{const p=(state.pays||[]).find(x=>x.code===c);return p?p.label:c;};
 
+/* ── Vergleichsstoff für das Suchfeld ─────────────────────────
+   Gesucht wird in allem, was an der Zeile zu sehen ist. m = 1…12
+   nimmt nur diesen Monat (Monatsansicht), ohne m alle zwölf
+   (Jahresansicht). Beträge kommen zweimal vor — als „-1.234,56"
+   wie auf dem Schirm und als „-1234.56" wie in der Datei —, damit
+   beide Schreibweisen ans Ziel führen; norm() macht dabei Punkt
+   und Komma gleich. */
+function hayItem(it,m){
+  const v=m?[it.amounts[m-1]]:it.amounts;
+  const n=m?[it.notes[m-1]||'']:it.notes;
+  return norm([it.name,keyLabel(it.group),bankLabel(it.bank),payLabel(it.pay),DUE_LABEL(it.dueDay),
+    it.note||''].concat(v.map(eur),v.map(String),n).join(' '));
+}
+function hayKak(k,m){
+  const e=state.kak[k]; if(!e) return '';
+  const v=m?[kakVal(k,m)]:MONTHS.map((_,i)=>kakVal(k,i+1));
+  const n=m?[e.notes[m-1]||'']:e.notes;
+  return norm([keyLabel(k),e.note||''].concat(v.map(eur),v.map(String),n).join(' '));
+}
+/* Der getippte Suchbegriff, vergleichsfertig. Leer heißt: alles
+   passt. */
+const queryQ=()=>norm((ui.q||'').trim());
+
 /* ── Regelmäßige Posten ───────────────────────────────────── */
 const isIncome=it=>it.group==='EINNAHMEN';
 const paidAt=(it,m)=>!!it.paid[m-1];

@@ -25,12 +25,12 @@ function metaLine(it){
 
 function itemRow(it,m){
   const p=paidAt(it,m), e=estOf(it), note=it.notes[m-1];
-  return `<tr class="${p?'paid':''}">
+  return `<tr class="${p?'paid':''}"${dblItem(it.id)}>
     <td class="markcell"><button class="seal${!p&&e?' est':''}" aria-pressed="${p}" data-paid="${it.id}"
       title="${p?t('month.markOpen'):t('month.markPaid')}">${CHECK_SVG}</button></td>
     <td class="num amt ${e&&!p?'est':cls(it.amounts[m-1])}">${eur(it.amounts[m-1])}</td>
     <td class="pencell"><div class="ptools"><button class="pencil" data-edit="${it.id}" title="${t('year.editTip')}">&#9998;</button>${lampHtml('item',it.id,m)}</div></td>
-    <td>${it.url?`<a class="linkicon" href="${esc(it.url)}" target="_blank" rel="noopener" title="${t('month.receiptTip')}">${LINK_SVG}</a> `:''}<span class="iname">${esc(it.name)}</span>${isLastRate(it,m)?`<span class="pill last">${t('month.lastRate')}</span>`:''}
+    <td class="nm">${it.url?`<a class="linkicon" href="${esc(it.url)}" target="_blank" rel="noopener" title="${t('month.receiptTip')}">${LINK_SVG}</a> `:''}<span class="iname">${esc(it.name)}</span>${isLastRate(it,m)?`<span class="pill last">${t('month.lastRate')}</span>`:''}
       ${metaLine(it)}${note?`<div class="itemnote">${esc(note)}</div>`:''}</td></tr>`;
 }
 
@@ -46,12 +46,12 @@ function itemRow(it,m){
 function balanceRow(m){
   const it=state.balance, v=it.amounts[m-1], note=it.notes[m-1];
   return `<div class="card sec-bal">
-    <table class="ledger"><tr class="balrow">
+    <table class="ledger"><tr class="balrow"${dblItem(BALANCE_ID)}>
       <td class="markcell"></td>
       <td class="num amt ${cls(v)}">${eur(v)}</td>
       <td class="pencell"><div class="ptools"><button class="pencil" data-edit="${BALANCE_ID}"
         title="${t('bal.editTip')}">&#9998;</button>${lampHtml('item',BALANCE_ID,m)}</div></td>
-      <td><span class="balname" data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>
+      <td class="nm"><span class="balname" data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>
         ${note?`<div class="itemnote">${esc(note)}</div>`:''}</td></tr></table></div>`;
 }
 
@@ -59,12 +59,14 @@ function kakRow(k,m){
   const e=state.kak[k]; if(!e) return '';
   const v=kakVal(k,m), done=kakDone(k,m), imported=hasActual(m);
   const est=e.estimated&&!done;
-  return `<tr class="${done?'paid':''}">
+  return `<tr class="${done?'paid':''}"${dblKak(k)}>
     <td class="markcell"><button class="seal${!done&&e.estimated?' est':''}" aria-pressed="${done}" data-kpaid="${esc(k)}"
       ${imported?`disabled title="${t('month.imported')}"`:`title="${done?t('month.markOpen'):t('month.markDone')}"`}>${CHECK_SVG}</button></td>
     <td class="num amt ${est?'est':cls(v)}">${eur(v)}</td>
     <td class="pencell"><div class="ptools"><button class="pencil" data-kedit="${esc(k)}" title="${t('month.editKak')}">&#9998;</button>${lampHtml('kak',k,m)}</div></td>
-    <td>${e.url?`<a class="linkicon" href="${esc(e.url)}" target="_blank" rel="noopener" title="${t('month.receiptTip')}">${LINK_SVG}</a> `:''}<span class="iname">${esc(keyLabel(k))}</span>${kakOv(k,m)!=null?'<span class="pill corrp">corrected</span>':(imported?'<span class="pill">imported</span>':(e.estimated?`<span class="pill">${t('g.estimated')}</span>`:''))}
+    <td class="nm"><div class="rowline">
+        <span>${e.url?`<a class="linkicon" href="${esc(e.url)}" target="_blank" rel="noopener" title="${t('month.receiptTip')}">${LINK_SVG}</a> `:''}<span class="iname">${esc(keyLabel(k))}</span></span>
+        ${kakOv(k,m)!=null?'<span class="pill corrp">corrected</span>':(imported?'<span class="pill">imported</span>':(e.estimated?`<span class="pill">${t('g.estimated')}</span>`:''))}</div>
       ${e.notes[m-1]?`<div class="itemnote">${esc(e.notes[m-1])}</div>`:''}</td></tr>`;
 }
 
@@ -74,9 +76,17 @@ function viewMonat(){
   const openN=due.filter(it=>!paidAt(it,m)).length;
   const uncN=unclearCount(m);
 
-  /* Zwei unabhängige Filter: Zahlungsstand und Fälligkeit. */
-  const show=it=> (ui.filter==='alle' || (ui.filter==='offen'&&!paidAt(it,m)) || (ui.filter==='unklar'&&estOf(it)))
-    && (ui.dueFilter==='alle' || dueGroup(it.dueDay)===ui.dueFilter);
+  /* Drei unabhängige Filter: das Suchfeld, die Fälligkeit und der
+     Zahlungsstand. Sie gelten gleichzeitig — was übrig bleibt,
+     erfüllt alle drei. */
+  const q=queryQ();
+  const stateOk=it=> ui.filter==='alle'
+    || (ui.filter==='offen'&&!paidAt(it,m))
+    || (ui.filter==='unklar'&&estOf(it))
+    || (ui.filter==='bezahlt'&&paidAt(it,m));
+  const show=it=> stateOk(it)
+    && (ui.dueFilter==='alle' || dueGroup(it.dueDay)===ui.dueFilter)
+    && (!q || hayItem(it,m).includes(q));
 
   const incRows=settledLast(dueIn(m).filter(isIncome)).map(it=>itemRow(it,m)).join('');
   const flexRows=kakCats().map(k=>kakRow(k,m)).join('');
@@ -125,11 +135,8 @@ function viewMonat(){
   </div>
 
   <div class="card sec-flex">
-    <div class="sechead"><div class="headstack">
-        <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span></h2>
-        <p class="subhead">${hasActual(m)
-          ? t('month.flexSub',esc(state.flexSource[m]||'Fast Budget'))
-          : t('month.flexSubNone')}</p></div>
+    <div class="sechead">
+      <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span></h2>
       <span style="display:flex;gap:12px;align-items:center">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
         <button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>
@@ -142,16 +149,26 @@ function viewMonat(){
       <span style="display:flex;gap:12px;align-items:center">
         <button class="btn small" data-newitem="1">${t('year.addItem')}</button>
         <span class="tot neg">${eur(fixedCost(m))}</span></span></div>
-    <div class="filterbar">
-      <button class="btn small" data-filter="alle" aria-pressed="${ui.filter==='alle'}">${t('g.all')}</button>
-      <button class="btn small" data-filter="offen" aria-pressed="${ui.filter==='offen'}">${t('month.fOpen')}</button>
-      <button class="btn small" data-filter="unklar" aria-pressed="${ui.filter==='unklar'}">${t('month.fEst')}</button>
-    </div>
-    <div class="filterbar">
-      <button class="btn small" data-duefilter="alle" aria-pressed="${ui.dueFilter==='alle'}">${t('month.fDueAll')}</button>
-      <button class="btn small" data-duefilter="A" aria-pressed="${ui.dueFilter==='A'}" title="${t('month.fDueATip')}">${t('month.fDueA')}</button>
-      <button class="btn small" data-duefilter="M" aria-pressed="${ui.dueFilter==='M'}" title="${t('month.fDueMTip')}">${t('month.fDueM')}</button>
-      <button class="btn small" data-duefilter="E" aria-pressed="${ui.dueFilter==='E'}" title="${t('month.fDueETip')}">${t('month.fDueE')}</button>
+    <!-- Eine Zeile in der Reihenfolge, in der man filtert: erst
+         suchen, dann nach Fälligkeit einschränken, dann nach
+         Zahlungsstand. Das Suchfeld ist so breit wie die drei
+         Spalten vor der Bezeichnung (--leadw in css/ledger.css) —
+         die Knöpfe dahinter fangen damit genau über der
+         Bezeichnungsspalte an. -->
+    <div class="filterbar fbrow">
+      ${filterField()}
+      <span class="fbgroup">
+        ${fbtn('duefilter','alle',t('month.fDueAll'),t('month.fDueAllTip'),ui.dueFilter)}
+        ${fbtn('duefilter','A',t('month.fDueA'),t('month.fDueATip'),ui.dueFilter)}
+        ${fbtn('duefilter','M',t('month.fDueM'),t('month.fDueMTip'),ui.dueFilter)}
+        ${fbtn('duefilter','E',t('month.fDueE'),t('month.fDueETip'),ui.dueFilter)}
+      </span>
+      <span class="fbgroup">
+        ${fbtn('filter','alle',t('month.fAll'),t('month.fAllTip'),ui.filter)}
+        ${fbtn('filter','offen',t('month.fOpen'),t('month.fOpenTip'),ui.filter)}
+        ${fbtn('filter','unklar',t('month.fEst'),t('month.fEstTip'),ui.filter)}
+        ${fbtn('filter','bezahlt',t('month.fPaid'),t('month.fPaidTip'),ui.filter)}
+      </span>
     </div>
     <table class="ledger">${outRows||`<tr><td class="note">${t('month.noItems')}</td></tr>`}</table>
   </div>

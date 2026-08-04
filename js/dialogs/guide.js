@@ -70,6 +70,10 @@ already exists, <b>${t('app.save')}</b> writes your file. While something is uns
 name next to the buttons is shown in bold red.</p>
 <p>Below the bar are the four views, and under them the months — those belong to
 <b>${t('view.monat')}</b>, which is where you will work day to day.</p>
+<p>Which view greets you depends on your file: with a file loaded FINA opens the <b>current
+month</b>, because that is where the work happens; with no file open it starts in
+<b>${t('view.jahr')}</b>, because that is where you build the book. (If the file belongs to
+another year, “current” means January.)</p>
 
 <h4>Step 2 — Set the year and the language</h4>
 ${gshot('set-general','Settings, section General')}
@@ -113,6 +117,11 @@ way — for every item, in every view.</p>
 from, how it is paid, on which day of the month it is due, and — if it ever stops — the month and
 year of the last payment. Those two fields are what colours the <b>LP</b> column in the year
 table later.</p>
+<p>The <b>${t('item.block')}</b> starts out empty and reads “${t('item.blockPick')}”. Choose one:
+FINA refuses to save an item without a block, because such an item would show up in no category of
+the month view and in no group of the year table. Nothing is preselected on purpose — a block
+chosen for you would end up in your file unnoticed. Only <b>${t('year.addIncome')}</b> brings its
+block along.</p>
 <p><b>In the middle: the amounts.</b> Twelve boxes, one per month.
 <b>An expense is typed with a minus</b> — “-49,90”. Forget the minus and the item counts as
 income.</p>
@@ -153,9 +162,21 @@ ${gshot('month-out','The regular costs of one month, with filters and seals')}
   <li>Correct any amount that turned out different — remove the tick, type, tick again.</li>
   <li>Press <b>${t('app.save')}</b>.</li>
 </ol>
-<p>The two rows of buttons above the list are filters: show only what is still open, only what is
-estimated, or only what is due at the start, the middle or the end of the month. They change what
-you see, never what is in the file.</p>
+<p>The row above the list is the filter, in the order in which you use it: the <b>search
+field</b>, then the <b>due date</b> — all, start, middle or end of the month —, then the
+<b>payment state</b>: ${t('month.fAll')}, ${t('month.fOpen')}, ${t('month.fEst')},
+${t('month.fPaid')}. A dark button is one that is being applied; click it again and it is off.
+Hold the mouse over any of them and it says what it does.</p>
+<p>The search field works while you type and looks at everything the row shows: name, amount,
+bank, payment type, category, note. Part of a word or of a figure is enough — “ele” finds
+Electricity, “50” finds every amount containing 50. All three filters apply at once, and none of
+them changes anything in the file — only what you see.</p>
+<p>As long as something is typed in the field, the cursor returns to it after every tick: you can
+work through a long list without reaching for the mouse. An empty field is left alone, so ticking
+never pulls your cursor away from where it was.</p>
+<p>And while you scroll, the heading of the block and the whole filter row stay at the top of the
+screen — you always see which block you are in and what it costs, and you can filter from anywhere
+in the list.</p>
 
 <h4>Step 10 — Read the figures at the top</h4>
 ${gshot('ui-kpi','The key figures of the chosen month')}
@@ -174,12 +195,29 @@ payment that never made it into the book. Do not go hunting. Type the difference
 ${gshot('year-left','The year table: one row per item, one column per month')}
 <p>Now open <b>${t('view.jahr')}</b>. One row per item, one column per month, and the narrow
 columns on the left carry the codes: <b>B</b> bank, <b>PT</b> payment type, <b>DD</b> due date,
-<b>LP</b> last payment.</p>
+<b>LP</b> last payment. What the marks ✓ and ? mean is written to the right of the view tabs.</p>
 <p>Amounts are green when positive, red when negative, yellow while they are still a guess. Rows
-on grey are done for this year. A click on a month name takes you into that month.</p>
+on grey are done for this year. A click on a month name takes you into that month, and a
+<b>double-click on any amount</b> opens that item — the same window as the pencil on the left,
+from any of the twelve months and from the total column.</p>
+<p>The three block rows — ${t('g.income')}, ${t('view.kakeibo')}, ${t('g.fixed')} — stay at the
+top of the screen while you scroll through their block, the same way the headings do in the month
+view.</p>
+<p>The bar above the table starts with the same search field as the month view, and it holds the
+same word: what you type in one view still applies in the other. Here it searches all twelve
+months and it applies to every row. Type the name of a block or of a category and that block
+appears whole, with everything under it — you look for a category in order to see it, not to find
+it empty.</p>
+<p>Next to it two buttons. <b>${t('year.hideDone')}</b> folds away every month in which nothing is
+left open; <b>${t('year.hideSettled')}</b> hides the items that are fully paid for this year.
+Neither is on to begin with. They keep their name and show at their dark background that they are
+being applied, a second click switches them off — and both are remembered in your file, so the
+table looks the way you left it when you open it again.</p>
+${gshot('year','The year view: search field and the two filter buttons on the left, what they add on the right')}
 
 <h4>Step 13 — Look ahead</h4>
-${gshot('forecast-plan','The Forecast view: the assumption per category')}
+${gshot('forecast','The Forecast view: the whole year, month by month')}
+${gshot('forecast-plan','On the right, the assumption per category')}
 <p><b>${t('view.prognose')}</b> adds up everything still to come and shows the balance you can
 expect on 31 December. For the months you have not lived yet it needs an assumption per everyday
 category — that is the right-hand column.</p>
@@ -241,6 +279,10 @@ Datei, die es schon gibt, <b>${t('app.save')}</b> schreibt deine Datei. Solange 
 ungespeichert ist, steht der Dateiname daneben fett und rot.</p>
 <p>Unter der Zeile stehen die vier Ansichten und darunter die Monate — die gehören zu
 <b>${t('view.monat')}</b>, dort arbeitest du später im Alltag.</p>
+<p>Womit du begrüßt wirst, hängt von der Datei ab: mit geladener Datei öffnet FINA den
+<b>laufenden Monat</b>, denn dort wird gearbeitet; ohne Datei die <b>${t('view.jahr')}</b>-Ansicht,
+denn dort legst du an. (Gehört die Datei zu einem anderen Jahr, ist der „laufende" Monat der
+Januar.)</p>
 
 <h4>Schritt 2 — Jahr und Sprache einstellen</h4>
 ${gshot('set-general','Die Einstellungen, Bereich Allgemein')}
@@ -283,6 +325,11 @@ gleich — für jeden Posten, in jeder Ansicht.</p>
 <p><b>Oben: wer und was.</b> Der Name, die Gruppe, von welchem Konto es abgeht, wie bezahlt wird,
 an welchem Tag im Monat es fällig ist und — falls es einmal endet — Monat und Jahr der letzten
 Zahlung. Diese beiden Felder färben später die Spalte <b>LP</b> in der Jahrestabelle.</p>
+<p>Der <b>${t('item.block')}</b> ist zu Anfang leer und zeigt „${t('item.blockPick')}". Wähl einen
+aus: ohne Block speichert FINA den Posten nicht, denn er stünde in keiner Kategorie der
+Monatsansicht und in keiner Gruppe der Jahrestabelle. Vorausgewählt ist mit Absicht nichts — ein
+Block, den die Anwendung für dich wählt, landete unbemerkt in deiner Datei. Nur
+<b>${t('year.addIncome')}</b> bringt seinen Block mit.</p>
 <p><b>In der Mitte: die Beträge.</b> Zwölf Felder, eines je Monat.
 <b>Eine Ausgabe wird mit Minus geschrieben</b> — „-49,90". Ohne Minus gilt der Posten als
 Einnahme.</p>
@@ -323,9 +370,20 @@ ${gshot('month-out','Die regelmäßigen Kosten eines Monats, mit Filtern und Sie
   <li>Korrigier, was anders ausgefallen ist — Haken weg, tippen, Haken wieder setzen.</li>
   <li>Klick auf <b>${t('app.save')}</b>.</li>
 </ol>
-<p>Die beiden Knopfreihen über der Liste sind Filter: nur was offen ist, nur was geschätzt ist,
-oder nur was am Anfang, in der Mitte oder am Ende des Monats fällig wird. Sie ändern nur die
-Anzeige, nie die Datei.</p>
+<p>Die Zeile über der Liste ist der Filter, in der Reihenfolge, in der man ihn benutzt: das
+<b>Suchfeld</b>, dann die <b>Fälligkeit</b> — alle, Anfang, Mitte oder Ende des Monats —, dann der
+<b>Zahlungsstand</b>: ${t('month.fAll')}, ${t('month.fOpen')}, ${t('month.fEst')},
+${t('month.fPaid')}. Ein dunkler Knopf gilt gerade; klick ihn noch einmal an, und er gilt nicht
+mehr. Fahr mit der Maus darüber, und jeder sagt dir, was er tut.</p>
+<p>Das Suchfeld filtert beim Tippen und sieht in alles hinein, was die Zeile zeigt: Name, Betrag,
+Bank, Zahlungsart, Kategorie, Notiz. Ein Wortteil oder ein Stück der Zahl genügt — „str" findet
+Strom, „50" jeden Betrag, in dem 50 vorkommt. Alle drei Filter gelten gleichzeitig, und keiner
+ändert etwas in der Datei — nur, was du siehst.</p>
+<p>Solange etwas im Feld steht, kehrt die Schreibmarke nach jedem Haken dorthin zurück: du kannst
+eine lange Liste durcharbeiten, ohne zur Maus zu greifen. Ein leeres Feld bleibt unangetastet —
+dann zieht dich das Abhaken nirgendwohin.</p>
+<p>Und beim Scrollen bleiben die Überschrift des Blocks und die ganze Filterzeile oben stehen: du
+siehst immer, in welchem Block du bist und was er kostet, und kannst von überall aus filtern.</p>
 
 <h4>Schritt 10 — Die Zahlen oben lesen</h4>
 ${gshot('ui-kpi','Die Kennzahlen des gewählten Monats')}
@@ -344,13 +402,29 @@ Zahlung, die nie im Buch gelandet ist. Such nicht lange. Trag die Differenz in d
 ${gshot('year-left','Die Jahrestabelle: je Position eine Zeile, je Monat eine Spalte')}
 <p>Jetzt öffne <b>${t('view.jahr')}</b>. Je Position eine Zeile, je Monat eine Spalte, und links
 die schmalen Spalten mit den Kürzeln: <b>B</b> Bank, <b>PT</b> Zahlungsart, <b>DD</b> Fälligkeit,
-<b>LP</b> letzte Zahlung.</p>
+<b>LP</b> letzte Zahlung. Was die Zeichen ✓ und ? bedeuten, steht rechts auf Höhe der Reiter.</p>
 <p>Beträge sind grün im Plus, rot im Minus und gelb, solange sie geschätzt sind. Grau hinterlegte
-Zeilen sind für dieses Jahr erledigt. Ein Klick auf einen Monatsnamen bringt dich in diesen
-Monat.</p>
+Zeilen sind für dieses Jahr erledigt. Ein Klick auf einen Monatsnamen bringt dich in diesen Monat,
+und ein <b>Doppelklick auf einen Betrag</b> öffnet die Position — dasselbe Fenster wie der Stift
+links, von jedem der zwölf Monate und von der Gesamtspalte aus.</p>
+<p>Die drei Blockzeilen — ${t('g.income')}, ${t('view.kakeibo')}, ${t('g.fixed')} — bleiben beim
+Scrollen oben stehen, solange du in ihrem Block liest; genau wie die Überschriften in der
+Monatsansicht.</p>
+<p>Die Leiste über der Tabelle fängt mit demselben Suchfeld an wie die Monatsansicht, und es
+enthält dasselbe Wort: was du in der einen Ansicht eintippst, gilt in der anderen weiter. Hier
+sucht es über alle zwölf Monate und gilt für jede Zeile. Tippst du den Namen eines Blocks oder
+einer Kategorie, steht dieser Block ganz da, mit allem darunter — man sucht eine Kategorie
+schließlich, um sie zu sehen, nicht um sie leer zu finden.</p>
+<p>Daneben zwei Knöpfe. <b>${t('year.hideDone')}</b> klappt jeden Monat weg, in dem nichts mehr
+offen ist; <b>${t('year.hideSettled')}</b> blendet die Positionen aus, die für dieses Jahr
+abbezahlt sind. Keiner von beiden ist zu Anfang an. Sie behalten ihren Namen und zeigen am dunklen
+Grund, dass sie gelten; ein zweiter Klick schaltet sie ab — und beide merkt sich deine Datei, die
+Tabelle sieht beim nächsten Öffnen also aus wie beim Zumachen.</p>
+${gshot('year','Die Jahresansicht: links Suchfeld und die beiden Filterknöpfe, rechts, was etwas anlegt')}
 
 <h4>Schritt 13 — Nach vorn schauen</h4>
-${gshot('forecast-plan','Die Prognose: die Annahme je Kategorie')}
+${gshot('forecast','Die Prognose: das ganze Jahr, Monat für Monat')}
+${gshot('forecast-plan','Rechts die Annahme je Kategorie')}
 <p><b>${t('view.prognose')}</b> rechnet zusammen, was noch kommt, und zeigt den Saldo, der am
 31. Dezember zu erwarten ist. Für die Monate, die du noch nicht gelebt hast, braucht sie je
 Alltagskategorie eine Annahme — das ist die rechte Spalte.</p>
@@ -427,11 +501,15 @@ ${gshot('month-bal','The balance correction, above the income block')}
   <li>Press <b>${t('app.save')}</b>. Nothing is stored automatically — while something is unsaved,
       the file name at the top is shown in bold red.</li>
 </ol>
+<p>With a file open FINA starts in the current month, without one in the year view — in the month
+you work, in the year you build.</p>
 ${gshot('set-lists','Settings: every list has a code and a label of your own')}
 
 <h4>The four views</h4>
 <p><b>${t('view.monat')}</b> — one month, close up. This is where you work day to day: you see every
-amount due, and you tick off what you have paid. The tabs above take you from month to month.</p>
+amount due, and you tick off what you have paid. The tabs above take you from month to month. Above
+the regular costs sits a filter row — a search field, the due dates, the payment state — and while
+you scroll, the heading of each block and that filter row stay at the top of the screen.</p>
 ${gshot('month-out','The month view, block by block')}
 <p><b>${t('view.jahr')}</b> — the whole year as a table: one row per item, one column per month.
 This is where you plan and where you spot the gaps.</p>
@@ -441,14 +519,16 @@ chosen period and what it costs on average per month.</p>
 ${gshot('flex-view','Flexible Payments: spending by category')}
 <p><b>${t('view.prognose')}</b> — how the year ends. It adds up what is still to come and shows the
 balance you can expect on 31 December.</p>
-${gshot('forecast-plan','The forecast works from one assumption per category')}
+${gshot('forecast','The forecast: every month up to the year-end balance')}
+${gshot('forecast-plan','It works from one assumption per category')}
 
 <h4>A regular cost, step by step</h4>
 <p>Click <b>${t('year.addItem')}</b>, or the little pencil next to an item that already exists. The
 window that opens has three parts.</p>
 <p><b>At the top, who and what:</b> the name, the group it belongs to, which account it is paid from,
 how it is paid, on which day of the month it is due, and — if it ever stops — the month and year of
-the last payment. There is also room for a link to the invoice or the contract.</p>
+the last payment. There is also room for a link to the invoice or the contract. The group is not
+preselected: a new item asks for it, and without one it is not saved.</p>
 <p><b>In the middle, the amounts:</b> twelve boxes, one per month.
 <b>An expense is written with a minus sign</b> — “-49,90”. Income has no sign. If you would type the
 same amount into many months, use the quick entry above: type the amount once, choose how often it
@@ -466,7 +546,8 @@ confirmed and the colour goes back to normal.</p>
 <h4>Everyday spending</h4>
 <p>Everyday spending works the same way, only with categories instead of contracts. Give a category
 an amount per month and tick it off once the month is done. If you have never spent time on it, an
-estimate is enough — FINA marks it as a guess.</p>
+estimate is enough — FINA marks it as a guess; in the month view that mark sits at the right-hand
+end of the row, because it says something about the figure, not about the name.</p>
 <p>If you use the <b>Fast Budget</b> app on your phone, you can save yourself the typing: export
 your transactions there as a CSV file and load it here with <b>${t('kak.import')}</b>. FINA reads
 the file, shows you which months are in it, lets you deselect any of them and tells you exactly what
@@ -488,14 +569,22 @@ then marked as corrected, and the import is not lost.</p>
       negative, <span class="est">yellow</span> while they are only estimated.</li>
   <li>The column <b>${t('year.end')}</b> holds the last payment of an item and colours how much of
       the term is left, the current month included:
-      <span class="endkey e-now">this one only</span> <span class="endkey e-soon">2 months</span>
-      <span class="endkey e-mid">3 to 6</span> <span class="endkey e-far">more</span>. That way you
+      <span class="endkey e-now">this one only</span> <span class="endkey e-soon">2 to 3 months</span>
+      <span class="endkey e-mid">4 to 6</span> <span class="endkey e-far">7 and more</span>. That way you
       see at a glance what is about to fall away.</li>
   <li>Rows on grey are done for this year — nothing is left to pay. They sink to the bottom of their
-      group, and <b>${t('year.hideSettled')}</b> hides them completely.</li>
-  <li>A month whose name is struck through is fully ticked off. Such months fold away to leave room;
-      <b>${t('year.showAll')}</b> brings them back.</li>
-  <li>Clicking a month name takes you into that month.</li>
+      group; <b>${t('year.hideSettled')}</b> hides them completely.</li>
+  <li>A month whose name is struck through is fully ticked off. <b>${t('year.hideDone')}</b> folds
+      those months away when you need the room; the total column keeps counting all twelve.</li>
+  <li>Both buttons keep their label and show at a dark background that they are being applied; a
+      second click switches them off. Neither is on to begin with, and both are stored in your file —
+      the table comes back the way you left it.</li>
+  <li>The search field in the same bar filters every row of the table and searches all twelve
+      months — name, amount, bank, payment type, category, note. It shares its word with the month
+      view. Hit the name of a block or of a category, and that block stands there whole.</li>
+  <li>The three block rows stay at the top of the screen while you scroll through their block.</li>
+  <li>Clicking a month name takes you into that month; a double-click on any amount opens the item,
+      the same window as the pencil.</li>
 </ul>
 
 <h4>Notes</h4>
@@ -554,12 +643,15 @@ ${gshot('month-bal','Die Saldokorrektur, über dem Einnahmenblock')}
   <li>Klick auf <b>${t('app.save')}</b>. Von selbst wird nichts gespeichert — solange etwas offen
       ist, steht der Dateiname oben fett und rot.</li>
 </ol>
+<p>Mit geladener Datei beginnt FINA im laufenden Monat, ohne Datei in der Jahresansicht — im Monat
+wird gearbeitet, im Jahr angelegt.</p>
 ${gshot('set-lists','Die Einstellungen: jede Liste hat ein eigenes Kürzel und eine Bezeichnung')}
 
 <h4>Die vier Ansichten</h4>
 <p><b>${t('view.monat')}</b> — ein Monat aus der Nähe. Hier arbeitest du im Alltag: du siehst jeden
 fälligen Betrag und hakst ab, was du bezahlt hast. Über die Reiter darüber gehst du von Monat zu
-Monat.</p>
+Monat. Über den regelmäßigen Kosten steht eine Filterzeile — Suchfeld, Fälligkeit, Zahlungsstand —,
+und beim Scrollen bleiben die Überschrift jedes Blocks und diese Zeile oben stehen.</p>
 ${gshot('month-out','Die Monatsansicht, Block für Block')}
 <p><b>${t('view.jahr')}</b> — das ganze Jahr als Tabelle: je Position eine Zeile, je Monat eine
 Spalte. Hier planst du, und hier fallen dir Lücken auf.</p>
@@ -569,14 +661,17 @@ gewählten Zeitraum kostet und was sie im Schnitt je Monat kostet.</p>
 ${gshot('flex-view','Flexible Payments: die Ausgaben je Kategorie')}
 <p><b>${t('view.prognose')}</b> — wie das Jahr ausgeht. Sie rechnet zusammen, was noch kommt, und
 zeigt den Saldo, der am 31. Dezember zu erwarten ist.</p>
-${gshot('forecast-plan','Die Prognose rechnet mit einer Annahme je Kategorie')}
+${gshot('forecast','Die Prognose: jeder Monat bis zum Saldo am Jahresende')}
+${gshot('forecast-plan','Sie rechnet mit einer Annahme je Kategorie')}
 
 <h4>Regelmäßige Kosten, Schritt für Schritt</h4>
 <p>Klick auf <b>${t('year.addItem')}</b> oder auf den kleinen Stift neben einer vorhandenen Position.
 Das Fenster, das aufgeht, hat drei Teile.</p>
 <p><b>Oben, wer und was:</b> der Name, die Gruppe, zu der die Position gehört, von welchem Konto sie
 abgeht, wie bezahlt wird, an welchem Tag im Monat sie fällig ist und — falls sie einmal endet —
-Monat und Jahr der letzten Zahlung. Dazu ist Platz für einen Link zur Rechnung oder zum Vertrag.</p>
+Monat und Jahr der letzten Zahlung. Dazu ist Platz für einen Link zur Rechnung oder zum Vertrag.
+Die Gruppe ist nicht vorausgewählt: eine neue Position fragt danach und wird ohne sie nicht
+gespeichert.</p>
 <p><b>In der Mitte die Beträge:</b> zwölf Felder, eines je Monat.
 <b>Eine Ausgabe wird mit Minus geschrieben</b> — „-49,90". Einnahmen bekommen kein Vorzeichen. Wenn
 derselbe Betrag in viele Monate soll, nimm die schnelle Eingabe darüber: Betrag einmal eintippen,
@@ -595,7 +690,8 @@ bestätigt und die Farbe wird wieder normal.</p>
 <h4>Die alltäglichen Ausgaben</h4>
 <p>Die alltäglichen Ausgaben laufen genauso, nur mit Kategorien statt Verträgen. Gib einer Kategorie
 einen Betrag je Monat und hak sie ab, wenn der Monat durch ist. Wer sich nicht festlegen mag, trägt
-eine Schätzung ein — FINA kennzeichnet sie als solche.</p>
+eine Schätzung ein — FINA kennzeichnet sie als solche; in der Monatsansicht steht diese Marke am
+rechten Ende der Zeile, denn sie sagt etwas über die Zahl, nicht über den Namen.</p>
 <p>Wenn du auf dem Handy die App <b>Fast Budget</b> benutzt, kannst du dir das Tippen sparen:
 exportiere dort deine Transaktionen als CSV-Datei und lade sie hier über
 <b>${t('kak.import')}</b>. FINA liest die Datei, zeigt dir, welche Monate darin stehen, lässt dich
@@ -617,14 +713,23 @@ korrigiert, der Import geht dabei nicht verloren.</p>
       <span class="est">gelb</span>, solange sie nur geschätzt sind.</li>
   <li>Die Spalte <b>${t('year.end')}</b> enthält die letzte Zahlung einer Position und färbt, wie
       viel Laufzeit noch bleibt, den laufenden Monat mitgezählt:
-      <span class="endkey e-now">nur noch dieser</span> <span class="endkey e-soon">2 Monate</span>
-      <span class="endkey e-mid">3 bis 6</span> <span class="endkey e-far">mehr</span>. So siehst du
+      <span class="endkey e-now">nur noch dieser</span> <span class="endkey e-soon">2 bis 3 Monate</span>
+      <span class="endkey e-mid">4 bis 6</span> <span class="endkey e-far">7 und mehr</span>. So siehst du
       auf einen Blick, was demnächst wegfällt.</li>
   <li>Grau hinterlegte Zeilen sind für dieses Jahr erledigt — dort steht nichts mehr aus. Sie
-      rutschen ans Ende ihrer Gruppe, und <b>${t('year.hideSettled')}</b> blendet sie ganz aus.</li>
-  <li>Ein durchgestrichener Monatsname heißt: vollständig abgehakt. Solche Monate klappen zu, um
-      Platz zu schaffen; <b>${t('year.showAll')}</b> holt sie zurück.</li>
-  <li>Ein Klick auf einen Monatsnamen bringt dich in diesen Monat.</li>
+      rutschen ans Ende ihrer Gruppe; <b>${t('year.hideSettled')}</b> blendet sie ganz aus.</li>
+  <li>Ein durchgestrichener Monatsname heißt: vollständig abgehakt. <b>${t('year.hideDone')}</b>
+      klappt solche Monate weg, wenn du Platz brauchst; die Gesamtspalte zählt weiter alle zwölf.</li>
+  <li>Beide Knöpfe behalten ihre Beschriftung und zeigen am dunklen Grund, dass sie gelten; ein
+      zweiter Klick schaltet sie ab. Keiner ist zu Anfang an, und beide stehen in deiner Datei —
+      die Tabelle sieht beim nächsten Öffnen aus wie beim Zumachen.</li>
+  <li>Das Suchfeld in derselben Leiste filtert jede Zeile der Tabelle und sucht über alle zwölf
+      Monate — Name, Betrag, Bank, Zahlungsart, Kategorie, Notiz. Es teilt sein Wort mit der
+      Monatsansicht. Triffst du den Namen eines Blocks oder einer Kategorie, steht dieser Block
+      ganz da.</li>
+  <li>Die drei Blockzeilen bleiben beim Scrollen oben stehen, solange ihr Block läuft.</li>
+  <li>Ein Klick auf einen Monatsnamen bringt dich in diesen Monat; ein Doppelklick auf einen Betrag
+      öffnet die Position — dasselbe Fenster wie der Stift.</li>
 </ul>
 
 <h4>Notizen</h4>
@@ -640,6 +745,122 @@ andere Browser legen eine frische Kopie im Download-Ordner ab. <b>${t('app.unlin
 Datei aus der Hand und leert den Bildschirm; ist etwas ungespeichert, wirst du vorher gewarnt.</p>
 <p>Die Datei ist einfacher Text und gehört dir allein. Kopiere sie, sichere sie, nimm sie mit an
 einen anderen Rechner — FINA liest sie dort genauso.</p>
+`},
+
+/* ── Reiter 3: Was ist neu ─────────────────────────────────────
+   Die Versionsliste, neueste Fassung oben. Sie wächst nach oben:
+   eine neue Version bekommt einen eigenen <h4> mit der Nummer und
+   darunter eine Liste dessen, was sich geändert hat — grob, in
+   der Sprache des Nutzers, nicht in der des Codes. Die Nummer ist
+   das Datum: Jahr.Monat.Tag.Zählung. */
+news:{
+
+en:()=>`
+<h4>26.8.4.1 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>Double-click opens an item — everywhere.</b> In every view, a double-click on an
+      <b>amount</b> or on the <b>name</b> opens the same window as the pencil: in the month, in the
+      year table, in ${t('view.kakeibo')} and in ${t('view.prognose')}. Seals, pencils, note lamps,
+      receipt links and input fields keep their own behaviour.</li>
+  <li><b>The search field holds the cursor.</b> In the year view as in the month view, the cursor
+      returns to the field after ticking, filtering or changing the month — but only while
+      something is typed in it. An empty field is left alone. Opening a file clears it, so a new
+      file is never shown through an old filter.</li>
+  <li><b>The bar of the year view, rebuilt.</b> The search field sits at the far left, followed by
+      the two buttons that also filter. <b>${t('year.hideDone')}</b> and
+      <b>${t('year.hideSettled')}</b> keep their name and show at a dark background that they are
+      being applied; a second click switches them off. Neither is on to begin with, and both are
+      stored in your file. What ✓ and ? mean now stands to the right of the view tabs, and the
+      three block rows stay at the top of the screen while you scroll through their block.</li>
+</ul>
+
+<h4>26.7.30.1</h4>
+<p>The first complete version. Everything FINA does, in short:</p>
+<ul>
+  <li><b>One file, one year.</b> Everything lives in a JSON file on your own computer; nothing is
+      sent anywhere and nothing is written until you press <b>${t('app.save')}</b>. Unsaved changes
+      show up in bold red next to the file name.</li>
+  <li><b>Three kinds of money</b> — ${t('g.income')}, ${t('g.fixed')} and ${t('view.kakeibo')} —
+      and above them the single row <b>${t('bal.row')}</b> for the difference that cannot be
+      explained.</li>
+  <li><b>Four views:</b> the month for the daily work, the year as one table, the everyday spending
+      by category, and the forecast up to 31 December. With a file open FINA starts in the current
+      month, without one in the year.</li>
+  <li><b>Items and categories</b> are kept in one window: name, block, account, payment type, due
+      date, last payment, receipt link, twelve amounts, a tick per month, and a quick entry that
+      fills many months at once. Expenses are typed with a minus. An amount you are not sure of is
+      marked as an estimate and shown in yellow with a question mark.</li>
+  <li><b>Ticking off</b> is what the month view is for: every seal locks its amount, and the key
+      figures at the top say what is left. Filters by due date and payment state, and a search
+      field that filters while you type across name, amount, bank, payment type, category and
+      note.</li>
+  <li><b>The year table</b> shows one row per item and one column per month, with the code columns
+      <b>B</b>, <b>PT</b>, <b>DD</b> and <b>LP</b>. The LP cell colours how much of the term is
+      left; rows that are done for the year turn grey.</li>
+  <li><b>Notes</b> hang on a small lamp — one for the item itself, one for each single month.</li>
+  <li><b>CSV import from Fast Budget</b> replaces the everyday figures of the months you choose;
+      corrected months keep both the import and your correction.</li>
+  <li><b>Settings</b> hold language, year, column widths and the four lists — banks, payment types,
+      regular categories and Flexible Payments categories. Renaming a category carries its figures
+      along.</li>
+  <li><b>This guide</b> opens beside the table and stays open while you work; its width can be
+      dragged.</li>
+</ul>
+`,
+
+de:()=>`
+<h4>26.8.4.1 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Doppelklick öffnet die Position — überall.</b> In jeder Ansicht öffnet ein Doppelklick auf
+      den <b>Betrag</b> oder auf die <b>Bezeichnung</b> dasselbe Fenster wie der Stift: im Monat,
+      in der Jahrestabelle, in ${t('view.kakeibo')} und in der ${t('view.prognose')}. Siegel,
+      Stift, Notizlampe, Beleglink und Eingabefelder behalten ihr eigenes Verhalten.</li>
+  <li><b>Das Suchfeld hält die Schreibmarke.</b> In der Jahresansicht wie in der Monatsansicht
+      kehrt sie nach dem Abhaken, Filtern oder Monatswechsel ins Feld zurück — aber nur, solange
+      etwas darin steht. Ein leeres Feld bleibt unangetastet. Beim Öffnen einer Datei wird es
+      geleert, damit keine neue Datei durch einen alten Filter erscheint.</li>
+  <li><b>Die Leiste der Jahresansicht, neu geordnet.</b> Ganz links das Suchfeld, gleich dahinter
+      die beiden Knöpfe, die ebenfalls filtern. <b>${t('year.hideDone')}</b> und
+      <b>${t('year.hideSettled')}</b> behalten ihren Namen und zeigen am dunklen Grund, dass sie
+      gelten; ein zweiter Klick schaltet sie ab. Keiner ist zu Anfang an, und beide stehen in
+      deiner Datei. Was ✓ und ? bedeuten, steht jetzt rechts auf Höhe der Reiter, und die drei
+      Blockzeilen bleiben beim Scrollen oben stehen, solange ihr Block läuft.</li>
+</ul>
+
+<h4>26.7.30.1</h4>
+<p>Die erste vollständige Fassung. Alles, was FINA kann, in Kürze:</p>
+<ul>
+  <li><b>Eine Datei, ein Jahr.</b> Alles steht in einer JSON-Datei auf dem eigenen Rechner; es wird
+      nichts irgendwohin geschickt und nichts geschrieben, bevor du auf <b>${t('app.save')}</b>
+      klickst. Ungespeichertes steht fett und rot neben dem Dateinamen.</li>
+  <li><b>Drei Arten von Geld</b> — ${t('g.income')}, ${t('g.fixed')} und ${t('view.kakeibo')} —
+      und darüber die einzelne Zeile <b>${t('bal.row')}</b> für die Differenz, die sich nicht
+      erklären lässt.</li>
+  <li><b>Vier Ansichten:</b> der Monat für die tägliche Arbeit, das Jahr als eine Tabelle, die
+      alltäglichen Ausgaben je Kategorie und die Prognose bis zum 31. Dezember. Mit geladener Datei
+      beginnt FINA im laufenden Monat, ohne Datei im Jahr.</li>
+  <li><b>Posten und Kategorien</b> werden in einem Fenster gepflegt: Name, Block, Konto,
+      Zahlungsart, Fälligkeit, letzte Zahlung, Beleglink, zwölf Beträge, je Monat ein Haken und
+      eine schnelle Eingabe, die viele Monate auf einmal füllt. Ausgaben werden mit Minus
+      geschrieben. Ein Betrag, der noch nicht feststeht, gilt als geschätzt und steht gelb mit
+      einem Fragezeichen da.</li>
+  <li><b>Abhaken</b> ist der Sinn der Monatsansicht: jedes Siegel sperrt seinen Betrag, und die
+      Kennzahlen oben sagen, was bleibt. Dazu Filter nach Fälligkeit und Zahlungsstand und ein
+      Suchfeld, das beim Tippen über Name, Betrag, Bank, Zahlungsart, Kategorie und Notiz
+      filtert.</li>
+  <li><b>Die Jahrestabelle</b> zeigt je Position eine Zeile und je Monat eine Spalte, mit den
+      Kürzelspalten <b>B</b>, <b>PT</b>, <b>DD</b> und <b>LP</b>. Die LP-Zelle färbt die
+      Restlaufzeit; Zeilen, die für das Jahr erledigt sind, werden grau.</li>
+  <li><b>Notizen</b> hängen an einer kleinen Lampe — eine für die Position selbst, eine für jeden
+      einzelnen Monat.</li>
+  <li><b>CSV-Import aus Fast Budget</b> ersetzt die Alltagszahlen der gewählten Monate; korrigierte
+      Monate behalten Import und Korrektur nebeneinander.</li>
+  <li><b>Die Einstellungen</b> halten Sprache, Jahr, Spaltenbreiten und die vier Listen — Banken,
+      Zahlungsarten, regelmäßige Kategorien und Flexible-Payments-Kategorien. Wird eine Kategorie
+      umbenannt, wandern ihre Zahlen mit.</li>
+  <li><b>Diese Anleitung</b> klappt neben der Tabelle auf und bleibt beim Arbeiten offen; ihre
+      Breite lässt sich ziehen.</li>
+</ul>
 `}
 
 };
@@ -647,7 +868,8 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 /* Die Reiter des Bereichs. Die Anleitung für Anfänger steht
    vorn — wer die Anwendung kennt, findet den zweiten Reiter auch
    so, umgekehrt gilt das nicht. */
-const GUIDE_TABS=[['steps','guide.tabSteps'],['product','guide.tabProduct']];
+const GUIDE_TABS=[['steps','guide.tabSteps'],['product','guide.tabProduct'],
+  ['news','guide.tabNews']];
 
 /* ── Breite des Bereichs ──────────────────────────────────────
    Beim ersten Öffnen ein Drittel des Fensters, danach das, was
@@ -728,6 +950,10 @@ function fillGuide(el){
   const y=sameTab&&scroll?scroll.scrollTop:0;
   guideLang=LANG(); box.dataset.tab=guideTab;
   const text=(GUIDE[guideTab]||GUIDE.steps);
+  const body=(text[LANG()]||text.en)();
+  /* Der Hinweis auf die Bilder steht nur über einem Reiter, der
+     welche hat — die Versionsliste kommt ohne aus. */
+  const zoom=body.indexOf('<figure')>=0?`<p class="gzoom">${t('guide.zoom')}</p>`:'';
   box.innerHTML=`<div class="ghandle" id="gHandle" role="separator" aria-orientation="vertical"
       tabindex="0" title="${t('app.guideDrag')}" aria-label="${t('app.guideDrag')}"></div>
     <div class="ghead">
@@ -736,9 +962,7 @@ function fillGuide(el){
     </div>
     <div class="gtabs" role="tablist">${GUIDE_TABS.map(([k,lab])=>
       `<button role="tab" data-gtab="${k}" aria-selected="${k===guideTab}">${t(lab)}</button>`).join('')}</div>
-    <div class="gbody guide">
-      <p class="gzoom">${t('guide.zoom')}</p>
-      ${(text[LANG()]||text.en)()}</div>`;
+    <div class="gbody guide">${zoom}${body}</div>`;
   box.querySelector('#gClose').onclick=()=>closeGuide();
   box.querySelectorAll('[data-gtab]').forEach(b=>b.onclick=()=>guideTo(b.dataset.gtab));
   bindGuideHandle(box.querySelector('#gHandle'));

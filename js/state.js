@@ -8,7 +8,11 @@
 /* state  — die geladene Datei, im Speicher
    ui     — was gerade angezeigt wird; wird nicht mitgespeichert */
 let state=null;
-let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPick:null,hideSettled:false};
+/* q ist das Suchfeld der Monatsansicht, qFocus merkt, dass der
+   Fokus nach dem Neuzeichnen wieder dorthin gehört (siehe wire()
+   in js/app.js). */
+let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPick:null,
+  q:'',qFocus:false};
 
 /* Ergänzt fehlende Felder einer Position auf zwölf Monate. */
 function normalize(it){
@@ -52,7 +56,12 @@ function emptyState(){
     groups:(state&&state.groups)?state.groups:[],
     fixed:[], balance:blankBalance(),
     flexActual:o, flexSource:src, tx:[], plan:{},
-    kakCats:[], kak:{}, labWidth:250, monWidth:100, topMin:50, lastImport:null
+    kakCats:[], kak:{}, labWidth:250, monWidth:100, topMin:50, lastImport:null,
+    /* Die beiden Filter der Jahresansicht. Sie gehören in die
+       Datei, nicht in ui: der Nutzer stellt sie einmal ein und
+       will sie beim nächsten Öffnen wiederfinden. Vorgabe: kein
+       Filter aktiv, es ist alles zu sehen. */
+    hideDoneMonths:false, hideSettled:false
   };
 }
 
@@ -86,6 +95,10 @@ function afterLoad(){
      Jahr ist das der Januar. */
   ui.view=fileName?'monat':'jahr';
   ui.month=CUR;
+  /* Eine frisch geöffnete Datei wird nicht gefiltert: der
+     Suchbegriff der letzten stünde sonst noch im Feld und
+     versteckte die halbe Datei. */
+  ui.q=''; ui.qFocus=false;
 }
 
 /* Bringt eine geladene Datei auf den aktuellen Aufbau. */
@@ -149,5 +162,9 @@ function migrate(s){
   if(!s.monWidth) s.monWidth=100;
   if(typeof s.topMin!=='number'||!(s.topMin>=0)) s.topMin=50;
   if(!s.tx) s.tx=[];
+  /* Ältere Dateien kennen die beiden Jahresfilter nicht — dann
+     gilt die Vorgabe: nichts ausgeblendet. */
+  s.hideDoneMonths=!!s.hideDoneMonths;
+  s.hideSettled=!!s.hideSettled;
   return s;
 }

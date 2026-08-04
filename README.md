@@ -48,6 +48,9 @@ Monate klappen zu, der laufende Monat ist rot eingerahmt.
 **Monat** — die Arbeitsansicht: Kennzahlen oben, darunter Balance Correction, Einnahmen,
 Flexible Payments und die regelmäßigen Kosten. Abgehakt wird über die Siegel links; was
 die drei Zeichen bedeuten, steht im grauen Kasten ganz unten — sie gelten in jedem Block.
+Über den regelmäßigen Kosten steht eine Filterzeile: links Fälligkeit und ein Suchfeld, das
+beim Tippen in Name, Betrag, Bank, Zahlungsart, Kategorie und Notiz sucht, rechts der
+Zahlungsstand. Nach jedem Haken springt die Schreibmarke dorthin zurück.
 
 ![Monatsansicht](doc/img/month.png)
 

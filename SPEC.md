@@ -48,6 +48,8 @@ Der gesamte Zustand liegt in einem Objekt `state`, das unverändert als JSON ges
   "monWidth": 100,          // Breite der Monats-Betragsspalten in px
   "topMin": 50,             // ab diesem Betrag zählt eine Buchung als größter Einzelposten
   "lastImport": "1.8.2026, 17:50:15",
+  "hideDoneMonths": false,  // Jahresansicht: erledigte Monate einklappen
+  "hideSettled": false,     // Jahresansicht: abgeschlossene Positionen ausblenden
 
   "banks":  [{ "code": "H",  "label": "Sparkasse Heidenheim" }],
   "pays":   [{ "code": "L",  "label": "Lastschrift" }],
@@ -255,7 +257,7 @@ aus: sie veralten mit jeder Änderung an der Oberfläche.
 | Oranger Betrag | Position ist geschätzt **und** in diesem Monat noch offen |
 | Roter / grüner Betrag | Position mit bestätigtem Betrag: Ausgabe / Einnahme |
 | Grau hinterlegte Zeile (Jahr) | im Jahr abbezahlt — jeder Betrag ist abgehakt, es steht nichts mehr aus; die Ampel in „Ende" entfällt dann |
-| Farbige Zelle in „Ende" | Restlaufzeit **einschließlich** des laufenden Monats: grün nur noch dieser · blau 2 · gelb 3 bis 6 · rot mehr |
+| Farbige Zelle in LP | Restlaufzeit **einschließlich** des laufenden Monats: grün nur noch dieser · blau 2 bis 3 · gelb 4 bis 6 · rot 7 und mehr |
 | Grüner Haken in der Jahresmatrix | bezahlt |
 | Oranges Fragezeichen | geschätzt und offen |
 | Glühbirne neben dem Namen | Notiz zur ganzen Position — in jeder Ansicht, in der die Position vorkommt |

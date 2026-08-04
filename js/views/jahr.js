@@ -4,10 +4,12 @@
    (Betrag und Haken), rechts die Jahressumme.
    ══════════════════════════════════════════════════════════════ */
 
-/* Vollständig abgehakte Monate werden eingeklappt, außer der
-   Nutzer hat „Ganzes Jahr zeigen" gewählt. */
+/* Vollständig abgehakte Monate werden eingeklappt — aber nur,
+   wenn der Nutzer den Knopf dafür gedrückt hat. Die Vorgabe ist
+   das ganze Jahr; der Schalter steht in der Datei
+   (state.hideDoneMonths, siehe js/state.js). */
 function visMonths(){
-  if(ui.showAll) return MONTHS.map((_,i)=>i+1);
+  if(!state||!state.hideDoneMonths) return MONTHS.map((_,i)=>i+1);
   const open=MONTHS.map((_,i)=>i+1).filter(m=>!monthDone(m));
   return open.length?open:MONTHS.map((_,i)=>i+1);
 }
@@ -95,7 +97,12 @@ function mrow(label,vals,opt={}){
   const posLamp=it?lampPos('item',it.id):(kk?lampPos('kak',kk):'');
   /* Die ersten Zeilen der Notiz stehen klein unter dem Namen. */
   const notePrev=it?notePreview('item',it.id):(kk?notePreview('kak',kk):'');
-  return `<tr class="${opt.cls||''}${((it||kk)&&!opt.asCat)?' itemrow':''}${done}"><td class="ed">${pencil}</td><td class="ln">${link}</td>
+  /* Doppelklick auf Betrag oder Bezeichnung öffnet dieselbe
+     Position wie der Stift links (siehe dblItem in js/ui.js).
+     Zeilen ohne Posten — Summen, Gruppen — bekommen das Merkmal
+     nicht. */
+  const dbl=it?dblItem(it.id):(kk?dblKak(kk):'');
+  return `<tr class="${opt.cls||''}${((it||kk)&&!opt.asCat)?' itemrow':''}${done}"${dbl}><td class="ed">${pencil}</td><td class="ln">${link}</td>
     <td class="nt">${posLamp}</td><td class="lab">${label}${notePrev}</td>
     <td class="code cB"${bank?` title="${esc(bankLabel(bank))}"`:''}>${esc(bank)}</td>
     <td class="code cZ"${pay?` title="${esc(payLabel(pay))}"`:''}>${esc(pay)}</td>
@@ -110,65 +117,106 @@ const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(8)}${visMonths().map(m
   `<td class="${cmAmt(m).trim()}"></td><td class="${(m===CUR?'cm-r':'')}"></td>`).join('')}<td class="tot"></td></tr>`;
 
 function viewJahr(){
-  let body='';
+  /* „Abgeschlossene ausblenden" versteckt nur Zeilen, in denen
+     nichts mehr aussteht. Die Summen bleiben davon unberührt.
+
+     Dazu das Suchfeld: dasselbe wie in der Monatsansicht, nur über
+     alle zwölf Monate. Es gilt für **jede** Zeile — auch für den
+     Saldo, die Saldokorrektur und die drei Blockzeilen; sonst
+     stünde nach einer Suche immer noch das halbe Gerüst da.
+
+     Trifft der Suchbegriff einen Namen, unter dem etwas hängt —
+     einen Block wie „Regelmäßige Kosten" oder eine Kategorie wie
+     „WOHNEN" —, gilt der Treffer für alles darunter: man sucht die
+     Kategorie, um sie ganz zu sehen, nicht um sie leer zu finden.
+     Die Kategorie eines Posten steckt ohnehin in seinem
+     Vergleichsstoff (hayItem in js/calc.js); hier kommen die
+     Blocknamen dazu, die in keiner Zeile stehen. */
+  const q=queryQ();
+  const hit=s=>!q||norm(s).includes(q);
+  const qOk=it=>!q||hayItem(it).includes(q);
+  const base=it=>it.amounts.some(v=>v!==0)&&!(state.hideSettled&&yearSettled(it));
+  /* Die Zahl hinter „Abgeschlossene ausblenden" zählt nur, was
+     dieser Knopf versteckt — nicht, was der Suchbegriff wegnimmt. */
+  let hiddenRows=0;
+  const countHidden=arr=>{hiddenRows+=arr.filter(it=>it.amounts.some(v=>v!==0)&&state.hideSettled&&yearSettled(it)).length;};
+
+  /* Je Block ein Stück; die Leerzeilen kommen erst am Ende
+     dazwischen — ein weggefilterter Block hinterlässt sonst eine
+     doppelte Lücke. */
+  const parts=[];
+
   /* Der Saldo je Monat bleibt beim Scrollen unter den Spalten-
      köpfen stehen (.balpin in css/matrix.css) — er fasst zusammen,
      was darunter Zeile für Zeile aufgeschlüsselt wird. */
-  body+=mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'});
-  body+=spacer();
-
-  /* „Abgeschlossene ausblenden" versteckt nur Zeilen, in denen
-     nichts mehr aussteht. Die Summen bleiben davon unberührt. */
-  const shown=it=>it.amounts.some(v=>v!==0)&&!(ui.hideSettled&&yearSettled(it));
-  let hiddenRows=0;
-  const countHidden=arr=>{hiddenRows+=arr.filter(it=>it.amounts.some(v=>v!==0)&&!shown(it)).length;};
+  if(hit(t('year.balanceRow')))
+    parts.push(mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'}));
 
   /* Die Saldokorrektur steht über den Einnahmen: eine einzige
      Zeile, wie eine Kategorie gezeigt, aber über den Stift wie
      jeder Posten zu pflegen. */
-  body+=mrow(`<span data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>`,
-    state.balance.amounts,{item:state.balance,asCat:true,cls:'sec r-bal',editTip:t('bal.editTip')});
-  body+=spacer();
+  if(qOk(state.balance)||hit(t('bal.row')))
+    parts.push(mrow(`<span data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>`,
+      state.balance.amounts,{item:state.balance,asCat:true,cls:'sec r-bal',editTip:t('bal.editTip')}));
 
-  body+=mrow(t('g.income'),MONTHS.map((_,i)=>income(i+1)),{cls:'sec r-in'});
   const inc=state.fixed.filter(isIncome); countHidden(inc);
-  settledLast(inc).forEach(it=>{
-    if(shown(it)) body+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'});});
-  body+=spacer();
+  const secIn=hit(t('g.income'));
+  const incRows=settledLast(inc).filter(it=>base(it)&&(secIn||qOk(it)))
+    .map(it=>mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'})).join('');
+  if(incRows||secIn)
+    parts.push(mrow(t('g.income'),MONTHS.map((_,i)=>income(i+1)),{cls:'sec r-in secpin'})+incRows);
 
   /* Alle Flexible Payments stehen hier, auch die noch leeren —
      eine Kategorie ohne Zahlen ist genau die, an die man denken
      soll. Über den Stift bekommt sie ihre Monatswerte. */
+  const secFlex=hit(t('year.kakRow'));
+  const kakRows=kakCats().filter(k=>state.kak[k]&&(secFlex||!q||hayKak(k).includes(q)))
+    .map(k=>mrow(esc(keyLabel(k)),MONTHS.map((_,i)=>kakVal(k,i+1)),{kak:k,cls:'r-flex'})).join('');
   /* Zweizeilig: oben der Name des Blocks, darunter klein der
      Hinweis auf den Import. Der Zusatz gehörte vorher in dieselbe
      Zeile („Flexible Payments — Fast Budget") und brach dort
      mitten im Namen um. */
-  body+=mrow(`<span class="rowtitle">${t('year.kakRow')}</span><span class="rowsub">${t('year.kakRowSub')}</span>`,
-    MONTHS.map((_,i)=>kakeiboFor(i+1)),{cls:'sec r-flex'});
-  kakCats().forEach(k=>{
-    if(!state.kak[k]) return;
-    body+=mrow(esc(keyLabel(k)),MONTHS.map((_,i)=>kakVal(k,i+1)),{kak:k,cls:'r-flex'});});
-  body+=spacer();
+  if(kakRows||secFlex)
+    parts.push(mrow(`<span class="rowtitle">${t('year.kakRow')}</span><span class="rowsub">${t('year.kakRowSub')}</span>`,
+      MONTHS.map((_,i)=>kakeiboFor(i+1)),{cls:'sec r-flex secpin'})+kakRows);
 
-  body+=mrow(t('g.fixed'),MONTHS.map((_,i)=>fixedCost(i+1)),{cls:'sec r-out'});
+  const secOut=hit(t('g.fixed'));
+  let outRows='';
   costGroups().forEach(g=>{
     const items=state.fixed.filter(it=>it.group===g);
     if(!items.length) return;
     countHidden(items);
-    const vis=settledLast(items).filter(shown);
+    /* Trifft der Name der Kategorie, steht sie mit allem darunter
+       da — auch mit den Posten, die für sich genommen nicht
+       passen. */
+    const gHit=secOut||hit(keyLabel(g));
+    const vis=settledLast(items).filter(it=>base(it)&&(gHit||qOk(it)));
     if(!vis.length) return;
-    body+=mrow(esc(keyLabel(g)),MONTHS.map((_,i)=>items.reduce((s,it)=>s+it.amounts[i],0)),{cls:'grp r-out'});
-    vis.forEach(it=>{body+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-out'});});
+    outRows+=mrow(esc(keyLabel(g)),MONTHS.map((_,i)=>items.reduce((s,it)=>s+it.amounts[i],0)),{cls:'grp r-out'});
+    vis.forEach(it=>{outRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-out'});});
   });
+  if(outRows||secOut)
+    parts.push(mrow(t('g.fixed'),MONTHS.map((_,i)=>fixedCost(i+1)),{cls:'sec r-out secpin'})+outRows);
+
+  const body=parts.join(spacer());
 
   const V=visMonths(), hidden=12-V.length;
+  /* Die Leiste fängt links mit dem Filter an und führt gleich die
+     beiden Knöpfe mit, die ebenfalls filtern: alle drei tun
+     dasselbe, nämlich weniger zeigen. Rechts steht, was etwas
+     anlegt. Die Knöpfe behalten ihre Beschriftung und sagen über
+     den dunklen Grund, ob sie gerade gelten — wie die Filter der
+     Monatsansicht. Was die Zeichen ✓ und ? bedeuten, steht auf
+     Höhe der Reiter (siehe renderChrome in js/app.js). */
   return `<div class="sechead yearbar stickybar" id="yearBar">
-      <h2 style="margin:0;font-family:var(--font-data);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)">${t('year.title',YEAR)}</h2>
-      <span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-        <span class="note">${t('year.legend')}</span>
-        <button class="btn small" id="btnFold" aria-pressed="${!!ui.showAll}">${ui.showAll?t('year.hideDone'):(hidden?t('year.showAllN',hidden):t('year.showAll'))}</button>
-        <button class="btn small" id="btnHideSettled" aria-pressed="${!!ui.hideSettled}">${ui.hideSettled
-          ? t('year.showSettled',hiddenRows) : t('year.hideSettled')}</button>
+      <span class="fbgroup">
+        ${filterField('fltyear')}
+        <button class="btn small" id="btnFold" aria-pressed="${!!state.hideDoneMonths}"
+          data-tip="${esc(t('year.hideDoneTip'))}">${t('year.hideDone')}${hidden?` (${hidden})`:''}</button>
+        <button class="btn small" id="btnHideSettled" aria-pressed="${!!state.hideSettled}"
+          data-tip="${esc(t('year.hideSettledTip'))}">${t('year.hideSettled')}${hiddenRows?` (${hiddenRows})`:''}</button>
+      </span>
+      <span class="fbgroup">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
         <button class="btn small" data-newitem="1">${t('year.addItem')}</button></span></div>
     <div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead()}<tbody>${body}</tbody></table></div>

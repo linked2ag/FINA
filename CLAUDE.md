@@ -34,6 +34,7 @@ ganze Projekt zu lesen.
 | Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
+| Was der Anleitung noch fehlt (Merkzettel) | `doc/GUIDE-TODO.md` |
 | Was beim Klick passiert; Start der Anwendung | `js/app.js` |
 
 ## Die vier Regeln
@@ -45,13 +46,30 @@ braucht also immer zwei Stellen: das Attribut in der View und eine Zeile in `wir
 Ausnahme: `data-note` und `data-tip` gehören `js/ui.js` und funktionieren überall von
 selbst.
 
-Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `kd` (Filter) ·
+Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `q` `kd` (Filter) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
 (Sprünge in eine andere Ansicht) ·
-`edit` `kedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) · `plan` (Prognose).
+`edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) ·
+`plan` (Prognose).
 
-`data-newitem` trägt den vorgewählten Block: `"1"` heißt „der erste der Liste", sonst steht
-dort der Name (`EINNAHMEN` aus dem Einnahmenblock der Monatsansicht). `data-newkak` öffnet
+`data-dbledit` und `data-dblkedit` sitzen an der **Zeile**, nicht an der Zelle, und sie
+gibt es in **jeder** Ansicht: ein Doppelklick auf den Betrag oder auf die Bezeichnung
+öffnet dasselbe Fenster wie der Stift. Gebaut werden sie mit `dblItem(id)` /
+`dblKak(key)` aus `js/ui.js`; verdrahtet sind sie einmal in `wire()`.
+
+Welche Zelle zählt, steht dort in `DBLCELL`: `td.num` (Beträge), `td.amt` (Betrag der
+Monatsansicht), `td.lab` (Bezeichnung der Jahresmatrix), `td.nm` (Bezeichnung überall
+sonst). **Eine neue Zeile mit Bezeichnung braucht also `class="nm"` an dieser Zelle**,
+sonst reagiert nur der Betrag. Nicht ausgelöst wird der Doppelklick auf Knöpfen, Links und
+Eingabefeldern — Siegel, Stift, Lampe, Beleglink und das Feld der Prognose behalten ihr
+gewohntes Verhalten. Summen-, Gruppen- und Unterkategoriezeilen tragen das Merkmal nicht:
+dort gibt es keine Position zu öffnen.
+
+`data-newitem` trägt den vorgewählten Block: `"1"` heißt **ohne Vorauswahl**, sonst steht
+dort der Name (`EINNAHMEN` aus dem Einnahmenblock der Monatsansicht). Ohne Vorauswahl steht
+im Fenster `item.blockPick` („— bitte wählen —"), und `#fSave` weist das Speichern zurück:
+ein Posten ohne Block stünde in keiner Kategorie der Monatsansicht und in keiner Gruppe der
+Jahresmatrix. Eine stille Vorauswahl landete unbemerkt in der Datei — deshalb keine. `data-newkak` öffnet
 `editKak(null)` — dasselbe Fenster wie für eine vorhandene Kategorie, nur leer. Angelegt
 wird erst beim Speichern; wer abbricht, hinterlässt nichts.
 
@@ -92,6 +110,86 @@ Keine ES-Module und kein `fetch`, damit die Seite auch per Doppelklick über `fi
 läuft. Neue Dateien in `index.html` eintragen: `i18n.js` zuerst, dann Werkzeuge,
 dann Ansichten, `app.js` bleibt die letzte. Auf oberster Ebene deklarierte `const`/`function` sind für alle später
 geladenen Dateien sichtbar.
+
+## Die Leiste der Jahresansicht
+
+Links das Suchfeld, gleich dahinter die beiden Knöpfe, die ebenfalls filtern („Erledigte
+Monate ausblenden", „Abgeschlossene ausblenden"); rechts steht nur, was etwas anlegt. Was
+die Zeichen ✓ und ? bedeuten, steht nicht mehr in dieser Leiste, sondern rechts auf Höhe
+der Ansichtsreiter (`.viewkey`, gesetzt in `renderChrome()`) — dort ist Platz, und
+zwischen lauter Knöpfen las es sich wie eine Beschriftung.
+
+**Die beiden Knöpfe wechseln ihre Beschriftung nicht.** Sie heißen immer, was sie tun, und
+sagen über den dunklen Grund (`aria-pressed`), ob sie gerade gelten; ein zweiter Klick
+schaltet sie ab. In Klammern steht, wie viel sie gerade verstecken. Genau wie die Filter
+der Monatsansicht.
+
+**Ihr Zustand steht in der Datei**, nicht in `ui`: `state.hideDoneMonths` und
+`state.hideSettled` (siehe `emptyState()` und `migrate()` in `js/state.js`). Der Nutzer
+stellt sie einmal ein und findet sie beim nächsten Öffnen wieder — deshalb rufen ihre
+Klicks `save()`. **Vorgabe ist beides `false`:** eine frisch geöffnete Datei zeigt alles.
+Sie sind die einzigen Ansichtsschalter in der Datei; alles andere (Monatsfilter, Suchfeld,
+gewählter Monat) bleibt in `ui` und damit ungespeichert.
+
+## Die Filterzeile der Monatsansicht
+
+Eine Zeile über den regelmäßigen Kosten, in der Reihenfolge, in der man filtert: das
+Suchfeld (`data-q`), dann die Fälligkeit (`data-duefilter`), dann der Zahlungsstand
+(`data-filter`: `alle` · `offen` · `unklar` · `bezahlt`). Zwei Zeilen kosteten Platz, den
+die Liste besser gebraucht — aus demselben Grund ist die Kopfzeile flach gehalten.
+
+Gebaut werden Feld und Knöpfe von `filterField()` und `fbtn()` in `js/ui.js`; die
+Jahresansicht benutzt dasselbe Feld. Ein Knopf zeigt am dunklen Grund, dass er angewendet
+ist, und ein zweiter Klick nimmt ihn zurück (`toggleFilter()` in `wire()` — er springt dann
+auf `alle`). Die Erklärung hängt als `data-tip` daran, das Suchfeld trägt stattdessen
+`title`: eine Sprechblase neben dem Feld, in das man gerade tippt, wäre nur im Weg.
+
+Die Breite des Suchfelds ist kein Geschmackswert: sie ist `--leadw` aus `css/ledger.css`,
+die Summe der drei Spalten vor der Bezeichnung (Siegel, Betrag, Werkzeuge), abzüglich der
+Fuge zum ersten Knopf. Dadurch fangen die Knöpfe genau über der Bezeichnungsspalte an. Wer
+eine dieser Spaltenbreiten ändert, ändert sie dort — die Zeile richtet sich danach.
+
+In der Jahresansicht gilt der Filter für **jede** Zeile, auch für den Saldo, die
+Saldokorrektur und die drei Blockzeilen — sonst stünde nach einer Suche noch das halbe
+Gerüst da. Trifft der Begriff einen Namen, unter dem etwas hängt (einen Block wie
+„Regelmäßige Kosten", eine Kategorie wie „WOHNEN"), gilt der Treffer für alles darunter:
+man sucht eine Kategorie, um sie ganz zu sehen. Die Kategorie eines Posten steckt schon in
+seinem Vergleichsstoff; die Blocknamen kommen in `viewJahr()` dazu (`hit()`). Gebaut wird
+der Rumpf deshalb blockweise in `parts` und erst am Ende mit `spacer()` verbunden — ein
+weggefilterter Block hinterließe sonst eine doppelte Lücke.
+
+Das Suchfeld filtert beim Tippen. Gesucht wird in allem, was an der Zeile zu sehen ist —
+Name, Betrag, Bank, Zahlungsart, Kategorie, Fälligkeit, Notizen —, in Teilstücken und ohne
+Rücksicht auf Groß- und Kleinschreibung; `norm()` in `js/format.js` macht dabei Punkt und
+Komma gleich, damit „1.234,56" und „1234.56" dasselbe finden. Den Vergleichsstoff liefern
+`hayItem(it,m)` und `hayKak(k,m)` in `js/calc.js` — mit Monat für die Monatsansicht, ohne
+für die Jahresansicht, die alle zwölf durchsucht. Der Suchbegriff steht in `ui.q` und gilt
+in **beiden** Ansichten; die Bedingung selbst in `show()` in `js/views/monat.js` und in
+`shown()` in `js/views/jahr.js`. Kategoriezeilen bleiben stehen, sobald ein
+Posten darunter passt; wie bei den anderen Filtern zeigt die Kategorie weiter ihre volle
+Summe und vermerkt die Zahl der ausgeblendeten Zeilen.
+
+**Der Fokus bleibt im Feld — solange dort etwas steht.** Jeder Tastendruck zeichnet die
+Ansicht neu, und `render()` baut das Feld mit auf; ohne Zutun wäre der Fokus nach dem
+ersten Zeichen weg. Deshalb merkt `ui.qFocus` ihn vor, und `wire()` setzt ihn am Ende
+zurück (mit `preventScroll`, die Seite steht danach ohnehin wieder auf ihrer alten Höhe).
+
+Zwei Fälle, und der Unterschied ist wichtig:
+
+* **Das Feld selbst** (`oninput`) setzt `ui.qFocus=true` **unbedingt**. Wer das letzte
+  Zeichen zurücklöscht, steht noch im Feld — würde der Fokus dann ausbleiben, risse er
+  mitten im Tippen ab.
+* **Alles andere** ruft `keepQFocus()` in `js/app.js`: das setzt den Fokus nur, wenn im
+  Feld etwas steht. Ein leeres Feld filtert nicht; die Schreibmarke bei jedem Haken dorthin
+  zu werfen wäre bloß im Weg. Aufgerufen wird es an den Siegeln, den Filterknöpfen und den
+  Monatsreitern der Monatsansicht, an den beiden Filterknöpfen der Jahresansicht und beim
+  Sprung aus der Matrix in einen Monat (`data-goto`) — dort steht dasselbe Feld mit
+  demselben Wort.
+
+Wer einen weiteren Knopf baut, nach dem man weitertippen will, ruft `keepQFocus()` davor.
+
+`ui.q` wird in `afterLoad()` geleert: eine frisch geöffnete Datei wird nicht gefiltert,
+sonst versteckte der Suchbegriff der vorigen die halbe neue.
 
 ## Die Saldokorrektur
 
@@ -158,20 +256,33 @@ sonst falsch gemessen.
 `renderChrome()` ruft `renderGuide()`: der Bereich wird nur dann neu gebaut, wenn sich die
 Sprache geändert hat. Escape schließt ihn nicht — das gehört den Fenstern.
 
-**Zwei Reiter, zwei Leser.** `GUIDE` in `js/dialogs/guide.js` hat zwei Zweige mit je einer
+**Drei Reiter, drei Fragen.** `GUIDE` in `js/dialogs/guide.js` hat drei Zweige mit je einer
 englischen und einer deutschen Fassung: `steps` führt einen Anfänger einmal von oben nach
 unten durch das Anlegen des Buches und endet mit dem Monatsrhythmus; `product` beschreibt,
-was die Anwendung kann. Gewählt wird über `guideTab` (Modulvariable, nicht im Zustand) und
-`guideTo(tab)`. Ein dritter Reiter braucht einen Zweig in `GUIDE`, eine Zeile in
-`GUIDE_TABS` und einen Schlüssel in `js/i18n.js`.
+was die Anwendung kann; `news` ist die Versionsliste und steht als letzter. Gewählt wird
+über `guideTab` (Modulvariable, nicht im Zustand) und `guideTo(tab)`. Ein weiterer Reiter
+braucht einen Zweig in `GUIDE`, eine Zeile in `GUIDE_TABS` und einen Schlüssel in
+`js/i18n.js`.
+
+**Der Reiter „Was ist neu" wächst nach oben:** die neueste Fassung zuoberst. Die Nummer ist
+das Datum — `Jahr.Monat.Tag.Zählung`, also `26.8.4.1` für die erste Änderung des 4. August
+2026. **Erklärt wird das im Reiter nicht**: er fängt ohne Vorrede mit der ersten Version an.
+Wie die Nummer zustande kommt, geht den Leser nichts an; er sieht nur, was neu ist. Eine neue Version bekommt ein eigenes `<h4>` mit der Nummer, und das
+`<span class="pill">` („neu") wandert von der bisher obersten dorthin. Beschrieben wird
+grob und in der Sprache des Nutzers — was er merkt, nicht was im Code steht. Der Hinweis
+auf die Bilder erscheint nur über Reitern, die welche haben; die Versionsliste kommt ohne
+aus.
 
 **Bilder.** `gshot('dateiname','Bildunterschrift')` setzt ein Bild aus `doc/img/`; der Klick
 öffnet es in voller Größe in einem neuen Reiter, weil im schmalen Bereich sonst nichts zu
-erkennen wäre. Die Bilder werden nicht von Hand gemacht: `doc/make-shots.py` baut aus
-`index.html` eine Wegwerfseite, lädt eine Beispieldatei hinein und fotografiert die
-Ausschnitte mit Chrome ohne Fenster (`python3 doc/make-shots.py [name …]`). Wer die
-Oberfläche ändert, ruft das Skript hinterher auf; ein neues Bild braucht eine Zeile in
-`SHOTS`.
+erkennen wäre. Die Bilder entstehen mit `doc/make-shots.py` (baut aus `index.html` eine
+Wegwerfseite, lädt eine Beispieldatei hinein, fotografiert mit Chrome ohne Fenster).
+
+**Das Skript wird nicht mehr von selbst aufgerufen.** Bildschirmfotos macht nur, wer
+ausdrücklich darum gebeten wird — die Bilder in `doc/img/` altern also gegenüber der
+Oberfläche, und das ist so gewollt. Prüfen lässt sich eine Änderung auch ohne Bild: Maße
+und berechnete Stile aus dem DOM lesen (`--dump-dom`) sagt genauer, ob etwas an der
+richtigen Stelle steht, als ein Blick auf ein Standbild.
 
 Die Zeichenerklärung der Monatsansicht (`.legendbar`) steht aus demselben Grund außerhalb
 der Karten: dieselben Siegel gibt es in allen drei Blöcken.
@@ -185,6 +296,23 @@ tragen noch die alten Namen und sagen nur, welche Spalte gemeint ist. Wer die Bu
 ändert, ändert sie an fünf Stellen mit: `year.hint`, `year.hintTerm`, `set.banksSub`,
 `item.pay`/`item.due`/`item.endM`/`item.endY` und `set.pays` in `js/i18n.js`. `year.end` ist
 die Überschrift der LP-Spalte, kein Wort — der Text „letzte Zahlung" steht in `end.tip`.
+
+**Die Ampel der LP-Spalte** steht in `endClass()` in `js/format.js`, gezählt wird
+einschließlich des laufenden Monats: grün nur noch dieser (1) · blau 2 bis 3 · gelb 4 bis 6
+· rot 7 und mehr. Die Farben kommen aus `--end-now/-soon/-mid/-far` in `css/tokens.css`.
+Wer die Grenzen verschiebt, verschiebt die Beschriftungen mit: `year.key2`, `year.key36`
+und `year.endTip` in `js/i18n.js` sowie die vier `.endkey` in der Anleitung.
+
+## Felder nebeneinander fluchten
+
+Mehrere Felder in einer Reihe stehen in `<div class="cols c2|c3|c4|c6">`, jedes als
+`<div class="field"><label>…</label><eingabe></div>` — **genau zwei Kinder**. Die Reihe ist
+ein Raster mit zwei Zeilen je Feld (Beschriftung, Eingabe), die sich alle Felder einer Reihe
+teilen (`grid-template-rows:subgrid` in `css/components.css`). Nur dadurch liegen die
+Eingaben auf einer Linie, wenn eine Beschriftung zweizeilig wird und die daneben einzeilig —
+„Last payment (LP) — month" neben „Link to receipt or contract". Ein drittes Kind im Feld
+bricht das Raster. Der Abstand nach unten sitzt an `.cols`, nicht mehr am einzelnen
+`.field`; ein Feld außerhalb einer Reihe behält seinen eigenen.
 
 ## Die Farbstufen der drei Geldarten
 
@@ -251,11 +379,41 @@ Die Kennzahlen der Prognose stecken aus demselben Grund in einem Rahmen: `.kpi` 
 ihre eigene Hintergrundfarbe für die 1px-Trennlinien und kann den Papiergrund nicht
 zugleich tragen.
 
+In der **Jahresmatrix** gilt dasselbe für die drei Blockzeilen (Einnahmen, Flexible
+Payments, Regelmäßige Kosten): sie tragen die Klasse `secpin` und bleiben oben stehen,
+solange ihr Block läuft. `position:sticky` griffe dort nicht — der Rollrahmen der Matrix
+rollt nur waagerecht —, deshalb dasselbe Mittel wie bei den Spaltenköpfen und der
+Saldozeile: `syncSecRows()` in `js/app.js` rechnet je Zeile ein `--secY` und begrenzt es
+auf das Ende des Blocks, die nächste Blockzeile schiebt die vorige hinaus.
+
+**Und darunter die Köpfe der Karten.** `.card > .sechead` klebt ebenfalls — solange die
+Karte im Bild ist. Wer sich durch die regelmäßigen Kosten scrollt, sieht so immer, in
+welchem Block er liest und was der Block kostet; bei den regelmäßigen Kosten klebt die
+Filterzeile gleich mit, damit man auch weit unten noch filtern kann. `position:sticky`
+reicht nie über den Elternteil hinaus: die Überschrift wandert mit ihrer Karte aus dem
+Bild, sobald die nächste kommt — genau das ist gewollt.
+
+Die drei Maße staffeln sich, und keins davon steht im Stylesheet: Kopfzeile → Leiste der
+Ansicht → Kartenkopf → Filterzeile. `syncStickyTops()` misst die Höhen der Reihe nach und
+setzt `top` an jeder Stelle. Auch hier gilt: deckender Hintergrund — der Kartenkopf trägt
+die Farbe seiner Karte (`--bg-in/-flex/-out`) und wird über negative Außenabstände auf die
+volle Kartenbreite gezogen, damit rechts und links nichts durchscheint.
+
 ## Nach jeder Änderung neu zeichnen
 
 `render()` baut die Ansicht komplett neu auf und ruft danach `wire()`. Wer den Zustand
 ändert, ruft `save()` (setzt nur das dirty-Flag) und dann `render()`. Geschrieben wird die
 Datei ausschließlich über „Daten speichern".
+
+## Die Anleitung wird nicht bei jeder Änderung mitgeschrieben
+
+Neue Funktionen kommen **nicht** sofort in den Guide-Bereich. Wer eine baut, schreibt sie
+stattdessen in `doc/GUIDE-TODO.md` — mit einem ⚠, wenn ein vorhandener Absatz dadurch
+falsch geworden ist. Die Anleitung wird dann in einem Zug nachgezogen, wenn der Nutzer es
+verlangt; danach wird die Liste geleert. Die Bilder bleiben dabei, wie sie sind — neue
+werden nur auf ausdrückliche Bitte gemacht.
+Der Grund ist schlicht Aufwand: die Anleitung steht in zwei Sprachen und in zwei Reitern,
+jede kleine Änderung dort kostet mehr als die Änderung selbst.
 
 ## Prüfen
 
