@@ -183,7 +183,7 @@ nicht gewählte Monat. Geschrieben wird die Datei erst über „Daten speichern"
 ## 6. Ansichten
 
 **Jahr** (Startansicht) — eine gemeinsam scrollende Matrix. Feste Spalten links: Stift, Link,
-Notizlampe der Position, Position, B, Z, F, Ende. Danach je sichtbarem Monat zwei Spalten (Betrag, Markierung), rechts
+Notizlampe der Position, Position, B (bank), PT (payment type), DD (due date), LP (last payment). Danach je sichtbarem Monat zwei Spalten (Betrag, Markierung), rechts
 die Gesamtspalte. Reihenfolge der Blöcke: Saldo, Saldokorrektur, Einnahmen, Flexible
 Payments, regelmäßige Kosten, getrennt durch Leerzeilen. Die drei Symbolspalten links
 (Stift, Link, Lampe) sind gleich breit, damit ihre Abstände untereinander und zur

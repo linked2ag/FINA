@@ -31,7 +31,9 @@ ganze Projekt zu lesen.
 | CSV-Import aus Fast Budget | `js/csv.js` |
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
-| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·guide.js` |
+| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import.js` |
+| Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
+| Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
 | Was beim Klick passiert; Start der Anwendung | `js/app.js` |
 
 ## Die vier Regeln
@@ -138,6 +140,51 @@ steht in `setPane` — einer Modulvariablen, nicht im Zustand: das Fenster baut 
 „+", Entfernen und Sortieren komplett neu auf, und ohne `setPane` landete man dabei jedes
 Mal wieder ganz vorn. Ein neuer Bereich braucht drei Zeilen: einen Eintrag in `NAV`, einen
 `pane(…)`-Aufruf und die Texte in `js/i18n.js`.
+
+## Die Anleitung ist ein Bereich, kein Fenster
+
+`js/dialogs/guide.js` hängt die Anleitung als `<aside class="guidepanel">` rechts an den
+Bildschirmrand: sie bleibt offen, während man in der Tabelle weiterarbeitet. Derselbe
+orange Knopf `#btnGuide` klappt sie auf und wieder zu (`toggleGuide()`), `aria-pressed`
+sagt, ob sie offen ist.
+
+Die Breite steht in der CSS-Variablen `--guidew` — beim ersten Öffnen ein Drittel des
+Fensters, danach das, was am Griff (`.ghandle`) gezogen wurde, begrenzt auf 300 px bis zwei
+Drittel. Dieselbe Variable macht die Seite schmaler (`body.guideon .wrap`); überdeckt wird
+nichts. Der Wert lebt nur in der Sitzung (`guideW`), nicht im Zustand und nicht in der
+Datei. Jede Änderung der Breite ruft `syncMatrixHead()` — die mitlaufenden Leisten sind
+sonst falsch gemessen.
+
+`renderChrome()` ruft `renderGuide()`: der Bereich wird nur dann neu gebaut, wenn sich die
+Sprache geändert hat. Escape schließt ihn nicht — das gehört den Fenstern.
+
+**Zwei Reiter, zwei Leser.** `GUIDE` in `js/dialogs/guide.js` hat zwei Zweige mit je einer
+englischen und einer deutschen Fassung: `steps` führt einen Anfänger einmal von oben nach
+unten durch das Anlegen des Buches und endet mit dem Monatsrhythmus; `product` beschreibt,
+was die Anwendung kann. Gewählt wird über `guideTab` (Modulvariable, nicht im Zustand) und
+`guideTo(tab)`. Ein dritter Reiter braucht einen Zweig in `GUIDE`, eine Zeile in
+`GUIDE_TABS` und einen Schlüssel in `js/i18n.js`.
+
+**Bilder.** `gshot('dateiname','Bildunterschrift')` setzt ein Bild aus `doc/img/`; der Klick
+öffnet es in voller Größe in einem neuen Reiter, weil im schmalen Bereich sonst nichts zu
+erkennen wäre. Die Bilder werden nicht von Hand gemacht: `doc/make-shots.py` baut aus
+`index.html` eine Wegwerfseite, lädt eine Beispieldatei hinein und fotografiert die
+Ausschnitte mit Chrome ohne Fenster (`python3 doc/make-shots.py [name …]`). Wer die
+Oberfläche ändert, ruft das Skript hinterher auf; ein neues Bild braucht eine Zeile in
+`SHOTS`.
+
+Die Zeichenerklärung der Monatsansicht (`.legendbar`) steht aus demselben Grund außerhalb
+der Karten: dieselben Siegel gibt es in allen drei Blöcken.
+
+## Die Kürzelspalten der Jahresmatrix
+
+**B** (bank) · **PT** (payment type) · **DD** (due date) · **LP** (last payment) — in beiden
+Sprachen gleich, wie „Fast Budget" auch. Die Buchstaben stehen in `matrixHead()` in
+`js/views/jahr.js`; die Klassen `cB/cZ/cF/cE` und `col.c-b/c-z/c-f/c-e` in `css/matrix.css`
+tragen noch die alten Namen und sagen nur, welche Spalte gemeint ist. Wer die Buchstaben
+ändert, ändert sie an fünf Stellen mit: `year.hint`, `year.hintTerm`, `set.banksSub`,
+`item.pay`/`item.due`/`item.endM`/`item.endY` und `set.pays` in `js/i18n.js`. `year.end` ist
+die Überschrift der LP-Spalte, kein Wort — der Text „letzte Zahlung" steht in `end.tip`.
 
 ## Die Farbstufen der drei Geldarten
 

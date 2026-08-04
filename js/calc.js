@@ -38,7 +38,6 @@ function sumF(m,f){return dueIn(m).filter(f).reduce((s,it)=>s+it.amounts[m-1],0)
 
 const income=m=>sumF(m,isIncome);
 const fixedCost=m=>sumF(m,it=>!isIncome(it));
-const paidCost=m=>sumF(m,it=>!isIncome(it)&&paidAt(it,m));
 const openCost=m=>sumF(m,it=>!isIncome(it)&&!paidAt(it,m));
 const unclearCount=m=>dueIn(m).filter(it=>!isIncome(it)&&estOf(it)&&!paidAt(it,m)).length;
 

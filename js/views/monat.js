@@ -95,7 +95,14 @@ function viewMonat(){
   /* Die Kennzahlen bleiben beim Scrollen stehen — wie die
      Monatsreiter in der Kopfzeile darüber. Die Karten darunter
      werden lang, und die Frage „wie viel bleibt mir" soll man
-     nicht durch Hochscrollen beantworten müssen. */
+     nicht durch Hochscrollen beantworten müssen.
+
+     Ganz unten steht die Zeichenerklärung (.legendbar). Sie
+     gehört nicht in die Karte der regelmäßigen Kosten: dieselben
+     Siegel stehen auch bei den Einnahmen und den Flexible
+     Payments. Deshalb ein eigener grauer Kasten unter allen
+     Karten. Bezahlt und Noch offen stehen nicht mehr darunter —
+     beides sagt schon die Kennzahlenleiste. */
   return `
   <div class="stickybar">
   <div class="kpi">
@@ -146,10 +153,11 @@ function viewMonat(){
       <button class="btn small" data-duefilter="M" aria-pressed="${ui.dueFilter==='M'}" title="${t('month.fDueMTip')}">${t('month.fDueM')}</button>
       <button class="btn small" data-duefilter="E" aria-pressed="${ui.dueFilter==='E'}" title="${t('month.fDueETip')}">${t('month.fDueE')}</button>
     </div>
-    <table class="ledger">${outRows||`<tr><td class="note">${t('month.noItems')}</td></tr>`}
-      <tr class="sum"><td></td><td class="num amt">${eur(paidCost(m))}</td><td></td><td>${t('month.paidSum')}</td></tr>
-      <tr><td></td><td class="num amt ${cls(openCost(m))}">${eur(openCost(m))}</td><td></td><td>${t('month.openSum')}</td></tr>
-    </table>
+    <table class="ledger">${outRows||`<tr><td class="note">${t('month.noItems')}</td></tr>`}</table>
+  </div>
+
+  <div class="legendbar">
+    <span class="legtitle">${t('month.legTitle')}</span>
     <div class="legend">
       <span><i class="l-open"></i>${t('month.legOpen')}</span><span><i class="l-paid"></i>${t('month.legPaid')}</span>
       <span><i class="l-unc"></i>${t('month.legEst')}</span>

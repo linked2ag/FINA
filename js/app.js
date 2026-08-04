@@ -25,6 +25,10 @@ function renderChrome(){
   }).join('');
   mEl.querySelectorAll('.mtab').forEach(b=>b.onclick=()=>{ui.month=+b.dataset.m;ui.view='monat';render();});
 
+  /* Die Anleitung steht neben der Seite und wechselt die Sprache
+     mit, ohne dass man sie schließen muss. */
+  renderGuide(); syncGuideBtn();
+
   const vEl=document.getElementById('views');
   vEl.setAttribute('aria-label',t('app.chooseView'));
   vEl.innerHTML=VIEWS.map(([k,l])=>`<button class="vtab" role="tab" aria-selected="${ui.view===k}" data-v="${k}">${l}</button>`).join('');
@@ -191,7 +195,9 @@ function wire(){
 
 /* ── Feste Schaltflächen der Kopfzeile ────────────────────── */
 document.getElementById('btnSettings').onclick=()=>openSettings();
-document.getElementById('btnGuide').onclick=()=>openGuide();
+/* Die Anleitung ist ein Bereich, kein Fenster: derselbe Knopf
+   klappt sie auf und wieder zu. */
+document.getElementById('btnGuide').onclick=()=>toggleGuide();
 document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();

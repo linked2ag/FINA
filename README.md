@@ -22,10 +22,48 @@ Die Seite öffnen und auf **Load data** klicken. Bearbeiten, dann **Save data**.
   umstellen — zusammen mit Abrechnungsjahr, Spaltenbreiten, der Grenze für die größten
   Einzelposten und den vier Listen. Alle diese Einstellungen stehen in der JSON-Datei und
   kommen beim Laden mit ihr zurück.
-- **Guide** öffnet die Anleitung in der gewählten Sprache.
+- **Guide** — der orange Knopf — klappt die Anleitung in der gewählten Sprache rechts neben
+  der Tabelle auf. Sie bleibt beim Weiterarbeiten offen; ihre Breite lässt sich an der
+  linken Kante ziehen.
 
 Lokal genügt ein Doppelklick auf `index.html` — es wird nichts nachgeladen, was
 ein Browser bei `file://` blockieren würde.
+
+## Die vier Ansichten
+
+Alle Bilder zeigen dieselbe Beispieldatei (`fina-demo-belka.json`) — erfundene Zahlen,
+keine echten Daten.
+
+**Jahr** — die Startansicht: je Position eine Zeile, je Monat eine Spalte. Links kleben
+Position und die vier schmalen Kürzelspalten **B** (bank), **PT** (payment type),
+**DD** (due date) und **LP** (last payment), rechts steht die Jahressumme. Abgeschlossene
+Monate klappen zu, der laufende Monat ist rot eingerahmt.
+
+![Jahresansicht](doc/img/year.png)
+
+**Monat** — die Arbeitsansicht: Kennzahlen oben, darunter Balance Correction, Einnahmen,
+Flexible Payments und die regelmäßigen Kosten. Abgehakt wird über die Siegel links; was
+die drei Zeichen bedeuten, steht im grauen Kasten ganz unten — sie gelten in jedem Block.
+
+![Monatsansicht](doc/img/month.png)
+
+**Flexible Payments** — was die alltäglichen Kategorien im gewählten Zeitraum kosten,
+rechts die größten Einzelposten aus dem CSV-Import.
+
+![Flexible Payments](doc/img/flexible.png)
+
+**Forecast** — wie das Jahr ausgeht: die Hochrechnung Monat für Monat und rechts die
+Annahme je Flexible-Payments-Kategorie.
+
+![Prognose](doc/img/forecast.png)
+
+**Guide** — der orange Knopf klappt die Anleitung rechts auf. Sie bleibt offen, während
+man weiterarbeitet, und lässt sich an ihrer linken Kante breiter oder schmaler ziehen. Sie
+hat zwei Reiter: **Schritt für Schritt** führt einen Anfänger einmal durch das Anlegen des
+Buches, **Was FINA kann** beschreibt die Anwendung für den, der so etwas schon kennt. Beide
+zeigen dieselben Bildschirmfotos wie diese README; ein Klick öffnet eines groß.
+
+![Anleitung neben der Tabelle](doc/img/guide.png)
 
 ## Aufbau
 
@@ -55,6 +93,10 @@ js/
   views/                je Ansicht eine Datei: jahr · monat · prognose · kakeibo
   dialogs/              item · kakeibo-betraege · settings · csv-import · guide
   app.js                zeichnet, verdrahtet die Klicks, startet — wird zuletzt geladen
+
+doc/
+  make-shots.py         erzeugt die Bildschirmfotos neu (siehe unten)
+  img/                  die Bilder für README und Anleitung
 ```
 
 Die `<script>`-Dateien sind klassische Skripte in fester Reihenfolge, keine ES-Module.
@@ -92,6 +134,21 @@ Jahresansicht. Sie nimmt je Monat einen Betrag auf — plus oder minus — für 
 die Monate nicht aufgeht. Der Wert geht in den Saldo ein und steht in der Prognose als
 eigene Spalte. Gepflegt wird sie über denselben Stift wie jeder andere Posten; löschen
 lässt sie sich nicht.
+
+## Bildschirmfotos erneuern
+
+Die Bilder in `doc/img/` zeigen die laufende Anwendung und veralten deshalb mit jeder
+Änderung an der Oberfläche. Sie entstehen nicht von Hand:
+
+```sh
+python3 doc/make-shots.py            # alle Bilder
+python3 doc/make-shots.py set-lists  # nur eines
+```
+
+Das Skript baut aus `index.html` eine Wegwerfseite, lädt eine Beispieldatei hinein,
+fotografiert die gewünschten Ausschnitte mit Chrome ohne Fenster und räumt danach auf.
+Welche Bilder es gibt, steht in der Liste `SHOTS` am Anfang des Skripts; der Pfad zur
+Beispieldatei ebenfalls.
 
 ## Weiterlesen
 

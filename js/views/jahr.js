@@ -27,11 +27,17 @@ const cmMark=m=>(m===CUR?' cm-r':'')+(m===preCurMonth()?' cm-pre':'');
 const COLS=()=>`<colgroup><col class="c-ed"><col class="c-ln"><col class="c-nt"><col class="c-lab"><col class="c-b"><col class="c-z"><col class="c-f"><col class="c-e">${
   visMonths().map(()=>'<col class="c-m"><col class="c-mk">').join('')}<col class="c-t"></colgroup>`;
 
+/* Die vier schmalen Spalten heißen B (bank), PT (payment type),
+   DD (due date) und LP (last payment) — in beiden Sprachen
+   gleich, wie „Fast Budget" auch. Die Klassen cB/cZ/cF/cE
+   behalten ihre alten Namen: sie stehen in css/matrix.css an
+   einem guten Dutzend Stellen und sagen nur, welche Spalte
+   gemeint ist. */
 function matrixHead(){
   return `<thead><tr><th class="ed"></th><th class="ln"></th><th class="nt"></th><th class="lab">${t('g.position')}</th>
     <th class="code cB"><button class="codehead" data-lists="1" title="${t('year.bankTip')}">B</button></th>
-    <th class="code cZ"><button class="codehead" data-lists="1" title="${t('year.payTip')}">Z</button></th>
-    <th class="code cF" title="${t('year.dueTip')}">F</th>
+    <th class="code cZ"><button class="codehead" data-lists="1" title="${t('year.payTip')}">PT</button></th>
+    <th class="code cF" title="${t('year.dueTip')}">DD</th>
     <th class="code cE" title="${t('year.endTip')}">${t('year.end')}</th>
     ${visMonths().map(m=>{const done=monthDone(m);
       return `<th class="${cmAmt(m).trim()}"><button class="mhead${done?' done':''}" data-goto="${m}"

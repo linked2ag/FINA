@@ -31,7 +31,9 @@
       <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
       <button class="btn" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
       <button class="btn" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
-      <button class="btn" id="btnGuide" data-t="app.guide" data-ttip="app.guideTip"></button>
+      <!-- Der einzige farbige Knopf: er klappt die Anleitung rechts
+           auf und wieder zu (aria-pressed sagt, ob sie offen ist). -->
+      <button class="btn guidebtn" id="btnGuide" aria-pressed="false" data-t="app.guide" data-ttip="app.guideTip"></button>
     </div>
   </div>
   <nav class="views" id="views" role="tablist"></nav>
