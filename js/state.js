@@ -14,6 +14,21 @@ let state=null;
 let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPick:null,
   q:'',qFocus:false};
 
+/* ── Worauf sich das Suchfeld bezieht ─────────────────────────
+   Der Nutzer stellt im Fenster hinter dem Hamburger-Knopf ein,
+   welche Teile einer Zeile der Suchbegriff überhaupt durchsucht
+   (js/dialogs/filter-fields.js). Die Wahl steht in der Datei —
+   sie ist eine Einstellung, kein Anzeigezustand, und soll beim
+   nächsten Öffnen wieder gelten.
+
+   Vorgabe ist alles: eine frische Datei sucht überall. Mindestens
+   ein Feld bleibt immer gewählt; ohne eines fände der Suchbegriff
+   nie etwas, und niemand käme darauf, woran es liegt. Durchgesetzt
+   wird das im Fenster (das Speichern weist die leere Wahl zurück)
+   und hier beim Laden. */
+const QFIELDS=['name','note','amount','total','meta'];
+const allQFields=()=>{const o={};QFIELDS.forEach(k=>o[k]=true);return o;};
+
 /* Ergänzt fehlende Felder einer Position auf zwölf Monate. */
 function normalize(it){
   it.note=it.note||'';                  /* Notiz zur ganzen Position */
@@ -61,7 +76,10 @@ function emptyState(){
        Datei, nicht in ui: der Nutzer stellt sie einmal ein und
        will sie beim nächsten Öffnen wiederfinden. Vorgabe: kein
        Filter aktiv, es ist alles zu sehen. */
-    hideDoneMonths:false, hideSettled:false
+    hideDoneMonths:false, hideSettled:false,
+    /* Wie die vier Listen: eine einmal getroffene Wahl überlebt
+       das Trennen der Datei. */
+    filterFields:(state&&state.filterFields)?state.filterFields:allQFields()
   };
 }
 
@@ -166,5 +184,16 @@ function migrate(s){
      gilt die Vorgabe: nichts ausgeblendet. */
   s.hideDoneMonths=!!s.hideDoneMonths;
   s.hideSettled=!!s.hideSettled;
+  /* Worin das Suchfeld sucht. Ältere Dateien kennen die Wahl
+     nicht — dann gilt alles. Ein unbekannter Schlüssel gilt
+     ebenfalls als gewählt, und eine Datei, in der (von Hand)
+     nichts mehr gewählt wäre, bekommt alles zurück: ein
+     Suchbegriff, der nirgends sucht, sieht aus wie ein Fehler. */
+  if(!s.filterFields||typeof s.filterFields!=='object') s.filterFields=allQFields();
+  else{
+    const o={};
+    QFIELDS.forEach(k=>o[k]=s.filterFields[k]!==false);
+    s.filterFields=QFIELDS.some(k=>o[k])?o:allQFields();
+  }
   return s;
 }

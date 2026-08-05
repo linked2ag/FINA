@@ -11,23 +11,49 @@ const bankLabel=c=>{const b=(state.banks||[]).find(x=>x.code===c);return b?b.lab
 const payLabel=c=>{const p=(state.pays||[]).find(x=>x.code===c);return p?p.label:c;};
 
 /* ── Vergleichsstoff für das Suchfeld ─────────────────────────
-   Gesucht wird in allem, was an der Zeile zu sehen ist. m = 1…12
+   Gesucht wird in dem, was an der Zeile zu sehen ist — aber nur
+   in den Teilen, die der Nutzer dafür gewählt hat. m = 1…12
    nimmt nur diesen Monat (Monatsansicht), ohne m alle zwölf
    (Jahresansicht). Beträge kommen zweimal vor — als „-1.234,56"
    wie auf dem Schirm und als „-1234.56" wie in der Datei —, damit
    beide Schreibweisen ans Ziel führen; norm() macht dabei Punkt
-   und Komma gleich. */
+   und Komma gleich.
+
+   Die fünf Teile stehen in QFIELDS (js/state.js) und werden im
+   Fenster hinter dem Hamburger-Knopf an- und abgewählt. Fehlt die
+   Angabe — eine Datei von vor dieser Wahl —, gilt alles.
+
+   Die Jahressumme steht nur in der Jahresmatrix, gesucht wird sie
+   trotzdem in beiden Ansichten: es ist dieselbe Position, und wer
+   nach ihr sucht, will sie auch im Monat finden. */
+const qField=k=>!(state&&state.filterFields)||state.filterFields[k]!==false;
+/* Ein Betrag in beiden Schreibweisen. */
+const hayNum=v=>[eur(v),String(Math.round(v*100)/100)];
+
 function hayItem(it,m){
   const v=m?[it.amounts[m-1]]:it.amounts;
   const n=m?[it.notes[m-1]||'']:it.notes;
-  return norm([it.name,keyLabel(it.group),bankLabel(it.bank),payLabel(it.pay),DUE_LABEL(it.dueDay),
-    it.note||''].concat(v.map(eur),v.map(String),n).join(' '));
+  const p=[];
+  if(qField('name')) p.push(it.name);
+  if(qField('meta')) p.push(keyLabel(it.group),bankLabel(it.bank),payLabel(it.pay),DUE_LABEL(it.dueDay));
+  if(qField('note')) p.push(it.note||'',...n);
+  if(qField('amount')) p.push(...v.map(eur),...v.map(String));
+  if(qField('total')) p.push(...hayNum(it.amounts.reduce((a,b)=>a+b,0)));
+  return norm(p.join(' '));
 }
 function hayKak(k,m){
   const e=state.kak[k]; if(!e) return '';
-  const v=m?[kakVal(k,m)]:MONTHS.map((_,i)=>kakVal(k,i+1));
+  const all=MONTHS.map((_,i)=>kakVal(k,i+1));
+  const v=m?[kakVal(k,m)]:all;
   const n=m?[e.notes[m-1]||'']:e.notes;
-  return norm([keyLabel(k),e.note||''].concat(v.map(eur),v.map(String),n).join(' '));
+  const p=[];
+  /* Der Name einer Flexible-Payments-Kategorie ist zugleich ihre
+     Kategorie — er zählt zur Bezeichnung, nicht zu den Kürzeln. */
+  if(qField('name')) p.push(keyLabel(k));
+  if(qField('note')) p.push(e.note||'',...n);
+  if(qField('amount')) p.push(...v.map(eur),...v.map(String));
+  if(qField('total')) p.push(...hayNum(all.reduce((a,b)=>a+b,0)));
+  return norm(p.join(' '));
 }
 /* Der getippte Suchbegriff, vergleichsfertig. Leer heißt: alles
    passt. */

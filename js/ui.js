@@ -48,9 +48,23 @@ function fbtn(kind,val,label,tip,cur){
     data-tip="${esc(tip)}">${label}</button>`;
 }
 
+/* Vor dem Feld steht der Hamburger-Knopf: er öffnet das Fenster,
+   in dem gewählt wird, worin der Suchbegriff überhaupt sucht
+   (js/dialogs/filter-fields.js). Ist nicht mehr alles gewählt,
+   steht er auf dunklem Grund — wie ein angewendeter Filter, denn
+   genau das ist er.
+
+   Knopf und Feld stecken zusammen in .fltbox, und die ist so
+   breit, wie das Feld allein es war (--leadw): die Filterknöpfe
+   dahinter fangen dadurch weiter genau über der
+   Bezeichnungsspalte an. */
 function filterField(extra){
-  return `<input class="fltq${extra?' '+extra:''}" data-q type="search" value="${esc(ui.q||'')}"
-    placeholder="${t('g.filter')}" aria-label="${t('g.filter')}" title="${esc(t('g.filterTip'))}">`;
+  const narrowed=QFIELDS.some(k=>!qField(k));
+  return `<span class="fltbox${extra?' '+extra:''}">
+    <button class="btn small fltmenu" data-qfields="1" aria-pressed="${narrowed}"
+      aria-label="${esc(t('flt.title'))}" data-tip="${esc(t('flt.btnTip'))}">&#9776;</button>
+    <input class="fltq" data-q type="search" value="${esc(ui.q||'')}"
+      placeholder="${t('g.filter')}" aria-label="${t('g.filter')}" title="${esc(t('g.filterTip'))}"></span>`;
 }
 
 /* ── Doppelklick öffnet die Position ──────────────────────────

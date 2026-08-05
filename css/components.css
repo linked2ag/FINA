@@ -127,11 +127,21 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    Bezeichnung (--leadw in css/ledger.css): die Knöpfe dahinter
    fangen dann genau über der Bezeichnungsspalte an. Wird es eng,
    gibt das Feld nach — die Knöpfe sollen nicht umbrechen, bloß
-   weil das Feld auf seiner Breite besteht. */
-.fltq{flex:0 1 calc(var(--leadw) - 8px);width:calc(var(--leadw) - 8px);min-width:150px;padding:4px 9px;font-size:12.5px}
+   weil das Feld auf seiner Breite besteht.
+
+   Die Breite trägt der Kasten aus Hamburger-Knopf und Feld, nicht
+   das Feld allein: davor steht der Knopf, der sagt, worin gesucht
+   wird. */
+.fltbox{display:flex;gap:6px;align-items:center;
+  flex:0 1 calc(var(--leadw) - 8px);width:calc(var(--leadw) - 8px);min-width:170px}
+.fltq{flex:1 1 auto;width:auto;min-width:0;padding:4px 9px;font-size:12.5px}
 /* In der Jahresansicht steht das Feld neben der Überschrift und
    richtet sich nach keiner Spalte. */
-.fltq.fltyear{flex:0 0 auto;width:230px}
+.fltbox.fltyear{flex:0 0 auto;width:264px}
+/* Der Hamburger: so hoch wie das Feld daneben, das Zeichen mittig.
+   Auf dunklem Grund steht er, sobald nicht mehr alles durchsucht
+   wird — die Regel dafür steht oben bei den Filterknöpfen. */
+.fltmenu{flex:0 0 auto;padding:3px 8px;font-size:14px;line-height:1.35}
 
 /* Eingabefeld mit Knopf daneben — der Beleglink lässt sich so
    öffnen, ohne vorher zu speichern. */
@@ -192,6 +202,23 @@ input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;bor
 .span4{grid-column:span 4}
 @media(max-width:900px){.c4{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.c2,.c3,.c4,.c6,.quick .qrow{grid-template-columns:1fr!important}.span4{grid-column:span 1}.mgrid{grid-template-columns:repeat(2,1fr)!important}}
+
+/* ── Liste zum Ankreuzen ──────────────────────────────────────
+   Eine Zeile je Wahl: Kästchen, Beschriftung, darunter der
+   Halbsatz, der sagt, was dazugehört. Die ganze Zeile ist ein
+   <label> — man trifft sie überall, nicht nur auf dem Kästchen. */
+.checklist{display:grid;gap:0;margin-bottom:4px}
+.checkrow{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:start;
+  padding:10px 4px;border-bottom:1px solid var(--rule);cursor:pointer}
+.checkrow:last-child{border-bottom:0}
+.checkrow input{width:auto;margin:3px 0 0}
+.checkrow .clab{font-size:14.5px;color:var(--ink)}
+.checkrow .chint{grid-column:2;font-size:12px;color:var(--ink-2);margin-top:2px}
+.checkrow:hover{background:var(--shade)}
+
+/* Was das Speichern zurückweist, steht in Rot über den Knöpfen —
+   dort, wo eben geklickt wurde. */
+.errline{color:var(--seal);font-size:13px;font-weight:600;margin:12px 0 0}
 
 /* ── Fenster (Modal) ──────────────────────────────────────── */
 .modal{position:fixed;inset:0;background:rgba(27,35,32,.42);display:grid;place-items:center;padding:18px;z-index:50}

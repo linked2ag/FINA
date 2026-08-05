@@ -31,7 +31,7 @@ ganze Projekt zu lesen.
 | CSV-Import aus Fast Budget | `js/csv.js` |
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
-| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import.js` |
+| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·filter-fields.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
 | Was der Anleitung noch fehlt (Merkzettel) | `doc/GUIDE-TODO.md` |
@@ -46,7 +46,7 @@ braucht also immer zwei Stellen: das Attribut in der View und eine Zeile in `wir
 Ausnahme: `data-note` und `data-tip` gehören `js/ui.js` und funktionieren überall von
 selbst.
 
-Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `q` `kd` (Filter) ·
+Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `q` `qfields` `kd` (Filter) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
 (Sprünge in eine andere Ansicht) ·
 `edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen).
@@ -202,7 +202,39 @@ auf `alle`). Die Erklärung hängt als `data-tip` daran, das Suchfeld trägt sta
 Die Breite des Suchfelds ist kein Geschmackswert: sie ist `--leadw` aus `css/ledger.css`,
 die Summe der drei Spalten vor der Bezeichnung (Siegel, Betrag, Werkzeuge), abzüglich der
 Fuge zum ersten Knopf. Dadurch fangen die Knöpfe genau über der Bezeichnungsspalte an. Wer
-eine dieser Spaltenbreiten ändert, ändert sie dort — die Zeile richtet sich danach.
+eine dieser Spaltenbreiten ändert, ändert sie dort — die Zeile richtet sich danach. Getragen
+wird das Maß von `.fltbox`, dem Kasten aus Hamburger-Knopf und Feld; das Feld selbst füllt
+nur, was übrig bleibt.
+
+## Worin das Suchfeld sucht
+
+Vor jedem Suchfeld steht ein Hamburger-Knopf (`data-qfields`), der
+`openFilterFields()` aus `js/dialogs/filter-fields.js` öffnet: fünf Kästchen, „Speichern"
+und „Abbrechen". Die Wahl steht in **der Datei** (`state.filterFields`, siehe `QFIELDS` und
+`allQFields()` in `js/state.js`) — sie ist eine Einstellung wie die beiden Jahresfilter,
+kein Anzeigezustand. Vorgabe ist alles gewählt; eine Datei ohne die Angabe bekommt in
+`migrate()` alles.
+
+Die fünf Schlüssel und was zu ihnen zählt, steht in `hayItem()` / `hayKak()` in
+`js/calc.js`, abgefragt über `qField(k)`:
+
+| Schlüssel | Vergleichsstoff |
+|---|---|
+| `name` | Bezeichnung des Postens, Name der Flexible-Payments-Kategorie |
+| `note` | Notiz zur Position und die zwölf Monatsnotizen |
+| `amount` | die Monatsbeträge, in beiden Schreibweisen |
+| `total` | die Jahressumme — auch in der Monatsansicht, es ist dieselbe Zeile |
+| `meta` | Kategorie, Bank, Zahlungsart, Fälligkeit — **und** `hit()` in `js/views/jahr.js`, also die Namen der Blöcke und Kategorien |
+
+Wer einen Teil hinzufügt, braucht vier Stellen: den Schlüssel in `QFIELDS`, den Zweig in
+beiden `hay…`-Funktionen, die Zeile in `QFIELD_ROWS()` und zwei Texte in `js/i18n.js`
+(`flt.f…` und `flt.f…Hint`).
+
+**Mindestens ein Kästchen bleibt stehen.** Ein Suchbegriff, der nirgends sucht, fände nie
+etwas und sähe aus wie ein Fehler. Durchgesetzt wird das im Fenster — `#ffSave` weist die
+leere Wahl zurück und zeigt `.errline` in Rot — und beim Laden in `migrate()`. Der Knopf
+selbst steht auf dunklem Grund (`aria-pressed`), sobald nicht mehr alles gewählt ist: wie
+bei den Filterknöpfen heißt dunkel „gilt gerade".
 
 In der Jahresansicht gilt der Filter für jede Zeile mit Inhalt, auch für die Saldokorrektur
 und die drei Blockzeilen — sonst stünde nach einer Suche noch das halbe Gerüst da.
@@ -218,7 +250,8 @@ der Rumpf deshalb blockweise in `parts` und erst am Ende mit `spacer()` verbunde
 weggefilterter Block hinterließe sonst eine doppelte Lücke.
 
 Das Suchfeld filtert beim Tippen. Gesucht wird in allem, was an der Zeile zu sehen ist —
-Name, Betrag, Bank, Zahlungsart, Kategorie, Fälligkeit, Notizen —, in Teilstücken und ohne
+Name, Betrag, Bank, Zahlungsart, Kategorie, Fälligkeit, Notizen —, soweit der Nutzer es im
+Fenster hinter dem Hamburger-Knopf gewählt hat (siehe unten), in Teilstücken und ohne
 Rücksicht auf Groß- und Kleinschreibung; `norm()` in `js/format.js` macht dabei Punkt und
 Komma gleich, damit „1.234,56" und „1234.56" dasselbe finden. Den Vergleichsstoff liefern
 `hayItem(it,m)` und `hayKak(k,m)` in `js/calc.js` — mit Monat für die Monatsansicht, ohne

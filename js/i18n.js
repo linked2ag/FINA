@@ -126,8 +126,35 @@ const STR={
 /* Das Suchfeld gibt es in Monats- und Jahresansicht; der Text
    gehört deshalb zu den allgemeinen Wörtern. */
 'g.filter':{en:'Filter…',de:'Filtern…'},
-'g.filterTip':{en:'Filters the list while you type — name, amount, bank, payment type, category or note. Part of a word or of a figure is enough.',
-  de:'Filtert die Liste beim Tippen — Name, Betrag, Bank, Zahlungsart, Kategorie oder Notiz. Ein Wortteil oder ein Stück der Zahl genügt.'},
+'g.filterTip':{en:'Filters the list while you type. Part of a word or of a figure is enough. The button on the left decides what is searched.',
+  de:'Filtert die Liste beim Tippen. Ein Wortteil oder ein Stück der Zahl genügt. Was durchsucht wird, sagt der Knopf links daneben.'},
+
+/* ── Fenster „Worin gesucht wird" ─────────────────────────────
+   Der Hamburger-Knopf vor jedem Suchfeld
+   (js/dialogs/filter-fields.js). Die Wahl steht in der Datei. */
+'flt.title':{en:'What the filter searches',de:'Worin der Filter sucht'},
+'flt.btnTip':{en:'Choose which parts of a row the filter searches',
+  de:'Wählen, welche Teile einer Zeile der Filter durchsucht'},
+'flt.sub':{en:'The word you type is looked for only in the parts ticked here — in the month view as in the year view. The choice is kept in the JSON file.',
+  de:'Das getippte Wort wird nur in den hier angekreuzten Teilen gesucht — in der Monatsansicht wie in der Jahresansicht. Die Wahl steht in der JSON-Datei.'},
+'flt.fName':{en:'Item name',de:'Bezeichnung der Position'},
+'flt.fNameHint':{en:'The name of a regular item or of a Flexible Payments category',
+  de:'Der Name eines regelmäßigen Postens oder einer Flexible-Payments-Kategorie'},
+'flt.fNote':{en:'Notes',de:'Notizen'},
+'flt.fNoteHint':{en:'The note on the whole item and the note on a single month',
+  de:'Die Notiz zur ganzen Position und die Notiz zu einem einzelnen Monat'},
+'flt.fAmount':{en:'Monthly amounts',de:'Monatsbeträge'},
+'flt.fAmountHint':{en:'The amount of the month shown — in the year view all twelve. “1.234,56” and “1234.56” both find it.',
+  de:'Der Betrag des gezeigten Monats — in der Jahresansicht alle zwölf. „1.234,56" und „1234.56" finden ihn gleichermaßen.'},
+'flt.fTotal':{en:'Year totals',de:'Jahressummen'},
+'flt.fTotalHint':{en:'The total of all twelve months. It is written in the year matrix, but searched in both views.',
+  de:'Die Summe aller zwölf Monate. Sie steht in der Jahresmatrix, gesucht wird sie in beiden Ansichten.'},
+'flt.fMeta':{en:'Category, bank, payment type, due date',
+  de:'Kategorie, Bank, Zahlungsart, Fälligkeit'},
+'flt.fMetaHint':{en:'Everything an item is filed under — including the names of the blocks and categories in the year view.',
+  de:'Alles, worunter eine Position einsortiert ist — auch die Namen der Blöcke und Kategorien der Jahresansicht.'},
+'flt.needOne':{en:'At least one entry has to stay ticked — otherwise the filter would have nothing to search.',
+  de:'Mindestens eine Angabe muss gewählt bleiben — sonst hätte der Filter nichts zu durchsuchen.'},
 
 /* ── Notizfenster ─────────────────────────────────────────── */
 'note.title':{en:'Note — {0}',de:'Notiz — {0}'},

@@ -133,7 +133,11 @@ function viewJahr(){
      Vergleichsstoff (hayItem in js/calc.js); hier kommen die
      Blocknamen dazu, die in keiner Zeile stehen. */
   const q=queryQ();
-  const hit=s=>!q||norm(s).includes(q);
+  /* Block- und Kategorienamen sind der Zeile ihre Kategorie —
+     sie hängen deshalb am selben Kästchen wie Bank, Zahlungsart
+     und Fälligkeit (qField('meta'), siehe js/calc.js). Wer die
+     Kürzel abwählt, sucht auch nicht mehr über die Gliederung. */
+  const hit=s=>!q||(qField('meta')&&norm(s).includes(q));
   const qOk=it=>!q||hayItem(it).includes(q);
   const base=it=>it.amounts.some(v=>v!==0)&&!(state.hideSettled&&yearSettled(it));
   /* Die Zahl hinter „Abgeschlossene ausblenden" zählt nur, was

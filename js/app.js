@@ -193,6 +193,10 @@ function wire(){
   document.querySelectorAll('[data-q]').forEach(i=>i.oninput=()=>{
     ui.q=i.value; ui.qFocus=true; render();
   });
+  /* Der Hamburger-Knopf davor: worin der Suchbegriff überhaupt
+     sucht (js/dialogs/filter-fields.js). Die Wahl steht in der
+     Datei, geändert wird sie erst mit „Speichern" im Fenster. */
+  document.querySelectorAll('[data-qfields]').forEach(b=>b.onclick=()=>openFilterFields());
   /* Wechsel zwischen Haupt- und Unterkategorien: rechts stehen
      danach wieder die größten Einzelposten, nicht die Auswahl
      einer Zeile, die es so vielleicht gar nicht mehr gibt. */
