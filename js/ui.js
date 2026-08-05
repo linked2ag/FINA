@@ -153,12 +153,60 @@ function bindUrlGo(box){
   });
 }
 
+/* ── Vorzeichen schon beim Tippen ─────────────────────────────
+   Ausgaben stehen mit Minus in der Datei (siehe saldo() in
+   js/calc.js). Damit man beim Eintippen nicht erst nachrechnen
+   muss, färbt sich das Feld nach dem Vorzeichen: rot bei Minus,
+   grün bei Plus. Die Null und das leere Feld bleiben, wie sie
+   sind — dort gibt es kein Vorzeichen zu zeigen.
+
+   Betroffen sind nur Felder mit der Klasse `signed`; die anderen
+   Zahlenfelder (etwa das Jahr der letzten Zahlung) sind keine
+   Beträge. Die Farben stehen in css/components.css. */
+function signValue(inp){
+  const v=parseGermanNumber(inp.value);
+  inp.classList.toggle('neg',v<0);
+  inp.classList.toggle('pos',v>0);
+}
+const signValues=root=>root.querySelectorAll('.signed').forEach(signValue);
+
+/* Einmal beim Öffnen färben und danach bei jedem Zeichen. Was
+   ein Knopf ins Feld schreibt (Schnelleingabe, Leeren), löst
+   kein input aus — dort ruft das Fenster signValues() selbst. */
+function bindSign(root){
+  root.querySelectorAll('.signed').forEach(inp=>{
+    signValue(inp);
+    inp.addEventListener('input',()=>signValue(inp));
+  });
+}
+
+/* ── Entwürfe ─────────────────────────────────────────────────
+   Ein Fenster, das eine Position erst anlegt — „neu" oder ein
+   Duplikat —, hat sie noch nicht im Zustand: findItem() und
+   state.kak finden sie nicht. Damit die Notizlampen trotzdem
+   schon arbeiten, meldet das Fenster seinen Entwurf hier an.
+
+   Er gilt nur, solange sein Kasten im Dokument hängt. Deshalb
+   muss ihn niemand abmelden: ein geschlossenes Fenster nimmt
+   seinen Entwurf von selbst mit — auch das, das über Escape oder
+   einen Klick daneben verschwindet. */
+let noteDraft=null;
+function useDraft(kind,key,obj,label,box){
+  noteDraft=obj?{kind,key,obj,label,box}:null;
+}
+function draftOf(kind,key){
+  const d=noteDraft;
+  return (d&&d.box.isConnected&&d.kind===kind&&String(d.key)===String(key))?d:null;
+}
+
 /* ── Notizen ──────────────────────────────────────────────────
    kind ist 'item' (regelmäßiger Posten) oder 'kak' (Kakeibo).
    m = 1…12 meint die Notiz eines Monats, m = 0 die Notiz zur
    ganzen Position — die gilt in jedem Monat und steht in jeder
    Ansicht neben dem Namen. */
 function noteTarget(kind,key){
+  const d=draftOf(kind,key);
+  if(d) return d.obj;
   return kind==='kak'?state.kak[key]:findItem(key);
 }
 function noteOf(kind,key,m){
@@ -220,7 +268,10 @@ function openNote(kind,key,m,done){
   const cur=noteOf(kind,key,m);
   const target=noteTarget(kind,key);
   if(!target){ toast(t('note.gone')); return; }
-  const name=kind==='kak'?key:target.name;
+  /* Ein Entwurf hat noch keinen Namen im Zustand — der steht im
+     Namensfeld des Fensters, das ihn angemeldet hat. */
+  const draft=draftOf(kind,key);
+  const name=draft?draft.label():(kind==='kak'?key:target.name);
   const box=document.createElement('div');
   box.className='modal'; box.style.zIndex=70;
   box.innerHTML=`<div class="box" style="max-width:680px">
@@ -233,7 +284,10 @@ function openNote(kind,key,m,done){
       <button class="btn" id="nCancel">${t('g.cancel')}</button>
       <button class="btn primary" id="nSave">${t('g.save')}</button></div></div>`;
   document.body.appendChild(box); tabThroughFields(box);
-  const finish=()=>{save();box.remove();if(done)done();};
+  /* Die Notiz eines Entwurfs steht noch in keiner Datei — sie
+     wandert erst mit „Speichern" des Fensters hinein. Deshalb
+     bleibt der dirty-Zustand hier unberührt. */
+  const finish=()=>{if(!draft)save();box.remove();if(done)done();};
   box.querySelector('#nCancel').onclick=()=>closeModal(box);
   box.onclick=ev=>{if(ev.target===box)closeModal(box);};
   const put=v=>{ if(m) target.notes[m-1]=v; else target.note=v; };

@@ -22,14 +22,14 @@ ganze Projekt zu lesen.
 | Knöpfe, Siegel, Lampen, Fenster, Formulare, Tooltip | `css/components.css` |
 | Tabellen der Monats-/Prognose-/Flexible-Payments-Ansicht | `css/ledger.css` |
 | Jahresmatrix: Spalten, Trennlinien, Betragsfarben | `css/matrix.css` |
-| Reihenfolge der Reiter, Auswahllisten, SVG-Symbole | `js/config.js` |
+| Reihenfolge der Reiter, welcher Reiter überhaupt erscheint, Auswahllisten, SVG-Symbole | `js/config.js` |
 | Zahlen-/Textformat, Fälligkeitsregeln (A/M/E, Zahltag) | `js/format.js` |
 | Aufbau des Zustands, Altdateien reparieren (`migrate`) | `js/state.js` |
 | Kategorie umbenennen/anlegen/löschen | `js/categories.js` |
 | Summen, Salden, „Monat erledigt", Rangfolge der flexiblen Werte, mittlerer Verbrauch | `js/calc.js` |
 | Datei laden/speichern, dirty-Zustand, Statuszeile | `js/storage.js` |
 | CSV-Import aus Fast Budget | `js/csv.js` |
-| Notizlampe, Tooltip, Kurzmeldung, Fenster schließen | `js/ui.js` |
+| Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
 | Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
@@ -49,8 +49,7 @@ selbst.
 Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `q` `kd` (Filter) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
 (Sprünge in eine andere Ansicht) ·
-`edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) ·
-`plan` (Prognose).
+`edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen).
 
 `data-dbledit` und `data-dblkedit` sitzen an der **Zeile**, nicht an der Zelle, und sie
 gibt es in **jeder** Ansicht: ein Doppelklick auf den Betrag oder auf die Bezeichnung
@@ -61,7 +60,7 @@ Welche Zelle zählt, steht dort in `DBLCELL`: `td.num` (Beträge), `td.amt` (Bet
 Monatsansicht), `td.lab` (Bezeichnung der Jahresmatrix), `td.nm` (Bezeichnung überall
 sonst). **Eine neue Zeile mit Bezeichnung braucht also `class="nm"` an dieser Zelle**,
 sonst reagiert nur der Betrag. Nicht ausgelöst wird der Doppelklick auf Knöpfen, Links und
-Eingabefeldern — Siegel, Stift, Lampe, Beleglink und das Feld der Prognose behalten ihr
+Eingabefeldern — Siegel, Stift, Lampe und Beleglink behalten ihr
 gewohntes Verhalten. Summen-, Gruppen- und Unterkategoriezeilen tragen das Merkmal nicht:
 dort gibt es keine Position zu öffnen.
 
@@ -111,6 +110,62 @@ läuft. Neue Dateien in `index.html` eintragen: `i18n.js` zuerst, dann Werkzeuge
 dann Ansichten, `app.js` bleibt die letzte. Auf oberster Ebene deklarierte `const`/`function` sind für alle später
 geladenen Dateien sichtbar.
 
+## Welche Reiter es gibt
+
+`VIEWS` in `js/config.js` ist die Reihenfolge der Reiter — und die Liste selbst hängt am
+Zustand: **„Flexible Payment Details" erscheint nur, wenn einmal importiert wurde**
+(`hasImport()` in `js/calc.js`: Buchungen in `state.tx` oder eine Quelle in
+`state.flexSource`). Der Reiter wertet genau diese Buchungen aus; ohne sie stünde dort eine
+leere Gliederung. Er steht als **letzter**, nach der Prognose.
+
+Daraus folgen drei Stellen, die zusammengehören:
+
+* **Der Weg zum Import darf nicht in diesem Reiter liegen.** Der Knopf steht in der
+  Kopfzeile (`#btnImport` in `index.html`, verdrahtet unten in `js/app.js` wie
+  `#btnSettings`) und öffnet `openImportInfo()` — ein Fenster, das erst sagt, aus welcher
+  App die Datei kommt und welche Spalten darin stehen müssen, und dann zur Dateiauswahl
+  führt. Danach laufen wie bisher Schritt 1 und 2 in `js/dialogs/csv-import.js`.
+* **`render()` lenkt um.** Steht `ui.view` noch auf `'kakeibo'`, obwohl es den Reiter nicht
+  mehr gibt (Datei getrennt, Datei ohne Buchungen), wäre kein Reiter ausgewählt — dann
+  tritt die Prognose an seine Stelle.
+* **Was in den Reiter springt, prüft `hasImport()` mit.** In der Monatsansicht erscheint
+  der Knopf „Auswertung öffnen" (`data-kview`) nur mit Import.
+
+Der Name des Reiters (`view.kakeibo`) ist nicht der Name der Geldart. Für die drei Blöcke,
+die Kategorien und alles, was „Flexible Payments" als Art von Geld meint, steht `g.flex`.
+
+## Die Spalte „Art" der Flexible Payments
+
+Die linke Karte des Reiters zeigt links vor dem Betrag, **woher** er stammt: `flexKind(k,m)`
+in `js/calc.js` liefert `corr` · `imp` · `done` · `fix` · `est` · `none`, gebaut wird die
+Zelle in `kindCell()` in `js/views/kakeibo.js`, beschriftet über `FLEX_KIND_LABEL` und die
+Schlüssel `kak.kImp` … `kak.kEst`.
+
+**`flexKind()` prüft in derselben Reihenfolge wie `kakVal()` und `kakDone()`** — Korrektur
+vor Import, Import vor Haken, Haken vor eingetipptem Betrag. Wer die Rangfolge dort ändert,
+ändert sie hier mit, sonst behauptet die Spalte etwas anderes, als gerechnet wird.
+
+Bei einem einzelnen Monat steht ein Wort in der Zelle, beim ganzen Jahr je Art eine Marke
+mit der Zahl der Monate, die häufigste zuerst; Monate ohne Betrag zählen nicht mit. Die
+Unterzeilen bleiben leer — Unterkategorien kennt nur der Import, ihre Art steht schon in
+der Hauptzeile. Was die fünf Wörter bedeuten, sagt `kak.kindHint` unter der Tabelle.
+
+## Die Annahme der Prognose
+
+Die rechte Karte zeigt je Kategorie zwei **gerechnete** Zahlen: die Annahme, mit der
+gerechnet wird (`state.kak[k].plan[CUR-1]`), und den Durchschnitt der feststehenden Monate
+(`avgActual`). **Beide sind nur zu lesen, und die Ansicht schreibt nichts.** Getippt wurde
+die Annahme früher an dieser Stelle, und jedes Zeichen schrieb sich sofort in alle zwölf
+Monate — auch in vergangene und ohne Rückfrage. Einen Knopf, der den Ø in einem Zug
+übernimmt, gibt es ebenfalls nicht mehr: welcher Monat welchen Betrag bekommt, entscheidet
+sich dort, wo die zwölf Monate stehen.
+
+Geändert wird die Annahme also nur im Fenster der Kategorie (Stift oder Doppelklick).
+Unter der Tabelle steht stattdessen `.calchint` — drei Sätze, die sagen, woher die beiden
+Spalten kommen (`prog.howCurrent`, `prog.howAvg`, `prog.howEdit`). Wer die Rangfolge der
+Werte ändert (`kakVal` in `js/calc.js`) oder die Grundlage des Durchschnitts (`avgMonths`),
+ändert diese drei Sätze mit — sie beschreiben genau das.
+
 ## Die Leiste der Jahresansicht
 
 Links das Suchfeld, gleich dahinter die beiden Knöpfe, die ebenfalls filtern („Erledigte
@@ -149,9 +204,13 @@ die Summe der drei Spalten vor der Bezeichnung (Siegel, Betrag, Werkzeuge), abz�
 Fuge zum ersten Knopf. Dadurch fangen die Knöpfe genau über der Bezeichnungsspalte an. Wer
 eine dieser Spaltenbreiten ändert, ändert sie dort — die Zeile richtet sich danach.
 
-In der Jahresansicht gilt der Filter für **jede** Zeile, auch für den Saldo, die
-Saldokorrektur und die drei Blockzeilen — sonst stünde nach einer Suche noch das halbe
-Gerüst da. Trifft der Begriff einen Namen, unter dem etwas hängt (einen Block wie
+In der Jahresansicht gilt der Filter für jede Zeile mit Inhalt, auch für die Saldokorrektur
+und die drei Blockzeilen — sonst stünde nach einer Suche noch das halbe Gerüst da.
+**Eine Ausnahme: „Saldo je Monat" (`.balpin`) bleibt immer stehen.** Diese Zeile gehört zum
+Gerüst wie die Spaltenköpfe: sie hat nichts unter sich, was man suchen könnte, sie klebt beim
+Scrollen unter den Köpfen, und man liest jede andere Zeile gegen sie. Am Suchbegriff hing sie
+ohnehin nur zufällig — er musste in ihrer Beschriftung vorkommen, damit sie blieb.
+Trifft der Begriff einen Namen, unter dem etwas hängt (einen Block wie
 „Regelmäßige Kosten", eine Kategorie wie „WOHNEN"), gilt der Treffer für alles darunter:
 man sucht eine Kategorie, um sie ganz zu sehen. Die Kategorie eines Posten steckt schon in
 seinem Vergleichsstoff; die Blocknamen kommen in `viewJahr()` dazu (`hit()`). Gebaut wird
@@ -190,6 +249,48 @@ Wer einen weiteren Knopf baut, nach dem man weitertippen will, ruft `keepQFocus(
 
 `ui.q` wird in `afterLoad()` geleert: eine frisch geöffnete Datei wird nicht gefiltert,
 sonst versteckte der Suchbegriff der vorigen die halbe neue.
+
+## Duplizieren und Entwürfe
+
+`editItem(item,group,copyOf)` und `editKak(k,copy)` bauen aus einem dritten Argument dasselbe
+Fenster wie für etwas Neues: `isNew` ist dann wahr, es gibt keinen Löschknopf, und angelegt
+wird erst beim Speichern. Die Kopie baut der Knopf `#fDup` / `#kDup` selbst — aus dem
+**getippten** Stand des Fensters, nicht aus der Datei. Beim Posten liest `collect(o)` die
+Felder (dieselbe Funktion, die auch `#fSave` benutzt), bei der Kategorie werden die zwölf
+Felder in `plan` geschrieben; Haken, Notizen und `override` bleiben leer. Die Vorlage wird
+dabei nie angefasst — auch das im Fenster Getippte wandert in die Kopie, nicht in sie.
+
+**Ein Entwurf ist keine Position im Zustand.** `findItem()` und `state.kak` finden ihn nicht,
+die Notizlampen liefen also ins Leere. Deshalb meldet jedes Fenster, das erst anlegt, seinen
+Entwurf mit `useDraft(kind,key,obj,label,box)` aus `js/ui.js` an; `noteTarget()` sieht dort
+zuerst nach. Der Schlüssel ist beim Posten `it.id`, bei der Kategorie der leere Name.
+`label` ist eine Funktion und liest den Namen aus dem Feld — im Zustand steht er ja noch
+nicht. Abgemeldet wird nichts: der Entwurf gilt nur, solange sein Kasten im Dokument hängt
+(`box.isConnected`), ein geschlossenes Fenster nimmt ihn also von selbst mit. Die Notiz eines
+Entwurfs setzt **kein** dirty-Flag — geschrieben wird sie erst mit dem Fenster.
+
+**Wer ein Fenster baut, das eine Position anlegt, ruft `useDraft()` nach `appendChild`** —
+sonst melden seine Lampen „gibt es nicht mehr".
+
+## Notizen behalten ihre Zeilen
+
+Eine Notiz wird an vier Stellen gezeigt: in der Sprechblase (`.tip`), als Vorschau unter dem
+Namen (`.noteprev`), als Monatsnotiz in der Monatsansicht (`.itemnote`) und in der Monatszelle
+des Bearbeitungsfensters (`.cellnote`). Alle vier stehen auf `white-space:pre-wrap` — ein
+Zeilenumbruch im Notizfeld ist gewollt, eine Aufzählung bliebe sonst ein langer Satz. Wer eine
+fünfte Stelle baut, setzt es dort ebenso. Umbrüche im Quelltext der View gehören deshalb
+**nicht** in diese Elemente: bei `pre-wrap` steht jedes Leerzeichen davon auf dem Schirm.
+
+## Vorzeichen beim Tippen
+
+Ein Betragsfeld mit der Klasse `signed` färbt sich nach seinem Wert: `.neg` rot ab Minus,
+`.pos` grün ab Plus, die Null und das leere Feld bleiben schwarz (`input.num.neg` in
+`css/components.css`). **Auch der gesperrte Monat trägt die Farbe** — zwei Klassen wiegen
+schwerer als das `input:disabled` darunter; dass er gesperrt ist, sagen der graue Grund der
+Zelle und der gestrichelte Rand. Gesetzt wird die Klasse von `signValue()` / `bindSign(root)` aus
+`js/ui.js`; ein Fenster ruft `bindSign()` einmal nach `appendChild`. **Was ein Knopf ins Feld
+schreibt, löst kein `input` aus** — Schnelleingabe und „Leeren" rufen deshalb selbst
+`signValues(box)`. Nur Beträge tragen die Klasse: das Jahr der letzten Zahlung ist keiner.
 
 ## Die Saldokorrektur
 
@@ -267,11 +368,16 @@ braucht einen Zweig in `GUIDE`, eine Zeile in `GUIDE_TABS` und einen Schlüssel 
 **Der Reiter „Was ist neu" wächst nach oben:** die neueste Fassung zuoberst. Die Nummer ist
 das Datum — `Jahr.Monat.Tag.Zählung`, also `26.8.4.1` für die erste Änderung des 4. August
 2026. **Erklärt wird das im Reiter nicht**: er fängt ohne Vorrede mit der ersten Version an.
-Wie die Nummer zustande kommt, geht den Leser nichts an; er sieht nur, was neu ist. Eine neue Version bekommt ein eigenes `<h4>` mit der Nummer, und das
-`<span class="pill">` („neu") wandert von der bisher obersten dorthin. Beschrieben wird
-grob und in der Sprache des Nutzers — was er merkt, nicht was im Code steht. Der Hinweis
-auf die Bilder erscheint nur über Reitern, die welche haben; die Versionsliste kommt ohne
-aus.
+Wie die Nummer zustande kommt, geht den Leser nichts an; er sieht nur, was neu ist. Eine
+neue Version bekommt ein eigenes `<h4>` mit der Nummer, und das `<span class="pill">`
+(„neu") wandert von der bisher obersten dorthin. Beschrieben wird grob und in der Sprache
+des Nutzers — was er merkt, nicht was im Code steht. Der Hinweis auf die Bilder erscheint
+nur über Reitern, die welche haben; die Versionsliste kommt ohne aus.
+
+**Angelegt wird eine Version nur, wenn der Nutzer es verlangt.** Nicht bei jeder Änderung
+und auch nicht als weiterer Punkt in der obersten — sonst wächst die Liste schneller, als
+sie jemand liest. Bis dahin steht das Gebaute in `doc/GUIDE-TODO.md`; von dort wird auf
+Zuruf eine Version gemacht.
 
 **Bilder.** `gshot('dateiname','Bildunterschrift')` setzt ein Bild aus `doc/img/`; der Klick
 öffnet es in voller Größe in einem neuen Reiter, weil im schmalen Bereich sonst nichts zu
@@ -385,6 +491,16 @@ solange ihr Block läuft. `position:sticky` griffe dort nicht — der Rollrahmen
 rollt nur waagerecht —, deshalb dasselbe Mittel wie bei den Spaltenköpfen und der
 Saldozeile: `syncSecRows()` in `js/app.js` rechnet je Zeile ein `--secY` und begrenzt es
 auf das Ende des Blocks, die nächste Blockzeile schiebt die vorige hinaus.
+
+**Wer dort etwas verschiebt, denkt an die Stapelfolge.** Alle drei Sorten sind
+positioniert; bei gleichem `z-index` entschiede die Reihenfolge im Dokument, und die
+späteren Zeilen gewännen gegen die Kopfzeile — eine Blockzeile, die am Ende ihres Blocks
+nach oben aus dem Bild wandert, lief dann über die Monatsnamen. Sichtbar wurde das vor
+allem beim Filtern, weil kurze Blöcke schnell enden. Die Leiter steht oben in
+`css/matrix.css`: gewöhnliche Zellen 0, feste Spalten links 1, Blockzeile 2/3, Saldozeile
+4/5, Spaltenköpfe 6/7 — die linke Spaltengruppe jeweils eine Stufe über den Monatszellen
+derselben Zeile. **Geprüft wird so etwas an der Monatsspalte, nicht an der Bezeichnung:**
+links liegen die Köpfe ohnehin oben, verdeckt wird nur rechts davon.
 
 **Und darunter die Köpfe der Karten.** `.card > .sechead` klebt ebenfalls — solange die
 Karte im Bild ist. Wer sich durch die regelmäßigen Kosten scrollt, sieht so immer, in

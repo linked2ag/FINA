@@ -148,9 +148,16 @@ function viewJahr(){
 
   /* Der Saldo je Monat bleibt beim Scrollen unter den Spalten-
      köpfen stehen (.balpin in css/matrix.css) — er fasst zusammen,
-     was darunter Zeile für Zeile aufgeschlüsselt wird. */
-  if(hit(t('year.balanceRow')))
-    parts.push(mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'}));
+     was darunter Zeile für Zeile aufgeschlüsselt wird.
+
+     Ihn nimmt der Suchbegriff **nicht** weg. Er gehört zum Gerüst
+     wie die Spaltenköpfe, nicht zum Inhalt: er hat keine Zeilen
+     unter sich, die man suchen könnte, und er ist die Zeile,
+     gegen die man alles andere liest. Verschwände er beim
+     Filtern, verlöre die Tabelle beim Scrollen genau die Zeile,
+     für die das Kleben gebaut ist — und der Suchbegriff müsste
+     zufällig in „Saldo je Monat" vorkommen, damit sie bleibt. */
+  parts.push(mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'}));
 
   /* Die Saldokorrektur steht über den Einnahmen: eine einzige
      Zeile, wie eine Kategorie gezeigt, aber über den Stift wie

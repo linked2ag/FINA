@@ -23,9 +23,14 @@ function metaLine(it){
   return p.length?`<div class="meta">${p.join('')}</div>`:'';
 }
 
+/* Abbezahlt: für dieses Jahr steht nichts mehr aus (yearSettled in
+   js/calc.js). Die Zeile bekommt denselben grauen Grund wie in der
+   Jahresmatrix — es ist dieselbe Aussage, und wer zwischen den
+   Ansichten wechselt, soll sie nicht zweimal lernen müssen. */
 function itemRow(it,m){
   const p=paidAt(it,m), e=estOf(it), note=it.notes[m-1];
-  return `<tr class="${p?'paid':''}"${dblItem(it.id)}>
+  const cls2=(p?'paid':'')+(yearSettled(it)?' settled':'');
+  return `<tr class="${cls2.trim()}"${dblItem(it.id)}>
     <td class="markcell"><button class="seal${!p&&e?' est':''}" aria-pressed="${p}" data-paid="${it.id}"
       title="${p?t('month.markOpen'):t('month.markPaid')}">${CHECK_SVG}</button></td>
     <td class="num amt ${e&&!p?'est':cls(it.amounts[m-1])}">${eur(it.amounts[m-1])}</td>
@@ -139,7 +144,10 @@ function viewMonat(){
       <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span></h2>
       <span style="display:flex;gap:12px;align-items:center">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
-        <button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>
+        <!-- Der Sprung in die Auswertung nur, wenn es sie gibt:
+             den Reiter „Flexible Payment Details" bringt erst der
+             Import mit (hasImport in js/calc.js). -->
+        ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}
         <span class="tot neg">${eur(kakeiboFor(m))}</span></span></div>
     <table class="ledger">${flexRows||`<tr><td class="note">${t('month.noKak')}</td></tr>`}</table>
   </div>

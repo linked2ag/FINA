@@ -138,6 +138,14 @@ addEventListener('resize',syncMatrixHead);
 
 /* Zeichnet alles neu und hält dabei die Scrollposition. */
 function render(){
+  /* „Flexible Payment Details" gibt es nur mit Import (siehe
+     VIEWS in js/config.js). Steht die Ansicht trotzdem noch —
+     nach dem Trennen der Datei, nach einer Datei ohne Buchungen —,
+     gäbe es einen Reiter weniger als Ansichten: keiner wäre
+     ausgewählt. Dann tritt die Prognose an ihre Stelle, der
+     Nachbar in der Reihe. */
+  if(ui.view==='kakeibo'&&!hasImport()) ui.view='prognose';
+
   const sx=window.scrollX, sy=window.scrollY;
   const ysOld=document.getElementById('yearScroll');
   const yTop=ysOld?ysOld.scrollTop:null, yLeft=ysOld?ysOld.scrollLeft:null;
@@ -253,27 +261,10 @@ function wire(){
   const hs=document.getElementById('btnHideSettled');
   if(hs) hs.onclick=()=>{state.hideSettled=!state.hideSettled;keepQFocus();save();render();};
 
-  /* Prognose: Kakeibo-Annahme je Kategorie */
-  document.querySelectorAll('[data-plan]').forEach(i=>i.onchange=()=>{
-    const k=i.dataset.plan, v=parseGermanNumber(i.value);
-    if(!state.kak[k]) return;
-    state.plan[k]=v;
-    for(let m=1;m<=12;m++) if(!hasActual(m)&&!state.kak[k].paid[m-1]) state.kak[k].plan[m-1]=v;
-    save();render();});
-
-  const avg=document.getElementById('btnAvg');
-  if(avg) avg.onclick=()=>{
-    const use=avgMonths();
-    if(!use.length){toast(t('prog.noActual'));return;}
-    const cats=kakCats().filter(k=>state.kak[k]);
-    /* Die getippte Annahme wird überschrieben — erst nachfragen. */
-    if(!confirm(t('prog.askAvg',cats.length,use.map(m=>MONTHS_LONG[m-1]).join(', ')))) return;
-    cats.forEach(k=>{
-      const v=avgActual(k,use);
-      state.plan[k]=v;
-      for(let m=1;m<=12;m++) if(!hasActual(m)&&!state.kak[k].paid[m-1]) state.kak[k].plan[m-1]=v;});
-    save();render();toast(t('prog.applied',use.map(m=>MONTHS[m-1]).join(', ')));
-  };
+  /* Die Prognose hat nichts zu verdrahten: sie rechnet und zeigt.
+     Die Annahme wird im Fenster der Kategorie gepflegt — der Weg
+     dorthin führt über Stift und Doppelklick, die schon oben
+     hängen. */
 
   /* Kakeibo: CSV-Import und Zeitraum (Ganzes Jahr oder ein Monat) */
   const km=document.getElementById('kMonth');
@@ -282,8 +273,10 @@ function wire(){
     else { ui.scope='monat'; ui.month=+km.value; }
     render();
   };
+  /* Derselbe Weg wie über die Kopfzeile: erst das Fenster mit den
+     Spalten, dann die Dateiauswahl. */
   const imp=document.getElementById('btnImportK');
-  if(imp) imp.onclick=()=>document.getElementById('fileCsv').click();
+  if(imp) imp.onclick=()=>openImportInfo();
 
   /* Zum Schluss: Tab springt in der Ansicht nur noch von Feld zu
      Feld. Die Kopfzeile bleibt außen vor — über sie erreicht man
@@ -306,6 +299,10 @@ document.getElementById('btnSettings').onclick=()=>openSettings();
 /* Die Anleitung ist ein Bereich, kein Fenster: derselbe Knopf
    klappt sie auf und wieder zu. */
 document.getElementById('btnGuide').onclick=()=>toggleGuide();
+/* Der CSV-Import führt erst durch ein Fenster mit den Spalten,
+   die in der Datei stehen müssen, und dann zur Dateiauswahl
+   (js/dialogs/csv-import.js). */
+document.getElementById('btnImport').onclick=()=>openImportInfo();
 document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();

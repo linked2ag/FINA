@@ -24,14 +24,22 @@ function viewPrognose(){
 
   /* Zwei Spalten je Kategorie: die Annahme, mit der gerechnet
      wird, und daneben der Durchschnitt über alle bisherigen
-     Monate mit feststehenden Werten. Übernommen wird er nur über
-     den Knopf darunter. */
+     Monate mit feststehenden Werten.
+
+     Die Annahme wird hier nur **gezeigt**. Getippt wurde sie
+     früher an dieser Stelle, und ein Zeichen schrieb sich sofort
+     in alle zwölf Monate — auch in vergangene. Geändert wird sie
+     jetzt dort, wo die zwölf Monate stehen (Stift oder
+     Doppelklick öffnet die Kategorie), oder in einem Zug über den
+     Knopf unter der Tabelle, der den Ø ab dem laufenden Monat
+     einträgt. */
   const useM=avgMonths();
   const planRows=kakCats().filter(k=>state.kak[k]).map(k=>{
     const a=avgActual(k,useM);
     const mine=useM.filter(m=>kakDone(k,m)).length;
+    const cur=state.kak[k].plan[CUR-1]||0;
     return `<tr${dblKak(k)}><td class="nm">${lampPos('kak',k)}${esc(keyLabel(k))}</td>
-      <td class="num planin"><input class="num" type="text" data-plan="${esc(k)}" value="${nf.format(state.kak[k].plan[Math.max(CUR,1)-1]||0)}"></td>
+      <td class="num ${cls(cur)}">${eur(cur)}</td>
       <td class="num ${a==null?'':cls(a)}"${mine?` title="${esc(t('prog.avgOfN',mine))}"`:''}>${a==null?'—':eur(a)}</td></tr>`;
   }).join('');
 
@@ -72,13 +80,19 @@ function viewPrognose(){
     <div class="card sec-flex"><h2>${t('prog.card')}</h2>
       <p class="note" style="margin:0 0 12px">${t('prog.cardHint',istMonths.join(', ')||t('prog.noMonth'))}</p>
       ${planRows?`<table class="ledger plantable">
-        <tr><th>${t('g.category')}</th><th class="num">${t('prog.colCurrent')}</th>
+        <tr><th>${t('g.category')}</th>
+          <th class="num" title="${esc(t('prog.colCurrentTip'))}">${t('prog.colCurrent')}</th>
           <th class="num" title="${esc(t('prog.colAvgTip'))}">${t('prog.colAvg')}</th></tr>
         ${planRows}</table>
       <p class="note" style="margin:10px 0 0">${useM.length
         ? t('prog.avgFrom',useM.length,useM.map(m=>MONTHS[m-1]).join(', '))
         : t('prog.avgFromNone')}</p>`:`<p class="note">${t('prog.noCats')}</p>`}
-      <button class="btn" id="btnAvg" style="margin-top:12px">${t('prog.takeAvg')}</button>
-      <p class="note" style="margin-top:8px">${t('prog.takeHint')}</p></div>
+      <!-- Statt eines Knopfes eine Erklärung: die Karte zeigt zwei
+           gerechnete Zahlen, und wer sie liest, soll wissen, woher
+           sie kommen und wo man sie ändert. Geschrieben wird von
+           hier aus nichts. -->
+      ${planRows?`<div class="calchint">
+        <p><b>${t('prog.colCurrent')}</b> — ${t('prog.howCurrent',MONTHS_LONG[CUR-1])}</p>
+        <p><b>${t('prog.colAvg')}</b> — ${t('prog.howAvg')}</p></div>`:''}</div>
   </div>`;
 }

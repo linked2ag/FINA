@@ -39,9 +39,15 @@ function askFillRange(endM,then){
 
 /* group wählt bei einem neuen Posten den Block vor — die
    Monatsansicht legt aus dem Einnahmenblock heraus gleich eine
-   Einnahme an. "1" oder nichts heißt: der erste Block der Liste. */
-function editItem(item,group){
-  const isNew=!item;
+   Einnahme an. "1" oder nichts heißt: der erste Block der Liste.
+
+   copyOf trägt den Namen der Vorlage: dann ist `item` eine frisch
+   gebaute Kopie, die es im Zustand noch nicht gibt. Sie wird wie
+   ein neuer Posten behandelt — angelegt wird sie erst mit
+   „Speichern", und wer abbricht, hinterlässt nichts. Gebaut wird
+   sie unten in #fDup. */
+function editItem(item,group,copyOf){
+  const isNew=!item||!!copyOf;
   /* Ein neuer Posten bekommt nur dann einen Block, wenn der
      Aufrufer einen nennt — „Neue Einnahme" tut das. Sonst bleibt
      die Auswahl leer: welcher Block gemeint ist, weiß nur der
@@ -63,8 +69,9 @@ function editItem(item,group){
   const box=document.createElement('div');
   box.className='modal';
   box.innerHTML=`<div class="box">
-    <h3>${isNew?t('item.add'):lampPos('item',it.id)+esc(it.name)}</h3>
-    <p class="subline">${isBal?t('bal.hint'):(lockN?t('item.lockedN',lockN):t('item.allOpen'))}</p>
+    <h3>${lampPos('item',it.id)}${isNew?(copyOf?t('item.dupTitle'):t('item.add')):esc(it.name)}</h3>
+    <p class="subline">${copyOf?t('item.dupSub',esc(copyOf))
+      :(isBal?t('bal.hint'):(lockN?t('item.lockedN',lockN):t('item.allOpen')))}</p>
     <div class="cols ${isBal?'':'c2'}">
       <div class="field"><label>${t('item.name')}</label><input id="fName" value="${esc(it.name)}" placeholder="${t('item.namePh')}"></div>
       ${isBal?'':`<div class="field"><label>${t('item.block')}</label><select id="fGroup">
@@ -96,7 +103,7 @@ function editItem(item,group){
       <div class="qrow">
         <select id="qRhythm" aria-label="${t('item.rhythm')}">${RHYTHM.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
         <select id="qStart" aria-label="${t('g.month')}">${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${i+1===CUR?' selected':''}>${t('item.fromMonth',n)}</option>`).join('')}</select>
-        <input id="qVal" class="num" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
+        <input id="qVal" class="num signed" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="btn primary small" id="qApply">${t('item.apply')}</button>
@@ -111,16 +118,27 @@ function editItem(item,group){
       <div class="mgrid">${MONTHS.map((m,i)=>{const lock=!isBal&&it.paid[i];
         return `<div class="cell${lock?' lockedcell':''}" data-cell="${i}">
         <div class="cellhead"><span class="mlab ${i+1===CUR?'curm':''}">${m}</span>
-          <span class="ctools">${isNew?'':lampHtml('item',it.id,i+1)}
+          <span class="ctools">${lampHtml('item',it.id,i+1)}
             ${isBal?'':`<button type="button" class="seal mini" data-pi="${i}" aria-pressed="${lock}"
               title="${lock?t('item.lockedTip'):t('month.markPaid')}">${CHECK_SVG}</button>`}</span></div>
-        <input class="num" data-mi="${i}" ${lock?'disabled':''} value="${it.amounts[i]?nf.format(it.amounts[i]):''}" placeholder="0,00">
+        <input class="num signed" data-mi="${i}" ${lock?'disabled':''} value="${it.amounts[i]?nf.format(it.amounts[i]):''}" placeholder="0,00">
         <div class="cellnote">${esc(it.notes[i]||'')}</div></div>`;}).join('')}</div>
     </div>
     <div class="row-end">${(isNew||isBal)?'':`<button class="linkish" id="fDel" style="margin-right:auto">${t('item.del')}</button>`}
+      ${(isNew||isBal)?'':`<button class="btn" id="fDup" data-tip="${esc(t('item.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="fCancel">${t('g.cancel')}</button><button class="btn primary" id="fSave">${t('g.save')}</button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box);
+
+  /* Ein Posten, den es noch nicht gibt, ist für findItem() nicht
+     zu finden. Damit die Notizlampen trotzdem schon arbeiten,
+     bekommt der Entwurf hier seinen Platz (siehe js/ui.js); der
+     Name für das Notizfenster kommt aus dem Feld, nicht aus dem
+     Zustand — dort steht er erst nach dem Speichern. */
+  if(isNew) useDraft('item',it.id,it,
+    ()=>box.querySelector('#fName').value.trim()||t('item.add'),box);
+
+  bindSign(box);
 
   bindNotes(box,b=>{
     const cell=b.closest('.cell'); if(!cell) return;
@@ -193,6 +211,7 @@ function editItem(item,group){
         if((i+1)<start||(i+1)>to) return;
         if((i+1-start)%step===0){c.value=v?nf.format(v):'';n++;}
         else if(c.value.trim()!==''){c.value='';cl++;}});
+      signValues(box);
       toast(t('item.setN',n)+(cl?t('item.cleared',cl):'')+'.');
     };
 
@@ -202,7 +221,9 @@ function editItem(item,group){
        nicht in diesem Jahr, gibt es nichts zu wählen. */
     if(last>=start&&last<12) askFillRange(last,fill); else fill(last);
   };
-  box.querySelector('#qClear').onclick=()=>cells().forEach(c=>{if(!c.disabled)c.value='';});
+  box.querySelector('#qClear').onclick=()=>{
+    cells().forEach(c=>{if(!c.disabled)c.value='';}); signValues(box);
+  };
   box.querySelector('#fLists').onclick=()=>{box.remove();editLists();};
   box.querySelector('#fCancel').onclick=()=>closeModal(box);
   box.onclick=e=>{if(e.target===box)closeModal(box);};
@@ -218,6 +239,42 @@ function editItem(item,group){
     save(); box.remove(); render(); toast(t('item.deleted',it.name));
   };
 
+  /* Der getippte Stand, in ein Objekt geschrieben — einmal für
+     „Speichern" und einmal für das Duplikat. Haken und Notizen
+     stehen ausdrücklich nicht darin: das Duplikat fängt ohne sie
+     an, und „Speichern" holt die Haken gleich von den Siegeln. */
+  const collect=o=>{
+    o.name=box.querySelector('#fName').value.trim();
+    const gEl=box.querySelector('#fGroup');
+    if(gEl) o.group=gEl.value;
+    o.bank=box.querySelector('#fBank').value; o.pay=box.querySelector('#fPay').value;
+    o.dueDay=box.querySelector('#fDue').value; o.url=box.querySelector('#fUrl').value.trim();
+    const estEl=box.querySelector('#fEst');
+    o.estimated=estEl?estEl.checked:false;
+    const em=+box.querySelector('#fEndM').value, ey=+box.querySelector('#fEndY').value;
+    o.end=(em&&ey)?{y:ey,m:em}:null;
+    cells().forEach(c=>{o.amounts[+c.dataset.mi]=parseGermanNumber(c.value);});
+  };
+
+  /* ── Duplizieren ────────────────────────────────────────────
+     Dasselbe Fenster noch einmal, mit einer Kopie darin: alle
+     Stammdaten und die zwölf Beträge so, wie sie gerade im
+     Fenster stehen — aber ohne einen einzigen Haken und ohne
+     Notizen, weder zur Position noch zu einem Monat. Beides
+     gehört zur Vorlage, nicht zur Kopie; deshalb sind auch alle
+     zwölf Felder änderbar.
+
+     Die Vorlage selbst bleibt unangetastet: Getipptes wandert in
+     die Kopie, nicht in sie. Angelegt wird erst mit „Speichern". */
+  const dup=box.querySelector('#fDup');
+  if(dup) dup.onclick=()=>{
+    const c=normalize({id:uid(),name:'',group:'',amounts:Array(12).fill(0)});
+    collect(c);
+    c.name=(c.name||it.name)+' '+t('item.copy');
+    box.remove();
+    editItem(c,null,it.name);
+  };
+
   box.querySelector('#fSave').onclick=()=>{
     const name=box.querySelector('#fName').value.trim();
     if(!name){box.querySelector('#fName').focus();toast(t('item.needName'));return;}
@@ -227,15 +284,7 @@ function editItem(item,group){
        Zeichnen. */
     const gEl=box.querySelector('#fGroup');
     if(gEl&&!gEl.value){ gEl.focus(); toast(t('item.needBlock')); return; }
-    it.name=name;
-    if(gEl) it.group=gEl.value;
-    it.bank=box.querySelector('#fBank').value; it.pay=box.querySelector('#fPay').value;
-    it.dueDay=box.querySelector('#fDue').value; it.url=box.querySelector('#fUrl').value.trim();
-    const estEl=box.querySelector('#fEst');
-    it.estimated=estEl?estEl.checked:false;
-    const em=+box.querySelector('#fEndM').value, ey=+box.querySelector('#fEndY').value;
-    it.end=(em&&ey)?{y:ey,m:em}:null;
-    cells().forEach(c=>{const i=+c.dataset.mi; it.amounts[i]=parseGermanNumber(c.value);});
+    collect(it);
     box.querySelectorAll('[data-pi]').forEach(cb=>{it.paid[+cb.dataset.pi]=cb.getAttribute('aria-pressed')==='true';});
     if(isNew) state.fixed.push(it);
     save(); box.remove(); render();

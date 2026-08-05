@@ -13,10 +13,15 @@
    hinterlässt nichts.
    ══════════════════════════════════════════════════════════════ */
 
-/* editKak(null) legt eine neue Kategorie an. */
-function editKak(k){
+/* editKak(null) legt eine neue Kategorie an.
+
+   copy ist ein Duplikat: {name, entry, from} — eine fertig
+   gebaute Kategorie, die es im Zustand noch nicht gibt. Sie wird
+   wie eine neue behandelt (angelegt erst mit „Speichern"), trägt
+   aber die Werte ihrer Vorlage. Gebaut wird sie unten in #kDup. */
+function editKak(k,copy){
   const isNew=!k;
-  const e=isNew?blankKak(0):state.kak[k];
+  const e=isNew?(copy?copy.entry:blankKak(0)):state.kak[k];
   if(!e){ toast(t('kdlg.gone')); return; }
 
   const imported=i=>!isNew&&hasActual(i+1);
@@ -27,11 +32,12 @@ function editKak(k){
   const box=document.createElement('div');
   box.className='modal';
   box.innerHTML=`<div class="box">
-    <h3>${isNew?t('set.addKak'):lampPos('kak',k)+esc(keyLabel(k))}</h3>
-    <p class="subline">${isNew?t('kdlg.newSub'):(lockN?t('kdlg.lockedN',lockN):t('kdlg.allOpen'))+' '+t('kdlg.hint')}</p>
+    <h3>${isNew?lampPos('kak','')+(copy?t('kdlg.dupTitle'):t('set.addKak')):lampPos('kak',k)+esc(keyLabel(k))}</h3>
+    <p class="subline">${copy?t('kdlg.dupSub',esc(keyLabel(copy.from)))
+      :(isNew?t('kdlg.newSub'):(lockN?t('kdlg.lockedN',lockN):t('kdlg.allOpen'))+' '+t('kdlg.hint'))}</p>
     <div class="cols c2">
       <div class="field"><label>${t('item.name')}</label>
-        <input id="kName" value="${isNew?'':esc(k)}" placeholder="${t('kdlg.namePh')}"></div>
+        <input id="kName" value="${isNew?(copy?esc(copy.name):''):esc(k)}" placeholder="${t('kdlg.namePh')}"></div>
       <div class="field"><label>${t('item.url')}</label>
         <div class="urlrow"><input id="kUrl" value="${esc(e.url||'')}" placeholder="https://…">
           <button type="button" class="btn small urlgo" data-go="kUrl" title="${esc(t('item.urlOpenTip'))}">${t('item.urlOpen')}</button></div></div>
@@ -47,7 +53,7 @@ function editKak(k){
            laufen immer monatlich. -->
       <div class="qrow" style="grid-template-columns:1fr 1fr">
         <select id="kStart" aria-label="${t('g.month')}">${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${i+1===CUR?' selected':''}>${t('item.fromMonth',n)}</option>`).join('')}</select>
-        <input id="kVal" class="num" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
+        <input id="kVal" class="num signed" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="btn primary small" id="kApply">${t('item.apply')}</button>
@@ -62,16 +68,26 @@ function editKak(k){
         const val=imp?(e.override[i]!=null?e.override[i]:(state.flexActual[i+1][k]||0)):e.plan[i];
         return `<div class="cell${on?' lockedcell':''}" data-cell="${i}">
         <div class="cellhead"><span class="mlab ${i+1===CUR?'curm':''}">${m} ${tag(i)}</span>
-          <span class="ctools">${isNew?'':lampHtml('kak',k,i+1)}
+          <span class="ctools">${lampHtml('kak',isNew?'':k,i+1)}
             <button type="button" class="seal mini" data-pi="${i}" aria-pressed="${on}"
               title="${on?t('kdlg.lockedTip'):t('month.markDone')}">${CHECK_SVG}</button></span></div>
-        <input class="num" data-mi="${i}" ${on?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
+        <input class="num signed" data-mi="${i}" ${on?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
         <div class="cellnote">${esc(e.notes[i]||'')}</div></div>`;}).join('')}</div>
     </div>
     <div class="row-end">${isNew?'':`<button class="linkish" id="kDel" style="margin-right:auto">${t('kdlg.del')}</button>`}
+      ${isNew?'':`<button class="btn" id="kDup" data-tip="${esc(t('kdlg.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="kCancel">${t('g.cancel')}</button><button class="btn primary" id="kSave">${t('g.save')}</button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box);
+
+  /* Eine Kategorie, die es noch nicht gibt, steht in keinem
+     state.kak — ihr Schlüssel ist der leere Name. Damit die
+     Notizlampen trotzdem schon arbeiten, meldet sich der Entwurf
+     hier an (siehe js/ui.js). */
+  if(isNew) useDraft('kak','',e,
+    ()=>box.querySelector('#kName').value.trim()||t('set.addKak'),box);
+
+  bindSign(box);
 
   bindNotes(box,b=>{
     const cell=b.closest('.cell'); if(!cell) return;
@@ -123,9 +139,12 @@ function editKak(k){
     const v=parseGermanNumber(box.querySelector('#kVal').value);
     const start=+box.querySelector('#kStart').value; let n=0;
     cells().forEach(c=>{const i=+c.dataset.mi; if(c.disabled||(i+1)<start) return; c.value=v?nf.format(v):''; n++;});
+    signValues(box);
     toast(t('item.setN',n)+'.');
   };
-  box.querySelector('#kClear').onclick=()=>cells().forEach(c=>{if(!c.disabled)c.value='';});
+  box.querySelector('#kClear').onclick=()=>{
+    cells().forEach(c=>{if(!c.disabled)c.value='';}); signValues(box);
+  };
   box.querySelector('#kCancel').onclick=()=>closeModal(box);
   box.onclick=ev=>{if(ev.target===box)closeModal(box);};
   bindUrlGo(box);
@@ -141,6 +160,28 @@ function editKak(k){
     state.kakCats=state.kakCats.filter(x=>x!==k);
     dropKakCat(k);
     save(); box.remove(); render(); toast(t('kdlg.deleted',keyLabel(k)));
+  };
+
+  /* ── Duplizieren ────────────────────────────────────────────
+     Dieselbe Kategorie noch einmal: Link, Betragsart und die
+     zwölf Werte so, wie sie gerade im Fenster stehen — ohne
+     Haken und ohne Notizen, weder zur Kategorie noch zu einem
+     Monat. Was im Original aus dem Import kommt, wird in der
+     Kopie ein gewöhnlicher Planwert: die Kopie hat keine
+     Buchungen, also auch nichts zu korrigieren. Deshalb sind
+     alle zwölf Felder änderbar.
+
+     Der Name muss neu sein — er ist der Schlüssel. Angelegt wird
+     erst mit „Speichern". */
+  const dup=box.querySelector('#kDup');
+  if(dup) dup.onclick=()=>{
+    const c=blankKak(0);
+    c.estimated=box.querySelector('#kEst').checked;
+    c.url=box.querySelector('#kUrl').value.trim();
+    cells().forEach(cc=>{ c.plan[+cc.dataset.mi]=parseGermanNumber(cc.value); });
+    const nm=(box.querySelector('#kName').value.trim()||k)+' '+t('item.copy');
+    box.remove();
+    editKak(null,{entry:c,name:nm,from:k});
   };
 
   box.querySelector('#kSave').onclick=()=>{

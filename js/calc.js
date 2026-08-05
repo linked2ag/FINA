@@ -90,11 +90,43 @@ const settledLast=arr=>arr.slice().sort((a,b)=>(yearFinished(a)?1:0)-(yearFinish
    Rangfolge je Monat: von Hand korrigierter Wert (override),
    sonst Ist-Wert aus dem Import, sonst der geplante Wert. */
 const hasActual=m=>!!state.flexSource[m];
+
+/* Gibt es überhaupt importierte Buchungen? Daran hängt der Reiter
+   „Flexible Payment Details": er wertet genau sie aus, ohne
+   Import stünde dort eine leere Gliederung. Gefragt wird nach
+   beidem — den Buchungen und der Quelle je Monat —, damit auch
+   eine von Hand zusammengestellte Datei erkannt wird. */
+const hasImport=()=>!!state&&(((state.tx||[]).length>0)
+  ||Object.keys(state.flexSource||{}).some(m=>state.flexSource[m]));
 const kakOv=(k,m)=>{const e=state.kak[k];return e&&e.override&&e.override[m-1]!=null?e.override[m-1]:null;};
 const kakVal=(k,m)=>{
   const o=kakOv(k,m); if(o!=null) return o;
   return hasActual(m)?(state.flexActual[m][k]||0):((state.kak[k]&&state.kak[k].plan[m-1])||0);
 };
+/* ── Woher der Wert eines Monats stammt ───────────────────────
+   Dieselbe Rangfolge wie kakVal() und kakDone(), nur als Wort —
+   damit die Ansicht zeigen kann, worauf sie sich stützt:
+
+     corr  von Hand korrigierter Import
+     imp   Ist-Wert aus Fast Budget
+     done  kein Import, aber abgehakt
+     fix   fester eingetippter Betrag, gilt damit als erfasst
+     est   geschätzt und noch offen
+     none  gar kein Betrag
+
+   Wer die Rangfolge in kakVal/kakDone ändert, ändert sie hier
+   mit: die Spalte behauptete sonst etwas anderes, als gerechnet
+   wird. */
+function flexKind(k,m){
+  const e=state.kak[k]; if(!e) return 'none';
+  if(kakOv(k,m)!=null) return 'corr';
+  if(hasActual(m)) return 'imp';
+  if(e.paid[m-1]) return 'done';
+  if((e.plan[m-1]||0)===0) return 'none';
+  return e.estimated?'est':'fix';
+}
+const FLEX_KIND_LABEL={corr:'kak.kCorr',imp:'kak.kImp',done:'kak.kDone',fix:'kak.kFix',est:'kak.kEst'};
+
 function kakDone(k,m){
   const e=state.kak[k]; if(!e) return false;
   if(kakOv(k,m)!=null) return true;

@@ -32,10 +32,31 @@
 .matrix col.c-b{width:38px}.matrix col.c-z{width:38px}.matrix col.c-f{width:38px}.matrix col.c-e{width:50px}
 .matrix col.c-m{width:var(--monw,100px)}.matrix col.c-mk{width:46px}.matrix col.c-t{width:140px}
 
+/* ── Die Stapelfolge der Matrix ───────────────────────────────
+   Drei Sorten Zellen liegen beim Scrollen übereinander, und alle
+   drei sind positioniert — bei gleichem z-index entschiede sonst
+   die Reihenfolge im Dokument, und die späteren Zeilen gewännen
+   gegen die Kopfzeile. Deshalb eine Leiter, von unten nach oben:
+
+     0  gewöhnliche Zellen
+     1  die festgepinnten Spalten links
+     2  Blockzeile (secpin), Monatszellen
+     3  Blockzeile, Spalten links
+     4  Saldozeile (balpin), Monatszellen
+     5  Saldozeile, Spalten links
+     6  Spaltenköpfe, Monatszellen
+     7  Spaltenköpfe, Spalten links
+
+   Die Spaltenköpfe stehen ganz oben, weil alles andere unter sie
+   geschoben wird: eine Blockzeile am Ende ihres Blocks wandert
+   nach oben aus dem Bild (syncSecRows in js/app.js) und lief
+   dabei früher über die Monatsnamen. Zu sehen war das vor allem
+   beim Filtern — kurze Blöcke enden schnell. */
+
 /* ── Zellen ───────────────────────────────────────────────── */
 .matrix th,.matrix td{padding:6px 8px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .matrix thead th{font-family:var(--font-data);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
-  text-align:right;font-weight:500;background:var(--paper-2);position:relative;z-index:2;border-bottom:1px solid var(--rule-strong);
+  text-align:right;font-weight:500;background:var(--paper-2);position:relative;z-index:6;border-bottom:1px solid var(--rule-strong);
   transform:translateY(var(--headY,0px))}
 .matrix thead th.ed,.matrix thead th.ln,.matrix thead th.lab{text-align:left}
 .matrix thead th.code{text-align:center}
@@ -47,14 +68,14 @@
    Waagerecht hält position:sticky die Spalten am linken Rand des
    Rollrahmens fest; senkrecht bleiben die Köpfe über --headY
    stehen (siehe oben). */
-.matrix thead th.ed{left:0;position:sticky;z-index:4}
-.matrix thead th.ln{left:30px;position:sticky;z-index:4}
-.matrix thead th.nt{left:60px;position:sticky;z-index:4}
-.matrix thead th.lab{left:90px;position:sticky;z-index:4}
-.matrix thead th.cB{left:calc(90px + var(--labw,250px));position:sticky;z-index:4}
-.matrix thead th.cZ{left:calc(128px + var(--labw,250px));position:sticky;z-index:4}
-.matrix thead th.cF{left:calc(166px + var(--labw,250px));position:sticky;z-index:4}
-.matrix thead th.cE{left:calc(204px + var(--labw,250px));position:sticky;z-index:4;border-right:2px solid var(--rule-strong)}
+.matrix thead th.ed{left:0;position:sticky;z-index:7}
+.matrix thead th.ln{left:30px;position:sticky;z-index:7}
+.matrix thead th.nt{left:60px;position:sticky;z-index:7}
+.matrix thead th.lab{left:90px;position:sticky;z-index:7}
+.matrix thead th.cB{left:calc(90px + var(--labw,250px));position:sticky;z-index:7}
+.matrix thead th.cZ{left:calc(128px + var(--labw,250px));position:sticky;z-index:7}
+.matrix thead th.cF{left:calc(166px + var(--labw,250px));position:sticky;z-index:7}
+.matrix thead th.cE{left:calc(204px + var(--labw,250px));position:sticky;z-index:7;border-right:2px solid var(--rule-strong)}
 .matrix td.ed,.matrix td.ln,.matrix td.nt,.matrix td.lab,.matrix td.cB,.matrix td.cZ,.matrix td.cF,.matrix td.cE{position:sticky;background:var(--paper-2);z-index:1}
 .matrix td.ed{left:0;padding:4px 0;text-align:center}
 .matrix td.ln{left:30px;padding:4px 0;text-align:center}
@@ -124,7 +145,7 @@
 /* Abbezahlt: nichts steht mehr aus (yearSettled in js/calc.js).
    Die ganze Zeile tritt grau zurück und überschreibt dabei die
    Blockfarbe — deshalb steht die Regel hinter allen anderen. */
-.matrix tr.settled td{background:var(--shade)}
+.matrix tr.settled td{background:var(--settled)}
 /* Der Name bleibt schwarz: grau ist der Hintergrund, nicht die
    Position. Nur die Notiz darunter tritt zurück — sie ist ein
    Zusatz und soll den Namen nicht überstimmen. */
@@ -140,11 +161,11 @@
    js/app.js rechnet den Wert und lässt Platz für diese Zeile.
    Die links festgepinnten Zellen behalten ihr sticky, sonst
    liefen sie beim seitlichen Rollen mit. */
-.matrix tr.balpin td{transform:translateY(var(--headY,0px));position:relative;z-index:3;
+.matrix tr.balpin td{transform:translateY(var(--headY,0px));position:relative;z-index:4;
   border-bottom:1px solid var(--edge-sal)}
 .matrix tr.balpin td.ed,.matrix tr.balpin td.ln,.matrix tr.balpin td.nt,.matrix tr.balpin td.lab,
 .matrix tr.balpin td.cB,.matrix tr.balpin td.cZ,.matrix tr.balpin td.cF,.matrix tr.balpin td.cE{
-  position:sticky;z-index:4}
+  position:sticky;z-index:5}
 
 /* ── Die Blockzeilen bleiben stehen ───────────────────────────
    Einnahmen, Flexible Payments, Regelmäßige Kosten: dieselbe

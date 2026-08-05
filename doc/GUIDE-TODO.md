@@ -11,10 +11,50 @@ bleiben dabei liegen: neue werden nur gemacht, wenn ausdrücklich darum gebeten 
 
 ---
 
-Der Reiter **Was ist neu** ist davon unberührt: dort steht jede Änderung schon, sobald sie
-gebaut ist. Diese Liste betrifft nur die beiden erklärenden Reiter.
+Der Reiter **Was ist neu** wird ebenfalls nicht laufend mitgeschrieben: eine neue Version
+entsteht nur, wenn der Nutzer ausdrücklich darum bittet — sonst gäbe es zu viele. Diese
+Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
+
+- **Abbezahlte Positionen stehen jetzt auch in der Monatsansicht auf grauem Grund** — dieselbe
+  Aussage wie in der Jahresansicht, und das Grau ist in beiden eine Spur heller geworden. Die
+  Zeichenerklärung der Monatsansicht nennt es nicht.
+
+- **Neue Spalte „Art" in der linken Karte der Flexible Payment Details** — importiert,
+  korrigiert, abgeschlossen, fest oder geschätzt, beim ganzen Jahr mit der Zahl der Monate je
+  Art. Der Absatz zu dieser Ansicht beschreibt bisher nur Balken und Betrag.
+
+- ⚠ **Den Reiter „Flexible Payment Details" gibt es nur mit Import**, und er steht als letzter
+  nach der Prognose. Die Anleitung nennt ihn an mehreren Stellen als eine der vier Ansichten,
+  die immer da sind — Schritt 3 (Rundgang), der Absatz „Vier Ansichten" und die Aufzählung im
+  Produktreiter. Dazu heißt er jetzt anders als die Geldart: die Blöcke und Kategorien bleiben
+  „Flexible Payments".
+
+- ⚠ **Der CSV-Import steht in der Kopfzeile**, nicht mehr im Reiter, und führt zuerst durch ein
+  Fenster mit den benötigten Spalten. Die Absätze zum Import sagen „hier hochladen" und meinen
+  den Reiter; der Knopfname wurde schon nachgezogen, der Ort noch nicht.
+
+- ⚠ **Die Prognose schreibt nichts mehr.** Der Absatz „das ist die rechte Spalte" beschreibt ein
+  Eingabefeld, das es nicht mehr gibt, und den Knopf zum Übernehmen des Ø gibt es auch nicht
+  mehr. Beide Spalten sind gerechnet und nur zu lesen; darunter steht jetzt eine Erklärung, woher
+  sie kommen. Schritt 13 ist bereits umgeschrieben, der Absatz im Produktreiter noch nicht.
+
+- **Duplizieren gibt es in beiden Fenstern** — Posten wie Flexible-Payments-Kategorie. Die Kopie
+  trägt alle Stammdaten und die zwölf Beträge, aber keinen Haken und keine Notiz; angelegt wird
+  sie erst mit „Speichern". Schritt 5 und 7 der Anleitung nennen bisher nur „Hinzufügen".
+
+- ⚠ **„Saldo je Monat" wird nicht mehr mitgefiltert.** Die Zeile bleibt in der Jahresansicht
+  immer stehen. Wo die Anleitung sagt, der Filter gelte für jede Zeile der Jahrestabelle, ist
+  das jetzt falsch.
+
+- **Beträge färben sich beim Tippen** nach ihrem Vorzeichen (rot/grün), in den Monatsfeldern und
+  in der schnellen Eingabe. Der Absatz „Ausgaben mit Minus" könnte das erwähnen.
+
+- ⚠ **Notizen gibt es schon vor dem ersten Speichern.** Die Anleitung sagt bei den Notizen
+  sinngemäß, dass eine Position dafür vorhanden sein muss; neue Posten und neue Kategorien haben
+  ihre Lampen jetzt sofort. Dazu: **eine Notiz behält ihre Zeilenumbrüche** — in der
+  Sprechblase, in der Vorschau unter dem Namen und in der Monatszelle des Fensters.
 
 - ⚠ **Doppelklick gibt es jetzt in jeder Ansicht**, auf dem Betrag **und** auf der
   Bezeichnung. Schritt 12 und der Absatz „Die Jahrestabelle lesen" nennen ihn bisher nur

@@ -9,12 +9,21 @@
    DUE_OPTS bleiben als Fundstellen unverändert.
    ══════════════════════════════════════════════════════════════ */
 
-/* Die vier Hauptansichten: interner Schlüssel + Beschriftung.
-   Die Reihenfolge ist auch die der Reiter. */
-Object.defineProperty(window,'VIEWS',{get:()=>[
-  ['monat',t('view.monat')],['jahr',t('view.jahr')],
-  ['kakeibo',t('view.kakeibo')],['prognose',t('view.prognose')]
-]});
+/* Die Hauptansichten: interner Schlüssel + Beschriftung. Die
+   Reihenfolge ist auch die der Reiter.
+
+   „Flexible Payment Details" steht als letzter und **nur mit
+   Import**: der Reiter wertet die Buchungen aus Fast Budget aus,
+   ohne sie gäbe es dort nichts zu sehen. Der Weg zum Import
+   hängt deshalb nicht an ihm, sondern in der Kopfzeile
+   (#btnImport). Wer die Ansicht trotzdem eingestellt hat —
+   etwa nach dem Trennen der Datei —, wird in render() (js/app.js)
+   weitergeschickt. */
+Object.defineProperty(window,'VIEWS',{get:()=>{
+  const v=[['monat',t('view.monat')],['jahr',t('view.jahr')],['prognose',t('view.prognose')]];
+  if(hasImport()) v.push(['kakeibo',t('view.kakeibo')]);
+  return v;
+}});
 
 /* Auswahl im Posten-Fenster: Wiederholung und Fälligkeit. */
 Object.defineProperty(window,'RHYTHM',{get:()=>[

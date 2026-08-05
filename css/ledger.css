@@ -51,6 +51,14 @@
 .ledger tr.paid td.num.neg{color:var(--seal)}
 .ledger tr.paid td.num.pos{color:var(--ok)}
 
+/* Abbezahlt für das ganze Jahr: derselbe graue Grund wie in der
+   Jahresmatrix (--settled in css/tokens.css). Der Name bleibt
+   schwarz — grau ist der Hintergrund, nicht die Position; nur die
+   Zeile darunter mit Bank, Zahlungsart und Fälligkeit tritt
+   zurück, wie sie es ohnehin tut. */
+.ledger tr.settled td{background:var(--settled)}
+.ledger tr.settled td.nm .iname{color:var(--ink)}
+
 /* ── Zellen mit Siegel und Stift ──────────────────────────── */
 .markcell{width:var(--markw);vertical-align:top}
 /* Stift links, Notizlampe genau mittig zwischen Stift und
@@ -81,5 +89,28 @@
   text-transform:uppercase;border-bottom:2px solid rgba(0,0,0,.45);padding-top:14px}
 .ledger tr.kmain:first-child td{padding-top:6px}
 .ledger tr.ksub td{padding-left:14px}
-.barcell{width:34%;padding-right:0!important}
+/* Der Balken teilt sich die Breite mit der neuen Spalte „Art" —
+   34 % ließen dem Namen daneben zu wenig. */
+.barcell{width:26%;padding-right:0!important}
+
+/* ── Die Spalte „Art" ─────────────────────────────────────────
+   Steht links vor dem Betrag: die Zahl ist erst zu deuten, wenn
+   man weiß, woher sie kommt. Bei einem Monat ein Wort, beim
+   ganzen Jahr eine Marke je Art mit der Zahl der Monate — die
+   umbrechen dann in der Zelle, deshalb eine feste Breite und
+   normaler Zeilenumbruch.
+
+   Die Farben sagen dasselbe wie überall sonst: Grün steht für
+   Zahlen, die feststehen (Import), Rot für die von Hand
+   geänderten, Gelb für das, was noch wackelt. */
+.ledger td.kind,.ledger th.kindh{width:138px;padding-right:10px;vertical-align:middle}
+.ledger tr.kmain td.kind{vertical-align:middle}
+.kk{display:inline-block;font-family:var(--font-data);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--rule-strong);padding:1px 5px;color:var(--ink-2);margin:1px 4px 1px 0;
+  white-space:nowrap;font-weight:400}
+.kk.k-imp{border-color:var(--ok);color:var(--ok)}
+.kk.k-corr{border-color:var(--seal);color:var(--seal)}
+.kk.k-done{border-color:var(--ink);color:var(--ink)}
+.kk.k-est{border-color:var(--amber);color:var(--amber)}
+@media(max-width:900px){.ledger td.kind,.ledger th.kindh{width:96px}}
 .bar{height:7px;opacity:.72}

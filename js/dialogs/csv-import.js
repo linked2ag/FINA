@@ -9,6 +9,49 @@
    dahin führt jeder Weg zurück, ohne Spuren zu hinterlassen.
    ══════════════════════════════════════════════════════════════ */
 
+/* ── Das Fenster vor der Dateiauswahl ─────────────────────────
+   Der Knopf in der Kopfzeile führt nicht sofort zum Dateidialog,
+   sondern hierher: woher die Datei kommt (Fast Budget) und welche
+   Spalten darin stehen müssen, damit der Import überhaupt
+   greift. Wer das erst aus einer Fehlermeldung erfährt, hat die
+   Datei schon herausgesucht.
+
+   Die Spaltennamen stehen genauso in parseFastBudget()
+   (js/csv.js) — wer sie dort ändert, ändert sie in impInfo.*
+   mit. Geändert wird hier nichts: der Knopf öffnet nur die
+   Dateiauswahl, danach laufen wie bisher Schritt 1 und 2. */
+function openImportInfo(){
+  const col=(name,txt)=>`<tr><td class="nm"><code>${name}</code></td><td>${txt}</td></tr>`;
+  const box=document.createElement('div');
+  box.className='modal';
+  box.innerHTML=`<div class="box" style="max-width:720px">
+    <h3>${t('impInfo.title')}</h3>
+    <p class="subline">${t('impInfo.sub')}</p>
+    <div class="field"><label>${t('impInfo.needTitle')}</label>
+      <p class="note" style="margin:0 0 8px">${t('impInfo.need')}</p>
+      <table class="ledger">
+        ${col('Datum',t('impInfo.colDate'))}
+        ${col('Wert (EUR)',t('impInfo.colVal'))}
+        ${col('Hauptkategorie',t('impInfo.colMain'))}</table></div>
+    <div class="field"><label>${t('impInfo.optTitle')}</label>
+      <table class="ledger">
+        ${col('Kategorie',t('impInfo.colCat'))}
+        ${col('Konto',t('impInfo.colAcc'))}
+        ${col('Notizen',t('impInfo.colNote'))}</table></div>
+    <p class="note">${t('impInfo.rest',YEAR)}</p>
+    <div class="row-end"><button class="btn" id="iiCancel">${t('g.cancel')}</button>
+      <button class="btn primary" id="iiPick">${t('impInfo.pick')}</button></div>
+  </div>`;
+  document.body.appendChild(box); tabThroughFields(box);
+  box.onclick=ev=>{ if(ev.target===box) closeModal(box); };
+  box.querySelector('#iiCancel').onclick=()=>closeModal(box);
+  box.querySelector('#iiPick').onclick=()=>{
+    box.remove();
+    document.getElementById('fileCsv').click();
+  };
+  box.querySelector('#iiPick').focus();
+}
+
 function openImport(rows,fileName){
   const scan=scanImport(rows);
   if(!scan.mine.length){

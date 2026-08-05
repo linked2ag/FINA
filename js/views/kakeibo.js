@@ -127,6 +127,27 @@ function viewKakeibo(){
   const maxBar=Math.max(1,...barVals.map(v=>Math.abs(v)));
   const bar=v=>`<td class="barcell"><div class="bar" style="width:${Math.abs(v)/maxBar*100}%;background:${v<0?'var(--seal)':'var(--ok)'}"></div></td>`;
 
+  /* ── Die Spalte „Art" ───────────────────────────────────────
+     Woher der Wert kommt, mit dem die Zeile rechnet: importiert,
+     korrigiert, abgehakt, fester Betrag oder noch geschätzt
+     (flexKind in js/calc.js). Sie steht links vor dem Betrag —
+     die Zahl daneben ist erst dann zu deuten.
+
+     Bei einem einzelnen Monat ist es ein Wort. Beim ganzen Jahr
+     stehen zwölf Monate hinter der Summe: dann zählt die Spalte,
+     wie viele Monate auf welche Art zustande kamen, die häufigste
+     zuerst. Monate ohne Betrag zählen nicht mit — sie sagen
+     nichts über die Herkunft. */
+  function kindCell(k){
+    if(!state.kak[k]) return '<td class="kind"></td>';
+    const per={};
+    months.forEach(m=>{const s=flexKind(k,m); if(s!=='none') per[s]=(per[s]||0)+1;});
+    const list=Object.keys(per).sort((a,b)=>per[b]-per[a]);
+    if(!list.length) return '<td class="kind"></td>';
+    return `<td class="kind">${list.map(s=>`<span class="kk k-${s}">${
+      months.length>1?per[s]+' ':''}${t(FLEX_KIND_LABEL[s])}</span>`).join('')}</td>`;
+  }
+
   /* Der Beleglink der Kategorie — dasselbe Symbol wie beim
      regelmäßigen Posten. */
   const kLink=k=>(state.kak[k]&&state.kak[k].url)
@@ -135,16 +156,18 @@ function viewKakeibo(){
   let rows='';
   order.forEach(mk=>{
     rows+=`<tr class="kmain"${state.kak[mk]?dblKak(mk):''}><td class="nm">${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kLink(mk)}${state.kak[mk]?notePreview('kak',mk):''}</td>
-      ${mainBar(mk)?bar(val[mk]):'<td></td>'}
+      ${mainBar(mk)?bar(val[mk]):'<td></td>'}${kindCell(mk)}
       <td class="num ${cls(val[mk])}">${eur(val[mk])}</td>${arrow(mk)}</tr>`;
     if(!detail) return;
+    /* Die Unterzeilen bleiben leer: Unterkategorien kennt nur der
+       Import, ihre Art steht schon in der Hauptzeile. */
     subOf(mk).forEach(([sk,v])=>{
-      rows+=`<tr class="ksub"><td>${esc(keyLabel(sk))}</td>${bar(v)}
+      rows+=`<tr class="ksub"><td>${esc(keyLabel(sk))}</td>${bar(v)}<td class="kind"></td>
         <td class="num ${cls(v)}">${eur(v)}</td>${arrow(mk,sk)}</tr>`;
     });
     const rest=restOf(mk);
     if(subOf(mk).length&&Math.abs(rest)>=0.005)
-      rows+=`<tr class="ksub"><td>${t('kak.manualSub')}</td><td></td>
+      rows+=`<tr class="ksub"><td>${t('kak.manualSub')}</td><td></td><td class="kind"></td>
         <td class="num ${cls(rest)}">${eur(rest)}</td><td class="arrowcell"></td></tr>`;
   });
 
@@ -203,7 +226,9 @@ function viewKakeibo(){
         ${canDetail?'':`disabled title="${esc(t('kak.subsNeedImport'))}"`}>${t('kak.withSubs')}</button>
       <span style="flex:1"></span>
       <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
-      <button class="btn primary small" id="btnImportK">${t('kak.import')}</button>
+      <!-- Der Import steht in der Kopfzeile: diesen Reiter gibt es
+           erst, wenn einmal importiert wurde — der Weg hinein darf
+           nicht in ihm liegen. -->
       <span class="note">${tx.length} ${t('g.transactions')}${orphan?t('kak.orphan',orphan):''}</span></div>
   <div class="grid">
     <div class="card sec-flex">
@@ -212,11 +237,13 @@ function viewKakeibo(){
           <p class="subhead impline">${impLine}</p></div>
         <button class="btn small ktop" data-ktop="1" aria-pressed="${!pick}">${t('kak.top')}</button></div>
       <table class="ledger">
-        <tr><th>${t('g.category')}</th><th></th><th class="num">${t('g.amount')}</th><th></th></tr>
+        <tr><th>${t('g.category')}</th><th></th><th class="kindh">${t('kak.colKind')}</th>
+          <th class="num">${t('g.amount')}</th><th></th></tr>
         ${rows}
-        <tr class="sum"><td>${t('g.total')}</td><td></td><td class="num ${cls(total)}">${eur(total)}</td>
+        <tr class="sum"><td>${t('g.total')}</td><td></td><td></td><td class="num ${cls(total)}">${eur(total)}</td>
           <td></td></tr></table>
-      <p class="note" style="margin-top:10px">${t('kak.rowHint')} ${t('kak.valHint')}</p></div>
+      <p class="note" style="margin-top:10px">${t('kak.kindHint')}</p>
+      <p class="note" style="margin-top:6px">${t('kak.rowHint')} ${t('kak.valHint')}</p></div>
     <div class="card"><h2 style="margin-bottom:2px">${esc(sideTitle)}</h2>
       <p class="note" style="margin:0 0 10px">${sideSub}</p>
       <table class="ledger">${sideRows}</table></div>

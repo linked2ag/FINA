@@ -143,6 +143,19 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 input,select,textarea{font-family:var(--font-ui);font-size:14px;background:var(--paper-2);color:var(--ink);
   border:1px solid var(--rule-strong);border-radius:2px;padding:6px 8px}
 input.num{font-family:var(--font-data);text-align:right}
+/* Vorzeichen schon beim Tippen: Ausgaben rot, Einnahmen grün —
+   dieselben Farben wie in den Tabellen. Die Klasse setzt
+   signValue() in js/ui.js, die Null bleibt ohne.
+
+   Auch ein abgeschlossener Monat trägt die Farbe: sein Betrag
+   soll sich beim Überfliegen der zwölf Felder genauso lesen wie
+   die offenen. Dass er gesperrt ist, sagen der graue Grund der
+   Zelle und der gestrichelte Rand — dafür braucht es die
+   Schriftfarbe nicht. Zwei Klassen wiegen schwerer als
+   input:disabled darunter; das Grau gilt also weiter für jedes
+   andere gesperrte Feld. */
+input.num.neg{color:var(--seal)}
+input.num.pos{color:var(--ok)}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
 input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;border-style:dashed}
 .field{margin-bottom:12px}
@@ -277,8 +290,19 @@ body.gresize{user-select:none;cursor:col-resize}
 .mgrid .cell .mlab{font-family:var(--font-data);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
 .mgrid .cell .mlab.curm{color:var(--seal);font-weight:700}
 .mgrid .cell .ctools{display:flex;align-items:center;gap:3px}
-.mgrid .cell .cellnote{font-size:10.5px;line-height:1.35;color:var(--ink-2);margin-top:4px;
+.mgrid .cell .cellnote{font-size:10.5px;line-height:1.35;color:var(--ink-2);margin-top:4px;white-space:pre-wrap;
   display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+
+/* ── Erklärung unter einer Tabelle ────────────────────────────
+   Kein Knopf, nur Text: was die gerechneten Spalten darüber sind
+   und woher sie kommen. Abgesetzt durch eine Linie und den
+   Papiergrund, damit er nicht wie eine weitere Zeile der Tabelle
+   aussieht. */
+.calchint{margin-top:14px;padding-top:10px;border-top:1px solid var(--rule);
+  font-size:11.5px;line-height:1.5;color:var(--ink-2)}
+.calchint p{margin:0 0 6px}
+.calchint p:last-child{margin-bottom:0}
+.calchint b{color:var(--ink)}
 
 /* ── Sortierbare Listen (Banken, Zahlungsarten, Kategorien) ── */
 .listrow{display:grid;grid-template-columns:16px 68px 1fr 22px;gap:6px;margin-bottom:6px;align-items:center;

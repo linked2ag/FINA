@@ -65,6 +65,12 @@ const STR={
 'app.saveTip':{en:'Write the current state into the JSON file',de:'Aktuellen Stand in die JSON-Datei schreiben'},
 'app.unlink':{en:'Close file',de:'Verbindung zu Daten trennen'},
 'app.unlinkTip':{en:'Clear the view and let go of the file',de:'Ansicht leeren und die Datei loslassen'},
+/* Der Import steht in der Kopfzeile, nicht mehr im Reiter: den
+   Reiter gibt es erst nach dem ersten Import (siehe hasImport()
+   in js/calc.js), der Knopf muss vorher erreichbar sein. */
+'app.import':{en:'Import CSV',de:'CSV importieren'},
+'app.importTip':{en:'Read Flexible Payments from a Fast Budget CSV export — nothing is changed until you confirm',
+  de:'Flexible Payments aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
 'app.settings':{en:'Settings',de:'Einstellungen'},
 'app.settingsTip':{en:'Language, year, column widths, banks, payment types and categories',
   de:'Sprache, Jahr, Spaltenbreiten, Banken, Zahlungsarten und Kategorien'},
@@ -88,7 +94,11 @@ const STR={
    flexActual, ui.view='kakeibo') behalten ihre alten Namen. */
 'view.monat':{en:'Month',de:'Monat'},
 'view.jahr':{en:'Year',de:'Jahr'},
-'view.kakeibo':{en:'Flexible Payments',de:'Flexible Payments'},
+/* Der Reiter heißt anders als die Geldart: er zeigt die
+   Auswertung der importierten Buchungen und gibt es nur mit
+   Import. Wo die Geldart gemeint ist — die drei Blöcke, eine
+   Kategorie —, steht g.flex. */
+'view.kakeibo':{en:'Flexible Payment Details',de:'Flexible Payment Details'},
 'view.prognose':{en:'Forecast',de:'Prognose'},
 
 /* ── Allgemeine Wörter ────────────────────────────────────── */
@@ -104,6 +114,8 @@ const STR={
 'g.amount':{en:'Amount',de:'Betrag'},
 'g.income':{en:'Income',de:'Einnahmen'},
 'g.fixed':{en:'Regular costs',de:'Regelmäßige Kosten'},
+/* Die Geldart, nicht der Reiter — siehe view.kakeibo. */
+'g.flex':{en:'Flexible Payments',de:'Flexible Payments'},
 'g.estimated':{en:'estimated',de:'geschätzt'},
 'g.all':{en:'All',de:'Alle'},
 'g.none':{en:'None',de:'Keinen'},
@@ -275,6 +287,18 @@ const STR={
   de:'Exportiere in Fast Budget deine Transaktionen als CSV und lade sie hier hoch.'},
 'kak.importBtn':{en:'Import CSV from Fast Budget',de:'CSV aus Fast Budget importieren'},
 'kak.import':{en:'Import CSV',de:'CSV importieren'},
+/* Die Spalte „Art": woher der Wert einer Zeile stammt. Die
+   Reihenfolge der Prüfung steht in flexKind() (js/calc.js) und ist
+   dieselbe wie beim Rechnen — Korrektur schlägt Import, Import
+   schlägt Haken, Haken schlägt eingetippten Betrag. */
+'kak.colKind':{en:'Kind',de:'Art'},
+'kak.kImp':{en:'imported',de:'importiert'},
+'kak.kCorr':{en:'corrected',de:'korrigiert'},
+'kak.kDone':{en:'closed',de:'abgeschlossen'},
+'kak.kFix':{en:'fixed',de:'fest'},
+'kak.kEst':{en:'estimated',de:'geschätzt'},
+'kak.kindHint':{en:'<b>Kind</b> says where the figure beside it comes from: <b>imported</b> from Fast Budget · <b>corrected</b> — an imported month you overwrote by hand · <b>closed</b> — no import, but you ticked the month off · <b>fixed</b> — an amount you typed that is not marked as an estimate, so it counts as settled · <b>estimated</b> — still open and expected to change. Over the whole year the column counts the months per kind; months without an amount are not counted.',
+  de:'<b>Art</b> sagt, woher die Zahl daneben stammt: <b>importiert</b> aus Fast Budget · <b>korrigiert</b> — ein importierter Monat, den du von Hand überschrieben hast · <b>abgeschlossen</b> — kein Import, aber du hast den Monat abgehakt · <b>fest</b> — ein eingetippter Betrag, der nicht als Schätzung markiert ist und deshalb als erfasst gilt · <b>geschätzt</b> — noch offen und voraussichtlich anders. Über das ganze Jahr zählt die Spalte die Monate je Art; Monate ohne Betrag zählen nicht mit.'},
 'kak.period':{en:'Period',de:'Zeitraum'},
 'kak.prev':{en:'‹ Previous month',de:'‹ Vormonat'},
 'kak.prevTip':{en:'One month back',de:'Einen Monat zurück'},
@@ -350,13 +374,18 @@ const STR={
   de:'Noch kein Monat hat feststehende Werte, deshalb gibt es keinen Ø. Importiere einen Monat oder hake einen ab.'},
 'prog.avgOfN':{en:'calculated over {0} month(s)',de:'\u00fcber {0} Monate gerechnet'},
 'prog.noCats':{en:'No Flexible Payments categories yet.',de:'Noch keine Flexible-Payments-Kategorien angelegt.'},
-'prog.takeAvg':{en:'Apply Ø',de:'Ø übernehmen'},
-'prog.takeHint':{en:'Applying overwrites the current assumption of every category — you will be asked first.',
-  de:'Übernehmen überschreibt die aktuelle Annahme jeder Kategorie — es wird vorher gefragt.'},
-'prog.askAvg':{en:'The current assumption of {0} categories will be replaced by the average of {1}. The previous values are lost. Continue?',
-  de:'Die aktuelle Annahme von {0} Kategorien wird durch den Durchschnitt aus {1} ersetzt. Die bisherigen Werte gehen dabei verloren. Fortfahren?'},
-'prog.noActual':{en:'No actual months available.',de:'Keine Ist-Monate vorhanden.'},
-'prog.applied':{en:'Assumption from {0} applied.',de:'Annahme aus {0} übernommen.'},
+/* Die Annahme wird hier nur noch gezeigt, nicht getippt: geändert
+   wird sie im Fenster der Kategorie oder in einem Zug über den
+   Knopf darunter. */
+'prog.colCurrentTip':{en:'What the projection calculates with in the current month. Change it in the category window (pencil or double-click) or with the button below.',
+  de:'Womit die Hochrechnung im laufenden Monat rechnet. Ändern lässt es sich im Fenster der Kategorie (Stift oder Doppelklick) oder mit dem Knopf darunter.'},
+/* Statt eines Knopfes eine Erklärung unter der Tabelle: beide
+   Spalten sind gerechnet, und wer sie liest, soll wissen, woher
+   sie kommen. Übernommen wird von hier aus nichts. */
+'prog.howCurrent':{en:'the amount this category plans for {0}. The projection uses each month its own planned amount — for months with a Fast Budget import it uses the imported figure instead, and a correction beats both.',
+  de:'der Betrag, den diese Kategorie für {0} vorsieht. Die Hochrechnung nimmt je Monat dessen eigenen Planwert — in Monaten mit Fast-Budget-Import stattdessen den importierten, und eine Korrektur schlägt beides.'},
+'prog.howAvg':{en:'the average of this category over every month of this year whose value is settled: imported, corrected, ticked off, or entered as a fixed amount. A month that only carries an estimate is left out, otherwise the average would be averaging its own guess. Without a settled month there is no average, and a dash stands there.',
+  de:'der Durchschnitt dieser Kategorie über jeden Monat dieses Jahres, dessen Wert feststeht: importiert, korrigiert, abgehakt oder als fester Betrag eingetragen. Ein Monat, in dem nur eine Schätzung steht, bleibt außen vor — sonst mittelte der Durchschnitt seine eigene Vermutung. Ohne feststehenden Monat gibt es keinen Durchschnitt, dann steht dort ein Strich.'},
 
 /* ── Posten-Fenster ───────────────────────────────────────── */
 'item.add':{en:'Add item',de:'Posten hinzufügen'},
@@ -416,6 +445,16 @@ const STR={
   de:'Entfernt alle Haken, damit sich alle Beträge wieder ändern lassen'},
 'item.lockedNow':{en:'{0} month(s) closed — “Save” keeps it.',de:'{0} Monate abgeschlossen — mit „Speichern" übernehmen.'},
 'item.unlockedNow':{en:'{0} month(s) reopened — “Save” keeps it.',de:'{0} Monate wieder geöffnet — mit „Speichern" übernehmen.'},
+/* Duplizieren — derselbe Knopf im Posten- und im Beträge-Fenster,
+   deshalb steht die Beschriftung nur einmal hier. Der Zusatz
+   item.copy hängt sich an den Namen der Kopie. */
+'item.dup':{en:'Duplicate',de:'Duplizieren'},
+'item.copy':{en:'(copy)',de:'(Kopie)'},
+'item.dupTip':{en:'Opens a copy of this item — amounts included, ticks and notes removed. The copy is created when you press Save; this item stays as it is.',
+  de:'Öffnet eine Kopie dieses Postens — mit den Beträgen, ohne Haken und ohne Notizen. Angelegt wird die Kopie erst mit „Speichern"; dieser Posten bleibt, wie er ist.'},
+'item.dupTitle':{en:'Duplicate item',de:'Posten duplizieren'},
+'item.dupSub':{en:'A copy of “{0}”. All ticks and notes have been removed, so every one of the twelve months can be changed. Nothing is created until you press Save — Cancel leaves no trace, and “{0}” itself stays untouched either way.',
+  de:'Eine Kopie von „{0}". Alle Haken und Notizen sind entfernt, deshalb ist jeder der zwölf Monate änderbar. Angelegt wird erst mit „Speichern" — wer abbricht, hinterlässt nichts, und „{0}" selbst bleibt in beiden Fällen unangetastet.'},
 
 /* ── Beträge einer Flexible-Payments-Kategorie ────────────── */
 'kdlg.lockedN':{en:'{0} month(s) are marked IMPORTED — those values come from Fast Budget. Changing one turns it into CORRECTED.',
@@ -437,6 +476,11 @@ const STR={
 'kdlg.newSub':{en:'A main category of your everyday spending — groceries, leisure, travel. Give it a name and, if you like, its twelve amounts right away.',
   de:'Eine Hauptkategorie der allt\u00e4glichen Ausgaben — Lebensmittel, Freizeit, Reisen. Gib ihr einen Namen und, wenn du magst, gleich ihre zw\u00f6lf Monatsbetr\u00e4ge.'},
 'kdlg.namePh':{en:'e.g. Groceries',de:'z. B. Lebensmittel'},
+'kdlg.dupTip':{en:'Opens a copy of this category — amounts included, ticks and notes removed. The copy is created when you press Save; this category stays as it is.',
+  de:'Öffnet eine Kopie dieser Kategorie — mit den Beträgen, ohne Haken und ohne Notizen. Angelegt wird die Kopie erst mit „Speichern"; diese Kategorie bleibt, wie sie ist.'},
+'kdlg.dupTitle':{en:'Duplicate category',de:'Kategorie duplizieren'},
+'kdlg.dupSub':{en:'A copy of “{0}”. All ticks and notes have been removed, so every one of the twelve months can be changed — imported values come along as plain planned ones, because a new category has no bookings. Give it a name of its own; it is created when you press Save.',
+  de:'Eine Kopie von „{0}". Alle Haken und Notizen sind entfernt, deshalb ist jeder der zwölf Monate änderbar — importierte Werte kommen als gewöhnliche Planwerte mit, denn eine neue Kategorie hat keine Buchungen. Gib ihr einen eigenen Namen; angelegt wird sie erst mit „Speichern".'},
 'kdlg.del':{en:'Delete category',de:'Kategorie l\u00f6schen'},
 'kdlg.delAsk':{en:'Delete “{0}”? Plan values, actual values, corrections and notes of this category go with it. This can only be undone from a saved file.',
   de:'\u201e{0}\u201c l\u00f6schen? Plan- und Ist-Werte, Korrekturen und Notizen dieser Kategorie gehen mit. Das l\u00e4sst sich nur \u00fcber eine gespeicherte Datei r\u00fcckg\u00e4ngig machen.'},
@@ -504,6 +548,31 @@ const STR={
 'set.saved':{en:'Settings saved.',de:'Einstellungen gespeichert.'},
 
 /* ── CSV-Import ───────────────────────────────────────────── */
+/* Das Fenster vor dem Fenster: woher die Datei kommt und welche
+   Spalten darin stehen müssen. Es steht vor der Dateiauswahl —
+   wer erst im Fehlerfall erfährt, dass eine Spalte fehlt, hat die
+   Datei schon gesucht. Die Spaltennamen sind die des deutschen
+   Fast-Budget-Exports und stehen genauso in parseFastBudget()
+   (js/csv.js); wer sie dort ändert, ändert sie hier mit. */
+'impInfo.title':{en:'Import Flexible Payments from Fast Budget',de:'Flexible Payments aus Fast Budget importieren'},
+'impInfo.sub':{en:'FINA reads the CSV export of the <b>Fast Budget</b> app. It fills the Flexible Payments of this file — the everyday spending per category and month.',
+  de:'FINA liest den CSV-Export der App <b>Fast Budget</b>. Er füllt die Flexible Payments dieser Datei — die alltäglichen Ausgaben je Kategorie und Monat.'},
+'impInfo.needTitle':{en:'These columns must be in the file',de:'Diese Spalten müssen in der Datei stehen'},
+'impInfo.need':{en:'The header row is found by the column <b>Hauptkategorie</b> — without it the file is refused. Export in German, the column names are read literally.',
+  de:'Die Kopfzeile wird an der Spalte <b>Hauptkategorie</b> erkannt — ohne sie wird die Datei abgewiesen. Exportiere auf Deutsch, die Spaltennamen werden wörtlich gelesen.'},
+'impInfo.colDate':{en:'the day, as 31.12.2026 — a row without a readable date is skipped',
+  de:'der Tag, als 31.12.2026 — eine Zeile ohne lesbares Datum wird übergangen'},
+'impInfo.colVal':{en:'the amount; “Wert” alone is also accepted. Expenses carry a minus.',
+  de:'der Betrag; „Wert" allein wird auch genommen. Ausgaben tragen ein Minus.'},
+'impInfo.colMain':{en:'becomes the Flexible Payments category — new ones are created',
+  de:'wird zur Flexible-Payments-Kategorie — neue werden angelegt'},
+'impInfo.optTitle':{en:'Taken along if present',de:'Wird mitgenommen, wenn vorhanden'},
+'impInfo.colCat':{en:'the subcategory, shown in the detail view',de:'die Unterkategorie, sichtbar in der Detailansicht'},
+'impInfo.colAcc':{en:'account',de:'Konto'},
+'impInfo.colNote':{en:'note on the booking',de:'Notiz zur Buchung'},
+'impInfo.rest':{en:'Semicolon and comma both work as separators, and lines above the header row are ignored. Only bookings from <b>{0}</b> are used — the year of this file. After choosing the file you will see which months it holds and what would be replaced; nothing is changed before you confirm that.',
+  de:'Semikolon und Komma gehen beide als Trennzeichen, und Zeilen über der Kopfzeile werden übergangen. Genommen werden nur Buchungen aus <b>{0}</b> — dem Jahr dieser Datei. Nach der Dateiwahl siehst du, welche Monate darin stehen und was ersetzt würde; geändert wird nichts, bevor du das bestätigst.'},
+'impInfo.pick':{en:'Choose CSV file',de:'CSV-Datei wählen'},
 'imp.noHeader':{en:'Column “Hauptkategorie” not found — is this a Fast Budget export?',
   de:'Spalte „Hauptkategorie" nicht gefunden — ist das ein Fast-Budget-Export?'},
 'imp.noRows':{en:'No transactions found in the file.',de:'Keine Transaktionen in der Datei gefunden.'},
