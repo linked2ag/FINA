@@ -39,6 +39,37 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 .rowbtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer;
   border-bottom:1px dotted var(--rule-strong)}
 .rowbtn:hover{color:var(--seal)}
+/* Die Bezeichnung im Kopf eines Fensters ist der Knopf, der sie
+   ändert. Sie sieht aus wie die Überschrift, die sie ist —
+   nur die gepunktete Linie sagt, dass man sie anfassen kann. Ein
+   Stift daneben wäre ein zweites Ziel für dieselbe Sache. */
+.titlebtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;
+  border-bottom:1px dotted var(--rule-strong);line-height:1.15}
+.titlebtn:hover{border-bottom-color:var(--ink)}
+/* Noch ohne Bezeichnung: die Überschrift ist dann eine
+   Aufforderung und keine Angabe — sie tritt zurück. */
+.titlebtn.empty{color:var(--ink-2);font-style:italic}
+/* Ein Fenster, das genau eine Sache fragt, ist so breit wie diese
+   eine Sache. Ohne das nähme es die 1080 px von .modal .box und
+   stünde mit einem Feld darin verloren da. */
+.modal .box.narrow{max-width:460px}
+/* Die beiden Kategorielisten im Einstellungsfenster: Einnahmen
+   und Ausgaben nebeneinander, jede in der Farbe ihrer Geldart —
+   dieselbe, die sie in allen Ansichten trägt. Die Kante links
+   macht aus zwei Listen zwei Bereiche; ohne sie läse sich die
+   rechte wie eine Fortsetzung der linken. */
+.grouplists .field{border-left:4px solid var(--rule-strong);padding-left:12px}
+.grouplists .gl-in{border-left-color:var(--edge-in)}
+.grouplists .gl-out{border-left-color:var(--edge-out)}
+.grouplists .gl-in .listhead,.grouplists .gl-in>label{color:var(--ok)}
+.grouplists .gl-out .listhead,.grouplists .gl-out>label{color:var(--seal)}
+/* Die Kategorieliste des Posten-Fensters trägt dieselben Farben:
+   Einnahmen grün, Ausgaben rot. Die Beschriftung der Gruppe ist
+   grau und kursiv — sie ist kein Eintrag, und wählen lässt sie
+   sich ohnehin nicht (das macht <optgroup> von selbst). */
+.grouppick optgroup{color:var(--ink-2);font-style:italic;font-weight:600}
+.grouppick option.og-in{color:var(--ok);font-style:normal;font-weight:400}
+.grouppick option.og-out{color:var(--seal);font-style:normal;font-weight:400}
 
 /* ── Bezahlt-Siegel ───────────────────────────────────────── */
 .marks{display:flex;gap:6px;align-items:center}
@@ -309,7 +340,22 @@ body.gresize{user-select:none;cursor:col-resize}
 .row-end{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 
 /* ── Schnelleingabe und Monatsraster im Fenster ───────────── */
-.quick{border:1px solid var(--rule-strong);background:var(--paper);padding:12px;margin:14px 0}
+.quick{border:1px solid var(--rule-strong);background:var(--paper);padding:9px 12px 10px;margin:10px 0}
+/* Überschrift links, Mittelwert rechts — in einer Zeile, damit die
+   Angabe keine eigene Höhe kostet. Rechts steht sie über dem
+   Betragsfeld, und genau dort wird die Annahme für die kommenden
+   Monate eingetippt: man liest den bisherigen Schnitt, während man
+   den nächsten Wert setzt. */
+.quick .qhead{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  margin-bottom:8px;flex-wrap:wrap}
+/* Orange, weil die Zahl weder Einnahme noch Kosten ist, sondern
+   ein Hinweis — sie soll aus den Beträgen ringsum herausfallen,
+   ohne sich als einer von ihnen auszugeben. */
+.quick .qavg{font-family:var(--font-data);font-size:12px;color:var(--accent-2);
+  text-align:right;white-space:nowrap}
+/* Ohne feststehenden Monat gibt es nichts zu rechnen: dann ist die
+   Zeile eine Auskunft und keine Zahl — sie tritt zurück. */
+.quick .qavg.none{color:var(--ink-2);font-style:italic}
 /* Wiederholung · ab Monat · Betrag — in dieser Reihenfolge, und
    damit auch in dieser Tab-Folge. Die beiden Auswahlfelder
    tragen längeren Text und bekommen deshalb mehr Platz. */
@@ -317,7 +363,12 @@ body.gresize{user-select:none;cursor:col-resize}
 /* Die beiden Knöpfe stehen rechts, „Übernehmen" ganz außen — wie
    die Fußzeile eines Fensters, wo der Knopf, der etwas tut, immer
    am rechten Rand steht. */
-.quick .qbtns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}
+.quick .qbtns{display:flex;gap:8px 12px;margin-top:8px;flex-wrap:wrap;justify-content:flex-end;
+  align-items:center}
+/* Der Hinweis links, die Knöpfe rechts — eine Zeile statt zweier.
+   Er schiebt sie mit margin-right:auto nach außen und gibt nach,
+   wenn es eng wird; umbrechen darf er, die Knöpfe nicht. */
+.quick .qhint{margin-right:auto;flex:1 1 260px;min-width:0;font-size:11.5px;line-height:1.4;color:var(--ink-2)}
 .mgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .mgrid .cell{border:1px solid var(--rule);padding:6px;background:var(--paper)}
 .mgrid .cell.lockedcell{background:var(--shade)}

@@ -17,9 +17,46 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-Nichts. Alle drei Reiter sind auf dem Stand der Anwendung.
+Am 6. August 2026 gebaut, noch in keinem Reiter:
+
+- **Der erste Balken franst aus statt einer Marke.** Ist die Achse beschnitten, läuft der
+  Balken der Monatseröffnung zum Rand hin ins Durchsichtige aus; der gestrichelte Strich ist
+  weg. Betrifft **keinen** Absatz — die Anleitung beschreibt das seit jeher so. Nur
+  `doc/img/ui-waterfall.png` zeigt weiter den alten Stand.
+- **Begrüßungsseite:** der Text läuft so breit wie die beiden Knöpfe darunter, und der Satz,
+  der zur Anleitung schickt, steht in deren Orange. Braucht keinen eigenen Absatz — betrifft
+  nur `doc/img/welcome.png`.
+- **Der Reiter „Flexible Payment Details"** startet mit dem ganzen Jahr und der ersten
+  Kategorie im rechten Bereich. Ein Halbsatz im Produktreiter, wo der Reiter beschrieben ist.
+- **Sprechblasen stehen jetzt über oder unter dem Element**, nicht mehr daneben. Verhalten,
+  kein Absatz — nur zu erwähnen, falls die Anleitung einmal beschreibt, wo sie erscheinen.
+- **Die Schnelleingabe ist flacher**: der Hinweis steht in derselben Zeile wie die Knöpfe.
+  Betrifft `doc/img/item-quick.png`.
+
+**Der Reiter „Was ist neu" ist bewusst unangetastet.** Eine neue Version entsteht nur auf
+ausdrückliche Bitte — sag Bescheid, dann bekommt alles unten eine Nummer.
 
 ## Zuletzt eingearbeitet
+
+Am 6. August 2026, vierter Durchgang — in **Schritt für Schritt** und **Was FINA kann**,
+beide Sprachen. Die Bildschirmfotos blieben liegen; zwei Stellen zeigten Dinge, die es nicht
+mehr gibt, und wurden deshalb entfernt statt neu beschriftet:
+
+- **Zwei Kategorielisten** im Einstellungsbereich: Einnahmen links, Ausgaben rechts, und die
+  Regel, dass ein Name über beide Listen hinweg nur einmal vorkommen darf — daran erkennt
+  FINA, ob ein Posten Geld bringt oder kostet (Schritt 5 in beiden Sprachen)
+- **Die Bezeichnung ist die Überschrift**: kein Feld mehr, ein Klick öffnet ein kleines
+  Fenster mit Abbrechen und Übernehmen; „Speichern" ohne Namen öffnet dasselbe Fenster. Gilt
+  für Kategorien wie für Posten (Schritt 7)
+- **Der Mittelwert über der Schnelleingabe**, orange, aus den feststehenden Monaten
+  gerechnet und beim Tippen mitlaufend (Schritt 7)
+- **Die Prognose neu beschrieben** (Schritt 13 und Produktreiter): eine Tabelle über die
+  volle Breite, kurze Überschriften mit Erklärung beim Überfahren, der laufende Monat
+  hervorgehoben, die abgerechneten blass — und die Spalte **Verlauf** mit ihrem Raster. Die
+  rechte Karte mit den Annahmen gibt es nicht mehr; wo sie stand, steht jetzt, dass die
+  Annahme im Fenster der Kategorie gepflegt wird. **`forecast-plan.png` ist aus beiden
+  Reitern entfernt** — das Bild zeigte eine Karte, die es nicht mehr gibt
+
 
 Am 6. August 2026, dritter Durchgang: **alle Bildschirmfotos neu**, und zwar aus der neuen
 Beispieldatei `fina-demo-en.json` — durchweg englisch, ohne persönliche Daten, mit den

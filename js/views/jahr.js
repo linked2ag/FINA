@@ -172,8 +172,22 @@ function viewJahr(){
 
   const inc=state.fixed.filter(isIncome); countHidden(inc);
   const secIn=hit(t('g.income'));
-  const incRows=settledLast(inc).filter(it=>base(it)&&(secIn||qOk(it)))
-    .map(it=>mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'})).join('');
+  /* Einnahmen stehen nach Kategorie gebündelt wie die Kosten —
+     seit es mehr als eine geben kann. Bei genau einer entfällt die
+     Zwischenzeile: sie stünde über allem und sagte nichts. */
+  let incRows='';
+  const incMany=incomeGroups().filter(g=>inc.some(it=>it.group===g)).length>1;
+  incomeGroups().forEach(g=>{
+    const items=inc.filter(it=>it.group===g);
+    if(!items.length) return;
+    /* Trifft der Name der Kategorie, steht sie mit allem darunter
+       da — genau wie im Kostenblock. */
+    const gHit=secIn||hit(keyLabel(g));
+    const vis=settledLast(items).filter(it=>base(it)&&(gHit||qOk(it)));
+    if(!vis.length) return;
+    if(incMany) incRows+=mrow(esc(keyLabel(g)),MONTHS.map((_,i)=>items.reduce((s,it)=>s+it.amounts[i],0)),{cls:'grp r-in'});
+    vis.forEach(it=>{incRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'});});
+  });
   if(incRows||secIn)
     parts.push(mrow(t('g.income'),MONTHS.map((_,i)=>income(i+1)),{cls:'sec r-in secpin'})+incRows);
 

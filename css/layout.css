@@ -316,15 +316,43 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Null bis zu seinem Wert — keine Veränderung, sondern ein Stand,
    deshalb die Farbe des Saldos und keine Geldart. */
 .tsum{top:var(--bpad);height:var(--bh);background:var(--edge-sal);opacity:.75}
-/* Beschnittene Achse: der Balken der Monatseröffnung fängt nicht
-   bei null an, sondern kommt von weiter links. Der gestrichelte
-   Strich an seinem Anfang sagt das — dieselbe Farbe wie der Balken,
-   nur ungebrochen dunkel, damit er sich davon abhebt. */
-.tcut{width:0;border-left:2px dashed var(--edge-sal)}
-/* Damit der Strich auf dem Balken zu sehen ist, tritt der Balken
-   selbst einen Schritt zurück — er ist ja ohnehin nur ein Stand
-   und keine Bewegung. */
-.tline.cut .tsum{opacity:.45}
+/* Beschnittene Achse: der Balken der Monatseröffnung fängt nicht bei
+   null an, sondern kommt von weiter außerhalb. Statt einer Marke an
+   seinem Anfang franst er dort aus — die Farbe läuft ins Nichts, und
+   damit liest sich der Rand als Fortsetzung und nicht als Ende. Eine
+   Marke behauptete dagegen eine Kante, wo der Balken gerade keine
+   hat, und sie musste den Balken dafür abdunkeln, um sichtbar zu
+   bleiben; er bleibt jetzt so kräftig wie jeder andere.
+   Ausgefranst wird an der Seite, an der die Null hinausfällt: bei
+   einem Guthaben links, bei einem Minus rechts.
+   Die Länge des Verlaufs ist gedeckelt, damit ein kurzer Balken
+   nicht ganz darin verschwindet. */
+.tsum.cutl{background:linear-gradient(to right,transparent 0,var(--edge-sal) min(38px,60%))}
+.tsum.cutr{background:linear-gradient(to left,transparent 0,var(--edge-sal) min(38px,60%))}
+/* Derselbe Balken im Verlauf der Prognose (.ytrack) besteht aus
+   mehreren Farben — dort franst nicht ein Hintergrund aus, sondern
+   der ganze Balken samt seiner Anteile. Deshalb eine Maske und
+   kein Verlauf im Hintergrund. */
+.ytrack .tup.cutl,.ytrack .tdown.cutl{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 min(38px,60%));
+  mask-image:linear-gradient(to right,transparent 0,#000 min(38px,60%))}
+.ytrack .tup.cutr,.ytrack .tdown.cutr{
+  -webkit-mask-image:linear-gradient(to left,transparent 0,#000 min(38px,60%));
+  mask-image:linear-gradient(to left,transparent 0,#000 min(38px,60%))}
+/* Der Verlauf über das Jahr benutzt dieselbe Fläche wie der
+   Zeitstrahl, nur flacher: dort trägt eine Zeile eine von fünf,
+   hier eine von zwölf, und die Tabelle daneben gibt die Zeilenhöhe
+   vor. Die Maße stehen als Variablen an .ttrack — hier werden nur
+   sie überschrieben, alles andere gilt unverändert. */
+.ytrack{--bh:7px;--bgap:2px;--bpad:3px;display:block;width:100%}
+/* Das Raster des Verlaufs: helle senkrechte Linien in festem
+   Betragsabstand. Sie stehen in jeder Zeile an derselben Stelle
+   und fluchten dadurch über die zwölf Monate — erst dadurch liest
+   man an der Treppe ab, **um wie viel** sich etwas ändert, und
+   nicht nur, dass es das tut. Heller als die Null (.tzero): die
+   ist ein Wert, das Raster ist nur ein Maß. */
+.tgrid{width:1px;background:var(--rule);opacity:.85}
+.lk i.lgrid{width:1px;height:11px;background:var(--rule);opacity:.85}
 /* Die Treppe: feine Linie beim Stand davor, kräftiger Strich beim
    neuen. Der Strich einer Zeile steht genau über der Linie der
    nächsten. */
@@ -371,8 +399,13 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
   color:var(--ink-2)}
 .wbox h2{font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.2;
   letter-spacing:.01em;margin:8px 0 14px;color:var(--ink)}
-.wlead{font-size:15px;line-height:1.62;max-width:64ch;margin:0 0 14px}
-.wlist{margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6;color:var(--ink);max-width:64ch}
+/* Kein eigenes Zeilenmaß für den Text: er läuft so weit wie die
+   Knopfreihe darunter, und die rechte Kante der Seite ist überall
+   dieselbe. Ein Deckel in ch endete mitten in der Fläche und ließ
+   die Karten daneben wie einen Nachtrag aussehen; die Breite
+   begrenzt schon .wbox. */
+.wlead{font-size:15px;line-height:1.62;margin:0 0 14px}
+.wlist{margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6;color:var(--ink)}
 .wlist li{margin-bottom:3px}
 .wlist li b{font-weight:600}
 /* Zwei Wege, gleich groß nebeneinander — beides sind Angebote, nur
@@ -387,7 +420,14 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .wcard.primary{background:var(--ink);border-color:var(--ink);color:var(--paper-2)}
 .wcard.primary:hover{background:#2E3A35;border-color:#2E3A35}
 .wcard.primary .wd{color:#C4CCC7}
-.wfoot{font-size:11.5px;line-height:1.55;color:var(--ink-2);margin:8px 0 0;max-width:72ch}
+.wfoot{font-size:11.5px;line-height:1.55;color:var(--ink-2);margin:8px 0 0}
+/* Der Satz, der zur Anleitung schickt, trägt deren Farbe — in der
+   Kopfzeile ist der Anleitungsknopf der einzige orange, und hier
+   soll man ihn wiedererkennen. Genommen wird die dunklere Stufe
+   (--accent-2, die des gedrückten Knopfes): bei 11,5 px braucht
+   Text mehr Abstand zum Papier als eine Knopffläche. */
+.wfoot.wguide{color:var(--accent-2)}
+.wfoot.wguide b{color:var(--accent-2)}
 @media(max-width:620px){
   .wbox{padding:26px 20px 24px}
   .wpick{grid-template-columns:1fr}

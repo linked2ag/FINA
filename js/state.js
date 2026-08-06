@@ -90,6 +90,7 @@ function emptyState(){
     banks:(state&&state.banks)?state.banks:[],
     pays:(state&&state.pays)?state.pays:[],
     groups:(state&&state.groups)?state.groups:[],
+    incomeGroups:(state&&state.incomeGroups)?state.incomeGroups:['EINNAHMEN'],
     fixed:[], balance:blankBalance(),
     flexActual:o, flexSource:src, tx:[], plan:{},
     kakCats:[], kak:{}, labWidth:250, monWidth:100, topMin:50, lastImport:null,
@@ -125,7 +126,17 @@ function blankKak(v){
    in der View, die bei jedem Zeichnen läuft. */
 function afterLoad(){
   ui.kakDetail=!!(state&&state.tx&&state.tx.length);
-  ui.kakPick=null;
+  /* Der Reiter „Flexible Payment Details" fängt beim **ganzen
+     Jahr** an und mit der **ersten** Kategorie im rechten Bereich.
+     Ohne Vorauswahl stand die rechte Spalte leer da und der Reiter
+     zeigte beim ersten Blick nur eine halbe Ansicht; der erste
+     Eintrag ist die naheliegende Wahl, und ein Klick auf einen
+     anderen Pfeil wechselt sie. Ein einzelner Monat wäre die
+     engere Sicht — hier wird verglichen, und verglichen wird über
+     das Jahr. */
+  ui.scope='jahr';
+  const first=(typeof kakCats==='function')?kakCats()[0]:null;
+  ui.kakPick=first?{main:first,sub:''}:null;
 
   /* Womit man begrüßt wird. Mit Datei fängt man im laufenden
      Monat an — das ist die Ansicht, in der gearbeitet wird:
@@ -162,6 +173,11 @@ function migrate(s){
   if(!s.banks) s.banks=[];
   if(!s.pays) s.pays=[];
   if(!s.groups) s.groups=[];
+  /* Ältere Dateien kennen nur den einen festen Einnahmenblock.
+     Sie bekommen ihn als erste Kategorie — die Posten zeigen mit
+     it.group='EINNAHMEN' schon darauf, es ändert sich für sie
+     nichts. Eine leere Liste wäre ein Buch ohne Einnahmen. */
+  if(!Array.isArray(s.incomeGroups)||!s.incomeGroups.length) s.incomeGroups=['EINNAHMEN'];
   if(!s.fixed) s.fixed=[];
   if(!s.flexActual) s.flexActual={};
   if(!s.flexSource) s.flexSource={};

@@ -85,6 +85,74 @@ Umbenannt wird an zwei Stellen: im Einstellungsfenster und im Beträge-Fenster
 (`editKak`). Beide rufen `renameKakCat()` und führen danach `state.kakCats` selbst nach —
 die Funktion rührt die Liste nicht an.
 
+**Im Beträge-Fenster steht der Name nicht als Feld.** Er ist keine Angabe unter vielen,
+sondern der Schlüssel — deshalb steht er in der **Überschrift**, und die ist der Knopf, der
+ihn ändert (`.titlebtn`, `#kTitle`). Ein Klick öffnet `askName()` in
+`js/dialogs/kakeibo-betraege.js`: ein schmales Fenster (`.box.narrow`) mit dem Namen fertig
+markiert, dazu „Abbrechen" und „Übernehmen". Enter übernimmt, Escape bricht ab (das
+erledigt `js/ui.js` für jedes oberste Fenster). Übernommen wird nur ins offene Fenster —
+in die Datei kommt der Name erst mit „Speichern", deshalb heißt der Knopf nicht so.
+
+Bis dahin lebt der Name allein in der Variablen `name` in `editKak()`; **ein Feld, aus dem
+man ihn lesen könnte, gibt es nicht mehr** (`#kName` ist weg). Wer dort etwas anbaut, das
+den Namen braucht — Duplizieren, der Entwurf der Notizlampen, das Speichern —, liest diese
+Variable. Ohne Namen wird nicht gespeichert: `#kSave` öffnet dann das Namensfenster, statt
+eine Meldung zu zeigen, denn dorthin müsste man ohnehin.
+
+`tabThroughFields()` nimmt `.titlebtn` ausdrücklich **nicht** aus der Tab-Reihenfolge: die
+Überschrift ist der einzige Weg zu dieser Angabe, ein Symbol neben einem Feld ist sie nicht.
+
+**Über der Schnelleingabe steht der bisherige Mittelwert** (`#kAvg`, orange): der Durchschnitt der
+Monate, die schon feststehen — abgehakt oder importiert, bis zum laufenden Monat. Er steht
+rechts, also über dem Betragsfeld, weil genau dort die Annahme für die kommenden Monate
+eingetippt wird.
+
+Gerechnet wird er in `showAvg()` **aus den Feldern des Fensters**, nicht aus dem Zustand:
+wer einen Monat abhakt oder einen Betrag ändert, soll die Wirkung sehen, bevor er die
+Annahme setzt — und eine neue Kategorie hat im Zustand ohnehin nichts zu lesen. Die Regel,
+welche Monate zählen, ist dieselbe wie in `avgActual()` (`js/calc.js`); wer sie dort ändert,
+ändert sie hier mit, sonst nennt das Fenster einen anderen Schnitt als die Prognose.
+Genannt wird der **letzte mitgezählte** Monat, nicht der laufende — welcher es ist,
+entscheiden die Siegel.
+
+Aufgerufen wird `showAvg()` an sechs Stellen: beim Aufbau, an jedem Siegel, an den beiden
+Sammelknöpfen, an „Übernehmen" und an „Leeren". **Was ein Knopf ins Feld schreibt, löst kein
+`input` aus** — dieselbe Regel wie bei der Vorzeichenfarbe.
+
+## Einnahmen haben Kategorien wie die Kosten
+
+`state.incomeGroups` ist die zweite Kategorieliste — gepflegt im Einstellungsfenster, neben
+`state.groups`. Früher gab es dafür den einen festen Block `'EINNAHMEN'`; er ist jetzt nur
+noch die **Vorgabe**, mit der `migrate()` alte Dateien versorgt (die Posten zeigen mit
+`it.group='EINNAHMEN'` schon darauf, für sie ändert sich nichts) und auf die
+`incomeGroups()` zurückfällt, wenn die Liste leer wäre. Als roher Schlüssel wird er **nicht**
+übersetzt; angezeigt wird er über `keyLabel()` als `INCOME` (Regel 3).
+
+**`isIncome(it)` fragt die Liste, nicht einen festen Namen** (`js/calc.js`). Daraus folgt
+das Wichtigste: **ein Name darf über beide Listen zusammen nur einmal vorkommen.** Stünde
+er in beiden, wäre nicht mehr entscheidbar, ob ein Posten Geld bringt oder kostet.
+Durchgesetzt wird das in `applyRenames()` in `js/dialogs/settings.js`, das bei einer
+Kategorieliste auch gegen die jeweils andere prüft.
+
+Beide Listen laufen dort durch dieselben Zweige — `collect()`, `applyRenames()`,
+Hinzufügen, Entfernen, Speichern kennen `'incomeGroups'` neben `'groups'`. Beim Entfernen
+ziehen die Posten in die erste verbliebene Kategorie **derselben** Liste um: eine Einnahme
+darf nicht bei den Kosten landen. Bleibt am Ende keine Einnahme-Kategorie übrig, kehrt
+`'EINNAHMEN'` zurück.
+
+**Im Posten-Fenster steht eine Liste, nicht zwei.** `groupOpts()` in `js/dialogs/item.js`
+baut sie mit `<optgroup>`: erst die Einnahmen, dann die Ausgaben, grün und rot wie überall.
+Die Beschriftung einer Gruppe ist von Haus aus **nicht wählbar** — man trifft also immer
+eine Kategorie und nie die Überschrift darüber. Das Feld steht in derselben Reihe wie Bank,
+Zahlungsart und Fälligkeit (`c4`), bei der Saldokorrektur entfällt es (`c3`).
+
+**Monats- und Jahresansicht bündeln die Einnahmen nach Kategorie**, genau wie die Kosten —
+sonst wäre die Kategorie an der einzigen Stelle unsichtbar, an der man sie liest. **Bei
+genau einer Kategorie entfällt die Zwischenzeile:** sie stünde über allem und sagte nichts.
+Die Zeile trägt die Farbe ihrer Geldart (`tr.group` in `.card.sec-in`, `tr.grp.r-in` in der
+Matrix). `data-newitem` im Einnahmenblock trägt die **erste** Einnahme-Kategorie, nicht mehr
+den festen Namen.
+
 **Kürzel sind der Sonderfall.** Banken und Zahlungsarten hängen genauso über ihren Wert an
 den Posten (`it.bank`, `it.pay`), wandern aber **nicht** selbständig mit: das Kürzel steht
 so auch in der Jahresübersicht, und ein alter Wert kann gewollt sein. `js/dialogs/settings.js`
@@ -169,6 +237,44 @@ Spalten kommen (`prog.howCurrent`, `prog.howAvg`, `prog.howEdit`). Wer die Rangf
 Werte ändert (`kakVal` in `js/calc.js`) oder die Grundlage des Durchschnitts (`avgMonths`),
 ändert diese drei Sätze mit — sie beschreiben genau das.
 
+## Die Spalte „Verlauf" der Prognose
+
+Die letzte Spalte der linken Karte zeigt als Balken, was die Spalte „Kumuliert" als Zahl
+zeigt: **dieselbe Grafik wie der Zeitstrahl der Monatsansicht, eine Ebene höher.** Eine
+Zeile je Monat, die Achse ist der Kontostand über das Jahr; der Monat beginnt beim Stand
+des Monats davor (`prev`) und endet bei seinem eigenen (`run`), dazwischen liegen die
+Anteile in der Farbe ihrer Geldart.
+
+Eine eigene Karte bräuchte Monatsnamen und Achse ein zweites Mal — beides steht in der
+Tabelle schon. Als Spalte liest man Zahl und Form in derselben Zeile.
+
+Gerechnet wird in `yearFlow()` (`js/calc.js`), gebaut in `yearTrack()`
+(`js/views/prognose.js`), die Spalte selbst ist `.flowcell` in `css/ledger.css`.
+**In schmalen Fenstern (unter 1100 px) fällt sie weg** — die Zahlen daneben sagen dasselbe,
+und ein Balken von 60 px wäre keine Aussage mehr.
+
+**Drei Dinge teilen sich die beiden Grafiken, und keins davon darf auseinanderlaufen:**
+
+* **Die Achsenregel** — `spanScale(lo,hi)` in `js/calc.js`. `flowScale()` (Monat) und
+  `yearScale()` (Jahr) sammeln nur ihre Werte und geben sie dort hinein. Wer an der Grenze
+  für den Schnitt dreht, dreht an beiden Ansichten.
+* **Die Anteile eines Balkens** — `flowParts()` und `FLOW_LABEL` in `js/ui.js`. Sie standen
+  früher in `js/views/monat.js`; dort hinge die Prognose unsichtbar an der Monatsansicht.
+* **Der abgeschnittene erste Balken.** Im Monat ist es die Monatseröffnung, im Jahr der
+  Januar — beide franst die Ansicht zum Rand hin aus. Der Monat färbt dafür den Hintergrund
+  (`.tsum.cutl/.cutr`), das Jahr braucht eine **Maske** (`.ytrack .tup.cutl` …): sein Balken
+  besteht aus mehreren Farben, ein Verlauf im Hintergrund käme dort nicht an.
+
+Der Stand vor dem Januar ist die Null, an der sein Balken anfängt, und **kein Wert des
+Jahres** — `yearScale()` lässt ihn für den Maßstab weg (`f.m!==1`), genau wie `flowScale()`
+den Stand vor dem Monat. Zählte er mit, spannte die Achse immer von der Null aus und
+schnitte nie: ein Januar mit 120.000 drückte die elf Monate danach zu Strichen zusammen.
+
+Die Farberklärung steht als `.thint` unter der Tabelle — dieselben Marken wie im Zeitstrahl,
+und bei beschnittener Achse ihr Maßstab dazu. **Vergangene Monate bleiben blass**
+(`opacity:.42` an der Zeile): das gilt für die Zahlen wie für den Balken, Ist und Plan
+sollen unterscheidbar bleiben.
+
 ## Die Leiste der Jahresansicht
 
 Links das Suchfeld, gleich dahinter die beiden Knöpfe, die ebenfalls filtern („Erledigte
@@ -245,9 +351,14 @@ schrumpften auf ein Zwanzigstel der Breite. **Die Grenze ist die Hälfte:** bek�
 Bewegungen des Monats nicht wenigstens die halbe Breite, wird die Achse **beschnitten**
 (`sc.cut`) und läuft nur über die Werte selbst, mit 8 % Luft an beiden Enden — die
 Bewegungen haben die Fläche dann für sich. Die Ansicht sagt das zweimal: der Balken der
-Monatseröffnung bekommt einen **gestrichelten Strich** an den Anfang (`.tcut`, in seiner
-eigenen Farbe, und er selbst tritt dafür zurück), und der Maßstab steht am Ende der
-Farberklärung. Ohne beides läse man die Länge dieses Balkens als seinen ganzen Betrag.
+Monatseröffnung **franst zum Rand hin aus** (`.tsum.cutl` / `.cutr` in `css/layout.css`, ein
+Farbverlauf ins Durchsichtige), und der Maßstab steht am Ende der Farberklärung. Ohne beides
+läse man die Länge dieses Balkens als seinen ganzen Betrag. Ausgefranst wird an der Seite, an
+der die Null hinausfällt — bei einem Guthaben links, bei einem Minus rechts; welche es ist,
+entscheidet `flowTrack()` an `zero<0`. **Eine Marke an dieser Stelle wäre die falsche
+Aussage:** sie behauptet eine Kante, wo der Balken gerade keine hat, und sie musste den
+Balken abdunkeln, um selbst sichtbar zu bleiben. Der Verlauf sagt dasselbe, ohne etwas zu
+behaupten, und der Balken bleibt so kräftig wie jeder andere.
 Die Null der ersten Zeile zählt für den Maßstab **nicht** mit: sie ist der Anfang ihres
 Balkens, kein Wert des Monats — sonst schnitte die Achse nie.
 

@@ -102,9 +102,14 @@ a code later and FINA asks whether the items carrying it should move along.</p>
 
 <h4>Step 4 — Group your bills</h4>
 ${gshot('set-groups','Settings, section Regular categories')}
-<p>Under <b>${t('set.groups')}</b> you decide how your bills are grouped: Home, Car, Insurance,
-Subscriptions — whatever matches your life. Four to six groups are enough; they only exist to
-keep the month view readable.</p>
+<p>Under <b>${t('set.groups')}</b> there are <b>two lists side by side</b>, and every regular item
+belongs to exactly one of them. On the left the income categories — Salary, Side job, Refunds; on
+the right the expense categories — Home, Car, Insurance, Subscriptions. Four to six on each side are
+plenty; they exist to keep the month view readable, and they are what tells FINA whether an item
+brings money in or costs it.</p>
+<p>Because of that, <b>a name may appear only once across both lists</b>. Call something “Car” on the
+left and “Car” on the right, and FINA can no longer tell which is which — it will refuse the second
+one and say so.</p>
 <p>Then do the same under <b>${t('set.kak')}</b> for everyday spending: Groceries, Fuel, Going
 out, Gifts. Five to eight categories.</p>
 <p>Press <b>${t('g.save')}</b> in the window — and then <b>${t('app.save')}</b> in the top bar.
@@ -159,8 +164,16 @@ untouched either way.</p>
 
 <h4>Step 7 — Enter your everyday spending</h4>
 ${gshot('flex-dialog','The amounts window of a Flexible Payments category')}
-<p>Press <b>${t('year.addKak')}</b>. It works exactly like a bill, only the thing you are
-describing is a category, not a contract: “Groceries”, twelve amounts, done.</p>
+<p>Press <b>${t('year.addKak')}</b>. It works much like a bill, only the thing you are describing is
+a category, not a contract: “Groceries”, twelve amounts, done.</p>
+<p>One thing differs from every other window: <b>the name is the heading</b>. There is no field for
+it — click the heading, and a small window opens with the name ready and selected, plus
+<b>${t('g.cancel')}</b> and <b>${t('item.apply')}</b>. A new category starts with
+“— choose a name —” there, and <b>${t('g.save')}</b> without one simply opens that window. Items
+work the same way now.</p>
+<p>Above the amount of the quick entry stands, in orange, <b>the average per month so far</b> —
+counted over the months that are settled, ticked off or imported. It changes as you type, so you
+can see what you are aiming at while you set the coming months.</p>
 <p>You cannot know these in advance — that is the point. Put in what you expect, tick
 <b>“${t('item.est')}”</b>, and correct the figure once the month is over. Guessing here is not
 sloppy; it is how the forecast learns what your life costs.</p>
@@ -279,14 +292,19 @@ ${gshot('year','The year view: search field and the two filter buttons on the le
 
 <h4>Step 13 — Look ahead</h4>
 ${gshot('forecast','The Forecast view: the whole year, month by month')}
-${gshot('forecast-plan','On the right, the assumption per category')}
 <p><b>${t('view.prognose')}</b> adds up everything still to come and shows the balance you can
-expect on 31 December. For the months you have not lived yet it needs an assumption per everyday
-category — that is the right-hand column.</p>
-<p>Beside it stands <b>${t('prog.colAvg')}</b>: the average of that category over every month
-whose value is settled. Nothing is taken over from it — it is there to hold your assumption
-against. Where the two drift apart, open the category with the pencil and correct its twelve
-amounts. That is the moment the forecast stops being a guess.</p>
+expect on 31 December. One table, one row per month, and the current month highlighted.</p>
+<p>The headings are short — <b>M · IN · REG · FLEX · COR · BAL · CUM</b> — so the columns stay as
+narrow as their figures. Point at any of them and it tells you what it is. The months before this
+one are pale: they are settled.</p>
+<p>The last column, <b>${t('prog.colFlow')}</b>, is the same picture as the timeline in the month
+view, one floor up: each month starts at the previous month’s balance and ends at its own, and
+between them lie the parts in the colours of the three kinds of money. The pale vertical lines are a
+grid — the heading says what one step is worth, so you can read off <i>how much</i> a month moved,
+not just that it did.</p>
+<p>For the months you have not lived yet the forecast needs an assumption per everyday category. You
+set it where the twelve months are: open the category with the pencil or a double click, and the
+average so far stands right above the amount.</p>
 
 <h4>Step 14 — Save, and keep the file safe</h4>
 <p><b>${t('app.save')}</b> writes everything — figures and settings — into your file. Chrome and
@@ -381,9 +399,14 @@ den schmalen Spalten <b>B</b> (bank) und <b>PT</b> (payment type).</p>
 
 <h4>Schritt 4 — Deine Rechnungen gruppieren</h4>
 ${gshot('set-groups','Die Einstellungen, Bereich Regelmäßige Kategorien')}
-<p>Unter <b>${t('set.groups')}</b> legst du fest, wie deine Rechnungen gruppiert sind: Wohnen,
-Auto, Versicherungen, Abos — ganz wie es zu deinem Leben passt. Vier bis sechs Gruppen genügen;
-sie sind nur dafür da, dass die Monatsansicht lesbar bleibt.</p>
+<p>Unter <b>${t('set.groups')}</b> stehen <b>zwei Listen nebeneinander</b>, und jeder regelmäßige
+Posten gehört in genau eine davon. Links die Einnahme-Kategorien — Lohn, Nebenjob, Rückzahlungen;
+rechts die Ausgabe-Kategorien — Wohnen, Auto, Versicherungen, Abos. Vier bis sechs je Seite genügen;
+sie sind dafür da, dass die Monatsansicht lesbar bleibt — und an ihnen erkennt FINA, ob ein Posten
+Geld bringt oder kostet.</p>
+<p>Deshalb darf <b>ein Name über beide Listen hinweg nur einmal vorkommen</b>. Heißt links etwas
+„Auto" und rechts auch, kann FINA die beiden nicht mehr auseinanderhalten — der zweite wird
+abgewiesen, mit einer Meldung dazu.</p>
 <p>Dasselbe dann unter <b>${t('set.kak')}</b> für den Alltag: Lebensmittel, Sprit, Ausgehen,
 Geschenke. Fünf bis acht Kategorien.</p>
 <p>Klick im Fenster auf <b>${t('g.save')}</b> — und danach oben auf <b>${t('app.save')}</b>. Gewöhn
@@ -437,8 +460,16 @@ unangetastet.</p>
 
 <h4>Schritt 7 — Die alltäglichen Ausgaben eintragen</h4>
 ${gshot('flex-dialog','Das Beträge-Fenster einer Flexible-Payments-Kategorie')}
-<p>Klick auf <b>${t('year.addKak')}</b>. Das läuft genau wie eine Rechnung, nur beschreibst du
+<p>Klick auf <b>${t('year.addKak')}</b>. Das läuft ähnlich wie eine Rechnung, nur beschreibst du
 diesmal eine Kategorie statt eines Vertrags: „Lebensmittel", zwölf Beträge, fertig.</p>
+<p>Eines ist anders als in jedem anderen Fenster: <b>die Bezeichnung ist die Überschrift</b>. Ein
+Feld dafür gibt es nicht — klick auf die Überschrift, und ein kleines Fenster geht auf, der Name
+fertig markiert, dazu <b>${t('g.cancel')}</b> und <b>${t('item.apply')}</b>. Bei einer neuen
+Kategorie steht dort „— Bezeichnung wählen —", und <b>${t('g.save')}</b> ohne Namen öffnet genau
+dieses Fenster. Bei den Posten ist es jetzt genauso.</p>
+<p>Über dem Betrag der Schnelleingabe steht orange <b>der bisherige Mittelwert je Monat</b> —
+gerechnet über die Monate, die feststehen, abgehakt oder importiert. Er ändert sich beim Tippen mit,
+du siehst also beim Setzen der kommenden Monate, woran du dich hältst.</p>
 <p>Diese Zahlen kannst du nicht vorher wissen — das ist der Sinn der Sache. Trag ein, womit du
 rechnest, setz den Haken bei <b>„${t('item.est')}"</b>, und korrigier den Wert, wenn der Monat
 vorbei ist. Schätzen ist hier nicht schlampig; so lernt die Prognose, was dein Leben kostet.</p>
@@ -560,14 +591,19 @@ ${gshot('year','Die Jahresansicht: links Suchfeld und die beiden Filterknöpfe, 
 
 <h4>Schritt 13 — Nach vorn schauen</h4>
 ${gshot('forecast','Die Prognose: das ganze Jahr, Monat für Monat')}
-${gshot('forecast-plan','Rechts die Annahme je Kategorie')}
 <p><b>${t('view.prognose')}</b> rechnet zusammen, was noch kommt, und zeigt den Saldo, der am
-31. Dezember zu erwarten ist. Für die Monate, die du noch nicht gelebt hast, braucht sie je
-Alltagskategorie eine Annahme — das ist die rechte Spalte.</p>
-<p>Daneben steht <b>${t('prog.colAvg')}</b>: der Durchschnitt dieser Kategorie über jeden Monat,
-dessen Wert feststeht. Übernommen wird davon nichts — er steht da, um deine Annahme dagegen zu
-halten. Wo beide auseinanderlaufen, öffne die Kategorie mit dem Stift und ändere ihre zwölf
-Beträge. Ab da ist die Prognose keine Vermutung mehr.</p>
+31. Dezember zu erwarten ist. Eine Tabelle, eine Zeile je Monat, der laufende hervorgehoben.</p>
+<p>Die Überschriften sind kurz — <b>M · IN · REG · FLEX · COR · BAL · CUM</b> —, damit die Spalten
+nur so breit sind wie ihre Zahlen. Fahr mit der Maus darüber, dann steht da, was sie bedeuten. Die
+Monate vor diesem stehen blass: die sind abgerechnet.</p>
+<p>Die letzte Spalte, <b>${t('prog.colFlow')}</b>, ist dasselbe Bild wie der Zeitstrahl in der
+Monatsansicht, eine Ebene höher: jeder Monat fängt beim Stand des Monats davor an und endet bei
+seinem eigenen, dazwischen liegen die Anteile in den Farben der drei Geldarten. Die hellen
+senkrechten Linien sind ein Raster — in der Überschrift steht, was ein Schritt wert ist, damit du
+ablesen kannst, <i>um wie viel</i> sich ein Monat bewegt hat und nicht nur, dass er es tat.</p>
+<p>Für die Monate, die du noch nicht gelebt hast, braucht die Prognose je Alltagskategorie eine
+Annahme. Du setzt sie dort, wo die zwölf Monate stehen: Kategorie mit dem Stift oder per Doppelklick
+öffnen — der bisherige Mittelwert steht gleich über dem Betrag.</p>
 
 <h4>Schritt 14 — Speichern und die Datei sichern</h4>
 <p><b>${t('app.save')}</b> schreibt alles — Zahlen und Einstellungen — in deine Datei. Chrome und
@@ -667,11 +703,14 @@ ${gshot('year-left','The year table with the code columns B, PT, DD and LP')}
 <p><b>${t('view.prognose')}</b> — how the year ends. It adds up what is still to come and shows the
 balance you can expect on 31 December.</p>
 ${gshot('forecast','The forecast: every month up to the year-end balance')}
-${gshot('forecast-plan','It works from one assumption per category')}
-<p>Both columns of its right-hand card are <b>calculated and read-only</b>: the assumption the
-forecast is working with, and the average of the months that are already settled. Nothing is typed
-there — three lines below the table say where the two figures come from. An assumption that does
-not fit is changed where the twelve months are, in the category window: pencil or double-click.</p>
+<p>It is <b>one table across the full width</b>: a row per month, short headings that explain
+themselves when you point at them, the current month highlighted, the settled months pale. On the
+right sits <b>${t('prog.colFlow')}</b> — the same waterfall as in the month view, only over twelve
+months, on a grid whose step is named in the heading.</p>
+<p>The assumption the forecast works from for the coming months is kept where the twelve months are:
+in the category window, by pencil or double-click. The average of the months that are already
+settled stands there in orange above the amount — so you have both in front of you while you
+type.</p>
 <p>And there is a fourth tab, <b>${t('view.kakeibo')}</b> — the everyday spending in detail: what
 each category costs in the chosen period and what it costs on average per month. It only appears
 <b>once you have imported bookings</b> from Fast Budget, and it sits last, after
@@ -904,12 +943,14 @@ ${gshot('year-left','Die Jahrestabelle mit den Kürzelspalten B, PT, DD und LP')
 <p><b>${t('view.prognose')}</b> — wie das Jahr ausgeht. Sie rechnet zusammen, was noch kommt, und
 zeigt den Saldo, der am 31. Dezember zu erwarten ist.</p>
 ${gshot('forecast','Die Prognose: jeder Monat bis zum Saldo am Jahresende')}
-${gshot('forecast-plan','Sie rechnet mit einer Annahme je Kategorie')}
-<p>Die beiden Spalten ihrer rechten Karte sind <b>gerechnet und nur zu lesen</b>: die Annahme, mit
-der die Prognose arbeitet, und der Durchschnitt der Monate, die schon feststehen. Getippt wird dort
-nichts — drei Zeilen unter der Tabelle sagen, woher die beiden Zahlen kommen. Eine Annahme, die
-nicht passt, änderst du dort, wo die zwölf Monate stehen: im Fenster der Kategorie, über Stift oder
-Doppelklick.</p>
+<p>Sie ist <b>eine Tabelle über die volle Breite</b>: eine Zeile je Monat, kurze Überschriften mit
+Erklärung beim Überfahren, der laufende Monat hervorgehoben, die abgerechneten Monate blass. Ganz
+rechts steht der <b>${t('prog.colFlow')}</b> — derselbe Wasserfall wie im Monat, nur über zwölf
+Monate, mit einem Raster, dessen Schrittweite in der Überschrift steht.</p>
+<p>Die Annahme, mit der die Prognose für die kommenden Monate rechnet, wird dort gepflegt, wo die
+zwölf Monate stehen: im Fenster der Kategorie, über Stift oder Doppelklick. Der Mittelwert der
+Monate, die schon feststehen, steht dort orange über dem Betrag — du hast beim Eintragen also beides
+vor dir.</p>
 <p>Und es gibt einen vierten Reiter, <b>${t('view.kakeibo')}</b> — die alltäglichen Ausgaben im
 Einzelnen: was jede Kategorie im gewählten Zeitraum kostet und was sie im Schnitt je Monat kostet.
 Ihn gibt es <b>nur mit importierten Buchungen</b> aus Fast Budget, und er steht als letzter, hinter

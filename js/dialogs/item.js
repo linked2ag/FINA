@@ -37,6 +37,26 @@ function askFillRange(endM,then){
   ask.querySelector('#rEnd').focus();
 }
 
+/* ── Die Auswahlliste der Kategorie ───────────────────────────
+   Zwei Gruppen in einer Liste: erst die Einnahmen, dann die
+   Ausgaben. Ein Posten gehört immer in genau eine der beiden
+   Welten, und welche das ist, entscheidet sich mit diesem Feld —
+   nebeneinander stehende Listen wären zwei Fragen für eine
+   Antwort.
+
+   Gebaut wird das mit <optgroup>: dessen Beschriftung ist von
+   Haus aus **nicht wählbar**, es lässt sich also nur eine
+   Kategorie treffen und nie die Gruppe darüber. Grün und Rot sind
+   dieselben Farben wie in allen Ansichten — man sieht schon beim
+   Aufklappen, welche Wahl was bedeutet. */
+function groupOpts(cur){
+  const opt=(g,cls)=>`<option value="${esc(g)}" class="${cls}"${g===cur?' selected':''}>${esc(keyLabel(g))}</option>`;
+  const grp=(label,arr,cls)=>arr.length
+    ?`<optgroup label="${esc(label)}" class="${cls}">${arr.map(g=>opt(g,cls)).join('')}</optgroup>`:'';
+  return grp(t('set.groupsIn'),incomeGroups(),'og-in')
+       + grp(t('set.groupsOut'),costGroups(),'og-out');
+}
+
 /* group wählt bei einem neuen Posten den Block vor — die
    Monatsansicht legt aus dem Einnahmenblock heraus gleich eine
    Einnahme an. "1" oder nichts heißt: der erste Block der Liste.
@@ -65,20 +85,28 @@ function editItem(item,group,copyOf){
      nicht löschen — sonst wird sie wie jeder andere Posten
      gepflegt (siehe js/state.js). */
   const isBal=isBalanceItem(it);
+  /* Die Bezeichnung steht nicht mehr in einem Feld zwischen den
+     Stammdaten, sondern in der Überschrift — sie benennt den
+     Posten, sie beschreibt ihn nicht. Bis zum Speichern lebt sie
+     nur hier; ein Feld, aus dem man sie lesen könnte, gibt es
+     nicht mehr. Dasselbe wie im Fenster der Flexible Payments. */
+  let name=it.name||'';
 
   const box=document.createElement('div');
   box.className='modal';
   box.innerHTML=`<div class="box">
-    <h3>${lampPos('item',it.id)}${isNew?(copyOf?t('item.dupTitle'):t('item.add')):esc(it.name)}</h3>
+    <h3>${lampPos('item',it.id)}<button type="button" class="titlebtn" id="fTitle"
+      title="${esc(t('item.nameBtnTip'))}"></button></h3>
     <p class="subline">${copyOf?t('item.dupSub',esc(copyOf))
       :(isBal?t('bal.hint'):(lockN?t('item.lockedN',lockN):t('item.allOpen')))}</p>
-    <div class="cols ${isBal?'':'c2'}">
-      <div class="field"><label>${t('item.name')}</label><input id="fName" value="${esc(it.name)}" placeholder="${t('item.namePh')}"></div>
-      ${isBal?'':`<div class="field"><label>${t('item.block')}</label><select id="fGroup">
+    <!-- Die Kategorie steht in derselben Reihe wie Bank,
+         Zahlungsart und Fälligkeit: alle vier sind Auswahllisten,
+         und alle vier beschreiben, wohin der Posten gehört. Bei
+         der Saldokorrektur entfällt sie, dann sind es drei. -->
+    <div class="cols ${isBal?'c3':'c4'}">
+      ${isBal?'':`<div class="field"><label>${t('item.block')}</label><select id="fGroup" class="grouppick">
         ${it.group?'':`<option value="" selected>${t('item.blockPick')}</option>`}
-        ${allGroups().map(g=>`<option value="${esc(g)}"${g===it.group?' selected':''}>${esc(keyLabel(g))}</option>`).join('')}</select></div>`}
-    </div>
-    <div class="cols c3">
+        ${groupOpts(it.group)}</select></div>`}
       <div class="field"><label>${t('item.bank')}</label><select id="fBank">${optList(state.banks,it.bank)}</select></div>
       <div class="field"><label>${t('item.pay')}</label><select id="fPay">${optList(state.pays,it.pay)}</select></div>
       <div class="field"><label>${t('item.due')}</label><select id="fDue">${DUE_OPTS.map(([v,l])=>`<option value="${v}"${v===String(it.dueDay)?' selected':''}>${l}</option>`).join('')}</select></div>
@@ -108,11 +136,15 @@ function editItem(item,group,copyOf){
       <!-- Rechts, und „Übernehmen" ganz außen: es ist der Knopf,
            der etwas tut, und steht damit dort, wo in jedem Fenster
            der Knopf steht, der etwas tut. -->
+      <!-- Der Hinweis steht in derselben Zeile wie die Knöpfe, links
+           von ihnen: als eigener Absatz darunter kostete er eine
+           dritte Zeile, und auf einem kleinen Bildschirm entscheidet
+           genau die darüber, ob man durch das Fenster scrollen muss. -->
       <div class="qbtns">
+        <span class="qhint">${t('item.quickHint')}</span>
         <button class="btn small" id="qClear">${t('item.clear')}</button>
         <button class="btn primary small" id="qApply">${t('item.apply')}</button>
       </div>
-      <p class="note" style="margin:8px 0 0">${t('item.quickHint')}</p>
     </div>
     <div class="field"><label>${t('item.perMonth')}</label>
       ${isBal?'':`<div style="display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap">
@@ -138,8 +170,16 @@ function editItem(item,group,copyOf){
      bekommt der Entwurf hier seinen Platz (siehe js/ui.js); der
      Name für das Notizfenster kommt aus dem Feld, nicht aus dem
      Zustand — dort steht er erst nach dem Speichern. */
-  if(isNew) useDraft('item',it.id,it,
-    ()=>box.querySelector('#fName').value.trim()||t('item.add'),box);
+  /* Die Überschrift zeigt die Bezeichnung und öffnet das Fenster,
+     das sie ändert. Steht noch keine da, ist sie eine Aufforderung.
+     Namen von Posten sind keine Schlüssel — zwei dürfen gleich
+     heißen —, deshalb prüft askName() hier auf nichts. */
+  const title=box.querySelector('#fTitle');
+  bindTitle(title,()=>name,v=>{name=v;},
+    {title:t('item.nameTitle'),sub:t('item.nameSub'),
+     ph:t('item.namePh'),pick:t('item.namePick')},null);
+
+  if(isNew) useDraft('item',it.id,it,()=>name||t('item.add'),box);
 
   bindSign(box);
 
@@ -247,7 +287,7 @@ function editItem(item,group,copyOf){
      stehen ausdrücklich nicht darin: das Duplikat fängt ohne sie
      an, und „Speichern" holt die Haken gleich von den Siegeln. */
   const collect=o=>{
-    o.name=box.querySelector('#fName').value.trim();
+    o.name=name;
     const gEl=box.querySelector('#fGroup');
     if(gEl) o.group=gEl.value;
     o.bank=box.querySelector('#fBank').value; o.pay=box.querySelector('#fPay').value;
@@ -273,14 +313,16 @@ function editItem(item,group,copyOf){
   if(dup) dup.onclick=()=>{
     const c=normalize({id:uid(),name:'',group:'',amounts:Array(12).fill(0)});
     collect(c);
-    c.name=(c.name||it.name)+' '+t('item.copy');
+    c.name=(name||it.name)+' '+t('item.copy');
     box.remove();
     editItem(c,null,it.name);
   };
 
   box.querySelector('#fSave').onclick=()=>{
-    const name=box.querySelector('#fName').value.trim();
-    if(!name){box.querySelector('#fName').focus();toast(t('item.needName'));return;}
+    /* Ohne Bezeichnung wird nicht gespeichert. Statt einer
+       Meldung öffnet sich das Fenster, in dem sie einzutragen
+       ist — dorthin müsste man ohnehin. */
+    if(!name){ title.click(); return; }
     /* Ohne Block gehört der Posten nirgendwohin: er stünde in
        keiner Kategorie der Monatsansicht und in keiner Gruppe der
        Jahresmatrix. Deshalb hier die Grenze — nicht erst beim
@@ -292,5 +334,7 @@ function editItem(item,group,copyOf){
     if(isNew) state.fixed.push(it);
     save(); box.remove(); render();
   };
-  box.querySelector('#fName').focus();
+  /* Ohne Bezeichnung steht der erste Schritt im Kopf — dorthin
+     der Fokus. Sonst ins erste Feld, wie bisher. */
+  (name?(box.querySelector('#fGroup')||box.querySelector('#fBank')):title).focus();
 }

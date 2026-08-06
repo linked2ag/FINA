@@ -123,6 +123,9 @@
 .matrix tr.r-out td{background:var(--bg-out)}
 .matrix tr.r-bal td{background:var(--bg-bal)}
 .matrix tr.grp.r-out td{background:var(--bg-out-2)}
+/* Seit es mehrere Einnahme-Kategorien geben kann, gliedert
+   dieselbe Zeile auch den Einnahmenblock — in dessen Farbe. */
+.matrix tr.grp.r-in td{background:var(--bg-in-2)}
 .matrix tr.sec.r-in td{background:var(--bg-in-3)}
 .matrix tr.sec.r-flex td{background:var(--bg-flex-3)}
 .matrix tr.sec.r-out td{background:var(--bg-out-3)}
@@ -134,6 +137,7 @@
 .matrix tr.sec.r-bal td.ed{box-shadow:inset 5px 0 0 var(--edge-bal)}
 .matrix tr.sec.r-sal td.ed{box-shadow:inset 5px 0 0 var(--edge-sal)}
 .matrix tr.grp.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
+.matrix tr.grp.r-in td.ed{box-shadow:inset 5px 0 0 var(--edge-in)}
 
 /* Abbezahlt: nichts steht mehr aus (yearSettled in js/calc.js).
    Die ganze Zeile tritt grau zurück und überschreibt dabei die

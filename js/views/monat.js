@@ -177,22 +177,8 @@ function anaBar(m){
 
 /* Die vier Geldarten des Balkens, in der Reihenfolge, in der sie
    gestapelt werden. */
-const FLOW_LABEL={in:'g.income',flex:'g.flex',out:'g.fixed',bal:'bal.row'};
-
-/* Die Anteile eines Blocks, nach Geldart aufgeteilt. Die Breiten
-   sind Anteile des Blocks, nicht der Achse — wie breit der Block
-   selbst ist, rechnet flowTrack().
-
-   In der Sprechblase steht nur der Betrag: welche Geldart ein
-   Anteil ist, sagt schon seine Farbe. Der Klick gehört weiter der
-   Zeile — sie ist der Knopf, der filtert. */
-function flowParts(o,total,dir){
-  return FLOW_KINDS.map(k=>{
-    const v=o[k]; if(!v) return '';
-    return `<i class="b-${k}" style="width:${v/total*100}%"
-      data-tip="${esc(eur(dir==='up'?v:-v))}"></i>`;
-  }).join('');
-}
+/* Die Anteile eines Balkens baut flowParts() in js/ui.js — die
+   Prognose zeichnet mit derselben Funktion. */
 
 /* ── Die Balkenfläche einer Zeile ─────────────────────────────
    Ein Wasserfall: die Zeile beginnt beim Stand des Abschnitts
@@ -224,14 +210,15 @@ function flowTrack(f,pos,zero,zones,cut){
   const box=inner=>`<span class="ttrack${up0&&down0?' two':''}">${zones}${inner}</span>`;
   if(f.key==='P'){
     /* Bei beschnittener Achse liegt die Null außerhalb — der Balken
-       fängt dann am linken Rand an und franst dort aus (.tline.cut
-       in css/layout.css). */
+       reicht dann bis an den Rand der Fläche und franst dort aus
+       (.tsum.cutl / .cutr in css/layout.css). Ausgefranst wird an
+       der Seite, an der die Null hinausfällt: steht sie links davon
+       (Guthaben), kommt der Balken von links; steht sie rechts
+       (Minus), läuft er nach rechts hinaus. */
     const a=Math.max(0,Math.min(zero,pos(f.run))), b=Math.min(100,Math.max(zero,pos(f.run)));
-    /* Beschnitten: der Balken fängt nicht bei null an, sondern
-       kommt von weiter links. Der gestrichelte Strich an seinem
-       Anfang sagt das — in derselben Farbe wie er selbst. */
-    return box(`<span class="tsum solo" style="left:${a}%;width:${b-a}%"
-      data-tip="${esc(eur(f.run))}"></span>${cut?`<span class="tcut" style="left:${a}%"></span>`:''}${mark}`);
+    const fade=cut?(zero<0?' cutl':' cutr'):'';
+    return box(`<span class="tsum solo${fade}" style="left:${a}%;width:${b-a}%"
+      data-tip="${esc(eur(f.run))}"></span>${mark}`);
   }
   const up=sumOf(f.up), down=sumOf(f.down), top=f.prev+up;
   const solo=(up&&down)?'':' solo';
@@ -348,6 +335,15 @@ function viewMonat(){
   const balOn=dueOk('')&&(!q||hayItem(state.balance,m).includes(q));
 
   const incAll=dueIn(m).filter(isIncome), incUse=incAll.filter(show);
+  /* Einnahmen werden nach Kategorie gebündelt wie die Kosten —
+     seit es mehr als eine geben kann, wäre eine flache Liste die
+     einzige Stelle, an der man die Kategorie nicht sähe. Bei genau
+     einer Kategorie entfällt die Zwischenzeile: sie stünde dann
+     über allem und sagte nichts. */
+  const incGroups=incomeGroups().map(g=>{
+    const all=incAll.filter(it=>it.group===g);
+    return {g,all,items:settledLast(all.filter(show))};
+  });
   const flexAll=kakCats(), flexUse=flexAll.filter(showKak);
   const outGroups=costGroups().map(g=>{
     const all=dueIn(m).filter(it=>it.group===g);
@@ -379,15 +375,26 @@ function viewMonat(){
     :isFolded(k);
   const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
 
-  const incRows=fIn?'':settledLast(incUse).map(it=>itemRow(it,m)).join('');
+  /* Dieselbe Zeile wie im Kostenblock: Summe, Name, Zahl der
+     ausgeblendeten. Gebaut mit derselben Funktion, damit beide
+     Bereiche nicht auseinanderlaufen. */
+  const groupHead=(g,all,items)=>`<tr class="group"><td></td><td class="num amt">${eur(all.reduce((s,it)=>s+it.amounts[m-1],0))}</td><td></td>
+      <td>${esc(keyLabel(g))}${items.length!==all.length?` <span class="note">${t('month.hidden',all.length-items.length)}</span>`:''}</td></tr>`;
+  let incRows='';
+  if(!fIn){
+    const many=incGroups.filter(x=>x.all.length).length>1;
+    incGroups.forEach(({g,all,items})=>{
+      if(!items.length) return;
+      if(many) incRows+=groupHead(g,all,items);
+      items.forEach(it=>{incRows+=itemRow(it,m);});
+    });
+  }
   const flexRows=fFlex?'':flexUse.map(k=>kakRow(k,m)).join('');
 
   let outRows='';
   outGroups.forEach(({g,all,items})=>{
     if(!items.length||fOut) return;
-    const gsum=all.reduce((s,it)=>s+it.amounts[m-1],0);
-    outRows+=`<tr class="group"><td></td><td class="num amt">${eur(gsum)}</td><td></td>
-      <td>${esc(keyLabel(g))}${items.length!==all.length?` <span class="note">${t('month.hidden',all.length-items.length)}</span>`:''}</td></tr>`;
+    outRows+=groupHead(g,all,items);
     items.forEach(it=>{outRows+=itemRow(it,m);});
   });
   /* Nichts übrig: liegt es am Filter oder ist der Bereich leer?
@@ -415,7 +422,10 @@ function viewMonat(){
   <div class="card sec-in${fIn?' folded':''}">
     <div class="sechead"${ui.ana?'':' data-dblfold="in"'}>${foldBtn('in',fIn)}<h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn&&!filterOn)}</h2>
       <span style="display:flex;gap:12px;align-items:center">
-        <button class="btn small" data-newitem="EINNAHMEN">${t('year.addIncome')}</button>
+        <!-- Der Block wird vorgewählt: aus dem Einnahmenbereich
+             heraus legt man eine Einnahme an. Welcher es ist, sagt
+             die Liste — 'EINNAHMEN' steht nicht mehr fest im Code. -->
+        <button class="btn small" data-newitem="${esc(incomeGroups()[0])}">${t('year.addIncome')}</button>
         <span class="tot pos">${eur(income(m))}</span></span></div>
     ${fIn?'':`<table class="ledger">${incRows||noRows(incAll.length,'month.noIncome')}</table>`}
   </div>

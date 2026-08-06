@@ -54,10 +54,9 @@ function openSettings(){
       <button class="linkish" data-rm="${key}" data-ri="${i}" title="${hint||t('g.remove')}">&#10005;</button></div>`;
   }).join('');
 
-  const groupRows=nameRows(state.groups,'groups',g=>{
-    const n=groupUseCount(g);
-    return n?t('set.inUse',n):'';
-  });
+  const useHint=g=>{ const n=groupUseCount(g); return n?t('set.inUse',n):''; };
+  const groupRows=nameRows(state.groups,'groups',useHint);
+  const incGroupRows=nameRows(state.incomeGroups,'incomeGroups',useHint);
   const kakRows=nameRows(state.kakCats,'kakCats',k=>{
     const e=state.kak[k];
     const n=e?e.plan.filter(v=>v!==0).length:0;
@@ -108,7 +107,17 @@ function openSettings(){
           </div>`)}
 
         ${pane('groups',t('set.groups'),t('set.groupsSub'),`
-          <div class="field">${listHead(t('set.groups'),'groups',t('set.addGroup'))}<div>${groupRows}</div></div>`)}
+          <!-- Zwei Listen nebeneinander: Einnahmen links, Ausgaben
+               rechts. Beide beschreiben regelmäßige Posten, aber
+               ein Posten gehört immer in genau eine der beiden
+               Welten — nebeneinander sieht man das, untereinander
+               läse sich die zweite Liste wie eine Fortsetzung der
+               ersten. Die Farbe der Überschrift ist dieselbe wie
+               die der Geldart in allen Ansichten. -->
+          <div class="cols c2 grouplists">
+            <div class="field gl-in">${listHead(t('set.groupsIn'),'incomeGroups',t('set.addGroupIn'))}<div>${incGroupRows}</div></div>
+            <div class="field gl-out">${listHead(t('set.groupsOut'),'groups',t('set.addGroup'))}<div>${groupRows}</div></div>
+          </div>`)}
 
         ${pane('kak',t('set.kak'),t('set.kakSub'),`
           <div class="field">${listHead(t('set.kak'),'kakCats',t('set.addKak'))}<div>${kakRows}</div></div>`)}
@@ -130,7 +139,7 @@ function openSettings(){
 
   /* Liest den aktuellen Stand aller vier Listen aus dem Fenster. */
   const collect=()=>{
-    const d={banks:[],pays:[],groups:[],kakCats:[]};
+    const d={banks:[],pays:[],groups:[],incomeGroups:[],kakCats:[]};
     ['banks','pays'].forEach(k=>{
       const idx=[...new Set([...box.querySelectorAll(`[data-k="${k}"]`)].map(i=>+i.dataset.i))].sort((a,b)=>a-b);
       idx.forEach(i=>{
@@ -139,7 +148,7 @@ function openSettings(){
         d[k].push({code,label:label||code});
       });
     });
-    ['groups','kakCats'].forEach(k=>{
+    ['groups','incomeGroups','kakCats'].forEach(k=>{
       [...box.querySelectorAll(`[data-k="${k}"]`)].forEach(inp=>d[k].push(inp.value.trim()));
     });
     return d;
@@ -209,8 +218,15 @@ function openSettings(){
     names.forEach((name,i)=>{
       const old=before[i];
       if(!name||!old||name===old) return;
+      /* Ein Name darf **in beiden Listen zusammen** nur einmal
+         vorkommen: isIncome() entscheidet allein am Namen, ob ein
+         Posten eine Einnahme ist — derselbe Name auf beiden Seiten
+         machte das unentscheidbar. Deshalb wird bei den
+         Kategorielisten auch gegen die jeweils andere geprüft. */
+      const other = key==='groups' ? state.incomeGroups
+                  : key==='incomeGroups' ? state.groups : null;
       const collision = key==='kakCats' ? !!state.kak[name]
-                                        : names.some((n,j)=>j!==i&&n===name);
+        : (names.some((n,j)=>j!==i&&n===name)||(other||[]).includes(name));
       if(collision){ names[i]=old; taken.push(name); return; }
       if(key==='kakCats') renameKakCat(old,name); else renameGroup(old,name);
     });
@@ -222,13 +238,14 @@ function openSettings(){
   const applyEdits=()=>{
     applyGeneral();
     const d=collect();
-    const taken=[...applyRenames('groups',d.groups),...applyRenames('kakCats',d.kakCats)];
+    const taken=[...applyRenames('groups',d.groups),...applyRenames('incomeGroups',d.incomeGroups),
+                 ...applyRenames('kakCats',d.kakCats)];
     /* Erst schauen, was sich am Kürzel geändert hat — danach
        überschreiben und fragen. */
     const codeChanges=[scanCodes('banks',d.banks),scanCodes('pays',d.pays)];
     state.banks=d.banks; state.pays=d.pays;
     askCarryCodes(codeChanges);
-    state.groups=d.groups; state.kakCats=d.kakCats;
+    state.groups=d.groups; state.incomeGroups=d.incomeGroups; state.kakCats=d.kakCats;
     state.kakCats.forEach(ensureKakCat);
     if(taken.length) toast(t('set.taken',taken.join(', ')));
   };
@@ -238,6 +255,7 @@ function openSettings(){
     state.banks=state.banks.filter(x=>x.code);
     state.pays=state.pays.filter(x=>x.code);
     state.groups=state.groups.filter(Boolean);
+    state.incomeGroups=state.incomeGroups.filter(Boolean);
     state.kakCats=state.kakCats.filter(Boolean);
     closeModal(box);
   };
@@ -280,7 +298,7 @@ function openSettings(){
   box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
     applyEdits();
     const k=b.dataset.add;
-    if(k==='groups'||k==='kakCats') state[k].push('');
+    if(k==='groups'||k==='incomeGroups'||k==='kakCats') state[k].push('');
     else state[k].push({code:'',label:''});
     reopen();
   });
@@ -289,10 +307,10 @@ function openSettings(){
   box.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
     const k=b.dataset.rm, i=+b.dataset.ri;
 
-    if(k==='groups'){
-      const old=state.groups[i], used=groupUseCount(old);
+    if(k==='groups'||k==='incomeGroups'){
+      const old=state[k][i], used=groupUseCount(old);
       if(used){
-        const rest=state.groups.filter((_,j)=>j!==i);
+        const rest=state[k].filter((_,j)=>j!==i);
         if(!rest.length){ toast(t('set.keepOne')); return; }
         if(!confirm(t('set.moveAsk',old,used,rest[0]))) return;
       }
@@ -303,10 +321,13 @@ function openSettings(){
     }
 
     applyEdits();
-    if(k==='groups'){
-      const name=state.groups[i];
-      state.groups.splice(i,1);
-      dropGroup(name,state.groups[0]);
+    if(k==='groups'||k==='incomeGroups'){
+      const name=state[k][i];
+      state[k].splice(i,1);
+      /* Die Posten ziehen in die erste verbliebene Kategorie
+         **derselben** Liste um — eine Einnahme darf nicht bei den
+         Kosten landen. */
+      dropGroup(name,state[k][0]);
     } else if(k==='kakCats'){
       const name=state.kakCats[i];
       state.kakCats.splice(i,1);
@@ -324,6 +345,11 @@ function openSettings(){
     state.banks=state.banks.filter(x=>x.code);
     state.pays=state.pays.filter(x=>x.code);
     state.groups=[...new Set(state.groups.filter(Boolean))];
+    /* Ohne Einnahme-Kategorie gäbe es keine Einnahmen mehr: die
+       Posten zeigten auf einen Namen, den die Liste nicht kennt.
+       Bleibt am Ende nichts übrig, kehrt die Vorgabe zurück. */
+    state.incomeGroups=[...new Set(state.incomeGroups.filter(Boolean))];
+    if(!state.incomeGroups.length) state.incomeGroups=['EINNAHMEN'];
     state.kakCats=[...new Set(state.kakCats.filter(Boolean))];
     state.kakCats.forEach(ensureKakCat);
     save(); box.remove(); render(); toast(t('set.saved'));

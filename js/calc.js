@@ -6,7 +6,15 @@
 /* ── Listen aus dem Zustand ───────────────────────────────── */
 const kakCats=()=>((state&&state.kakCats)||[]);
 const costGroups=()=>(state&&state.groups?state.groups:[]);
-const allGroups=()=>['EINNAHMEN'].concat(costGroups());
+/* Einnahmen haben eigene Kategorien, genau wie die Kosten — sie
+   werden im Einstellungsfenster gepflegt. Früher gab es dafür den
+   einen festen Block 'EINNAHMEN'; er ist jetzt nur noch die
+   Vorgabe, mit der eine Datei ohne eigene Liste startet und in die
+   migrate() alte Dateien überführt. Der Name bleibt dabei roher
+   Schlüssel und wird nicht übersetzt (Regel 3): angezeigt wird er
+   über keyLabel() als INCOME. */
+const incomeGroups=()=>(state&&state.incomeGroups&&state.incomeGroups.length?state.incomeGroups:['EINNAHMEN']);
+const allGroups=()=>incomeGroups().concat(costGroups());
 const bankLabel=c=>{const b=(state.banks||[]).find(x=>x.code===c);return b?b.label:c;};
 const payLabel=c=>{const p=(state.pays||[]).find(x=>x.code===c);return p?p.label:c;};
 
@@ -60,7 +68,10 @@ function hayKak(k,m){
 const queryQ=()=>norm((ui.q||'').trim());
 
 /* ── Regelmäßige Posten ───────────────────────────────────── */
-const isIncome=it=>it.group==='EINNAHMEN';
+/* Eine Einnahme ist, was in einer der Einnahme-Kategorien steht.
+   Der Vergleich mit einem festen Namen ginge nicht mehr: es gibt
+   beliebig viele davon. */
+const isIncome=it=>incomeGroups().includes(it.group);
 const paidAt=(it,m)=>!!it.paid[m-1];
 const estOf=it=>!!it.estimated;
 
@@ -288,9 +299,22 @@ const sumOf=o=>Object.values(o).reduce((a,b)=>a+b,0);
    nicht wenigstens die halbe Breite, wird die Achse beschnitten
    (cut): sie läuft dann nur über die Werte selbst, mit etwas Luft
    an beiden Enden, und die Bewegungen haben die Fläche für sich.
-   Der Balken der Monatseröffnung ist dann abgeschnitten — die
-   Ansicht setzt ihm einen gestrichelten Strich an den Anfang und
-   schreibt den Maßstab unter die Grafik. */
+   Der erste Balken ist dann abgeschnitten — die Ansicht lässt ihn
+   zum Rand hin ausfransen und schreibt den Maßstab dazu.
+
+   Die Regel selbst steht in spanScale() und gilt für **beide**
+   Grafiken: den Zeitstrahl eines Monats und den Verlauf über das
+   Jahr in der Prognose. Getrennte Fassungen liefen mit der Zeit
+   auseinander, und dann hieße derselbe Balken in zwei Ansichten
+   zweierlei. */
+function spanScale(lo,hi){
+  if(!isFinite(lo)){ lo=0; hi=0; }
+  const move=hi-lo, full=Math.max(0,hi)-Math.min(0,lo);
+  const cut=full>0&&move/full<0.5;
+  if(!cut){ lo=Math.min(0,lo); hi=Math.max(0,hi); }
+  else { const pad=move*0.08||1; lo-=pad; hi+=pad; }
+  return {lo,hi,span:(hi-lo)||1,cut};
+}
 function flowScale(flow){
   let lo=Infinity,hi=-Infinity;
   flow.forEach(f=>{
@@ -302,12 +326,52 @@ function flowScale(flow){
     if(f.key!=='P'){ lo=Math.min(lo,f.prev,top); hi=Math.max(hi,f.prev,top); }
     lo=Math.min(lo,f.run); hi=Math.max(hi,f.run);
   });
-  if(!isFinite(lo)){ lo=0; hi=0; }
-  const move=hi-lo, full=Math.max(0,hi)-Math.min(0,lo);
-  const cut=full>0&&move/full<0.5;
-  if(!cut){ lo=Math.min(0,lo); hi=Math.max(0,hi); }
-  else { const pad=move*0.08||1; lo-=pad; hi+=pad; }
-  return {lo,hi,span:(hi-lo)||1,cut};
+  return spanScale(lo,hi);
+}
+
+/* ── Der Verlauf über das Jahr ────────────────────────────────
+   Dasselbe wie monthFlow(), eine Ebene höher: je Monat, was er
+   vorfindet (prev), was er daraus macht (run = die kumulierte
+   Summe) und woraus seine Veränderung besteht. Damit zeichnet die
+   Prognose denselben Wasserfall wie die Monatsansicht — dieselben
+   vier Geldarten, dieselbe Achse, dieselbe Treppe.
+
+   Angefangen wird bei null: die Datei kennt keinen Anfangsbestand,
+   gerechnet wird mit dem, was in ihr steht. Die letzte Zeile ist
+   damit der Stand zum Jahresende — dieselbe Zahl, die die Spalte
+   „Kumuliert" in ihrer letzten Zeile zeigt. */
+function yearFlow(){
+  const out=[]; let run=0;
+  for(let m=1;m<=12;m++){
+    const up={},down={};
+    const add=(kind,v)=>{ if(!v) return; const s=v>0?up:down; s[kind]=(s[kind]||0)+Math.abs(v); };
+    /* Ein Betrag zählt dorthin, wo sein Vorzeichen hinweist — eine
+       Rückzahlung bei den regelmäßigen Kosten steht also in der
+       Zufuhr, und ihre Farbe sagt trotzdem, woher sie kommt.
+       Kosten sind negativ gespeichert (siehe saldo()), sie kommen
+       also unverändert herein und nicht umgedreht. */
+    add('in',income(m));
+    add('out',fixedCost(m));
+    add('flex',kakeiboFor(m));
+    add('bal',balanceFix(m));
+    const prev=run; run+=saldo(m);
+    out.push({m,prev,run,sum:saldo(m),up,down});
+  }
+  return out;
+}
+function yearScale(flow){
+  let lo=Infinity,hi=-Infinity;
+  flow.forEach(f=>{
+    const top=f.prev+sumOf(f.up);
+    /* Der Stand vor dem Januar ist die Null, an der sein Balken
+       anfängt, und kein Wert des Jahres — genau wie im Zeitstrahl
+       der Stand vor dem Monat. Zählte sie mit, spannte die Achse
+       immer von der Null aus und schnitte nie: ein Januar mit
+       120.000 drückte die elf Monate danach zu Strichen zusammen. */
+    if(f.m!==1) { lo=Math.min(lo,f.prev); hi=Math.max(hi,f.prev); }
+    lo=Math.min(lo,f.run,top); hi=Math.max(hi,f.run,top);
+  });
+  return spanScale(lo,hi);
 }
 
 /* ── Fortschritt eines Monats ─────────────────────────────── */

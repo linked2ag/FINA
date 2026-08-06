@@ -67,6 +67,98 @@ function filterField(extra){
       placeholder="${t('g.filter')}" aria-label="${t('g.filter')}" title="${esc(t('g.filterTip'))}"></span>`;
 }
 
+/* ── Die Anteile eines Balkens ────────────────────────────────
+   Ein Balken zerfällt in die vier Geldarten, jede in ihrer Farbe.
+   Die Breiten sind Anteile des Balkens, nicht der Achse — wie
+   breit der Balken selbst ist, rechnet die Ansicht.
+
+   In der Sprechblase steht nur der Betrag: welche Geldart ein
+   Anteil ist, sagt schon seine Farbe. Der Klick gehört weiter der
+   Zeile, in der der Balken steht.
+
+   Beide Grafiken zeichnen damit — der Zeitstrahl eines Monats
+   (js/views/monat.js) und der Verlauf über das Jahr in der
+   Prognose (js/views/prognose.js). Deshalb steht die Funktion
+   hier und nicht in einer der beiden Ansichten: sonst hinge die
+   eine unsichtbar an der anderen. */
+const FLOW_LABEL={in:'g.income',flex:'g.flex',out:'g.fixed',bal:'bal.row'};
+function flowParts(o,total,dir){
+  return FLOW_KINDS.map(k=>{
+    const v=o[k]; if(!v) return '';
+    return `<i class="b-${k}" style="width:${v/total*100}%"
+      data-tip="${esc(eur(dir==='up'?v:-v))}"></i>`;
+  }).join('');
+}
+
+/* ── Das kleine Fenster für eine Bezeichnung ──────────────────
+   Die Bezeichnung eines Postens wie einer Flexible-Payments-
+   Kategorie steht nicht als Feld zwischen den übrigen Angaben:
+   sie benennt die Sache, sie beschreibt sie nicht. Geändert wird
+   sie über die Überschrift (.titlebtn), und die öffnet dieses
+   Fenster — mit Abbrechen und Übernehmen, damit ein Vertippen
+   folgenlos bleibt.
+
+   Der Wert kommt fertig markiert: wer die Bezeichnung ersetzen
+   will, tippt einfach los; wer sie ändern will, drückt einmal
+   nach rechts. Beides ohne Umweg über die Maus.
+
+   Übernommen wird nur ins offene Fenster, nicht in die Datei —
+   geschrieben wird erst mit „Speichern" dort. Deshalb heißt der
+   Knopf „Übernehmen" und nicht „Speichern".
+
+   txt trägt die Texte des aufrufenden Fensters: {title, sub, ph}.
+   taken(v) sagt, ob der Name schon vergeben ist, und gibt ihn
+   zurück — die Prüfung gehört dem Aufrufer, weil nur er weiß, wie
+   die Sache gerade heißt und ob ihr Name überhaupt ein Schlüssel
+   ist. Bei Posten ist er keiner: zwei dürfen gleich heißen. */
+function askName(cur,txt,taken,onOk){
+  const box=document.createElement('div');
+  box.className='modal';
+  box.innerHTML=`<div class="box narrow">
+    <h3>${txt.title}</h3>
+    <p class="subline">${txt.sub}</p>
+    <div class="field"><label>${t('item.name')}</label>
+      <input id="nmVal" value="${esc(cur||'')}" placeholder="${esc(txt.ph||'')}"></div>
+    <p class="errline" id="nmErr" hidden></p>
+    <div class="row-end">
+      <button class="btn" id="nmCancel">${t('g.cancel')}</button>
+      <button class="btn primary" id="nmOk">${t('item.apply')}</button></div>
+  </div>`;
+  document.body.appendChild(box); tabThroughFields(box);
+
+  const inp=box.querySelector('#nmVal'), err=box.querySelector('#nmErr');
+  const fail=msg=>{ err.textContent=msg; err.hidden=false; inp.focus(); inp.select(); };
+  const ok=()=>{
+    const v=inp.value.trim();
+    if(!v) return fail(t('g.nameEmpty'));
+    const bad=taken?taken(v):'';
+    if(bad) return fail(t('set.taken',bad));
+    closeModal(box); onOk(v);
+  };
+  box.querySelector('#nmOk').onclick=ok;
+  box.querySelector('#nmCancel').onclick=()=>closeModal(box);
+  box.onclick=ev=>{ if(ev.target===box) closeModal(box); };
+  /* Enter bestätigt — in einem Fenster mit einem einzigen Feld ist
+     das der erwartete Weg. Escape bricht ab, das erledigt oben der
+     Zuhörer für jedes oberste Fenster von selbst. */
+  inp.onkeydown=ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); ok(); } };
+  inp.focus(); inp.select();
+}
+
+/* Die Überschrift eines Fensters als Knopf, der seine Bezeichnung
+   ändert. Zurück kommt showName() — der Aufrufer ruft es, wenn
+   sich der Name geändert hat. */
+function bindTitle(btn,get,set,txt,taken,isNew){
+  const showName=()=>{
+    const n=get();
+    btn.textContent=n?keyLabel(n):txt.pick;
+    btn.classList.toggle('empty',!n);
+  };
+  showName();
+  btn.onclick=()=>askName(get(),txt,taken,v=>{ set(v); showName(); });
+  return showName;
+}
+
 /* ── Doppelklick öffnet die Position ──────────────────────────
    In jeder Ansicht dasselbe: ein Doppelklick auf den Betrag oder
    auf die Bezeichnung öffnet das Fenster, das auch der Stift
@@ -103,11 +195,29 @@ function showTip(el){
 
   const r=el.getBoundingClientRect(), tr=tipEl.getBoundingClientRect();
   const gap=8;
-  /* Bevorzugt rechts daneben, sonst links; immer im Fenster. */
-  let x=r.right+gap;
-  if(x+tr.width>window.innerWidth-gap) x=Math.max(gap,r.left-gap-tr.width);
-  let y=r.top+r.height/2-tr.height/2;
-  y=Math.min(Math.max(gap,y),window.innerHeight-gap-tr.height);
+  /* **Immer über oder unter dem Element, nie daneben.** Neben dem
+     Element verdeckte die Blase den Nachbarn — in einer Tabelle
+     die Zelle daneben, in einer Leiste den nächsten Knopf, und
+     das ist regelmäßig genau das, womit man das Überfahrene
+     vergleichen will. Über und unter dem Element liegt der
+     eigene Zeilenabstand, dort steht nichts, was man gerade liest.
+
+     Zuerst darüber; passt es dort nicht, darunter. Ist beides zu
+     eng, gewinnt die Seite mit mehr Luft, und die Blase wird ins
+     Fenster geschoben.
+
+     Waagerecht steht sie mittig zum Element — so zeigt sie auf
+     das, wozu sie gehört, auch wenn sie breiter ist. */
+  const above=r.top-gap-tr.height, below=r.bottom+gap;
+  let y;
+  if(above>=gap) y=above;
+  else if(below+tr.height<=window.innerHeight-gap) y=below;
+  else y=(r.top>window.innerHeight-r.bottom)?above:below;
+  y=Math.min(Math.max(gap,y),Math.max(gap,window.innerHeight-gap-tr.height));
+
+  let x=r.left+r.width/2-tr.width/2;
+  x=Math.min(Math.max(gap,x),Math.max(gap,window.innerWidth-gap-tr.width));
+
   tipEl.style.left=Math.round(x)+'px';
   tipEl.style.top=Math.round(y)+'px';
 }
@@ -144,8 +254,11 @@ function tabThroughFields(root){
   if(!root) return;
   root.querySelectorAll('button,a[href]').forEach(el=>{
     /* Die Fußzeile eines Fensters und die Begrüßungsseite bleiben
-       drin: dort sind die Knöpfe der Inhalt, nicht das Beiwerk. */
-    if(el.closest('.row-end,.welcome')) return;
+       drin: dort sind die Knöpfe der Inhalt, nicht das Beiwerk.
+       Ebenso die Bezeichnung im Kopf (.titlebtn) — sie ist kein
+       Symbol neben einem Feld, sondern der einzige Weg zu einer
+       Angabe, und ohne Tab wäre sie mit der Tastatur unerreichbar. */
+    if(el.closest('.row-end,.welcome')||el.classList.contains('titlebtn')) return;
     el.tabIndex=-1;
   });
 }

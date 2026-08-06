@@ -34,6 +34,12 @@
 .card.sec-out .ledger tr.group td{background:var(--bg-out-2);font-weight:600;
   border-bottom:1px solid var(--edge-out);border-top:1px solid var(--edge-out)}
 .card.sec-out .ledger tr.group td:first-child{box-shadow:inset 5px 0 0 var(--edge-out)}
+/* Dasselbe im Einnahmenblock: seit es mehrere Einnahme-Kategorien
+   geben kann, gliedert dieselbe Zeile auch dort — und trägt die
+   Farbe ihrer Geldart, eine Stufe kräftiger als die Posten. */
+.card.sec-in .ledger tr.group td{background:var(--bg-in-2);font-weight:600;
+  border-bottom:1px solid var(--edge-in);border-top:1px solid var(--edge-in)}
+.card.sec-in .ledger tr.group td:first-child{box-shadow:inset 5px 0 0 var(--edge-in)}
 .ledger tr.sum td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0;vertical-align:middle}
 /* Saldokorrektur: wie eine Kategoriezeile gesetzt, aber ohne
    deren graue Hinterlegung — die Karte darunter ist schon blau. */
@@ -114,3 +120,81 @@
 .kk.k-est{border-color:var(--amber);color:var(--amber)}
 @media(max-width:900px){.ledger td.kind,.ledger th.kindh{width:96px}}
 .bar{height:7px;opacity:.72}
+/* ── Die Spalte „Verlauf" der Prognose ────────────────────────
+   Sie trägt die Grafik, die sonst der Zeitstrahl der Monatsansicht
+   zeigt — gebaut in yearTrack() in js/views/prognose.js, gezeichnet
+   mit den Regeln in css/layout.css (.ttrack, .ytrack, .b-*).
+
+   Sie ist die letzte Spalte und bekommt, was übrig bleibt: die
+   Zahlen links haben feste Breiten, der Balken nicht — er ist ein
+   Verhältnis und liest sich mit jeder Breite. Nach unten begrenzt
+   ist sie trotzdem, sonst schrumpfte sie in schmalen Fenstern auf
+   ein paar Pixel und zeigte nichts mehr. */
+/* Die Spalte fordert einen **Anteil** an, kein Minimum. Mit
+   width:auto nehmen sich die Zahlenspalten allen Platz — sie sind
+   nowrap und haben feste Breiten —, und der Balken bliebe ein
+   Strich von 100 px, auch wenn der Tisch 1250 px breit ist. Ein
+   Prozentwert zwingt die Tabelle, ihm die Breite zu geben.
+
+   Ausgeblendet wird sie nicht mehr: auf einem 13"-Bildschirm wäre
+   sonst genau die Grafik weg, für die die Ansicht gebaut ist.
+   Stattdessen steht die Tabelle jetzt allein und über die volle
+   Breite — siehe js/views/prognose.js. */
+/* Die Tabelle der Prognose gibt der Grafik **allen** Platz, der
+   nicht gebraucht wird: die Zahlenspalten bekommen width:1% und
+   schrumpfen damit auf ihren Inhalt (sie sind nowrap, brechen also
+   nicht um), die Verlaufsspalte bekommt width:100% und nimmt den
+   ganzen Rest. Ein fester Anteil wie 38 % verschenkte Platz,
+   sobald eine Spalte leer bleibt — und die Korrekturspalte ist es
+   meistens. */
+.progtable td,.progtable th{width:1%;white-space:nowrap}
+.progtable td.flowcell,.progtable th.flowcell{width:100%}
+/* Senkrechte Linien durch die **ganze** Tabelle, nicht nur in der
+   Grafik: das Raster der letzten Spalte wäre sonst ein Fremdkörper
+   zwischen Zahlenspalten ohne Trennung. Die letzte Spalte bekommt
+   keine — sie hat ihr eigenes Raster und endet am Tischrand. */
+.progtable td,.progtable th{border-right:1px solid var(--rule)}
+.progtable td:last-child,.progtable th:last-child{border-right:0}
+/* Die Zelle trägt das Raster, deshalb muss sie der Bezugspunkt
+   sein. Die Linien stehen als eigene Kinder darin und reichen über
+   die volle Zeilenhöhe — dadurch stoßen sie von Zeile zu Zeile
+   aneinander und ergeben durchgehende Linien. */
+.progtable td.flowcell{position:relative}
+.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{position:absolute;top:0;bottom:0;height:auto}
+/* Das Rastermaß hinter der Überschrift ist gesetzt wie die
+   Überschrift selbst — es gehört zu ihr und sagt, was die Linien
+   in der Spalte bedeuten. Deshalb keine eigene Sperrung und keine
+   eigene Größe: es erbt beides. */
+.progtable th .gridnote{font-weight:400}
+/* Vor der Grafikspalte keine Kante: die Spalte beginnt mit einer
+   eigenen senkrechten Linie (der Null oder der ersten Rasterlinie),
+   und beides zusammen las sich als doppelte Trennung. */
+.progtable td:nth-last-child(2),.progtable th:nth-last-child(2){border-right:0}
+/* Alle Spaltenköpfe gleich groß. `.ledger .num` setzt 14px für die
+   Zahlen — das greift auch auf die Kopfzelle und machte die
+   Zahlenköpfe größer als „Monat" und „Verlauf". In einer Tabelle,
+   deren letzte Spalte eine Grafik ist, fiel das auf. */
+.progtable th.num{font-size:10px}
+/* Eine Spalte, in der in jeder Zeile nur ein Strich steht, ist so
+   schmal wie ihre Überschrift. Rechtsbündig klebten die Striche
+   dann an der Kante zur Nachbarspalte; mittig stehen sie unter
+   ihrer eigenen Überschrift. */
+.progtable td.mid,.progtable th.mid{text-align:center}
+/* Die Rasterlinie überquert die Zeilentrennung, sonst hätte sie
+   alle 38 px eine Lücke und wäre zwölfmal unterbrochen statt
+   durchgehend. */
+.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{bottom:-1px}
+.ledger td.flowcell,.ledger th.flowcell{padding-left:14px}
+.ledger td.flowcell{vertical-align:middle}
+/* Vergangene Monate treten zurück — aber nur mit ihren Zahlen.
+   Der Verlauf behält seine Farbe: er ist eine Kurve über das ganze
+   Jahr, und ein ausgebleichtes Stück unterbräche sie genau dort,
+   wo man sie am ehesten liest. */
+.ledger tr.past td:not(.flowcell){opacity:.42}
+/* Der laufende Monat ist die Zeile, auf die man zuerst schaut:
+   davor steht, was war, danach, was kommt. Hervorgehoben mit dem
+   hellen Violett des Saldos — es gehört zu keiner der drei
+   Geldarten, sondern fasst sie zusammen, und genau das tut diese
+   Zeile auch. Die Korrekturspalte bekommt es mit: eine Zeile, die
+   in der Mitte ihre Farbe verlöre, wäre keine Zeile mehr. */
+.progtable tr.now td{background:var(--bg-sal)}

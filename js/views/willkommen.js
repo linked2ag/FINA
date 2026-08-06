@@ -45,7 +45,10 @@ function viewWelcome(){
       </div>
 
       <p class="wfoot">${t('wel.foot',t('app.save'))}</p>
-      <p class="wfoot">${t('wel.guide',t('app.guide'))}</p>
+      <!-- Der Hinweis auf die Anleitung trägt deren Farbe: der Knopf
+           in der Kopfzeile ist der einzige orange, und der Satz
+           schickt genau dorthin. -->
+      <p class="wfoot wguide">${t('wel.guide',t('app.guide'))}</p>
     </div>
   </div>`;
 }

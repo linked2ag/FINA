@@ -11,6 +11,14 @@
    über renameKakCat() aus js/categories.js geändert (Regel 2).
    Angelegt wird erst beim Speichern: wer das Fenster schließt,
    hinterlässt nichts.
+
+   Aus demselben Grund steht er auch nicht als Feld zwischen den
+   anderen Angaben: er ist keine Eigenschaft der Kategorie, er ist
+   ihr Schlüssel. Geändert wird er über die Überschrift, die ihn
+   zeigt — sie öffnet askName() (unten), ein Fenster mit Abbrechen
+   und Übernehmen. Bis zum Speichern lebt der Name nur in der
+   Variablen `name` in editKak(); ein Feld, aus dem man ihn lesen
+   könnte, gibt es nicht mehr.
    ══════════════════════════════════════════════════════════════ */
 
 /* editKak(null) legt eine neue Kategorie an.
@@ -23,6 +31,10 @@ function editKak(k,copy){
   const isNew=!k;
   const e=isNew?(copy?copy.entry:blankKak(0)):state.kak[k];
   if(!e){ toast(t('kdlg.gone')); return; }
+  /* Die Bezeichnung lebt bis zum Speichern nur hier: es gibt kein
+     Feld mehr, aus dem man sie lesen könnte. Der Kopf zeigt sie,
+     das kleine Fenster ändert sie. */
+  let name=isNew?(copy?copy.name:''):k;
 
   const imported=i=>!isNew&&hasActual(i+1);
   const lockN=MONTHS.filter((_,i)=>imported(i)).length;
@@ -32,22 +44,23 @@ function editKak(k,copy){
   const box=document.createElement('div');
   box.className='modal';
   box.innerHTML=`<div class="box">
-    <h3>${isNew?lampPos('kak','')+(copy?t('kdlg.dupTitle'):t('set.addKak')):lampPos('kak',k)+esc(keyLabel(k))}</h3>
+    <h3>${lampPos('kak',isNew?'':k)}<button type="button" class="titlebtn" id="kTitle"
+      title="${esc(t('kdlg.nameBtnTip'))}"></button></h3>
     <p class="subline">${copy?t('kdlg.dupSub',esc(keyLabel(copy.from)))
       :(isNew?t('kdlg.newSub'):(lockN?t('kdlg.lockedN',lockN):t('kdlg.allOpen'))+' '+t('kdlg.hint'))}</p>
-    <div class="cols c2">
-      <div class="field"><label>${t('item.name')}</label>
-        <input id="kName" value="${isNew?(copy?esc(copy.name):''):esc(k)}" placeholder="${t('kdlg.namePh')}"></div>
-      <div class="field"><label>${t('item.url')}</label>
-        <div class="urlrow"><input id="kUrl" value="${esc(e.url||'')}" placeholder="https://…">
-          <button type="button" class="btn small urlgo" data-go="kUrl" title="${esc(t('item.urlOpenTip'))}">${t('item.urlOpen')}</button></div></div>
-    </div>
+    <div class="field"><label>${t('item.url')}</label>
+      <div class="urlrow"><input id="kUrl" value="${esc(e.url||'')}" placeholder="https://…">
+        <button type="button" class="btn small urlgo" data-go="kUrl" title="${esc(t('item.urlOpenTip'))}">${t('item.urlOpen')}</button></div></div>
     <div class="field"><label>${t('item.kind')}</label>
       <label style="display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">
         <input type="checkbox" id="kEst" ${e.estimated?'checked':''} style="width:auto">
         ${t('kdlg.est')}</label></div>
     <div class="quick">
-      <div class="field" style="margin-bottom:8px"><label>${t('kdlg.quick')}</label></div>
+      <!-- Rechts in derselben Zeile der bisherige Schnitt: er steht
+           über dem Betragsfeld, in das die Annahme für die
+           kommenden Monate getippt wird. -->
+      <div class="field qhead"><label>${t('kdlg.quick')}</label>
+        <span class="qavg" id="kAvg" data-tip="${esc(t('kdlg.avgTip'))}"></span></div>
       <!-- Erst ab wann, dann wie viel — wie im Posten-Fenster.
            Eine Wiederholung gibt es hier nicht: flexible Kosten
            laufen immer monatlich. -->
@@ -80,12 +93,23 @@ function editKak(k,copy){
   </div>`;
   document.body.appendChild(box); tabThroughFields(box);
 
+  /* Die Überschrift zeigt die Bezeichnung und öffnet das Fenster,
+     das sie ändert. Steht noch keine da, ist sie eine Aufforderung
+     — bei einer neuen Kategorie ist das der erste Schritt. */
+  const title=box.querySelector('#kTitle');
+  /* Vergeben ist ein Name, den es schon gibt und der nicht der
+     eigene ist: sonst zeigten zwei Kategorien auf dieselben Daten.
+     Zurück kommt der Name selbst — die Meldung nennt ihn. */
+  const taken=v=>(v!==k&&(state.kak[v]||state.kakCats.includes(v)))?v:'';
+  bindTitle(title,()=>name,v=>{name=v;},
+    {title:t('kdlg.nameTitle'),sub:isNew?t('kdlg.nameSubNew'):t('kdlg.nameSub'),
+     ph:t('kdlg.namePh'),pick:t('kdlg.namePick')},taken);
+
   /* Eine Kategorie, die es noch nicht gibt, steht in keinem
      state.kak — ihr Schlüssel ist der leere Name. Damit die
      Notizlampen trotzdem schon arbeiten, meldet sich der Entwurf
      hier an (siehe js/ui.js). */
-  if(isNew) useDraft('kak','',e,
-    ()=>box.querySelector('#kName').value.trim()||t('set.addKak'),box);
+  if(isNew) useDraft('kak','',e,()=>name||t('set.addKak'),box);
 
   bindSign(box);
 
@@ -108,6 +132,7 @@ function editKak(k,copy){
     if(cb.disabled) return;
     const on=!isOn(cb), inp=setSeal(cb,on);
     if(!on){inp.focus();inp.select();}
+    showAvg();
   });
 
   /* Alles bis zum laufenden Monat als erfasst markieren — und der
@@ -122,6 +147,7 @@ function editKak(k,copy){
       if(i+1>last||imported(i)||isOn(cb)) return;
       setSeal(cb,true); n++;
     });
+    showAvg();
     toast(t('item.lockedNow',n));
   };
   box.querySelector('#kUnlock').onclick=()=>{
@@ -131,19 +157,56 @@ function editKak(k,copy){
       if(imported(i)||!isOn(cb)) return;
       setSeal(cb,false); n++;
     });
+    showAvg();
     toast(t('item.unlockedNow',n));
   };
 
   const cells=()=>[...box.querySelectorAll('[data-mi]')];
+
+  /* ── Der bisherige Schnitt über der Schnelleingabe ──────────
+     Dieselbe Rechnung wie avgActual() in js/calc.js, nur aus den
+     Feldern dieses Fensters statt aus der Datei: gezählt werden
+     die Monate bis zum laufenden, deren Wert feststeht — abgehakt
+     oder importiert, beides trägt das Siegel.
+
+     Aus dem Fenster und nicht aus dem Zustand, weil hier gerade
+     getippt wird: wer einen Monat abhakt oder einen Betrag ändert,
+     soll sehen, was das mit dem Schnitt macht, bevor er die
+     Annahme für die kommenden Monate setzt. Für eine neue
+     Kategorie gäbe es im Zustand ohnehin nichts zu lesen.
+
+     Genannt wird der letzte Monat, der mitgezählt hat — nicht der
+     laufende: ein Schnitt „bis Juli" ist etwas anderes als einer
+     bis August, und welcher es ist, entscheiden die Siegel. */
+  const avgEl=box.querySelector('#kAvg');
+  const showAvg=()=>{
+    const last=elapsedMonths(); let sum=0,n=0,upto=0;
+    cells().forEach(c=>{
+      const i=+c.dataset.mi;
+      if(i+1>last) return;
+      const cb=box.querySelector(`[data-pi="${i}"]`);
+      if(!cb||!isOn(cb)) return;
+      sum+=parseGermanNumber(c.value); n++; upto=Math.max(upto,i+1);
+    });
+    avgEl.textContent=n?t('kdlg.avgTill',MONTHS_LONG[upto-1],eur(sum/n)):t('kdlg.avgNone');
+    avgEl.classList.toggle('none',!n);
+  };
+  showAvg();
+  /* Jede Zahl in einem Monatsfeld zählt sofort mit. Die Siegel und
+     die Sammelknöpfe rufen showAvg() selbst — was ein Knopf ins
+     Feld schreibt, löst kein input aus (dieselbe Regel wie bei der
+     Vorzeichenfarbe, siehe CLAUDE.md). */
+  box.addEventListener('input',ev=>{ if(ev.target.dataset.mi!==undefined) showAvg(); });
+
   box.querySelector('#kApply').onclick=()=>{
     const v=parseGermanNumber(box.querySelector('#kVal').value);
     const start=+box.querySelector('#kStart').value; let n=0;
     cells().forEach(c=>{const i=+c.dataset.mi; if(c.disabled||(i+1)<start) return; c.value=v?nf.format(v):''; n++;});
-    signValues(box);
+    signValues(box); showAvg();
     toast(t('item.setN',n)+'.');
   };
   box.querySelector('#kClear').onclick=()=>{
-    cells().forEach(c=>{if(!c.disabled)c.value='';}); signValues(box);
+    cells().forEach(c=>{if(!c.disabled)c.value='';}); signValues(box); showAvg();
   };
   box.querySelector('#kCancel').onclick=()=>closeModal(box);
   box.onclick=ev=>{if(ev.target===box)closeModal(box);};
@@ -179,18 +242,22 @@ function editKak(k,copy){
     c.estimated=box.querySelector('#kEst').checked;
     c.url=box.querySelector('#kUrl').value.trim();
     cells().forEach(cc=>{ c.plan[+cc.dataset.mi]=parseGermanNumber(cc.value); });
-    const nm=(box.querySelector('#kName').value.trim()||k)+' '+t('item.copy');
+    const nm=(name||k)+' '+t('item.copy');
     box.remove();
     editKak(null,{entry:c,name:nm,from:k});
   };
 
   box.querySelector('#kSave').onclick=()=>{
-    const name=box.querySelector('#kName').value.trim();
-    if(!name){ box.querySelector('#kName').focus(); return; }
+    /* Ohne Bezeichnung wird nicht gespeichert — sie ist der
+       Schlüssel. Statt einer Meldung öffnet sich das Fenster, in
+       dem sie einzutragen ist: dorthin müsste man ohnehin. */
+    if(!name){ title.click(); return; }
     /* Umbenennen und Anlegen laufen beide über den Namen als
        Schlüssel — ein schon vergebener Name würde zwei Kategorien
-       auf dieselben Daten zeigen lassen. */
-    if(name!==k&&(state.kak[name]||state.kakCats.includes(name))){ toast(t('set.taken',name)); return; }
+       auf dieselben Daten zeigen lassen. Geprüft wird hier noch
+       einmal: zwischen dem Eintippen und dem Speichern kann in
+       einem anderen Fenster eine Kategorie dazugekommen sein. */
+    if(taken(name)){ toast(t('set.taken',name)); return; }
 
     e.estimated=box.querySelector('#kEst').checked;
     e.url=box.querySelector('#kUrl').value.trim();
@@ -214,7 +281,9 @@ function editKak(k,copy){
     }
     save(); box.remove(); render();
   };
-  box.querySelector('#kName').focus();
+  /* Ohne Bezeichnung steht der erste Schritt im Kopf — dorthin der
+     Fokus. Sonst ins erste Feld, wie bisher. */
+  (name?box.querySelector('#kUrl'):title).focus();
 }
 
 /* Alte Fundstelle: data-newkak öffnet dasselbe Fenster, nur leer. */

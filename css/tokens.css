@@ -13,8 +13,14 @@
      nicht die Zeile ausstreichen. --shade bleibt, was es war
      (gesperrte Felder, Siegel). */
   --settled:#E5E7DE;
-  /* Orange trägt nur die Anleitung: sie ist der einzige Knopf der
-     Kopfzeile, der etwas anbietet statt etwas zu tun. */
+  /* Orange trägt, was etwas anbietet statt etwas zu tun: der
+     Anleitungsknopf in der Kopfzeile (der einzige dort), der Satz
+     auf der Begrüßungsseite, der zu ihm schickt — und der Ø über
+     der Schnelleingabe der Flexible Payments. Der ist kein Betrag
+     der Kategorie, sondern eine Auskunft daneben; in Rot oder Grün
+     gäbe er sich als Einnahme oder Kosten aus.
+     --accent für Flächen, --accent-2 für Text: kleine Schrift
+     braucht mehr Abstand zum Papier als eine Knopffläche. */
   --accent:#C25A19; --accent-2:#A2470F;
   /* Drei Stufen je Geldart, von hell nach kräftig:
      -1 die Posten, -2 die Kategorie darüber, -3 die Kopfzeile des
