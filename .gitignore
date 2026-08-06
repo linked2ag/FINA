@@ -1,0 +1,15 @@
+# Was nicht ins Repository gehört.
+#
+# FINA hat keinen Build und keine Abhängigkeiten — hier steht nur,
+# was das Betriebssystem und die Werkzeuge nebenher ablegen.
+
+# macOS legt das in jedem Ordner an, den der Finder einmal geöffnet hat.
+.DS_Store
+
+# Die Wegwerfseiten von doc/make-shots.py und den Prüfläufen: sie
+# entstehen im Projektverzeichnis, weil die Seite ihre Skripte über
+# relative Pfade lädt, und werden danach wieder gelöscht. Bricht ein
+# Lauf ab, bleiben sie liegen — im Repository haben sie nichts zu
+# suchen.
+_shot.html
+_*.html
