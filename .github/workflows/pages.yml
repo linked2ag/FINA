@@ -1,0 +1,75 @@
+# FINA — Veröffentlichung auf GitHub Pages
+#
+# Bis hierher lief das über den Workflow, den GitHub bei „Deploy from
+# a branch" selbst erzeugt (`pages build and deployment`). Der hat zwei
+# Nachteile, die sich nicht abstellen ließen: er schickt die Seite durch
+# Jekyll, obwohl FINA reine statische Dateien sind, und sein Deploy-
+# Schritt bricht nach zehn Minuten ab — eine Frist, die uns mehrfach um
+# die Ohren geflogen ist, während der Inhalt längst gebaut war.
+#
+# Dieser Workflow gehört uns: kein Jekyll, eine großzügige Frist und
+# eine Warteschlange, die eine laufende Veröffentlichung nicht abwürgt.
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  # Damit sich eine Veröffentlichung auch ohne neuen Commit auslösen
+  # lässt — etwa wenn eine hängengeblieben ist.
+  workflow_dispatch:
+
+# Genau die Rechte, die deploy-pages braucht, und keins mehr.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Eine Veröffentlichung zur Zeit. `cancel-in-progress: false`, weil eine
+# halb übertragene Seite schlimmer ist als eine, die kurz wartet: der
+# nächste Lauf stellt sich an, statt den laufenden abzuräumen.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # Was veröffentlicht wird, sagen wir ausdrücklich, statt uns auf
+      # die Vorgaben der Upload-Aktion zu verlassen: alles außer der
+      # Versionsverwaltung, diesem Workflow und dem, was macOS und die
+      # Prüfläufe nebenher ablegen. `doc/img/` gehört dazu — die
+      # Anleitung lädt ihre Bilder von dort.
+      - name: Seite zusammenstellen
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '_site' \
+            --exclude '.DS_Store' \
+            --exclude '_*.html' \
+            ./ _site/
+          echo "Dateien: $(find _site -type f | wc -l), Größe: $(du -sh _site | cut -f1)"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      # Die Frist gehört jetzt uns: 30 Minuten statt der zehn, die die
+      # Aktion voreingestellt mitbringt. Das behebt den Stau nicht — der
+      # sitzt bei GitHub —, aber ein Lauf scheitert nicht mehr an der
+      # Uhr, während er noch auf seine Zuteilung wartet.
+      - name: Veröffentlichen
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          timeout: 1800000
