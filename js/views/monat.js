@@ -75,101 +75,63 @@ function kakRow(k,m){
       ${e.notes[m-1]?`<div class="itemnote">${esc(e.notes[m-1])}</div>`:''}</td></tr>`;
 }
 
-function viewMonat(){
-  const m=ui.month;
+/* ══ Die Auswertung über dem Monat ═══════════════════════════
+   Sie steht eingeklappt: eine einzige dünne Zeile, links die
+   Überschrift „Auswertung", daneben die fünf Zahlen, die den Monat
+   beschreiben. Ein Klick irgendwo auf die Zeile klappt sie auf, und
+   darunter erscheint der Zeitstrahl. Einen Pfeil trägt sie nicht —
+   ob sie offen ist, sagt der Zeitstrahl selbst; für die Tastatur
+   und die Vorlesehilfe steht es in aria-expanded.
+
+   Warum eingeklappt: die Leiste nimmt oben dauerhaft Platz weg,
+   den die Liste darunter braucht. Aufgeklappt bleibt sie, bis man
+   sie wieder zuklappt (ui.ana, nicht in der Datei).
+
+   Unter der Auswertung steht die Filterzeile — sie gilt für alle
+   drei Bereiche und gehört deshalb nach oben und nicht in eine der
+   Karten. Alles zusammen steckt in einer .stickybar und bleibt beim
+   Scrollen unter der Kopfzeile stehen.
+
+   Die Zahlenzeile ist ein einziger Knopf — daher steht in den
+   Kästchen kein weiteres anklickbares Element, nur data-tip für
+   die Erklärung. Die Filterzeile steht daneben, nicht darin: sie
+   hat ihre eigenen Knöpfe. */
+function anaBar(m){
+  const open=!!ui.ana;
   const due=dueIn(m).filter(it=>!isIncome(it));
   const openN=due.filter(it=>!paidAt(it,m)).length;
   const uncN=unclearCount(m);
-
-  /* Drei unabhängige Filter: das Suchfeld, die Fälligkeit und der
-     Zahlungsstand. Sie gelten gleichzeitig — was übrig bleibt,
-     erfüllt alle drei. */
-  const q=queryQ();
-  const stateOk=it=> ui.filter==='alle'
-    || (ui.filter==='offen'&&!paidAt(it,m))
-    || (ui.filter==='unklar'&&estOf(it))
-    || (ui.filter==='bezahlt'&&paidAt(it,m));
-  const show=it=> stateOk(it)
-    && (ui.dueFilter==='alle' || dueGroup(it.dueDay)===ui.dueFilter)
-    && (!q || hayItem(it,m).includes(q));
-
-  const incRows=settledLast(dueIn(m).filter(isIncome)).map(it=>itemRow(it,m)).join('');
-  const flexRows=kakCats().map(k=>kakRow(k,m)).join('');
-
-  let outRows='';
-  costGroups().forEach(g=>{
-    const all=dueIn(m).filter(it=>it.group===g);
-    const items=settledLast(all.filter(show));
-    if(!items.length) return;
-    const gsum=all.reduce((s,it)=>s+it.amounts[m-1],0);
-    outRows+=`<tr class="group"><td></td><td class="num amt">${eur(gsum)}</td><td></td>
-      <td>${esc(keyLabel(g))}${items.length!==all.length?` <span class="note">${t('month.hidden',all.length-items.length)}</span>`:''}</td></tr>`;
-    items.forEach(it=>{outRows+=itemRow(it,m);});
-  });
-
-  /* Die Kennzahlen bleiben beim Scrollen stehen — wie die
-     Monatsreiter in der Kopfzeile darüber. Die Karten darunter
-     werden lang, und die Frage „wie viel bleibt mir" soll man
-     nicht durch Hochscrollen beantworten müssen.
-
-     Ganz unten steht die Zeichenerklärung (.legendbar). Sie
-     gehört nicht in die Karte der regelmäßigen Kosten: dieselben
-     Siegel stehen auch bei den Einnahmen und den Flexible
-     Payments. Deshalb ein eigener grauer Kasten unter allen
-     Karten. Bezahlt und Noch offen stehen nicht mehr darunter —
-     beides sagt schon die Kennzahlenleiste. */
-  return `
-  <div class="stickybar">
-  <div class="kpi">
-    <div class="t-in"><div class="lab">${t('month.kpiIncome')}</div><div class="val pos">${eur(income(m))}</div></div>
-    <div class="t-flex"><div class="lab">${t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned'))}</div><div class="val neg">${eur(kakeiboFor(m))}</div></div>
-    <div class="t-out"><div class="lab">${t('month.kpiFixed')}</div><div class="val neg">${eur(fixedCost(m))}</div></div>
-    <div class="t-out"><div class="lab">${t('month.kpiOpen')}</div><div class="val ${openN?'neg':''}">${eur(openCost(m))}</div>
-      <div class="note">${t('month.kpiOpenN',openN,due.length,uncN?t('month.kpiUnclear',uncN):'')}</div></div>
-    <div><div class="lab">${t('month.kpiBalance')}</div><div class="val ${cls(saldo(m))}">${eur(saldo(m))}</div></div>
-  </div></div>
-
-  ${balanceRow(m)}
-
-  <div class="card sec-in">
-    <div class="sechead"><h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}</h2>
-      <span style="display:flex;gap:12px;align-items:center">
-        <button class="btn small" data-newitem="EINNAHMEN">${t('year.addIncome')}</button>
-        <span class="tot pos">${eur(income(m))}</span></span></div>
-    <table class="ledger">${incRows||`<tr><td class="note">${t('month.noIncome')}</td></tr>`}</table>
-  </div>
-
-  <div class="card sec-flex">
-    <div class="sechead">
-      <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span></h2>
-      <span style="display:flex;gap:12px;align-items:center">
-        <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
-        <!-- Der Sprung in die Auswertung nur, wenn es sie gibt:
-             den Reiter „Flexible Payment Details" bringt erst der
-             Import mit (hasImport in js/calc.js). -->
-        ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}
-        <span class="tot neg">${eur(kakeiboFor(m))}</span></span></div>
-    <table class="ledger">${flexRows||`<tr><td class="note">${t('month.noKak')}</td></tr>`}</table>
-  </div>
-
-  <div class="card sec-out">
-    <div class="sechead"><h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}</h2>
-      <span style="display:flex;gap:12px;align-items:center">
-        <button class="btn small" data-newitem="1">${t('year.addItem')}</button>
-        <span class="tot neg">${eur(fixedCost(m))}</span></span></div>
+  const openTip=t('month.kpiOpenN',openN,due.length,uncN?t('month.kpiUnclear',uncN):'');
+  const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
+      ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
+  const bal=saldo(m);
+  return `<div class="stickybar anabar">
+    <button class="anahead" data-ana="1" aria-expanded="${open}"
+      data-tip="${esc(open?t('month.anaClose'):t('month.anaOpen'))}">
+      <span class="analab">${t('month.ana')}</span>
+      <span class="anarow">
+        ${cell('t-in',t('month.kpiIncome'),income(m),'pos')}
+        ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),kakeiboFor(m),'neg')}
+        ${cell('t-out',t('month.kpiFixed'),fixedCost(m),'neg')}
+        ${cell('t-out',t('month.kpiOpen'),openCost(m),openN?'neg':'',openTip)}
+        ${cell('',t('month.kpiBalance'),bal,cls(bal))}
+      </span>
+    </button>
+    <!-- Zwischen den Zahlen und der Grafik der Satz, der sagt, was
+         ein Klick in der Grafik tut. Er steht nur bei offener
+         Auswertung: zugeklappt gibt es nichts zu klicken. -->
+    ${open?`<p class="anafilter">${t('month.anaFilterHint')}</p>${timeline(m)}`:''}
     <!-- Eine Zeile in der Reihenfolge, in der man filtert: erst
          suchen, dann nach Fälligkeit einschränken, dann nach
-         Zahlungsstand. Das Suchfeld ist so breit wie die drei
-         Spalten vor der Bezeichnung (--leadw in css/ledger.css) —
-         die Knöpfe dahinter fangen damit genau über der
-         Bezeichnungsspalte an. -->
+         Zahlungsstand. Sie gilt für alle drei Bereiche. -->
     <div class="filterbar fbrow">
-      ${filterField()}
+      ${filterField('flttop')}
       <span class="fbgroup">
         ${fbtn('duefilter','alle',t('month.fDueAll'),t('month.fDueAllTip'),ui.dueFilter)}
         ${fbtn('duefilter','A',t('month.fDueA'),t('month.fDueATip'),ui.dueFilter)}
         ${fbtn('duefilter','M',t('month.fDueM'),t('month.fDueMTip'),ui.dueFilter)}
         ${fbtn('duefilter','E',t('month.fDueE'),t('month.fDueETip'),ui.dueFilter)}
+        ${fbtn('duefilter','Z',t('month.tlClose'),t('month.fDueZTip'),ui.dueFilter)}
       </span>
       <span class="fbgroup">
         ${fbtn('filter','alle',t('month.fAll'),t('month.fAllTip'),ui.filter)}
@@ -177,8 +139,306 @@ function viewMonat(){
         ${fbtn('filter','unklar',t('month.fEst'),t('month.fEstTip'),ui.filter)}
         ${fbtn('filter','bezahlt',t('month.fPaid'),t('month.fPaidTip'),ui.filter)}
       </span>
-    </div>
-    <table class="ledger">${outRows||`<tr><td class="note">${t('month.noItems')}</td></tr>`}</table>
+    </div></div>`;
+}
+
+/* ── Der Zeitstrahl ───────────────────────────────────────────
+   Fünf Zeilen in der Reihenfolge des Monats — was er vorfindet,
+   Anfang, Mitte, Ende, Abschluss. Jede Zeile nennt links ihren
+   Namen samt Tagen, dann was sich in ihr bewegt und den Kontostand
+   danach; rechts steht über die ganze übrige Breite der Balken.
+   Gerechnet wird das in monthFlow() (js/calc.js) aus der
+   Fälligkeit der einzelnen Positionen.
+
+   **Die Fläche ist ein Wasserfall, und die Achse ist der
+   Kontostand selbst** (flowScale in js/calc.js): 0 % der tiefste
+   Stand des Monats — höchstens die Null —, 100 % der höchste. Wo
+   die Null liegt, teilt den roten vom grünen Bereich; liegt der
+   Monat ganz im Plus, ist die ganze Fläche grün. Jede Zeile
+   beginnt beim Stand der Zeile darüber und endet bei ihrem
+   eigenen, gebaut wird das in flowTrack() weiter oben.
+
+   Die erste Zeile ist kein Zeitraum, sondern ein Stand: was die
+   Monate davor übrig gelassen haben. In sie wird nichts fällig,
+   sie ist kein Filter — deshalb ein span und kein Knopf. Ihr
+   Balken geht von der Null bis zu ihrem Wert und steht damit dort,
+   wo der Monat anfängt.
+
+   Die Tage stehen jetzt in der Beschriftung der Zeile (1.–10.,
+   11.–20., ab dem 21.) statt als Leiste darunter: die Breite
+   gehört dem Betrag, nicht mehr der Zeit. Fällt der heutige Tag in
+   eine Zeile, trägt sie eine Marke.
+
+   Ein Klick auf eine Zeile filtert die regelmäßigen Kosten nach
+   ihrer Fälligkeit — dieselben Werte wie die Filterknöpfe darunter
+   (data-duefilter), nur an der Stelle, an der man gerade liest.
+   Ein zweiter Klick nimmt ihn zurück. Ohne aufgeklappte Auswertung
+   gibt es den Zeitstrahl nicht, also auch diesen Filter nicht. */
+
+/* Die vier Geldarten des Balkens, in der Reihenfolge, in der sie
+   gestapelt werden. */
+const FLOW_LABEL={in:'g.income',flex:'g.flex',out:'g.fixed',bal:'bal.row'};
+
+/* Die Anteile eines Blocks, nach Geldart aufgeteilt. Die Breiten
+   sind Anteile des Blocks, nicht der Achse — wie breit der Block
+   selbst ist, rechnet flowTrack().
+
+   In der Sprechblase steht nur der Betrag: welche Geldart ein
+   Anteil ist, sagt schon seine Farbe. Der Klick gehört weiter der
+   Zeile — sie ist der Knopf, der filtert. */
+function flowParts(o,total,dir){
+  return FLOW_KINDS.map(k=>{
+    const v=o[k]; if(!v) return '';
+    return `<i class="b-${k}" style="width:${v/total*100}%"
+      data-tip="${esc(eur(dir==='up'?v:-v))}"></i>`;
+  }).join('');
+}
+
+/* ── Die Balkenfläche einer Zeile ─────────────────────────────
+   Ein Wasserfall: die Zeile beginnt beim Stand des Abschnitts
+   davor (prev) und endet bei ihrem eigenen (run). Dazwischen
+   liegt, was den Unterschied gemacht hat.
+
+     • Zuflüsse wachsen von prev nach rechts bis zum höchsten
+       Punkt der Zeile (top = prev + alle Zuflüsse).
+     • Abflüsse holen von dort zurück nach links bis run.
+
+   Beides kann in derselben Zeile vorkommen — erst kommt das
+   Gehalt, dann geht die Miete ab —, und dann überdecken sich die
+   beiden Strecken auf der Achse. Deshalb steht der Zufluss über
+   dem Abfluss, und die Fläche bekommt die Klasse `two`: beide
+   Balken behalten ihre Höhe, die Zeile wird dafür höher. Gibt es
+   nur eine Richtung, steht sie allein und oben.
+
+   Dazu zwei Marken: eine feine Linie beim Stand davor und ein
+   kräftiger Strich beim neuen Stand. Weil die Zeilen aneinander
+   grenzen und der neue Stand der Zeile darüber der alte dieser
+   Zeile ist, stehen sie genau untereinander — das ist die Treppe
+   des Wasserfalls.
+
+   Die erste Zeile ist keine Veränderung, sondern ein Stand: sie
+   bekommt einen vollen Balken von der Null bis zu ihrem Wert. */
+function flowTrack(f,pos,zero,zones,cut){
+  const mark=`<span class="tmark" style="left:${pos(f.run)}%"></span>`;
+  const up0=sumOf(f.up), down0=sumOf(f.down);
+  const box=inner=>`<span class="ttrack${up0&&down0?' two':''}">${zones}${inner}</span>`;
+  if(f.key==='P'){
+    /* Bei beschnittener Achse liegt die Null außerhalb — der Balken
+       fängt dann am linken Rand an und franst dort aus (.tline.cut
+       in css/layout.css). */
+    const a=Math.max(0,Math.min(zero,pos(f.run))), b=Math.min(100,Math.max(zero,pos(f.run)));
+    /* Beschnitten: der Balken fängt nicht bei null an, sondern
+       kommt von weiter links. Der gestrichelte Strich an seinem
+       Anfang sagt das — in derselben Farbe wie er selbst. */
+    return box(`<span class="tsum solo" style="left:${a}%;width:${b-a}%"
+      data-tip="${esc(eur(f.run))}"></span>${cut?`<span class="tcut" style="left:${a}%"></span>`:''}${mark}`);
+  }
+  const up=sumOf(f.up), down=sumOf(f.down), top=f.prev+up;
+  const solo=(up&&down)?'':' solo';
+  const bar=(cls,from,to,inner)=>`<span class="${cls}${solo}"
+    style="left:${pos(from)}%;width:${pos(to)-pos(from)}%">${inner}</span>`;
+  return box((up?bar('tup',f.prev,top,flowParts(f.up,up,'up')):'')
+    +(down?bar('tdown',f.run,top,flowParts(f.down,down,'down')):'')
+    +`<span class="tconn" style="left:${pos(f.prev)}%"></span>${mark}`);
+}
+
+function timeline(m){
+  const flow=monthFlow(m), sc=flowScale(flow), last=daysInMonth(m);
+  const today=(new Date().getFullYear()===YEAR&&m===CUR)?new Date().getDate():0;
+  const NAME={P:t('month.tlOpen'),A:t('month.fDueA'),M:t('month.fDueM'),
+    E:t('month.fDueE'),Z:t('month.tlClose')};
+  const DAYS={A:[1,10],M:[11,20],E:[21,last]};
+  /* Von der Achse zur Fläche: 0 % ist der tiefste Stand des Monats
+     (höchstens die Null), 100 % der höchste. */
+  const pos=v=>(v-sc.lo)/sc.span*100;
+  const zero=pos(0);
+  /* Links der Null der rote, rechts der grüne Bereich. Liegt der
+     Monat ganz im Plus, steht die Null am linken Rand — dann ist
+     die ganze Fläche grün, und genau das soll man sehen. */
+  /* Die Null nur, wenn sie im Bild liegt: bei beschnittener Achse
+     steht sie weit außerhalb, dann ist die ganze Fläche eine Zone. */
+  const zc=Math.max(0,Math.min(100,zero));
+  const zones=`<span class="tzone z-neg" style="width:${zc}%"></span
+    ><span class="tzone z-pos" style="left:${zc}%;width:${100-zc}%"></span
+    >${sc.cut?'':`<span class="tzero" style="left:${zc}%"></span>`}`;
+
+  const row=f=>{
+    const d=DAYS[f.key];
+    const now=d&&today>=d[0]&&today<=d[1];
+    const name=`<span class="tname">${NAME[f.key]}${d?`<small>${t('month.tlDays',d[0],d[1])}</small>`:''}${
+      now?`<b class="tnow">${t('month.tlToday')}</b>`:''}</span>`;
+    const nums=`<span class="tflow ${cls(f.sum)}">${f.key==='P'||!f.sum?'':(f.sum>0?'+':'')+eur(f.sum)}</span
+      ><span class="trun ${cls(f.run)}">${eur(f.run)}</span>`;
+    /* Keine Sprechblase an der Zeile: sie zeigte beim Überfahren
+       der halben Leiste etwas an. Was ein Anteil ist, sagt seine
+       eigene Blase, und was ein Klick tut, der graue Satz darüber. */
+    const track=flowTrack(f,pos,zero,zones,sc.cut);
+    if(f.key==='P') return `<span class="trow tp-P">${name}${nums}${track}</span>`;
+    return `<button class="trow tp-${f.key}" data-tpart="${f.key}"
+      aria-pressed="${ui.dueFilter===f.key}"
+      aria-label="${esc(NAME[f.key])}">${name}${nums}${track}</button>`;
+  };
+  /* Unter den Zeilen die Farberklärung. Sie muss sein, seit an
+     einem Anteil nur noch sein Betrag steht: die Farbe ist dann
+     das Einzige, was die Geldart nennt. Die ganze Zeile trägt die
+     Erklärung des Balkens als Sprechblase. */
+  const chips=FLOW_KINDS.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('')
+    +`<span class="lk"><i class="lmark"></i>${t('month.tlMark')}</span>`;
+  /* Bei beschnittener Achse gehört ihr Maßstab dazu — sonst läse
+     man die Länge des ersten Balkens als seinen ganzen Betrag. */
+  const scale=sc.cut?`<span class="lscale">${t('month.tlScale',eur(sc.lo),eur(sc.hi))}</span>`:'';
+  return `<div class="tline${sc.cut?' cut':''}">${flow.map(row).join('')}
+    <div class="thint">${chips}${scale}</div>
+    <div class="tnote">${t('month.tlNoDue')}</div></div>`;
+}
+
+/* Der Pfeil, der eine Karte zu- und aufklappt. Er steht ganz links
+   in der Kopfzeile und ist so breit wie die Siegelspalte darunter
+   (--markw) — dadurch steht er senkrecht über den Haken der
+   Positionen. Er ist so groß wie ein Siegel; seine Farbe ist die
+   des Bereichs, ein Wort braucht er nicht.
+
+   **Bei offener Auswertung gibt es ihn nicht.** Dann sagt der
+   Zeitstrahl, was zu sehen ist, und alle Bereiche stehen offen —
+   ein Pfeil, der dagegen anklappen wollte, hielte nicht, was er
+   verspricht. Zurück bleibt ein leeres Feld derselben Breite,
+   damit die Überschrift nicht springt. */
+function foldBtn(key,on){
+  if(ui.ana) return `<span class="foldpad" aria-hidden="true"></span>`;
+  const lab=on?t('month.maxAreaTip'):t('month.minAreaTip');
+  return `<button class="foldarrow" data-fold="${key}" aria-expanded="${!on}"
+    aria-label="${esc(lab)}" title="${esc(lab)}">${on?'&#9654;':'&#9660;'}</button>`;
+}
+/* „(3 ausgeblendet)" neben der Überschrift. Von Hand zugeklappt
+   sagt es nichts — dort ist ohnehin keine Zeile zu sehen. Hat aber
+   der Filter zugeklappt, ist es das Einzige, was den leeren Kopf
+   erklärt, und steht deshalb da. */
+const hiddenNote=(all,use,folded)=>(!folded&&use<all)
+  ?` <span class="note">${t('month.hidden',all-use)}</span>`:'';
+
+function viewMonat(){
+  const m=ui.month;
+
+  /* ── Die Filter gelten für alle drei Bereiche ────────────────
+     Suchfeld, Fälligkeit und Zahlungsstand stehen oben in der
+     Leiste und filtern Einnahmen, Flexible Payments und
+     regelmäßige Kosten zugleich. Sie gelten gleichzeitig — was
+     übrig bleibt, erfüllt alle drei.
+
+     Die Flexible Payments und die Saldokorrektur haben keinen
+     Zahltag: sie gehören zum Monatsabschluss, also zu 'Z' (siehe
+     dueGroup in js/format.js). Der Zahlungsstand einer
+     Flexible-Payments-Kategorie ist kakDone(); die Saldokorrektur
+     hat gar keinen — sie wird nicht abgehakt und bleibt vom
+     Standfilter unberührt, wie sie auch kein Siegel trägt. */
+  const q=queryQ();
+  const dueOk=v=> ui.dueFilter==='alle'||dueGroup(v)===ui.dueFilter;
+  const stateOk=it=> ui.filter==='alle'
+    || (ui.filter==='offen'&&!paidAt(it,m))
+    || (ui.filter==='unklar'&&estOf(it))
+    || (ui.filter==='bezahlt'&&paidAt(it,m));
+  const show=it=> stateOk(it)&&dueOk(it.dueDay)&&(!q||hayItem(it,m).includes(q));
+  const showKak=k=>{
+    const e=state.kak[k]; if(!e) return false;
+    const done=kakDone(k,m);
+    return (ui.filter==='alle'||(ui.filter==='offen'&&!done)
+      ||(ui.filter==='unklar'&&!!e.estimated)||(ui.filter==='bezahlt'&&done))
+      && dueOk('') && (!q||hayKak(k,m).includes(q));
+  };
+  const balOn=dueOk('')&&(!q||hayItem(state.balance,m).includes(q));
+
+  const incAll=dueIn(m).filter(isIncome), incUse=incAll.filter(show);
+  const flexAll=kakCats(), flexUse=flexAll.filter(showKak);
+  const outGroups=costGroups().map(g=>{
+    const all=dueIn(m).filter(it=>it.group===g);
+    return {g,all,items:settledLast(all.filter(show))};
+  });
+  const outAll=outGroups.reduce((n,x)=>n+x.all.length,0);
+  const outUse=outGroups.reduce((n,x)=>n+x.items.length,0);
+
+  /* ── Wann ein Bereich zugeklappt ist ─────────────────────────
+     Gewöhnlich sagt es die Datei (state.folded). Zwei Dinge
+     überschreiben das, ohne sie anzurühren:
+
+       • **Ein Filter** klappt auf, was etwas zu zeigen hat, und zu,
+         was nichts mehr enthält — sonst suchte man in einer Karte,
+         die zugeklappt ist, oder starrte auf drei leere Köpfe.
+       • **Die offene Auswertung** klappt alles auf: der Zeitstrahl
+         daneben soll sich in der Liste wiederfinden lassen.
+
+     Filter zuerst — er ist die genauere Aussage, und ein Klick im
+     Zeitstrahl setzt selbst einen. Fällt beides weg, gilt wieder,
+     was in der Datei steht. Wer während einer Überschreibung von
+     Hand klappt, behält seinen Willen für diesen Bereich, bis sich
+     Filter oder Auswertung ändern (ui.foldFree, siehe wire()). */
+  const filterOn=!!q||ui.filter!=='alle'||ui.dueFilter!=='alle';
+  const anyRow={in:incUse.length>0,flex:flexUse.length>0,out:outUse>0};
+  const foldOf=k=>ui.ana?(filterOn?!anyRow[k]:false)
+    :(ui.foldFree&&ui.foldFree[k])?isFolded(k)
+    :filterOn?!anyRow[k]
+    :isFolded(k);
+  const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
+
+  const incRows=fIn?'':settledLast(incUse).map(it=>itemRow(it,m)).join('');
+  const flexRows=fFlex?'':flexUse.map(k=>kakRow(k,m)).join('');
+
+  let outRows='';
+  outGroups.forEach(({g,all,items})=>{
+    if(!items.length||fOut) return;
+    const gsum=all.reduce((s,it)=>s+it.amounts[m-1],0);
+    outRows+=`<tr class="group"><td></td><td class="num amt">${eur(gsum)}</td><td></td>
+      <td>${esc(keyLabel(g))}${items.length!==all.length?` <span class="note">${t('month.hidden',all.length-items.length)}</span>`:''}</td></tr>`;
+    items.forEach(it=>{outRows+=itemRow(it,m);});
+  });
+  /* Nichts übrig: liegt es am Filter oder ist der Bereich leer?
+     Beides sagt einen anderen Satz. */
+  const noRows=(all,key)=>`<tr><td class="note">${all?t('month.noItems'):t(key)}</td></tr>`;
+
+  /* Die Auswertung bleibt beim Scrollen stehen — wie die
+     Monatsreiter in der Kopfzeile darüber. Die Karten darunter
+     werden lang, und die Frage „wie viel bleibt mir" soll man
+     nicht durch Hochscrollen beantworten müssen. Eingeklappt ist
+     sie eine Zeile; aufgeklappt kommt der Zeitstrahl dazu (anaBar
+     weiter oben).
+
+     Ganz unten steht die Zeichenerklärung (.legendbar). Sie
+     gehört nicht in die Karte der regelmäßigen Kosten: dieselben
+     Siegel stehen auch bei den Einnahmen und den Flexible
+     Payments. Deshalb ein eigener grauer Kasten unter allen
+     Karten. Bezahlt und Noch offen stehen nicht mehr darunter —
+     beides sagt schon die Auswertung. */
+  return `
+  ${anaBar(m)}
+
+  ${balOn?balanceRow(m):''}
+
+  <div class="card sec-in${fIn?' folded':''}">
+    <div class="sechead"${ui.ana?'':' data-dblfold="in"'}>${foldBtn('in',fIn)}<h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn&&!filterOn)}</h2>
+      <span style="display:flex;gap:12px;align-items:center">
+        <button class="btn small" data-newitem="EINNAHMEN">${t('year.addIncome')}</button>
+        <span class="tot pos">${eur(income(m))}</span></span></div>
+    ${fIn?'':`<table class="ledger">${incRows||noRows(incAll.length,'month.noIncome')}</table>`}
+  </div>
+
+  <div class="card sec-flex${fFlex?' folded':''}">
+    <div class="sechead"${ui.ana?'':' data-dblfold="flex"'}>${foldBtn('flex',fFlex)}
+      <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex&&!filterOn)}</h2>
+      <span style="display:flex;gap:12px;align-items:center">
+        <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
+        <!-- Der Sprung in die Auswertung nur, wenn es sie gibt:
+             den Reiter „Flexible Payment Details" bringt erst der
+             Import mit (hasImport in js/calc.js). -->
+        ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}
+        <span class="tot neg">${eur(kakeiboFor(m))}</span></span></div>
+    ${fFlex?'':`<table class="ledger">${flexRows||noRows(flexAll.length,'month.noKak')}</table>`}
+  </div>
+
+  <div class="card sec-out${fOut?' folded':''}">
+    <div class="sechead"${ui.ana?'':' data-dblfold="out"'}>${foldBtn('out',fOut)}<h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut&&!filterOn)}</h2>
+      <span style="display:flex;gap:12px;align-items:center">
+        <button class="btn small" data-newitem="1">${t('year.addItem')}</button>
+        <span class="tot neg">${eur(fixedCost(m))}</span></span></div>
+    ${fOut?'':`<table class="ledger">${outRows||noRows(outAll,'month.noItems')}</table>`}
   </div>
 
   <div class="legendbar">

@@ -56,7 +56,12 @@ body{background:var(--paper);
    eine Liste bliebe sonst ein einziger langer Satz. Deshalb
    pre-wrap statt normal, hier wie an .noteprev, .cellnote und
    der Sprechblase (.tip in css/components.css). */
-.itemnote{font-size:11.5px;color:var(--ink);font-style:italic;margin-top:2px;white-space:pre-wrap}
+/* Die Monatsnotiz steht links unter der Zahlungszeile und reicht
+   nach rechts so weit wie ihre Zelle — bis an den Rand des Blocks.
+   Der senkrechte Strich davor bindet sie an die Position und wächst
+   mit ihr: bei mehreren Zeilen über alle. */
+.itemnote{display:block;font-size:11.5px;color:var(--ink);white-space:pre-wrap;text-align:left;
+  margin-top:4px;padding-left:9px;border-left:2px solid var(--rule-strong)}
 /* Vorschau der Notiz zur ganzen Position: zwei Zeilen unter dem
    Namen, danach Auslassungspunkte. Der volle Text steht in der
    Sprechblase und im Notizfenster. */

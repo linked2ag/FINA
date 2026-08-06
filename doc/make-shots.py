@@ -11,8 +11,8 @@ Fenster.
     python3 doc/make-shots.py            # alle Bilder
     python3 doc/make-shots.py set-lists  # nur diese
 
-Die Beispieldatei enthält erfundene Zahlen; im Code der Anwendung stehen
-weiterhin keine Daten. Die Wegwerfseite wird am Ende gelöscht.
+Die Beispieldatei (fina-demo-en.json) enthält erfundene Zahlen und keine
+persönlichen Daten; im Code der Anwendung stehen ohnehin keine. Die Wegwerfseite wird am Ende gelöscht.
 """
 
 import json, os, re, subprocess, sys, tempfile
@@ -21,22 +21,37 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT  = os.path.join(ROOT, 'doc', 'img')
 PAGE = os.path.join(ROOT, '_shot.html')
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-DEMO = os.path.expanduser(
+# Welche Beispieldatei fotografiert wird, lässt sich überschreiben:
+#     FINA_DEMO=/pfad/zur/datei.json python3 doc/make-shots.py
+DEMO = os.environ.get('FINA_DEMO') or os.path.expanduser(
     '~/Library/CloudStorage/GoogleDrive-lex2keeper@gmail.com/My Drive/'
-    '# MDA/Finanzen/FINA Tabellen/fina-demo-belka.json')
+    '# MDA/Finanzen/FINA Tabellen/fina-demo-en.json')
 
 # Die Wegwerfseite: dieselben Skripte wie index.html, dazu ein Aufsatz, der
 # die Beispieldatei einsetzt und die Ansicht so herrichtet, wie es der
 # Abzug braucht. Alles über die Adresszeile steuerbar (?v=…&only=…).
 HARNESS = r"""<script>
 const DEMO=__DEMO__;
-state=migrate(DEMO); fileName='fina-demo-belka.json'; dirty=false; afterLoad();
+state=migrate(DEMO); fileName='fina-demo-en.json'; dirty=false; afterLoad();
+/* Die Begrüßungsseite steht vor allem anderen — für die Abzüge
+   ist die Datei aber schon geladen. Nur wer sie selbst
+   fotografieren will, schaltet sie mit wel=1 wieder ein. */
+ui.welcome=false;
 const p=new URLSearchParams(location.search);
+if(p.get('wel')) ui.welcome=true;
 if(p.get('lang')) state.lang=p.get('lang');
 ui.view=p.get('v')||'jahr';
 if(p.get('m')) ui.month=+p.get('m');
 if(p.get('scope')) ui.scope=p.get('scope');
 if(p.get('all')) ui.showAll=true;
+/* Die Auswertung der Monatsansicht steht eingeklappt — für den
+   Abzug des Zeitstrahls wird sie aufgeklappt. Ebenso lässt sich
+   je Bereich sagen, ob er zugeklappt ist (fold=in,out). */
+if(p.get('ana')) ui.ana=true;
+if(p.get('fold')!==null&&state.folded){
+  const want=(p.get('fold')||'').split(',').filter(Boolean);
+  FOLD_KEYS.forEach(k=>state.folded[k]=want.includes(k));
+}
 render();
 if(p.get('guide')){ openGuide(); if(p.get('tab')) guideTo(p.get('tab')); }
 if(p.get('dlg')==='settings'){ openSettings();
@@ -86,14 +101,18 @@ document.body.setAttribute('data-h',Math.ceil(h));
 # würden, ohne mehr zu zeigen.
 SHOTS = [
     # ── die vier Ansichten, für die README ────────────────────────
-    ('year',        'v=jahr&all=1',                       2480),
-    ('month',       'v=monat&m=8',                        1500),
-    ('flexible',    'v=kakeibo&scope=jahr',               1500),
+    ('year',        'v=jahr&all=1',                       2480, 1560),
+    ('month',       'v=monat&m=8&fold=',                  1500, 1500),
+    ('flexible',    'v=kakeibo&scope=jahr',               1500, 1180),
     ('forecast',    'v=prognose',                         1500),
     ('guide',       'v=monat&m=8&guide=1',                1700, 1250),
     # ── Ausschnitte, für die Anleitung im Seitenbereich ───────────
     ('ui-header',   'v=monat&m=8&only=header',            1200),
     ('ui-kpi',      'v=monat&m=8&only=.stickybar',        1200),
+    # Die Auswertung, aufgeklappt: Zahlenzeile, Zeitstrahl, Filter.
+    ('welcome',     'wel=1&only=.welcome',                1200),
+    ('ui-analytics','v=monat&m=8&ana=1&only=.stickybar',  1400),
+    ('ui-waterfall','v=monat&m=8&ana=1&only=.tline',      1400),
     ('set-general', 'dlg=settings&pane=general',          1100),
     ('set-lists',   'dlg=settings&pane=banks',            1100),
     ('set-groups',  'dlg=settings&pane=groups',           1100),
@@ -101,14 +120,14 @@ SHOTS = [
     ('item-months', 'dlg=item&id=__ELECTRICITY__&only=.mgrid', 1100),
     ('item-quick',  'dlg=item&id=__ELECTRICITY__&only=.quick',  1100),
     ('flex-dialog', 'dlg=kak&k=Extras',                   1100),
-    ('month-in',    'v=monat&m=8&only=.card.sec-in',      1200),
-    ('month-flex',  'v=monat&m=8&only=.card.sec-flex',    1200),
-    ('month-out',   'v=monat&m=8&only=.card.sec-out',     1200),
+    ('month-in',    'v=monat&m=8&fold=&only=.card.sec-in',      1200),
+    ('month-flex',  'v=monat&m=8&fold=&only=.card.sec-flex',    1200),
+    ('month-out',   'v=monat&m=8&fold=&only=.card.sec-out',     1200, 920),
     ('month-bal',   'v=monat&m=8&only=.card.sec-bal',     1200),
     ('legend',      'v=monat&m=8&only=.legendbar',        1200),
     # Kein „#" in der Adresse — das wäre die Sprungmarke, nicht der Wert.
-    ('year-left',   'v=jahr&only=.yearscroll',             980),
-    ('flex-view',   'v=kakeibo&scope=jahr&only=.card.sec-flex', 1200),
+    ('year-left',   'v=jahr&only=.yearscroll',             980, 1150),
+    ('flex-view',   'v=kakeibo&scope=jahr&only=.card.sec-flex', 1200, 900),
     ('forecast-plan', 'v=prognose&only=.card.sec-flex',   1100),
 ]
 

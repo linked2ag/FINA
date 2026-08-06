@@ -38,7 +38,7 @@ async function loadData(){
       if(!txt.trim()) throw new Error(t('store.empty'));
       state=migrate(JSON.parse(txt));
       fileHandle=h; fileName=h.name; dirty=false;
-      afterLoad();
+      afterLoad(); ui.welcome=false;
       render(); toast(t('store.loaded',fileName));
     } else {
       document.getElementById('fileJson').click();
@@ -63,8 +63,24 @@ async function saveData(){
 function unlinkData(){
   if(dirty && !confirm(t('store.unlinkAsk'))) return;
   fileHandle=null; fileName=''; dirty=false;
-  state=emptyState(); afterLoad(); render();
+  state=emptyState(); afterLoad();
+  /* Getrennt heißt: zurück auf Anfang. Die Begrüßung ist dann die
+     einzige Seite, die es zu sehen gibt — sonst stünde man wieder
+     vor einer leeren Matrix. */
+  ui.welcome=true;
+  render();
   toast(t('store.unlinked'));
+}
+
+/* Mit einem leeren Buch anfangen. Eine Datei gibt es dabei noch
+   nicht: die entsteht erst beim ersten „Daten speichern", und bis
+   dahin steht in der Statuszeile, dass noch nichts gesichert ist. */
+function startEmpty(){
+  fileHandle=null; fileName=''; dirty=false;
+  state=emptyState(); afterLoad();
+  ui.welcome=false;
+  render();
+  toast(t('store.started'));
 }
 
 /* Dateiname und Speicherstand in Kopf- und Fußzeile. Ungespeichert
@@ -78,7 +94,12 @@ function renderStatus(){
     fp.classList.toggle('warnpath',dirty);
     fp.title=fileName?t('store.pathTip'):t('store.noFileTip');
   }
-  const ub=document.getElementById('btnUnlink'); if(ub) ub.disabled=!fileName&&!dirty;
+  /* Schließen geht immer, sobald ein Buch offen ist — auch bei
+     einem frisch angefangenen, das noch keine Datei hat. Es ist
+     der Weg zurück zur Begrüßungsseite, und der darf nicht davon
+     abhängen, ob schon etwas darin steht. Auf der Begrüßungsseite
+     selbst ist der Knopf ohnehin verborgen. */
+  const ub=document.getElementById('btnUnlink'); if(ub) ub.disabled=!!ui.welcome;
   const sb=document.getElementById('btnSave'); if(sb) sb.disabled=!dirty&&!state.fixed.length&&!state.tx.length;
   const el=document.getElementById('storeStatus');
   if(el) el.innerHTML=(fileName?t('store.loadedFrom',esc(fileName)):t('store.noFile'))

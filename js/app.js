@@ -21,9 +21,23 @@ function renderChrome(){
   document.querySelectorAll('[data-ttip]').forEach(el=>{ el.title=t(el.dataset.ttip); });
   const yl=document.getElementById('yearLbl'); if(yl) yl.textContent=t('app.sub',YEAR);
 
+  /* Auf der Begrüßungsseite gibt es nichts zu wählen: weder Monat
+     noch Ansicht. Und „Daten hochladen" steht nur dort — im
+     geladenen Buch bleiben Speichern und Schließen. */
+  /* Auf der Begrüßungsseite bleibt in der Kopfzeile nur die
+     Anleitung: Öffnen und Anfangen bietet die Seite selbst an,
+     alles andere hat ohne Datei keinen Sinn. Im geladenen Buch
+     fehlt umgekehrt „Daten hochladen" — geladen wird auf der
+     Seite, gearbeitet in der Anwendung. */
+  const wel=!!ui.welcome;
+  ['btnLoad','btnSave','btnUnlink','btnImport','btnSettings','filePath'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.hidden=wel||id==='btnLoad';
+  });
+
   const mEl=document.getElementById('months');
   mEl.setAttribute('aria-label',t('app.chooseMonth'));
-  mEl.style.display = ui.view==='monat' ? 'flex' : 'none';
+  mEl.style.display = (!wel&&ui.view==='monat') ? 'flex' : 'none';
   mEl.innerHTML=MONTHS.map((name,i)=>{
     const m=i+1, pt=monthParts(m);
     const s=pt.total===0?'':(pt.done===pt.total?'done':(pt.done>0?'partial':''));
@@ -40,6 +54,7 @@ function renderChrome(){
 
   const vEl=document.getElementById('views');
   vEl.setAttribute('aria-label',t('app.chooseView'));
+  vEl.style.display=wel?'none':'flex';
   /* Rechts auf Höhe der Reiter steht, was die Zeichen der
      Jahresmatrix bedeuten — dort ist Platz, und in der Leiste der
      Matrix stünde es zwischen lauter Knöpfen. Nur im Jahr: in den
@@ -62,17 +77,12 @@ function syncStickyTops(){
   document.querySelectorAll('.stickybar').forEach(el=>{ el.style.top=top+'px'; });
 
   /* Darunter die Köpfe der Karten: sie kleben unter der Leiste
-     der Ansicht (Kennzahlen im Monat, Bedienleiste in den
-     Flexible Payments) und tragen die Filterzeile der
-     regelmäßigen Kosten gleich mit. Auch diese Höhen sind je
-     Ansicht verschieden — gemessen statt geraten, wie oben. */
+     der Ansicht (Auswertung und Filterzeile im Monat, Bedienleiste
+     in den Flexible Payments). Auch diese Höhen sind je Ansicht
+     verschieden — gemessen statt geraten, wie oben. */
   const bar=document.querySelector('#view > .stickybar');
   const base=top+(bar?bar.offsetHeight:0);
-  document.querySelectorAll('.card > .sechead').forEach(sh=>{
-    sh.style.top=base+'px';
-    const fb=sh.parentElement.querySelector('.filterbar');
-    if(fb&&fb.parentElement===sh.parentElement) fb.style.top=(base+sh.offsetHeight)+'px';
-  });
+  document.querySelectorAll('.card > .sechead').forEach(sh=>{ sh.style.top=base+'px'; });
 }
 
 /* ── Mitlaufende Spaltenköpfe der Jahresmatrix ────────────────
@@ -151,8 +161,8 @@ function render(){
   const yTop=ysOld?ysOld.scrollTop:null, yLeft=ysOld?ysOld.scrollLeft:null;
 
   renderChrome();
-  document.getElementById('view').innerHTML=
-    ({monat:viewMonat,prognose:viewPrognose,kakeibo:viewKakeibo,jahr:viewJahr})[ui.view]();
+  document.getElementById('view').innerHTML= ui.welcome ? viewWelcome()
+    : ({monat:viewMonat,prognose:viewPrognose,kakeibo:viewKakeibo,jahr:viewJahr})[ui.view]();
   wire(); renderStatus();
 
   window.scrollTo(sx,sy);
@@ -182,16 +192,59 @@ function wire(){
   /* Filter und Navigation. Ein zweiter Klick auf denselben Knopf
      nimmt den Filter wieder zurück — er springt dann auf „alle",
      und der helle Grund sagt: gilt gerade nicht. */
-  const toggleFilter=(key,val)=>{ ui[key]=(ui[key]===val&&val!=='alle')?'alle':val; keepQFocus(); render(); };
+  /* Jede Änderung am Filter oder an der Auswertung nimmt die von
+     Hand geklappten Bereiche zurück: von da an gilt wieder, was
+     die Lage vorgibt (siehe foldOf() in js/views/monat.js). */
+  const freeFold=()=>{ ui.foldFree={}; };
+  const toggleFilter=(key,val)=>{ ui[key]=(ui[key]===val&&val!=='alle')?'alle':val;
+    freeFold(); keepQFocus(); render(); };
   document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>toggleFilter('filter',b.dataset.filter));
   document.querySelectorAll('[data-duefilter]').forEach(b=>b.onclick=()=>toggleFilter('dueFilter',b.dataset.duefilter));
+  /* Der Zeitstrahl filtert wie die Knöpfe darunter: ein Abschnitt
+     ist eine Fälligkeit (A · M · E, Z = ohne Zahltag), ein zweiter
+     Klick nimmt ihn zurück. Den Zeitstrahl gibt es nur, solange die
+     Auswertung aufgeklappt ist — zugeklappt gibt es diese Knöpfe
+     also gar nicht. */
+  document.querySelectorAll('[data-tpart]').forEach(b=>b.onclick=()=>toggleFilter('dueFilter',b.dataset.tpart));
+  /* Die Auswertung auf- und zuklappen. Sie steht in ui, nicht in
+     der Datei: was gerade zu sehen ist, gehört zur Anzeige. */
+  document.querySelectorAll('[data-ana]').forEach(b=>b.onclick=()=>{
+    ui.ana=!ui.ana; freeFold(); keepQFocus(); render(); });
+  /* Einen Bereich der Monatsansicht zuklappen (in · flex · out).
+     Das gilt für alle zwölf Monate und steht deshalb in der Datei —
+     wie die beiden Filter der Jahresansicht, also save() davor. */
+  /* Geklappt wird immer gegen das, was zu sehen ist — nicht gegen
+     das, was in der Datei steht. Beides kann auseinanderlaufen,
+     solange ein Filter oder die offene Auswertung den Zustand
+     überschreibt (foldOf() in js/views/monat.js); ein Pfeil, der
+     nach oben zeigt, muss zuklappen und nicht heimlich einen Wert
+     kippen, den niemand sieht. Was zu sehen ist, sagt der Pfeil
+     selbst: aria-expanded. Der Klick schreibt das Gegenteil in die
+     Datei und hebt die Überschreibung für diesen Bereich auf. */
+  const toggleFold=(k,openNow)=>{
+    if(!state.folded) state.folded=blankFolded();
+    state.folded[k]=openNow;
+    if(!ui.foldFree) ui.foldFree={};
+    ui.foldFree[k]=true;
+    keepQFocus(); save(); render();
+  };
+  document.querySelectorAll('[data-fold]').forEach(b=>b.onclick=()=>
+    toggleFold(b.dataset.fold,b.getAttribute('aria-expanded')==='true'));
+  /* Ein Doppelklick auf die Überschrift tut dasselbe wie der Pfeil —
+     auf Knöpfen und Links darin nicht, die haben ihr eigenes Ziel. */
+  document.querySelectorAll('[data-dblfold]').forEach(h=>h.ondblclick=ev=>{
+    if(ev.target.closest('button,a,input,select,textarea')) return;
+    const sel=window.getSelection(); if(sel) sel.removeAllRanges();
+    const arrow=h.querySelector('[data-fold]');
+    toggleFold(h.dataset.dblfold,!arrow||arrow.getAttribute('aria-expanded')==='true');
+  });
   /* Das Suchfeld: es filtert beim Tippen, also wird bei jedem
      Zeichen neu gezeichnet. Damit der Fokus das überlebt, merkt
      ui.qFocus ihn vor und wire() setzt ihn danach zurück — samt
      Schreibmarke am Ende. Hier gilt das **immer**, auch beim
      letzten Rücklöschen: wer das Feld leert, steht noch darin. */
   document.querySelectorAll('[data-q]').forEach(i=>i.oninput=()=>{
-    ui.q=i.value; ui.qFocus=true; render();
+    ui.q=i.value; ui.qFocus=true; freeFold(); render();
   });
   /* Der Hamburger-Knopf davor: worin der Suchbegriff überhaupt
      sucht (js/dialogs/filter-fields.js). Die Wahl steht in der
@@ -227,6 +280,10 @@ function wire(){
   document.querySelectorAll('[data-kview]').forEach(b=>b.onclick=()=>{
     ui.month=+b.dataset.kview; ui.scope='monat'; ui.view='kakeibo'; ui.kakPick=null; render();
   });
+
+  /* Die beiden Wege der Begrüßungsseite. */
+  document.querySelectorAll('[data-wload]').forEach(b=>b.onclick=()=>loadData());
+  document.querySelectorAll('[data-wnew]').forEach(b=>b.onclick=()=>startEmpty());
 
   /* Fenster öffnen */
   document.querySelectorAll('[data-lists]').forEach(b=>b.onclick=()=>editLists());
@@ -316,7 +373,7 @@ document.getElementById('fileJson').onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=()=>{ try{ state=migrate(JSON.parse(r.result)); fileName=f.name; fileHandle=null; dirty=false;
-      afterLoad(); render(); toast(t('store.loaded',f.name)); }
+      afterLoad(); ui.welcome=false; render(); toast(t('store.loaded',f.name)); }
     catch(err){ toast(t('store.readFail')); } };
   r.readAsText(f,'utf-8'); e.target.value='';
 };

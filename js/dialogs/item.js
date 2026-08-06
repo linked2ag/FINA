@@ -105,9 +105,12 @@ function editItem(item,group,copyOf){
         <select id="qStart" aria-label="${t('g.month')}">${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${i+1===CUR?' selected':''}>${t('item.fromMonth',n)}</option>`).join('')}</select>
         <input id="qVal" class="num signed" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
       </div>
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-        <button class="btn primary small" id="qApply">${t('item.apply')}</button>
+      <!-- Rechts, und „Übernehmen" ganz außen: es ist der Knopf,
+           der etwas tut, und steht damit dort, wo in jedem Fenster
+           der Knopf steht, der etwas tut. -->
+      <div class="qbtns">
         <button class="btn small" id="qClear">${t('item.clear')}</button>
+        <button class="btn primary small" id="qApply">${t('item.apply')}</button>
       </div>
       <p class="note" style="margin:8px 0 0">${t('item.quickHint')}</p>
     </div>

@@ -135,13 +135,6 @@
 .matrix tr.sec.r-sal td.ed{box-shadow:inset 5px 0 0 var(--edge-sal)}
 .matrix tr.grp.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
 
-/* Zweizeilige Blockzeile: oben der Name, darunter klein der
-   Hinweis. Die Zeile selbst ist versal und gesperrt gesetzt —
-   der Hinweis nimmt beides zurück, sonst läse er sich wie eine
-   zweite Überschrift. */
-.matrix tr.sec td.lab .rowtitle{display:block}
-.matrix tr.sec td.lab .rowsub{display:block;margin-top:3px;font-size:9.5px;line-height:1.4;
-  letter-spacing:.02em;text-transform:none;font-weight:400;color:var(--ink-2)}
 /* Abbezahlt: nichts steht mehr aus (yearSettled in js/calc.js).
    Die ganze Zeile tritt grau zurück und überschreibt dabei die
    Blockfarbe — deshalb steht die Regel hinter allen anderen. */

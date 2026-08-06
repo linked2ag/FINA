@@ -212,6 +212,104 @@ const kakeiboFor=m=>kakCats().reduce((s,k)=>s+kakVal(k,m),0);
    Saldokorrektur kommt als vierter Summand dazu. */
 const saldo=m=>income(m)+fixedCost(m)+kakeiboFor(m)+balanceFix(m);
 
+/* ── Der Monat als Zeitstrahl ─────────────────────────────────
+   Vier Abschnitte in der Reihenfolge, in der das Geld den Monat
+   durchläuft: Monatsanfang (Zahltag 1.–10. oder A), Monatsmitte
+   (11.–20. oder M), Monatsende (ab dem 21. oder E) und der
+   Monatsabschluss.
+
+   Der Abschluss ist der Sammelplatz für alles ohne Fälligkeit: die
+   Flexible Payments (sie kennen keinen Zahltag), die Saldokorrektur
+   und jeden Posten, bei dem kein Zahltag steht. Er steht am Ende,
+   weil erst dort feststeht, was der Monat gekostet hat — sein
+   laufender Wert ist deshalb genau saldo(m).
+
+   Davor steht ein fünfter Abschnitt, in den nichts fällig wird:
+   'P' — was der Monat vorfindet. Sein Wert ist die Summe der
+   Monate davor in derselben Datei (carryIn). Das ist kein
+   Kontoauszug: die Datei kennt keinen Anfangsbestand, gerechnet
+   wird mit dem, was in ihr steht — im Januar also nichts.
+
+   Je Abschnitt kommt zurück: die Veränderung (sum), der Kontostand
+   danach (run), die Zahl der Posten dahinter (n) und die
+   Aufteilung nach Geldart — up für die Zufuhr, down für den Abzug,
+   beide als Beträge ohne Vorzeichen. Ein Posten zählt dorthin, wo
+   sein Vorzeichen hinweist: eine Rückzahlung bei den regelmäßigen
+   Kosten steht in der Zufuhr, und die Farbe der Art sagt trotzdem,
+   woher sie kommt. */
+const carryIn=m=>{ let s=0; for(let i=1;i<m;i++) s+=saldo(i); return s; };
+const FLOW_KINDS=['in','flex','out','bal'];
+const FLOW_PARTS=['A','M','E','Z'];
+const MONTH_PARTS=['P'].concat(FLOW_PARTS);
+function monthFlow(m){
+  const part={};
+  FLOW_PARTS.forEach(k=>part[k]={sum:0,n:0,up:{},down:{}});
+  const add=(p,kind,v)=>{
+    if(!v) return;
+    const b=part[p]; b.sum+=v; b.n++;
+    const side=v>0?b.up:b.down;
+    side[kind]=(side[kind]||0)+Math.abs(v);
+  };
+  dueIn(m).forEach(it=>add(dueGroup(it.dueDay),isIncome(it)?'in':'out',it.amounts[m-1]));
+  kakCats().forEach(k=>add('Z','flex',kakVal(k,m)));
+  add('Z','bal',balanceFix(m));
+
+  let run=carryIn(m);
+  const out=[{key:'P',sum:run,n:Math.max(0,m-1),up:{},down:{},prev:0,run}];
+  FLOW_PARTS.forEach(k=>{
+    const prev=run; run+=part[k].sum;
+    out.push(Object.assign({key:k,prev,run},part[k]));
+  });
+  return out;
+}
+
+const sumOf=o=>Object.values(o).reduce((a,b)=>a+b,0);
+
+/* ── Der Maßstab des Zeitstrahls ──────────────────────────────
+   Die Achse ist der Kontostand selbst, nicht die Veränderung: nur
+   so steht jede Zeile dort, wo die Bilanz gerade ist, und man
+   sieht auf einen Blick, ob sie im Plus oder im Minus liegt.
+
+   Sie reicht von der Null — oder vom tiefsten Stand, wenn er
+   darunter liegt — bis zum höchsten Punkt, den der Monat berührt.
+   Berührt heißt wörtlich: kommt in einem Abschnitt erst eine
+   Einnahme und gehen danach Kosten ab, steigt der Stand kurz über
+   sein Ergebnis hinaus (prev + alle Zuflüsse). Genau dieser
+   Ausschlag ist im Balken zu sehen, also muss er auch auf die
+   Achse passen.
+
+   **Die Null gehört dazu, solange die Bewegungen dabei lesbar
+   bleiben.** Sie zeigt, wie weit der Monat vom Minus entfernt ist —
+   aber wer einen Kontostand von 110.000 vor sich hat und im Monat
+   9.000 bewegt, sähe von den Bewegungen nichts mehr, weil sie auf
+   ein Zwanzigstel der Breite zusammenschrumpfen.
+
+   **Die Grenze ist die Hälfte.** Bekämen die Bewegungen des Monats
+   nicht wenigstens die halbe Breite, wird die Achse beschnitten
+   (cut): sie läuft dann nur über die Werte selbst, mit etwas Luft
+   an beiden Enden, und die Bewegungen haben die Fläche für sich.
+   Der Balken der Monatseröffnung ist dann abgeschnitten — die
+   Ansicht setzt ihm einen gestrichelten Strich an den Anfang und
+   schreibt den Maßstab unter die Grafik. */
+function flowScale(flow){
+  let lo=Infinity,hi=-Infinity;
+  flow.forEach(f=>{
+    /* Die erste Zeile ist ein Stand, kein Übergang: ihr prev ist
+       die Null, an der ihr Balken anfängt, und kein Wert des
+       Monats. Sie zählte hier sonst die Null immer mit und die
+       Achse finge nie an zu schneiden. */
+    const top=f.prev+sumOf(f.up);
+    if(f.key!=='P'){ lo=Math.min(lo,f.prev,top); hi=Math.max(hi,f.prev,top); }
+    lo=Math.min(lo,f.run); hi=Math.max(hi,f.run);
+  });
+  if(!isFinite(lo)){ lo=0; hi=0; }
+  const move=hi-lo, full=Math.max(0,hi)-Math.min(0,lo);
+  const cut=full>0&&move/full<0.5;
+  if(!cut){ lo=Math.min(0,lo); hi=Math.max(0,hi); }
+  else { const pad=move*0.08||1; lo-=pad; hi+=pad; }
+  return {lo,hi,span:(hi-lo)||1,cut};
+}
+
 /* ── Fortschritt eines Monats ─────────────────────────────── */
 function monthParts(m){
   const items=dueIn(m);

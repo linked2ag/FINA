@@ -36,13 +36,22 @@ const DUE_LABEL=v=>({A:t('due.A'),M:t('due.M'),E:t('due.E')}[v]||(v?t('due.day',
 const DUE_SHORT=v=>({A:'A',M:'M',E:'E'}[v]||(v?`${v}.`:''));
 
 /* Ordnet auch einen Zahltag einem der drei Abschnitte zu:
-   1.–10. Monatsanfang · 11.–20. Monatsmitte · ab 21. Monatsende. */
+   1.–10. Monatsanfang · 11.–20. Monatsmitte · ab 21. Monatsende.
+
+   Ohne Zahltag steht ein Posten nicht im Monat, sondern am Ende:
+   'Z' ist der Monatsabschluss (siehe monthFlow() in js/calc.js).
+   Für die drei Filterknöpfe ändert das nichts — 'Z' ist so wenig
+   'A' wie der leere Wert vorher. */
 function dueGroup(v){
   if(v==='A'||v==='M'||v==='E') return v;
   const day=parseInt(v,10);
   if(!isNaN(day)){ if(day<=10) return 'A'; if(day<=20) return 'M'; return 'E'; }
-  return '';
+  return 'Z';
 }
+
+/* Wie viele Tage hat dieser Monat im Jahr der Datei? Der Zeitstrahl
+   der Monatsansicht teilt sich danach auf. */
+const daysInMonth=m=>new Date(YEAR,m,0).getDate();
 
 /* ── Laufzeitende einer Position ──────────────────────────── */
 const endShort=it=>it&&it.end?`${String(it.end.m).padStart(2,'0')}.${String(it.end.y).slice(2)}`:'';

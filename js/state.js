@@ -11,8 +11,17 @@ let state=null;
 /* q ist das Suchfeld der Monatsansicht, qFocus merkt, dass der
    Fokus nach dem Neuzeichnen wieder dorthin gehört (siehe wire()
    in js/app.js). */
+/* ana ist die Auswertung über der Monatsansicht: sie steht
+   eingeklappt und bleibt offen, bis man sie wieder zuklappt. Das
+   ist Anzeige, keine Einstellung — anders als die zugeklappten
+   Bereiche (state.folded) gehört es nicht in die Datei.
+
+   welcome ist die Begrüßungsseite: sie steht am Anfang und wieder
+   nach dem Trennen der Datei (js/views/willkommen.js). foldFree
+   merkt, welche Bereiche der Nutzer von Hand geklappt hat, während
+   Filter oder Auswertung den Zustand überschreiben. */
 let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPick:null,
-  q:'',qFocus:false};
+  q:'',qFocus:false,ana:false,welcome:true,foldFree:{}};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────
    Der Nutzer stellt im Fenster hinter dem Hamburger-Knopf ein,
@@ -58,6 +67,18 @@ function blankBalance(){
     amounts:Array(12).fill(0),estimated:false});
 }
 
+/* ── Zugeklappte Bereiche ─────────────────────────────────────
+   Die drei Karten der Monatsansicht, jede mit ihrem eigenen
+   Schalter: 'in' Einnahmen, 'flex' Flexible Payments, 'out'
+   regelmäßige Kosten. Zugeklappt bleibt von einer Karte nur ihre
+   oberste Zeile stehen. */
+const FOLD_KEYS=['in','flex','out'];
+/* Vorgabe: alles offen. Wer eine Datei zum ersten Mal öffnet, soll
+   sehen, was darin steht — zuklappen kann er selbst, und dann steht
+   es in der Datei. */
+const blankFolded=()=>({in:false,flex:false,out:false});
+const isFolded=k=>!!(state&&state.folded&&state.folded[k]);
+
 /* Leerer Zustand ohne jede Vorgabe. Listen, die der Nutzer schon
    gepflegt hat, bleiben beim Trennen der Datei erhalten. */
 function emptyState(){
@@ -77,6 +98,11 @@ function emptyState(){
        will sie beim nächsten Öffnen wiederfinden. Vorgabe: kein
        Filter aktiv, es ist alles zu sehen. */
     hideDoneMonths:false, hideSettled:false,
+    /* Zugeklappte Bereiche der Monatsansicht, je Geldart einer.
+       Auch das ist eine Einstellung und keine Anzeige: sie gilt für
+       alle zwölf Monate und soll beim nächsten Öffnen wieder
+       gelten. Vorgabe ist alles offen. */
+    folded:blankFolded(),
     /* Wie die vier Listen: eine einmal getroffene Wahl überlebt
        das Trennen der Datei. */
     filterFields:(state&&state.filterFields)?state.filterFields:allQFields()
@@ -117,6 +143,13 @@ function afterLoad(){
      Suchbegriff der letzten stünde sonst noch im Feld und
      versteckte die halbe Datei. */
   ui.q=''; ui.qFocus=false;
+  /* Die Auswertung fängt zugeklappt an: sie klebt beim Scrollen
+     unter der Kopfzeile und nähme sonst dauerhaft zwei Zeilen weg,
+     die die Tabelle darunter besser gebraucht. */
+  ui.ana=false;
+  /* Und die von Hand geklappten Bereiche gelten nur für die eine
+     Lage, in der sie geklappt wurden. */
+  ui.foldFree={};
 }
 
 /* Bringt eine geladene Datei auf den aktuellen Aufbau. */
@@ -184,6 +217,15 @@ function migrate(s){
      gilt die Vorgabe: nichts ausgeblendet. */
   s.hideDoneMonths=!!s.hideDoneMonths;
   s.hideSettled=!!s.hideSettled;
+  /* Die zugeklappten Bereiche. Ältere Dateien kennen nur den einen
+     Schalter der Flexible Payments (flexCollapsed) — er wandert in
+     das neue Feld, die beiden anderen Karten fangen offen an. */
+  const fold=(s.folded&&typeof s.folded==='object')?s.folded:{};
+  if(s.folded===undefined&&s.flexCollapsed!==undefined) fold.flex=!!s.flexCollapsed;
+  const def=blankFolded();
+  s.folded={};
+  FOLD_KEYS.forEach(k=>{ s.folded[k]=fold[k]===undefined?def[k]:!!fold[k]; });
+  delete s.flexCollapsed;
   /* Worin das Suchfeld sucht. Ältere Dateien kennen die Wahl
      nicht — dann gilt alles. Ein unbekannter Schlüssel gilt
      ebenfalls als gewählt, und eine Datei, in der (von Hand)

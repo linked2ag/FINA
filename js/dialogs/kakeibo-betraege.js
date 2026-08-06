@@ -55,9 +55,9 @@ function editKak(k,copy){
         <select id="kStart" aria-label="${t('g.month')}">${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${i+1===CUR?' selected':''}>${t('item.fromMonth',n)}</option>`).join('')}</select>
         <input id="kVal" class="num signed" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
       </div>
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-        <button class="btn primary small" id="kApply">${t('item.apply')}</button>
+      <div class="qbtns">
         <button class="btn small" id="kClear">${t('item.clear')}</button>
+        <button class="btn primary small" id="kApply">${t('item.apply')}</button>
       </div>
     </div>
     <div class="field"><label>${t('kdlg.perMonth')}</label>

@@ -17,9 +17,47 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-Nichts. Die Anleitung ist auf dem Stand der Anwendung.
+Nichts. Alle drei Reiter sind auf dem Stand der Anwendung.
 
 ## Zuletzt eingearbeitet
+
+Am 6. August 2026, dritter Durchgang: **alle Bildschirmfotos neu**, und zwar aus der neuen
+Beispieldatei `fina-demo-en.json` — durchweg englisch, ohne persönliche Daten, mit den
+üblichen Posten eines Haushalts. `doc/make-shots.py` nimmt sie jetzt als Vorgabe (der Pfad
+lässt sich mit `FINA_DEMO=…` überschreiben). Sechs Abzüge sind auf eine feste Höhe
+beschnitten, weil die Datei mehr Posten hat als die alte und die Bilder sonst zu lang für
+den Anleitungsbereich würden: `year`, `month`, `flexible`, `month-out`, `year-left`,
+`flex-view`.
+
+Am 6. August 2026, zweiter Durchgang — in **alle drei** Reiter und beide Sprachen, dazu neue
+Abzüge von `welcome`, `month`, `month-in`, `month-flex`, `month-out`, `ui-kpi`,
+`ui-analytics`, `legend` und `guide`:
+
+- die **Begrüßungsseite** in Schritt 1 (mit Bild) und in „Die ersten Schritte"; dass die
+  Kopfzeile keinen Knopf zum Öffnen mehr hat und auf der Begrüßungsseite nur die Anleitung
+  trägt
+- die **Klapp-Pfeile** samt Doppelklick auf die Überschrift, Vorgabe „alles offen", die
+  Ablage in der Datei und das automatische Klappen beim Filtern (Schritt 9 und Produktreiter)
+- **Version 26.8.6.1** im Reiter „Was ist neu", in beiden Sprachen: Begrüßungsseite,
+  Auswertung mit Zeitstrahl und Wasserfall, Filterzeile für alle Bereiche, klappbare Blöcke,
+  Kleinigkeiten
+
+Am 6. August 2026 in die Reiter **Schritt für Schritt** und **Was FINA kann** übernommen, in
+beiden Sprachen — dazu neue Bildschirmfotos `ui-analytics`, `ui-waterfall` und frische Abzüge
+von `ui-kpi`, `month`, `month-in`, `month-flex`, `month-out`, `month-bal`:
+
+- der **Auswertungsbereich** als eigener Abschnitt im Produktreiter: die dünne Zahlenzeile, der
+  Klick, der sie aufklappt, die fünf Zeilen des Zeitstrahls (Monatseröffnung · Monatsanfang ·
+  Monatsmitte · Monatsende · Monatsabschluss), der Wasserfall mit seinen Farben, der Maßstab
+  am Kontostand samt beschnittener Achse, die Sprechblase nur an den Farben, der Klickfilter
+  und die Regel, dass alles ohne Zahltag beim Monatsabschluss aufgenommen wird
+- Schritt 10 heißt weiter „Die Zahlen oben lesen", verweist jetzt aber auf die Auswertung und
+  zeigt sie
+- Schritt 9 und der Absatz zur Monatsansicht im Produktreiter: die **Filterzeile steht oben und
+  gilt für alle drei Bereiche**, mit dem fünften Knopf „Monatsabschluss" und dem Hinweis
+  „(n ausgeblendet)" neben der Überschrift
+- die **Klapp-Pfeile**: jeder Bereich lässt sich zuklappen, in der Farbe des Bereichs und über
+  der Abhakspalte; die Wahl steht in der Datei und gilt für alle zwölf Monate
 
 Am 5. August 2026 in **beide** Reiter der Anleitung und beide Sprachen übernommen — die
 Bildschirmfotos blieben dabei liegen, sie zeigen den Stand davor:

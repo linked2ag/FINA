@@ -183,13 +183,12 @@ function viewJahr(){
   const secFlex=hit(t('year.kakRow'));
   const kakRows=kakCats().filter(k=>state.kak[k]&&(secFlex||!q||hayKak(k).includes(q)))
     .map(k=>mrow(esc(keyLabel(k)),MONTHS.map((_,i)=>kakVal(k,i+1)),{kak:k,cls:'r-flex'})).join('');
-  /* Zweizeilig: oben der Name des Blocks, darunter klein der
-     Hinweis auf den Import. Der Zusatz gehörte vorher in dieselbe
-     Zeile („Flexible Payments — Fast Budget") und brach dort
-     mitten im Namen um. */
+  /* Nur der Name des Blocks. Der Hinweis auf den Import stand
+     früher klein darunter — er erklärt aber nicht die Zeile,
+     sondern eine Funktion, und dafür gibt es die Anleitung. */
   if(kakRows||secFlex)
-    parts.push(mrow(`<span class="rowtitle">${t('year.kakRow')}</span><span class="rowsub">${t('year.kakRowSub')}</span>`,
-      MONTHS.map((_,i)=>kakeiboFor(i+1)),{cls:'sec r-flex secpin'})+kakRows);
+    parts.push(mrow(t('year.kakRow'),MONTHS.map((_,i)=>kakeiboFor(i+1)),
+      {cls:'sec r-flex secpin'})+kakRows);
 
   const secOut=hit(t('g.fixed'));
   let outRows='';

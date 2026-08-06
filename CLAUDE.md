@@ -31,6 +31,7 @@ ganze Projekt zu lesen.
 | CSV-Import aus Fast Budget | `js/csv.js` |
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
+| Begrüßungsseite (ohne Datei) | `js/views/willkommen.js` |
 | Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·filter-fields.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
@@ -46,7 +47,9 @@ braucht also immer zwei Stellen: das Attribut in der View und eine Zeile in `wir
 Ausnahme: `data-note` und `data-tip` gehören `js/ui.js` und funktionieren überall von
 selbst.
 
-Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `q` `qfields` `kd` (Filter) ·
+Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `tpart` `q` `qfields` `kd` (Filter) ·
+`ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich zuklappen) ·
+`wload` `wnew` (Begrüßungsseite) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
 (Sprünge in eine andere Ansicht) ·
 `edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen).
@@ -183,15 +186,225 @@ der Monatsansicht.
 `state.hideSettled` (siehe `emptyState()` und `migrate()` in `js/state.js`). Der Nutzer
 stellt sie einmal ein und findet sie beim nächsten Öffnen wieder — deshalb rufen ihre
 Klicks `save()`. **Vorgabe ist beides `false`:** eine frisch geöffnete Datei zeigt alles.
-Sie sind die einzigen Ansichtsschalter in der Datei; alles andere (Monatsfilter, Suchfeld,
-gewählter Monat) bleibt in `ui` und damit ungespeichert.
+Neben ihnen steht nur noch ein Ansichtsschalter in der Datei — `state.flexCollapsed`
+(siehe unten); alles andere (Monatsfilter, Suchfeld, gewählter Monat, aufgeklappte
+Auswertung) bleibt in `ui` und damit ungespeichert.
+
+## Die Auswertung über der Monatsansicht
+
+Über den Karten steht eine einzige dünne Zeile mit den fünf Zahlen des Monats — Einnahmen,
+Flexible Payments, regelmäßige Kosten, noch offen, Saldo — und klein **darüber** die
+Überschrift „Auswertung" (`.analab`). Sie ist kein Kästchen in der Reihe: sie benennt die
+Leiste, sie ist keine Kennzahl. Ein Klick irgendwo darauf klappt sie auf, und darunter
+erscheint der Zeitstrahl. **Einen Pfeil trägt sie nicht:** ob sie offen ist, sagt der Zeitstrahl
+selbst; für Tastatur und Vorlesehilfe steht es in `aria-expanded`. Gebaut wird sie in
+`anaBar()` / `timeline()` in `js/views/monat.js`.
+
+Darunter, in derselben `.stickybar`, steht die Filterzeile (siehe unten). Alles zusammen
+bleibt beim Scrollen unter der Kopfzeile stehen.
+
+**Eingeklappt ist der Grundzustand.** Die Leiste nimmt oben dauerhaft Platz weg, den die
+Liste darunter braucht. Der Schalter ist `ui.ana` — er gehört zur Anzeige, nicht in die
+Datei, und `afterLoad()` setzt ihn bei jedem Öffnen zurück. Die Zahlenzeile ist **ein**
+Knopf (`data-ana`); in den Kästchen steht deshalb nichts weiter Anklickbares, nur
+`data-tip`. Die Filterzeile steht daneben, nicht darin — sie hat ihre eigenen Knöpfe.
+
+**Der Zeitstrahl teilt den Monat in fünf Zeilen** — Monatseröffnung, Monatsanfang,
+Monatsmitte, Monatsende, Monatsabschluss. Jede Zeile nennt links ihren Namen samt Tagen
+(1.–10., 11.–20., ab dem 21.), dann die Veränderung und den Kontostand danach; rechts
+steht über die ganze übrige Breite ihr Balken. Gerechnet wird das in `monthFlow()`
+(`js/calc.js`) aus der Fälligkeit der einzelnen Positionen.
+
+Die Tage stehen deshalb in der Beschriftung und nicht mehr als Leiste darunter: die Breite
+gehört jetzt dem Betrag, nicht der Zeit. Fällt der heutige Tag in eine Zeile, trägt sie
+eine rote Marke (`.tnow`).
+
+**„Monatseröffnung" (`'P'`) ist kein Zeitraum, sondern ein Stand:** `carryIn(m)`, die
+Summe der Monate davor in derselben Datei. Ein Kontoauszug ist das nicht — die Datei kennt
+keinen Anfangsbestand, im Januar steht dort also nichts. In diesen Abschnitt wird nichts
+fällig: er ist ein `span` statt eines Knopfes und kein Filter — grau hinterlegt ist er
+deswegen nicht, er sieht aus wie jede andere Zeile. Einen Balken hat er sehr wohl: von der
+Null bis zu seinem Wert, damit man sieht, wo der Monat anfängt. Daraus
+folgt, dass der letzte laufende Wert `carryIn(m) + saldo(m)` ist und **nicht** mehr `saldo(m)`
+— die Kennzahl „Saldo" in der Zeile darüber meint weiter den Monat allein.
+
+**Der Monatsabschluss ist der Sammelplatz für alles ohne Fälligkeit**: die Flexible
+Payments, die Saldokorrektur und jeden Posten ohne Zahltag. Deshalb liefert `dueGroup()` in
+`js/format.js` für einen leeren Zahltag jetzt `'Z'` statt `''`. Wer an dieser Zuordnung
+dreht, dreht am Saldo des Zeitstrahls mit.
+
+**Der Zeitstrahl ist ein Wasserfall.** Die Achse ist der **Kontostand selbst**, nicht die
+Veränderung: `flowScale()` (`js/calc.js`) spannt sie über die Stände des Monats und die
+Punkte, die er dabei berührt. Wo die Null liegt, teilt den roten vom grünen Bereich; liegt
+der Monat ganz im Plus, ist die ganze Fläche grün, und der Balken der Eröffnung steht mitten
+darin.
+
+**Die Null gehört nur dazu, solange die Bewegungen dabei lesbar bleiben.** Wer 110.000 auf
+dem Konto hat und im Monat 9.000 bewegt, sähe von den Bewegungen nichts mehr — sie
+schrumpften auf ein Zwanzigstel der Breite. **Die Grenze ist die Hälfte:** bekämen die
+Bewegungen des Monats nicht wenigstens die halbe Breite, wird die Achse **beschnitten**
+(`sc.cut`) und läuft nur über die Werte selbst, mit 8 % Luft an beiden Enden — die
+Bewegungen haben die Fläche dann für sich. Die Ansicht sagt das zweimal: der Balken der
+Monatseröffnung bekommt einen **gestrichelten Strich** an den Anfang (`.tcut`, in seiner
+eigenen Farbe, und er selbst tritt dafür zurück), und der Maßstab steht am Ende der
+Farberklärung. Ohne beides läse man die Länge dieses Balkens als seinen ganzen Betrag.
+Die Null der ersten Zeile zählt für den Maßstab **nicht** mit: sie ist der Anfang ihres
+Balkens, kein Wert des Monats — sonst schnitte die Achse nie.
+
+Jede Zeile beginnt beim Stand der Zeile darüber (`f.prev`) und endet bei ihrem eigenen
+(`f.run`). Dazwischen steht, was den Unterschied gemacht hat (`flowTrack()` in
+`js/views/monat.js`):
+
+* **Zuflüsse** wachsen von `prev` nach rechts bis zum höchsten Punkt der Zeile
+  (`top = prev + alle Zuflüsse`),
+* **Abflüsse** holen von dort nach links zurück bis `run`,
+* jeder Anteil in der Farbe seiner Geldart — `--edge-in` Einnahmen, `--bg-flex-3` Flexible
+  Payments, `--edge-out` regelmäßige Kosten, `--edge-bal` Saldokorrektur.
+
+**Beide Strecken überdecken sich auf der Achse**, sobald in einer Zeile erst eine Einnahme
+kommt und danach Kosten abgehen. Deshalb liegt der Zufluss auf der oberen, der Abfluss auf
+der unteren Hälfte der Zeile; gibt es nur eine Richtung, nimmt sie die volle Höhe (`.solo`).
+Der Balken reicht dann sichtbar über sein eigenes Ergebnis hinaus und kommt zurück — genau
+das soll man sehen.
+
+**Die Treppe** entsteht aus zwei Marken je Zeile: `.tconn`, eine feine Linie beim Stand
+davor, und `.tmark`, ein kräftiger Strich beim neuen Stand. Weil der neue Stand einer Zeile
+der alte der nächsten ist, stehen sie genau untereinander. Die erste Zeile hat statt dessen
+einen vollen Balken von der Null bis zu ihrem Wert (`.tsum`, in der Farbe des Saldos): sie
+ist keine Veränderung, sondern ein Stand.
+
+**Nur die Anteile tragen eine Sprechblase, und darin steht nur der Betrag.** Die Zeilen
+selbst tragen keine — sonst spränge beim Überfahren der halben Leiste ein Kasten auf.
+Welche Geldart ein Anteil ist, sagt seine Farbe; weil sie es allein sagt, steht unter den
+Zeilen eine Farberklärung (`.thint`). Was ein Klick tut, sagt der graue Satz **über** der
+Grafik (`.anafilter`, `month.anaFilterHint`) — er steht zwischen den Zahlen und dem
+Zeitstrahl und nur, solange die Auswertung offen ist.
+
+**Ein Balken ist 12 px hoch, immer.** Hat eine Zeile beide Richtungen, trägt ihre Fläche die
+Klasse `two` und wird doppelt so hoch — jede Zeile ist so hoch, wie sie sein muss, und keine
+höher. Über und unter den Balken bleiben `--bpad` frei, damit der Strich des Kontostands
+über sie hinausragt und auch dort zu sehen ist, wo ein Balken endet. Die Maße stehen als
+`--bh`, `--bgap` und `--bpad` an `.ttrack`.
+
+Unter der Farberklärung steht noch ein Satz (`.tnote`, `month.tlNoDue`): dass alles ohne
+Zahltag beim Monatsabschluss aufgenommen wird. Er sagt dasselbe wie der Filterknopf
+„Monatsabschluss" — nur dort, wo man die Zeile sieht.
+
+**Jede Zelle einer Zeile steht in ihrer Spalte** (`grid-column` in `css/layout.css`). In
+schmalen Fenstern fällt die Veränderung weg (`display:none`), und ohne feste Spalte rückten
+Kontostand und Balken dann eine Spalte nach links — ein `display:none`-Element wird im
+Raster nicht mehr platziert.
+
+**Ein Klick auf eine Zeile filtert** (`data-tpart`) — dieselben Werte wie die Filterknöpfe
+darunter (`A` · `M` · `E` · `Z`), über dasselbe `toggleFilter('dueFilter',…)` in `wire()`.
+Ein zweiter Klick nimmt ihn zurück. Den Filter gibt es nur bei aufgeklappter Auswertung —
+zugeklappt gibt es die Zeilen nicht.
+Gefiltert **wird** dabei nicht dunkel hinterlegt wie sonst: in der Fläche steht der
+Kontostand und muss lesbar bleiben, deshalb ein Rahmen nach innen.
+
+## Die Begrüßungsseite
+
+`ui.welcome` entscheidet, ob statt einer Ansicht `viewWelcome()` (`js/views/willkommen.js`)
+im `#view` steht: beim Start und wieder nach `unlinkData()`. Sie sagt zuerst, worum es geht,
+und bietet dann die beiden einzigen Wege an — `data-wload` öffnet eine Datei (`loadData()`),
+`data-wnew` fängt leer an (`startEmpty()` in `js/storage.js`).
+
+**Sie hängt nicht am Inhalt der Datei, sondern daran, ob überhaupt eine gewählt wurde** —
+deshalb steht sie in `ui` und nicht in `afterLoad()`, das nur den Inhalt auswertet. Ein
+leeres Buch (`startEmpty`) ist keine Begrüßung mehr, obwohl `fileName` noch leer ist.
+
+Zwei Dinge hängen daran, beide in `renderChrome()`: Ansichts- und Monatsreiter sind auf der
+Begrüßungsseite **verborgen** (es gibt nichts zu wählen), und **von der Kopfzeile bleibt
+dort nur die Anleitung** — Öffnen und Anfangen bietet die Seite selbst an, alles andere hat
+ohne Datei keinen Sinn. Im geladenen Buch fehlt umgekehrt „Daten hochladen": geladen wird
+auf der Seite, gearbeitet in der Anwendung. Beides steht in einer Zeile, der Liste der
+Kennungen.
+
+Die Knöpfe der Seite bleiben in der Tab-Reihenfolge: `tabThroughFields()` nimmt `.welcome`
+ausdrücklich aus (`js/ui.js`), dort sind die Knöpfe der Inhalt und nicht das Beiwerk.
+
+## Zugeklappte Bereiche
+
+Jede der drei Karten der Monatsansicht lässt sich zuklappen: sichtbar bleibt dann nur ihre
+oberste Zeile — Überschrift, Knöpfe, Summe —, die Tabelle wird gar nicht erst gebaut.
+
+**Der Schalter ist ein Pfeil, kein Wort** (`data-fold="in|flex|out"`, gebaut in
+`foldBtn()`): ▾ offen, ▸ zugeklappt, in der Kantenfarbe seines Bereichs. Er steht ganz
+links in der Kopfzeile und ist so breit wie die Siegelspalte der Tabelle darunter
+(`--markw` aus `css/ledger.css`) — dadurch steht er senkrecht über den Haken der
+Positionen. Das Polster rechts (`padding:0 4px 0 0`) schiebt seine Mitte auf die der
+Siegel; wer an `--markw` oder am Innenabstand von `.markcell` dreht, prüft diese Flucht
+nach. **Der Pfeil ist ein Dreieck von rund 18 px** (▼ / ▶ bei `font-size:23px`, die
+Zeilenhöhe hält die Kopfzeile flach) — kein kleines Zeichen in einem großen Kreis, sondern
+das Zeichen selbst, in der Farbe des Bereichs.
+
+**Bei offener Auswertung gibt es ihn nicht.** Dann sagt der Zeitstrahl, was zu sehen ist,
+und alle Bereiche stehen offen; ein Pfeil, der dagegen anklappen wollte, hielte nicht, was
+er verspricht. `foldBtn()` liefert dann ein leeres `.foldpad` derselben Breite — sonst
+spränge die Überschrift —, und `data-dblfold` bleibt weg, der Doppelklick tut also ebenfalls
+nichts.
+
+**Ein Doppelklick auf die Kopfzeile tut dasselbe** (`data-dblfold` an der `.sechead`,
+verdrahtet in `wire()`); auf Knöpfen und Links darin nicht, die haben ihr eigenes Ziel.
+
+**Zugeklappt trägt der Kopf keine Linie mehr** (`.card.folded>.sechead`): unter ihm steht
+keine Zeile, die er abtrennen könnte — der Bereich ist dann nur noch eine Farbe.
+
+**Der Zustand steht in der Datei** (`state.folded`, ein Objekt mit `in` · `flex` · `out`)
+und gilt für **alle zwölf Monate** — es ist eine Einstellung wie die beiden Jahresfilter,
+deshalb `save()` vor dem `render()`. **Vorgabe ist alles offen:** wer eine Datei zum ersten
+Mal öffnet, soll sehen, was darin steht. Ältere Dateien kennen stattdessen das einzelne Feld
+`flexCollapsed`; `migrate()` zieht es herüber und löscht es. Gelesen wird der Schalter über `isFolded(k)` aus `js/state.js`, nie direkt.
+
+### Zwei Dinge überschreiben ihn
+
+`foldOf(k)` in `viewMonat()` entscheidet, was **zu sehen** ist — die Datei bleibt dabei
+unberührt:
+
+1. **Ein Filter** klappt auf, was etwas zu zeigen hat, und zu, was nichts mehr enthält.
+   Sonst suchte man in einer zugeklappten Karte oder starrte auf drei leere Köpfe. Damit ein
+   leerer Kopf sich erklärt, steht `(n ausgeblendet)` in diesem Fall auch an einer
+   zugeklappten Karte.
+2. **Die offene Auswertung** klappt alles auf: der Zeitstrahl daneben soll sich in der Liste
+   wiederfinden lassen. Solange sie offen ist, lässt sich **gar nicht** geklappt werden —
+   weder von Hand noch aus der Datei; auch `ui.foldFree` gilt dann nicht.
+
+Der Filter geht vor — er ist die genauere Aussage, und ein Klick im Zeitstrahl setzt selbst
+einen: mit offener Auswertung **und** Filter klappt also weiter der Filter, sonst stünden
+zwei leere Karten da. Fällt beides weg, gilt wieder die Datei.
+
+**Geklappt wird immer gegen das, was zu sehen ist**, nicht gegen den Wert in der Datei: ein
+Pfeil, der nach oben zeigt, muss zuklappen. Was zu sehen ist, sagt der Pfeil selbst
+(`aria-expanded`), und `toggleFold()` schreibt das Gegenteil in die Datei. Damit der Klick
+gegen eine laufende Überschreibung ankommt, merkt `ui.foldFree[k]`, dass dieser Bereich von
+Hand geklappt wurde; jede Änderung an Filter oder Auswertung setzt das zurück (`freeFold()`
+in `wire()`).
+
+Was er tut, sagt sein `title` und sein `aria-label`; ob der Bereich offen ist, sagt
+`aria-expanded` und die Richtung des Pfeils.
 
 ## Die Filterzeile der Monatsansicht
 
-Eine Zeile über den regelmäßigen Kosten, in der Reihenfolge, in der man filtert: das
-Suchfeld (`data-q`), dann die Fälligkeit (`data-duefilter`), dann der Zahlungsstand
-(`data-filter`: `alle` · `offen` · `unklar` · `bezahlt`). Zwei Zeilen kosteten Platz, den
-die Liste besser gebraucht — aus demselben Grund ist die Kopfzeile flach gehalten.
+Sie steht **oben in der Leiste**, unter der Auswertung, und **gilt für alle drei Bereiche** —
+Einnahmen, Flexible Payments, regelmäßige Kosten und die Saldokorrektur gleich mit. In
+einer der Karten stünde sie an der falschen Stelle: sie filtert nicht diese Karte, sondern
+den ganzen Monat. In der Reihenfolge, in der man filtert: das Suchfeld (`data-q`), dann die
+Fälligkeit (`data-duefilter`: `alle` · `A` · `M` · `E` · `Z`), dann der Zahlungsstand
+(`data-filter`: `alle` · `offen` · `unklar` · `bezahlt`).
+
+Wie die drei Bereiche gefiltert werden, steht in `viewMonat()`:
+
+| | Zahlungsstand | Fälligkeit | Suchbegriff |
+|---|---|---|---|
+| Posten (Einnahmen, Kosten) | `paidAt` / `estOf` | `dueGroup(it.dueDay)` | `hayItem` |
+| Flexible Payments | `kakDone` / `e.estimated` | immer `Z` — sie haben keinen Zahltag | `hayKak` |
+| Saldokorrektur | — sie wird nicht abgehakt | immer `Z` | `hayItem` |
+
+Was eine Karte dabei verliert, steht als `(n ausgeblendet)` neben ihrer Überschrift; bleibt
+gar nichts übrig, sagt der Satz darin, ob es am Filter liegt oder ob der Bereich leer ist.
+**Und der Filter klappt mit:** eine Karte ohne Treffer klappt zu, eine mit Treffern auf
+(siehe „Zugeklappte Bereiche"). Die drei Gruppen der Zeile — Suchfeld, Fälligkeit,
+Zahlungsstand — trennt eine senkrechte Linie (`.anabar .fbgroup`).
 
 Gebaut werden Feld und Knöpfe von `filterField()` und `fbtn()` in `js/ui.js`; die
 Jahresansicht benutzt dasselbe Feld. Ein Knopf zeigt am dunklen Grund, dass er angewendet
@@ -199,12 +412,14 @@ ist, und ein zweiter Klick nimmt ihn zurück (`toggleFilter()` in `wire()` — e
 auf `alle`). Die Erklärung hängt als `data-tip` daran, das Suchfeld trägt stattdessen
 `title`: eine Sprechblase neben dem Feld, in das man gerade tippt, wäre nur im Weg.
 
-Die Breite des Suchfelds ist kein Geschmackswert: sie ist `--leadw` aus `css/ledger.css`,
-die Summe der drei Spalten vor der Bezeichnung (Siegel, Betrag, Werkzeuge), abzüglich der
-Fuge zum ersten Knopf. Dadurch fangen die Knöpfe genau über der Bezeichnungsspalte an. Wer
-eine dieser Spaltenbreiten ändert, ändert sie dort — die Zeile richtet sich danach. Getragen
-wird das Maß von `.fltbox`, dem Kasten aus Hamburger-Knopf und Feld; das Feld selbst füllt
-nur, was übrig bleibt.
+Sie ist ein eigener Bereich und sieht auch so aus: **grauer Grund und eine dunkle Kante
+links**, wie die Karten darunter ihre Farbe tragen — nur ist ihre Farbe keine Geldart, sie
+gehört zu allen dreien.
+
+Weil die Zeile oben klebt, kostet jeder Umbruch dauerhaft Platz. Deshalb sitzt sie enger
+als sonst (`.anabar .filterbar` in `css/layout.css`), und ihr Suchfeld gibt nach
+(`.fltbox.flttop`, 230 px statt der `--leadw`-Breite der Jahresansicht): bis hinunter zu
+etwa 1100 px bleibt alles in einer Zeile.
 
 ## Worin das Suchfeld sucht
 
@@ -308,7 +523,9 @@ sonst melden seine Lampen „gibt es nicht mehr".
 ## Notizen behalten ihre Zeilen
 
 Eine Notiz wird an vier Stellen gezeigt: in der Sprechblase (`.tip`), als Vorschau unter dem
-Namen (`.noteprev`), als Monatsnotiz in der Monatsansicht (`.itemnote`) und in der Monatszelle
+Namen (`.noteprev`), als Monatsnotiz in der Monatsansicht (`.itemnote`, aufrecht und
+linksbündig — kursiv las sie sich wie ein Einschub; ein senkrechter Strich davor bindet sie
+an ihre Position und wächst über alle ihre Zeilen mit) und in der Monatszelle
 des Bearbeitungsfensters (`.cellnote`). Alle vier stehen auf `white-space:pre-wrap` — ein
 Zeilenumbruch im Notizfeld ist gewollt, eine Aufzählung bliebe sonst ein langer Satz. Wer eine
 fünfte Stelle baut, setzt es dort ebenso. Umbrüche im Quelltext der View gehören deshalb
@@ -424,7 +641,9 @@ und berechnete Stile aus dem DOM lesen (`--dump-dom`) sagt genauer, ob etwas an 
 richtigen Stelle steht, als ein Blick auf ein Standbild.
 
 Die Zeichenerklärung der Monatsansicht (`.legendbar`) steht aus demselben Grund außerhalb
-der Karten: dieselben Siegel gibt es in allen drei Blöcken.
+der Karten: dieselben Siegel gibt es in allen drei Blöcken. Gesetzt ist sie wie die
+Statuszeile ganz unten — dünne Linie darüber, kleine Schreibmaschinenschrift, kein Kasten:
+sie erklärt etwas, sie meldet nichts.
 
 ## Die Kürzelspalten der Jahresmatrix
 
@@ -506,11 +725,14 @@ sonst fällt es aus der Regel heraus.
 
 Die Kopfzeile klebt oben (`header{position:sticky}`), alles mit der Klasse `.stickybar`
 klebt darunter: die Knopfleiste der Jahresmatrix (`#yearBar`), die Bedienleiste der
-Flexible Payments und die Kennzahlenleisten von Monat und Prognose. Das `top` dieser Leisten steht **nicht**
+Flexible Payments, die Auswertung samt Filterzeile im Monat und die Kennzahlenleiste der
+Prognose. Das `top` dieser Leisten steht **nicht**
 im Stylesheet — die Kopfzeile ist je nach Ansicht unterschiedlich hoch, weil es die
 Monatsreiter nur im Monat gibt. `syncStickyTops()` in `js/app.js` misst sie und setzt das
 Maß; die Funktion läuft am Ende von `wire()` sowie bei jedem Scrollen und Größenwechsel.
-Eine neue mitlaufende Leiste braucht deshalb nur die Klasse.
+Eine neue mitlaufende Leiste braucht deshalb nur die Klasse. Weil gemessen und nicht
+geraten wird, rücken die Kartenköpfe darunter von selbst nach, wenn die Auswertung
+aufgeklappt wird.
 
 Zwei Dinge gehören dazu: ein **deckender Hintergrund** und ein **Polster statt Rand** nach
 unten. Ein Rand ist durchsichtig — dort schiene der Inhalt durch, der darunter wegscrollt.
@@ -537,14 +759,15 @@ links liegen die Köpfe ohnehin oben, verdeckt wird nur rechts davon.
 
 **Und darunter die Köpfe der Karten.** `.card > .sechead` klebt ebenfalls — solange die
 Karte im Bild ist. Wer sich durch die regelmäßigen Kosten scrollt, sieht so immer, in
-welchem Block er liest und was der Block kostet; bei den regelmäßigen Kosten klebt die
-Filterzeile gleich mit, damit man auch weit unten noch filtern kann. `position:sticky`
+welchem Block er liest und was der Block kostet; die Filterzeile steht oben in der Leiste
+und ist ohnehin die ganze Zeit zu sehen. `position:sticky`
 reicht nie über den Elternteil hinaus: die Überschrift wandert mit ihrer Karte aus dem
 Bild, sobald die nächste kommt — genau das ist gewollt.
 
-Die drei Maße staffeln sich, und keins davon steht im Stylesheet: Kopfzeile → Leiste der
-Ansicht → Kartenkopf → Filterzeile. `syncStickyTops()` misst die Höhen der Reihe nach und
-setzt `top` an jeder Stelle. Auch hier gilt: deckender Hintergrund — der Kartenkopf trägt
+Die Maße staffeln sich, und keins davon steht im Stylesheet: Kopfzeile → Leiste der
+Ansicht → Kartenkopf. `syncStickyTops()` misst die Höhen der Reihe nach und setzt `top` an
+jeder Stelle — deshalb rücken die Kartenköpfe von selbst nach, wenn die Auswertung
+aufgeklappt wird. Auch hier gilt: deckender Hintergrund — der Kartenkopf trägt
 die Farbe seiner Karte (`--bg-in/-flex/-out`) und wird über negative Außenabstände auf die
 volle Kartenbreite gezogen, damit rechts und links nichts durchscheint.
 

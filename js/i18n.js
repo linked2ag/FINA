@@ -190,6 +190,7 @@ const STR={
 'store.saveFail':{en:'Saving failed: {0}',de:'Speichern fehlgeschlagen: {0}'},
 'store.unlinkAsk':{en:'There are unsaved changes. Close the file and clear the view anyway?',
   de:'Es gibt ungespeicherte Änderungen. Trotzdem trennen und die Ansicht leeren?'},
+'store.started':{en:'Empty book started — save it when you are ready.',de:'Leeres Buch angelegt — speichern, wenn du so weit bist.'},
 'store.unlinked':{en:'File closed. Use “Load data” to open one.',de:'Verbindung getrennt. Über „Daten hochladen" kannst du eine Datei öffnen.'},
 'store.readFail':{en:'The file could not be read.',de:'Datei konnte nicht gelesen werden.'},
 'store.fileKind':{en:'FINA data',de:'FINA Daten'},
@@ -213,8 +214,6 @@ const STR={
 /* Die Blockzeile der Jahresmatrix ist zweizeilig: oben der
    Name, darunter klein, woher die Zahlen kommen können. */
 'year.kakRow':{en:'Flexible Payments',de:'Flexible Payments'},
-'year.kakRowSub':{en:'Works with the Fast Budget app — bookings can be imported as CSV',
-  de:'Zusammen mit der App Fast Budget — Buchungen lassen sich als CSV importieren'},
 'year.end':{en:'LP',de:'LP'},
 'year.endTip':{en:'Last payment — month.year. The colour shows the remaining term including the current month: green only this one, blue two to three, yellow four to six, red seven and more.',
   de:'Letzte Zahlung — Monat.Jahr. Die Farbe zeigt die Restlaufzeit mit dem laufenden Monat: grün noch dieser eine, blau zwei bis drei, gelb vier bis sechs, rot sieben und mehr.'},
@@ -242,6 +241,31 @@ const STR={
   de:'{0} vollständig abgehakte Monate sind ausgeblendet — die Gesamtspalte rechnet trotzdem mit allen zwölf.'},
 'year.hintStrike':{en:'A struck-through month is fully ticked off.',de:'Ein durchgestrichener Monat ist vollständig abgehakt.'},
 'year.current':{en:'Current month: {0}.',de:'Laufender Monat: {0}.'},
+
+/* ── Begrüßung ────────────────────────────────────────────────
+   Die Seite vor allem anderen: was FINA ist, und die beiden Wege
+   hinein. Sie steht am Anfang und wieder nach dem Trennen der
+   Datei (js/views/willkommen.js). */
+'wel.title':{en:'Your cash book for {0}',de:'Dein Kassenbuch für {0}'},
+'wel.lead':{en:'FINA keeps one year of income and spending — in your browser, in a single file on your own computer. There is no account, no server and nothing is sent anywhere.',
+  de:'FINA führt ein Jahr an Einnahmen und Ausgaben — im Browser, in einer einzigen Datei auf deinem eigenen Rechner. Kein Konto, kein Server, nichts wird irgendwohin geschickt.'},
+'wel.kIn':{en:'wages, refunds, everything that comes in.',de:'Lohn, Rückzahlungen, alles, was hereinkommt.'},
+'wel.kOut':{en:'bills that repeat and whose amount you know in advance.',
+  de:'Rechnungen, die wiederkehren und deren Höhe du vorher kennst.'},
+'wel.kFlex':{en:'everyday spending, a handful of categories with one amount per month.',
+  de:'die alltäglichen Ausgaben, eine Handvoll Kategorien mit je einem Betrag pro Monat.'},
+'wel.lead2':{en:'You tick off what has been paid, and FINA shows you month by month what is left — and where the balance is heading by the end of the year.',
+  de:'Du hakst ab, was bezahlt ist, und FINA zeigt dir Monat für Monat, was übrig bleibt — und worauf der Saldo bis zum Jahresende zuläuft.'},
+'wel.open':{en:'Open your file',de:'Vorhandene Datei öffnen'},
+'wel.openHint':{en:'A FINA file you saved before — pick the .json and carry on where you left off.',
+  de:'Eine FINA-Datei, die du schon gespeichert hast — wähl die .json und mach weiter, wo du aufgehört hast.'},
+'wel.new':{en:'Start from scratch',de:'Neu anfangen'},
+'wel.newHint':{en:'An empty book. Set the year, your categories and your items — and save it wherever you like.',
+  de:'Ein leeres Buch. Jahr, Kategorien und Posten anlegen — und dort speichern, wo du willst.'},
+'wel.foot':{en:'Nothing is written by itself: your file is only saved when you press “{0}”. In Chrome, Edge and Opera FINA writes back into the very file you opened; other browsers download a copy.',
+  de:'Von selbst wird nichts geschrieben: gespeichert wird nur, wenn du auf „{0}" klickst. In Chrome, Edge und Opera schreibt FINA in genau die Datei zurück, die du geöffnet hast; andere Browser laden eine Kopie herunter.'},
+'wel.guide':{en:'Never kept a cash book? Open <b>{0}</b> in the top bar — it walks you through it once, step by step.',
+  de:'Noch nie ein Kassenbuch geführt? Öffne oben <b>{0}</b> — dort wirst du einmal Schritt für Schritt durchgeführt.'},
 
 /* ── Monatsansicht ────────────────────────────────────────── */
 'month.income':{en:'Income — {0}',de:'Einnahmen — {0}'},
@@ -282,6 +306,10 @@ const STR={
 'month.fDueATip':{en:'Due date A or payday 1–10',de:'Fälligkeit A oder Zahltag 1. bis 10.'},
 'month.fDueMTip':{en:'Due date M or payday 11–20',de:'Fälligkeit M oder Zahltag 11. bis 20.'},
 'month.fDueETip':{en:'Due date E or payday 21 onwards',de:'Fälligkeit E oder Zahltag ab dem 21.'},
+/* Der fünfte Knopf: alles ohne Zahltag. Er heißt wie die Zeile des
+   Zeitstrahls, in die dasselbe fällt (month.tlClose). */
+'month.fDueZTip':{en:'Everything without a payday — the Flexible Payments, the balance correction and items with no due date',
+  de:'Alles ohne Zahltag — die Flexible Payments, die Saldokorrektur und Posten ohne Fälligkeit'},
 'month.markPaid':{en:'mark as paid',de:'als bezahlt markieren'},
 'month.markOpen':{en:'mark as open',de:'als offen markieren'},
 'month.markDone':{en:'mark as recorded',de:'als erfasst markieren'},
@@ -296,6 +324,40 @@ const STR={
 'month.done':{en:'{0} of {1} items done',de:'{0} von {1} Positionen erledigt'},
 'month.receipt':{en:'Receipt',de:'Beleg'},
 'month.receiptTip':{en:'Open receipt',de:'Beleg öffnen'},
+/* Bereich zuklappen — steht im Kopf der Flexible Payments, links
+   vom Knopf, der eine Kategorie anlegt. */
+'month.minAreaTip':{en:'Show only the heading of this area — applies to every month',
+  de:'Nur die Überschrift dieses Bereichs zeigen — gilt für jeden Monat'},
+'month.maxAreaTip':{en:'Show this area in full again — applies to every month',
+  de:'Diesen Bereich wieder ganz zeigen — gilt für jeden Monat'},
+/* ── Die Auswertung über dem Monat ────────────────────────────
+   Eingeklappt eine Zeile mit den fünf Zahlen, aufgeklappt darunter
+   der Zeitstrahl. Die Namen der drei Monatsabschnitte kommen aus
+   den Filterknöpfen (month.fDueA/M/E) — es sind dieselben. */
+'month.ana':{en:'Analytics',de:'Auswertung'},
+'month.anaOpen':{en:'Click to open the timeline of the month',
+  de:'Klick öffnet den Zeitstrahl des Monats'},
+'month.anaClose':{en:'Click to close the timeline again',de:'Klick schließt den Zeitstrahl wieder'},
+'month.tlClose':{en:'Month close',de:'Monatsabschluss'},
+'month.tlOpen':{en:'Month open',de:'Monatseröffnung'},
+/* Der Balken jeder Zeile: links der Nulllinie der Abzug, rechts
+   die Zufuhr, eingefärbt nach Geldart — dieselben Farben wie die
+   Karten der Monatsansicht. */
+'month.tlMark':{en:'balance after the row',de:'Kontostand danach'},
+/* Steht nur bei beschnittener Achse: dann fängt die Fläche nicht
+   bei null an, und der erste Balken franst links aus. */
+'month.tlScale':{en:'scale {0} … {1}',de:'Maßstab {0} … {1}'},
+/* Unter der Farberklärung: wohin alles gerät, was keinen Zahltag
+   trägt. Dieselbe Aussage wie beim Filterknopf „Monatsabschluss". */
+'month.tlNoDue':{en:'Income and costs without a payday — the Flexible Payments, the balance correction and every item with no due date — are taken up at the month close.',
+  de:'Einnahmen und Ausgaben ohne Zahltag — die Flexible Payments, die Saldokorrektur und jeder Posten ohne Fälligkeit — werden beim Monatsabschluss aufgenommen.'},
+/* Der graue Satz zwischen den Zahlen und der Grafik: der
+   Zeitstrahl ist auch ein Filter. */
+'month.anaFilterHint':{en:'The timeline is a filter too: click a row to show only that part of the month everywhere below. Hover a colour to see its amount.',
+  de:'Der Zeitstrahl filtert mit: ein Klick auf eine Zeile zeigt unten nur noch diesen Teil des Monats. Über einer Farbe steht ihr Betrag.'},
+/* Die Tage einer Zeile: „1–10" · „1.–10." */
+'month.tlDays':{en:'{0}–{1}',de:'{0}.–{1}.'},
+'month.tlToday':{en:'Today',de:'Heute'},
 
 /* ── Saldokorrektur ───────────────────────────────────────────
    Eine einzige, feste Zeile über den Einnahmen. Sie wird wie ein

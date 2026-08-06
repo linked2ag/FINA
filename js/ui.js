@@ -143,7 +143,9 @@ window.addEventListener('scroll',hideTip,true);
 function tabThroughFields(root){
   if(!root) return;
   root.querySelectorAll('button,a[href]').forEach(el=>{
-    if(el.closest('.row-end')) return;
+    /* Die Fußzeile eines Fensters und die Begrüßungsseite bleiben
+       drin: dort sind die Knöpfe der Inhalt, nicht das Beiwerk. */
+    if(el.closest('.row-end,.welcome')) return;
     el.tabIndex=-1;
   });
 }

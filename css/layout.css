@@ -61,6 +61,9 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .card.sec-in>.sechead{border-bottom:2px solid var(--edge-in);background:var(--bg-in)}
 .card.sec-flex>.sechead{border-bottom:2px solid var(--edge-flex);background:var(--bg-flex)}
 .card.sec-out>.sechead{border-bottom:2px solid var(--edge-out);background:var(--bg-out)}
+/* Zugeklappt trennt die Linie nichts mehr: unter der Überschrift
+   steht keine Zeile, der Bereich ist nur noch eine Farbe. */
+.card.folded>.sechead{border-bottom:0}
 /* ── Der Kopf einer Karte bleibt stehen ───────────────────────
    Wer sich durch die regelmäßigen Kosten scrollt, soll immer
    sehen, in welchem Block er liest und was er zusammen kostet.
@@ -79,16 +82,33 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    eigenes Polster stellt den Abstand innen wieder her. */
 .card.sec-in>.sechead,.card.sec-flex>.sechead,.card.sec-out>.sechead{
   position:sticky;z-index:20;margin:-12px -16px 10px;padding:12px 16px 8px}
-/* Die Filterzeile gehört zum Kopf der regelmäßigen Kosten: sie
-   klebt direkt darunter, damit man auch weit unten in der Liste
-   noch filtern kann, ohne nach oben zu scrollen. */
-.card.sec-out>.filterbar{position:sticky;z-index:19;background:var(--bg-out);
-  margin:0 -16px 8px;padding:2px 16px 8px}
 /* Die Saldokorrektur ist eine einzige Zeile — die Karte fällt
    entsprechend flach aus und braucht keine Kopfzeile. */
 .card.sec-bal{border-left:5px solid var(--edge-bal);background:var(--bg-bal);padding:4px 18px}
 .card.sec-in h2,.card.sec-flex h2,.card.sec-out h2{color:var(--ink);font-weight:600}
 .sechead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+/* ── Der Klapp-Pfeil ──────────────────────────────────────────
+   Ganz links in der Kopfzeile und so breit wie die Siegelspalte
+   der Tabelle darunter (--markw aus css/ledger.css): dadurch steht
+   er senkrecht über den Haken der Positionen. Das Polster rechts
+   rückt seine Mitte auf die der Siegel. Seine Farbe ist die Kante
+   des Bereichs — ein Wort braucht er nicht. */
+.sechead .foldarrow{flex:0 0 auto;width:var(--markw);padding:0 4px 0 0;
+  display:grid;place-items:center;background:none;border:0}
+/* So groß wie ein Siegel darunter (30px, siehe .seal in
+   css/components.css) — aber der Pfeil selbst, nicht ein Kreis um
+   ihn herum: dieselbe Spalte, dieselbe Größe, die Farbe des
+   Bereichs. */
+.sechead .foldarrow{font-size:23px;line-height:.8;color:inherit}
+.sechead .foldarrow:hover{color:var(--ink)}
+/* Bei offener Auswertung gibt es keinen Pfeil — der Platz bleibt
+   trotzdem stehen, damit die Überschrift nicht springt. */
+.sechead .foldpad{flex:0 0 auto;width:var(--markw)}
+.sechead h2{flex:1 1 auto;min-width:0}
+.card.sec-in .foldarrow{color:var(--edge-in)}
+.card.sec-flex .foldarrow{color:var(--edge-flex)}
+.card.sec-out .foldarrow{color:var(--edge-out)}
+.sechead .foldarrow:hover{color:var(--ink)}
 /* Zweizeilige Überschrift: oben der Name, darunter der Satz, der
    sagt, woher die Zahlen kommen. Beides gehört zusammen und
    bleibt deshalb ein Block — die Knöpfe rechts daneben rücken
@@ -96,6 +116,9 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .sechead .headstack{display:flex;flex-direction:column;gap:3px;min-width:0}
 .sechead .subhead{margin:0;font-size:12px;line-height:1.45;color:var(--ink-2);max-width:78ch}
 .sechead .tot{font-family:var(--font-data);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+/* „(3 ausgeblendet)" steht in der Überschrift, trägt aber deren
+   Versalien und Sperrung nicht mit. */
+.sechead h2 .note{margin-left:8px;text-transform:none;letter-spacing:0;font-weight:400}
 
 /* ── Leisten, die stehen bleiben ──────────────────────────────
    Alles mit .stickybar klebt unter der Kopfzeile. Deren Höhe
@@ -139,9 +162,233 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
   .kpi .note{margin-top:auto}
 }
 
+/* ── Die Auswertung der Monatsansicht ─────────────────────────
+   Dieselben fünf Zahlen wie die Kennzahlenleiste, aber auf eine
+   Zeile gelegt: die Leiste klebt oben und nähme aufgeschlagen
+   dauerhaft drei Zeilen weg, die die Liste darunter braucht.
+   Aufgeklappt kommt der Zeitstrahl dazu — zusammen doppelt so
+   hoch. Beides steckt in derselben .stickybar (js/views/monat.js).
+
+   Die ganze Zeile ist ein Knopf, deshalb hier der Reset auf die
+   Schrift der Seite; die 1px-Fugen des Rasters zeichnen wie bei
+   .kpi die Trennlinien. Die Überschrift steht klein darüber und
+   nicht als Kästchen in der Reihe: sie benennt die Leiste, sie ist
+   keine Kennzahl. Einen Pfeil trägt sie nicht — ob die Auswertung
+   offen ist, sagt der Zeitstrahl darunter. */
+.anahead{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left}
+.anahead .analab{display:block;font-family:var(--font-data);font-size:9px;line-height:1.25;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin:0 0 3px 1px}
+.anahead:hover .analab{color:var(--seal)}
+.anarow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule)}
+.anarow .anak{background:var(--paper-2);min-width:0;padding:5px 10px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+/* Die Filterzeile gehört zur Leiste, nicht in eine Karte: sie gilt
+   für alle drei Bereiche. Sie ist trotzdem ein eigener Bereich und
+   sieht auch so aus — grauer Grund und eine dunkle Kante links, wie
+   die Karten darunter ihre Farbe tragen. Nur ist ihre Farbe keine
+   Geldart: sie gehört zu allen dreien.
+
+   Weil sie oben klebt, kostet jede umgebrochene Zeile dauerhaft
+   Platz — deshalb enger gesetzt als sonst und mit einem Suchfeld,
+   das nachgibt. Zehn Knöpfe und das Feld passen so bis hinunter zu
+   etwa 1000 px in eine Zeile. */
+.anabar .filterbar{margin:8px 0 0;gap:6px;background:var(--shade);
+  border:1px solid var(--rule);border-left:5px solid var(--ink);padding:7px 12px}
+.anabar .filterbar .btn.small{padding:3px 7px;font-size:11.5px}
+/* Die Gruppen der Filterzeile stehen durch eine senkrechte Linie
+   getrennt: Suchfeld | Fälligkeit | Zahlungsstand. */
+.anabar .fbgroup{gap:6px;border-left:1px solid var(--rule-strong);padding-left:10px;margin-left:2px}
+.anabar .fbgroup+.fbgroup{margin-left:2px}
+.fltbox.flttop{flex:0 1 230px;width:230px;min-width:140px}
+.anahead .anak.t-in{background:var(--bg-in)}
+.anahead .anak.t-out{background:var(--bg-out)}
+.anahead .anak.t-flex{background:var(--bg-flex)}
+.anahead .lab{font-family:var(--font-data);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.anahead .lab b{font-weight:600;color:var(--ink)}
+.anahead .val{font-family:var(--font-data);font-size:14.5px;font-weight:600;font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+
+/* ── Der Zeitstrahl ───────────────────────────────────────────
+   Fünf Zeilen untereinander: Name mit Tagen, Veränderung,
+   Kontostand — und rechts über die ganze übrige Breite der Balken.
+   Alle Zeilen haben dasselbe Spaltenmaß, sonst stünden ihre Balken
+   nicht übereinander.
+
+   Der Maßstab der Balkenfläche steht nicht hier: er ist der
+   Kontostand selbst und wird in js/views/monat.js aus flowScale()
+   in Prozent umgerechnet — alle Zeilen teilen ihn sich, sonst
+   stünden ihre Balken nicht auf derselben Achse. */
+/* Zwischen den Zahlen und der Grafik der Satz, der sagt, was ein
+   Klick in der Grafik tut. */
+.anafilter{margin:7px 0 0;font-size:10.5px;line-height:1.4;color:var(--ink-2)}
+.tline{display:flex;flex-direction:column;gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-top:0;margin-top:4px}
+.trow{display:grid;grid-template-columns:186px 100px 108px minmax(0,1fr);align-items:center;gap:8px;
+  background:var(--paper-2);border:0;padding:2px 10px;font:inherit;color:inherit;text-align:left}
+.trow:hover{background:var(--shade)}
+/* Gefiltert heißt hier nicht dunkel: Zahlen und Balken stehen
+   darin und müssen lesbar bleiben. Stattdessen ein Rahmen nach
+   innen — dieselbe Aussage, ohne etwas zu verdecken. */
+.trow[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+/* Jede Zelle steht in ihrer Spalte, nicht in der nächsten freien:
+   in schmalen Fenstern fällt die Veränderung weg (display:none),
+   und ohne feste Spalte rückten Kontostand und Balken dann eine
+   Spalte nach links. */
+.trow .tname{grid-column:1}
+.trow .tflow{grid-column:2}
+.trow .trun{grid-column:3}
+.trow .ttrack{grid-column:4}
+/* Die Beschriftung ist keine Nebensache: sie sagt, welcher Teil
+   des Monats das ist, und steht deshalb in Schwarz wie die
+   Bezeichnungen der Positionen. Nur die Tage daneben treten
+   zurück. */
+.trow .tname{display:flex;align-items:baseline;gap:6px;min-width:0;
+  font-family:var(--font-data);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden}
+.trow .tname small{font-size:9.5px;letter-spacing:.04em;color:var(--ink-2);
+  text-transform:none;font-weight:400}
+/* Der heutige Tag liegt in dieser Zeile. */
+.trow .tnow{font-size:8.5px;letter-spacing:.08em;color:var(--paper-2);background:var(--seal);
+  padding:1px 4px;font-weight:600}
+/* Die Veränderung ist ein Betrag wie jeder andere und wird auch so
+   gesetzt: dieselbe Größe wie in der Tabelle darunter. */
+.trow .tflow{font-family:var(--font-data);font-size:14px;font-variant-numeric:tabular-nums;
+  text-align:right;white-space:nowrap}
+.trow .trun{font-family:var(--font-data);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;
+  text-align:right;white-space:nowrap}
+/* Was der Monat vorfindet, ist kein Zeitraum, sondern ein Stand.
+   Die Zeile sieht aus wie jede andere — nur klicken lässt sie sich
+   nicht: es gibt nichts, wonach sie filtern könnte. Deshalb auch
+   kein Hinweis beim Überfahren. */
+.trow.tp-P{cursor:default}
+.trow.tp-P:hover{background:var(--paper-2)}
+
+/* ── Der Wasserfall ───────────────────────────────────────────
+   Die Achse ist der Kontostand selbst: 0 % der tiefste Stand des
+   Monats (höchstens die Null), 100 % der höchste. Links der Null
+   liegt der rote, rechts der grüne Bereich — steht der Monat ganz
+   im Plus, ist die ganze Fläche grün.
+
+   Jede Zeile beginnt beim Stand der Zeile davor und endet bei
+   ihrem eigenen. Was dazwischen liegt, steht als Block da: der
+   Zufluss oben, der Abfluss unten, beide nach Geldart eingefärbt.
+   Alles darin ist absolut gesetzt — die Stellen kommen aus der
+   Achse, nicht aus der Reihenfolge im Quelltext. */
+/* --bpad ist der Rand über und unter den Balken: der schwarze
+   Strich des Kontostands reicht über sie hinaus und ist dadurch
+   auch dort zu sehen, wo ein Balken endet. */
+.ttrack{position:relative;min-width:0;overflow:hidden;--bh:12px;--bgap:3px;--bpad:4px;
+  height:calc(var(--bh) + 2*var(--bpad))}
+/* Zwei Balken in einer Zeile brauchen die doppelte Höhe — beide
+   sollen gleich hoch sein, keiner gequetscht. Die Klasse trägt nur
+   die Zeile, die beide Richtungen hat: jede Zeile ist so hoch, wie
+   sie sein muss. */
+.ttrack.two{height:calc(var(--bh)*2 + var(--bgap) + 2*var(--bpad))}
+.ttrack>*{position:absolute;top:0;height:100%}
+.tzone{top:0}
+.z-neg{left:0;background:rgba(178,58,46,.07)}
+.z-pos{background:rgba(46,106,76,.07)}
+.tzero{width:1px;background:var(--rule-strong)}
+/* Zufluss oben, Abfluss unten: in einer Zeile, in der erst eine
+   Einnahme kommt und danach Kosten abgehen, überdecken sich die
+   beiden Strecken auf der Achse. */
+.tup,.tdown{display:flex;height:var(--bh);top:var(--bpad);overflow:hidden}
+.tdown{flex-direction:row-reverse}
+.ttrack.two .tdown{top:calc(var(--bpad) + var(--bh) + var(--bgap))}
+/* Der einzige Balken einer Zeile steht oben, denn seine Zeile ist
+   nur so hoch wie er. Nur wenn eine Zeile beide Richtungen hat und
+   trotzdem einer fehlt, rückt er in die Mitte. */
+.ttrack.two .solo{top:calc(var(--bpad) + (var(--bh) + var(--bgap))/2)}
+.ttrack i{display:block;height:100%;flex:0 0 auto;min-width:2px}
+/* Eine helle Fuge zwischen zwei Anteilen — ohne sie liefen zwei
+   ähnliche Farben ineinander. */
+.tup i+i{box-shadow:inset 1px 0 0 rgba(255,255,255,.55)}
+.tdown i+i{box-shadow:inset -1px 0 0 rgba(255,255,255,.55)}
+.b-in{background:var(--edge-in)}
+/* Das Gelb der Flexible Payments hell, nicht als Kantenfarbe: im
+   Balken neben Grün und Rot wirkte --edge-flex braun. */
+.b-flex{background:var(--bg-flex-3)}
+.b-out{background:var(--edge-out)}
+.b-bal{background:var(--edge-bal)}
+/* Der Stand, mit dem der Monat anfängt: ein voller Balken von der
+   Null bis zu seinem Wert — keine Veränderung, sondern ein Stand,
+   deshalb die Farbe des Saldos und keine Geldart. */
+.tsum{top:var(--bpad);height:var(--bh);background:var(--edge-sal);opacity:.75}
+/* Beschnittene Achse: der Balken der Monatseröffnung fängt nicht
+   bei null an, sondern kommt von weiter links. Der gestrichelte
+   Strich an seinem Anfang sagt das — dieselbe Farbe wie der Balken,
+   nur ungebrochen dunkel, damit er sich davon abhebt. */
+.tcut{width:0;border-left:2px dashed var(--edge-sal)}
+/* Damit der Strich auf dem Balken zu sehen ist, tritt der Balken
+   selbst einen Schritt zurück — er ist ja ohnehin nur ein Stand
+   und keine Bewegung. */
+.tline.cut .tsum{opacity:.45}
+/* Die Treppe: feine Linie beim Stand davor, kräftiger Strich beim
+   neuen. Der Strich einer Zeile steht genau über der Linie der
+   nächsten. */
+.tconn{width:1px;background:var(--ink);opacity:.22}
+.tmark{width:2px;background:var(--ink);margin-left:-1px}
+
+/* Die Farberklärung unter den Zeilen — seit an einem Anteil nur
+   noch sein Betrag steht, ist die Farbe das Einzige, was die
+   Geldart nennt. Darunter der Satz, wohin alles ohne Zahltag
+   gerät. */
+.tnote{background:var(--paper-2);padding:0 10px 4px;font-size:10px;line-height:1.4;color:var(--ink-2)}
+.thint{display:flex;flex-wrap:wrap;gap:4px 14px;background:var(--paper-2);padding:3px 10px;
+  font-size:10px;color:var(--ink-2);cursor:help}
+.thint .lk{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.thint i{display:block;width:14px;height:8px}
+.thint i.lmark{width:2px;height:11px;background:var(--ink)}
+/* Der Maßstab steht am Ende der Farberklärung — dort ist Platz,
+   und er gehört zur Fläche, nicht zu einer Zeile. */
+.thint .lscale{margin-left:auto;font-family:var(--font-data);font-size:9.5px;white-space:nowrap}
+/* Wird es eng, weicht zuerst die Veränderung: der Kontostand und
+   der Balken sagen dasselbe genauer. */
+@media(max-width:900px){
+  .trow{grid-template-columns:140px 0 104px minmax(0,1fr)}
+  .trow .tflow{display:none}
+}
+
 /* ── Restliches Gerüst ────────────────────────────────────── */
 .scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--paper-2)}
 .empty{padding:34px 18px;text-align:center;color:var(--ink-2);border:1px dashed var(--rule-strong);background:var(--paper-2)}
 .empty strong{display:block;font-family:var(--font-display);font-size:19px;color:var(--ink);margin-bottom:6px}
 .status{font-family:var(--font-data);font-size:11px;color:var(--ink-2);margin-top:14px;border-top:1px solid var(--rule);padding-top:10px}
 .status b{color:var(--ink);font-weight:600}
+
+/* ══ Die Begrüßungsseite ══════════════════════════════════════
+   Steht vor allem anderen — beim Öffnen der Anwendung und wieder
+   nach dem Trennen der Datei (js/views/willkommen.js). Sie ist im
+   Papier der Anwendung gesetzt und nicht in einem fremden Weiß:
+   dieselbe Schrift, dieselben Farben, dieselbe Kante oben wie eine
+   Karte, nur größer. */
+.welcome{display:grid;place-items:start center;padding:34px 0 60px}
+.wbox{width:min(760px,100%);background:var(--paper-2);border:1px solid var(--rule);
+  border-top:4px solid var(--ink);padding:34px 42px 30px}
+.wmark{font-family:var(--font-data);font-size:10px;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--ink-2)}
+.wbox h2{font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.2;
+  letter-spacing:.01em;margin:8px 0 14px;color:var(--ink)}
+.wlead{font-size:15px;line-height:1.62;max-width:64ch;margin:0 0 14px}
+.wlist{margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6;color:var(--ink);max-width:64ch}
+.wlist li{margin-bottom:3px}
+.wlist li b{font-weight:600}
+/* Zwei Wege, gleich groß nebeneinander — beides sind Angebote, nur
+   eines ist das gewöhnliche und trägt deshalb die Farbe. */
+.wpick{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0 16px}
+.wcard{display:grid;align-content:start;gap:5px;text-align:left;padding:15px 18px 16px;
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;color:var(--ink);
+  transition:background .15s,border-color .15s}
+.wcard:hover{border-color:var(--ink);background:var(--shade)}
+.wcard .wt{font-family:var(--font-ui);font-size:16px;font-weight:600}
+.wcard .wd{font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.wcard.primary{background:var(--ink);border-color:var(--ink);color:var(--paper-2)}
+.wcard.primary:hover{background:#2E3A35;border-color:#2E3A35}
+.wcard.primary .wd{color:#C4CCC7}
+.wfoot{font-size:11.5px;line-height:1.55;color:var(--ink-2);margin:8px 0 0;max-width:72ch}
+@media(max-width:620px){
+  .wbox{padding:26px 20px 24px}
+  .wpick{grid-template-columns:1fr}
+}
