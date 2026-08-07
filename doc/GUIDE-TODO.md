@@ -17,26 +17,28 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-Am 6. August 2026 gebaut, noch in keinem Reiter:
+Alles Gebaute steht seit dem 7. August 2026 als Version **26.8.7.1** im Reiter **Was ist
+neu**. Was dort erledigt ist, muss deshalb nicht mehr in die anderen beiden Reiter — mit
+diesen Ausnahmen, die dort noch fehlen:
 
-- **Der erste Balken franst aus statt einer Marke.** Ist die Achse beschnitten, läuft der
-  Balken der Monatseröffnung zum Rand hin ins Durchsichtige aus; der gestrichelte Strich ist
-  weg. Betrifft **keinen** Absatz — die Anleitung beschreibt das seit jeher so. Nur
-  `doc/img/ui-waterfall.png` zeigt weiter den alten Stand.
-- **Begrüßungsseite:** der Text läuft so breit wie die beiden Knöpfe darunter, und der Satz,
-  der zur Anleitung schickt, steht in deren Orange. Braucht keinen eigenen Absatz — betrifft
-  nur `doc/img/welcome.png`.
-- **Der Reiter „Flexible Payment Details"** startet mit dem ganzen Jahr und der ersten
+- **Der Reiter „Flexible Payment Details" startet mit dem ganzen Jahr** und der ersten
   Kategorie im rechten Bereich. Ein Halbsatz im Produktreiter, wo der Reiter beschrieben ist.
-- **Sprechblasen stehen jetzt über oder unter dem Element**, nicht mehr daneben. Verhalten,
-  kein Absatz — nur zu erwähnen, falls die Anleitung einmal beschreibt, wo sie erscheinen.
-- **Die Schnelleingabe ist flacher**: der Hinweis steht in derselben Zeile wie die Knöpfe.
-  Betrifft `doc/img/item-quick.png`.
+- **Sprechblasen stehen über oder unter dem Element.** Verhalten, kein eigener Absatz — nur
+  zu erwähnen, falls die Anleitung einmal beschreibt, wo sie erscheinen.
 
-**Der Reiter „Was ist neu" ist bewusst unangetastet.** Eine neue Version entsteht nur auf
-ausdrückliche Bitte — sag Bescheid, dann bekommt alles unten eine Nummer.
+Und die Bilder: `ui-waterfall.png` (ausgefranster Balken statt Strich), `welcome.png` (Breite
+und Orange), `item-quick.png` (flachere Schnelleingabe), `set-groups.png` (zwei Listen),
+`item-dialog.png` (kein Namensfeld, Kategorie in der Reihe), `month-in.png` und `year.png`
+(gebündelte Einnahmen), `flex-dialog.png` (kein Namensfeld, Mittelwert), `forecast.png` (die
+ganze Ansicht) zeigen noch den Stand davor. Neue entstehen nur auf ausdrückliche Bitte.
 
 ## Zuletzt eingearbeitet
+
+Am 7. August 2026: **Version 26.8.7.1** im Reiter „Was ist neu", beide Sprachen — eigene
+Einnahme-Kategorien, die neu gebaute Prognose mit der Spalte Verlauf, die Bezeichnung als
+Überschrift, der Mittelwert über der Schnelleingabe, die Sprechblasen über/unter dem Element
+und die Kleinigkeiten.
+
 
 Am 6. August 2026, vierter Durchgang — in **Schritt für Schritt** und **Was FINA kann**,
 beide Sprachen. Die Bildschirmfotos blieben liegen; zwei Stellen zeigten Dinge, die es nicht

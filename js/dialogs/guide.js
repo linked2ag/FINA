@@ -1136,7 +1136,34 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.6.1 <span class="pill">latest</span></h4>
+<h4>26.8.7.1 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>Income has categories of its own.</b> Under ${t('set.groups')} there are now two lists side
+      by side: income on the left, expenses on the right. Every regular item belongs to exactly one
+      of them, and a name may appear only once across both — that is what tells FINA whether an item
+      brings money in or costs it. In the item window the two are one grouped list, green above red;
+      the group headings themselves cannot be picked. Month and year view bundle income by category
+      as soon as there is more than one.</li>
+  <li><b>The forecast, rebuilt.</b> One table across the full width instead of two cards. The last
+      column, <b>${t('prog.colFlow')}</b>, draws the balance through the year — the same waterfall as
+      the timeline in the month view, one row per month, on a grid whose step is named in the
+      heading. The current month is highlighted, settled months are pale, and the headings are short
+      codes that explain themselves when you point at them.</li>
+  <li><b>The name is the heading.</b> Items and Flexible Payments categories no longer have a name
+      field. Click the heading and a small window opens with the name ready and selected, plus
+      ${t('g.cancel')} and ${t('item.apply')}. Nothing is written until you save.</li>
+  <li><b>The average, where you need it.</b> In the amounts window of a Flexible Payments category
+      the average per month so far now stands in orange above the quick entry — counted over the
+      months that are settled, and it moves as you type.</li>
+  <li><b>Tooltips above or below.</b> The instant hints now appear over or under what you point at,
+      never beside it, so they no longer cover the neighbouring cell.</li>
+  <li><b>Details.</b> The Flexible Payment Details tab opens on the whole year with the first
+      category chosen. The category is now in the same row as account, payment type and due date.
+      The quick entry is flatter, its hint moved onto the button row. On the first screen the text
+      runs as wide as the two buttons, and the line pointing to the guide carries its orange.</li>
+</ul>
+
+<h4>26.8.6.1</h4>
 <ul>
   <li><b>A first screen.</b> With no file open FINA now greets you with one page that says what it
       is, and two ways on: <b>${t('wel.open')}</b> or <b>${t('wel.new')}</b>. The same page comes
@@ -1282,7 +1309,38 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.6.1 <span class="pill">neu</span></h4>
+<h4>26.8.7.1 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Einnahmen haben eigene Kategorien.</b> Unter ${t('set.groups')} stehen jetzt zwei Listen
+      nebeneinander: links die Einnahmen, rechts die Ausgaben. Jeder regelmäßige Posten gehört in
+      genau eine davon, und ein Name darf über beide Listen hinweg nur einmal vorkommen — daran
+      erkennt FINA, ob ein Posten Geld bringt oder kostet. Im Posten-Fenster sind beide eine
+      gruppierte Liste, grün über rot; die Gruppenüberschriften selbst lassen sich nicht wählen.
+      Monats- und Jahresansicht bündeln die Einnahmen nach Kategorie, sobald es mehr als eine
+      gibt.</li>
+  <li><b>Die Prognose neu gebaut.</b> Eine Tabelle über die volle Breite statt zweier Karten. Die
+      letzte Spalte, <b>${t('prog.colFlow')}</b>, zeichnet den Kontostand durch das Jahr — derselbe
+      Wasserfall wie der Zeitstrahl im Monat, eine Zeile je Monat, auf einem Raster, dessen
+      Schrittweite in der Überschrift steht. Der laufende Monat ist hervorgehoben, die abgerechneten
+      Monate stehen blass, und die Überschriften sind kurze Kürzel, die sich beim Überfahren
+      erklären.</li>
+  <li><b>Die Bezeichnung ist die Überschrift.</b> Posten und Flexible-Payments-Kategorien haben kein
+      Namensfeld mehr. Ein Klick auf die Überschrift öffnet ein kleines Fenster, der Name fertig
+      markiert, dazu ${t('g.cancel')} und ${t('item.apply')}. Geschrieben wird erst beim
+      Speichern.</li>
+  <li><b>Der Mittelwert, wo du ihn brauchst.</b> Im Beträge-Fenster einer Flexible-Payments-Kategorie
+      steht der bisherige Mittelwert je Monat jetzt orange über der Schnelleingabe — gerechnet über
+      die Monate, die feststehen, und er läuft beim Tippen mit.</li>
+  <li><b>Sprechblasen über oder unter dem Element.</b> Die sofortigen Hinweise erscheinen nicht mehr
+      daneben und verdecken damit nicht länger die Nachbarzelle.</li>
+  <li><b>Kleinigkeiten.</b> Der Reiter Flexible Payment Details startet mit dem ganzen Jahr und der
+      ersten Kategorie. Die Kategorie steht im Posten-Fenster in derselben Reihe wie Konto,
+      Zahlungsart und Fälligkeit. Die Schnelleingabe ist flacher, ihr Hinweis steht bei den Knöpfen.
+      Auf der ersten Seite läuft der Text so breit wie die beiden Knöpfe, und der Satz zur Anleitung
+      trägt deren Orange.</li>
+</ul>
+
+<h4>26.8.6.1</h4>
 <ul>
   <li><b>Eine erste Seite.</b> Ohne Datei begrüßt dich FINA jetzt mit einer Seite, die sagt, worum
       es geht, und zwei Wegen: <b>${t('wel.open')}</b> oder <b>${t('wel.new')}</b>. Dieselbe Seite
