@@ -157,7 +157,7 @@
    `--flowcells` an der Tabelle (siehe viewPrognose in
    js/views/prognose.js). Reicht das Fenster für die Spalte nicht,
    scrollt die Tabelle (siehe unten). */
-.progtable{--progleadw:120px}
+:root{--progleadw:120px}
 .progtable td,.progtable th{width:1%;white-space:nowrap}
 .progtable td:first-child,.progtable th:first-child{min-width:var(--progleadw)}
 .progtable td.flowcell,.progtable th.flowcell{width:100%;
@@ -170,6 +170,17 @@
    sonst schiene das Gescrollte darunter durch. */
 .progtable td:first-child,.progtable th:first-child{position:sticky;left:0;z-index:2;
   background:var(--paper-2)}
+/* Gescrollt wird **spaltenweise**: eine halbe Spalte ist eine halbe
+   Zahl, und in einer Tabelle, deren Spalten alle etwas anderes
+   bedeuten, muss man am Rand nicht raten, was dort angeschnitten
+   steht. Jede Zelle ist ein Rastpunkt; weil die Zellen einer Spalte
+   übereinanderstehen, ist es in Wahrheit einer je Spalte.
+
+   `scroll-padding-left` rückt den Rastpunkt um die Breite der
+   klebenden Monatsspalte ein — ohne das käme jede Spalte genau
+   hinter ihr zu liegen und wäre verdeckt. */
+.progscroll{scroll-snap-type:x mandatory;scroll-padding-left:var(--progleadw)}
+.progtable td,.progtable th{scroll-snap-align:start}
 /* Senkrechte Linien durch die **ganze** Tabelle, nicht nur in der
    Grafik: das Raster der letzten Spalte wäre sonst ein Fremdkörper
    zwischen Zahlenspalten ohne Trennung. Die letzte Spalte bekommt
@@ -262,4 +273,8 @@
    angeschlagen sähe der Name aus, als stünde er über dem Balken. */
 .progtable tr.openrow td:first-child{font-family:var(--font-data);font-size:10px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink-sal)}
-.progtable tr.openrow td.num{color:var(--ink-sal)}
+/* Der Betrag tritt dabei zurück wie die abgerechneten Monate
+   (`tr.past`, dieselbe Deckkraft): er ist schon geschehen, bevor
+   das Jahr anfing, und keine Bewegung, die noch aussteht. Die
+   Beschriftung bleibt kräftig — sie sagt, was die Zeile ist. */
+.progtable tr.openrow td.num{color:var(--ink-sal);opacity:.42}

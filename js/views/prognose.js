@@ -303,7 +303,7 @@ function viewPrognose(){
        jetzt dort, wo sie gepflegt werden — im Fenster der
        Kategorie, mit dem Mittelwert über der Schnelleingabe. -->
   <div class="card"><h2>${t('prog.title',YEAR)}</h2>
-    <div class="scroll" style="border:0"><table class="ledger progtable"
+    <div class="scroll progscroll" style="border:0"><table class="ledger progtable"
       style="--flowcells:${cells.toFixed(3)}">
       <tr>${PROG_COLS.map(c=>`<th class="${c.cls}${c.ab==='COR'&&corEmpty?' mid':''}"
         data-tip="${esc(t(c.name)+' — '+t(c.tip))}">${c.ab}</th>`).join('')}

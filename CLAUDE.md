@@ -283,7 +283,13 @@ dreht, ändert damit auch die Mindestbreite der Spalte.**
 
 Reicht das Fenster dafür nicht, **scrollt die Tabelle waagerecht** in ihrem `.scroll`-Rahmen,
 und die Monatsspalte bleibt stehen (`position:sticky` an `td/th:first-child`) — eine Zahl
-ohne ihren Monat ist keine Zeile mehr. Die klebende Zelle braucht dafür einen **deckenden**
+ohne ihren Monat ist keine Zeile mehr.
+
+**Gescrollt wird spaltenweise.** `.progscroll` trägt `scroll-snap-type:x mandatory`, jede
+Zelle einen Rastpunkt: eine halbe Spalte ist eine halbe Zahl, und in einer Tabelle, deren
+Spalten alle etwas anderes bedeuten, soll man am Rand nicht raten müssen. Das
+`scroll-padding-left` der Länge `--progleadw` rückt die Rastpunkte um die klebende
+Monatsspalte ein — ohne das käme jede Spalte hinter ihr zu liegen. Die klebende Zelle braucht dafür einen **deckenden**
 Grund; deshalb tritt sie in vergangenen Monaten mit ihrer *Schriftfarbe* zurück und nicht
 mit der Deckkraft (`opacity` färbte auch den Hintergrund durchsichtig).
 
@@ -823,6 +829,10 @@ einen Balken, aber nicht für ein Wort und nicht für eine Zahl. Der Betrag beko
 **nicht** die Vorzeichenfarbe der Monate darunter — ein grünes „5.530,00" läse sich wie eine
 Einnahme des Januars. Die drei gehören zusammen und sollen zusammen ins Auge fallen.
 
+**Sein Betrag ist dabei blass** (`opacity:.42`, dieselbe Deckkraft wie die abgerechneten
+Monate): er ist geschehen, bevor das Jahr anfing, und keine Bewegung, die noch aussteht. Die
+Beschriftung bleibt kräftig — sie sagt, was die Zeile ist.
+
 **Der laufende Monat trägt dagegen keine Fläche**, sondern zwei feine rote Linien über und
 unter seiner Zeile und seinen Namen in Rot (`.progtable tr.now`). Das ist dieselbe Marke wie
 in der Jahresmatrix, nur um 90° gedreht: dort fassen `.cm-l` / `.cm-r` die Spalte des
@@ -1034,6 +1044,24 @@ steht schon, bevor `afterLoad()` läuft, und ist beim Trennen wieder leer. `ui` 
 nie gespeichert — die Wahl gehört zur Anzeige, nicht in die Datei.
 
 Wer weitere Vorgaben ans Öffnen hängen will, hängt sie in `afterLoad()`.
+
+## Ein Feld anklicken heißt: überschreiben
+
+Beim Hineingehen in ein **einzeiliges** Eingabefeld steht sein Inhalt markiert da — tippen
+ersetzt ihn, wer ihn behalten will, drückt eine Pfeiltaste. Bei zwölf Monatsbeträgen
+hintereinander spart das je Feld ein Markieren. Der Handler steht unten in `js/app.js`.
+
+Drei Dinge, die man dort nicht überliest:
+
+* **`focus` steigt nicht auf** — der Handler hängt in der Einfangphase am Fenster.
+* **Die Maus hebt die Markierung sofort wieder auf**, weil der Klick beim Loslassen die
+  Schreibmarke setzt. Deshalb wird das folgende `mouseup` einmal abgefangen — aber nur,
+  wenn der Fokus wirklich von der Maus kam (`byMouse`): wer mit dem Tabulator hineinspringt
+  und danach in dasselbe Feld klickt, will die Schreibmarke setzen dürfen.
+* **`textarea` bleibt außen vor.** Eine Notiz wird ergänzt, nicht ersetzt.
+
+Wer danach selbst eine Auswahl setzt, behält das letzte Wort — das Suchfeld in `wire()` tut
+genau das und bleibt deshalb beim Tippen am Ende stehen statt markiert.
 
 ## Tab läuft nur durch die Felder
 

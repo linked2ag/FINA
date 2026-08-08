@@ -35,11 +35,14 @@ Dazu, seit dem 8. August 2026 gebaut und noch in keinem Reiter beschrieben:
   Englisch, und die Wahl lebt nur in der Sitzung.
 - **Die Prognose scrollt.** Jedes Rasterfeld der Verlaufsspalte ist mindestens so breit wie
   die Monatsspalte. Wird das Fenster zu schmal, scrollt die Tabelle nach rechts; die
-  Monatsspalte bleibt dabei stehen.
+  Monatsspalte bleibt dabei stehen, und gescrollt wird spaltenweise — nie eine halbe
+  Spalte.
 - **Ein Tastengriff je Ansicht:** Strg/Cmd + Umschalt + M · Y · C · F. Der alte Griff ins
   Suchfeld (dieselbe Kombination mit F) ist dafür entfallen — seit ein Buchstabe von selbst
   im Filter landet, war er der umständlichere Weg. Steht schon im Reiter „Was ist neu" und in
   „Was FINA kann"; ⚠ in „Schritt für Schritt" ist der alte Griff gestrichen.
+- **Ein Feld anklicken markiert seinen Inhalt.** Tippen ersetzt ihn; Notizfelder bleiben
+  unberührt.
 - **Der Anfangsbestand steht violett** — Beschriftung, Betrag und Balken in derselben Farbe.
   Der laufende Monat ist statt einer Fläche von zwei roten Linien eingefasst, wie seine
   Spalte in der Jahresmatrix.

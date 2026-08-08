@@ -484,6 +484,51 @@ addEventListener('keydown',ev=>{
   ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.qFocus='all'; render();
 });
 
+/* ── Ein Feld anklicken heißt: überschreiben ─────────────────
+   Wer in ein Eingabefeld klickt, will dort fast immer einen neuen
+   Wert eintragen und nicht den alten fortschreiben — bei zwölf
+   Monatsbeträgen hintereinander erst recht. Beim Hineingehen steht
+   der Inhalt deshalb **markiert** da: tippen ersetzt ihn, und wer
+   ihn behalten will, drückt eine Pfeiltaste.
+
+   **Nur einzeilige Eingabefelder.** Ein `textarea` bleibt außen vor
+   — eine Notiz wird ergänzt, nicht ersetzt, und ein Klick mitten
+   hinein meint genau diese Stelle. Kästchen, Schalter, Dateiwahl
+   und Auswahllisten haben ohnehin keinen Text zu markieren.
+
+   Zwei Dinge machen es sperrig, und beide stehen hier:
+
+     • `focus` **steigt nicht auf** — der Handler hängt deshalb in
+       der Einfangphase (`true`) am Fenster.
+     • **Die Maus hebt die Markierung sofort wieder auf.** Der Klick
+       setzt beim Loslassen die Schreibmarke; deshalb merkt sich
+       `pending`, dass diese Auswahl gerade von einem Mausklick kam,
+       und das folgende `mouseup` wird einmal abgefangen.
+
+   Gemerkt wird auch, **ob der Fokus überhaupt von der Maus kam**
+   (`byMouse`): wer mit dem Tabulator hineinspringt und danach in
+   dasselbe Feld klickt, um die Schreibmarke zu setzen, soll das
+   dürfen — dort gibt es kein neues `focus` und damit nichts
+   abzufangen.
+
+   Programmatisch gesetzter Fokus stört das nicht: wer danach selbst
+   eine Auswahl setzt (das Suchfeld in `wire()` tut es), tut das
+   nach `focus()` und behält damit das letzte Wort. */
+const SELECT_TYPES=/^(?:text|search|url|tel|email|password|number)$/;
+const selectable=el=>el instanceof HTMLInputElement
+  && SELECT_TYPES.test(el.type) && !el.readOnly && !el.disabled;
+let byMouse=false, pending=false;
+addEventListener('mousedown',()=>{ byMouse=true; },true);
+addEventListener('focus',ev=>{
+  if(!selectable(ev.target)) return;
+  ev.target.select();
+  pending=byMouse;
+},true);
+addEventListener('mouseup',ev=>{
+  if(pending&&selectable(ev.target)) ev.preventDefault();
+  pending=false; byMouse=false;
+},true);
+
 /* ── Feste Schaltflächen der Kopfzeile ────────────────────── */
 document.getElementById('btnSettings').onclick=()=>openSettings();
 /* Die Anleitung ist ein Bereich, kein Fenster: derselbe Knopf
