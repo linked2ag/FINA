@@ -207,10 +207,19 @@
    ändert diesen Wert mit. */
 .progtable th.axishead .tax{position:absolute;top:7px;
   white-space:nowrap;font-variant-numeric:tabular-nums}
-/* Vor der Grafikspalte keine Kante: die Spalte beginnt mit einer
-   eigenen senkrechten Linie (der Null oder der ersten Rasterlinie),
-   und beides zusammen las sich als doppelte Trennung. */
-.progtable td:nth-last-child(2),.progtable th:nth-last-child(2){border-right:0}
+/* Vor der Grafikspalte **bleibt** die Kante: seit die Achse auf dem
+   Raster liegt, ist sie zugleich die erste Rasterlinie. Deshalb
+   zeichnet die Grafik dort keine eigene mehr (siehe viewPrognose)
+   und fängt ohne Innenabstand an — zwischen der letzten Zahl und
+   dem Raster steht nichts mehr als dieser eine Strich. */
+/* **Kein Innenabstand, auf keiner Seite.** Das Raster liegt in der
+   Zelle und rechnet in ihrer Breite, der Balken liegt in einer
+   Fläche darin und rechnet in deren Breite — ein Polster von 6 px
+   rechts machte aus beidem zwei verschiedene Maßstäbe, und der
+   kräftige Strich am Monatsende landete rund zwei Pixel **vor**
+   seiner Rasterlinie statt darauf. Die Achsenzahlen halten ihren
+   Abstand selbst (siehe `mark()` in js/views/prognose.js). */
+.ledger td.flowcell,.ledger th.flowcell{padding-left:0;padding-right:0}
 /* Alle Spaltenköpfe gleich groß. `.ledger .num` setzt 14px für die
    Zahlen — das greift auch auf die Kopfzelle und machte die
    Zahlenköpfe größer als „Monat" und „Verlauf". In einer Tabelle,
@@ -225,7 +234,6 @@
    alle 38 px eine Lücke und wäre zwölfmal unterbrochen statt
    durchgehend. */
 .progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{bottom:-1px}
-.ledger td.flowcell,.ledger th.flowcell{padding-left:14px}
 .ledger td.flowcell{vertical-align:middle}
 /* Vergangene Monate treten zurück — aber nur mit ihren Zahlen.
    Der Verlauf behält seine Farbe: er ist eine Kurve über das ganze

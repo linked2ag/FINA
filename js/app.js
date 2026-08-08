@@ -43,7 +43,7 @@ function renderChrome(){
      fehlt umgekehrt „Daten hochladen" — geladen wird auf der
      Seite, gearbeitet in der Anwendung. */
   const wel=!!ui.welcome;
-  ['btnLoad','btnSave','btnUnlink','btnImport','btnSettings','filePath'].forEach(id=>{
+  ['btnLoad','btnSave','btnBackup','btnUnlink','btnImport','btnSettings','filePath'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel||id==='btnLoad';
   });
@@ -73,7 +73,13 @@ function renderChrome(){
      Matrix stünde es zwischen lauter Knöpfen. Nur im Jahr: in den
      anderen Ansichten gibt es diese Zeichen nicht. */
   const key=ui.view==='jahr'?`<span class="viewkey" role="presentation">${t('year.legend')}</span>`:'';
-  vEl.innerHTML=VIEWS.map(([k,l])=>`<button class="vtab" role="tab" aria-selected="${ui.view===k}" data-v="${k}">${l}</button>`).join('')+key;
+  /* An jedem Reiter steht sein Tastengriff — ein Griff, den niemand
+     findet, gibt es nicht. Die Sprechblase ist die einzige Stelle,
+     an der die vier Buchstaben stehen; eine eigene Zeile dafür wäre
+     der Preis nicht wert. Woher der Buchstabe kommt: VIEW_KEYS
+     unten in dieser Datei. */
+  vEl.innerHTML=VIEWS.map(([k,l])=>`<button class="vtab" role="tab" aria-selected="${ui.view===k}"
+    data-v="${k}" data-tip="${esc(t('view.keyTip',viewKey(k)))}">${l}</button>`).join('')+key;
   vEl.querySelectorAll('.vtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;render();});
 }
 
@@ -395,13 +401,14 @@ function wire(){
 /* ── Strg/Cmd + Umschalt + Buchstabe: die Ansicht wechseln ───
    Ein Griff je Reiter, in der Reihenfolge der Reiter:
 
-     M  Monat · Y  Jahr · C  Prognose · F  Flexible Payment Details
+     M  Monat · Y  Jahr · F  Prognose · X  Flexible Payment Details
 
    Die Buchstaben stehen für den **englischen** Namen und wechseln
    deshalb nicht mit der Sprache — wie B · PT · DD · LP in der
    Jahresmatrix und wie die Kürzel der Prognose. Y statt J, weil
-   „Year"; C statt P, weil „Forecast" schon mit F anfängt und F an
-   den vierten Reiter geht.
+   „Year"; F für „Forecast". Für die Details bleibt kein Buchstabe
+   aus ihrem Namen übrig — X ist der Platzhalter, den man ohnehin
+   für „das Weitere" liest.
 
    Ins Suchfeld führte diese Taste einmal (Strg/Cmd+Umschalt+F).
    Den Weg gibt es nicht mehr: seit ein einzelner Buchstabe im
@@ -417,7 +424,11 @@ function wire(){
    keine Reiter) und ein offenes Fenster — dort wird gerade
    getippt, und die Ansicht darunter zu wechseln nähme dem Fenster
    den Boden. */
-const VIEW_KEYS={m:'monat',y:'jahr',c:'prognose',f:'kakeibo'};
+const VIEW_KEYS={m:'monat',y:'jahr',f:'prognose',x:'kakeibo'};
+/* Der Buchstabe zu einer Ansicht — für die Sprechblase am Reiter
+   (renderChrome). Groß geschrieben, wie man ihn auf der Taste
+   sieht. */
+const viewKey=v=>(Object.keys(VIEW_KEYS).find(k=>VIEW_KEYS[k]===v)||'').toUpperCase();
 addEventListener('keydown',ev=>{
   if(!ev.shiftKey||!(ev.ctrlKey||ev.metaKey)||ev.altKey) return;
   const want=VIEW_KEYS[(ev.key||'').toLowerCase()];
@@ -540,6 +551,7 @@ document.getElementById('btnGuide').onclick=()=>toggleGuide();
 document.getElementById('btnImport').onclick=()=>openImportInfo();
 document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
+document.getElementById('btnBackup').onclick=()=>saveBackup();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();
 
 /* Rückfallweg, wenn der Browser die File System Access API nicht kennt. */

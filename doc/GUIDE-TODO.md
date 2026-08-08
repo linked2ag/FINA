@@ -37,10 +37,20 @@ Dazu, seit dem 8. August 2026 gebaut und noch in keinem Reiter beschrieben:
   die Monatsspalte. Wird das Fenster zu schmal, scrollt die Tabelle nach rechts; die
   Monatsspalte bleibt dabei stehen, und gescrollt wird spaltenweise — nie eine halbe
   Spalte.
-- **Ein Tastengriff je Ansicht:** Strg/Cmd + Umschalt + M · Y · C · F. Der alte Griff ins
+- **Ein Tastengriff je Ansicht:** Strg/Cmd + Umschalt + M · Y · F · X. Jeder Reiter nennt
+  seinen Griff beim Überfahren. Der alte Griff ins
   Suchfeld (dieselbe Kombination mit F) ist dafür entfallen — seit ein Buchstabe von selbst
   im Filter landet, war er der umständlichere Weg. Steht schon im Reiter „Was ist neu" und in
   „Was FINA kann"; ⚠ in „Schritt für Schritt" ist der alte Griff gestrichen.
+- **„Sicherung speichern"** in der Kopfzeile, zwischen Speichern und Schließen: eine datierte
+  Kopie in den Download-Ordner, in jedem Browser. ⚠ „Close file" heißt jetzt **„Daten
+  schließen"** — die Anleitung nennt den Knopf über `t('app.unlink')` und zieht von selbst
+  mit, der beschreibende Satz drumherum aber nicht überall.
+- **Die heruntergeladene Kopie trägt ihren Zeitpunkt im Namen:** `YYMMDD-HHMMSS ` vor dem
+  ursprünglichen Dateinamen. Betrifft nur Browser ohne File System Access API — Chrome und
+  Edge schreiben weiter in dieselbe Datei. ⚠ „andere Browser legen eine Kopie im
+  Download-Ordner ab" (Schritt 8 und Produktreiter, beide Sprachen) sagt jetzt nur noch die
+  halbe Wahrheit.
 - **Ein Feld anklicken markiert seinen Inhalt.** Tippen ersetzt ihn; Notizfelder bleiben
   unberührt.
 - **Der Anfangsbestand steht violett** — Beschriftung, Betrag und Balken in derselben Farbe.

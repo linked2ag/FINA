@@ -105,7 +105,8 @@ function viewPrognose(){
      13.000 sind das die Zweitausender — sieben Linien, gut 60 px
      auseinander. */
   const lines=v=>Math.floor(sc.hi/v)-Math.ceil(sc.lo/v)+1;
-  const step=[1000,2000,2500,5000,10000,25000,50000].find(v=>lines(v)<=10)||100000;
+  const STEPS=[1000,2000,2500,5000,10000,25000,50000,100000];
+  let step=STEPS.find(v=>lines(v)<=10)||STEPS[STEPS.length-1];
 
   /* ── Mit Anfangsbestand fängt die Achse nicht bei null an ────
      Wer mit 10.000 anfängt, bewegt sich das ganze Jahr zwischen
@@ -119,11 +120,27 @@ function viewPrognose(){
      Zeile darüber, und ohne diesen Platz wäre er nicht zu sehen.
      Das geht erst hier, denn die Schrittweite steht erst nach der
      ersten Rechnung fest — sie bleibt, nur die Grenze wandert. */
-  const op0=opening();
-  if(op0){
-    const edge=op0>0?op0-step:op0+step;
-    const lo=Math.min(sc.lo,edge), hi=Math.max(sc.hi,edge);
-    sc={lo,hi,span:(hi-lo)||1,cut:true};
+  /* ── Die Achse liegt auf dem Raster ──────────────────────────
+     Anfang und Ende werden auf ein Vielfaches der Schrittweite
+     gezogen. Damit fällt die **erste Rasterlinie genau auf den
+     linken Rand** der Spalte — und das ist derselbe Strich, der die
+     Spalte „Kumuliert" abschließt. Vorher fing die Achse
+     irgendwo an, die erste Linie stand ein Stück drinnen, und
+     zwischen Zahl und Grafik klaffte eine Lücke, die nichts
+     bedeutete.
+
+     Die Schrittweite wird dabei neu gewählt: gezogen wird auf ihr
+     Vielfaches, und das vergrößert die Spanne. Genommen wird die
+     **feinste** Stufe, die danach höchstens zehn Felder ergibt —
+     dieselbe Regel wie oben, nur auf die gezogene Spanne
+     angewandt. */
+  step=STEPS.find(v=>{
+    const lo=Math.floor(sc.lo/v)*v, hi=Math.ceil(sc.hi/v)*v;
+    return (hi-lo)/v<=10;
+  })||STEPS[STEPS.length-1];
+  {
+    const lo=Math.floor(sc.lo/step)*step, hi=Math.ceil(sc.hi/step)*step;
+    sc={lo,hi,span:(hi-lo)||1,cut:sc.cut};
   }
   /* Links der Null der rote, rechts der grüne Bereich — wie im
      Zeitstrahl. Bei beschnittener Achse liegt die Null außerhalb,
@@ -142,19 +159,32 @@ function viewPrognose(){
      die Kante. Was die Spalte überhaupt zeigt, sagt weiter die
      Sprechblase. */
   const axis=[];
+  /* Die beiden äußeren Marken legen sich an die Kante, statt über
+     sie hinauszuragen — aber nicht bündig daran: sie halten
+     denselben Abstand von der Trennlinie wie die Beschriftung der
+     Nachbarspalte auf der anderen Seite. Das sind die 6 px
+     Innenabstand aus `.ledger td,.ledger th`; wer den ändert,
+     ändert diesen Wert mit. */
+  const PAD='6px';
   const mark=v=>{
-    const x=pos(v), off=x<6?'0':(x>94?'-100%':'-50%');
+    const x=pos(v), off=x<6?PAD:(x>94?`calc(-100% - ${PAD})`:'-50%');
     axis.push(`<span class="tax" style="left:${x}%;transform:translateX(${off})">${gnum(v)}</span>`);
   };
   for(let v=Math.ceil(sc.lo/step)*step; v<=sc.hi; v+=step){
     /* Die Null hat schon ihre eigene, kräftigere Linie. */
-    if(!sc.cut&&Math.abs(v)<step/2) continue;
-    grid.push(`<span class="tgrid" style="left:${pos(v)}%"></span>`);
+    if(!sc.cut&&Math.abs(v)<step/2){ mark(v); continue; }
+    /* **Die äußeren beiden Linien zeichnet die Tabelle selbst**: am
+       linken Rand steht der Strich, der die Spalte „Kumuliert"
+       abschließt, am rechten der Rand der Tabelle. Eine eigene Linie
+       darüber wäre ein zweiter Strich an derselben Stelle. Ihre
+       Beträge stehen trotzdem darüber — die Achse ist vollständig. */
+    if(v>sc.lo&&v<sc.hi) grid.push(`<span class="tgrid" style="left:${pos(v)}%"></span>`);
     mark(v);
   }
-  /* Die Null ist auch eine Linie und bekommt ihre Zahl — bei
-     beschnittener Achse gibt es sie nicht, dann fällt sie weg. */
-  if(!sc.cut) mark(0);
+  /* Die Null bekommt ihre Zahl in der Schleife oben — seit die
+     Achse auf dem Raster liegt, ist sie eine Rasterlinie wie jede
+     andere. Nur ihre **Linie** zeichnet nicht das Raster, sondern
+     `.tzero`: sie ist ein Wert und kein Maß. */
   /* Das Raster liegt in der **Zelle**, nicht im Balken: nur so
      reicht es über die ganze Zeilenhöhe, und weil die Zeilen
      aneinandergrenzen, werden aus zwölf kurzen Strichen zwölf
@@ -201,23 +231,32 @@ function viewPrognose(){
      „Kumuliert" — die Spalten dazwischen beschreiben Bewegungen,
      und die gibt es hier nicht.
 
-     **Sein Balken wird abgeschnitten, sobald er länger ist als ein
-     Rasterschritt.** Bei 120.000 auf einem Raster von 2.000 wären
-     es sechzig Schritte: ein Balken, der die ganze Zeile füllt und
-     nichts mehr aussagt. Gezeigt wird dann der letzte Schritt vor
-     dem Stand, und der franst zum Rand hin aus — dieselbe Aussage
-     wie beim beschnittenen Balken der Monatsansicht („er kommt von
-     weiter außerhalb") und dasselbe Mittel: ein Farbverlauf ins
-     Durchsichtige, keine Kante. Ausgefranst wird an der Seite, aus
-     der er kommt: bei einem Guthaben links, bei einem Minus
-     rechts. */
+     **Sein Balken fängt an der Rasterlinie vor ihm an**, nicht bei
+     der Null: bei 2.123 auf einem Raster von 5.000 also bei 0, bei
+     120.000 auf einem Raster von 2.000 bei 118.000. Ein Balken von
+     der Null aus wäre bei großen Beständen die ganze Zeile lang und
+     sagte nichts mehr — und er zwänge die Achse dazu, bei einer
+     Zahl anzufangen, unter der nichts liegt.
+
+     Fängt er nicht genau auf der Null an, ist er ein
+     **abgeschnittenes Stück** und franst zum Rand hin aus:
+     dieselbe Aussage wie beim beschnittenen Balken der
+     Monatsansicht („er kommt von weiter außerhalb") und dasselbe
+     Mittel — ein Farbverlauf ins Durchsichtige, keine Kante.
+     Ausgefranst wird an der Seite, aus der er kommt: bei einem
+     Guthaben links, bei einem Minus rechts. */
   const openRow=(()=>{
     const op=opening(); if(!op) return '';
-    const long=Math.abs(op)>step;
-    const from=long?(op>0?op-step:op+step):0;
+    /* Liegt der Anfangsbestand **genau auf einer Rasterlinie**, wäre
+       der Balken null breit und die Zeile leer — dann wird das ganze
+       Feld davor genommen. Bei einem Guthaben liegt es links vom
+       Strich, bei einem Minus rechts: der Balken kommt immer von der
+       Seite, auf der der Betrag weiter von der Null entfernt ist. */
+    const line=op>0?Math.floor(op/step)*step:Math.ceil(op/step)*step;
+    const from=line!==op?line:(op>0?op-step:op+step);
     const a=pos(from), b=pos(op);
     const l=Math.max(0,Math.min(100,Math.min(a,b))), r=Math.max(0,Math.min(100,Math.max(a,b)));
-    const fade=(long||sc.cut)?(op>0?' cutl':' cutr'):'';
+    const fade=(from!==0||sc.cut)?(op>0?' cutl':' cutr'):'';
     /* Die Zeile ist so hoch wie jede andere (`two`), und ihr Balken
        steht darin mittig (`solo`) — eine flachere erste Zeile sähe
        aus wie ein halber Monat. Am Ende derselbe schwarze Strich
@@ -256,7 +295,10 @@ function viewPrognose(){
      die Länge des Januarbalkens als seinen ganzen Betrag. */
   const chips=FLOW_KINDS.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('')
     +`<span class="lk"><i class="lmark"></i>${t('month.tlMark')}</span>`
-    +(sc.cut?`<span class="lscale">${t('month.tlScale',eur(sc.lo),eur(sc.hi))}</span>`:'');
+    /* `nf.format` statt `eur`: der Maßstab ist eine Grenze und kein
+       Betrag. Eine Achse, die bei null anfängt, schriebe mit `eur`
+       einen Gedankenstrich dorthin — „Maßstab — bis 30.000,00". */
+    +(sc.cut?`<span class="lscale">${t('month.tlScale',nf.format(sc.lo),nf.format(sc.hi))}</span>`:'');
 
   /* Kennzahlen: was ab dem laufenden Monat noch kommt, und die
      beiden Salden — Stand heute und Stand zum Jahresende. */

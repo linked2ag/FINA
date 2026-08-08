@@ -63,7 +63,10 @@ const STR={
 'app.loadTip':{en:'Open a JSON file and show its contents',de:'JSON-Datei öffnen und ihren Inhalt anzeigen'},
 'app.save':{en:'Save data',de:'Daten speichern'},
 'app.saveTip':{en:'Write the current state into the JSON file',de:'Aktuellen Stand in die JSON-Datei schreiben'},
-'app.unlink':{en:'Close file',de:'Verbindung zu Daten trennen'},
+'app.backup':{en:'Save backup',de:'Sicherung speichern'},
+'app.backupTip':{en:'Download a dated copy — the file you are working on stays as it is',
+  de:'Eine Kopie mit Datum herunterladen — die Datei, in der du arbeitest, bleibt, wie sie ist'},
+'app.unlink':{en:'Close data',de:'Daten schließen'},
 'app.unlinkTip':{en:'Clear the view and let go of the file',de:'Ansicht leeren und die Datei loslassen'},
 /* Der Import steht in der Kopfzeile, nicht mehr im Reiter: den
    Reiter gibt es erst nach dem ersten Import (siehe hasImport()
@@ -93,6 +96,10 @@ const STR={
    Kakeibo hieß. Er bleibt in beiden Sprachen gleich — wie
    „Fast Budget" auch. Die internen Schlüssel (kak, kakCats,
    flexActual, ui.view='kakeibo') behalten ihre alten Namen. */
+/* Der Tastengriff am Reiter. Die Buchstaben folgen den englischen
+   Namen und stehen deshalb in beiden Sprachen gleich da — nur der
+   Satz drumherum wechselt. */
+'view.keyTip':{en:'Ctrl/Cmd + Shift + {0}',de:'Strg/Cmd + Umschalt + {0}'},
 'view.monat':{en:'Month',de:'Monat'},
 'view.jahr':{en:'Year',de:'Jahr'},
 /* Der Reiter heißt anders als die Geldart: er zeigt die
@@ -198,7 +205,8 @@ const STR={
 'store.never':{en:'none yet',de:'noch keiner'},
 'store.loaded':{en:'{0} loaded.',de:'{0} geladen.'},
 'store.saved':{en:'Saved to {0}.',de:'In {0} gespeichert.'},
-'store.downloaded':{en:'File downloaded.',de:'Datei heruntergeladen.'},
+'store.downloaded':{en:'Downloaded as {0}.',de:'Als {0} heruntergeladen.'},
+'store.backup':{en:'Backup saved as {0}. Your file still has unsaved changes.',de:'Sicherung als {0} gespeichert. Deine Datei hat weiter ungespeicherte Änderungen.'},
 'store.empty':{en:'The file is empty.',de:'Die Datei ist leer.'},
 'store.loadFail':{en:'Loading failed: {0}',de:'Laden fehlgeschlagen: {0}'},
 'store.saveFail':{en:'Saving failed: {0}',de:'Speichern fehlgeschlagen: {0}'},

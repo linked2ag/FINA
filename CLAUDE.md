@@ -192,12 +192,17 @@ Zustand: **„Flexible Payment Details" erscheint nur, wenn einmal importiert wu
 leere Gliederung. Er steht als **letzter**, nach der Prognose.
 
 **Jeder Reiter hat einen Tastengriff**, `VIEW_KEYS` unten in `js/app.js`:
-Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **C** Prognose · **F** Flexible Payment
+Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **F** Prognose · **X** Flexible Payment
 Details. Die Buchstaben folgen den **englischen** Namen und wechseln deshalb nicht mit der
-Sprache — wie B · PT · DD · LP in der Jahresmatrix. Y statt J, weil „Year"; C statt P, weil
-„Forecast" schon mit F anfängt und F an den vierten Reiter geht. Wer einen Reiter hinzufügt,
+Sprache — wie B · PT · DD · LP in der Jahresmatrix. Y statt J, weil „Year"; F für
+„Forecast"; X für die Details, in deren Namen kein freier Buchstabe steckt. Wer einen Reiter hinzufügt,
 trägt ihn dort ein. **Gesprungen wird nur in Reiter, die es gerade gibt** — der Griff prüft
-`VIEWS`, sonst führte F ohne Import in eine Ansicht ohne Reiter.
+`VIEWS`, sonst führte X ohne Import in eine Ansicht ohne Reiter.
+
+**Jeder Reiter nennt seinen Griff in der Sprechblase** (`view.keyTip`, gesetzt in
+`renderChrome()` über `viewKey(k)`). Ein Griff, den niemand findet, gibt es nicht — und die
+Sprechblase ist die einzige Stelle, an der die vier Buchstaben stehen; eine eigene Zeile
+dafür wäre den Platz nicht wert.
 
 Daraus folgen drei Stellen, die zusammengehören:
 
@@ -319,10 +324,10 @@ Zeitstrahl. Wer mit 10.000 anfängt, bewegt sich das Jahr über zwischen 10.000 
 die Null ist dann keine Aussage über das Jahr, sondern der Abstand zu einem Konto, das nie
 leer war, und sie schöbe alle zwölf Monate in die rechte Hälfte.
 
-Dazu bekommt die Achse in `viewPrognose()` **einen Rasterschritt Luft unter dem
-Anfangsbestand** — so weit reicht sein Balken, und ohne den Platz wäre er nicht zu sehen.
-Das geht erst nach der ersten Rechnung, denn die Schrittweite steht erst danach fest: `sc`
-ist deshalb `let`, `step` bleibt, nur die Grenze wandert.
+**Luft unter dem Anfangsbestand braucht die Achse nicht.** Sein Balken fängt an der
+Rasterlinie vor ihm an — bei 2.123 auf einem Raster von 5.000 also bei der Null —, und die
+liegt ohnehin in der Fläche. Früher bekam die Achse dafür pauschal einen ganzen Schritt
+geschenkt; das schob ihren Anfang auf −5.000 hinunter, wo nichts steht.
 
 Und er bekommt eine **eigene Zeile über dem Januar** (`openRow` in `viewPrognose()`,
 `tr.openrow`) — so wie die Monatseröffnung im Zeitstrahl eine eigene Zeile ist: er ist keine
@@ -334,20 +339,45 @@ Die Zeile ist **so hoch wie jede andere** (`two` an ihrem `.ttrack`, der Balken 
 `solo`) und endet mit demselben schwarzen Strich (`.tmark`) wie die Monatszeilen — er
 markiert überall den Stand, mit dem die Zeile schließt.
 
-**Sein Balken wird abgeschnitten, sobald er länger ist als ein Rasterschritt** (`step`): bei
-120.000 auf einem Raster von 2.000 wären es sechzig Schritte, ein Balken über die ganze
-Zeile, der nichts mehr sagt. Gezeigt wird dann der letzte Schritt vor dem Stand, und der
+**Sein Balken fängt an der Rasterlinie vor ihm an**, nicht bei der Null: bei 120.000 auf
+einem Raster von 2.000 also bei 118.000. **Liegt er genau auf einer Linie**, wäre der Balken
+null breit und die Zeile leer — dann wird das ganze Feld davor genommen. Bei einem Guthaben
+liegt es links vom Strich, bei einem Minus rechts: der Balken kommt immer von der Seite, auf
+der der Betrag weiter von der Null entfernt ist. Von der Null aus wäre er bei großen Beständen die
+ganze Zeile lang und sagte nichts mehr — und er zwänge die Achse dazu, unterhalb des ersten
+Werts anzufangen. Liegt sein Anfang nicht genau auf der Null, ist er ein abgeschnittenes
+Stück und
 franst zum Rand hin aus (`.tsum.cutl/.cutr` an `.ytrack`) — dieselbe Aussage und dasselbe
 Mittel wie beim beschnittenen Balken der Monatsansicht: ein Farbverlauf ins Durchsichtige,
 keine Kante. Ausgefranst wird an der Seite, aus der er kommt: bei einem Guthaben links, bei
 einem Minus rechts.
 
+**Raster und Balken rechnen in derselben Breite.** Die Rasterlinien liegen in der *Zelle*,
+der Balken samt seinem kräftigen Strich in einer Fläche darin — hat die Zelle einen
+Innenabstand, sind das zwei verschiedene Maßstäbe, und der Strich landet ein bis zwei Pixel
+neben seiner Linie. `.flowcell` hat deshalb **auf keiner Seite** ein Polster, und `.tmark`
+rückt in `.ytrack` ein halbes Pixel weiter als im Zeitstrahl: der Strich ist 2 px breit, die
+Rasterlinie 1 px, und beide sollen dieselbe Mitte haben. Wer daran dreht, prüft es an einem
+Anfangsbestand, der genau auf einer Rasterlinie liegt.
+
+**Die Achse liegt auf dem Raster.** Anfang und Ende werden auf ein Vielfaches der
+Schrittweite gezogen (`viewPrognose()`), und die Schrittweite danach neu gewählt: die
+feinste Stufe, die für die gezogene Spanne höchstens zehn Felder ergibt. Dadurch fällt die
+**erste Rasterlinie genau auf den linken Rand der Spalte** — und das ist derselbe Strich,
+der die Spalte „Kumuliert" abschließt. Die Grafik zeichnet die äußeren beiden Linien deshalb
+**nicht** selbst (links der Strich der Tabelle, rechts ihr Rand) und fängt ohne
+Innenabstand an; ihre Beträge stehen trotzdem darüber. Vorher fing die Achse irgendwo an,
+die erste Linie stand ein Stück drinnen, und zwischen der letzten Zahl und dem Raster klaffte
+eine Lücke, die nichts bedeutete.
+
 **Über der Spalte steht keine Überschrift, sondern die Achse selbst**: an jeder Rasterlinie
 der Betrag, für den sie steht (`axis` in `viewPrognose()`, `th.axishead .tax` in
 `css/ledger.css`). „Verlauf (Raster 2.000)" nannte nur den Abstand — man musste von der Null
 aus durchzählen. Die Marken erben Schrift und Größe der Kopfzelle und sitzen auf deren
-Innenabstand (`top:7px`), damit sie auf einer Zeile mit M · IN · REG · … stehen; ganz außen
-legen sie sich an die Kante, statt über den Rand zu ragen. Bei beschnittener Achse wandern
+Innenabstand (`top:7px`), damit sie auf einer Zeile mit M · IN · REG · … stehen. Die beiden
+äußeren legen sich an die Kante, statt über den Rand zu ragen — und halten dabei **denselben
+Abstand von der Trennlinie wie die Beschriftung der Nachbarspalte** auf der anderen Seite
+(die 6 px Innenabstand aus `.ledger td,.ledger th`). Bei beschnittener Achse wandern
 sie mit — sie kommen aus derselben Rechnung wie die Linien.
 
 Die Farberklärung steht als `.thint` unter der Tabelle — dieselben Marken wie im Zeitstrahl,
@@ -1125,6 +1155,30 @@ jeder Stelle — deshalb rücken die Kartenköpfe von selbst nach, wenn die Ausw
 aufgeklappt wird. Auch hier gilt: deckender Hintergrund — der Kartenkopf trägt
 die Farbe seiner Karte (`--bg-in/-flex/-out`) und wird über negative Außenabstände auf die
 volle Kartenbreite gezogen, damit rechts und links nichts durchscheint.
+
+## Wie die Datei heißt
+
+Chrome und Edge schreiben über die File System Access API in **dieselbe** Datei zurück
+(`canFS` in `js/storage.js`); dort ist der Name keine Frage. Jeder andere Browser kann das
+nicht und legt bei jedem Speichern eine neue Datei im Download-Ordner ab — und zwei Dateien
+desselben Namens werden dort zu „fina (1).json", „fina (2).json": eine Reihe, der man nicht
+ansieht, welche die neueste ist.
+
+**„Sicherung speichern" geht denselben Weg — in jedem Browser.** Der Knopf steht zwischen
+„Daten speichern" und „Daten schließen" (`#btnBackup` → `saveBackup()`) und legt eine
+datierte Kopie in den Download-Ordner, auch in Chrome und Edge, die sonst in dieselbe Datei
+zurückschreiben und deshalb nie einen zweiten Stand hinterlassen. **Der dirty-Zustand bleibt
+dabei, wie er ist:** eine Sicherung ist kein Speichern, die Datei, in der gearbeitet wird,
+hat die Änderung danach immer noch nicht. Die Meldung sagt beides.
+
+**Deshalb trägt die heruntergeladene Kopie einen Zeitstempel vorn**, gebaut in
+`downloadName()`: `YYMMDD-HHMMSS ` vor dem ursprünglichen Namen. Die Stände stehen damit im
+Ordner von selbst in der richtigen Reihenfolge, und der Name der Datei bleibt hinten
+erhalten. Ein **vorhandener** Stempel wird ersetzt, nicht gestapelt (`STAMP_RE`) — sonst
+hieße die Datei nach dem zweiten Mal „260808-210000 260808-204500 fina.json".
+
+Die Meldung nennt den Namen (`store.downloaded`): er ist nicht der, unter dem die Datei
+geöffnet wurde, und man soll ihn im Download-Ordner wiederfinden.
 
 ## Nach jeder Änderung neu zeichnen
 

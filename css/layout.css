@@ -351,6 +351,12 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Betrag — die drei gehören zusammen und sollen zusammen ins Auge
    fallen. Ist er länger als ein Rasterschritt, zeigt die Ansicht
    nur den letzten Schritt davon, und der franst aus. */
+/* Der kräftige Strich ist 2 px breit, eine Rasterlinie 1 px. Damit
+   beide **dieselbe Mitte** haben — und ein Anfangsbestand, der genau
+   auf einer Linie liegt, seinen Strich genau darauf setzt —, rückt
+   er hier ein halbes Pixel weiter als im Zeitstrahl, wo es kein
+   Raster gibt, gegen das er fluchten müsste. */
+.ytrack .tmark{margin-left:-.5px}
 .ytrack .yopen{background:var(--ink-sal);opacity:1}
 .ytrack .yopen.cutl{background:linear-gradient(to right,transparent 0,var(--ink-sal) min(38px,60%))}
 .ytrack .yopen.cutr{background:linear-gradient(to left,transparent 0,var(--ink-sal) min(38px,60%))}
