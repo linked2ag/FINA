@@ -915,12 +915,36 @@ then marked as corrected, and the import is not lost.</p>
       opens the item, the same window as the pencil.</li>
 </ul>
 
-<h4>Finding something</h4>
+<h4>Filtering and finding</h4>
+<p>Filtering never changes your file. It only decides which rows you are shown — every sum, every
+total and every graph keeps counting the whole book. So you can filter as freely as you like; there
+is nothing to undo afterwards.</p>
+<p><b>There are five filters, and they all apply at once</b> — what is left over satisfies every one
+of them:</p>
+<ul>
+  <li><b>The search field</b>, in the month view and in the year view. See below.</li>
+  <li><b>The due date</b> in the month view: ${t('month.fDueAll')}, ${t('due.A')}, ${t('due.M')},
+      ${t('due.E')}, ${t('month.tlClose')} — the last one holds everything without a payday, which
+      is where the Flexible Payments and the balance correction live.</li>
+  <li><b>The payment state</b> in the month view: ${t('month.fAll')}, ${t('month.fOpen')},
+      ${t('month.fEst')}, ${t('month.fPaid')}.</li>
+  <li><b>The timeline</b>, when the analytics area is open: a click on one of its rows filters by
+      that part of the month — the same thing the due-date buttons do, only from the graph.</li>
+  <li><b>The two buttons of the year view</b>: <b>${t('year.hideDone')}</b> takes away the months in
+      which nothing is left open, <b>${t('year.hideSettled')}</b> the items that are fully paid for
+      this year. Unlike the others these two are <b>kept in your file</b> — they are a setting, not
+      a handful of clicks, and the table comes back the way you left it.</li>
+</ul>
+<p>A button keeps its label and shows at its dark background that it is being applied; a second
+click switches it off. In brackets it says how much it is hiding right now, and what a block is
+hiding stands next to its heading as “(n hidden)”. <b>While you filter, every block stands open</b>
+and the fold arrow is gone — what you are looking for should never hide in something you folded
+last week.</p>
 <p>The month view and the year view share one search field, and they share its word: type it in one
 and it still applies in the other. It filters while you type, in parts of words and of figures and
 without regard to capitals; “1.234,56” and “1234.56” find the same row. In the month view it looks
-at the month on screen, in the year view at all twelve. Nothing in the file changes — only what you
-see.</p>
+at the month on screen, in the year view at all twelve — and there a hit on the name of a block or
+of a category shows that block whole. Nothing in the file changes — only what you see.</p>
 <p>In front of the field sits a small <b>&#9776;</b> button, and it decides <b>what the word is
 looked for in</b>: <b>${t('flt.fName')}</b>, <b>${t('flt.fNote')}</b>, <b>${t('flt.fAmount')}</b>,
 <b>${t('flt.fTotal')}</b>, <b>${t('flt.fMeta')}</b>. Everything is ticked to begin with — that is
@@ -1182,12 +1206,39 @@ korrigiert, der Import geht dabei nicht verloren.</p>
       oder auf die Bezeichnung öffnet die Position — dasselbe Fenster wie der Stift.</li>
 </ul>
 
-<h4>Etwas wiederfinden</h4>
+<h4>Filtern und wiederfinden</h4>
+<p>Filtern ändert nie deine Datei. Es entscheidet nur, welche Zeilen du zu sehen bekommst — jede
+Summe, jede Gesamtspalte und jede Grafik zählt weiter das ganze Buch. Du kannst also filtern, so
+viel du magst; hinterher ist nichts zurückzunehmen.</p>
+<p><b>Es gibt fünf Filter, und sie gelten alle gleichzeitig</b> — was übrig bleibt, erfüllt jeden
+davon:</p>
+<ul>
+  <li><b>Das Suchfeld</b>, in der Monats- wie in der Jahresansicht. Siehe unten.</li>
+  <li><b>Die Fälligkeit</b> in der Monatsansicht: ${t('month.fDueAll')}, ${t('due.A')},
+      ${t('due.M')}, ${t('due.E')}, ${t('month.tlClose')} — der letzte fasst alles ohne Zahltag,
+      also die Flexible Payments und die Saldokorrektur.</li>
+  <li><b>Der Zahlungsstand</b> in der Monatsansicht: ${t('month.fAll')}, ${t('month.fOpen')},
+      ${t('month.fEst')}, ${t('month.fPaid')}.</li>
+  <li><b>Der Zeitstrahl</b>, wenn die Auswertung offen ist: ein Klick auf eine seiner Zeilen filtert
+      auf diesen Teil des Monats — dasselbe, was die Fälligkeitsknöpfe tun, nur aus der Grafik
+      heraus.</li>
+  <li><b>Die beiden Knöpfe der Jahresansicht</b>: <b>${t('year.hideDone')}</b> nimmt die Monate
+      weg, in denen nichts mehr offen ist, <b>${t('year.hideSettled')}</b> die Positionen, die für
+      dieses Jahr abbezahlt sind. Anders als die übrigen stehen diese beiden <b>in deiner
+      Datei</b> — sie sind eine Einstellung und keine Handgriffe, und die Tabelle sieht beim
+      nächsten Öffnen aus wie beim Zumachen.</li>
+</ul>
+<p>Ein Knopf behält seine Beschriftung und zeigt am dunklen Grund, dass er gerade gilt; ein zweiter
+Klick schaltet ihn ab. In Klammern steht, wie viel er gerade versteckt, und was ein Block versteckt,
+steht als „(n ausgeblendet)" neben seiner Überschrift. <b>Solange du filterst, steht jeder Block
+offen</b> und der Klapp-Pfeil ist weg — was du suchst, soll sich nicht in etwas verstecken, das du
+letzte Woche zugeklappt hast.</p>
 <p>Monats- und Jahresansicht teilen sich ein Suchfeld, und sie teilen sich sein Wort: was du in der
 einen tippst, gilt in der anderen weiter. Es filtert beim Tippen, in Wortteilen und Zahlstücken und
 ohne Rücksicht auf Groß- und Kleinschreibung; „1.234,56" und „1234.56" finden dieselbe Zeile. In
-der Monatsansicht sieht es in den Monat auf dem Schirm, in der Jahresansicht in alle zwölf. In der
-Datei ändert sich dabei nichts — nur, was du siehst.</p>
+der Monatsansicht sieht es in den Monat auf dem Schirm, in der Jahresansicht in alle zwölf — und
+dort steht ein Block ganz da, wenn sein Name oder der einer Kategorie trifft. In der Datei ändert
+sich dabei nichts — nur, was du siehst.</p>
 <p>Vor dem Feld steht ein kleiner <b>&#9776;</b>-Knopf, und der entscheidet, <b>worin</b> gesucht
 wird: <b>${t('flt.fName')}</b>, <b>${t('flt.fNote')}</b>, <b>${t('flt.fAmount')}</b>,
 <b>${t('flt.fTotal')}</b>, <b>${t('flt.fMeta')}</b>. Anfangs ist alles angekreuzt — das ist die
