@@ -48,6 +48,21 @@ function matrixHead(){
     <th class="toth">${t('g.total')}</th></tr></thead>`;
 }
 
+/* Der Pfeil, der einen Block der Matrix zu- und aufklappt. Er steht
+   in der ersten Spalte der Blockzeile — dort, wo bei einer Position
+   der Stift sitzt —, in der Farbe des Blocks und ohne Wort.
+   Zugeklappt bleibt die Blockzeile mit ihren zwölf Summen stehen;
+   was darunter hing, wird gar nicht erst gebaut.
+
+   Wie in der Monatsansicht gibt es ihn nicht, solange gefiltert
+   wird: dann steht jeder Block offen, und ein Pfeil dagegen hielte
+   nicht, was er verspricht (siehe foldBtn in js/views/monat.js). */
+function yfoldBtn(key,on){
+  const lab=on?t('year.maxAreaTip'):t('year.minAreaTip');
+  return `<button class="foldarrow" data-yfold="${key}" aria-expanded="${!on}"
+    aria-label="${esc(lab)}" title="${esc(lab)}">${on?'&#9654;':'&#9660;'}</button>`;
+}
+
 /* Eine Matrixzeile. opt.item = regelmäßiger Posten, opt.kak =
    Kakeibo-Kategorie, ohne beides eine Summen- oder Gruppenzeile.
    Nur echte Positionen — Posten wie Kakeibo — bekommen .itemrow
@@ -102,7 +117,15 @@ function mrow(label,vals,opt={}){
      Zeilen ohne Posten — Summen, Gruppen — bekommen das Merkmal
      nicht. */
   const dbl=it?dblItem(it.id):(kk?dblKak(kk):'');
-  return `<tr class="${opt.cls||''}${((it||kk)&&!opt.asCat)?' itemrow':''}${done}"${dbl}><td class="ed">${pencil}</td><td class="ln">${link}</td>
+  /* Blockzeilen klappen ihren Block zu: der Pfeil steht in der
+     Stiftspalte — eine Blockzeile hat dort nichts —, und ein
+     Doppelklick auf die Zeile tut dasselbe. Beides gibt es nur,
+     wenn opt.fold gesetzt ist; beim Filtern lässt viewJahr() es
+     weg. */
+  const fold=opt.fold||null;
+  const arrow=fold?yfoldBtn(fold.key,fold.on):'';
+  const dblFold=fold?` data-dblyfold="${esc(fold.key)}"`:'';
+  return `<tr class="${opt.cls||''}${((it||kk)&&!opt.asCat)?' itemrow':''}${done}"${dbl}${dblFold}><td class="ed">${arrow||pencil}</td><td class="ln">${link}</td>
     <td class="nt">${posLamp}</td><td class="lab">${label}${notePrev}</td>
     <td class="code cB"${bank?` title="${esc(bankLabel(bank))}"`:''}>${esc(bank)}</td>
     <td class="code cZ"${pay?` title="${esc(payLabel(pay))}"`:''}>${esc(pay)}</td>
@@ -139,11 +162,36 @@ function viewJahr(){
      Kürzel abwählt, sucht auch nicht mehr über die Gliederung. */
   const hit=s=>!q||(qField('meta')&&norm(s).includes(q));
   const qOk=it=>!q||hayItem(it).includes(q);
-  const base=it=>it.amounts.some(v=>v!==0)&&!(state.hideSettled&&yearSettled(it));
+  /* Der Haken „auch in den ausgeblendeten Positionen" (qAll() in
+     js/state.js): mit ihm gewinnt der Suchbegriff gegen alles, was
+     sonst eine Zeile wegnimmt — „Abgeschlossene ausblenden" und
+     die Regel, dass eine Position ohne jeden Betrag nicht in der
+     Matrix steht. Ohne Suchbegriff ändert er nichts. */
+  const wide=!!q&&qAll();
+  const base=it=>wide||(it.amounts.some(v=>v!==0)&&!(state.hideSettled&&yearSettled(it)));
   /* Die Zahl hinter „Abgeschlossene ausblenden" zählt nur, was
      dieser Knopf versteckt — nicht, was der Suchbegriff wegnimmt. */
   let hiddenRows=0;
   const countHidden=arr=>{hiddenRows+=arr.filter(it=>it.amounts.some(v=>v!==0)&&state.hideSettled&&yearSettled(it)).length;};
+
+  /* ── Wann ein Block zugeklappt ist ───────────────────────────
+     Wie in der Monatsansicht: gewöhnlich sagt es die Datei
+     (state.foldedYear, eine eigene Liste neben der des Monats).
+     **Solange gefiltert wird, steht alles offen** — und lässt sich
+     auch nicht zuklappen: der Pfeil entfällt, der Doppelklick
+     ebenso. Wer sucht, soll den Treffer sehen und nicht daran
+     denken müssen, in welchem zugeklappten Block er steckt.
+
+     Gemeint sind die Filter, die Zeilen wegnehmen: das Suchfeld und
+     „Abgeschlossene ausblenden". „Erledigte Monate ausblenden"
+     nimmt Spalten weg — in einem Block verbirgt sich dadurch
+     nichts, dieser Knopf klappt also nichts auf. */
+  const filterOn=!!q||!!state.hideSettled;
+  const foldOf=k=>filterOn?false:isFoldedYear(k);
+  const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
+  /* Die Blockzeile bekommt ihren Pfeil nur, wenn geklappt werden
+     darf; sonst steht ihre erste Spalte leer wie bisher. */
+  const foldOpt=(k,on)=>filterOn?{}:{fold:{key:k,on}};
 
   /* Je Block ein Stück; die Leerzeilen kommen erst am Ende
      dazwischen — ein weggefilterter Block hinterlässt sonst eine
@@ -189,7 +237,8 @@ function viewJahr(){
     vis.forEach(it=>{incRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'});});
   });
   if(incRows||secIn)
-    parts.push(mrow(t('g.income'),MONTHS.map((_,i)=>income(i+1)),{cls:'sec r-in secpin'})+incRows);
+    parts.push(mrow(t('g.income'),MONTHS.map((_,i)=>income(i+1)),
+      {cls:'sec r-in secpin',...foldOpt('in',fIn)})+(fIn?'':incRows));
 
   /* Alle Flexible Payments stehen hier, auch die noch leeren —
      eine Kategorie ohne Zahlen ist genau die, an die man denken
@@ -202,7 +251,7 @@ function viewJahr(){
      sondern eine Funktion, und dafür gibt es die Anleitung. */
   if(kakRows||secFlex)
     parts.push(mrow(t('year.kakRow'),MONTHS.map((_,i)=>kakeiboFor(i+1)),
-      {cls:'sec r-flex secpin'})+kakRows);
+      {cls:'sec r-flex secpin',...foldOpt('flex',fFlex)})+(fFlex?'':kakRows));
 
   const secOut=hit(t('g.fixed'));
   let outRows='';
@@ -220,7 +269,8 @@ function viewJahr(){
     vis.forEach(it=>{outRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-out'});});
   });
   if(outRows||secOut)
-    parts.push(mrow(t('g.fixed'),MONTHS.map((_,i)=>fixedCost(i+1)),{cls:'sec r-out secpin'})+outRows);
+    parts.push(mrow(t('g.fixed'),MONTHS.map((_,i)=>fixedCost(i+1)),
+      {cls:'sec r-out secpin',...foldOpt('out',fOut)})+(fOut?'':outRows));
 
   const body=parts.join(spacer());
 
@@ -243,11 +293,14 @@ function viewJahr(){
       <span class="fbgroup">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
         <button class="btn small" data-newitem="1">${t('year.addItem')}</button></span></div>
-    <div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead()}<tbody>${body}</tbody></table></div>
-    <p class="note" style="margin-top:10px">${t('year.hint')}
-    ${t('year.hintTerm')}
-    <span class="endkey e-now">${t('year.keyNow')}</span><span class="endkey e-soon">${t('year.key2')}</span><span class="endkey e-mid">${t('year.key36')}</span><span class="endkey e-far">${t('year.keyMore')}</span>.
-    ${t('year.hintGrey')}
-    ${hidden?t('year.hintHidden',hidden):t('year.hintStrike')}
-    ${t('year.current',MONTHS_LONG[CUR-1])}</p>`;
+    <!-- Unter der Tabelle steht nichts mehr. Der lange Hinweis, der
+         hier stand — Stift und Doppelklick, die Kürzel B · PT · DD ·
+         LP, die Ampel der Restlaufzeit, der graue Grund, der
+         durchgestrichene Monat, der laufende Monat —, erklärte die
+         Ansicht ein zweites Mal: jede dieser Angaben trägt ihre
+         eigene Sprechblase, und die Anleitung sagt es ausführlich.
+         Am Ende einer Tabelle, die man ohnehin scrollt, las ihn
+         niemand. Die Texte stehen weiter in js/i18n.js (year.hint …
+         year.current) — sie gehören zur Anleitung. -->
+    <div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead()}<tbody>${body}</tbody></table></div>`;
 }

@@ -17,11 +17,9 @@ let state=null;
    Bereiche (state.folded) gehört es nicht in die Datei.
 
    welcome ist die Begrüßungsseite: sie steht am Anfang und wieder
-   nach dem Trennen der Datei (js/views/willkommen.js). foldFree
-   merkt, welche Bereiche der Nutzer von Hand geklappt hat, während
-   Filter oder Auswertung den Zustand überschreiben. */
+   nach dem Trennen der Datei (js/views/willkommen.js). */
 let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPick:null,
-  q:'',qFocus:false,ana:false,welcome:true,foldFree:{}};
+  q:'',qFocus:false,ana:false,welcome:true};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────
    Der Nutzer stellt im Fenster hinter dem Hamburger-Knopf ein,
@@ -37,6 +35,22 @@ let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPi
    und hier beim Laden. */
 const QFIELDS=['name','note','amount','total','meta'];
 const allQFields=()=>{const o={};QFIELDS.forEach(k=>o[k]=true);return o;};
+
+/* ── Auch in den ausgeblendeten Positionen suchen ─────────────
+   Ein Haken im selben Fenster, aber eine andere Frage: die fünf
+   Kästchen sagen, **worin** gesucht wird, dieser sagt, **wo**.
+
+   Steht er, überstimmt ein Suchbegriff die übrigen Filter — den
+   Zahlungsstand, die Fälligkeit, „Abgeschlossene ausblenden" — und
+   findet auch, was der Monat gar nicht führt: eine Position ohne
+   Betrag in diesem Monat. Wer etwas sucht, das er nicht sieht, hat
+   sonst keinen Weg dorthin.
+
+   Ohne Suchbegriff ändert der Haken nichts: er ist kein Schalter
+   für „alles zeigen", sondern gehört der Suche. Vorgabe ist aus —
+   was die Filter ausblenden, soll ausgeblendet bleiben, solange
+   man nicht danach sucht. */
+const qAll=()=>!!(state&&state.qHidden);
 
 /* Ergänzt fehlende Felder einer Position auf zwölf Monate. */
 function normalize(it){
@@ -67,17 +81,44 @@ function blankBalance(){
     amounts:Array(12).fill(0),estimated:false});
 }
 
+/* ── Der Anfangsbestand ───────────────────────────────────────
+   Was auf dem Konto lag, **bevor** der Januar anfing. Die Datei
+   kennt nur zwölf Monate; ohne diese Zahl fingen alle laufenden
+   Stände bei null an und bedeuteten „was dieses Jahr
+   zusammengekommen ist", nicht „was auf dem Konto liegt".
+
+   Es ist eine einzelne Zahl, kein Posten: sie steht in keiner
+   Kategorie, wird nicht abgehakt und gehört keinem Monat. Deshalb
+   die Hauptseite der Einstellungen, neben dem Abrechnungsjahr —
+   und deshalb `state.opening` und nicht `state.fixed`.
+
+   Gelesen wird sie über `opening()`, nie direkt: eine ältere Datei
+   hat das Feld nicht, und eine Null ist dann die richtige Antwort.
+   Negativ darf sie sein — ein Konto im Minus ist ein Anfang wie
+   jeder andere. */
+const opening=()=>{
+  const v=state&&state.opening;
+  return (typeof v==='number'&&isFinite(v))?v:0;
+};
+
 /* ── Zugeklappte Bereiche ─────────────────────────────────────
-   Die drei Karten der Monatsansicht, jede mit ihrem eigenen
-   Schalter: 'in' Einnahmen, 'flex' Flexible Payments, 'out'
-   regelmäßige Kosten. Zugeklappt bleibt von einer Karte nur ihre
-   oberste Zeile stehen. */
+   Dieselben drei Geldarten in beiden Ansichten: 'in' Einnahmen,
+   'flex' Flexible Payments, 'out' regelmäßige Kosten. Zugeklappt
+   bleibt von einer Karte nur ihre oberste Zeile stehen, in der
+   Jahresmatrix nur die Blockzeile mit ihren Summen.
+
+   **Zwei Schalter, nicht einer.** state.folded gilt der
+   Monatsansicht, state.foldedYear der Jahresmatrix: es sind zwei
+   verschiedene Listen im selben Buch, und wer den Monat aufräumt,
+   will nicht die halbe Matrix verlieren — und umgekehrt. Beide
+   stehen in der Datei, denn beide sind eine Einstellung. */
 const FOLD_KEYS=['in','flex','out'];
 /* Vorgabe: alles offen. Wer eine Datei zum ersten Mal öffnet, soll
    sehen, was darin steht — zuklappen kann er selbst, und dann steht
    es in der Datei. */
 const blankFolded=()=>({in:false,flex:false,out:false});
 const isFolded=k=>!!(state&&state.folded&&state.folded[k]);
+const isFoldedYear=k=>!!(state&&state.foldedYear&&state.foldedYear[k]);
 
 /* Leerer Zustand ohne jede Vorgabe. Listen, die der Nutzer schon
    gepflegt hat, bleiben beim Trennen der Datei erhalten. */
@@ -87,6 +128,10 @@ function emptyState(){
   return {
     year:(state&&state.year)||new Date().getFullYear(),
     lang:(state&&state.lang)||'en',
+    /* Der Kontostand vor dem Januar. Er gehört zum Buch, nicht zum
+       Nutzer: ein neues Buch fängt bei null an, auch wenn das alte
+       eine Zahl trug. */
+    opening:0,
     banks:(state&&state.banks)?state.banks:[],
     pays:(state&&state.pays)?state.pays:[],
     groups:(state&&state.groups)?state.groups:[],
@@ -99,14 +144,16 @@ function emptyState(){
        will sie beim nächsten Öffnen wiederfinden. Vorgabe: kein
        Filter aktiv, es ist alles zu sehen. */
     hideDoneMonths:false, hideSettled:false,
-    /* Zugeklappte Bereiche der Monatsansicht, je Geldart einer.
-       Auch das ist eine Einstellung und keine Anzeige: sie gilt für
-       alle zwölf Monate und soll beim nächsten Öffnen wieder
-       gelten. Vorgabe ist alles offen. */
-    folded:blankFolded(),
+    /* Zugeklappte Bereiche, je Geldart einer — einmal für die
+       Monatsansicht, einmal für die Jahresmatrix. Auch das ist eine
+       Einstellung und keine Anzeige: sie gilt für alle zwölf Monate
+       und soll beim nächsten Öffnen wieder gelten. Vorgabe ist
+       alles offen. */
+    folded:blankFolded(), foldedYear:blankFolded(),
     /* Wie die vier Listen: eine einmal getroffene Wahl überlebt
        das Trennen der Datei. */
-    filterFields:(state&&state.filterFields)?state.filterFields:allQFields()
+    filterFields:(state&&state.filterFields)?state.filterFields:allQFields(),
+    qHidden:!!(state&&state.qHidden)
   };
 }
 
@@ -158,9 +205,6 @@ function afterLoad(){
      unter der Kopfzeile und nähme sonst dauerhaft zwei Zeilen weg,
      die die Tabelle darunter besser gebraucht. */
   ui.ana=false;
-  /* Und die von Hand geklappten Bereiche gelten nur für die eine
-     Lage, in der sie geklappt wurden. */
-  ui.foldFree={};
 }
 
 /* Bringt eine geladene Datei auf den aktuellen Aufbau. */
@@ -170,6 +214,9 @@ function migrate(s){
      frischer Start. */
   if(!s.year) s.year=new Date().getFullYear();
   if(s.lang!=='de'&&s.lang!=='en') s.lang='en';
+  /* Dateien von vor dem Anfangsbestand fangen bei null an — genau
+     so, wie sie es bisher getan haben. */
+  if(typeof s.opening!=='number'||!isFinite(s.opening)) s.opening=0;
   if(!s.banks) s.banks=[];
   if(!s.pays) s.pays=[];
   if(!s.groups) s.groups=[];
@@ -235,18 +282,27 @@ function migrate(s){
   s.hideSettled=!!s.hideSettled;
   /* Die zugeklappten Bereiche. Ältere Dateien kennen nur den einen
      Schalter der Flexible Payments (flexCollapsed) — er wandert in
-     das neue Feld, die beiden anderen Karten fangen offen an. */
+     das neue Feld, die beiden anderen Karten fangen offen an. Die
+     Jahresmatrix hat ihre eigene Liste; wo sie fehlt, fängt sie
+     offen an, und nicht etwa mit dem, was im Monat zugeklappt ist. */
   const fold=(s.folded&&typeof s.folded==='object')?s.folded:{};
   if(s.folded===undefined&&s.flexCollapsed!==undefined) fold.flex=!!s.flexCollapsed;
+  const foldY=(s.foldedYear&&typeof s.foldedYear==='object')?s.foldedYear:{};
   const def=blankFolded();
-  s.folded={};
-  FOLD_KEYS.forEach(k=>{ s.folded[k]=fold[k]===undefined?def[k]:!!fold[k]; });
+  s.folded={}; s.foldedYear={};
+  FOLD_KEYS.forEach(k=>{
+    s.folded[k]=fold[k]===undefined?def[k]:!!fold[k];
+    s.foldedYear[k]=foldY[k]===undefined?def[k]:!!foldY[k];
+  });
   delete s.flexCollapsed;
   /* Worin das Suchfeld sucht. Ältere Dateien kennen die Wahl
      nicht — dann gilt alles. Ein unbekannter Schlüssel gilt
      ebenfalls als gewählt, und eine Datei, in der (von Hand)
      nichts mehr gewählt wäre, bekommt alles zurück: ein
      Suchbegriff, der nirgends sucht, sieht aus wie ein Fehler. */
+  /* Ältere Dateien suchen nicht in den ausgeblendeten Positionen —
+     genau so, wie sie es bisher getan haben. */
+  s.qHidden=!!s.qHidden;
   if(!s.filterFields||typeof s.filterFields!=='object') s.filterFields=allQFields();
   else{
     const o={};

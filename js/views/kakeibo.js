@@ -127,25 +127,32 @@ function viewKakeibo(){
   const maxBar=Math.max(1,...barVals.map(v=>Math.abs(v)));
   const bar=v=>`<td class="barcell"><div class="bar" style="width:${Math.abs(v)/maxBar*100}%;background:${v<0?'var(--seal)':'var(--ok)'}"></div></td>`;
 
-  /* ── Die Spalte „Art" ───────────────────────────────────────
-     Woher der Wert kommt, mit dem die Zeile rechnet: importiert,
-     korrigiert, abgehakt, fester Betrag oder noch geschätzt
-     (flexKind in js/calc.js). Sie steht links vor dem Betrag —
-     die Zahl daneben ist erst dann zu deuten.
+  /* ── Woher der Wert kommt ───────────────────────────────────
+     Importiert, korrigiert, abgehakt, fester Betrag oder noch
+     geschätzt (flexKind in js/calc.js).
+
+     **Das steht in Klammern hinter dem Namen der Hauptkategorie**,
+     nicht in einer eigenen Spalte. Eine Spalte hielt zwischen
+     Kategorie und Betrag eine Breite frei, in der bei einem
+     einzelnen Monat ein Wort stand und bei den Unterzeilen gar
+     nichts — sie trennte die beiden Zahlen, die zusammengehören.
+     Hinter dem Namen liest man es wie einen Nachsatz zur Zeile,
+     und die Klammer sagt, dass es einer ist.
 
      Bei einem einzelnen Monat ist es ein Wort. Beim ganzen Jahr
-     stehen zwölf Monate hinter der Summe: dann zählt die Spalte,
-     wie viele Monate auf welche Art zustande kamen, die häufigste
+     stehen zwölf Monate hinter der Summe: dann wird gezählt, wie
+     viele Monate auf welche Art zustande kamen, die häufigste
      zuerst. Monate ohne Betrag zählen nicht mit — sie sagen
      nichts über die Herkunft. */
-  function kindCell(k){
-    if(!state.kak[k]) return '<td class="kind"></td>';
+  function kindTag(k){
+    if(!state.kak[k]) return '';
     const per={};
     months.forEach(m=>{const s=flexKind(k,m); if(s!=='none') per[s]=(per[s]||0)+1;});
     const list=Object.keys(per).sort((a,b)=>per[b]-per[a]);
-    if(!list.length) return '<td class="kind"></td>';
-    return `<td class="kind">${list.map(s=>`<span class="kk k-${s}">${
-      months.length>1?per[s]+' ':''}${t(FLEX_KIND_LABEL[s])}</span>`).join('')}</td>`;
+    if(!list.length) return '';
+    return ` <span class="kinds">(${list.map(s=>`<span class="kk k-${s}">${
+      months.length>1?per[s]+' ':''}${t(FLEX_KIND_LABEL[s])}</span>`)
+      .join('<span class="ksep"> · </span>')})</span>`;
   }
 
   /* Der Beleglink der Kategorie — dasselbe Symbol wie beim
@@ -155,19 +162,19 @@ function viewKakeibo(){
 
   let rows='';
   order.forEach(mk=>{
-    rows+=`<tr class="kmain"${state.kak[mk]?dblKak(mk):''}><td class="nm">${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kLink(mk)}${state.kak[mk]?notePreview('kak',mk):''}</td>
-      ${mainBar(mk)?bar(val[mk]):'<td></td>'}${kindCell(mk)}
+    rows+=`<tr class="kmain"${state.kak[mk]?dblKak(mk):''}><td class="nm">${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kindTag(mk)}${kLink(mk)}${state.kak[mk]?notePreview('kak',mk):''}</td>
+      ${mainBar(mk)?bar(val[mk]):'<td></td>'}
       <td class="num ${cls(val[mk])}">${eur(val[mk])}</td>${arrow(mk)}</tr>`;
     if(!detail) return;
     /* Die Unterzeilen bleiben leer: Unterkategorien kennt nur der
        Import, ihre Art steht schon in der Hauptzeile. */
     subOf(mk).forEach(([sk,v])=>{
-      rows+=`<tr class="ksub"><td>${esc(keyLabel(sk))}</td>${bar(v)}<td class="kind"></td>
+      rows+=`<tr class="ksub"><td>${esc(keyLabel(sk))}</td>${bar(v)}
         <td class="num ${cls(v)}">${eur(v)}</td>${arrow(mk,sk)}</tr>`;
     });
     const rest=restOf(mk);
     if(subOf(mk).length&&Math.abs(rest)>=0.005)
-      rows+=`<tr class="ksub"><td>${t('kak.manualSub')}</td><td></td><td class="kind"></td>
+      rows+=`<tr class="ksub"><td>${t('kak.manualSub')}</td><td></td>
         <td class="num ${cls(rest)}">${eur(rest)}</td><td class="arrowcell"></td></tr>`;
   });
 
@@ -215,6 +222,14 @@ function viewKakeibo(){
         <option value="jahr"${scopeYear?' selected':''}>${t('g.wholeYear')}</option>
         ${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${!scopeYear&&ui.month===i+1?' selected':''}>${n}</option>`).join('')}
       </select>
+      <!-- Gleich hinter der Auswahl der Weg zurück ins Jetzt: aus
+           dem März des Vorjahres oder aus dem ganzen Jahr ist der
+           laufende Monat sonst ein Suchen in der Liste. Gesperrt,
+           wenn er schon gewählt ist — dann gäbe es nichts zu tun.
+           Gehört die Datei zu einem anderen Jahr, ist „jetzt" der
+           Januar (CUR in js/i18n.js). -->
+      <button class="btn small" data-kmonth="cur" ${!scopeYear&&ui.month===CUR?'disabled':''}
+        title="${esc(t('kak.curTip',MONTHS_LONG[CUR-1]))}">${t('kak.cur')}</button>
       <button class="btn small" data-kmonth="prev" ${!scopeYear&&ui.month<=1?'disabled':''}
         title="${t('kak.prevTip')}">${t('kak.prev')}</button>
       <button class="btn small" data-kmonth="next" ${!scopeYear&&ui.month>=12?'disabled':''}
@@ -237,10 +252,10 @@ function viewKakeibo(){
           <p class="subhead impline">${impLine}</p></div>
         <button class="btn small ktop" data-ktop="1" aria-pressed="${!pick}">${t('kak.top')}</button></div>
       <table class="ledger">
-        <tr><th>${t('g.category')}</th><th></th><th class="kindh">${t('kak.colKind')}</th>
+        <tr><th>${t('g.category')}</th><th></th>
           <th class="num">${t('g.amount')}</th><th></th></tr>
         ${rows}
-        <tr class="sum"><td>${t('g.total')}</td><td></td><td></td><td class="num ${cls(total)}">${eur(total)}</td>
+        <tr class="sum"><td>${t('g.total')}</td><td></td><td class="num ${cls(total)}">${eur(total)}</td>
           <td></td></tr></table>
       <p class="note" style="margin-top:10px">${t('kak.kindHint')}</p>
       <p class="note" style="margin-top:6px">${t('kak.rowHint')} ${t('kak.valHint')}</p></div>

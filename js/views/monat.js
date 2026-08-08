@@ -285,21 +285,21 @@ function timeline(m){
    Positionen. Er ist so groß wie ein Siegel; seine Farbe ist die
    des Bereichs, ein Wort braucht er nicht.
 
-   **Bei offener Auswertung gibt es ihn nicht.** Dann sagt der
-   Zeitstrahl, was zu sehen ist, und alle Bereiche stehen offen —
-   ein Pfeil, der dagegen anklappen wollte, hielte nicht, was er
-   verspricht. Zurück bleibt ein leeres Feld derselben Breite,
-   damit die Überschrift nicht springt. */
-function foldBtn(key,on){
-  if(ui.ana) return `<span class="foldpad" aria-hidden="true"></span>`;
+   **Solange gefiltert wird oder die Auswertung offen steht, gibt es
+   ihn nicht.** Dann stehen alle Bereiche offen — der Filter zeigt,
+   was er gefunden hat, und der Zeitstrahl will sich in der Liste
+   wiederfinden lassen. Ein Pfeil, der dagegen anklappen wollte,
+   hielte nicht, was er verspricht. Zurück bleibt ein leeres Feld
+   derselben Breite, damit die Überschrift nicht springt. */
+function foldBtn(key,on,hide){
+  if(hide) return `<span class="foldpad" aria-hidden="true"></span>`;
   const lab=on?t('month.maxAreaTip'):t('month.minAreaTip');
   return `<button class="foldarrow" data-fold="${key}" aria-expanded="${!on}"
     aria-label="${esc(lab)}" title="${esc(lab)}">${on?'&#9654;':'&#9660;'}</button>`;
 }
 /* „(3 ausgeblendet)" neben der Überschrift. Von Hand zugeklappt
-   sagt es nichts — dort ist ohnehin keine Zeile zu sehen. Hat aber
-   der Filter zugeklappt, ist es das Einzige, was den leeren Kopf
-   erklärt, und steht deshalb da. */
+   sagt es nichts — dort ist ohnehin keine Zeile zu sehen. Beim
+   Filtern ist nichts zugeklappt, dort steht es also immer. */
 const hiddenNote=(all,use,folded)=>(!folded&&use<all)
   ?` <span class="note">${t('month.hidden',all-use)}</span>`:'';
 
@@ -319,22 +319,34 @@ function viewMonat(){
      hat gar keinen — sie wird nicht abgehakt und bleibt vom
      Standfilter unberührt, wie sie auch kein Siegel trägt. */
   const q=queryQ();
+  /* Der Haken „auch in den ausgeblendeten Positionen" (qAll() in
+     js/state.js): mit ihm gewinnt der Suchbegriff gegen die
+     übrigen Filter — und gegen den Monat selbst. Gesucht wird dann
+     in **allen** Posten, auch in denen, die in diesem Monat keinen
+     Betrag haben und deshalb gar nicht in seiner Liste stehen
+     (dueIn in js/calc.js). Ohne Suchbegriff ändert er nichts. */
+  const wide=!!q&&qAll();
   const dueOk=v=> ui.dueFilter==='alle'||dueGroup(v)===ui.dueFilter;
   const stateOk=it=> ui.filter==='alle'
     || (ui.filter==='offen'&&!paidAt(it,m))
     || (ui.filter==='unklar'&&estOf(it))
     || (ui.filter==='bezahlt'&&paidAt(it,m));
-  const show=it=> stateOk(it)&&dueOk(it.dueDay)&&(!q||hayItem(it,m).includes(q));
+  const show=it=> (!q||hayItem(it,m).includes(q))&&(wide||(stateOk(it)&&dueOk(it.dueDay)));
   const showKak=k=>{
     const e=state.kak[k]; if(!e) return false;
     const done=kakDone(k,m);
+    if(q&&!hayKak(k,m).includes(q)) return false;
+    if(wide) return true;
     return (ui.filter==='alle'||(ui.filter==='offen'&&!done)
       ||(ui.filter==='unklar'&&!!e.estimated)||(ui.filter==='bezahlt'&&done))
-      && dueOk('') && (!q||hayKak(k,m).includes(q));
+      && dueOk('');
   };
-  const balOn=dueOk('')&&(!q||hayItem(state.balance,m).includes(q));
+  const balOn=(!q||hayItem(state.balance,m).includes(q))&&(wide||dueOk(''));
 
-  const incAll=dueIn(m).filter(isIncome), incUse=incAll.filter(show);
+  /* Womit die Liste anfängt: gewöhnlich die Posten dieses Monats,
+     bei weiter Suche alle. */
+  const pool=wide?state.fixed:dueIn(m);
+  const incAll=pool.filter(isIncome), incUse=incAll.filter(show);
   /* Einnahmen werden nach Kategorie gebündelt wie die Kosten —
      seit es mehr als eine geben kann, wäre eine flache Liste die
      einzige Stelle, an der man die Kategorie nicht sähe. Bei genau
@@ -346,33 +358,30 @@ function viewMonat(){
   });
   const flexAll=kakCats(), flexUse=flexAll.filter(showKak);
   const outGroups=costGroups().map(g=>{
-    const all=dueIn(m).filter(it=>it.group===g);
+    const all=pool.filter(it=>it.group===g);
     return {g,all,items:settledLast(all.filter(show))};
   });
   const outAll=outGroups.reduce((n,x)=>n+x.all.length,0);
   const outUse=outGroups.reduce((n,x)=>n+x.items.length,0);
 
   /* ── Wann ein Bereich zugeklappt ist ─────────────────────────
-     Gewöhnlich sagt es die Datei (state.folded). Zwei Dinge
-     überschreiben das, ohne sie anzurühren:
+     Gewöhnlich sagt es die Datei (state.folded). Zwei Dinge klappen
+     alles auf und lassen sich dabei nicht überstimmen, ohne die
+     Datei anzurühren:
 
-       • **Ein Filter** klappt auf, was etwas zu zeigen hat, und zu,
-         was nichts mehr enthält — sonst suchte man in einer Karte,
-         die zugeklappt ist, oder starrte auf drei leere Köpfe.
-       • **Die offene Auswertung** klappt alles auf: der Zeitstrahl
-         daneben soll sich in der Liste wiederfinden lassen.
+       • **Ein Filter** zeigt, was er gefunden hat — in allen drei
+         Bereichen. Wer sucht, will nicht daran denken müssen, dass
+         der Treffer in einer zugeklappten Karte steckt.
+       • **Die offene Auswertung**: der Zeitstrahl daneben soll sich
+         in der Liste wiederfinden lassen.
 
-     Filter zuerst — er ist die genauere Aussage, und ein Klick im
-     Zeitstrahl setzt selbst einen. Fällt beides weg, gilt wieder,
-     was in der Datei steht. Wer während einer Überschreibung von
-     Hand klappt, behält seinen Willen für diesen Bereich, bis sich
-     Filter oder Auswertung ändern (ui.foldFree, siehe wire()). */
+     Solange eins von beidem gilt, gibt es auch keinen Pfeil
+     (foldBtn) und keinen Doppelklick — geklappt wird erst wieder,
+     wenn der Filter zurückgenommen ist. Dann gilt wieder, was in
+     der Datei steht. */
   const filterOn=!!q||ui.filter!=='alle'||ui.dueFilter!=='alle';
-  const anyRow={in:incUse.length>0,flex:flexUse.length>0,out:outUse>0};
-  const foldOf=k=>ui.ana?(filterOn?!anyRow[k]:false)
-    :(ui.foldFree&&ui.foldFree[k])?isFolded(k)
-    :filterOn?!anyRow[k]
-    :isFolded(k);
+  const openAll=ui.ana||filterOn;
+  const foldOf=k=>openAll?false:isFolded(k);
   const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
 
   /* Dieselbe Zeile wie im Kostenblock: Summe, Name, Zahl der
@@ -420,7 +429,7 @@ function viewMonat(){
   ${balOn?balanceRow(m):''}
 
   <div class="card sec-in${fIn?' folded':''}">
-    <div class="sechead"${ui.ana?'':' data-dblfold="in"'}>${foldBtn('in',fIn)}<h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn&&!filterOn)}</h2>
+    <div class="sechead"${openAll?'':' data-dblfold="in"'}>${foldBtn('in',fIn,openAll)}<h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn)}</h2>
       <span style="display:flex;gap:12px;align-items:center">
         <!-- Der Block wird vorgewählt: aus dem Einnahmenbereich
              heraus legt man eine Einnahme an. Welcher es ist, sagt
@@ -431,8 +440,8 @@ function viewMonat(){
   </div>
 
   <div class="card sec-flex${fFlex?' folded':''}">
-    <div class="sechead"${ui.ana?'':' data-dblfold="flex"'}>${foldBtn('flex',fFlex)}
-      <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex&&!filterOn)}</h2>
+    <div class="sechead"${openAll?'':' data-dblfold="flex"'}>${foldBtn('flex',fFlex,openAll)}
+      <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex)}</h2>
       <span style="display:flex;gap:12px;align-items:center">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
         <!-- Der Sprung in die Auswertung nur, wenn es sie gibt:
@@ -444,7 +453,7 @@ function viewMonat(){
   </div>
 
   <div class="card sec-out${fOut?' folded':''}">
-    <div class="sechead"${ui.ana?'':' data-dblfold="out"'}>${foldBtn('out',fOut)}<h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut&&!filterOn)}</h2>
+    <div class="sechead"${openAll?'':' data-dblfold="out"'}>${foldBtn('out',fOut,openAll)}<h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut)}</h2>
       <span style="display:flex;gap:12px;align-items:center">
         <button class="btn small" data-newitem="1">${t('year.addItem')}</button>
         <span class="tot neg">${eur(fixedCost(m))}</span></span></div>

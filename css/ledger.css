@@ -99,26 +99,26 @@
    34 % ließen dem Namen daneben zu wenig. */
 .barcell{width:26%;padding-right:0!important}
 
-/* ── Die Spalte „Art" ─────────────────────────────────────────
-   Steht links vor dem Betrag: die Zahl ist erst zu deuten, wenn
-   man weiß, woher sie kommt. Bei einem Monat ein Wort, beim
-   ganzen Jahr eine Marke je Art mit der Zahl der Monate — die
-   umbrechen dann in der Zelle, deshalb eine feste Breite und
-   normaler Zeilenumbruch.
+/* ── Woher der Wert kommt ─────────────────────────────────────
+   Steht in Klammern hinter dem Namen der Hauptkategorie, nicht in
+   einer eigenen Spalte: dort hielt es eine Breite frei, die bei
+   einem einzelnen Monat ein Wort trug und in den Unterzeilen gar
+   nichts — und es trennte Kategorie und Betrag, die zusammen
+   gelesen werden.
 
-   Die Farben sagen dasselbe wie überall sonst: Grün steht für
-   Zahlen, die feststehen (Import), Rot für die von Hand
-   geänderten, Gelb für das, was noch wackelt. */
-.ledger td.kind,.ledger th.kindh{width:138px;padding-right:10px;vertical-align:middle}
-.ledger tr.kmain td.kind{vertical-align:middle}
-.kk{display:inline-block;font-family:var(--font-data);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
-  border:1px solid var(--rule-strong);padding:1px 5px;color:var(--ink-2);margin:1px 4px 1px 0;
-  white-space:nowrap;font-weight:400}
-.kk.k-imp{border-color:var(--ok);color:var(--ok)}
-.kk.k-corr{border-color:var(--seal);color:var(--seal)}
-.kk.k-done{border-color:var(--ink);color:var(--ink)}
-.kk.k-est{border-color:var(--amber);color:var(--amber)}
-@media(max-width:900px){.ledger td.kind,.ledger th.kindh{width:96px}}
+   In der Klammer braucht die Marke keinen Rahmen mehr: die Klammer
+   fasst schon zusammen, ein Kästchen darin wäre eine zweite
+   Fassung. Es bleibt die Farbe, und die sagt dasselbe wie überall
+   sonst: Grün steht für Zahlen, die feststehen (Import), Rot für
+   die von Hand geänderten, Gelb für das, was noch wackelt. */
+.kinds{font-family:var(--font-data);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-2);white-space:nowrap;font-weight:400}
+.kk{font-family:inherit;font-size:inherit;letter-spacing:inherit;color:var(--ink-2);white-space:nowrap}
+.kk.k-imp{color:var(--ok)}
+.kk.k-corr{color:var(--seal)}
+.kk.k-done{color:var(--ink)}
+.kk.k-est{color:var(--amber)}
+.ksep{color:var(--rule-strong)}
 .bar{height:7px;opacity:.72}
 /* ── Die Spalte „Verlauf" der Prognose ────────────────────────
    Sie trägt die Grafik, die sonst der Zeitstrahl der Monatsansicht
@@ -161,11 +161,20 @@
    aneinander und ergeben durchgehende Linien. */
 .progtable td.flowcell{position:relative}
 .progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{position:absolute;top:0;bottom:0;height:auto}
-/* Das Rastermaß hinter der Überschrift ist gesetzt wie die
-   Überschrift selbst — es gehört zu ihr und sagt, was die Linien
-   in der Spalte bedeuten. Deshalb keine eigene Sperrung und keine
-   eigene Größe: es erbt beides. */
-.progtable th .gridnote{font-weight:400}
+/* Über der Grafik steht die Achse statt einer Überschrift: an
+   jeder Rasterlinie ihr Betrag. Die Marken liegen absolut über der
+   Kopfzelle — sie muss also der Bezugspunkt sein, genau wie die
+   Zelle darunter es für die Linien ist. Kein Versalsatz und keine
+   Sperrung: es sind Zahlen und keine Beschriftung. */
+.progtable th.axishead{position:relative}
+/* Die Zahlen sind Spaltenköpfe wie die anderen und sehen auch so
+   aus: Schrift, Größe und Farbe erbt die Marke von der Kopfzelle,
+   und `top` ist genau der Innenabstand der Zelle (7px aus
+   `.ledger td,.ledger th`) — dadurch sitzen sie auf derselben
+   Zeile wie M, IN, REG und der Rest. Wer den Innenabstand ändert,
+   ändert diesen Wert mit. */
+.progtable th.axishead .tax{position:absolute;top:7px;
+  white-space:nowrap;font-variant-numeric:tabular-nums}
 /* Vor der Grafikspalte keine Kante: die Spalte beginnt mit einer
    eigenen senkrechten Linie (der Null oder der ersten Rasterlinie),
    und beides zusammen las sich als doppelte Trennung. */
@@ -198,3 +207,10 @@
    Zeile auch. Die Korrekturspalte bekommt es mit: eine Zeile, die
    in der Mitte ihre Farbe verlöre, wäre keine Zeile mehr. */
 .progtable tr.now td{background:var(--bg-sal)}
+/* Die Zeile des Anfangsbestands steht über dem Januar und gehört
+   zu keinem Monat: sie tritt zurück wie die abgerechneten Monate
+   und trennt sich mit einer kräftigeren Linie vom Jahr darunter —
+   ab dort wird gerechnet. */
+.progtable tr.openrow td{color:var(--ink-2);border-bottom:1px solid var(--rule-strong)}
+.progtable tr.openrow td:first-child{font-family:var(--font-data);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase}

@@ -81,13 +81,21 @@ function openSettings(){
 
       <div class="setpanes">
         ${pane('general',t('set.navGeneral'),t('set.generalSub'),`
-          <div class="cols c2">
+          <!-- Der Anfangsbestand steht neben dem Jahr, weil er zu
+               ihm gehört: er sagt, womit dieses eine Jahr anfängt.
+               Ein Textfeld wie jeder Betrag (parseGermanNumber,
+               Vorzeichenfarbe über .signed) — kein Zahlenfeld: ein
+               Kontostand wird mit Tausenderpunkt und Komma
+               getippt. -->
+          <div class="cols c3">
             <div class="field"><label for="sLang">${t('set.lang')}</label>
               <select id="sLang">${LANGS.map(([k,l])=>`<option value="${k}"${LANG()===k?' selected':''}>${l}</option>`).join('')}</select></div>
             <div class="field"><label for="sYear">${t('set.year')}</label>
               <input type="number" id="sYear" class="num" min="2000" max="2099" step="1" value="${YEAR}"></div>
+            <div class="field"><label for="sOpen">${t('set.opening')}</label>
+              <input id="sOpen" class="num signed" placeholder="0,00" value="${opening()?nf.format(opening()):''}"></div>
           </div>
-          <p class="note">${t('set.yearHint')}</p>`)}
+          <p class="note">${t('set.openingHint')} ${t('set.yearHint')}</p>`)}
 
         ${pane('view',t('set.navView'),t('set.viewSub'),`
           <div class="cols c3">
@@ -126,7 +134,7 @@ function openSettings(){
 
     <div class="row-end"><button class="btn" id="lCancel">${t('g.cancel')}</button><button class="btn primary" id="lSave">${t('g.save')}</button></div>
   </div>`;
-  document.body.appendChild(box); tabThroughFields(box);
+  document.body.appendChild(box); tabThroughFields(box); bindSign(box);
 
   /* Bereich wechseln — nur Sichtbarkeit, nichts wird neu gebaut.
      Getipptes bleibt dadurch stehen, auch in den Bereichen, die
@@ -163,6 +171,10 @@ function openSettings(){
   const applyGeneral=()=>{
     state.lang=box.querySelector('#sLang').value==='de'?'de':'en';
     const y=num('#sYear',2000,2099); if(y) state.year=y;
+    /* Der Anfangsbestand darf jede Zahl sein — auch eine negative
+       und auch die Null. Ein leeres Feld heißt „kein Anfangs-
+       bestand", also null; deshalb kein `if`. */
+    state.opening=parseGermanNumber(box.querySelector('#sOpen').value);
     const lw=num('#sLabW',50,800); if(lw) state.labWidth=lw;
     const mw=num('#sMonW',50,400); if(mw) state.monWidth=mw;
     const tm=num('#sTopMin',0,100000); if(tm!=null) state.topMin=tm;

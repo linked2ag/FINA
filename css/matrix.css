@@ -106,6 +106,14 @@
 .matrix .codehead{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}
 .matrix .codehead:hover{color:var(--ink);text-decoration:underline}
 
+/* Der Pfeil, der einen Block zuklappt. Er steht in der Stiftspalte
+   der Blockzeile — dasselbe Zeichen wie in der Monatsansicht, nur
+   in der Größe der Matrix. Die Zeilenhöhe hält die Blockzeile so
+   flach wie ohne ihn; die Farbe kommt aus dem Block (weiter unten,
+   neben den Kanten). */
+.matrix .foldarrow{background:none;border:0;padding:0;cursor:pointer;
+  display:block;width:100%;font-size:15px;line-height:.8;letter-spacing:0;color:inherit}
+
 /* ── Zeilentypen ──────────────────────────────────────────────
    Drei Stufen, damit man ohne Suchen sieht, worin man liest:
    die Kopfzeile eines Blocks (.sec) am kräftigsten, die Kategorie
@@ -138,6 +146,12 @@
 .matrix tr.sec.r-sal td.ed{box-shadow:inset 5px 0 0 var(--edge-sal)}
 .matrix tr.grp.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
 .matrix tr.grp.r-in td.ed{box-shadow:inset 5px 0 0 var(--edge-in)}
+/* Der Klapp-Pfeil trägt die Kantenfarbe seines Blocks — wie in der
+   Monatsansicht der Pfeil im Kopf seiner Karte. */
+.matrix tr.sec.r-in .foldarrow{color:var(--edge-in)}
+.matrix tr.sec.r-flex .foldarrow{color:var(--edge-flex)}
+.matrix tr.sec.r-out .foldarrow{color:var(--edge-out)}
+.matrix tr.sec .foldarrow:hover{color:var(--ink)}
 
 /* Abbezahlt: nichts steht mehr aus (yearSettled in js/calc.js).
    Die ganze Zeile tritt grau zurück und überschreibt dabei die

@@ -48,7 +48,9 @@ Ausnahme: `data-note` und `data-tip` gehören `js/ui.js` und funktionieren über
 selbst.
 
 Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `tpart` `q` `qfields` `kd` (Filter) ·
-`ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich zuklappen) ·
+`ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich der Monatsansicht
+zuklappen) · `yfold` `dblyfold` (einen Block der Jahresmatrix zuklappen) · `qclear` (Filter
+zurücknehmen) ·
 `wload` `wnew` (Begrüßungsseite) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
 (Sprünge in eine andere Ansicht) ·
@@ -205,21 +207,31 @@ Daraus folgen drei Stellen, die zusammengehören:
 Der Name des Reiters (`view.kakeibo`) ist nicht der Name der Geldart. Für die drei Blöcke,
 die Kategorien und alles, was „Flexible Payments" als Art von Geld meint, steht `g.flex`.
 
-## Die Spalte „Art" der Flexible Payments
+## Woher ein Wert der Flexible Payments stammt
 
-Die linke Karte des Reiters zeigt links vor dem Betrag, **woher** er stammt: `flexKind(k,m)`
-in `js/calc.js` liefert `corr` · `imp` · `done` · `fix` · `est` · `none`, gebaut wird die
-Zelle in `kindCell()` in `js/views/kakeibo.js`, beschriftet über `FLEX_KIND_LABEL` und die
-Schlüssel `kak.kImp` … `kak.kEst`.
+Hinter dem Namen der Hauptkategorie steht **in Klammern**, woher der Betrag kommt:
+`flexKind(k,m)` in `js/calc.js` liefert `corr` · `imp` · `done` · `fix` · `est` · `none`,
+gebaut wird die Marke in `kindTag()` in `js/views/kakeibo.js`, beschriftet über
+`FLEX_KIND_LABEL` und die Schlüssel `kak.kImp` … `kak.kEst`.
+
+**Eine eigene Spalte ist es nicht mehr.** Sie hielt zwischen Kategorie und Betrag eine
+Breite frei, in der bei einem einzelnen Monat ein Wort stand und in den Unterzeilen gar
+nichts — und sie trennte die beiden Angaben, die man zusammen liest. In der Klammer trägt
+die Marke auch keinen Rahmen mehr (`.kinds`, `.kk`, `.ksep` in `css/ledger.css`): die
+Klammer fasst schon zusammen, es bleibt die Farbe.
 
 **`flexKind()` prüft in derselben Reihenfolge wie `kakVal()` und `kakDone()`** — Korrektur
 vor Import, Import vor Haken, Haken vor eingetipptem Betrag. Wer die Rangfolge dort ändert,
-ändert sie hier mit, sonst behauptet die Spalte etwas anderes, als gerechnet wird.
+ändert sie hier mit, sonst behauptet die Marke etwas anderes, als gerechnet wird.
 
-Bei einem einzelnen Monat steht ein Wort in der Zelle, beim ganzen Jahr je Art eine Marke
-mit der Zahl der Monate, die häufigste zuerst; Monate ohne Betrag zählen nicht mit. Die
-Unterzeilen bleiben leer — Unterkategorien kennt nur der Import, ihre Art steht schon in
-der Hauptzeile. Was die fünf Wörter bedeuten, sagt `kak.kindHint` unter der Tabelle.
+Bei einem einzelnen Monat steht ein Wort, beim ganzen Jahr je Art eine Marke mit der Zahl
+der Monate, die häufigste zuerst; Monate ohne Betrag zählen nicht mit. Die Unterzeilen
+tragen nichts — Unterkategorien kennt nur der Import, ihre Art steht schon in der
+Hauptzeile. Was die fünf Wörter bedeuten, sagt `kak.kindHint` unter der Tabelle.
+
+**Der Weg zurück ins Jetzt** steht gleich hinter der Monatsauswahl: `data-kmonth="cur"`
+setzt `ui.month=CUR` und `ui.scope='monat'` (`kak.cur`, gesperrt, wenn der laufende Monat
+schon gewählt ist).
 
 ## Die Annahme der Prognose
 
@@ -265,10 +277,34 @@ und ein Balken von 60 px wäre keine Aussage mehr.
   (`.tsum.cutl/.cutr`), das Jahr braucht eine **Maske** (`.ytrack .tup.cutl` …): sein Balken
   besteht aus mehreren Farben, ein Verlauf im Hintergrund käme dort nicht an.
 
-Der Stand vor dem Januar ist die Null, an der sein Balken anfängt, und **kein Wert des
-Jahres** — `yearScale()` lässt ihn für den Maßstab weg (`f.m!==1`), genau wie `flowScale()`
-den Stand vor dem Monat. Zählte er mit, spannte die Achse immer von der Null aus und
-schnitte nie: ein Januar mit 120.000 drückte die elf Monate danach zu Strichen zusammen.
+**Ohne Anfangsbestand** ist der Stand vor dem Januar die Null, an der sein Balken anfängt,
+und **kein Wert des Jahres** — `yearScale()` lässt ihn für den Maßstab dann weg (`f.m!==1`),
+genau wie `flowScale()` den Stand vor dem Monat. Zählte er mit, spannte die Achse immer von
+der Null aus und schnitte nie: ein Januar mit 120.000 drückte die elf Monate danach zu
+Strichen zusammen. **Mit Anfangsbestand** ist derselbe Wert ein echter Kontostand und zählt
+mit (`f.m!==1||op`), sonst liefe der Januarbalken aus der Fläche.
+
+Und er bekommt eine **eigene Zeile über dem Januar** (`openRow` in `viewPrognose()`,
+`tr.openrow`) — so wie die Monatseröffnung im Zeitstrahl eine eigene Zeile ist: er ist keine
+Bewegung eines Monats, sondern der Stand, auf dem das Jahr aufsetzt. Im Januarbalken sähe er
+aus wie etwas, das der Januar bewegt hätte. Zahlen stehen darin nur zwei — der Name und
+derselbe Betrag in „Kumuliert"; die Spalten dazwischen beschreiben Bewegungen.
+
+**Sein Balken wird abgeschnitten, sobald er länger ist als ein Rasterschritt** (`step`): bei
+120.000 auf einem Raster von 2.000 wären es sechzig Schritte, ein Balken über die ganze
+Zeile, der nichts mehr sagt. Gezeigt wird dann der letzte Schritt vor dem Stand, und der
+franst zum Rand hin aus (`.tsum.cutl/.cutr` an `.ytrack`) — dieselbe Aussage und dasselbe
+Mittel wie beim beschnittenen Balken der Monatsansicht: ein Farbverlauf ins Durchsichtige,
+keine Kante. Ausgefranst wird an der Seite, aus der er kommt: bei einem Guthaben links, bei
+einem Minus rechts.
+
+**Über der Spalte steht keine Überschrift, sondern die Achse selbst**: an jeder Rasterlinie
+der Betrag, für den sie steht (`axis` in `viewPrognose()`, `th.axishead .tax` in
+`css/ledger.css`). „Verlauf (Raster 2.000)" nannte nur den Abstand — man musste von der Null
+aus durchzählen. Die Marken erben Schrift und Größe der Kopfzelle und sitzen auf deren
+Innenabstand (`top:7px`), damit sie auf einer Zeile mit M · IN · REG · … stehen; ganz außen
+legen sie sich an die Kante, statt über den Rand zu ragen. Bei beschnittener Achse wandern
+sie mit — sie kommen aus derselben Rechnung wie die Linien.
 
 Die Farberklärung steht als `.thint` unter der Tabelle — dieselben Marken wie im Zeitstrahl,
 und bei beschnittener Achse ihr Maßstab dazu. **Vergangene Monate bleiben blass**
@@ -283,6 +319,13 @@ die Zeichen ✓ und ? bedeuten, steht nicht mehr in dieser Leiste, sondern recht
 der Ansichtsreiter (`.viewkey`, gesetzt in `renderChrome()`) — dort ist Platz, und
 zwischen lauter Knöpfen las es sich wie eine Beschriftung.
 
+**Unter der Tabelle steht nichts.** Der lange `.note`-Absatz, der dort stand — Stift und
+Doppelklick, die Kürzel B · PT · DD · LP, die Ampel der Restlaufzeit, der graue Grund, der
+durchgestrichene Monat, der laufende Monat —, erklärte die Ansicht ein zweites Mal: jede
+dieser Angaben trägt ihre eigene Sprechblase, und die Anleitung sagt es ausführlich. Am Ende
+einer Tabelle, die man ohnehin scrollt, las ihn niemand. Die Schlüssel (`year.hint` …
+`year.current`) stehen weiter in `js/i18n.js` — sie gehören zur Anleitung.
+
 **Die beiden Knöpfe wechseln ihre Beschriftung nicht.** Sie heißen immer, was sie tun, und
 sagen über den dunklen Grund (`aria-pressed`), ob sie gerade gelten; ein zweiter Klick
 schaltet sie ab. In Klammern steht, wie viel sie gerade verstecken. Genau wie die Filter
@@ -292,9 +335,9 @@ der Monatsansicht.
 `state.hideSettled` (siehe `emptyState()` und `migrate()` in `js/state.js`). Der Nutzer
 stellt sie einmal ein und findet sie beim nächsten Öffnen wieder — deshalb rufen ihre
 Klicks `save()`. **Vorgabe ist beides `false`:** eine frisch geöffnete Datei zeigt alles.
-Neben ihnen steht nur noch ein Ansichtsschalter in der Datei — `state.flexCollapsed`
-(siehe unten); alles andere (Monatsfilter, Suchfeld, gewählter Monat, aufgeklappte
-Auswertung) bleibt in `ui` und damit ungespeichert.
+Neben ihnen stehen nur noch die zugeklappten Bereiche in der Datei — `state.folded` und
+`state.foldedYear` (siehe unten); alles andere (Monatsfilter, Suchfeld, gewählter Monat,
+aufgeklappte Auswertung) bleibt in `ui` und damit ungespeichert.
 
 ## Die Auswertung über der Monatsansicht
 
@@ -436,8 +479,9 @@ ausdrücklich aus (`js/ui.js`), dort sind die Knöpfe der Inhalt und nicht das B
 
 ## Zugeklappte Bereiche
 
-Jede der drei Karten der Monatsansicht lässt sich zuklappen: sichtbar bleibt dann nur ihre
-oberste Zeile — Überschrift, Knöpfe, Summe —, die Tabelle wird gar nicht erst gebaut.
+Dieselben drei Bereiche klappen in **beiden** Ansichten zu — die Karten der Monatsansicht
+und die Blöcke der Jahresmatrix. Sichtbar bleibt jeweils nur die oberste Zeile:
+Überschrift, Knöpfe, Summe. Was darunter hinge, wird gar nicht erst gebaut.
 
 **Der Schalter ist ein Pfeil, kein Wort** (`data-fold="in|flex|out"`, gebaut in
 `foldBtn()`): ▾ offen, ▸ zugeklappt, in der Kantenfarbe seines Bereichs. Er steht ganz
@@ -449,50 +493,70 @@ nach. **Der Pfeil ist ein Dreieck von rund 18 px** (▼ / ▶ bei `font-size:23p
 Zeilenhöhe hält die Kopfzeile flach) — kein kleines Zeichen in einem großen Kreis, sondern
 das Zeichen selbst, in der Farbe des Bereichs.
 
-**Bei offener Auswertung gibt es ihn nicht.** Dann sagt der Zeitstrahl, was zu sehen ist,
-und alle Bereiche stehen offen; ein Pfeil, der dagegen anklappen wollte, hielte nicht, was
-er verspricht. `foldBtn()` liefert dann ein leeres `.foldpad` derselben Breite — sonst
-spränge die Überschrift —, und `data-dblfold` bleibt weg, der Doppelklick tut also ebenfalls
-nichts.
-
 **Ein Doppelklick auf die Kopfzeile tut dasselbe** (`data-dblfold` an der `.sechead`,
 verdrahtet in `wire()`); auf Knöpfen und Links darin nicht, die haben ihr eigenes Ziel.
 
 **Zugeklappt trägt der Kopf keine Linie mehr** (`.card.folded>.sechead`): unter ihm steht
 keine Zeile, die er abtrennen könnte — der Bereich ist dann nur noch eine Farbe.
 
-**Der Zustand steht in der Datei** (`state.folded`, ein Objekt mit `in` · `flex` · `out`)
-und gilt für **alle zwölf Monate** — es ist eine Einstellung wie die beiden Jahresfilter,
-deshalb `save()` vor dem `render()`. **Vorgabe ist alles offen:** wer eine Datei zum ersten
-Mal öffnet, soll sehen, was darin steht. Ältere Dateien kennen stattdessen das einzelne Feld
-`flexCollapsed`; `migrate()` zieht es herüber und löscht es. Gelesen wird der Schalter über `isFolded(k)` aus `js/state.js`, nie direkt.
+### Dieselben drei Blöcke in der Jahresmatrix
 
-### Zwei Dinge überschreiben ihn
+Die Blockzeilen der Jahresansicht klappen genauso (`viewJahr()` in `js/views/jahr.js`).
+Zugeklappt bleibt die **Blockzeile mit ihren zwölf Summen** stehen, die Zeilen darunter
+werden gar nicht erst gebaut — dasselbe Versprechen wie im Monat: Überschrift und Summe
+bleiben.
 
-`foldOf(k)` in `viewMonat()` entscheidet, was **zu sehen** ist — die Datei bleibt dabei
-unberührt:
+Der Pfeil (`data-yfold`, gebaut in `yfoldBtn()`) steht in `td.ed`, der **Stiftspalte** —
+eine Blockzeile hat dort nichts, und es ist die erste Spalte, also dieselbe Stelle wie im
+Kartenkopf des Monats. Er trägt die Kantenfarbe seines Blocks
+(`.matrix tr.sec.r-* .foldarrow` in `css/matrix.css`), ist mit 15 px kleiner als der der
+Monatsansicht und macht die Blockzeile über `line-height:.8` nicht höher. Der Doppelklick
+sitzt hier an der **ganzen Zeile** (`data-dblyfold` am `tr`), nicht an einer Zelle: die
+Zeile ist die Überschrift.
 
-1. **Ein Filter** klappt auf, was etwas zu zeigen hat, und zu, was nichts mehr enthält.
-   Sonst suchte man in einer zugeklappten Karte oder starrte auf drei leere Köpfe. Damit ein
-   leerer Kopf sich erklärt, steht `(n ausgeblendet)` in diesem Fall auch an einer
-   zugeklappten Karte.
-2. **Die offene Auswertung** klappt alles auf: der Zeitstrahl daneben soll sich in der Liste
-   wiederfinden lassen. Solange sie offen ist, lässt sich **gar nicht** geklappt werden —
-   weder von Hand noch aus der Datei; auch `ui.foldFree` gilt dann nicht.
+**Zwei Schalter, nicht einer:** `state.folded` gilt der Monatsansicht, `state.foldedYear`
+der Matrix. Es sind zwei verschiedene Listen im selben Buch — wer den Monat aufräumt, will
+nicht die halbe Matrix verlieren. Beide Objekte haben dieselben Schlüssel (`FOLD_KEYS`),
+werden von `blankFolded()` gebaut, in `migrate()` einzeln aufgefüllt und über `isFolded(k)`
+bzw. `isFoldedYear(k)` gelesen, nie direkt.
 
-Der Filter geht vor — er ist die genauere Aussage, und ein Klick im Zeitstrahl setzt selbst
-einen: mit offener Auswertung **und** Filter klappt also weiter der Filter, sonst stünden
-zwei leere Karten da. Fällt beides weg, gilt wieder die Datei.
+**Der Zustand steht in der Datei** und gilt für **alle zwölf Monate** — es ist eine
+Einstellung wie die beiden Jahresfilter, deshalb `save()` vor dem `render()`. **Vorgabe ist
+alles offen:** wer eine Datei zum ersten Mal öffnet, soll sehen, was darin steht. Ältere
+Dateien kennen stattdessen das einzelne Feld `flexCollapsed`; `migrate()` zieht es in
+`state.folded` herüber und löscht es — die Matrix fängt dabei offen an.
 
-**Geklappt wird immer gegen das, was zu sehen ist**, nicht gegen den Wert in der Datei: ein
-Pfeil, der nach oben zeigt, muss zuklappen. Was zu sehen ist, sagt der Pfeil selbst
-(`aria-expanded`), und `toggleFold()` schreibt das Gegenteil in die Datei. Damit der Klick
-gegen eine laufende Überschreibung ankommt, merkt `ui.foldFree[k]`, dass dieser Bereich von
-Hand geklappt wurde; jede Änderung an Filter oder Auswertung setzt das zurück (`freeFold()`
-in `wire()`).
+Verdrahtet sind beide Ansichten in `wire()` durch dieselbe Schleife über
+`[['fold','dblfold','folded'],['yfold','dblyfold','foldedYear']]`; `toggleFold()` bekommt
+den Namen der Liste als erstes Argument.
 
-Was er tut, sagt sein `title` und sein `aria-label`; ob der Bereich offen ist, sagt
-`aria-expanded` und die Richtung des Pfeils.
+### Was das Klappen überschreibt
+
+`foldOf(k)` entscheidet in beiden Ansichten, was **zu sehen** ist — die Datei bleibt dabei
+unberührt. Zwei Dinge klappen alles auf, und gegen sie lässt sich **gar nicht** klappen:
+
+1. **Ein Filter.** Wer sucht, soll den Treffer sehen und nicht daran denken müssen, in
+   welchem zugeklappten Bereich er steckt. Im Monat sind das Suchfeld, Fälligkeit und
+   Zahlungsstand (`filterOn`); in der Jahresansicht das Suchfeld und „Abgeschlossene
+   ausblenden" — **„Erledigte Monate ausblenden" nicht**: es nimmt Spalten weg, in einem
+   Block verbirgt sich dadurch nichts.
+2. **Die offene Auswertung** der Monatsansicht: der Zeitstrahl daneben soll sich in der
+   Liste wiederfinden lassen.
+
+**Solange eins von beidem gilt, gibt es keinen Pfeil und keinen Doppelklick.** `foldBtn()`
+liefert im Monat ein leeres `.foldpad` derselben Breite — sonst spränge die Überschrift —,
+in der Matrix bleibt die Stiftspalte einfach leer; `data-dblfold` / `data-dblyfold` bleiben
+weg. Ein Pfeil, der gegen eine Überschreibung anklappen wollte, hielte nicht, was er
+verspricht, und ein Wert, den niemand sieht, soll auch nicht heimlich kippen. Fällt beides
+weg, gilt wieder die Datei — unverändert.
+
+Daraus folgt: `(n ausgeblendet)` neben einer Überschrift steht beim Filtern **immer**,
+denn dann ist nichts zugeklappt.
+
+Was der Pfeil tut, sagt sein `title` und sein `aria-label` (`month.minAreaTip` /
+`year.minAreaTip` und die beiden Gegenstücke); ob der Bereich offen ist, sagt
+`aria-expanded` und die Richtung des Pfeils. Geklappt wird gegen das, was zu sehen ist —
+`toggleFold()` liest `aria-expanded` und schreibt das Gegenteil in die Datei.
 
 ## Die Filterzeile der Monatsansicht
 
@@ -513,15 +577,23 @@ Wie die drei Bereiche gefiltert werden, steht in `viewMonat()`:
 
 Was eine Karte dabei verliert, steht als `(n ausgeblendet)` neben ihrer Überschrift; bleibt
 gar nichts übrig, sagt der Satz darin, ob es am Filter liegt oder ob der Bereich leer ist.
-**Und der Filter klappt mit:** eine Karte ohne Treffer klappt zu, eine mit Treffern auf
-(siehe „Zugeklappte Bereiche"). Die drei Gruppen der Zeile — Suchfeld, Fälligkeit,
+**Und solange gefiltert wird, steht jede Karte offen** — auch eine, die in der Datei
+zugeklappt ist, und zuklappen lässt sie sich dabei nicht (siehe „Zugeklappte Bereiche").
+Eine Karte ohne Treffer zeigt also ihren Satz, nicht bloß ihren Kopf. Die drei Gruppen der Zeile — Suchfeld, Fälligkeit,
 Zahlungsstand — trennt eine senkrechte Linie (`.anabar .fbgroup`).
 
 Gebaut werden Feld und Knöpfe von `filterField()` und `fbtn()` in `js/ui.js`; die
 Jahresansicht benutzt dasselbe Feld. Ein Knopf zeigt am dunklen Grund, dass er angewendet
 ist, und ein zweiter Klick nimmt ihn zurück (`toggleFilter()` in `wire()` — er springt dann
-auf `alle`). Die Erklärung hängt als `data-tip` daran, das Suchfeld trägt stattdessen
-`title`: eine Sprechblase neben dem Feld, in das man gerade tippt, wäre nur im Weg.
+auf `alle`). Die Erklärung hängt als `data-tip` daran; das Suchfeld trägt zusätzlich
+`data-tiphover`, seine Sprechblase kommt also **nur von der Maus**. Beim Fokus stünde sie
+die ganze Zeit daneben, denn der Fokus kehrt immer wieder dorthin zurück (siehe unten).
+
+**Rechts vom Feld steht `data-qclear`**, das Gegenstück zum Tippen: es setzt `ui.q`,
+`ui.filter` und `ui.dueFilter` in einem Zug zurück und ist gesperrt, solange keiner davon
+gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — die stehen in der Datei
+und sind eine Einstellung, kein Handgriff. **Escape tut dasselbe** (Handler in `js/app.js`),
+aber nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.js`).
 
 Sie ist ein eigener Bereich und sieht auch so aus: **grauer Grund und eine dunkle Kante
 links**, wie die Karten darunter ihre Farbe tragen — nur ist ihre Farbe keine Geldart, sie
@@ -559,8 +631,23 @@ beiden `hay…`-Funktionen, die Zeile in `QFIELD_ROWS()` und zwei Texte in `js/i
 **Mindestens ein Kästchen bleibt stehen.** Ein Suchbegriff, der nirgends sucht, fände nie
 etwas und sähe aus wie ein Fehler. Durchgesetzt wird das im Fenster — `#ffSave` weist die
 leere Wahl zurück und zeigt `.errline` in Rot — und beim Laden in `migrate()`. Der Knopf
-selbst steht auf dunklem Grund (`aria-pressed`), sobald nicht mehr alles gewählt ist: wie
-bei den Filterknöpfen heißt dunkel „gilt gerade".
+selbst steht auf dunklem Grund (`aria-pressed`), sobald die Suche anders eingestellt ist als
+von Haus aus: wie bei den Filterknöpfen heißt dunkel „gilt gerade".
+
+**Der sechste Haken beantwortet eine andere Frage.** `#ffHidden` → `state.qHidden`, gelesen
+über `qAll()` (`js/state.js`), steht abgesetzt unter den fünf (`.wherelist`) und zählt bei
+„mindestens eins" **nicht** mit — die fünf sagen, *worin* gesucht wird, dieser sagt, *wo*.
+Steht er, überstimmt ein Suchbegriff die übrigen Filter: beide Ansichten rechnen dafür ein
+`wide = !!q && qAll()`.
+
+* **Monat** (`viewMonat`): `show()` prüft nur noch den Suchbegriff, Zahlungsstand und
+  Fälligkeit entfallen — und gesucht wird in `state.fixed` statt in `dueIn(m)`, also auch in
+  Posten, die in diesem Monat gar keinen Betrag haben.
+* **Jahr** (`viewJahr`): `base()` lässt „Abgeschlossene ausblenden" und die Regel fallen,
+  dass eine Position ohne jeden Betrag nicht in der Matrix steht.
+
+**Ohne Suchbegriff ändert der Haken nichts** — er ist kein Schalter für „alles zeigen",
+sondern gehört der Suche. Vorgabe ist aus.
 
 In der Jahresansicht gilt der Filter für jede Zeile mit Inhalt, auch für die Saldokorrektur
 und die drei Blockzeilen — sonst stünde nach einer Suche noch das halbe Gerüst da.
@@ -652,6 +739,32 @@ Zelle und der gestrichelte Rand. Gesetzt wird die Klasse von `signValue()` / `bi
 `js/ui.js`; ein Fenster ruft `bindSign()` einmal nach `appendChild`. **Was ein Knopf ins Feld
 schreibt, löst kein `input` aus** — Schnelleingabe und „Leeren" rufen deshalb selbst
 `signValues(box)`. Nur Beträge tragen die Klasse: das Jahr der letzten Zahlung ist keiner.
+
+## Der Anfangsbestand
+
+`state.opening` ist der Kontostand **vor dem Januar** — eine einzelne Zahl, gelesen über
+`opening()` aus `js/state.js`, nie direkt (ältere Dateien haben das Feld nicht, und eine
+Null ist dann die richtige Antwort). Sie darf negativ sein. Gepflegt wird sie auf der
+Hauptseite der Einstellungen, im dritten Feld neben dem Abrechnungsjahr (`#sOpen`,
+`set.opening`): ein Textfeld wie jeder Betrag — `parseGermanNumber` beim Speichern,
+Vorzeichenfarbe über `.signed`, deshalb `bindSign(box)` in `openSettings()`.
+
+**Sie ist kein Posten.** Sie steht in keiner Kategorie, wird nicht abgehakt und gehört
+keinem Monat — deshalb `state.opening` und nicht `state.fixed`, und deshalb die
+Einstellungen und keine Zeile in einer Ansicht.
+
+Sie wirkt an **drei** Stellen, und alle drei müssen dasselbe sagen:
+
+* `carryIn(m)` in `js/calc.js` — der Stand, den ein Monat vorfindet, und damit die Zeile
+  „Monatseröffnung" des Zeitstrahls. Im Januar steht dort genau der Anfangsbestand.
+* `yearFlow()` fängt bei ihm an (`let run=opening()`), und `yearScale()` zählt den Stand vor
+  dem Januar dann für den Maßstab mit (siehe „Die Spalte „Verlauf"").
+* `viewPrognose()` — die Spalte „Kumuliert" (`let cum=opening()`), die Kennzahl „Saldo
+  bisher" und die eigene Zeile über dem Januar (`openRow`). Alle drei müssen mit dem Verlauf
+  daneben übereinstimmen.
+
+Wer eine vierte Stelle baut, die einen laufenden Stand zeigt, fängt ebenfalls bei
+`opening()` an. Ohne Anfangsbestand ist alles wie zuvor: die Null.
 
 ## Die Saldokorrektur
 

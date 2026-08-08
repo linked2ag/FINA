@@ -17,9 +17,9 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-Alles Gebaute steht seit dem 7. August 2026 als Version **26.8.7.1** im Reiter **Was ist
-neu**. Was dort erledigt ist, muss deshalb nicht mehr in die anderen beiden Reiter — mit
-diesen Ausnahmen, die dort noch fehlen:
+Alles Gebaute steht seit dem 8. August 2026 als Version **26.8.8.1** im Reiter **Was ist
+neu** und ist in **Schritt für Schritt** und **Was FINA kann** eingearbeitet. Offen sind nur
+noch zwei Kleinigkeiten von früher:
 
 - **Der Reiter „Flexible Payment Details" startet mit dem ganzen Jahr** und der ersten
   Kategorie im rechten Bereich. Ein Halbsatz im Produktreiter, wo der Reiter beschrieben ist.
@@ -33,6 +33,15 @@ und Orange), `item-quick.png` (flachere Schnelleingabe), `set-groups.png` (zwei 
 ganze Ansicht) zeigen noch den Stand davor. Neue entstehen nur auf ausdrückliche Bitte.
 
 ## Zuletzt eingearbeitet
+
+Am 8. August 2026: **Version 26.8.8.1** in allen drei Reitern, beide Sprachen — der
+Anfangsbestand (Schritt 2 und ganz vorn im Produktreiter, dazu die eigene Zeile über dem
+Januar in der Prognose), die klappbaren Blöcke der Jahresmatrix, „beim Filtern steht alles
+offen" (⚠ die alte Aussage „FINA klappt beim Filtern für dich" ist damit überall ersetzt),
+der Knopf „Filter zurücknehmen", Escape und Strg/Cmd+Umschalt+F, der sechste Haken „auch in
+ausgeblendeten Positionen suchen", die Achse über der Verlaufsspalte, die Art in Klammern
+hinter der Kategorie samt „Laufender Monat" und der entfallene Erklärsatz unter der
+Jahrestabelle. Die Bildschirmfotos blieben liegen.
 
 Am 7. August 2026: **Version 26.8.7.1** im Reiter „Was ist neu", beide Sprachen — eigene
 Einnahme-Kategorien, die neu gebaute Prognose mit der Spalte Verlauf, die Bezeichnung als

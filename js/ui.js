@@ -40,9 +40,12 @@ function closeModal(box){
    nimmt ihn wieder zurück (siehe wire()). Die Erklärung steht als
    data-tip daran und erscheint ohne Verzögerung.
 
-   Das Suchfeld bekommt `title` statt data-tip: die Sprechblase
-   erscheint auch beim Hineinspringen mit dem Tabulator und stünde
-   dann die ganze Zeit neben dem Feld, in das man gerade tippt. */
+   Das Suchfeld bekommt seine Sprechblase **nur von der Maus**
+   (data-tiphover, siehe showTip weiter unten): der Fokus kehrt
+   immer wieder dorthin zurück, und mit ihm stünde die Blase die
+   ganze Zeit neben dem Feld, in das man gerade tippt. Beim
+   Überfahren erklärt sie einmal, was das Feld tut — und mit
+   welcher Taste man es von überall erreicht. */
 function fbtn(kind,val,label,tip,cur){
   return `<button class="btn small" data-${kind}="${esc(val)}" aria-pressed="${cur===val}"
     data-tip="${esc(tip)}">${label}</button>`;
@@ -59,12 +62,26 @@ function fbtn(kind,val,label,tip,cur){
    dahinter fangen dadurch weiter genau über der
    Bezeichnungsspalte an. */
 function filterField(extra){
-  const narrowed=QFIELDS.some(k=>!qField(k));
+  /* Dunkel steht der Hamburger, sobald die Suche anders eingestellt
+     ist als von Haus aus — weniger Teile einer Zeile **oder** dazu
+     die ausgeblendeten Positionen. */
+  const custom=QFIELDS.some(k=>!qField(k))||qAll();
+  /* Und dahinter der Knopf, der den Filter zurücknimmt: Suchbegriff,
+     Zahlungsstand und Fälligkeit auf einmal. Er steht rechts vom
+     Feld, weil er das Gegenstück zum Tippen ist, und ist gesperrt,
+     solange gar nichts gefiltert wird — ein Knopf, der nichts tut,
+     soll auch nicht so aussehen. Die beiden Knöpfe der
+     Jahresansicht rührt er nicht an: sie stehen in der Datei und
+     sind eine Einstellung, kein Handgriff. */
+  const on=!!(ui.q||'').trim()||ui.filter!=='alle'||ui.dueFilter!=='alle';
   return `<span class="fltbox${extra?' '+extra:''}">
-    <button class="btn small fltmenu" data-qfields="1" aria-pressed="${narrowed}"
+    <button class="btn small fltmenu" data-qfields="1" aria-pressed="${custom}"
       aria-label="${esc(t('flt.title'))}" data-tip="${esc(t('flt.btnTip'))}">&#9776;</button>
     <input class="fltq" data-q type="search" value="${esc(ui.q||'')}"
-      placeholder="${t('g.filter')}" aria-label="${t('g.filter')}" title="${esc(t('g.filterTip'))}"></span>`;
+      placeholder="${t('g.filter')}" aria-label="${t('g.filter')}"
+      data-tip="${esc(t('g.filterTip'))}" data-tiphover="1">
+    <button class="btn small fltclear" data-qclear="1"${on?'':' disabled'}
+      aria-label="${esc(t('g.clearFilter'))}" data-tip="${esc(t('g.clearFilterTip'))}">&#10005;</button></span>`;
 }
 
 /* ── Die Anteile eines Balkens ────────────────────────────────
@@ -232,7 +249,11 @@ document.addEventListener('mouseout',e=>{
 });
 document.addEventListener('focusin',e=>{
   const el=e.target.closest&&e.target.closest('[data-tip]');
-  if(el) showTip(el);
+  /* `data-tiphover` heißt: nur die Maus. Ein Feld, in dem
+     gearbeitet wird, bekommt den Fokus immer wieder zurück (siehe
+     wire() in js/app.js) — seine Sprechblase stünde sonst die
+     ganze Zeit daneben, statt einmal zu erklären. */
+  if(el&&!el.hasAttribute('data-tiphover')) showTip(el);
 });
 document.addEventListener('focusout',hideTip);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') hideTip(); });

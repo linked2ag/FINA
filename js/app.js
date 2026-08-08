@@ -4,12 +4,25 @@
    startet die Anwendung. Diese Datei wird als letzte geladen.
    ══════════════════════════════════════════════════════════════ */
 
-/* Der Fokus kehrt nach dem Neuzeichnen ins Suchfeld zurück — aber
-   nur, wenn dort etwas steht. Ein leeres Feld filtert nicht; die
-   Schreibmarke hätte darin nichts verloren, und bei jedem Haken
-   dorthin zu springen wäre nur lästig. Wer das Feld selbst
-   bedient, setzt ui.qFocus dagegen unbedingt (siehe wire()). */
-const keepQFocus=()=>{ ui.qFocus=!!(ui.q||'').trim(); };
+/* ── Der Fokus und das Suchfeld ───────────────────────────────
+   Solange im Suchfeld etwas steht, ist es der Platz, an dem
+   gearbeitet wird: man tippt einen Begriff, macht unten etwas
+   damit und tippt den nächsten. Der Fokus kehrt deshalb nach jedem
+   Neuzeichnen dorthin zurück — aber nur, wenn dort etwas steht. Ein
+   leeres Feld filtert nicht; die Schreibmarke hätte darin nichts
+   verloren, und bei jedem Haken dorthin zu springen wäre lästig.
+
+   ui.qFocus sagt, **wie** der Fokus zurückkommt:
+
+     'end'  die Schreibmarke ans Ende — das setzt nur das Feld
+            selbst, während getippt wird.
+     'all'  der Begriff steht markiert da, das nächste Zeichen
+            ersetzt ihn. So kommt man von überall sonst zurück:
+            wer weitermacht, sucht meistens das Nächste.
+
+   Wer nach dem Neuzeichnen nichts anderes zu tun hat, landet auch
+   ohne Zutun wieder dort (siehe wire()). */
+const keepQFocus=()=>{ ui.qFocus=(ui.q||'').trim()?'all':false; };
 
 /* ── Kopfzeile: feste Beschriftungen, Ansichts- und Monatsreiter ─
    Alles mit data-t bekommt seinen Text aus js/i18n.js, data-ttip
@@ -192,12 +205,8 @@ function wire(){
   /* Filter und Navigation. Ein zweiter Klick auf denselben Knopf
      nimmt den Filter wieder zurück — er springt dann auf „alle",
      und der helle Grund sagt: gilt gerade nicht. */
-  /* Jede Änderung am Filter oder an der Auswertung nimmt die von
-     Hand geklappten Bereiche zurück: von da an gilt wieder, was
-     die Lage vorgibt (siehe foldOf() in js/views/monat.js). */
-  const freeFold=()=>{ ui.foldFree={}; };
   const toggleFilter=(key,val)=>{ ui[key]=(ui[key]===val&&val!=='alle')?'alle':val;
-    freeFold(); keepQFocus(); render(); };
+    keepQFocus(); render(); };
   document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>toggleFilter('filter',b.dataset.filter));
   document.querySelectorAll('[data-duefilter]').forEach(b=>b.onclick=()=>toggleFilter('dueFilter',b.dataset.duefilter));
   /* Der Zeitstrahl filtert wie die Knöpfe darunter: ein Abschnitt
@@ -209,42 +218,51 @@ function wire(){
   /* Die Auswertung auf- und zuklappen. Sie steht in ui, nicht in
      der Datei: was gerade zu sehen ist, gehört zur Anzeige. */
   document.querySelectorAll('[data-ana]').forEach(b=>b.onclick=()=>{
-    ui.ana=!ui.ana; freeFold(); keepQFocus(); render(); });
-  /* Einen Bereich der Monatsansicht zuklappen (in · flex · out).
-     Das gilt für alle zwölf Monate und steht deshalb in der Datei —
-     wie die beiden Filter der Jahresansicht, also save() davor. */
-  /* Geklappt wird immer gegen das, was zu sehen ist — nicht gegen
-     das, was in der Datei steht. Beides kann auseinanderlaufen,
-     solange ein Filter oder die offene Auswertung den Zustand
-     überschreibt (foldOf() in js/views/monat.js); ein Pfeil, der
-     nach oben zeigt, muss zuklappen und nicht heimlich einen Wert
-     kippen, den niemand sieht. Was zu sehen ist, sagt der Pfeil
-     selbst: aria-expanded. Der Klick schreibt das Gegenteil in die
-     Datei und hebt die Überschreibung für diesen Bereich auf. */
-  const toggleFold=(k,openNow)=>{
-    if(!state.folded) state.folded=blankFolded();
-    state.folded[k]=openNow;
-    if(!ui.foldFree) ui.foldFree={};
-    ui.foldFree[k]=true;
+    ui.ana=!ui.ana; keepQFocus(); render(); });
+  /* Einen Bereich zuklappen (in · flex · out) — die Karten der
+     Monatsansicht (data-fold) und die Blöcke der Jahresmatrix
+     (data-yfold). Beide gelten für alle zwölf Monate und stehen
+     deshalb in der Datei, jede Ansicht in ihrer eigenen Liste —
+     wie die beiden Filter der Jahresansicht, also save() davor.
+
+     Geklappt wird gegen das, was zu sehen ist; das sagt der Pfeil
+     selbst (aria-expanded), und der Klick schreibt das Gegenteil in
+     die Datei. Während gefiltert wird, gibt es weder Pfeil noch
+     Doppelklick: dort steht ohnehin alles offen. */
+  const toggleFold=(store,k,openNow)=>{
+    if(!state[store]) state[store]=blankFolded();
+    state[store][k]=openNow;
     keepQFocus(); save(); render();
   };
-  document.querySelectorAll('[data-fold]').forEach(b=>b.onclick=()=>
-    toggleFold(b.dataset.fold,b.getAttribute('aria-expanded')==='true'));
-  /* Ein Doppelklick auf die Überschrift tut dasselbe wie der Pfeil —
-     auf Knöpfen und Links darin nicht, die haben ihr eigenes Ziel. */
-  document.querySelectorAll('[data-dblfold]').forEach(h=>h.ondblclick=ev=>{
-    if(ev.target.closest('button,a,input,select,textarea')) return;
-    const sel=window.getSelection(); if(sel) sel.removeAllRanges();
-    const arrow=h.querySelector('[data-fold]');
-    toggleFold(h.dataset.dblfold,!arrow||arrow.getAttribute('aria-expanded')==='true');
+  /* Ein Doppelklick auf die Überschrift (Monat) oder die Blockzeile
+     (Jahr) tut dasselbe wie der Pfeil — auf Knöpfen und Links darin
+     nicht, die haben ihr eigenes Ziel. */
+  [['fold','dblfold','folded'],['yfold','dblyfold','foldedYear']].forEach(([a,d,store])=>{
+    document.querySelectorAll(`[data-${a}]`).forEach(b=>b.onclick=()=>
+      toggleFold(store,b.getAttribute(`data-${a}`),b.getAttribute('aria-expanded')==='true'));
+    document.querySelectorAll(`[data-${d}]`).forEach(h=>h.ondblclick=ev=>{
+      if(ev.target.closest('button,a,input,select,textarea')) return;
+      const sel=window.getSelection(); if(sel) sel.removeAllRanges();
+      const arrow=h.querySelector(`[data-${a}]`);
+      toggleFold(store,h.getAttribute(`data-${d}`),!arrow||arrow.getAttribute('aria-expanded')==='true');
+    });
   });
   /* Das Suchfeld: es filtert beim Tippen, also wird bei jedem
      Zeichen neu gezeichnet. Damit der Fokus das überlebt, merkt
      ui.qFocus ihn vor und wire() setzt ihn danach zurück — samt
-     Schreibmarke am Ende. Hier gilt das **immer**, auch beim
-     letzten Rücklöschen: wer das Feld leert, steht noch darin. */
+     Schreibmarke am Ende ('end'). Hier gilt das **immer**, auch
+     beim letzten Rücklöschen: wer das Feld leert, steht noch
+     darin. Markiert würde der Begriff hier gerade nicht — das
+     nächste Zeichen löschte sonst, was man eben getippt hat. */
   document.querySelectorAll('[data-q]').forEach(i=>i.oninput=()=>{
-    ui.q=i.value; ui.qFocus=true; freeFold(); render();
+    ui.q=i.value; ui.qFocus='end'; render();
+  });
+  /* Der Knopf dahinter nimmt den Filter zurück — alle drei auf
+     einmal. Danach steht der Fokus im leeren Feld: wer
+     zurücknimmt, sucht meistens gleich etwas anderes. */
+  document.querySelectorAll('[data-qclear]').forEach(b=>b.onclick=()=>{
+    if(b.disabled) return;
+    ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.qFocus='all'; render();
   });
   /* Der Hamburger-Knopf davor: worin der Suchbegriff überhaupt
      sucht (js/dialogs/filter-fields.js). Die Wahl steht in der
@@ -274,6 +292,9 @@ function wire(){
     if(b.disabled) return;
     const d=b.dataset.kmonth;
     if(d==='jahr') ui.scope='jahr';
+    /* Zurück ins Jetzt — aus dem ganzen Jahr wie aus jedem
+       anderen Monat. */
+    else if(d==='cur'){ ui.month=CUR; ui.scope='monat'; }
     else { ui.month=Math.min(12,Math.max(1,ui.month+(d==='next'?1:-1))); ui.scope='monat'; }
     render();
   });
@@ -345,15 +366,77 @@ function wire(){
   tabThroughFields(document.getElementById('view'));
 
   /* Der Fokus kehrt ins Suchfeld zurück — ohne zu scrollen, die
-     Seite steht danach ohnehin wieder auf ihrer alten Höhe. */
-  if(ui.qFocus){
-    const q=document.querySelector('[data-q]');
-    if(q){ q.focus({preventScroll:true}); q.setSelectionRange(q.value.length,q.value.length); }
-    ui.qFocus=false;
+     Seite steht danach ohnehin wieder auf ihrer alten Höhe.
+
+     Zwei Wege führen dorthin. Der eine ist ui.qFocus: eine Stelle
+     hat gesagt, dass sie den Fokus zurückgibt. Der andere ist der
+     **Rückfall**: steht im Feld etwas und hat nach dem Neuzeichnen
+     niemand sonst den Fokus, gehört er dorthin. So kommt man auch
+     aus einem Fenster zurück, das gerade gespeichert hat — dessen
+     Knopf gibt es nicht mehr, der Fokus läge sonst auf dem
+     Dokument und die nächste Taste ginge ins Leere.
+
+     Zwei Bedingungen hat der Rückfall: kein offenes Fenster (dort
+     wird gerade getippt, ihm den Fokus zu nehmen wäre ein Fehler)
+     und wirklich niemand sonst — `document.body` heißt „nichts". */
+  const qEl=document.querySelector('[data-q]');
+  const idle=!document.activeElement||document.activeElement===document.body;
+  const back=ui.qFocus||(qEl&&qEl.value&&idle&&!document.querySelector('.modal')?'all':false);
+  if(qEl&&back){
+    qEl.focus({preventScroll:true});
+    if(back==='end') qEl.setSelectionRange(qEl.value.length,qEl.value.length);
+    else qEl.select();
   }
+  ui.qFocus=false;
 
   syncMatrixHead();
 }
+
+/* ── Strg/Cmd + Umschalt + F: ins Suchfeld ───────────────────
+   Der eine Weg zum Filter, von überall aus — dieselbe Taste, die
+   überall „suchen" heißt. Der Begriff steht danach **markiert**
+   da: wer den Griff schon gelernt hat, tippt gleich den nächsten,
+   ohne vorher zu löschen.
+
+   Das Suchfeld gibt es nur in der Monats- und der Jahresansicht.
+   Wer aus der Prognose oder den Flexible Payment Details kommt,
+   landet in der **Jahresansicht**: sie durchsucht alle zwölf
+   Monate, ist also die Ansicht, in der sich alles finden lässt.
+
+   Zwei Fälle bleiben außen vor: die Begrüßungsseite (dort gibt es
+   nichts zu durchsuchen) und ein offenes Fenster — dort wird
+   gerade getippt, und Escape ist der Weg hinaus, nicht diese
+   Taste. */
+addEventListener('keydown',ev=>{
+  if((ev.key!=='f'&&ev.key!=='F')||!ev.shiftKey||!(ev.ctrlKey||ev.metaKey)) return;
+  if(ui.welcome||document.querySelector('.modal')) return;
+  ev.preventDefault();
+  const q=document.querySelector('[data-q]');
+  if(q){ q.focus({preventScroll:true}); q.select(); return; }
+  /* Den Fokus setzt wire() nach dem Zeichnen — dort steht die
+     Regel, und das Feld gibt es erst danach. */
+  ui.view='jahr'; ui.qFocus='all'; render();
+});
+
+/* ── Escape nimmt den Filter zurück ──────────────────────────
+   Dieselbe Wirkung wie der Knopf rechts vom Suchfeld: Suchbegriff,
+   Zahlungsstand und Fälligkeit auf einmal. Escape heißt überall
+   „zurück" — im Fenster schließt es, in der Liste nimmt es den
+   Filter weg.
+
+   **Nur, wenn kein Fenster offen ist.** Dort gehört Escape dem
+   Fenster (js/ui.js), und es schließt es; den Filter dabei
+   nebenbei zu leeren wäre eine zweite, ungefragte Wirkung. Und
+   nur, wenn überhaupt gefiltert wird — sonst passiert nichts, und
+   der Tastendruck bleibt für den Browser, was er ist. */
+addEventListener('keydown',ev=>{
+  if(ev.key!=='Escape'||ev.defaultPrevented) return;
+  if(ui.welcome||document.querySelector('.modal')) return;
+  if(!(ui.q||'').trim()&&ui.filter==='alle'&&ui.dueFilter==='alle') return;
+  if(!document.querySelector('[data-q]')) return;
+  ev.preventDefault();
+  ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.qFocus='all'; render();
+});
 
 /* ── Feste Schaltflächen der Kopfzeile ────────────────────── */
 document.getElementById('btnSettings').onclick=()=>openSettings();

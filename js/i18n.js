@@ -127,8 +127,15 @@ const STR={
 /* Das Suchfeld gibt es in Monats- und Jahresansicht; der Text
    gehört deshalb zu den allgemeinen Wörtern. */
 'g.filter':{en:'Filter…',de:'Filtern…'},
-'g.filterTip':{en:'Filters the list while you type. Part of a word or of a figure is enough. The button on the left decides what is searched.',
-  de:'Filtert die Liste beim Tippen. Ein Wortteil oder ein Stück der Zahl genügt. Was durchsucht wird, sagt der Knopf links daneben.'},
+/* Der Knopf rechts vom Suchfeld. */
+'g.clearFilter':{en:'Clear filter',de:'Filter zurücknehmen'},
+'g.clearFilterTip':{en:'Clears the search term and sets payment state and due date back to “all”.',
+  de:'Leert den Suchbegriff und setzt Zahlungsstand und Fälligkeit auf „alle" zurück.'},
+/* Der Hinweis am Suchfeld. Er nennt am Ende die Taste, mit der man
+   von überall hierher springt — sie steht sonst nirgends, und das
+   Feld ist die Stelle, an der man sie brauchen kann. */
+'g.filterTip':{en:'Filters the list while you type. Part of a word or of a figure is enough. The button on the left decides what is searched. Ctrl/Cmd + Shift + F jumps here from anywhere and selects what is in the field.',
+  de:'Filtert die Liste beim Tippen. Ein Wortteil oder ein Stück der Zahl genügt. Was durchsucht wird, sagt der Knopf links daneben. Strg/Cmd + Umschalt + F springt von überall hierher und markiert, was im Feld steht.'},
 
 /* ── Fenster „Worin gesucht wird" ─────────────────────────────
    Der Hamburger-Knopf vor jedem Suchfeld
@@ -156,6 +163,11 @@ const STR={
   de:'Alles, worunter eine Position einsortiert ist — auch die Namen der Blöcke und Kategorien der Jahresansicht.'},
 'flt.needOne':{en:'At least one entry has to stay ticked — otherwise the filter would have nothing to search.',
   de:'Mindestens eine Angabe muss gewählt bleiben — sonst hätte der Filter nichts zu durchsuchen.'},
+/* Der sechste Haken. Er sagt nicht, worin gesucht wird, sondern
+   wo — deshalb steht er abgesetzt unter den fünf. */
+'flt.fHidden':{en:'Search hidden items too',de:'Auch in ausgeblendeten Positionen suchen'},
+'flt.fHiddenHint':{en:'A search term then beats the other filters: it also finds what the payment state, the due date, “Hide finished items” or a month without an amount would keep out of sight. Without a search term nothing changes.',
+  de:'Ein Suchbegriff schlägt dann die übrigen Filter: Er findet auch, was Zahlungsstand, Fälligkeit, „Abgeschlossene ausblenden" oder ein Monat ohne Betrag sonst verbergen. Ohne Suchbegriff ändert sich nichts.'},
 
 /* ── Notizfenster ─────────────────────────────────────────── */
 'note.title':{en:'Note — {0}',de:'Notiz — {0}'},
@@ -211,6 +223,13 @@ const STR={
 'year.hideSettled':{en:'Hide finished items',de:'Abgeschlossene ausblenden'},
 'year.hideSettledTip':{en:'Hide every item that is fully paid for this year. The sums stay as they are.',
   de:'Blendet jede Position aus, die für dieses Jahr abbezahlt ist. Die Summen bleiben, wie sie sind.'},
+/* Block zuklappen — der Pfeil in der ersten Spalte einer
+   Blockzeile der Matrix. Er gilt der Jahresansicht allein; die
+   Monatsansicht hat ihren eigenen Schalter (month.minAreaTip). */
+'year.minAreaTip':{en:'Show only the heading row of this block — kept in your file',
+  de:'Nur die Kopfzeile dieses Blocks zeigen — wird in der Datei gemerkt'},
+'year.maxAreaTip':{en:'Show this block in full again — kept in your file',
+  de:'Diesen Block wieder ganz zeigen — wird in der Datei gemerkt'},
 'year.balanceRow':{en:'Balance per month',de:'Saldo je Monat'},
 /* Die Blockzeile der Jahresmatrix ist zweizeilig: oben der
    Name, darunter klein, woher die Zahlen kommen können. */
@@ -390,6 +409,9 @@ const STR={
 'kak.kindHint':{en:'<b>Kind</b> says where the figure beside it comes from: <b>imported</b> from Fast Budget · <b>corrected</b> — an imported month you overwrote by hand · <b>closed</b> — no import, but you ticked the month off · <b>fixed</b> — an amount you typed that is not marked as an estimate, so it counts as settled · <b>estimated</b> — still open and expected to change. Over the whole year the column counts the months per kind; months without an amount are not counted.',
   de:'<b>Art</b> sagt, woher die Zahl daneben stammt: <b>importiert</b> aus Fast Budget · <b>korrigiert</b> — ein importierter Monat, den du von Hand überschrieben hast · <b>abgeschlossen</b> — kein Import, aber du hast den Monat abgehakt · <b>fest</b> — ein eingetippter Betrag, der nicht als Schätzung markiert ist und deshalb als erfasst gilt · <b>geschätzt</b> — noch offen und voraussichtlich anders. Über das ganze Jahr zählt die Spalte die Monate je Art; Monate ohne Betrag zählen nicht mit.'},
 'kak.period':{en:'Period',de:'Zeitraum'},
+/* Der Weg zurück ins Jetzt, gleich hinter der Monatsauswahl. */
+'kak.cur':{en:'Current month',de:'Laufender Monat'},
+'kak.curTip':{en:'Show {0} — the current month',de:'{0} zeigen — den laufenden Monat'},
 'kak.prev':{en:'‹ Previous month',de:'‹ Vormonat'},
 'kak.prevTip':{en:'One month back',de:'Einen Monat zurück'},
 'kak.next':{en:'Next month ›',de:'Folgemonat ›'},
@@ -632,8 +654,8 @@ const STR={
 'set.navGeneral':{en:'General',de:'Allgemein'},
 'set.navView':{en:'Appearance',de:'Darstellung'},
 'set.navBanks':{en:'Banks & payment types',de:'Banken & Zahlungsarten'},
-'set.generalSub':{en:'Language of the interface and the year this cash book is kept for. Both travel in the file — when you load it, the app follows the file.',
-  de:'Sprache der Oberfläche und das Jahr, für das dieses Kassenbuch geführt wird. Beides steht in der Datei — beim Laden richtet sich die Anwendung nach ihr.'},
+'set.generalSub':{en:'Language of the interface, the year this cash book is kept for, and the balance it starts from. All three travel in the file — when you load it, the app follows the file.',
+  de:'Sprache der Oberfläche, das Jahr, für das dieses Kassenbuch geführt wird, und der Stand, mit dem es anfängt. Alle drei stehen in der Datei — beim Laden richtet sich die Anwendung nach ihr.'},
 'set.viewSub':{en:'How wide the year matrix is drawn, and from which amount a booking counts as a large single item.',
   de:'Wie breit die Jahresmatrix gezeichnet wird, und ab welchem Betrag eine Buchung als großer Einzelposten gilt.'},
 'set.banksSub':{en:'The code appears in the year overview in columns B and PT, the label below each item in the month view. Both lists are yours alone — name them the way you think of your accounts. Change a code later and FINA asks whether the items that carry it should be moved along.',
@@ -644,8 +666,15 @@ const STR={
   de:'Die Kategorien deiner alltäglichen Ausgaben — je eine Zeile in der Jahresübersicht und in der Flexible-Payments-Ansicht. Beim Umbenennen wandern Planwerte, Ist-Werte, Korrekturen und importierte Buchungen mit. Die Reihenfolge hier gilt überall.'},
 'set.lang':{en:'Interface language',de:'Sprache der Oberfläche'},
 'set.year':{en:'Accounting year',de:'Abrechnungsjahr'},
-'set.yearHint':{en:'Only the labelling changes — the twelve months keep their amounts.',
-  de:'Es ändert sich nur die Beschriftung — die zwölf Monate behalten ihre Beträge.'},
+'set.yearHint':{en:'Changing the year changes only the labelling — the twelve months keep their amounts.',
+  de:'Das Jahr zu ändern ändert nur die Beschriftung — die zwölf Monate behalten ihre Beträge.'},
+/* Der Anfangsbestand. „Opening balance" ist der eingeführte
+   Begriff; im Deutschen heißt er hier Anfangsbestand, weil
+   „Eröffnungssaldo" nach Buchhaltung klingt und dies ein
+   Haushaltsbuch ist. */
+'set.opening':{en:'Opening balance',de:'Anfangsbestand'},
+'set.openingHint':{en:'What was in your account before January — every balance in FINA counts up from here. Leave it empty and the year starts at zero; a minus sign is allowed.',
+  de:'Was vor dem Januar auf deinem Konto lag — jeder Kontostand in FINA zählt von hier aus weiter. Leer heißt: das Jahr fängt bei null an; ein Minus ist erlaubt.'},
 'set.labw':{en:'Item column',de:'Positionsspalte'},
 'set.monw':{en:'Month columns',de:'Monatsspalten'},
 'set.widthHint':{en:'Widths of the year matrix in pixels, 50 to 800.',de:'Breiten der Jahresmatrix in Pixel, 50 bis 800.'},

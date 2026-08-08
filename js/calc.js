@@ -236,10 +236,10 @@ const saldo=m=>income(m)+fixedCost(m)+kakeiboFor(m)+balanceFix(m);
    laufender Wert ist deshalb genau saldo(m).
 
    Davor steht ein fünfter Abschnitt, in den nichts fällig wird:
-   'P' — was der Monat vorfindet. Sein Wert ist die Summe der
-   Monate davor in derselben Datei (carryIn). Das ist kein
-   Kontoauszug: die Datei kennt keinen Anfangsbestand, gerechnet
-   wird mit dem, was in ihr steht — im Januar also nichts.
+   'P' — was der Monat vorfindet. Sein Wert ist der Anfangsbestand
+   des Buches plus die Summe der Monate davor (carryIn). Im Januar
+   steht dort also genau der Anfangsbestand; ohne einen bleibt es
+   bei der Null, mit der FINA vorher immer angefangen hat.
 
    Je Abschnitt kommt zurück: die Veränderung (sum), der Kontostand
    danach (run), die Zahl der Posten dahinter (n) und die
@@ -248,7 +248,7 @@ const saldo=m=>income(m)+fixedCost(m)+kakeiboFor(m)+balanceFix(m);
    sein Vorzeichen hinweist: eine Rückzahlung bei den regelmäßigen
    Kosten steht in der Zufuhr, und die Farbe der Art sagt trotzdem,
    woher sie kommt. */
-const carryIn=m=>{ let s=0; for(let i=1;i<m;i++) s+=saldo(i); return s; };
+const carryIn=m=>{ let s=opening(); for(let i=1;i<m;i++) s+=saldo(i); return s; };
 const FLOW_KINDS=['in','flex','out','bal'];
 const FLOW_PARTS=['A','M','E','Z'];
 const MONTH_PARTS=['P'].concat(FLOW_PARTS);
@@ -336,12 +336,13 @@ function flowScale(flow){
    Prognose denselben Wasserfall wie die Monatsansicht — dieselben
    vier Geldarten, dieselbe Achse, dieselbe Treppe.
 
-   Angefangen wird bei null: die Datei kennt keinen Anfangsbestand,
-   gerechnet wird mit dem, was in ihr steht. Die letzte Zeile ist
-   damit der Stand zum Jahresende — dieselbe Zahl, die die Spalte
-   „Kumuliert" in ihrer letzten Zeile zeigt. */
+   Angefangen wird beim Anfangsbestand (opening() in js/state.js) —
+   dem Kontostand vor dem Januar. Die letzte Zeile ist damit der
+   Stand zum Jahresende, dieselbe Zahl, die die Spalte „Kumuliert"
+   in ihrer letzten Zeile zeigt; ohne Anfangsbestand ist es die
+   Null wie bisher. */
 function yearFlow(){
-  const out=[]; let run=0;
+  const out=[]; let run=opening();
   for(let m=1;m<=12;m++){
     const up={},down={};
     const add=(kind,v)=>{ if(!v) return; const s=v>0?up:down; s[kind]=(s[kind]||0)+Math.abs(v); };
@@ -360,15 +361,19 @@ function yearFlow(){
   return out;
 }
 function yearScale(flow){
+  const op=opening();
   let lo=Infinity,hi=-Infinity;
   flow.forEach(f=>{
     const top=f.prev+sumOf(f.up);
-    /* Der Stand vor dem Januar ist die Null, an der sein Balken
-       anfängt, und kein Wert des Jahres — genau wie im Zeitstrahl
-       der Stand vor dem Monat. Zählte sie mit, spannte die Achse
-       immer von der Null aus und schnitte nie: ein Januar mit
-       120.000 drückte die elf Monate danach zu Strichen zusammen. */
-    if(f.m!==1) { lo=Math.min(lo,f.prev); hi=Math.max(hi,f.prev); }
+    /* Ohne Anfangsbestand ist der Stand vor dem Januar die Null, an
+       der sein Balken anfängt, und kein Wert des Jahres — genau wie
+       im Zeitstrahl der Stand vor dem Monat. Zählte sie mit,
+       spannte die Achse immer von der Null aus und schnitte nie:
+       ein Januar mit 120.000 drückte die elf Monate danach zu
+       Strichen zusammen. **Mit** Anfangsbestand ist derselbe Wert
+       ein echter Kontostand und zählt mit — sonst liefe der
+       Januarbalken aus der Fläche heraus. */
+    if(f.m!==1||op) { lo=Math.min(lo,f.prev); hi=Math.max(hi,f.prev); }
     lo=Math.min(lo,f.run,top); hi=Math.max(hi,f.run,top);
   });
   return spanScale(lo,hi);

@@ -180,6 +180,11 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    Auf dunklem Grund steht er, sobald nicht mehr alles durchsucht
    wird — die Regel dafür steht oben bei den Filterknöpfen. */
 .fltmenu{flex:0 0 auto;padding:3px 8px;font-size:14px;line-height:1.35}
+/* Rechts vom Feld der Knopf, der den Filter zurücknimmt — gebaut
+   wie der Hamburger links, damit das Feld zwischen zwei gleichen
+   Knöpfen steht. Etwas kleiner ist das Kreuz: es ist ein Zeichen
+   und keine Beschriftung. */
+.fltclear{flex:0 0 auto;padding:3px 7px;font-size:12px;line-height:1.55}
 
 /* Eingabefeld mit Knopf daneben — der Beleglink lässt sich so
    öffnen, ohne vorher zu speichern. */
@@ -253,6 +258,9 @@ input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;bor
 .checkrow .clab{font-size:14.5px;color:var(--ink)}
 .checkrow .chint{grid-column:2;font-size:12px;color:var(--ink-2);margin-top:2px}
 .checkrow:hover{background:var(--shade)}
+/* Der Haken, der nicht sagt, worin gesucht wird, sondern wo: eine
+   Linie darüber trennt ihn von den fünf, die zusammengehören. */
+.wherelist{border-top:1px solid var(--rule-strong);margin-top:10px}
 
 /* Was das Speichern zurückweist, steht in Rot über den Knöpfen —
    dort, wo eben geklickt wurde. */
@@ -435,10 +443,23 @@ body.gresize{user-select:none;cursor:col-resize}
 .liststack .field{margin-bottom:0}
 /* Das Pluszeichen steht direkt hinter der Beschriftung der Liste
    und bleibt zurückhaltend — es soll die Überschrift nicht
-   überstimmen, sondern nur bereitstehen. */
+   überstimmen, sondern nur bereitstehen.
+
+   **Es ist so hoch wie die Versalien daneben und steht genau auf
+   ihrer Mitte.** Beides ist gemessen, nicht geschätzt: die Tinte
+   des + ist knapp die Hälfte seiner Schriftgröße, also 15.5px für
+   die 7.4px hohen Großbuchstaben der Beschriftung; und weil ein +
+   weder Ober- noch Unterlänge hat, wird es nicht auf der
+   Grundlinie ausgerichtet, sondern auf der Mitte — dafür sitzt es
+   mittig in einem Kasten, den `vertical-align` um 1.25px anhebt.
+   Auf der Grundlinie ausgerichtet hing es sichtbar durch.
+
+   Wer an der Schriftgröße der Beschriftung (`.field label`, 10px)
+   oder an diesen Werten dreht, misst nach: Tintenmitte des + gegen
+   Tintenmitte der Versalien, gleiche Höhe, kein Versatz. */
 .plusmini{background:none;border:0;padding:0;margin-left:8px;width:16px;height:16px;
-  color:var(--rule-strong);font-family:var(--font-data);font-size:15px;font-weight:600;line-height:1;
-  display:inline-grid;place-items:center;vertical-align:-3px;cursor:pointer;border-radius:2px}
+  color:var(--rule-strong);font-family:var(--font-data);font-size:15.5px;font-weight:600;line-height:1;
+  display:inline-grid;place-items:center;vertical-align:-1.25px;cursor:pointer;border-radius:2px}
 .plusmini:hover{color:var(--seal);background:rgba(0,0,0,.05)}
 .plusmini:focus-visible{outline:2px solid var(--seal);outline-offset:1px}
 @media(max-width:760px){

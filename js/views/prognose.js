@@ -105,11 +105,31 @@ function viewPrognose(){
   const lines=v=>Math.floor(sc.hi/v)-Math.ceil(sc.lo/v)+1;
   const step=[1000,2000,2500,5000,10000,25000,50000].find(v=>lines(v)<=10)||100000;
   const grid=[];
+  /* ── Die Achse in der Kopfzeile ──────────────────────────────
+     Über der Spalte steht keine Beschriftung mehr, sondern die
+     Achse selbst: an jeder Rasterlinie der Betrag, für den sie
+     steht. „Verlauf (Raster 2.000)" nannte nur den Abstand — man
+     musste sich von der Null aus durchzählen, um eine Linie zu
+     lesen. Jetzt steht die Zahl dort, wo die Linie ist.
+
+     Die Marke sitzt mittig über ihrer Linie; ganz außen würde sie
+     über den Rand der Spalte hinausragen und legt sich deshalb an
+     die Kante. Was die Spalte überhaupt zeigt, sagt weiter die
+     Sprechblase. */
+  const axis=[];
+  const mark=v=>{
+    const x=pos(v), off=x<6?'0':(x>94?'-100%':'-50%');
+    axis.push(`<span class="tax" style="left:${x}%;transform:translateX(${off})">${gnum(v)}</span>`);
+  };
   for(let v=Math.ceil(sc.lo/step)*step; v<=sc.hi; v+=step){
     /* Die Null hat schon ihre eigene, kräftigere Linie. */
     if(!sc.cut&&Math.abs(v)<step/2) continue;
     grid.push(`<span class="tgrid" style="left:${pos(v)}%"></span>`);
+    mark(v);
   }
+  /* Die Null ist auch eine Linie und bekommt ihre Zahl — bei
+     beschnittener Achse gibt es sie nicht, dann fällt sie weg. */
+  if(!sc.cut) mark(0);
   /* Das Raster liegt in der **Zelle**, nicht im Balken: nur so
      reicht es über die ganze Zeilenhöhe, und weil die Zeilen
      aneinandergrenzen, werden aus zwölf kurzen Strichen zwölf
@@ -124,7 +144,49 @@ function viewPrognose(){
      die Korrektur: die meisten Bücher brauchen sie nie. */
   const corEmpty=MONTHS.every((_,i)=>!balanceFix(i+1));
 
-  let cum=0;
+  /* Die Kumulation fängt beim Anfangsbestand an — dem Kontostand
+     vor dem Januar (opening() in js/state.js). Ohne einen ist es
+     die Null wie bisher. Dieselbe Zahl steht als erster Wert im
+     Verlauf daneben (yearFlow), beide dürfen nicht auseinander-
+     laufen. */
+  let cum=opening();
+
+  /* ── Die Zeile über dem Januar ──────────────────────────────
+     Der Anfangsbestand bekommt eine **eigene Zeile**, so wie die
+     Monatseröffnung im Zeitstrahl der Monatsansicht eine eigene
+     Zeile ist: er ist keine Bewegung eines Monats, sondern der
+     Stand, auf dem das Jahr aufsetzt. Im Januarbalken sähe er aus
+     wie etwas, das der Januar bewegt hätte.
+
+     Zahlen stehen darin nur zwei: der Name und derselbe Betrag in
+     „Kumuliert" — die Spalten dazwischen beschreiben Bewegungen,
+     und die gibt es hier nicht.
+
+     **Sein Balken wird abgeschnitten, sobald er länger ist als ein
+     Rasterschritt.** Bei 120.000 auf einem Raster von 2.000 wären
+     es sechzig Schritte: ein Balken, der die ganze Zeile füllt und
+     nichts mehr aussagt. Gezeigt wird dann der letzte Schritt vor
+     dem Stand, und der franst zum Rand hin aus — dieselbe Aussage
+     wie beim beschnittenen Balken der Monatsansicht („er kommt von
+     weiter außerhalb") und dasselbe Mittel: ein Farbverlauf ins
+     Durchsichtige, keine Kante. Ausgefranst wird an der Seite, aus
+     der er kommt: bei einem Guthaben links, bei einem Minus
+     rechts. */
+  const openRow=(()=>{
+    const op=opening(); if(!op) return '';
+    const long=Math.abs(op)>step;
+    const from=long?(op>0?op-step:op+step):0;
+    const a=pos(from), b=pos(op);
+    const l=Math.max(0,Math.min(100,Math.min(a,b))), r=Math.max(0,Math.min(100,Math.max(a,b)));
+    const fade=(long||sc.cut)?(op>0?' cutl':' cutr'):'';
+    return `<tr class="openrow"><td>${t('set.opening')}</td>
+      <td class="num"></td><td class="num"></td><td class="num"></td>
+      <td class="num balcol${corEmpty?' mid':''}"></td><td class="num"></td>
+      <td class="num ${cls(op)}">${eur(op)}</td>
+      <td class="flowcell">${rails}<span class="ttrack ytrack"
+        ><span class="tsum yopen${fade}" style="left:${l}%;width:${r-l}%"></span></span></td></tr>`;
+  })();
+
   const rows=MONTHS.map((name,i)=>{
     const m=i+1,s=saldo(m);
     cum+=s;
@@ -154,8 +216,11 @@ function viewPrognose(){
   /* Kennzahlen: was ab dem laufenden Monat noch kommt, und die
      beiden Salden — Stand heute und Stand zum Jahresende. */
   const from=MONTHS[CUR-1];
-  let incRest=0,fixRest=0,openRest=0,kakRest=0,soFar=0;
+  let incRest=0,fixRest=0,openRest=0,kakRest=0,soFar=opening();
   for(let m=CUR;m<=12;m++){ incRest+=income(m); fixRest+=fixedCost(m); openRest+=openCost(m); kakRest+=kakeiboFor(m); }
+  /* „Saldo bisher" ist der Kontostand von heute, also dieselbe Zahl
+     wie „Kumuliert" in der Zeile vor dem laufenden Monat — deshalb
+     auch hier der Anfangsbestand als Startwert. */
   for(let m=1;m<CUR;m++) soFar+=saldo(m);
   const yearEnd=cum;
 
@@ -196,9 +261,9 @@ function viewPrognose(){
     <div class="scroll" style="border:0"><table class="ledger progtable">
       <tr>${PROG_COLS.map(c=>`<th class="${c.cls}${c.ab==='COR'&&corEmpty?' mid':''}"
         data-tip="${esc(t(c.name)+' — '+t(c.tip))}">${c.ab}</th>`).join('')}
-        <th class="flowcell" data-tip="${esc(t('prog.colFlow')+' — '+t('prog.colFlowTip'))}">${t('prog.colFlow')}
-          <span class="gridnote">(${t('prog.gridShort')} ${gnum(step)})</span></th></tr>
-      ${rows}</table></div>
+        <th class="flowcell axishead"
+          data-tip="${esc(t('prog.colFlow')+' — '+t('prog.colFlowTip'))}">${axis.join('')}</th></tr>
+      ${openRow}${rows}</table></div>
     <div class="thint">${chips}</div>
     <p class="note" style="margin-top:10px">${t('prog.greyed',MONTHS_LONG[CUR-1])}</p></div>`;
 }
