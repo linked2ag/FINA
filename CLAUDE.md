@@ -267,9 +267,10 @@ und ein Balken von 60 px wäre keine Aussage mehr.
 
 **Drei Dinge teilen sich die beiden Grafiken, und keins davon darf auseinanderlaufen:**
 
-* **Die Achsenregel** — `spanScale(lo,hi)` in `js/calc.js`. `flowScale()` (Monat) und
+* **Die Achsenregel** — `spanScale(lo,hi,force)` in `js/calc.js`. `flowScale()` (Monat) und
   `yearScale()` (Jahr) sammeln nur ihre Werte und geben sie dort hinein. Wer an der Grenze
-  für den Schnitt dreht, dreht an beiden Ansichten.
+  für den Schnitt dreht, dreht an beiden Ansichten. `force` schneidet ohne zu fragen und
+  wird nur vom Jahr benutzt, wenn ein Anfangsbestand gesetzt ist (siehe unten).
 * **Die Anteile eines Balkens** — `flowParts()` und `FLOW_LABEL` in `js/ui.js`. Sie standen
   früher in `js/views/monat.js`; dort hinge die Prognose unsichtbar an der Monatsansicht.
 * **Der abgeschnittene erste Balken.** Im Monat ist es die Monatseröffnung, im Jahr der
@@ -284,11 +285,26 @@ der Null aus und schnitte nie: ein Januar mit 120.000 drückte die elf Monate da
 Strichen zusammen. **Mit Anfangsbestand** ist derselbe Wert ein echter Kontostand und zählt
 mit (`f.m!==1||op`), sonst liefe der Januarbalken aus der Fläche.
 
+**Und dann fängt die Achse nicht mehr bei null an.** `yearScale()` gibt `spanScale()` in
+diesem Fall ein `force` mit: gerechnet wird über die Werte selbst, wie beim beschnittenen
+Zeitstrahl. Wer mit 10.000 anfängt, bewegt sich das Jahr über zwischen 10.000 und 20.000 —
+die Null ist dann keine Aussage über das Jahr, sondern der Abstand zu einem Konto, das nie
+leer war, und sie schöbe alle zwölf Monate in die rechte Hälfte.
+
+Dazu bekommt die Achse in `viewPrognose()` **einen Rasterschritt Luft unter dem
+Anfangsbestand** — so weit reicht sein Balken, und ohne den Platz wäre er nicht zu sehen.
+Das geht erst nach der ersten Rechnung, denn die Schrittweite steht erst danach fest: `sc`
+ist deshalb `let`, `step` bleibt, nur die Grenze wandert.
+
 Und er bekommt eine **eigene Zeile über dem Januar** (`openRow` in `viewPrognose()`,
 `tr.openrow`) — so wie die Monatseröffnung im Zeitstrahl eine eigene Zeile ist: er ist keine
 Bewegung eines Monats, sondern der Stand, auf dem das Jahr aufsetzt. Im Januarbalken sähe er
 aus wie etwas, das der Januar bewegt hätte. Zahlen stehen darin nur zwei — der Name und
 derselbe Betrag in „Kumuliert"; die Spalten dazwischen beschreiben Bewegungen.
+
+Die Zeile ist **so hoch wie jede andere** (`two` an ihrem `.ttrack`, der Balken darin
+`solo`) und endet mit demselben schwarzen Strich (`.tmark`) wie die Monatszeilen — er
+markiert überall den Stand, mit dem die Zeile schließt.
 
 **Sein Balken wird abgeschnitten, sobald er länger ist als ein Rasterschritt** (`step`): bei
 120.000 auf einem Raster von 2.000 wären es sechzig Schritte, ein Balken über die ganze
@@ -594,6 +610,17 @@ die ganze Zeit daneben, denn der Fokus kehrt immer wieder dorthin zurück (siehe
 gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — die stehen in der Datei
 und sind eine Einstellung, kein Handgriff. **Escape tut dasselbe** (Handler in `js/app.js`),
 aber nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.js`).
+
+**Drei Wege führen ins Feld**, alle drei als Handler unten in `js/app.js`:
+
+* **Einfach lostippen.** Ein einzelnes Zeichen ohne Strg/Cmd/Alt hängt sich an `ui.q`, wenn
+  gerade kein Feld den Fokus hat — in Monat und Jahr gibt es nichts anderes, wohin ein
+  Buchstabe gehörte. Außen vor bleiben: ein offenes Fenster, die Begrüßungsseite, Ansichten
+  ohne Suchfeld und das Leerzeichen bei leerem Feld (es filterte auf nichts und nähme dem
+  Browser das Blättern).
+* **Strg/Cmd + Umschalt + F** von überall; ohne Suchfeld in der Ansicht wechselt es zuerst
+  in die Jahresansicht, weil die alle zwölf Monate durchsucht.
+* **Der Fokus von selbst**, wenn nach dem Zeichnen niemand sonst ihn hat (siehe `wire()`).
 
 Sie ist ein eigener Bereich und sieht auch so aus: **grauer Grund und eine dunkle Kante
 links**, wie die Karten darunter ihre Farbe tragen — nur ist ihre Farbe keine Geldart, sie

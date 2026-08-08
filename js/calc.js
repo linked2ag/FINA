@@ -307,10 +307,15 @@ const sumOf=o=>Object.values(o).reduce((a,b)=>a+b,0);
    Jahr in der Prognose. Getrennte Fassungen liefen mit der Zeit
    auseinander, und dann hieße derselbe Balken in zwei Ansichten
    zweierlei. */
-function spanScale(lo,hi){
+/* `force` schneidet immer, ohne zu fragen. Das braucht der Verlauf
+   über das Jahr, sobald ein Anfangsbestand gesetzt ist: die Null
+   ist dann keine Aussage mehr über das Jahr, sondern nur noch der
+   Abstand zu einem Konto, das nie leer war — sie schöbe alle zwölf
+   Monate in die rechte Hälfte. */
+function spanScale(lo,hi,force){
   if(!isFinite(lo)){ lo=0; hi=0; }
   const move=hi-lo, full=Math.max(0,hi)-Math.min(0,lo);
-  const cut=full>0&&move/full<0.5;
+  const cut=force||(full>0&&move/full<0.5);
   if(!cut){ lo=Math.min(0,lo); hi=Math.max(0,hi); }
   else { const pad=move*0.08||1; lo-=pad; hi+=pad; }
   return {lo,hi,span:(hi-lo)||1,cut};
@@ -376,7 +381,7 @@ function yearScale(flow){
     if(f.m!==1||op) { lo=Math.min(lo,f.prev); hi=Math.max(hi,f.prev); }
     lo=Math.min(lo,f.run,top); hi=Math.max(hi,f.run,top);
   });
-  return spanScale(lo,hi);
+  return spanScale(lo,hi,!!op);
 }
 
 /* ── Fortschritt eines Monats ─────────────────────────────── */

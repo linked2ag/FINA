@@ -418,6 +418,43 @@ addEventListener('keydown',ev=>{
   ui.view='jahr'; ui.qFocus='all'; render();
 });
 
+/* ── Einfach lostippen ───────────────────────────────────────
+   Wer in der Monats- oder Jahresansicht anfängt zu tippen, ohne
+   vorher irgendwo hineingeklickt zu haben, meint den Filter: es
+   gibt in diesen beiden Ansichten nichts anderes, in das ein
+   Buchstabe gehören könnte. Das erste Zeichen holt also das
+   Suchfeld nach vorn und steht gleich darin — der Weg über
+   Strg/Cmd+Umschalt+F oder die Maus bleibt, wird aber selten
+   gebraucht.
+
+   Vier Fälle bleiben außen vor:
+
+     • **Ein Feld hat schon den Fokus** — dort wird getippt, auch
+       im Suchfeld selbst; dann macht der Browser das von allein.
+     • **Ein offenes Fenster**, die Begrüßungsseite, eine Ansicht
+       ohne Suchfeld: nichts zu filtern.
+     • **Jede Taste mit Strg, Cmd oder Alt** — das sind Befehle,
+       keine Zeichen; `key.length===1` hält Escape, Tabulator und
+       die Pfeile ohnehin heraus.
+     • **Das Leerzeichen bei leerem Feld.** Es filterte auf nichts
+       und nähme dem Browser das Blättern weg.
+
+   Geschrieben wird das Zeichen nicht ins Feld, sondern in `ui.q` —
+   das Feld wird beim Zeichnen ohnehin neu gebaut. Die Schreibmarke
+   steht danach am Ende ('end'), wie beim Tippen im Feld. */
+addEventListener('keydown',ev=>{
+  if(ev.defaultPrevented||ev.isComposing) return;
+  if(ev.ctrlKey||ev.metaKey||ev.altKey||ev.key.length!==1) return;
+  if(ui.welcome||document.querySelector('.modal')) return;
+  const el=document.activeElement;
+  if(el&&(el.matches('input,textarea,select')||el.isContentEditable)) return;
+  const q=document.querySelector('[data-q]');
+  if(!q) return;
+  if(ev.key===' '&&!(ui.q||'')) return;
+  ev.preventDefault();
+  ui.q=(ui.q||'')+ev.key; ui.qFocus='end'; render();
+});
+
 /* ── Escape nimmt den Filter zurück ──────────────────────────
    Dieselbe Wirkung wie der Knopf rechts vom Suchfeld: Suchbegriff,
    Zahlungsstand und Fälligkeit auf einmal. Escape heißt überall

@@ -80,12 +80,9 @@ function viewPrognose(){
   /* Die Kumulation läuft über das ganze Jahr: die letzte Zeile ist
      damit der Saldo zum Jahresende, die Zeile vor dem laufenden
      Monat der Stand von heute. */
-  const flow=yearFlow(), sc=yearScale(flow);
+  const flow=yearFlow();
+  let sc=yearScale(flow);
   const pos=v=>(v-sc.lo)/sc.span*100;
-  /* Links der Null der rote, rechts der grüne Bereich — wie im
-     Zeitstrahl. Bei beschnittener Achse liegt die Null außerhalb,
-     dann ist die ganze Fläche eine Zone. */
-  const zc=Math.max(0,Math.min(100,pos(0)));
   /* ── Das Raster ──────────────────────────────────────────────
      Ohne Linien sagt ein Balken nur „mehr" oder „weniger"; mit
      ihnen liest man ab, um wie viel. Gewählt wird die gröbste
@@ -104,6 +101,29 @@ function viewPrognose(){
      auseinander. */
   const lines=v=>Math.floor(sc.hi/v)-Math.ceil(sc.lo/v)+1;
   const step=[1000,2000,2500,5000,10000,25000,50000].find(v=>lines(v)<=10)||100000;
+
+  /* ── Mit Anfangsbestand fängt die Achse nicht bei null an ────
+     Wer mit 10.000 anfängt, bewegt sich das ganze Jahr zwischen
+     10.000 und 20.000 — die Hälfte der Fläche wäre leer, und die
+     Bewegungen, um die es geht, hätten die andere Hälfte. Deshalb
+     läuft die Achse dann über die Werte selbst (`cut`), so wie der
+     Zeitstrahl es bei einem hohen Kontostand ohnehin tut.
+
+     Dazu bekommt sie **einen Rasterschritt Luft unter dem
+     Anfangsbestand**: genau so weit reicht sein Balken in der
+     Zeile darüber, und ohne diesen Platz wäre er nicht zu sehen.
+     Das geht erst hier, denn die Schrittweite steht erst nach der
+     ersten Rechnung fest — sie bleibt, nur die Grenze wandert. */
+  const op0=opening();
+  if(op0){
+    const edge=op0>0?op0-step:op0+step;
+    const lo=Math.min(sc.lo,edge), hi=Math.max(sc.hi,edge);
+    sc={lo,hi,span:(hi-lo)||1,cut:true};
+  }
+  /* Links der Null der rote, rechts der grüne Bereich — wie im
+     Zeitstrahl. Bei beschnittener Achse liegt die Null außerhalb,
+     dann ist die ganze Fläche eine Zone. */
+  const zc=Math.max(0,Math.min(100,pos(0)));
   const grid=[];
   /* ── Die Achse in der Kopfzeile ──────────────────────────────
      Über der Spalte steht keine Beschriftung mehr, sondern die
@@ -179,12 +199,18 @@ function viewPrognose(){
     const a=pos(from), b=pos(op);
     const l=Math.max(0,Math.min(100,Math.min(a,b))), r=Math.max(0,Math.min(100,Math.max(a,b)));
     const fade=(long||sc.cut)?(op>0?' cutl':' cutr'):'';
+    /* Die Zeile ist so hoch wie jede andere (`two`), und ihr Balken
+       steht darin mittig (`solo`) — eine flachere erste Zeile sähe
+       aus wie ein halber Monat. Am Ende derselbe schwarze Strich
+       wie in den Monatszeilen: er markiert überall den Stand, mit
+       dem die Zeile schließt. */
     return `<tr class="openrow"><td>${t('set.opening')}</td>
       <td class="num"></td><td class="num"></td><td class="num"></td>
       <td class="num balcol${corEmpty?' mid':''}"></td><td class="num"></td>
       <td class="num ${cls(op)}">${eur(op)}</td>
-      <td class="flowcell">${rails}<span class="ttrack ytrack"
-        ><span class="tsum yopen${fade}" style="left:${l}%;width:${r-l}%"></span></span></td></tr>`;
+      <td class="flowcell">${rails}<span class="ttrack ytrack two"
+        ><span class="tsum yopen solo${fade}" style="left:${l}%;width:${r-l}%"></span
+        ><span class="tmark" style="left:${Math.max(0,Math.min(100,pos(op)))}%"></span></span></td></tr>`;
   })();
 
   const rows=MONTHS.map((name,i)=>{

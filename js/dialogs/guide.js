@@ -239,6 +239,9 @@ nothing to take back. <b>Escape</b> does the same from anywhere in the list — 
 is open, because there Escape belongs to the window. And <b>Ctrl/Cmd + Shift + F</b> puts you in the
 field from anywhere in the app, with what stands there already selected — type over it and you are
 searching for the next thing.</p>
+<p><b>You can also just start typing.</b> As long as you are not in some other field, the first
+letter you press in the month or the year view goes straight into the search field and takes the
+cursor with it — there is nothing else in these two views a letter could belong to.</p>
 <p>What it looks at is yours to decide. The small <b>&#9776;</b> button in front of the field opens
 a window with five entries — <b>${t('flt.fName')}</b>, <b>${t('flt.fNote')}</b>,
 <b>${t('flt.fAmount')}</b>, <b>${t('flt.fTotal')}</b>, <b>${t('flt.fMeta')}</b>. Tick what should be
@@ -565,6 +568,10 @@ grau. <b>Escape</b> tut dasselbe von überall in der Liste — solange kein Fens
 dort gehört Escape dem Fenster. Und <b>Strg/Cmd + Umschalt + F</b> setzt dich von überall in der
 Anwendung in dieses Feld — mit dem, was darin steht, markiert: tipp einfach darüber, und du suchst
 das Nächste.</p>
+<p><b>Du kannst auch einfach lostippen.</b> Solange du in keinem anderen Feld stehst, landet der
+erste Buchstabe, den du in der Monats- oder Jahresansicht drückst, direkt im Suchfeld und nimmt die
+Schreibmarke mit — in diesen beiden Ansichten gibt es nichts anderes, wohin ein Buchstabe
+gehörte.</p>
 <p>Worin es hineinsieht, bestimmst du. Der kleine <b>&#9776;</b>-Knopf vor dem Feld öffnet ein
 Fenster mit fünf Angaben — <b>${t('flt.fName')}</b>, <b>${t('flt.fNote')}</b>,
 <b>${t('flt.fAmount')}</b>, <b>${t('flt.fTotal')}</b>, <b>${t('flt.fMeta')}</b>. Kreuz an, was
@@ -929,11 +936,13 @@ amount would otherwise keep out of sight. Without a search term nothing changes.
 there again the next time you open the book. And you can see it without opening the window — the
 button stands on a dark background as long as the search is set to anything other than the
 default.</p>
-<p><b>Three ways to the field and back out of it.</b> <b>Ctrl/Cmd + Shift + F</b> puts you in it
-from anywhere — with what stands there selected, so the next term goes straight over the old one;
-from a view without a search field it takes you to the year view first. The <b>&#10005;</b> right
-of the field takes the whole filter back — search term, payment state and due date at once — and
-<b>Escape</b> does the same, as long as no window is open.</p>
+<p><b>Ways to the field and back out of it.</b> <b>Just start typing</b> — as long as you are not in
+another field, the first letter goes into the search field and takes the cursor with it.
+<b>Ctrl/Cmd + Shift + F</b> puts you in it from anywhere, with what stands there selected, so the
+next term goes straight over the old one; from a view without a search field it takes you to the
+year view first. The <b>&#10005;</b> right of the field takes the whole filter back — search term,
+payment state and due date at once — and <b>Escape</b> does the same, as long as no window is
+open.</p>
 <p>The cursor stays where you are typing: after a tick, a filter button, a change of month, a jump
 out of the year table into a month or a window you just saved, it returns to the field with the term
 selected — as long as something is in it. An empty field is left alone. Opening a file clears it, so
@@ -1186,13 +1195,25 @@ Suche, die überall hinsieht. Nimm Angaben heraus, und der Filter wird enger: nu
 oder nur die Zahlen. <b>${t('g.save')}</b> behält die Wahl, <b>${t('g.cancel')}</b> verwirft sie,
 und mindestens eine Angabe muss angekreuzt bleiben — ein Filter ohne etwas zu durchsuchen fände
 schlicht nie etwas, deshalb sagt FINA es in Rot, statt zu speichern.</p>
+<p>Abgesetzt unter den fünfen steht <b>${t('flt.fHidden')}</b>, und der beantwortet die andere
+Frage: nicht worin gesucht wird, sondern <b>wo</b>. Angekreuzt schlägt ein Suchbegriff jeden anderen
+Filter — er findet auch, was Zahlungsstand, Fälligkeit, <b>${t('year.hideSettled')}</b> oder ein
+Monat ohne Betrag sonst verbergen. Ohne Suchbegriff ändert sich nichts.</p>
 <p>Die Wahl gehört zu deiner Datei, wie die beiden Knöpfe der Jahresansicht: einmal eingestellt,
 steht sie beim nächsten Öffnen wieder da. Und du siehst sie, ohne das Fenster zu öffnen — der Knopf
-steht auf dunklem Grund, solange nicht alles durchsucht wird.</p>
-<p>Die Schreibmarke bleibt, wo du tippst: nach einem Haken, einem Filterknopf, einem Monatswechsel
-und nach einem Sprung aus der Jahrestabelle in einen Monat kehrt sie ins Feld zurück — solange
-etwas darin steht. Ein leeres Feld bleibt unangetastet. Beim Öffnen einer Datei wird es geleert,
-damit kein neues Buch durch den Filter des alten erscheint.</p>
+steht auf dunklem Grund, solange die Suche anders eingestellt ist als von Haus aus.</p>
+<p><b>Wege ins Feld und wieder heraus.</b> <b>Einfach lostippen</b> — solange du in keinem anderen
+Feld stehst, landet der erste Buchstabe im Suchfeld und nimmt die Schreibmarke mit.
+<b>Strg/Cmd + Umschalt + F</b> setzt dich von überall hinein, mit dem Markierten darin, sodass der
+nächste Begriff direkt über den alten geht; aus einer Ansicht ohne Suchfeld geht es zuerst in die
+Jahresansicht. Das <b>&#10005;</b> rechts vom Feld nimmt den ganzen Filter zurück — Suchbegriff,
+Zahlungsstand und Fälligkeit auf einmal —, und <b>Escape</b> tut dasselbe, solange kein Fenster
+offen ist.</p>
+<p>Die Schreibmarke bleibt, wo du tippst: nach einem Haken, einem Filterknopf, einem Monatswechsel,
+einem Sprung aus der Jahrestabelle in einen Monat und nach einem Fenster, das du gerade gespeichert
+hast, kehrt sie ins Feld zurück — mit dem Begriff markiert, solange etwas darin steht. Ein leeres
+Feld bleibt unangetastet. Beim Öffnen einer Datei wird es geleert, damit kein neues Buch durch den
+Filter des alten erscheint.</p>
 
 <h4>Notizen</h4>
 <p>Die kleine Lampe ist eine Notiz. Es gibt sie zweimal: die Lampe <b>neben einem Namen</b> trägt
@@ -1238,11 +1259,12 @@ en:()=>`
   <li><b>While you filter, everything stands open.</b> In both views: a search term or a filter
       button opens every block and takes the arrow away, so a hit can never hide in something you
       folded. Take the filter back and your blocks are as you left them.</li>
-  <li><b>Three new ways with the filter.</b> <b>${t('g.clearFilter')}</b> — the ✕ right of the field
-      — takes search term, payment state and due date back at once; <b>Escape</b> does the same as
-      long as no window is open; <b>Ctrl/Cmd + Shift + F</b> puts you in the field from anywhere,
-      with what stands there selected. After a tick or a saved window the cursor comes back to the
-      field the same way, so the next term goes straight over the old one.</li>
+  <li><b>New ways with the filter.</b> <b>Just start typing</b> in the month or the year view and
+      the first letter lands in the search field. <b>${t('g.clearFilter')}</b> — the ✕ right of the
+      field — takes search term, payment state and due date back at once; <b>Escape</b> does the
+      same as long as no window is open; <b>Ctrl/Cmd + Shift + F</b> puts you in the field from
+      anywhere, with what stands there selected. After a tick or a saved window the cursor comes
+      back to the field the same way, so the next term goes straight over the old one.</li>
   <li><b>${t('flt.fHidden')}.</b> A sixth tick in the window behind the ☰ button. With it a search
       term beats the other filters and also finds what the payment state, the due date,
       ${t('year.hideSettled')} or a month without an amount would keep out of sight.</li>
@@ -1443,7 +1465,8 @@ de:()=>`
       Filterknopf klappt jeden Block auf und nimmt den Pfeil weg — ein Treffer soll sich nicht in
       etwas verstecken, das du zugeklappt hast. Nimm den Filter zurück, und deine Blöcke stehen
       wieder so, wie du sie gelassen hast.</li>
-  <li><b>Drei neue Wege mit dem Filter.</b> <b>${t('g.clearFilter')}</b> — das ✕ rechts vom Feld —
+  <li><b>Neue Wege mit dem Filter.</b> <b>Einfach lostippen</b> in der Monats- oder Jahresansicht —
+      der erste Buchstabe landet im Suchfeld. <b>${t('g.clearFilter')}</b> — das ✕ rechts vom Feld —
       nimmt Suchbegriff, Zahlungsstand und Fälligkeit auf einmal zurück; <b>Escape</b> tut dasselbe,
       solange kein Fenster offen ist; <b>Strg/Cmd + Umschalt + F</b> setzt dich von überall in das
       Feld, mit dem markiert, was darin steht. Nach einem Haken oder einem gespeicherten Fenster
