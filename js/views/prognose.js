@@ -74,7 +74,12 @@ const PROG_COLS=[
 /* Das Rastermaß in der Spaltenüberschrift: ganze Zahl mit
    Tausenderpunkt und ohne Währung — es steht in Klammern hinter
    dem Wort und soll so kurz wie möglich sein. */
-const gnum=v=>Math.round(v).toLocaleString(LANG()==='de'?'de-DE':'en-US');
+/* `||0` fängt die **negative Null**. Die Rasterlinien sind
+   Vielfache der Schrittweite, gerechnet über `Math.ceil(lo/step)` —
+   und `Math.ceil(-0.58)` ist in JavaScript `-0`. Ohne diesen Griff
+   stünde über der Nulllinie „-0", und eine Null hat kein
+   Vorzeichen. */
+const gnum=v=>(Math.round(v)||0).toLocaleString(LANG()==='de'?'de-DE':'en-US');
 
 function viewPrognose(){
   /* Die Kumulation läuft über das ganze Jahr: die letzte Zeile ist
@@ -156,6 +161,20 @@ function viewPrognose(){
      durchgehende Linien. Im Balken hörten sie nach 22 px auf und
      die Tabelle zerfiel in Streifen. */
   const rails=grid.join('')+(sc.cut?'':`<span class="tzero" style="left:${zc}%"></span>`);
+
+  /* ── Wie schmal die Spalte werden darf ───────────────────────
+     Die Untergrenze gilt dem einzelnen **Rasterfeld**: der Abstand
+     von einer Linie zur nächsten soll so breit sein wie die
+     Monatsspalte daneben. Zwei Linien im Abstand von 40 px sind
+     kein Maß mehr, an dem sich etwas ablesen ließe.
+
+     Wie viele Felder die Achse hat, weiß nur diese Rechnung — die
+     Spanne geteilt durch die Schrittweite. Die Zahl geht als
+     `--flowcells` an die Tabelle, die Breite selbst steht als
+     `--progleadw` in css/ledger.css. Reicht das Fenster nicht,
+     scrollt die Tabelle waagerecht; die Monatsspalte bleibt
+     stehen. */
+  const cells=Math.max(1,sc.span/step);
 
   /* Steht in einer Spalte in **jeder** Zeile nur ein Strich, ist
      sie so schmal wie ihre Überschrift — und rechtsbündig klebten
@@ -284,7 +303,8 @@ function viewPrognose(){
        jetzt dort, wo sie gepflegt werden — im Fenster der
        Kategorie, mit dem Mittelwert über der Schnelleingabe. -->
   <div class="card"><h2>${t('prog.title',YEAR)}</h2>
-    <div class="scroll" style="border:0"><table class="ledger progtable">
+    <div class="scroll" style="border:0"><table class="ledger progtable"
+      style="--flowcells:${cells.toFixed(3)}">
       <tr>${PROG_COLS.map(c=>`<th class="${c.cls}${c.ab==='COR'&&corEmpty?' mid':''}"
         data-tip="${esc(t(c.name)+' — '+t(c.tip))}">${c.ab}</th>`).join('')}
         <th class="flowcell axishead"

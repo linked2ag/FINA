@@ -119,7 +119,7 @@ SHOTS = [
     ('item-dialog', 'dlg=item&id=__ELECTRICITY__',        1100),
     ('item-months', 'dlg=item&id=__ELECTRICITY__&only=.mgrid', 1100),
     ('item-quick',  'dlg=item&id=__ELECTRICITY__&only=.quick',  1100),
-    ('flex-dialog', 'dlg=kak&k=Extras',                   1100),
+    ('flex-dialog', 'dlg=kak&k=Groceries',                   1100),
     ('month-in',    'v=monat&m=8&fold=&only=.card.sec-in',      1200),
     ('month-flex',  'v=monat&m=8&fold=&only=.card.sec-flex',    1200),
     ('month-out',   'v=monat&m=8&fold=&only=.card.sec-out',     1200, 920),
@@ -128,7 +128,6 @@ SHOTS = [
     # Kein „#" in der Adresse — das wäre die Sprungmarke, nicht der Wert.
     ('year-left',   'v=jahr&only=.yearscroll',             980, 1150),
     ('flex-view',   'v=kakeibo&scope=jahr&only=.card.sec-flex', 1200, 900),
-    ('forecast-plan', 'v=prognose&only=.card.sec-flex',   1100),
 ]
 
 

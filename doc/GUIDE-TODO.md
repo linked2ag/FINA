@@ -26,13 +26,49 @@ noch zwei Kleinigkeiten von früher:
 - **Sprechblasen stehen über oder unter dem Element.** Verhalten, kein eigener Absatz — nur
   zu erwähnen, falls die Anleitung einmal beschreibt, wo sie erscheinen.
 
-Und die Bilder: `ui-waterfall.png` (ausgefranster Balken statt Strich), `welcome.png` (Breite
-und Orange), `item-quick.png` (flachere Schnelleingabe), `set-groups.png` (zwei Listen),
-`item-dialog.png` (kein Namensfeld, Kategorie in der Reihe), `month-in.png` und `year.png`
-(gebündelte Einnahmen), `flex-dialog.png` (kein Namensfeld, Mittelwert), `forecast.png` (die
-ganze Ansicht) zeigen noch den Stand davor. Neue entstehen nur auf ausdrückliche Bitte.
+Die Bilder sind seit dem 8. August 2026 **alle neu** (siehe unten).
+
+Dazu, seit dem 8. August 2026 gebaut und noch in keinem Reiter beschrieben:
+
+- **Die Anleitung hat ihre eigene Sprache.** Zwei Kürzel EN · DE im Kopf des Bereichs, links
+  neben dem Kreuz. Sie schalten nur die Anleitung um, nicht die Oberfläche; Vorgabe ist
+  Englisch, und die Wahl lebt nur in der Sitzung.
+- **Die Prognose scrollt.** Jedes Rasterfeld der Verlaufsspalte ist mindestens so breit wie
+  die Monatsspalte. Wird das Fenster zu schmal, scrollt die Tabelle nach rechts; die
+  Monatsspalte bleibt dabei stehen.
+- **Ein Tastengriff je Ansicht:** Strg/Cmd + Umschalt + M · Y · C · F. Der alte Griff ins
+  Suchfeld (dieselbe Kombination mit F) ist dafür entfallen — seit ein Buchstabe von selbst
+  im Filter landet, war er der umständlichere Weg. Steht schon im Reiter „Was ist neu" und in
+  „Was FINA kann"; ⚠ in „Schritt für Schritt" ist der alte Griff gestrichen.
+- **Der Anfangsbestand steht violett** — Beschriftung, Betrag und Balken in derselben Farbe.
+  Der laufende Monat ist statt einer Fläche von zwei roten Linien eingefasst, wie seine
+  Spalte in der Jahresmatrix.
 
 ## Zuletzt eingearbeitet
+
+Am 8. August 2026, dritter Durchgang: **„Schritt für Schritt" auf acht Schritte
+eingedampft**, beide Sprachen. Der Reiter sagt jetzt nur noch, was zum Anfangen nötig ist —
+Buch anlegen, Einstellungen, Einnahmen, Rechnungen, Alltagskategorien, Monatsrhythmus,
+Speichern — und verweist am Ende auf **Was FINA kann**. Herausgefallen sind die Schritte zur
+Jahrestabelle, zur Prognose, zur Saldokorrektur, zum CSV-Import und die langen Absätze über
+Filter, Notizen und Klapp-Pfeile: alles steht im Produktreiter. Von vierzehn Überschriften
+und rund neunzig Absätzen sind acht und rund dreißig geblieben. Von den Bildern sind sieben
+übrig; `year`, `year-left`, `forecast`, `ui-header`, `ui-kpi`, `ui-analytics`, `set-lists`,
+`item-quick`, `item-months`, `month-in`, `month-flex`, `month-bal` stehen nur noch im
+Produktreiter oder in der README.
+
+Am 8. August 2026, zweiter Durchgang: **alle drei Reiter neu geschrieben**, beide Sprachen —
+kürzere Sätze, einfachere Wörter, ein Gedanke je Absatz. Inhaltlich ändert sich nichts, nur
+der Ton: aus einem Satz mit drei Einschüben werden drei Sätze. Dazu:
+
+- Der Satz „Danach wiederholst du nur noch Schritt 9" ist aus der Einleitung von **Schritt
+  für Schritt** heraus.
+- **Schritt 13** (die Prognose) nennt jetzt die eigene Zeile des Anfangsbestands über dem
+  Januar — sie fehlte, seit es sie gibt.
+- **Alle Bildschirmfotos neu.** Die alte Beispieldatei war nicht mehr da; die neue wird von
+  `doc/make-shots.py` an derselben Stelle erwartet und enthält wieder erfundene Zahlen.
+  `forecast-plan` ist aus der Liste der Abzüge gestrichen — die Karte gibt es seit dem
+  Umbau der Prognose nicht mehr.
 
 Am 8. August 2026: **Version 26.8.8.1** in allen drei Reitern, beide Sprachen — der
 Anfangsbestand (Schritt 2 und ganz vorn im Produktreiter, dazu die eigene Zeile über dem

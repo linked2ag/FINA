@@ -392,30 +392,40 @@ function wire(){
   syncMatrixHead();
 }
 
-/* ── Strg/Cmd + Umschalt + F: ins Suchfeld ───────────────────
-   Der eine Weg zum Filter, von überall aus — dieselbe Taste, die
-   überall „suchen" heißt. Der Begriff steht danach **markiert**
-   da: wer den Griff schon gelernt hat, tippt gleich den nächsten,
-   ohne vorher zu löschen.
+/* ── Strg/Cmd + Umschalt + Buchstabe: die Ansicht wechseln ───
+   Ein Griff je Reiter, in der Reihenfolge der Reiter:
 
-   Das Suchfeld gibt es nur in der Monats- und der Jahresansicht.
-   Wer aus der Prognose oder den Flexible Payment Details kommt,
-   landet in der **Jahresansicht**: sie durchsucht alle zwölf
-   Monate, ist also die Ansicht, in der sich alles finden lässt.
+     M  Monat · Y  Jahr · C  Prognose · F  Flexible Payment Details
+
+   Die Buchstaben stehen für den **englischen** Namen und wechseln
+   deshalb nicht mit der Sprache — wie B · PT · DD · LP in der
+   Jahresmatrix und wie die Kürzel der Prognose. Y statt J, weil
+   „Year"; C statt P, weil „Forecast" schon mit F anfängt und F an
+   den vierten Reiter geht.
+
+   Ins Suchfeld führte diese Taste einmal (Strg/Cmd+Umschalt+F).
+   Den Weg gibt es nicht mehr: seit ein einzelner Buchstabe im
+   Monat und im Jahr von selbst im Filter landet, war er der
+   umständlichere von zweien.
+
+   **Nur Reiter, die es gibt.** „Flexible Payment Details"
+   erscheint erst mit importierten Buchungen (VIEWS in
+   js/config.js); ohne sie tut der Griff nichts, statt in eine
+   Ansicht zu springen, die kein Reiter zeigt.
 
    Zwei Fälle bleiben außen vor: die Begrüßungsseite (dort gibt es
-   nichts zu durchsuchen) und ein offenes Fenster — dort wird
-   gerade getippt, und Escape ist der Weg hinaus, nicht diese
-   Taste. */
+   keine Reiter) und ein offenes Fenster — dort wird gerade
+   getippt, und die Ansicht darunter zu wechseln nähme dem Fenster
+   den Boden. */
+const VIEW_KEYS={m:'monat',y:'jahr',c:'prognose',f:'kakeibo'};
 addEventListener('keydown',ev=>{
-  if((ev.key!=='f'&&ev.key!=='F')||!ev.shiftKey||!(ev.ctrlKey||ev.metaKey)) return;
+  if(!ev.shiftKey||!(ev.ctrlKey||ev.metaKey)||ev.altKey) return;
+  const want=VIEW_KEYS[(ev.key||'').toLowerCase()];
+  if(!want) return;
   if(ui.welcome||document.querySelector('.modal')) return;
   ev.preventDefault();
-  const q=document.querySelector('[data-q]');
-  if(q){ q.focus({preventScroll:true}); q.select(); return; }
-  /* Den Fokus setzt wire() nach dem Zeichnen — dort steht die
-     Regel, und das Feld gibt es erst danach. */
-  ui.view='jahr'; ui.qFocus='all'; render();
+  if(!VIEWS.some(([k])=>k===want)||ui.view===want) return;
+  ui.view=want; render();
 });
 
 /* ── Einfach lostippen ───────────────────────────────────────
@@ -423,9 +433,8 @@ addEventListener('keydown',ev=>{
    vorher irgendwo hineingeklickt zu haben, meint den Filter: es
    gibt in diesen beiden Ansichten nichts anderes, in das ein
    Buchstabe gehören könnte. Das erste Zeichen holt also das
-   Suchfeld nach vorn und steht gleich darin — der Weg über
-   Strg/Cmd+Umschalt+F oder die Maus bleibt, wird aber selten
-   gebraucht.
+   Suchfeld nach vorn und steht gleich darin — der Weg über die
+   Maus bleibt, wird aber selten gebraucht.
 
    Vier Fälle bleiben außen vor:
 

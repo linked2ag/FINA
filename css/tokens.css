@@ -37,6 +37,10 @@
      es gehört zu keiner der drei Geldarten, weil es sie alle
      zusammenfasst. */
   --bg-sal:#F4F0FB; --bg-sal-2:#E7DFF6; --bg-sal-3:#DDD0F0; --edge-sal:#9B85C9;
+  /* Dasselbe Violett als Schrift: die Kante ist hell genug für
+     einen Balken, aber zu blass für ein Wort und für eine Zahl.
+     Der Anfangsbestand trägt sie — Beschriftung wie Betrag. */
+  --ink-sal:#6D30C4;
   /* Restlaufzeit in der Spalte „Ende": auslaufend → weit weg */
   --end-now:#B7DFC6; --end-soon:#BBD6EC; --end-mid:#EDDDA0; --end-far:#EFC7BF;
   --font-display:'Zilla Slab',Georgia,serif;

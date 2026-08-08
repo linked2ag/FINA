@@ -191,6 +191,14 @@ Zustand: **„Flexible Payment Details" erscheint nur, wenn einmal importiert wu
 `state.flexSource`). Der Reiter wertet genau diese Buchungen aus; ohne sie stünde dort eine
 leere Gliederung. Er steht als **letzter**, nach der Prognose.
 
+**Jeder Reiter hat einen Tastengriff**, `VIEW_KEYS` unten in `js/app.js`:
+Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **C** Prognose · **F** Flexible Payment
+Details. Die Buchstaben folgen den **englischen** Namen und wechseln deshalb nicht mit der
+Sprache — wie B · PT · DD · LP in der Jahresmatrix. Y statt J, weil „Year"; C statt P, weil
+„Forecast" schon mit F anfängt und F an den vierten Reiter geht. Wer einen Reiter hinzufügt,
+trägt ihn dort ein. **Gesprungen wird nur in Reiter, die es gerade gibt** — der Griff prüft
+`VIEWS`, sonst führte F ohne Import in eine Ansicht ohne Reiter.
+
 Daraus folgen drei Stellen, die zusammengehören:
 
 * **Der Weg zum Import darf nicht in diesem Reiter liegen.** Der Knopf steht in der
@@ -262,8 +270,22 @@ Tabelle schon. Als Spalte liest man Zahl und Form in derselben Zeile.
 
 Gerechnet wird in `yearFlow()` (`js/calc.js`), gebaut in `yearTrack()`
 (`js/views/prognose.js`), die Spalte selbst ist `.flowcell` in `css/ledger.css`.
-**In schmalen Fenstern (unter 1100 px) fällt sie weg** — die Zahlen daneben sagen dasselbe,
-und ein Balken von 60 px wäre keine Aussage mehr.
+
+**Die Untergrenze gilt dem einzelnen Rasterfeld, nicht der Spalte.** Der Abstand von einer
+Linie zur nächsten ist mindestens so breit wie die Monatsspalte daneben (`--progleadw` an
+`.progtable`, 120 px): zwei Linien im Abstand von 40 px sind kein Maß mehr, an dem sich etwas
+ablesen ließe, und die Beträge darüber schöben sich ineinander.
+
+Wie viele Felder die Achse hat, weiß nur die Rechnung — Spanne durch Schrittweite. Sie geht
+als `--flowcells` an die Tabelle (`viewPrognose()`), die Breite kommt aus dem Stylesheet:
+`min-width:calc(var(--progleadw) * var(--flowcells))`. **Wer an `step` oder an `yearScale()`
+dreht, ändert damit auch die Mindestbreite der Spalte.**
+
+Reicht das Fenster dafür nicht, **scrollt die Tabelle waagerecht** in ihrem `.scroll`-Rahmen,
+und die Monatsspalte bleibt stehen (`position:sticky` an `td/th:first-child`) — eine Zahl
+ohne ihren Monat ist keine Zeile mehr. Die klebende Zelle braucht dafür einen **deckenden**
+Grund; deshalb tritt sie in vergangenen Monaten mit ihrer *Schriftfarbe* zurück und nicht
+mit der Deckkraft (`opacity` färbte auch den Hintergrund durchsichtig).
 
 **Drei Dinge teilen sich die beiden Grafiken, und keins davon darf auseinanderlaufen:**
 
@@ -618,9 +640,11 @@ aber nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.j
   Buchstabe gehörte. Außen vor bleiben: ein offenes Fenster, die Begrüßungsseite, Ansichten
   ohne Suchfeld und das Leerzeichen bei leerem Feld (es filterte auf nichts und nähme dem
   Browser das Blättern).
-* **Strg/Cmd + Umschalt + F** von überall; ohne Suchfeld in der Ansicht wechselt es zuerst
-  in die Jahresansicht, weil die alle zwölf Monate durchsucht.
 * **Der Fokus von selbst**, wenn nach dem Zeichnen niemand sonst ihn hat (siehe `wire()`).
+
+Einen eigenen Tastengriff ins Suchfeld gibt es **nicht mehr**: seit ein einzelner Buchstabe
+dort von selbst landet, war Strg/Cmd+Umschalt+F der umständlichere von zwei Wegen. Die
+Tastenkombination gehört jetzt dem vierten Reiter (siehe unten).
 
 Sie ist ein eigener Bereich und sieht auch so aus: **grauer Grund und eine dunkle Kante
 links**, wie die Karten darunter ihre Farbe tragen — nur ist ihre Farbe keine Geldart, sie
@@ -793,6 +817,19 @@ Sie wirkt an **drei** Stellen, und alle drei müssen dasselbe sagen:
 Wer eine vierte Stelle baut, die einen laufenden Stand zeigt, fängt ebenfalls bei
 `opening()` an. Ohne Anfangsbestand ist alles wie zuvor: die Null.
 
+**Seine Zeile ist violett — Beschriftung, Betrag und Balken.** Die Farbe ist `--ink-sal`
+(`css/tokens.css`), das kräftige Gegenstück zur hellen Kante `--edge-sal`: die reicht für
+einen Balken, aber nicht für ein Wort und nicht für eine Zahl. Der Betrag bekommt deshalb
+**nicht** die Vorzeichenfarbe der Monate darunter — ein grünes „5.530,00" läse sich wie eine
+Einnahme des Januars. Die drei gehören zusammen und sollen zusammen ins Auge fallen.
+
+**Der laufende Monat trägt dagegen keine Fläche**, sondern zwei feine rote Linien über und
+unter seiner Zeile und seinen Namen in Rot (`.progtable tr.now`). Das ist dieselbe Marke wie
+in der Jahresmatrix, nur um 90° gedreht: dort fassen `.cm-l` / `.cm-r` die Spalte des
+laufenden Monats ein. Rot heißt in der ganzen Anwendung „jetzt". Eine getönte Zeile legte
+einen Balken quer über die Tabelle und stritte mit dem Violett darüber um dieselbe
+Aufmerksamkeit.
+
 ## Die Saldokorrektur
 
 `state.balance` ist eine einzelne Position über den Einnahmen — der Nutzer trägt dort je
@@ -855,8 +892,36 @@ nichts. Der Wert lebt nur in der Sitzung (`guideW`), nicht im Zustand und nicht 
 Datei. Jede Änderung der Breite ruft `syncMatrixHead()` — die mitlaufenden Leisten sind
 sonst falsch gemessen.
 
-`renderChrome()` ruft `renderGuide()`: der Bereich wird nur dann neu gebaut, wenn sich die
-Sprache geändert hat. Escape schließt ihn nicht — das gehört den Fenstern.
+`renderChrome()` ruft `renderGuide()` — die Funktion tut nichts mehr (siehe unten). Escape
+schließt den Bereich nicht: das gehört den Fenstern.
+
+**Die Anleitung hat ihre eigene Sprache.** `gLang` (Modulvariable, Vorgabe `'en'`) steht
+neben `state.lang` und wird im Kopf des Bereichs umgeschaltet — zwei Kürzel EN · DE links
+neben dem Kreuz (`.glangs`, `data-glang`, verdrahtet in `fillGuide()`). Wer die Oberfläche
+auf Deutsch führt, darf die Anleitung auf Englisch lesen; **an `state.lang` ändert sich
+nichts**, und in der Datei steht die Wahl auch nicht — sie lebt wie `guideW` nur in der
+Sitzung. Die Kürzel kommen aus `LANGS` (`js/i18n.js`) und wechseln nicht mit der Sprache,
+wie B · PT · DD · LP in der Jahresmatrix.
+
+Gebaut wird der **ganze** Bereich in dieser Sprache — Überschrift, Reiter, Text. `t()` liest
+`state.lang`, deshalb setzt `inGuideLang(build)` sie für die Dauer des Aufbaus auf `gLang`
+und danach zurück. Dazwischen entsteht nur eine Zeichenkette; gezeichnet oder gespeichert
+wird nichts. Wer dort etwas anbaut, das `t()` benutzt, baut es **innerhalb** dieses Aufrufs,
+sonst spricht ein Teil des Kopfes die andere Sprache. Und weil die Anleitung damit an keiner
+Angabe der Oberfläche mehr hängt, hat `renderGuide()` nichts mehr zu prüfen.
+
+**„Schritt für Schritt" ist kurz und bleibt kurz.** Acht Schritte, je zwei bis vier Sätze:
+was einer braucht, um sein Buch zum Laufen zu bringen, und nichts darüber hinaus. Jede
+Ausnahme, jede Nebenwirkung, jeder zweite Weg gehört in **„Was FINA kann"** — der Reiter
+endet auch mit diesem Verweis. Wer hier etwas ergänzt, prüft zuerst, ob es wirklich zum
+**Anfangen** gebraucht wird; sonst wächst der Reiter wieder auf die vierzehn Schritte
+zurück, die niemand zu Ende gelesen hat.
+
+**Der Ton: kurze Sätze, einfache Wörter, ein Gedanke je Absatz.** Die Anleitung liest jemand,
+der zum ersten Mal ein Kassenbuch führt, und sie steht in einer schmalen Spalte. Ein Satz mit
+drei Einschüben wird deshalb zu drei Sätzen; Gedankenstriche, die einen Nebensatz einschieben,
+werden zu Punkten. Das gilt für **alle drei Reiter** und für **beide Sprachen** — wer einen
+Absatz ergänzt, schreibt ihn in diesem Ton, sonst fällt er auf.
 
 **Drei Reiter, drei Fragen.** `GUIDE` in `js/dialogs/guide.js` hat drei Zweige mit je einer
 englischen und einer deutschen Fassung: `steps` führt einen Anfänger einmal von oben nach
@@ -866,7 +931,18 @@ was die Anwendung kann; `news` ist die Versionsliste und steht als letzter. Gew�
 braucht einen Zweig in `GUIDE`, eine Zeile in `GUIDE_TABS` und einen Schlüssel in
 `js/i18n.js`.
 
-**Der Reiter „Was ist neu" wächst nach oben:** die neueste Fassung zuoberst. Die Nummer ist
+**Im Reiter „Was ist neu" steht je Punkt eine Zeile.** Nur die **größeren funktionalen**
+Änderungen bekommen einen eigenen Punkt, und der sagt in einem Satz, was der Nutzer jetzt
+tun kann — kein Warum, keine Begründung, keine Aufzählung von Einzelheiten. Alles Übrige —
+Kosmetik, kleine Anpassungen, behobene Fehler — wird zu **einem** Punkt am Ende
+zusammengefasst: „Bugfixing und kosmetische Anpassungen." Eine Versionsliste wird gelesen,
+solange sie sich überfliegen lässt.
+
+**Die Marke an der neuesten Fassung ist gelb** (`.guide .pill`, `--amber`): Schrift wie
+Rahmen. Rot wäre eine Warnung, Grün eine Bestätigung — Gelb zieht den Blick, ohne etwas zu
+behaupten.
+
+**Der Reiter wächst nach oben:** die neueste Fassung zuoberst. Die Nummer ist
 das Datum — `Jahr.Monat.Tag.Zählung`, also `26.8.4.1` für die erste Änderung des 4. August
 2026. **Erklärt wird das im Reiter nicht**: er fängt ohne Vorrede mit der ersten Version an.
 Wie die Nummer zustande kommt, geht den Leser nichts an; er sieht nur, was neu ist. Eine

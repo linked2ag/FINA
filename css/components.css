@@ -119,6 +119,12 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
   border:1px solid var(--rule-strong);padding:1px 6px;color:var(--ink-2);margin-left:8px}
 .pill.last{border-color:var(--seal);color:var(--seal)}
 .pill.corrp{border-color:var(--seal);color:var(--seal)}
+/* Die Marke an der neuesten Version im Reiter „Was ist neu": gelb,
+   Schrift wie Rahmen. Gelb heißt in dieser Anwendung „sieh her,
+   das steht noch nicht fest" (geschätzte Beträge) — hier heißt es
+   „das ist neu". Beides zieht den Blick, ohne etwas zu behaupten;
+   Rot wäre eine Warnung, Grün eine Bestätigung. */
+.guide .pill{border-color:var(--amber);color:var(--amber)}
 .lock{color:var(--seal);font-family:var(--font-data);font-size:8.5px;letter-spacing:.08em}
 .lock.imp{color:var(--ok)}
 .lock.corr{color:var(--seal)}
@@ -170,7 +176,12 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    Die Breite trägt der Kasten aus Hamburger-Knopf und Feld, nicht
    das Feld allein: davor steht der Knopf, der sagt, worin gesucht
    wird. */
-.fltbox{display:flex;gap:6px;align-items:center;
+/* `stretch` statt `center`: die beiden Knöpfe sind damit genau so
+   hoch wie das Feld zwischen ihnen. Sonst richtet sich jeder nach
+   seiner eigenen Schrift, und drei verschieden hohe Kästchen in
+   einer Reihe lesen sich wie ein Fehler. Die Höhe gibt also das
+   Feld vor; die Knöpfe zentrieren ihr Zeichen darin selbst. */
+.fltbox{display:flex;gap:6px;align-items:stretch;
   flex:0 1 calc(var(--leadw) - 8px);width:calc(var(--leadw) - 8px);min-width:170px}
 .fltq{flex:1 1 auto;width:auto;min-width:0;padding:4px 9px;font-size:12.5px}
 /* In der Jahresansicht steht das Feld neben der Überschrift und
@@ -179,12 +190,14 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 /* Der Hamburger: so hoch wie das Feld daneben, das Zeichen mittig.
    Auf dunklem Grund steht er, sobald nicht mehr alles durchsucht
    wird — die Regel dafür steht oben bei den Filterknöpfen. */
-.fltmenu{flex:0 0 auto;padding:3px 8px;font-size:14px;line-height:1.35}
+.fltmenu{flex:0 0 auto;padding:0 8px;font-size:14px;line-height:1;
+  display:flex;align-items:center;justify-content:center}
 /* Rechts vom Feld der Knopf, der den Filter zurücknimmt — gebaut
    wie der Hamburger links, damit das Feld zwischen zwei gleichen
    Knöpfen steht. Etwas kleiner ist das Kreuz: es ist ein Zeichen
    und keine Beschriftung. */
-.fltclear{flex:0 0 auto;padding:3px 7px;font-size:12px;line-height:1.55}
+.fltclear{flex:0 0 auto;padding:0 7px;font-size:12px;line-height:1;
+  display:flex;align-items:center;justify-content:center}
 
 /* Eingabefeld mit Knopf daneben — der Beleglink lässt sich so
    öffnen, ohne vorher zu speichern. */
@@ -298,6 +311,20 @@ body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
   padding:16px 18px 10px;background:var(--paper);flex:0 0 auto}
 .guidepanel .ghead h3{font-family:var(--font-display);font-size:20px;margin:0}
 .guidepanel .ghead .subline{font-size:12px;color:var(--ink-2);margin:3px 0 0}
+/* ── Die Sprache der Anleitung ────────────────────────────────
+   Zwei Kürzel links neben dem Kreuz, in einem gemeinsamen Rahmen:
+   sie gehören zusammen und sind eine Wahl, keine zwei Knöpfe. Das
+   gewählte steht dunkel — dieselbe Sprache wie die Filterknöpfe.
+   Sie schalten **nur** die Anleitung um; die Sprache der Oberfläche
+   steht in den Einstellungen. */
+.guidepanel .gact{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.guidepanel .glangs{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+.guidepanel .glang{background:transparent;border:0;cursor:pointer;padding:3px 7px;
+  font-family:var(--font-data);font-size:10px;letter-spacing:.1em;color:var(--ink-2);line-height:1.5}
+.guidepanel .glang+.glang{border-left:1px solid var(--rule-strong)}
+.guidepanel .glang:hover{background:rgba(0,0,0,.05);color:var(--ink)}
+.guidepanel .glang[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
+.guidepanel .glang:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
 /* Zwei Wege durch dieselbe Anleitung: der Weg für Anfänger und
    die Beschreibung. Die orange Linie liegt am gewählten Reiter,
    nicht am Kopf darüber — sie soll sagen, wo man gerade liest. */

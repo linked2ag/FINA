@@ -346,11 +346,14 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    sie überschrieben, alles andere gilt unverändert. */
 .ytrack{--bh:7px;--bgap:2px;--bpad:3px;display:block;width:100%}
 /* Der Anfangsbestand in seiner eigenen Zeile über dem Januar:
-   derselbe Balken wie die Monatseröffnung im Zeitstrahl, nur
-   blasser — er ist der Grund, auf dem das Jahr steht, und keine
-   Bewegung. Ist er länger als ein Rasterschritt, zeigt die Ansicht
+   derselbe Balken wie die Monatseröffnung im Zeitstrahl, aber in
+   demselben kräftigen Violett wie seine Beschriftung und sein
+   Betrag — die drei gehören zusammen und sollen zusammen ins Auge
+   fallen. Ist er länger als ein Rasterschritt, zeigt die Ansicht
    nur den letzten Schritt davon, und der franst aus. */
-.ytrack .yopen{opacity:.5}
+.ytrack .yopen{background:var(--ink-sal);opacity:1}
+.ytrack .yopen.cutl{background:linear-gradient(to right,transparent 0,var(--ink-sal) min(38px,60%))}
+.ytrack .yopen.cutr{background:linear-gradient(to left,transparent 0,var(--ink-sal) min(38px,60%))}
 .ytrack .tsum.cutl{background:linear-gradient(to right,transparent 0,var(--edge-sal) min(38px,60%))}
 .ytrack .tsum.cutr{background:linear-gradient(to left,transparent 0,var(--edge-sal) min(38px,60%))}
 /* Das Raster des Verlaufs: helle senkrechte Linien in festem

@@ -147,8 +147,29 @@
    ganzen Rest. Ein fester Anteil wie 38 % verschenkte Platz,
    sobald eine Spalte leer bleibt — und die Korrekturspalte ist es
    meistens. */
+/* Die Untergrenze gilt dem **einzelnen Rasterfeld**, nicht der
+   Spalte: der Abstand von einer Linie zur nächsten ist so breit
+   wie die Monatsspalte daneben und keinen Schritt schmaler. Zwei
+   Linien im Abstand von 40 px sind kein Maß mehr, an dem man
+   etwas abliest.
+
+   Wie viele Felder es sind, weiß erst die Ansicht — sie steht als
+   `--flowcells` an der Tabelle (siehe viewPrognose in
+   js/views/prognose.js). Reicht das Fenster für die Spalte nicht,
+   scrollt die Tabelle (siehe unten). */
+.progtable{--progleadw:120px}
 .progtable td,.progtable th{width:1%;white-space:nowrap}
-.progtable td.flowcell,.progtable th.flowcell{width:100%}
+.progtable td:first-child,.progtable th:first-child{min-width:var(--progleadw)}
+.progtable td.flowcell,.progtable th.flowcell{width:100%;
+  min-width:calc(var(--progleadw) * var(--flowcells,1))}
+/* ── Die Monatsspalte bleibt stehen ──────────────────────────
+   Wird es zu eng, scrollt die Tabelle in ihrem `.scroll`-Rahmen
+   nach rechts — nur die Beschriftung bleibt, wie die festen
+   Spalten der Jahresmatrix: eine Zahl ohne ihren Monat ist keine
+   Zeile mehr. Die Zelle braucht dafür einen **deckenden** Grund,
+   sonst schiene das Gescrollte darunter durch. */
+.progtable td:first-child,.progtable th:first-child{position:sticky;left:0;z-index:2;
+  background:var(--paper-2)}
 /* Senkrechte Linien durch die **ganze** Tabelle, nicht nur in der
    Grafik: das Raster der letzten Spalte wäre sonst ein Fremdkörper
    zwischen Zahlenspalten ohne Trennung. Die letzte Spalte bekommt
@@ -200,17 +221,45 @@
    Jahr, und ein ausgebleichtes Stück unterbräche sie genau dort,
    wo man sie am ehesten liest. */
 .ledger tr.past td:not(.flowcell){opacity:.42}
-/* Der laufende Monat ist die Zeile, auf die man zuerst schaut:
-   davor steht, was war, danach, was kommt. Hervorgehoben mit dem
-   hellen Violett des Saldos — es gehört zu keiner der drei
-   Geldarten, sondern fasst sie zusammen, und genau das tut diese
-   Zeile auch. Die Korrekturspalte bekommt es mit: eine Zeile, die
-   in der Mitte ihre Farbe verlöre, wäre keine Zeile mehr. */
-.progtable tr.now td{background:var(--bg-sal)}
+/* Die Monatsspalte tritt mit ihrer Schriftfarbe zurück und nicht
+   mit der Deckkraft: sie bleibt beim seitlichen Scrollen stehen,
+   und eine durchsichtige Zelle ließe die Zahlen darunter
+   durchscheinen. */
+.progtable tr.past td:first-child{opacity:1;color:var(--ink-2)}
+/* ── Der laufende Monat ───────────────────────────────────────
+   Dieselbe Marke wie in der Jahresmatrix, nur um 90° gedreht: dort
+   fassen zwei feine rote Linien die Spalte des laufenden Monats
+   ein (`.cm-l` / `.cm-r` in css/matrix.css), hier fassen sie seine
+   Zeile ein. Rot heißt in dieser Anwendung überall „jetzt" — auch
+   die Marke im Zeitstrahl (`.tnow`) trägt es.
+
+   **Keine Fläche.** Eine getönte Zeile mitten in zwölf blassen
+   legte einen Balken quer über die Tabelle und zog das Auge auf
+   den Grund statt auf die Zahlen; und sie hätte mit dem Violett
+   des Anfangsbestands zwei Farben um dieselbe Aufmerksamkeit
+   streiten lassen. Zwei Haarlinien sagen dasselbe und nehmen
+   nichts weg.
+
+   Gezeichnet werden sie je Zelle als `inset`-Schatten, nicht als
+   Rand: die Zellen grenzen aneinander, dadurch werden aus sieben
+   Strichen zwei durchgehende Linien — und die klebende erste
+   Spalte trägt ihr Stück mit, wenn die Tabelle seitlich
+   scrollt. */
+.progtable tr.now td{box-shadow:inset 0 1px 0 var(--seal),inset 0 -1px 0 var(--seal)}
+.progtable tr.now td:first-child{color:var(--seal);font-weight:600}
 /* Die Zeile des Anfangsbestands steht über dem Januar und gehört
    zu keinem Monat: sie tritt zurück wie die abgerechneten Monate
    und trennt sich mit einer kräftigeren Linie vom Jahr darunter —
    ab dort wird gerechnet. */
-.progtable tr.openrow td{color:var(--ink-2);border-bottom:1px solid var(--rule-strong)}
+.progtable tr.openrow td{color:var(--ink-2);border-bottom:1px solid var(--rule-strong);
+  vertical-align:middle}
+/* Beschriftung **und** Betrag stehen in Violett: die Zeile ist kein
+   Monat, sondern der Stand, auf dem das Jahr aufsetzt, und die beiden
+   einzigen Zahlen darin gehören zusammen. Der Betrag bekommt deshalb
+   nicht die Vorzeichenfarbe der Monate darunter — ein grünes
+   „5.530,00" läse sich wie eine Einnahme des Januars.
+   Mittig steht die Zeile, weil sie so hoch ist wie zwei: oben
+   angeschlagen sähe der Name aus, als stünde er über dem Balken. */
 .progtable tr.openrow td:first-child{font-family:var(--font-data);font-size:10px;
-  letter-spacing:.1em;text-transform:uppercase}
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-sal)}
+.progtable tr.openrow td.num{color:var(--ink-sal)}

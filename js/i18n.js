@@ -80,6 +80,7 @@ const STR={
 'app.guideDrag':{en:'Drag to change the width',de:'Ziehen ändert die Breite'},
 /* Die beiden Reiter der Anleitung: erst der Weg für Anfänger,
    dann die Beschreibung dessen, was die Anwendung kann. */
+'guide.lang':{en:'Language of the guide',de:'Sprache der Anleitung'},
 'guide.tabSteps':{en:'Step by step',de:'Schritt für Schritt'},
 'guide.tabProduct':{en:'What FINA can do',de:'Was FINA kann'},
 'guide.tabNews':{en:"What's New",de:'Was ist neu'},
@@ -366,7 +367,7 @@ const STR={
 'month.tlMark':{en:'balance after the row',de:'Kontostand danach'},
 /* Steht nur bei beschnittener Achse: dann fängt die Fläche nicht
    bei null an, und der erste Balken franst links aus. */
-'month.tlScale':{en:'scale {0} … {1}',de:'Maßstab {0} … {1}'},
+'month.tlScale':{en:'scale {0} - {1}',de:'Maßstab {0} - {1}'},
 /* Unter der Farberklärung: wohin alles gerät, was keinen Zahltag
    trägt. Dieselbe Aussage wie beim Filterknopf „Monatsabschluss". */
 'month.tlNoDue':{en:'Income and costs without a payday — the Flexible Payments, the balance correction and every item with no due date — are taken up at the month close.',
