@@ -50,10 +50,11 @@
            jedem Browser (js/storage.js). -->
       <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
       <button class="btn" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
-      <!-- Der CSV-Import steht hier und nicht mehr im Reiter: den
-           Reiter „Flexible Payment Details" gibt es erst nach dem
-           ersten Import, der Knopf muss vorher erreichbar sein. -->
-      <button class="btn" id="btnImport" data-t="app.import" data-ttip="app.importTip"></button>
+      <!-- Beide Importe stehen im Einstellungsfenster im Bereich
+           „Import" (js/dialogs/settings.js). In der Kopfzeile
+           standen sie zwischen Laden und Speichern und sahen aus
+           wie ein dritter Weg, eine Datei zu öffnen — sie sind
+           aber keiner: sie ändern das Buch, das schon offen ist. -->
       <button class="btn" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
       <!-- Der einzige farbige Knopf: er klappt die Anleitung rechts
            auf und wieder zu (aria-pressed sagt, ob sie offen ist). -->
@@ -75,6 +76,10 @@
 
 <!-- Dateiauswahl, wird über die Schaltflächen ausgelöst -->
 <input type="file" id="fileCsv" accept=".csv,text/csv" hidden>
+<!-- Zweite Auswahl für die FINA-Tabelle: dieselbe Dateiendung,
+     aber ein anderer Leser (js/sheet.js). Ein gemeinsames Feld
+     müsste sich merken, wer es geöffnet hat. -->
+<input type="file" id="fileSheet" accept=".csv,text/csv" hidden>
 <input type="file" id="fileJson" accept=".json,application/json" hidden>
 
 <!-- Logik — die Reihenfolge ist verbindlich:
@@ -89,6 +94,9 @@
 <script src="js/calc.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/csv.js"></script>
+<!-- Liest die FINA-Tabelle; benutzt splitCsvLine() aus csv.js und
+     steht deshalb dahinter. -->
+<script src="js/sheet.js"></script>
 <script src="js/ui.js"></script>
 
 <script src="js/views/jahr.js"></script>
@@ -102,6 +110,7 @@
 <script src="js/dialogs/filter-fields.js"></script>
 <script src="js/dialogs/settings.js"></script>
 <script src="js/dialogs/csv-import.js"></script>
+<script src="js/dialogs/sheet-import.js"></script>
 <script src="js/dialogs/guide.js"></script>
 
 <script src="js/app.js"></script>

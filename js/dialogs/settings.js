@@ -69,7 +69,8 @@ function openSettings(){
     <h4>${title}</h4>${hint?`<p class="note" style="margin:-2px 0 14px">${hint}</p>`:''}${inner}</section>`;
 
   const NAV=[['general',t('set.navGeneral')],['view',t('set.navView')],
-    ['banks',t('set.navBanks')],['groups',t('set.groups')],['kak',t('set.kak')]];
+    ['banks',t('set.navBanks')],['groups',t('set.groups')],['kak',t('set.kak')],
+    ['import',t('set.navImport')]];
 
   box.innerHTML=`<div class="box">
     <h3>${t('set.title')}</h3>
@@ -129,6 +130,22 @@ function openSettings(){
 
         ${pane('kak',t('set.kak'),t('set.kakSub'),`
           <div class="field">${listHead(t('set.kak'),'kakCats',t('set.addKak'))}<div>${kakRows}</div></div>`)}
+
+        <!-- Beide Wege holen Zahlen von außen herein und ändern die
+             Datei; deshalb stehen sie beieinander. Je ein Knopf und
+             ein Satz darunter, der sagt, was er anrichtet — der
+             eine ergänzt einzelne Monate, der andere ersetzt das
+             ganze Buch. Das Fenster schließt sich vorher: der
+             Import legt selbst Kategorien an, und eine Liste, die
+             noch im Fenster steht, überschriebe sie beim
+             Speichern. -->
+        ${pane('import',t('set.navImport'),t('set.importSub'),`
+          <div class="field impway">
+            <button class="btn" id="impFast">${t('app.import')}</button>
+            <p class="note">${t('set.impFastHint')}</p></div>
+          <div class="field impway">
+            <button class="btn" id="impSheet">${t('shInfo.title')}</button>
+            <p class="note">${t('set.impSheetHint')}</p></div>`)}
       </div>
     </div>
 
@@ -262,15 +279,17 @@ function openSettings(){
     if(taken.length) toast(t('set.taken',taken.join(', ')));
   };
 
-  /* Beim Abbrechen bleiben keine leeren Platzhalterzeilen zurück. */
-  const closeSettings=()=>{
+  /* Eine mit „+" angelegte, aber nie ausgefüllte Zeile ist keine
+     Angabe: sie verschwindet, sobald das Fenster geht — auf
+     welchem Weg auch immer. */
+  const tidy=()=>{
     state.banks=state.banks.filter(x=>x.code);
     state.pays=state.pays.filter(x=>x.code);
     state.groups=state.groups.filter(Boolean);
     state.incomeGroups=state.incomeGroups.filter(Boolean);
     state.kakCats=state.kakCats.filter(Boolean);
-    closeModal(box);
   };
+  const closeSettings=()=>{ tidy(); closeModal(box); };
 
   box._close=closeSettings;          /* auch für Escape (js/ui.js) */
 
@@ -278,6 +297,18 @@ function openSettings(){
 
   /* Die Sprache wirkt sofort — das Fenster selbst wechselt mit. */
   box.querySelector('#sLang').onchange=()=>{ applyEdits(); save(); reopen(); renderChrome(); };
+
+  /* ── Der Bereich „Import" ─────────────────────────────────
+     Beide Wege legen selbst Kategorien an — der eine neue
+     Hauptkategorien, der andere gleich alle. Bliebe das
+     Einstellungsfenster daneben stehen, schriebe sein
+     „Speichern" die Listen zurück, die vor dem Import im
+     Fenster standen, und der Import wäre wieder weg. Deshalb
+     wird hier übernommen und geschlossen, wie beim Wechsel der
+     Sprache — nur ohne Neuaufbau. */
+  const leaveTo=open=>{ applyEdits(); tidy(); save(); box.remove(); render(); open(); };
+  box.querySelector('#impFast').onclick=()=>leaveTo(openImportInfo);
+  box.querySelector('#impSheet').onclick=()=>leaveTo(openSheetInfo);
 
   /* ── Sortieren per Ziehen ───────────────────────────────── */
   let dragFrom=null,dragList=null;

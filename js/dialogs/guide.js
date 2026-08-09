@@ -513,10 +513,9 @@ type — and pointing at the word tells you what the imported figure was. The im
       searches all twelve months, as far as you allow it to — see below. It shares its word with
       the month view. Hit the name of a block or of a category, and that block stands there
       whole.</li>
-  <li><b>${t('year.balanceRow')}</b> is the <b>balance on the account</b> at the end of each
-      month, not what that month alone did — the same figure the forecast shows under END. If a
-      year starts with money already there, it is included, and the amount is named right under
-      the heading. The total column carries the balance at the year end.</li>
+  <li><b>${t('year.totalRow')}</b> is what that month alone brings in and costs, added up. The
+      three blocks below break it down. What is left on the account at the end of a month is in
+      the forecast, under END. The total column carries the result of the year.</li>
   <li>That row belongs to the frame like the column headings and stays put whatever you type.</li>
   <li>The column headings, that row and the three block rows all stay at the top while you scroll.
       The table scrolls inside itself; sideways you move it with the bar above it, so nothing lies
@@ -881,10 +880,9 @@ wenn du über das Wort fährst, steht dort, was importiert war. Der Import geht 
       sucht über alle zwölf Monate, soweit du es zulässt (siehe unten). Es teilt sein Wort mit der
       Monatsansicht. Triffst du den Namen eines Blocks oder einer Kategorie, steht dieser Block
       ganz da.</li>
-  <li><b>${t('year.balanceRow')}</b> ist der <b>Kontostand</b> am Ende jedes Monats, nicht das,
-      was der Monat allein bewegt hat — dieselbe Zahl, die die Prognose unter END zeigt. Fängt das
-      Jahr mit Geld an, das schon da war, steckt es darin, und der Betrag steht klein unter der
-      Beschriftung. Die Gesamtspalte trägt den Stand zum Jahresende.</li>
+  <li><b>${t('year.totalRow')}</b> ist das, was der Monat allein bringt und kostet,
+      zusammengezählt. Die drei Blöcke darunter schlüsseln es auf. Was am Monatsende auf dem Konto
+      liegt, steht in der Prognose unter END. Die Gesamtspalte trägt das Ergebnis des Jahres.</li>
   <li>Diese Zeile gehört zum Gerüst wie die Spaltenköpfe und bleibt stehen, ganz gleich, was du
       tippst.</li>
   <li>Spaltenköpfe, diese Zeile und die drei Blockzeilen bleiben beim Scrollen oben stehen. Die

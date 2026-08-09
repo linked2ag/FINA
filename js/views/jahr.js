@@ -35,7 +35,7 @@ const COLS=()=>`<colgroup><col class="c-ed"><col class="c-ln"><col class="c-nt">
    behalten ihre alten Namen: sie stehen in css/matrix.css an
    einem guten Dutzend Stellen und sagen nur, welche Spalte
    gemeint ist. */
-/* `extra` ist die Saldozeile: sie steht **im Kopf**, nicht im
+/* `extra` ist die Gesamtzeile: sie steht **im Kopf**, nicht im
    Rumpf. Sie gehört zum Gerüst wie die Spaltennamen — sie hat keine
    Zeilen unter sich, kein Filter nimmt sie weg, und man liest jede
    andere Zeile gegen sie. Im Kopf klebt sie außerdem von selbst
@@ -81,10 +81,11 @@ function yfoldBtn(key,on){
    Das braucht genau die Saldokorrektur. */
 function mrow(label,vals,opt={}){
   const it=opt.item||null, kk=opt.kak||null;
-  /* Die Gesamtspalte ist normalerweise die Summe der zwölf Monate.
-     Bei einer Zeile, deren Werte **Kontostände** sind (die
-     Saldozeile), wäre eine Summe sinnlos — dann gibt der Aufrufer
-     den Wert vor: den Stand am Jahresende. */
+  /* Die Gesamtspalte ist die Summe der zwölf Monate. Eine Zeile,
+     deren Werte keine Beträge eines Monats sind, sondern Stände,
+     dürfte so nicht summiert werden — dann gibt der Aufrufer den
+     Wert vor. Zur Zeit tut das keine Zeile; der Weg bleibt, weil er
+     die einzige Stelle ist, an der so etwas richtig würde. */
   const sum=opt.total!==undefined?opt.total:vals.reduce((a,b)=>a+b,0);
   const edit=it?`data-edit="${it.id}"`:(kk?`data-kedit="${esc(kk)}"`:'');
   const pencil=edit?`<button class="pencil" ${edit} title="${opt.editTip||t('year.editTip')}">&#9998;</button>`:'';
@@ -230,10 +231,10 @@ function viewJahr(){
      doppelte Lücke. */
   const parts=[];
 
-  /* Der Saldo je Monat bleibt beim Scrollen unter den Spalten-
-     köpfen stehen (.balpin in css/matrix.css) — er fasst zusammen,
+  /* Die Gesamtzeile bleibt beim Scrollen unter den Spalten-
+     köpfen stehen (.balpin in css/matrix.css) — sie fasst zusammen,
      was darunter Zeile für Zeile aufgeschlüsselt wird. Gebaut wird
-     er hier, eingehängt wird er in den **Kopf** (matrixHead).
+     sie hier, eingehängt wird sie in den **Kopf** (matrixHead).
 
      Ihn nimmt der Suchbegriff **nicht** weg. Er gehört zum Gerüst
      wie die Spaltenköpfe, nicht zum Inhalt: er hat keine Zeilen
@@ -241,33 +242,26 @@ function viewJahr(){
      gegen die man alles andere liest. Verschwände er beim
      Filtern, verlöre die Tabelle beim Scrollen genau die Zeile,
      für die das Kleben gebaut ist — und der Suchbegriff müsste
-     zufällig in „Saldo je Monat" vorkommen, damit sie bleibt. */
-  /* ── Die Saldozeile zeigt den Kontostand ────────────────────
-     Nicht den Saldo des einzelnen Monats, sondern den **Stand am
-     Monatsende** — dieselbe Zahl, die in der Prognose unter END
-     steht. Zwei Ansichten desselben Buches dürfen nicht zwei
-     verschiedene Zahlen „Saldo" nennen: wer im Jahr −823,97 liest
-     und in der Prognose 5.422,59, hält eine von beiden für falsch.
+     zufällig in ihrer Beschriftung vorkommen, damit sie bleibt. */
+  /* ── Die oberste Zeile ist der Monat selbst ─────────────────
+     Was er bringt und was er kostet, zusammengezählt — `saldo(m)`
+     und sonst nichts: **nur dieser Monat**. Damit liest sich die
+     Matrix von oben nach unten als eine Aufschlüsselung derselben
+     Zahl: die Zeile nennt das Ergebnis, die drei Blöcke darunter
+     sagen, woraus es besteht.
 
-     Der Anfangsbestand steckt darin (carryIn beginnt bei
-     opening()); damit man ihn nicht suchen muss, steht er hinter
-     der Beschriftung. Ohne Anfangsbestand steht dort nichts —
-     eine Null ist keine Angabe.
+     **Der Kontostand steht hier nicht mehr.** Er stand hier als
+     `carryIn(m)+saldo(m)` und trug damit den Anfangsbestand und
+     alle Monate davor in eine Tabelle hinein, in der jede andere
+     Zahl genau einem Monat gehört — zwei verschiedene Bedeutungen
+     in derselben Spalte. Wo das Konto am Monatsende steht, sagt die
+     Prognose in der Spalte END; dort steht es neben dem Verlauf,
+     an dem man es liest.
 
-     In der Gesamtspalte steht der Stand am Jahresende, nicht die
-     Summe der zwölf Stände: die ergäbe eine Zahl, die es nirgends
-     gibt. */
-  const runBal=m=>carryIn(m)+saldo(m);
-  const op=opening();
-  /* Der Anfangsbestand steht **unter** der Beschriftung, nicht
-     dahinter: er ist keine zweite Überschrift, sondern die Herkunft
-     der Zahlen daneben — und in einer Zeile hinter dem Namen wäre
-     er bei schmaler Bezeichnungsspalte das Erste, was abgeschnitten
-     wird. */
-  const balLabel=t('year.balanceRow')
-    +(op?`<div class="openhint" data-tip="${esc(t('year.openTip'))}">${t('year.openLab',eur(op),YEAR-1)}</div>`:'');
-  const balRow=mrow(balLabel,MONTHS.map((_,i)=>runBal(i+1)),
-    {cls:'sec r-sal balpin',total:runBal(12)});
+     In der Gesamtspalte steht damit die gewöhnliche Summe der
+     zwölf Monate: das Ergebnis des Jahres. */
+  const totRow=mrow(`<span data-tip="${esc(t('year.totalTip'))}">${t('year.totalRow')}</span>`,
+    MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'});
 
   /* Die Saldokorrektur steht über den Einnahmen: eine einzige
      Zeile, wie eine Kategorie gezeigt, aber über den Stift wie
@@ -339,7 +333,13 @@ function viewJahr(){
      einer Tabellenzeile wird vom `tbody` nicht begrenzt. Welche der
      drei Zeilen oben zu sehen ist, entscheidet die Stapelfolge in
      css/matrix.css. */
-  const body=parts.map((p,i)=>`<tbody>${i?spacer():''}${p}</tbody>`).join('');
+  /* Auch **vor** dem ersten Block steht eine Leerzeile: darüber
+     hängt im Kopf die Gesamtzeile, und sie ist eine Zeile wie die
+     Blockzeilen auch. Ohne die Lücke klebte die Saldokorrektur
+     unmittelbar an ihr, während alle übrigen Blöcke voneinander
+     abgesetzt sind. Beim Scrollen verschwindet die Lücke unter der
+     Gesamtzeile — die klebt, die Leerzeile nicht. */
+  const body=parts.map(p=>`<tbody>${spacer()}${p}</tbody>`).join('');
 
   const V=visMonths(), hidden=12-V.length;
   /* Die Leiste fängt links mit dem Filter an und führt gleich die
@@ -380,5 +380,5 @@ function viewJahr(){
          (sizeMatrix in js/app.js). Gerollt wird dadurch weiter vom
          Browser selbst — nur den Balken sieht man nicht, den gibt
          es oben in der Leiste. -->
-    <div class="yearpane"><div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead(balRow)}${body}</table></div></div>`;
+    <div class="yearpane"><div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead(totRow)}${body}</table></div></div>`;
 }

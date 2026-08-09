@@ -29,10 +29,11 @@ ganze Projekt zu lesen.
 | Summen, Salden, „Monat erledigt", Rangfolge der flexiblen Werte, mittlerer Verbrauch | `js/calc.js` |
 | Datei laden/speichern, dirty-Zustand, Statuszeile | `js/storage.js` |
 | CSV-Import aus Fast Budget | `js/csv.js` |
+| CSV-Import einer FINA-Tabelle | `js/sheet.js` |
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
 | Begrüßungsseite (ohne Datei) | `js/views/willkommen.js` |
-| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·filter-fields.js` |
+| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·sheet-import·filter-fields.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
 | Was der Anleitung noch fehlt (Merkzettel) | `doc/GUIDE-TODO.md` |
@@ -207,11 +208,12 @@ dafür wäre den Platz nicht wert.
 
 Daraus folgen drei Stellen, die zusammengehören:
 
-* **Der Weg zum Import darf nicht in diesem Reiter liegen.** Der Knopf steht in der
-  Kopfzeile (`#btnImport` in `index.html`, verdrahtet unten in `js/app.js` wie
-  `#btnSettings`) und öffnet `openImportInfo()` — ein Fenster, das erst sagt, aus welcher
-  App die Datei kommt und welche Spalten darin stehen müssen, und dann zur Dateiauswahl
-  führt. Danach laufen wie bisher Schritt 1 und 2 in `js/dialogs/csv-import.js`.
+* **Der Weg zum Import darf nicht in diesem Reiter liegen.** Der Knopf steht im
+  Einstellungsfenster im Bereich **Import** (`#impFast`, siehe „Der Bereich Import") und
+  öffnet `openImportInfo()` — ein Fenster, das erst sagt, aus welcher App die Datei kommt
+  und welche Spalten darin stehen müssen, und dann zur Dateiauswahl führt. Danach laufen wie
+  bisher Schritt 1 und 2 in `js/dialogs/csv-import.js`. Denselben Weg nimmt der Knopf
+  `#btnImportK` in der Ansicht selbst.
 * **`render()` lenkt um.** Steht `ui.view` noch auf `'kakeibo'`, obwohl es den Reiter nicht
   mehr gibt (Datei getrennt, Datei ohne Buchungen), wäre kein Reiter ausgewählt — dann
   tritt die Prognose an seine Stelle.
@@ -451,22 +453,32 @@ demselben Grund zählt `countHidden()` sie nicht in die Zahl neben dem Knopf.
 ein Posten ohne Betrag ist es nicht. Wer ihn dort sucht, findet ihn über das Suchfeld mit
 dem sechsten Haken (siehe „Worin das Suchfeld sucht").
 
-## Die Saldozeile der Jahresmatrix zeigt den Kontostand
+## Die oberste Zeile der Jahresmatrix ist der Monat selbst
 
-Nicht den Saldo des einzelnen Monats, sondern den **Stand am Monatsende** — dieselbe Zahl,
-die in der Prognose unter `END` steht (`runBal(m) = carryIn(m) + saldo(m)` in
-`js/views/jahr.js`). **Zwei Ansichten desselben Buches dürfen nicht zwei verschiedene Zahlen
-„Saldo" nennen:** wer im Jahr −823,97 liest und in der Prognose 5.422,59, hält eine von
-beiden für falsch. Deshalb heißt die Zeile jetzt „Kontostand zum Monatsende"
-(`year.balanceRow`).
+Sie zeigt `saldo(m)` — alles, was der Monat bringt, und alles, was er kostet, für **diesen
+einen Monat** (`totRow` in `js/views/jahr.js`, `year.totalRow` „Gesamt je Monat"). Damit
+liest sich die Matrix von oben nach unten als **Aufschlüsselung derselben Zahl**: die Zeile
+nennt das Ergebnis, die drei Blöcke darunter sagen, woraus es besteht. In der Gesamtspalte
+steht folglich die gewöhnliche Summe der zwölf Monate — das Ergebnis des Jahres.
 
-**Der Anfangsbestand steckt darin** (`carryIn()` beginnt bei `opening()`) und steht deshalb
-hinter der Beschriftung — klein, in `--ink-sal`, mit Sprechblase (`.openhint`,
-`year.openLab`). Ohne Anfangsbestand steht dort nichts: eine Null ist keine Angabe.
+**Der Kontostand steht hier nicht mehr.** Er stand hier als `carryIn(m) + saldo(m)` und trug
+damit den Anfangsbestand und alle Monate davor in eine Tabelle hinein, in der jede andere
+Zahl genau **einem** Monat gehört: zwei Bedeutungen in derselben Spalte. Wo das Konto am
+Monatsende steht, sagt die **Prognose** in der Spalte `END` — dort steht es neben dem
+Verlauf, an dem man es liest, und dort ist auch der Anfangsbestand eine eigene Zeile. Mit
+dem Kontostand ist auch der Anfangsbestand aus der Beschriftung verschwunden (`.openhint`,
+`year.openLab`, `year.openTip` — alle drei sind weg): er steckt in keiner Zahl dieser Zeile
+mehr.
 
-**In der Gesamtspalte steht der Stand am Jahresende**, nicht die Summe der zwölf Stände —
-die ergäbe eine Zahl, die es nirgends gibt. Dafür nimmt `mrow()` ein `opt.total`, das die
-sonst übliche Summe überschreibt.
+**Vor dem ersten Block steht eine Leerzeile wie zwischen allen Blöcken.** Die Gesamtzeile
+hängt im `<thead>` (damit sie klebt), die Saldokorrektur ist die erste Zeile des ersten
+`<tbody>` — ohne die Lücke klebte sie unmittelbar an ihr, während alle übrigen Blöcke
+voneinander abgesetzt sind. Deshalb setzt `viewJahr()` den `spacer()` vor **jedes** Stück
+und nicht mehr nur zwischen zweien. Beim Scrollen verschwindet die Lücke unter der
+Gesamtzeile: die klebt, die Leerzeile nicht.
+
+`mrow()` kann eine Zeile weiterhin mit `opt.total` von der Summe abbringen. Zur Zeit tut das
+keine — der Weg bleibt, weil er die Stelle ist, an der eine Zeile aus Ständen richtig würde.
 
 ## Die Leiste der Jahresansicht
 
@@ -832,7 +844,7 @@ sondern gehört der Suche. Vorgabe ist aus.
 
 In der Jahresansicht gilt der Filter für jede Zeile mit Inhalt, auch für die Saldokorrektur
 und die drei Blockzeilen — sonst stünde nach einer Suche noch das halbe Gerüst da.
-**Eine Ausnahme: „Saldo je Monat" (`.balpin`) bleibt immer stehen.** Diese Zeile gehört zum
+**Eine Ausnahme: „Gesamt je Monat" (`.balpin`) bleibt immer stehen.** Diese Zeile gehört zum
 Gerüst wie die Spaltenköpfe: sie hat nichts unter sich, was man suchen könnte, sie klebt beim
 Scrollen unter den Köpfen, und man liest jede andere Zeile gegen sie. Am Suchbegriff hing sie
 ohnehin nur zufällig — er musste in ihrer Beschriftung vorkommen, damit sie blieb.
@@ -1171,6 +1183,79 @@ steht in `setPane` — einer Modulvariablen, nicht im Zustand: das Fenster baut 
 Mal wieder ganz vorn. Ein neuer Bereich braucht drei Zeilen: einen Eintrag in `NAV`, einen
 `pane(…)`-Aufruf und die Texte in `js/i18n.js`.
 
+### Der Bereich „Import"
+
+Beide Wege, die Zahlen von außen hereinholen, stehen hier — `#impFast` (Fast Budget,
+einzelne Monate) und `#impSheet` (FINA-Tabelle, ein ganzes Jahr). In der **Kopfzeile** steht
+dafür kein Knopf mehr: dort saß er zwischen „Daten hochladen" und „Daten speichern" und sah
+aus wie ein dritter Weg, eine Datei zu öffnen. Er ist keiner — er ändert das Buch, das schon
+offen ist.
+
+**Beide schließen das Fenster, bevor sie öffnen** (`leaveTo()`). Ein Import legt selbst
+Kategorien an; bliebe das Einstellungsfenster daneben stehen, schriebe sein „Speichern" die
+Listen zurück, die vor dem Import darin standen, und der Import wäre wieder weg. Übernommen
+wird dabei wie beim Wechsel der Sprache: `applyEdits()`, `tidy()`, `save()` — Getipptes geht
+also nicht verloren.
+
+## Eine FINA-Tabelle einlesen
+
+Die Vorlage ist die Tabellenkalkulation, aus der FINA entstanden ist: eine Zeile je
+Position, zwölf Monatsspalten, davor `URL` · `Deadline` · `B` · `Z` · `P` · `T` und die
+Spalte mit den Bezeichnungen, über der das **Jahr** steht. Gelesen wird sie in
+`js/sheet.js`, das Fenster steht in `js/dialogs/sheet-import.js`.
+
+**Die Gliederung wird gerechnet, nicht geraten.** Ein CSV-Export kennt keine Einrückung, die
+Ebenen stehen aber trotzdem darin — in den Summen:
+
+* **Blockzeile:** trägt in der schmalen Spalte hinter jedem Monat ein `/`. Das sind die vier
+  Summenzeilen der Tabelle (GESAMT, EINNAHMEN, FLEXIBLE PAYMENTS, REGULAR COSTS).
+* **Kategoriezeile:** hat keine Kürzel, und ihre zwölf Werte sind **genau die Summe der
+  Zeilen darunter** (`claim()`). Genommen wird die kürzeste Folge, die aufgeht — dadurch
+  erkennt FINA auch eine Überschrift, vor der keine Leerzeile steht.
+* Alles Übrige ist eine **Position**.
+
+Geht die Summe nicht auf, greift ein Rückfall (`untilBlank()`: eine kürzellose Zeile nach
+einer Leerzeile ist eine Überschrift bis zur nächsten Leerzeile). **Verborgen bleibt das
+nicht:** das Fenster stellt je Block die Summenzeile der Tabelle neben das, was FINA gelesen
+hat, und schreibt STIMMT oder WEICHT AB daneben. Weicht es ab, wurde eine Überschrift als
+Position gelesen und die Zahlen stünden doppelt da.
+
+**Welcher Block was ist, entscheidet der Nutzer** — geraten wird nur die Vorauswahl (die
+Zeile, die alle anderen zusammenzählt, ist die Gesamtsumme und wird übergangen; danach der
+Name, danach die Reihenfolge). Jede Änderung baut Schritt 1 neu auf, wie „+" im
+Einstellungsfenster.
+
+**Ein Buch wird ersetzt, nicht ergänzt.** `applySheet()` leert `fixed`, `groups`,
+`incomeGroups`, `kakCats`, `kak`, `tx`, `flexActual`, `flexSource` — und die
+**Saldokorrektur**: sie sagt, was in *diesen* zwölf Monaten aufgelaufen ist, und trüge sonst
+unsichtbar die Korrekturen eines anderen Jahres in das eingelesene hinein. Der
+**Anfangsbestand** bleibt: er ist eine Einstellung, steht an einer Stelle und ist dort in
+einem Griff geändert. Wer hier etwas ergänzt, das dem Buch gehört, leert es mit.
+
+Zwei Dinge folgen aus dem Datenmodell:
+
+* **Die Flexible Payments kennen nur eine Ebene.** Die Tabelle gliedert sie zweistufig
+  („KAKEIBO – PRIVAT" über „D-AILY"); zu `kakCats` werden deshalb die **untersten** Zeilen,
+  denn dort stehen die Zahlen, die man vergleicht. Geschrieben wird nach `plan[]` mit
+  `estimated=false` — nicht nach `flexActual`: eine Quelle in `flexSource[m]` überstimmt in
+  `kakVal()` jeden Planwert und ließe zugleich den Reiter „Fast Budget Details" ohne eine
+  einzige Buchung erscheinen.
+* **Ein Kategoriename darf über Einnahmen und Kosten zusammen nur einmal vorkommen** (siehe
+  „Einnahmen haben Kategorien wie die Kosten"). Zwei Überschriften desselben Namens werden
+  deshalb auseinandergehalten (`(2)`), nicht zusammengelegt: zusammengelegt stimmte danach
+  keine der beiden Summen mehr mit der Tabelle überein.
+
+**Was kein Gegenstück hat, geht nicht stillschweigend verloren.** Die Spalte `P` (Zahlungen
+im Jahr) wird nicht übernommen — die zwölf Monatsbeträge sagen dasselbe genauer, und das
+Fenster sagt es vorher. Was in `Deadline` steht und kein Monat ist („Variabel", „mtl.
+kündbar"), wird zur **Notiz** der Position. Kürzel, die die Listen nicht kennen, kommen als
+`{code, label:code}` hinein; ohne das trüge der Posten im Fenster ein Fragezeichen.
+
+**Abhaken ist eine Aussage über die Vergangenheit.** Der Haken „Abgeschlossene Monate
+abhaken" setzt `paid[]` bis `completedMonths()` — in einem vergangenen Jahr also alle zwölf,
+im laufenden bis zum Monat vor diesem. Gefragt wird **nach** dem Jahr: das Jahr entscheidet,
+was „abgeschlossen" heißt.
+
 ## Die Anleitung ist ein Bereich, kein Fenster
 
 `js/dialogs/guide.js` hängt die Anleitung als `<aside class="guidepanel">` rechts an den
@@ -1433,7 +1518,7 @@ noch übersteht — Statuszeile, Polster —, wird gemessen und abgezogen; `body
 nimmt dem Seitenende zusätzlich sein Polster (`css/layout.css`). Sieben Pixel Überstand
 genügen, damit die ganze Fläche beim Rollen davonwandert.
 
-Daran hängt alles Weitere: **Spaltenköpfe, Saldozeile und Blockzeilen bleiben mit
+Daran hängt alles Weitere: **Spaltenköpfe, Gesamtzeile und Blockzeilen bleiben mit
 `position:sticky` stehen** — sticky richtet sich am nächsten Rollrahmen aus, und der ist
 jetzt die Matrix selbst. Der Browser hält sie fest; es wird nichts gerechnet und nichts
 nachgeschoben.
@@ -1445,9 +1530,9 @@ das ruhig; die Rechnung musste weg, nicht schneller werden.** Wer dort etwas anb
 nicht in einen Scroll-Handler zurück.
 
 Zwei Maße bleiben, beide nur beim Zeichnen: `--headH` und `--pinH`, die Höhen von
-Spaltenkopf und Saldozeile. An ihnen kleben die Zeilen darunter (`css/matrix.css`).
+Spaltenkopf und Gesamtzeile. An ihnen kleben die Zeilen darunter (`css/matrix.css`).
 
-**Die Saldozeile steht im `<thead>`**, nicht im Rumpf (`matrixHead(extra)` in
+**Die Gesamtzeile steht im `<thead>`**, nicht im Rumpf (`matrixHead(extra)` in
 `js/views/jahr.js`). Sie gehört zum Gerüst wie die Spaltennamen — kein Filter nimmt sie weg
 —, und im Kopf klebt sie über die ganze Tabelle: sticky hält nur innerhalb desselben
 Elternteils, eine Zeile im Rumpf hörte am Ende ihres `tbody` auf.
@@ -1468,7 +1553,7 @@ nach links — eine Zelle darf in beiden Richtungen kleben, die Kopfzellen tun g
 
 **Wer dort etwas verschiebt, denkt an die Stapelfolge.** Die Leiter steht oben in
 `css/matrix.css`: gewöhnliche Zellen 0, feste Spalten links 1 (innerhalb ihrer Zeile),
-Blockzeilen 2 · 3 · 4, Saldozeile 5, Spaltenköpfe 6/7. **Geprüft wird so etwas an der
+Blockzeilen 2 · 3 · 4, Gesamtzeile 5, Spaltenköpfe 6/7. **Geprüft wird so etwas an der
 Monatsspalte, nicht an der Bezeichnung:** links liegen die Köpfe ohnehin oben, verdeckt wird
 nur rechts davon.
 
@@ -1584,6 +1669,12 @@ Umbenennen **plus** einer zweiten Aktion, CSV-Import, Saldokorrektur eintragen u
 wiederfinden, Speichern und erneutes Laden. Dazu: aus Jahr **und** Monat je einen Posten und
 eine Flexible-Payments-Kategorie anlegen, eine Kategorie ohne jeden Betrag in allen drei
 Ansichten wiederfinden, und in beiden Beträge-Fenstern abschließen und wieder öffnen.
+
+**Ein Import hat eine Probe, die etwas beweist:** die Summenzeile der Tabelle gegen
+`saldo(m)`, Monat für Monat. Stimmen alle zwölf, ist die Gliederung richtig gelesen und
+nichts doppelt gezählt — das ist die eine Prüfung, die sich nicht durch Hinsehen ersetzen
+lässt. Geprüft wird sie über ein Buch, das schon voll ist (die Kategorien müssen ganz
+verschwinden), und danach über Speichern und erneutes Laden.
 
 Nach jeder Textänderung prüfen, ob jeder benutzte Schlüssel im Wörterbuch steht:
 

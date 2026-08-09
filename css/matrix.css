@@ -59,7 +59,7 @@
      2  Blockzeile Einnahmen
      3  Blockzeile Flexible Payments
      4  Blockzeile Regelmäßige Kosten
-     5  Saldozeile (balpin)
+     5  Gesamtzeile (balpin)
      6  Spaltenköpfe, Monatszellen
      7  Spaltenköpfe, Spalten links
 
@@ -187,7 +187,7 @@
 .matrix tr.settled td.lab{color:var(--ink)}
 .matrix tr.settled td.lab .noteprev{color:var(--ink-2)}
 
-/* ── Die Saldozeile bleibt stehen ─────────────────────────────
+/* ── Die Gesamtzeile bleibt stehen ────────────────────────────
    Sie fasst alles zusammen, was darunter steht — beim Scrollen
    durch hundert Posten soll sie nicht verschwinden. Sie steht im
    **Kopf** der Tabelle (matrixHead in js/views/jahr.js) und klebt
@@ -195,16 +195,11 @@
    je Zeichnung in sizeMatrix() (js/app.js). Die links
    festgepinnten Zellen kleben zusätzlich nach links. */
 .matrix tr.balpin{position:sticky;top:var(--headH,0px);z-index:5}
-/* Der Anfangsbestand hinter der Beschriftung: er gehört zur Zeile,
-   ist aber keine ihrer zwölf Zahlen — deshalb kleiner, in der Farbe
-   des Anfangsbestands aus der Prognose (--ink-sal). */
-.matrix tr.balpin .openhint{margin-top:1px;font-family:var(--font-data);font-size:9.5px;
-  letter-spacing:.04em;text-transform:none;color:var(--ink-sal);font-weight:400;cursor:help;line-height:1.25}
 .matrix tr.balpin td{border-bottom:1px solid var(--edge-sal)}
 
 /* ── Die Blockzeilen bleiben stehen ───────────────────────────
    Einnahmen, Flexible Payments, Regelmäßige Kosten: dasselbe eine
-   Stufe tiefer — sie kleben unter der Saldozeile (--headH plus
+   Stufe tiefer — sie kleben unter der Gesamtzeile (--headH plus
    --pinH). Dass jede Zeile nur bis zum Ende **ihres** Blocks klebt,
    macht der eigene `tbody` je Block (siehe viewJahr).
 

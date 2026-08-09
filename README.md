@@ -96,9 +96,10 @@ js/
   calc.js               alle abgeleiteten Zahlen; liest den Zustand, ändert ihn nie
   storage.js            Laden und Speichern der JSON-Datei
   csv.js                CSV-Import aus Fast Budget
+  sheet.js              CSV-Import einer FINA-Tabelle (ein ganzes Jahr)
   ui.js                 Kurzmeldung, Fensterschließen, Notizlampe
   views/                je Ansicht eine Datei: jahr · monat · prognose · kakeibo
-  dialogs/              item · kakeibo-betraege · settings · csv-import · guide
+  dialogs/              item · kakeibo-betraege · settings · csv-import · sheet-import · guide
   app.js                zeichnet, verdrahtet die Klicks, startet — wird zuletzt geladen
 
 doc/

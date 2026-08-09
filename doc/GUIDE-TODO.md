@@ -17,7 +17,33 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-Nichts. Die Anleitung ist am 9. August 2026 vollständig nachgezogen worden — siehe unten.
+- ⚠ **Der Import steht nicht mehr in der Kopfzeile**, sondern im Einstellungsfenster im
+  neuen Bereich **Import**. Die Anleitung sagt an drei Stellen etwas anderes: im
+  Fast-Budget-Schritt von „Schritt für Schritt", im Absatz „Die alltäglichen Ausgaben" des
+  Produktreiters (beide „lade sie hier mit *Import Fast Budget Data*") und in der
+  Versionsliste 26.8.5.x („steht in der Kopfzeile" — das ist ein historischer Eintrag und
+  bleibt, wie er ist). Die Kopfzeile trägt jetzt: Speichern · Sicherung · Schließen ·
+  Einstellungen · Anleitung.
+- **FINA-Tabelle einlesen (CSV)** — der zweite Knopf im selben Bereich: die
+  Tabellenkalkulation, aus der FINA entstanden ist, wird zu einem ganzen Buch. Was der Leser
+  wissen muss: die Kopfzeile wird an den zwölf Monatsnamen erkannt; die Gliederung liest FINA
+  aus den Summenzeilen (`/` hinter dem Monat) und daraus, dass eine Überschrift ihre Zeilen
+  zusammenzählt; Schritt 1 zeigt je Block „STIMMT" oder „WEICHT AB" und lässt einstellen,
+  welcher Block Einnahmen, Flexible Payments oder Kosten sind; die Tabelle **ersetzt** das
+  Buch (samt Saldokorrektur, nicht aber dem Anfangsbestand); zwei Haken — Abrechnungsjahr
+  übernehmen und abgeschlossene Monate abhaken. Die Spalte P wird nicht übernommen, eine
+  Deadline, die kein Monat ist, wird zur Notiz.
+
+- **Die oberste Zeile der Jahresmatrix heißt „Gesamt je Monat"** und zeigt, was der Monat
+  allein bringt und kostet (`saldo(m)`) — nicht mehr den Kontostand am Monatsende. Der steht
+  in der Prognose unter END. Die eine Aufzählung, die genau diese Zeile beschreibt, ist in
+  **beiden** Sprachen gleich mitgeändert worden (der Schlüssel hieß vorher
+  `year.balanceRow`, sonst stünde dort jetzt roher Text). Offen bleibt: im Reiter „Schritt
+  für Schritt" und im Produktreiter steht nirgends sonst etwas dazu — geprüft; der
+  Anfangsbestand wird weiterhin richtig beschrieben, er steckt nur nicht mehr in dieser
+  Zeile.
+
+Die Anleitung war am 9. August 2026 vollständig nachgezogen — siehe unten.
 
 Die Bildschirmfotos in `doc/img/` sind vom 8. August 2026 und zeigen den Stand von damals:
 das alte Linkfeld im Posten-Fenster, die alten Prognose-Spalten, die fünfte Kennzahl der

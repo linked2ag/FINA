@@ -593,6 +593,12 @@ body.gresize{user-select:none;cursor:col-resize}
 .setpane[hidden]{display:none}
 .setpane h4{font-family:var(--font-display);font-size:17px;margin:0 0 6px}
 .setpane>.note{line-height:1.5}
+/* Bereich „Import": je ein Knopf und darunter der Satz, der sagt,
+   was er anrichtet. Der Abstand zwischen den beiden Wegen ist
+   größer als der zum eigenen Satz — sonst läse sich der Satz wie
+   die Erklärung des nächsten Knopfes. */
+.impway{margin-bottom:24px}
+.impway .note{margin:7px 0 0;max-width:64ch;line-height:1.5}
 @media(max-width:760px){
   .setlayout{grid-template-columns:1fr;gap:14px}
   .setnav{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--rule);padding:0 0 8px}

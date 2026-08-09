@@ -251,17 +251,15 @@ const STR={
   de:'Nur die Kopfzeile dieses Blocks zeigen — wird in der Datei gemerkt'},
 'year.maxAreaTip':{en:'Show this block in full again — kept in your file',
   de:'Diesen Block wieder ganz zeigen — wird in der Datei gemerkt'},
-/* Die Zeile zeigt den Kontostand am Monatsende — dieselbe Zahl wie
-   END in der Prognose. „Saldo je Monat" hieße der Monat für sich;
-   gemeint ist der Stand danach. */
-'year.balanceRow':{en:'Balance at month end',de:'Kontostand zum Monatsende'},
-/* So kurz wie möglich: die Zeile steht unter der Beschriftung und
-   nimmt sonst Platz weg, den die Bezeichnungen darunter brauchen.
-   Die Jahreszahl sagt genauer, woher der Betrag kommt, als „letztes
-   Jahr" — und ist kürzer. Den ganzen Satz trägt die Sprechblase. */
-'year.openLab':{en:'from {1}: {0}',de:'aus {1}: {0}'},
-'year.openTip':{en:'The opening balance the year starts from — it is included in every figure in this row. You set it in the settings.',
-  de:'Der Anfangsbestand, mit dem das Jahr beginnt — er steckt in jeder Zahl dieser Zeile. Eingetragen wird er in den Einstellungen.'},
+/* Die oberste Zeile der Matrix: was der Monat bringt und was er
+   kostet, zusammengezählt — **nur dieser Monat**. Nicht der
+   Kontostand: der trüge den Anfangsbestand und alle Monate davor in
+   eine Tabelle hinein, in der jede andere Zahl genau einem Monat
+   gehört. Wo das Konto am Monatsende steht, sagt die Prognose in
+   der Spalte END. */
+'year.totalRow':{en:'Total per month',de:'Gesamt je Monat'},
+'year.totalTip':{en:'Everything this month brings in and everything it costs, added up — this month alone, broken down by the three blocks below. What is left on the account at the end of the month is in the forecast, column END.',
+  de:'Alles, was dieser Monat bringt, und alles, was er kostet, zusammengezählt — nur dieser Monat, aufgeschlüsselt in den drei Blöcken darunter. Was am Monatsende auf dem Konto liegt, steht in der Prognose in der Spalte END.'},
 /* Die Blockzeile der Jahresmatrix ist zweizeilig: oben der
    Name, darunter klein, woher die Zahlen kommen können. */
 'year.kakRow':{en:'Flexible Payments',de:'Flexible Payments'},
@@ -702,6 +700,7 @@ const STR={
 'set.navGeneral':{en:'General',de:'Allgemein'},
 'set.navView':{en:'Appearance',de:'Darstellung'},
 'set.navBanks':{en:'Banks & payment types',de:'Banken & Zahlungsarten'},
+'set.navImport':{en:'Import',de:'Import'},
 'set.generalSub':{en:'Language of the interface, the year this cash book is kept for, and the balance it starts from. All three travel in the file — when you load it, the app follows the file.',
   de:'Sprache der Oberfläche, das Jahr, für das dieses Kassenbuch geführt wird, und der Stand, mit dem es anfängt. Alle drei stehen in der Datei — beim Laden richtet sich die Anwendung nach ihr.'},
 'set.viewSub':{en:'How wide the year matrix is drawn, and from which amount a booking counts as a large single item.',
@@ -712,6 +711,16 @@ const STR={
   de:'Zwei Listen, und jeder regelmäßige Posten gehört in genau eine davon: links die Einnahmen, rechts die Ausgaben. Ein Name darf über beide Listen hinweg nur einmal vorkommen — an ihm erkennt FINA, ob ein Posten Geld bringt oder kostet. Umbenennen zieht alle Posten mit; Entfernen schiebt sie in die erste verbliebene Kategorie derselben Liste.'},
 'set.kakSub':{en:'The categories of your everyday spending — one row each in the year overview and in the Flexible Payments view. Renaming carries plan values, actual values, corrections and imported bookings along. The order here is the order everywhere.',
   de:'Die Kategorien deiner alltäglichen Ausgaben — je eine Zeile in der Jahresübersicht und in der Flexible-Payments-Ansicht. Beim Umbenennen wandern Planwerte, Ist-Werte, Korrekturen und importierte Buchungen mit. Die Reihenfolge hier gilt überall.'},
+/* Der Bereich „Import". Beide Wege kommen von außen herein und
+   ändern die Datei — deshalb stehen sie beieinander und nicht
+   mehr in der Kopfzeile, wo sie zwischen Laden und Speichern
+   standen. */
+'set.importSub':{en:'Two ways of bringing numbers in from outside. Both show what they would do before anything changes — and neither writes to the file on disk: that is what “Save data” is for.',
+  de:'Zwei Wege, Zahlen von außen hereinzuholen. Beide zeigen erst, was sie tun würden, bevor sich etwas ändert — und keiner schreibt in die Datei auf der Festplatte: dafür ist „Daten speichern" da.'},
+'set.impFastHint':{en:'Adds the everyday spending of single months: the CSV export of the Fast Budget app becomes the actual values of the Flexible Payments. Everything else in the file stays as it is.',
+  de:'Ergänzt die alltäglichen Ausgaben einzelner Monate: der CSV-Export der App Fast Budget wird zu den Ist-Werten der Flexible Payments. Alles andere in der Datei bleibt, wie es ist.'},
+'set.impSheetHint':{en:'Brings a whole year in: the spreadsheet FINA grew out of, with items, categories and Flexible Payments. It replaces the cash book in this file.',
+  de:'Holt ein ganzes Jahr herein: die Tabelle, aus der FINA entstanden ist, mit Positionen, Kategorien und Flexible Payments. Sie ersetzt das Kassenbuch dieser Datei.'},
 'set.lang':{en:'Interface language',de:'Sprache der Oberfläche'},
 'set.year':{en:'Accounting year',de:'Abrechnungsjahr'},
 'set.yearHint':{en:'Changing the year changes only the labelling — the twelve months keep their amounts.',
@@ -819,6 +828,94 @@ const STR={
 'imp.dropped':{en:' {0} row(s) from deselected months skipped.',de:' {0} Zeile(n) aus abgewählten Monaten übergangen.'},
 'imp.outside':{en:' {0} outside {1} skipped.',de:' {0} außerhalb {1} übersprungen.'},
 'imp.added':{en:' New main categories: {0}.',de:' Neue Hauptkategorien: {0}.'},
+
+/* ── Import einer FINA-Tabelle ────────────────────────────────
+   Die Tabelle, aus der FINA entstanden ist: zwölf Monatsspalten,
+   davor die Kürzel, dazwischen Summenzeilen. Gelesen wird sie in
+   js/sheet.js, das Fenster steht in js/dialogs/sheet-import.js. */
+'shInfo.title':{en:'Import a FINA table (CSV)',de:'FINA-Tabelle einlesen (CSV)'},
+'shInfo.sub':{en:'The spreadsheet FINA grew out of: one row per item, twelve month columns, a few code columns in front. FINA reads its structure from the sum rows — it does not guess what it can add up.',
+  de:'Die Tabelle, aus der FINA entstanden ist: eine Zeile je Position, zwölf Monatsspalten, davor ein paar Spalten mit Kürzeln. FINA liest die Gliederung aus den Summenzeilen — geraten wird nichts, was sich rechnen lässt.'},
+'shInfo.needTitle':{en:'This must be in the file',de:'Das muss in der Datei stehen'},
+'shInfo.need':{en:'The header row is found by the twelve month names. Everything above it is ignored.',
+  de:'Die Kopfzeile wird an den zwölf Monatsnamen erkannt. Alles darüber wird übergangen.'},
+'shInfo.cMonths':{en:'Jan … Dec',de:'Jan … Dez'},
+'shInfo.colMonths':{en:'twelve columns in order, German or English, short or long',
+  de:'zwölf Spalten der Reihe nach, deutsch oder englisch, kurz oder lang'},
+'shInfo.cYear':{en:'2025',de:'2025'},
+'shInfo.colYear':{en:'the year stands above the column with the names — that column holds blocks, categories and items',
+  de:'das Jahr steht über der Spalte mit den Bezeichnungen — dort stehen Blöcke, Kategorien und Positionen'},
+'shInfo.cMark':{en:'/',de:'/'},
+'shInfo.colMark':{en:'in the narrow column behind each month it marks the sum rows — the blocks',
+  de:'in der schmalen Spalte hinter jedem Monat kennzeichnet er die Summenzeilen — die Blöcke'},
+'shInfo.optTitle':{en:'Taken along if present',de:'Wird mitgenommen, wenn vorhanden'},
+'shInfo.colBank':{en:'bank code — unknown codes are added to the list',de:'Kürzel der Bank — unbekannte Kürzel kommen in die Liste'},
+'shInfo.colPay':{en:'payment type',de:'Zahlungsart'},
+'shInfo.colDue':{en:'due date: A, M, E or a day of the month',de:'Fälligkeit: A, M, E oder ein Tag im Monat'},
+'shInfo.colEnd':{en:'last payment as 25-08. Anything else — “variable”, “monthly” — becomes a note on the item.',
+  de:'letzte Zahlung als 25-08. Alles andere — „Variabel", „mtl. kündbar" — wird zur Notiz der Position.'},
+'shInfo.rest':{en:'Semicolon and comma both work as separators. Column <code>P</code> — payments per year — is not taken over: the twelve monthly amounts say the same thing and say it exactly.',
+  de:'Semikolon und Komma gehen beide als Trennzeichen. Die Spalte <code>P</code> — Zahlungen im Jahr — wird nicht übernommen: die zwölf Monatsbeträge sagen dasselbe, und zwar genau.'},
+'shInfo.replace':{en:'A table is a whole cash book, not an addition to one. It <b>replaces</b> what is in this file. You will see what disappears before anything is changed.',
+  de:'Eine Tabelle ist ein ganzes Kassenbuch und kein Nachtrag. Sie <b>ersetzt</b>, was in dieser Datei steht. Was dabei verschwindet, siehst du, bevor etwas geändert wird.'},
+'sheet.noMonths':{en:'No header row with twelve month names found — is this a FINA table?',
+  de:'Keine Kopfzeile mit zwölf Monatsnamen gefunden — ist das eine FINA-Tabelle?'},
+'sheet.noBlocks':{en:'No sum row found. In the narrow column behind each month a “/” marks the blocks — without it FINA cannot tell headings from items.',
+  de:'Keine Summenzeile gefunden. In der schmalen Spalte hinter jedem Monat kennzeichnet ein „/" die Blöcke — ohne ihn kann FINA Überschriften nicht von Positionen unterscheiden.'},
+'sheet.noteEnd':{en:'Deadline in the table: {0}',de:'Deadline in der Tabelle: {0}'},
+'sheet.kIn':{en:'Income',de:'Einnahmen'},
+'sheet.kFlex':{en:'Flexible Payments',de:'Flexible Payments'},
+'sheet.kOut':{en:'Regular costs',de:'Regelmäßige Kosten'},
+'sheet.kSkip':{en:'— do not import',de:'— nicht übernehmen'},
+'sheet.step1':{en:'FINA table — check',de:'FINA-Tabelle — prüfen'},
+'sheet.step1Sub':{en:'<b>{0}</b> read, year of the table: <b>{1}</b>. Nothing has been changed yet. Check that FINA read the structure the way you keep it — the sums say whether it did.',
+  de:'<b>{0}</b> gelesen, Jahr der Tabelle: <b>{1}</b>. Bisher ist nichts geändert. Prüfe, ob FINA die Gliederung so gelesen hat, wie du sie führst — ob es stimmt, sagen die Summen.'},
+'sheet.blocks':{en:'The sum rows of the table',de:'Die Summenzeilen der Tabelle'},
+'sheet.colBlock':{en:'Sum row',de:'Summenzeile'},
+'sheet.colKind':{en:'becomes',de:'wird zu'},
+'sheet.colSheet':{en:'Table',de:'Tabelle'},
+'sheet.colRead':{en:'FINA read',de:'FINA gelesen'},
+'sheet.colRows':{en:'Items',de:'Positionen'},
+'sheet.ok':{en:'MATCHES',de:'STIMMT'},
+'sheet.off':{en:'DIFFERS',de:'WEICHT AB'},
+'sheet.offTip':{en:'The rows FINA found add up to something else than the sum row of the table. Then a heading was not recognised — the numbers would be counted twice. Better cancel and look at the table.',
+  de:'Die gefundenen Zeilen ergeben etwas anderes als die Summenzeile der Tabelle. Dann wurde eine Überschrift nicht erkannt — die Zahlen stünden doppelt da. Lieber abbrechen und in die Tabelle sehen.'},
+'sheet.noRows':{en:'no rows below it',de:'keine Zeilen darunter'},
+'sheet.blocksHint':{en:'A sum row with nothing below it is the grand total — its numbers already stand in the other rows, so it is not imported.',
+  de:'Eine Summenzeile ohne Zeilen darunter ist die Gesamtsumme — ihre Zahlen stehen schon in den anderen, deshalb wird sie nicht übernommen.'},
+'sheet.struct':{en:'What FINA read',de:'Was FINA gelesen hat'},
+'sheet.toKind':{en:'→ {0}',de:'→ {0}'},
+'sheet.rowsN':{en:'{0} row(s)',de:'{0} Zeile(n)'},
+'sheet.loose':{en:'(rows without a heading of their own)',de:'(Zeilen ohne eigene Überschrift)'},
+'sheet.flexHint':{en:'FINA knows one level of Flexible Payments categories. The rows below a heading become the categories — that is where the numbers you compare stand.',
+  de:'FINA kennt eine Ebene von Flexible-Payments-Kategorien. Die Zeilen unter einer Überschrift werden zu den Kategorien — dort stehen die Zahlen, die man vergleicht.'},
+'sheet.options':{en:'Options',de:'Optionen'},
+'sheet.optYear':{en:'Set the accounting year to {0} (this file is kept for {1})',
+  de:'Abrechnungsjahr auf {0} setzen (diese Datei wird für {1} geführt)'},
+'sheet.optTick':{en:'Tick off the months that are over',de:'Abgeschlossene Monate abhaken'},
+'sheet.optTickHint':{en:'What is in the table has happened. Ticking it off means: this is how it was — every month before the current one, and all twelve in a year that is over. Without the tick everything comes in open.',
+  de:'Was in der Tabelle steht, ist geschehen. Abhaken heißt „so war es" — jeder Monat vor dem laufenden, in einem vergangenen Jahr alle zwölf. Ohne den Haken kommt alles offen herein.'},
+'sheet.willMake':{en:'This makes {0} items in {1} income and {2} expense categories, plus {3} Flexible Payments categories.',
+  de:'Daraus werden {0} Positionen in {1} Einnahme- und {2} Ausgabe-Kategorien, dazu {3} Flexible-Payments-Kategorien.'},
+'sheet.needKind':{en:'Assign at least one sum row.',de:'Mindestens eine Summenzeile zuordnen.'},
+'sheet.step2':{en:'Replace the cash book',de:'Kassenbuch ersetzen'},
+'sheet.step2Sub':{en:'The table is a whole year. What is in this file now is <b>replaced, not added to</b> — items, categories, Flexible Payments and imported bookings.',
+  de:'Die Tabelle ist ein ganzes Jahr. Was jetzt in dieser Datei steht, wird <b>ersetzt, nicht ergänzt</b> — Positionen, Kategorien, Flexible Payments und importierte Buchungen.'},
+'sheet.what':{en:'What',de:'Was'},
+'sheet.rItems':{en:'Items',de:'Positionen'},
+'sheet.rTx':{en:'Imported bookings',de:'Importierte Buchungen'},
+'sheet.rBal':{en:'Balance correction',de:'Saldokorrektur'},
+'sheet.monthsN':{en:'{0} month(s) with an amount',de:'{0} Monat(e) mit Betrag'},
+'sheet.newCodes':{en:'New codes are added to the lists: {0}. They carry themselves as their label until you write it out in the settings.',
+  de:'Neu in die Listen kommen die Kürzel: {0}. Als Bezeichnung tragen sie zunächst sich selbst — ausschreiben kannst du sie in den Einstellungen.'},
+'sheet.keeps':{en:'Untouched: the opening balance, language and appearance. They are settings, they stand in one place each, and one click changes them.',
+  de:'Unberührt bleiben: der Anfangsbestand, Sprache und Darstellung. Das sind Einstellungen, sie stehen an je einer Stelle, und ein Griff ändert sie.'},
+'sheet.back':{en:'Back to checking',de:'Zurück zum Prüfen'},
+'sheet.go':{en:'Replace and import',de:'Ersetzen und importieren'},
+'sheet.done':{en:'{0} items in {1} categories taken over, plus {2} Flexible Payments categories.',
+  de:'{0} Positionen in {1} Kategorien übernommen, dazu {2} Flexible-Payments-Kategorien.'},
+'sheet.doneTick':{en:' Ticked off up to and including {0}.',de:' Abgehakt bis einschließlich {0}.'},
+'sheet.doneCodes':{en:' {0} new code(s) in the lists.',de:' {0} neue Kürzel in den Listen.'},
 
 /* ── Fälligkeit und Rhythmus ──────────────────────────────── */
 'due.A':{en:'Start of month',de:'Monatsanfang'},

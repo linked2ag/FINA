@@ -43,7 +43,7 @@ function renderChrome(){
      fehlt umgekehrt „Daten hochladen" — geladen wird auf der
      Seite, gearbeitet in der Anwendung. */
   const wel=!!ui.welcome;
-  ['btnLoad','btnSave','btnBackup','btnUnlink','btnImport','btnSettings','filePath'].forEach(id=>{
+  ['btnLoad','btnSave','btnBackup','btnUnlink','btnSettings','filePath'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel||id==='btnLoad';
   });
@@ -112,7 +112,7 @@ function syncStickyTops(){
 /* ── Die Jahresmatrix ist eine eigene Fläche ──────────────────
    Sie rollt in beiden Richtungen selbst; die Seite rollt in dieser
    Ansicht gar nicht. Genau daran hängt, dass Spaltenköpfe,
-   Saldozeile und Blockzeilen mit `position:sticky` stehenbleiben:
+   Gesamtzeile und Blockzeilen mit `position:sticky` stehenbleiben:
    sticky richtet sich am nächsten Rollrahmen aus, und der ist jetzt
    die Matrix selbst. Der Browser hält sie fest, ohne dass jemand
    rechnet — deshalb steht hier so wenig.
@@ -129,7 +129,7 @@ function syncStickyTops(){
      die Höhe der Fläche — so viel, wie unter der Knopfleiste bis
      zum unteren Rand des Fensters bleibt, abzüglich der Statuszeile
      darunter,
-     --headH und --pinH — die Höhen von Spaltenkopf und Saldozeile,
+     --headH und --pinH — die Höhen von Spaltenkopf und Gesamtzeile,
      an denen die Zeilen darunter kleben (css/matrix.css). */
 function sizeMatrix(){
   const box=document.getElementById('yearScroll'); if(!box) return;
@@ -630,10 +630,8 @@ document.getElementById('btnSettings').onclick=()=>openSettings();
 /* Die Anleitung ist ein Bereich, kein Fenster: derselbe Knopf
    klappt sie auf und wieder zu. */
 document.getElementById('btnGuide').onclick=()=>toggleGuide();
-/* Der CSV-Import führt erst durch ein Fenster mit den Spalten,
-   die in der Datei stehen müssen, und dann zur Dateiauswahl
-   (js/dialogs/csv-import.js). */
-document.getElementById('btnImport').onclick=()=>openImportInfo();
+/* Beide Importe stehen im Einstellungsfenster, Bereich „Import" —
+   in der Kopfzeile ist kein Knopf mehr dafür. */
 document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();
@@ -660,6 +658,22 @@ document.getElementById('fileCsv').onchange=e=>{
       const rows=parseFastBudget(r.result);
       if(!rows.length){toast(t('imp.noRows'));return;}
       openImport(rows,f.name);
+    }catch(err){toast(t('imp.failed',err.message));}
+  };
+  r.readAsText(f,'utf-8'); e.target.value='';
+};
+
+/* Dieselbe Vorsicht für die FINA-Tabelle: gelesen wird sofort,
+   geschrieben erst nach beiden Schritten des Fensters
+   (js/dialogs/sheet-import.js). */
+document.getElementById('fileSheet').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const sheet=parseFinaSheet(r.result);
+      if(!sheet.blocks.length){toast(t('sheet.noBlocks'));return;}
+      openSheetImport(sheet,f.name);
     }catch(err){toast(t('imp.failed',err.message));}
   };
   r.readAsText(f,'utf-8'); e.target.value='';
