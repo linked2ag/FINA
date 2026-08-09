@@ -44,21 +44,46 @@ jobs:
       - uses: actions/configure-pages@v5
 
       # Was veröffentlicht wird, sagen wir ausdrücklich, statt uns auf
-      # die Vorgaben der Upload-Aktion zu verlassen: alles außer der
-      # Versionsverwaltung, diesem Workflow und dem, was macOS und die
-      # Prüfläufe nebenher ablegen. `doc/img/` gehört dazu — die
-      # Anleitung lädt ihre Bilder von dort.
+      # die Vorgaben der Upload-Aktion zu verlassen.
+      #
+      # **Veröffentlicht wird nur, was die Seite zum Laufen braucht.**
+      # Alles andere bleibt hier: die Versionsverwaltung, dieser
+      # Workflow, was macOS und die Prüfläufe ablegen — und vor allem
+      # die Dokumente, die zur Arbeit am Projekt gehören und nicht zur
+      # Anwendung: CLAUDE.md, SPEC.md, PR.md, doc/GUIDE-TODO.md und das
+      # Skript für die Bildschirmfotos. Die lagen bis August 2026
+      # versehentlich mit auf der Seite und waren einzeln abrufbar.
+      #
+      # `doc/img/` bleibt drin — die Anleitung lädt ihre Bilder von
+      # dort. Deshalb wird nach Endungen ausgeschlossen und nicht der
+      # ganze Ordner.
+      #
+      # `/pro` ist für später vorgesehen: der Teil, der nur gegen
+      # Bezahlung ausgeliefert wird und deshalb nie auf Pages gehört
+      # (siehe _plan für login and payment.md).
       - name: Seite zusammenstellen
         run: |
           mkdir -p _site
           rsync -a \
             --exclude '.git' \
             --exclude '.github' \
+            --exclude '.claude' \
             --exclude '_site' \
             --exclude '.DS_Store' \
+            --exclude '.gitignore' \
             --exclude '_*.html' \
+            --exclude '*.md' \
+            --exclude '*.py' \
+            --exclude '/pro' \
             ./ _site/
           echo "Dateien: $(find _site -type f | wc -l), Größe: $(du -sh _site | cut -f1)"
+          # Was nicht mitgehen darf, prüfen wir hier und nicht erst im
+          # Browser: ein vergessener Ausschluss fällt sonst nie auf.
+          for f in CLAUDE.md SPEC.md PR.md README.md doc/GUIDE-TODO.md doc/make-shots.py; do
+            if [ -e "_site/$f" ]; then echo "FEHLER: $f gehört nicht auf die Seite"; exit 1; fi
+          done
+          test -f _site/index.html || { echo "FEHLER: index.html fehlt"; exit 1; }
+          test -d _site/doc/img   || { echo "FEHLER: doc/img fehlt — die Anleitung braucht die Bilder"; exit 1; }
 
       - uses: actions/upload-pages-artifact@v3
         with:

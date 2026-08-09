@@ -162,3 +162,15 @@ Beispieldatei ebenfalls.
 - [CLAUDE.md](CLAUDE.md) — Landkarte für Änderungen: welche Datei wofür, und die drei Regeln
 - [SPEC.md](SPEC.md) — Datenmodell, Rechenregeln, CSV-Format, bekannte Grenzen
 - [PR.md](PR.md) — warum es FINA gibt und was es gegenüber der Tabelle besser macht
+
+Diese drei Dateien gehören zur Arbeit am Projekt, nicht zur Anwendung — der
+Veröffentlichungs-Workflow lässt sie deshalb aus (`.github/workflows/pages.yml`).
+
+## Lizenz
+
+Copyright © 2026 Alex ([github.com/linked2ag](https://github.com/linked2ag)).
+**Alle Rechte vorbehalten** — siehe [LICENSE](LICENSE).
+
+Benutzen ist erlaubt und erwünscht. Vervielfältigen, Weitergeben und der Betrieb einer
+eigenen Kopie sind es nicht. Dass der Quelltext im Browser lesbar ist, liegt daran, dass
+ein Browser ihn zum Ausführen braucht; ein Verzicht auf Rechte ist es nicht.
