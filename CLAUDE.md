@@ -431,6 +431,26 @@ und bei beschnittener Achse ihr Maßstab dazu. **Vergangene Monate bleiben blass
 (`opacity:.42` an der Zeile): das gilt für die Zahlen wie für den Balken, Ist und Plan
 sollen unterscheidbar bleiben.
 
+## In der Jahresmatrix steht jede Position, auch die ohne einen einzigen Betrag
+
+Die Matrix ist die Ansicht, in der **angelegt** wird: hier entsteht eine Position, und
+danach werden ihre Monatswerte eingetragen. Wäre sie erst zu sehen, sobald irgendwo eine
+Zahl steht, verschwände sie genau zwischen diesen beiden Schritten — der Nutzer hätte sie
+gerade eingetippt und fände sie nirgends wieder.
+
+`base(it)` in `js/views/jahr.js` prüft deshalb nur noch „Abgeschlossene ausblenden". Für die
+Flexible Payments galt das schon immer (`kakRows` in derselben Datei); Einnahmen und Kosten
+folgen jetzt derselben Regel, und eine Kategorie, in der nur solche Posten stehen, bleibt
+mit ihrer Zwischenzeile stehen.
+
+**„Abgeschlossene ausblenden" nimmt sie nicht weg:** `yearSettled()` in `js/calc.js`
+verlangt mindestens einen Betrag — was nie etwas gekostet hat, ist auch nicht abbezahlt. Aus
+demselben Grund zählt `countHidden()` sie nicht in die Zahl neben dem Knopf.
+
+**Die Monatsansicht bleibt davon unberührt.** Dort steht, was in *diesem* Monat fällig ist;
+ein Posten ohne Betrag ist es nicht. Wer ihn dort sucht, findet ihn über das Suchfeld mit
+dem sechsten Haken (siehe „Worin das Suchfeld sucht").
+
 ## Die Saldozeile der Jahresmatrix zeigt den Kontostand
 
 Nicht den Saldo des einzelnen Monats, sondern den **Stand am Monatsende** — dieselbe Zahl,
@@ -804,8 +824,8 @@ Steht er, überstimmt ein Suchbegriff die übrigen Filter: beide Ansichten rechn
 * **Monat** (`viewMonat`): `show()` prüft nur noch den Suchbegriff, Zahlungsstand und
   Fälligkeit entfallen — und gesucht wird in `state.fixed` statt in `dueIn(m)`, also auch in
   Posten, die in diesem Monat gar keinen Betrag haben.
-* **Jahr** (`viewJahr`): `base()` lässt „Abgeschlossene ausblenden" und die Regel fallen,
-  dass eine Position ohne jeden Betrag nicht in der Matrix steht.
+* **Jahr** (`viewJahr`): `base()` lässt „Abgeschlossene ausblenden" fallen — mehr nimmt dort
+  nichts weg.
 
 **Ohne Suchbegriff ändert der Haken nichts** — er ist kein Schalter für „alles zeigen",
 sondern gehört der Suche. Vorgabe ist aus.

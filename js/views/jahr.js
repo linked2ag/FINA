@@ -181,16 +181,30 @@ function viewJahr(){
   const hit=s=>!q||(qField('meta')&&norm(s).includes(q));
   const qOk=it=>!q||hayItem(it).includes(q);
   /* Der Haken „auch in den ausgeblendeten Positionen" (qAll() in
-     js/state.js): mit ihm gewinnt der Suchbegriff gegen alles, was
-     sonst eine Zeile wegnimmt — „Abgeschlossene ausblenden" und
-     die Regel, dass eine Position ohne jeden Betrag nicht in der
-     Matrix steht. Ohne Suchbegriff ändert er nichts. */
+     js/state.js): mit ihm gewinnt der Suchbegriff gegen
+     „Abgeschlossene ausblenden". Ohne Suchbegriff ändert er
+     nichts. */
   const wide=!!q&&qAll();
-  const base=it=>wide||(it.amounts.some(v=>v!==0)&&!(state.hideSettled&&yearSettled(it)));
+  /* ── Auch die Posten ohne einen einzigen Betrag stehen hier ──
+     Die Matrix ist die Ansicht, in der angelegt wird — hier legt
+     man eine Position an und trägt danach ihre Monatswerte ein.
+     Wäre sie erst zu sehen, sobald irgendwo eine Zahl steht, wäre
+     sie zwischen Anlegen und erstem Betrag verschwunden: der
+     Nutzer hätte sie gerade eingetippt und fände sie nirgends
+     wieder. Bei den Flexible Payments steht es seit jeher so
+     (siehe kakRows weiter unten) — Einnahmen und Kosten folgen
+     jetzt derselben Regel.
+
+     Die Monatsansicht bleibt davon unberührt: dort steht, was in
+     **diesem** Monat fällig ist, und ein Posten ohne Betrag ist es
+     nicht. */
+  const base=it=>wide||!(state.hideSettled&&yearSettled(it));
   /* Die Zahl hinter „Abgeschlossene ausblenden" zählt nur, was
-     dieser Knopf versteckt — nicht, was der Suchbegriff wegnimmt. */
+     dieser Knopf versteckt — nicht, was der Suchbegriff wegnimmt.
+     Ein Posten ohne jeden Betrag ist nie abgeschlossen
+     (yearSettled in js/calc.js) und wird hier also nicht mitgezählt. */
   let hiddenRows=0;
-  const countHidden=arr=>{hiddenRows+=arr.filter(it=>it.amounts.some(v=>v!==0)&&state.hideSettled&&yearSettled(it)).length;};
+  const countHidden=arr=>{hiddenRows+=arr.filter(it=>state.hideSettled&&yearSettled(it)).length;};
 
   /* ── Wann ein Block zugeklappt ist ───────────────────────────
      Wie in der Monatsansicht: gewöhnlich sagt es die Datei
@@ -286,7 +300,8 @@ function viewJahr(){
 
   /* Alle Flexible Payments stehen hier, auch die noch leeren —
      eine Kategorie ohne Zahlen ist genau die, an die man denken
-     soll. Über den Stift bekommt sie ihre Monatswerte. */
+     soll. Über den Stift bekommt sie ihre Monatswerte. Für
+     Einnahmen und Kosten gilt seit base() dasselbe. */
   const secFlex=hit(t('year.kakRow'));
   const kakRows=kakCats().filter(k=>state.kak[k]&&(secFlex||!q||hayKak(k).includes(q)))
     .map(k=>mrow(esc(keyLabel(k)),MONTHS.map((_,i)=>kakVal(k,i+1)),{kak:k,cls:'r-flex'})).join('');
