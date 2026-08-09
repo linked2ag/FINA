@@ -27,10 +27,13 @@
    gebaute Kategorie, die es im Zustand noch nicht gibt. Sie wird
    wie eine neue behandelt (angelegt erst mit „Speichern"), trägt
    aber die Werte ihrer Vorlage. Gebaut wird sie unten in #kDup. */
-function editKak(k,copy){
+function editKak(k,copy,focusMonth){
   const isNew=!k;
   const e=isNew?(copy?copy.entry:blankKak(0)):state.kak[k];
   if(!e){ toast(t('kdlg.gone')); return; }
+  /* Arbeitskopie wie im Posten-Fenster: geändert wird hier,
+     übernommen erst beim Speichern. */
+  const links=(e.links||[]).map(x=>({name:x.name,url:x.url}));
   /* Die Bezeichnung lebt bis zum Speichern nur hier: es gibt kein
      Feld mehr, aus dem man sie lesen könnte. Der Kopf zeigt sie,
      das kleine Fenster ändert sie. */
@@ -39,18 +42,52 @@ function editKak(k,copy){
   const imported=i=>!isNew&&hasActual(i+1);
   const lockN=MONTHS.filter((_,i)=>imported(i)).length;
   const last=completedMonths();        /* ohne den laufenden Monat */
-  const tag=i=>imported(i)?(e.override[i]!=null?'<span class="lock corr">CORRECTED</span>':'<span class="lock imp">IMPORTED</span>'):'';
-
   const box=document.createElement('div');
   box.className='modal';
+
+  /* ── Woher der Wert des Monats kommt ────────────────────────
+     **CORRECTED steht orange** — dieselbe Farbe, die in der ganzen
+     Anwendung „das ist noch nicht der Import, das hat jemand von
+     Hand gesetzt" heißt. Grün bleibt dem unveränderten Import. Die
+     Marke sagt beim Überfahren, **was importiert war**: wer eine
+     Korrektur sieht, will als Erstes wissen, wovon abgewichen
+     wurde. Der Ursprungswert steht weiter in state.flexActual —
+     die Korrektur liegt daneben in override und überschreibt ihn
+     nicht.
+
+     **Gelesen wird das Feld, nicht der Zustand.** Wer eine Zahl
+     ändert, sieht die Marke sofort umspringen — nicht erst, wenn
+     er das Fenster gespeichert und wieder geöffnet hat. Die Regel
+     ist dieselbe wie beim Speichern (`override` bleibt leer, wenn
+     der Wert dem Import entspricht); stünde hier eine andere,
+     verspräche die Marke etwas anderes, als die Datei bekommt.
+
+     Beim Aufbau gibt es die Felder noch nicht — dann zählt der
+     gespeicherte Stand. */
+  const round2=v=>Math.round(v*100)/100;
+  const tag=i=>{
+    if(!imported(i)) return '';
+    const orig=round2(state.flexActual[i+1][k]||0);
+    const cell=box.querySelector(`[data-mi="${i}"]`);
+    const cur=cell?round2(parseGermanNumber(cell.value))
+                  :(e.override[i]!=null?round2(e.override[i]):orig);
+    return cur===orig
+      ? '<span class="lock imp">IMPORTED</span>'
+      : `<span class="lock corr" data-tip="${esc(t('kdlg.corrTip',eur(orig)))}">CORRECTED</span>`;
+  };
+  /* Die Marke sitzt in einem eigenen Platzhalter, damit sie sich
+     austauschen lässt, ohne die Monatsbeschriftung neu zu bauen. */
+  const showTag=i=>{
+    const slot=box.querySelector(`[data-tag="${i}"]`);
+    if(slot) slot.innerHTML=tag(i);
+  };
+  const showTags=()=>MONTHS.forEach((_,i)=>showTag(i));
   box.innerHTML=`<div class="box">
     <h3>${lampPos('kak',isNew?'':k)}<button type="button" class="titlebtn" id="kTitle"
       title="${esc(t('kdlg.nameBtnTip'))}"></button></h3>
     <p class="subline">${copy?t('kdlg.dupSub',esc(keyLabel(copy.from)))
       :(isNew?t('kdlg.newSub'):(lockN?t('kdlg.lockedN',lockN):t('kdlg.allOpen'))+' '+t('kdlg.hint'))}</p>
-    <div class="field"><label>${t('item.url')}</label>
-      <div class="urlrow"><input id="kUrl" value="${esc(e.url||'')}" placeholder="https://…">
-        <button type="button" class="btn small urlgo" data-go="kUrl" title="${esc(t('item.urlOpenTip'))}">${t('item.urlOpen')}</button></div></div>
+    <div class="field linkfield">${linkHead()}<div id="kLinks">${linkRows(links)}</div></div>
     <div class="field"><label>${t('item.kind')}</label>
       <label style="display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">
         <input type="checkbox" id="kEst" ${e.estimated?'checked':''} style="width:auto">
@@ -80,7 +117,7 @@ function editKak(k,copy){
       <div class="mgrid">${MONTHS.map((m,i)=>{const imp=imported(i), on=imp||e.paid[i];
         const val=imp?(e.override[i]!=null?e.override[i]:(state.flexActual[i+1][k]||0)):e.plan[i];
         return `<div class="cell${on?' lockedcell':''}" data-cell="${i}">
-        <div class="cellhead"><span class="mlab ${i+1===CUR?'curm':''}">${m} ${tag(i)}</span>
+        <div class="cellhead"><span class="mlab ${i+1===CUR?'curm':''}">${m} <span class="tagslot" data-tag="${i}">${tag(i)}</span></span>
           <span class="ctools">${lampHtml('kak',isNew?'':k,i+1)}
             <button type="button" class="seal mini" data-pi="${i}" aria-pressed="${on}"
               title="${on?t('kdlg.lockedTip'):t('month.markDone')}">${CHECK_SVG}</button></span></div>
@@ -196,21 +233,28 @@ function editKak(k,copy){
      die Sammelknöpfe rufen showAvg() selbst — was ein Knopf ins
      Feld schreibt, löst kein input aus (dieselbe Regel wie bei der
      Vorzeichenfarbe, siehe CLAUDE.md). */
-  box.addEventListener('input',ev=>{ if(ev.target.dataset.mi!==undefined) showAvg(); });
+  box.addEventListener('input',ev=>{
+    if(ev.target.dataset.mi===undefined) return;
+    showAvg(); showTag(+ev.target.dataset.mi);
+  });
 
   box.querySelector('#kApply').onclick=()=>{
     const v=parseGermanNumber(box.querySelector('#kVal').value);
     const start=+box.querySelector('#kStart').value; let n=0;
     cells().forEach(c=>{const i=+c.dataset.mi; if(c.disabled||(i+1)<start) return; c.value=v?nf.format(v):''; n++;});
-    signValues(box); showAvg();
+    signValues(box); showAvg(); showTags();
     toast(t('item.setN',n)+'.');
   };
   box.querySelector('#kClear').onclick=()=>{
-    cells().forEach(c=>{if(!c.disabled)c.value='';}); signValues(box); showAvg();
+    cells().forEach(c=>{if(!c.disabled)c.value='';}); signValues(box); showAvg(); showTags();
   };
   box.querySelector('#kCancel').onclick=()=>closeModal(box);
   box.onclick=ev=>{if(ev.target===box)closeModal(box);};
-  bindUrlGo(box);
+  const drawLinks=()=>{
+    box.querySelector('#kLinks').innerHTML=linkRows(links);
+    bindLinks(box.querySelector('.linkfield'),links,drawLinks);
+  };
+  bindLinks(box.querySelector('.linkfield'),links,drawLinks);
 
   /* Löschen nimmt alles mit, was an der Kategorie hängt — Plan-
      und Ist-Werte, Korrekturen, Notizen und die importierten
@@ -240,7 +284,7 @@ function editKak(k,copy){
   if(dup) dup.onclick=()=>{
     const c=blankKak(0);
     c.estimated=box.querySelector('#kEst').checked;
-    c.url=box.querySelector('#kUrl').value.trim();
+    c.links=links.map(x=>({name:x.name,url:x.url}));
     cells().forEach(cc=>{ c.plan[+cc.dataset.mi]=parseGermanNumber(cc.value); });
     const nm=(name||k)+' '+t('item.copy');
     box.remove();
@@ -260,7 +304,7 @@ function editKak(k,copy){
     if(taken(name)){ toast(t('set.taken',name)); return; }
 
     e.estimated=box.querySelector('#kEst').checked;
-    e.url=box.querySelector('#kUrl').value.trim();
+    e.links=links.map(x=>({name:x.name,url:x.url}));
     cells().forEach(c=>{
       const i=+c.dataset.mi, v=parseGermanNumber(c.value);
       if(imported(i)){
@@ -282,8 +326,13 @@ function editKak(k,copy){
     save(); box.remove(); render();
   };
   /* Ohne Bezeichnung steht der erste Schritt im Kopf — dorthin der
-     Fokus. Sonst ins erste Feld, wie bisher. */
-  (name?box.querySelector('#kUrl'):title).focus();
+     Fokus. Sonst ins Feld der Schnelleingabe: dort wird gearbeitet. */
+  const mCell=focusMonth?box.querySelector(`[data-mi="${focusMonth-1}"]`):null;
+  if(mCell&&!mCell.disabled){
+    mCell.focus(); mCell.select();
+    mCell.closest('.cell').classList.add('askcell');
+  }
+  else (name?box.querySelector('#kVal'):title).focus();
 }
 
 /* Alte Fundstelle: data-newkak öffnet dasselbe Fenster, nur leer. */

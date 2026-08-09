@@ -234,6 +234,231 @@ function askName(cur,txt,taken,onOk){
   inp.focus(); inp.select();
 }
 
+/* ── Zugehörige Links ─────────────────────────────────────────
+   Eine Position trägt eine Liste von Links (siehe normLinks() in
+   js/state.js). Angezeigt wird der **Name**, den der Nutzer
+   vergeben hat — und wenn er keinen vergeben hat, die Adresse
+   selbst: lieber eine lange Adresse als eine leere Zeile, unter
+   der sich nichts finden lässt. */
+const linkLabel=l=>((l&&l.name&&l.name.trim())?l.name.trim():((l&&l.url)||''));
+
+/* Das Kettensymbol vor einer Bezeichnung, in allen drei Ansichten
+   dasselbe.
+
+   **Ein Link führt direkt hin, mehrere öffnen die Auswahl.** Ein
+   Symbol je Link stünde bei zehn Links zehnmal vor dem Namen und
+   nähme der Bezeichnungsspalte der Jahresmatrix den Platz, den sie
+   ohnehin knapp hat. Beim Überfahren nennt die Sprechblase, wohin
+   es geht — bei mehreren, wie viele es sind.
+
+   `kind` und `key` sagen, wessen Links gemeint sind: 'item' mit
+   der Kennung, 'kak' mit dem Namen der Kategorie. Verdrahtet wird
+   `data-links` einmal in wire() (js/app.js). */
+function linkIcon(links,kind,key){
+  const l=(links||[]).filter(x=>x&&x.url);
+  /* **Ohne Links ein Strich.** Eine leere Zelle sagt nur, dass hier
+     nichts ist; der Strich sagt, dass hier etwas hinkönnte — und
+     ein Klick darauf führt direkt dorthin: Fenster der Position
+     auf, Webseitenänderungsfenster gleich hinterher. Zeilen ohne
+     Position (Summen, Gruppen) bekommen ihn nicht — dort gibt es
+     nichts, dem ein Link gehören könnte; erkennbar am fehlenden
+     Schlüssel. */
+  if(!l.length) return key?`<button type="button" class="linkicon linkdash" data-lnnew="${esc(kind+':'+key)}"
+    aria-label="${esc(t('link.add'))}" data-tip="${esc(t('link.addTip'))}">&ndash;</button>`:'';
+  if(l.length===1) return `<a class="linkicon" href="${esc(l[0].url)}" target="_blank" rel="noopener"
+    data-tip="${esc(linkLabel(l[0])+' — '+l[0].url)}">${LINK_SVG}</a>`;
+  return `<button type="button" class="linkicon" data-links="${esc(kind+':'+key)}"
+    aria-label="${esc(t('link.pick'))}" data-tip="${esc(t('link.pickTip',l.length))}">${LINK_SVG}</button>`;
+}
+
+/* Das Fenster, das bei mehreren Links die Auswahl zeigt. Es ist so
+   hoch, wie es sein muss: zehn Links sind die Obergrenze
+   (MAX_LINKS), und zehn Zeilen passen auf jeden Bildschirm —
+   deshalb rollt hier nichts. */
+function openLinkList(kind,key){
+  const o=kind==='kak'?(state.kak&&state.kak[key]):findItem(key);
+  const l=(o&&o.links)||[];
+  if(!l.length) return;
+  const name=kind==='kak'?keyLabel(key):(o.name||'');
+  const box=document.createElement('div');
+  box.className='modal';
+  box.innerHTML=`<div class="box narrow">
+    <h3>${esc(t('link.title'))}</h3>
+    <p class="subline">${esc(name)}</p>
+    <ul class="linklist">${l.map(x=>`<li><a href="${esc(x.url)}" target="_blank" rel="noopener"
+      data-tip="${esc(x.url)}">${esc(linkLabel(x))}</a></li>`).join('')}</ul>
+    <div class="row-end"><button class="btn" id="llClose">${t('g.close')}</button></div>
+  </div>`;
+  document.body.appendChild(box); tabThroughFields(box);
+  box.querySelector('#llClose').onclick=()=>closeModal(box);
+  box.onclick=ev=>{ if(ev.target===box) closeModal(box); };
+  /* Wer einen Link wählt, hat das Fenster erledigt — es soll nicht
+     hinter dem neuen Reiter stehen bleiben. */
+  box.querySelectorAll('.linklist a').forEach(a=>a.addEventListener('click',()=>closeModal(box)));
+  const first=box.querySelector('.linklist a'); if(first) first.focus();
+}
+
+/* ── Das Webseitenänderungsfenster ────────────────────────────
+   Zwei Felder: oben der Name, unter dem der Link erscheinen soll,
+   darunter die Adresse. Der Name ist freiwillig — bleibt er leer,
+   steht später die Adresse selbst da.
+
+   Die Reihenfolge ist Absicht: man liest zuerst, **wofür** der
+   Link steht, und dann erst, wohin er zeigt. In der Liste sieht
+   man es später genauso.
+
+   Enter bestätigt, Escape bricht ab (das erledigt der Zuhörer für
+   jedes oberste Fenster). Übernommen wird nur ins aufrufende
+   Fenster — in die Datei kommt es erst mit dessen „Speichern",
+   deshalb heißt der Knopf „Übernehmen". */
+function editLink(cur,onOk){
+  const box=document.createElement('div');
+  box.className='modal';
+  box.innerHTML=`<div class="box narrow">
+    <h3>${esc(t(cur?'link.edit':'link.add'))}</h3>
+    <p class="subline">${esc(t('link.sub'))}</p>
+    <div class="field"><label>${t('link.name')}</label>
+      <input id="lnName" value="${esc((cur&&cur.name)||'')}" placeholder="${esc(t('link.namePh'))}"></div>
+    <div class="field"><label>${t('link.url')}</label>
+      <input id="lnUrl" value="${esc((cur&&cur.url)||'')}" placeholder="https://…"></div>
+    <p class="errline" id="lnErr" hidden></p>
+    <div class="row-end">
+      <button class="btn" id="lnCancel">${t('g.cancel')}</button>
+      <button class="btn primary" id="lnOk">${t('item.apply')}</button></div>
+  </div>`;
+  document.body.appendChild(box); tabThroughFields(box);
+
+  const nm=box.querySelector('#lnName'), ur=box.querySelector('#lnUrl'), err=box.querySelector('#lnErr');
+
+  /* ── Der Name kommt aus der Adresse ─────────────────────────
+     Wer eine Adresse einfügt, soll den Namen nicht auch noch
+     tippen müssen: aus `https://www.telekom.de/…` wird „Telekom"
+     (siteName in js/format.js).
+
+     **Nur solange niemand selbst etwas hingeschrieben hat.** Der
+     eingetragene Name gehört dem Nutzer; ihn beim nächsten
+     Buchstaben in der Adresse zu überschreiben wäre ein
+     Übergriff. Gemerkt wird das an `auto`: gefüllt wird nur, was
+     leer war oder was zuletzt von hier kam. Sobald der Nutzer im
+     Namensfeld tippt, ist Schluss — auch wenn er es wieder
+     leert. */
+  let auto=!(cur&&cur.name);
+  nm.oninput=()=>{ auto=false; };
+  ur.oninput=()=>{
+    if(!auto) return;
+    nm.value=siteName(ur.value.trim());
+  };
+
+  const ok=()=>{
+    const url=ur.value.trim();
+    /* Ohne Adresse gibt es nichts zu öffnen — ein Link, der
+       nirgendwohin führt, ist kein Eintrag, sondern ein Fehler. */
+    if(!url){ err.textContent=t('link.urlEmpty'); err.hidden=false; ur.focus(); return; }
+    /* Eingefügt und sofort mit Enter bestätigt: dann hat `oninput`
+       zwar gefeuert, aber wer die Adresse per Tastatur einsetzt und
+       gleich abschickt, soll den Namen trotzdem bekommen. */
+    const name=nm.value.trim()||(auto?siteName(url):'');
+    /* Ohne Schema hält der Browser die Adresse für einen Pfad —
+       „example.com" landete sonst auf der eigenen Seite. linkUrl()
+       steht in js/state.js, weil auch das Laden älterer Dateien es
+       braucht. */
+    closeModal(box);
+    onOk({name,url:linkUrl(url)});
+  };
+  box.querySelector('#lnOk').onclick=ok;
+  box.querySelector('#lnCancel').onclick=()=>closeModal(box);
+  box.onclick=ev=>{ if(ev.target===box) closeModal(box); };
+  [nm,ur].forEach(i=>{ i.onkeydown=ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); ok(); } }; });
+  /* Bei einem neuen Eintrag steht die Schreibmarke in der Adresse:
+     ohne sie geht es nicht weiter, der Name ist die Zugabe. Beim
+     Ändern vorn im Namen — meistens ist genau er gemeint. */
+  const f=cur?nm:ur; f.focus(); f.select();
+}
+
+/* Die Überschrift des Linkbereichs — dieselbe Bauart wie die
+   Listen im Einstellungsfenster (listHead in js/dialogs/settings.js):
+   das Pluszeichen steht **direkt hinter** der Beschriftung, nicht am
+   rechten Rand. Dort suchte man es, und bei einer langen Liste stünde
+   es weit weg von dem, was es ergänzt. */
+const linkHead=()=>`<label>${t('item.links')}<button type="button" class="plusmini" data-lnadd="1"
+  title="${esc(t('link.addTip'))}" aria-label="${esc(t('link.addTip'))}">+</button></label>`;
+
+/* Die Liste der Links in einem Fenster: je Zeile der Stift links,
+   der Link als Text, das Kreuz rechts. Gebaut vom aufrufenden
+   Fenster, verdrahtet von bindLinks() darunter.
+
+   **Ohne Links steht dort nichts.** Ein Satz „noch keine Links"
+   sagte nur, was die leere Fläche schon zeigt, und machte aus einer
+   Zeile Überschrift drei Zeilen Fenster. */
+function linkRows(links){
+  if(!links.length) return '';
+  return `<ul class="linklist edit">${links.map((x,i)=>`<li draggable="true" data-lnrow="${i}">
+    <span class="grip" title="${esc(t('set.dragTip'))}">&#8942;&#8942;</span>
+    <button type="button" class="pencil" data-lnedit="${i}" title="${esc(t('link.editTip'))}">&#9998;</button>
+    <a href="${esc(x.url)}" target="_blank" rel="noopener" data-tip="${esc(x.url)}">${esc(linkLabel(x))}</a>
+    <button type="button" class="lndel" data-lndel="${i}"
+      aria-label="${esc(t('link.del'))}" data-tip="${esc(t('link.delTip'))}">&#10005;</button>
+  </li>`).join('')}</ul>`;
+}
+
+/* Hängt die Klicks an eine frisch gebaute Linkliste. `links` ist
+   die Liste des offenen Fensters, `redraw` zeichnet den Bereich
+   neu — beides gehört dem Aufrufer, hier steht nur, was passiert.
+
+   Gelöscht wird erst nach Rückfrage: ein Link ist schnell
+   angelegt, aber niemand weiß hinterher, welche Adresse dort
+   stand. */
+function bindLinks(root,links,redraw){
+  root.querySelectorAll('[data-lnedit]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.lnedit;
+    editLink(links[i],v=>{ links[i]=v; redraw(); });
+  });
+  root.querySelectorAll('[data-lndel]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.lndel;
+    if(!confirm(t('link.delAsk',linkLabel(links[i])))) return;
+    links.splice(i,1); redraw();
+  });
+  const add=root.querySelector('[data-lnadd]');
+  if(add) add.onclick=()=>{
+    if(links.length>=MAX_LINKS){ toast(t('link.max',MAX_LINKS)); return; }
+    editLink(null,v=>{ links.push(v); redraw(); });
+  };
+
+  /* ── Die Reihenfolge ziehen ─────────────────────────────────
+     Dieselbe Mechanik wie die Listen im Einstellungsfenster
+     (js/dialogs/settings.js): der Griff ⋮⋮ ganz links, `.dragging`
+     an der Zeile, die man hält, `.over` an der, auf der man steht.
+
+     Welche Reihenfolge gilt, ist keine Kleinigkeit: der erste Link
+     ist der, den das Kettensymbol in den Ansichten öffnet, wenn es
+     nur einen gibt — und der, der in der Auswahl oben steht. */
+  const rows=[...root.querySelectorAll('[data-lnrow]')];
+  let from=null;
+  rows.forEach(row=>{
+    row.addEventListener('dragstart',ev=>{
+      from=+row.dataset.lnrow;
+      row.classList.add('dragging'); ev.dataTransfer.effectAllowed='move';
+      try{ ev.dataTransfer.setData('text/plain',String(from)); }catch(e){}
+    });
+    row.addEventListener('dragend',()=>{
+      row.classList.remove('dragging');
+      rows.forEach(r=>r.classList.remove('over'));
+    });
+    row.addEventListener('dragover',ev=>{
+      if(from===null) return;
+      ev.preventDefault(); ev.dataTransfer.dropEffect='move'; row.classList.add('over');
+    });
+    row.addEventListener('dragleave',()=>row.classList.remove('over'));
+    row.addEventListener('drop',ev=>{
+      ev.preventDefault();
+      const to=+row.dataset.lnrow;
+      if(from===null||to===from) return;
+      links.splice(to,0,links.splice(from,1)[0]);
+      from=null; redraw();
+    });
+  });
+}
+
 /* Die Überschrift eines Fensters als Knopf, der seine Bezeichnung
    ändert. Zurück kommt showName() — der Aufrufer ruft es, wenn
    sich der Name geändert hat. */
@@ -353,25 +578,6 @@ function tabThroughFields(root){
        Angabe, und ohne Tab wäre sie mit der Tastatur unerreichbar. */
     if(el.closest('.row-end,.welcome')||el.classList.contains('titlebtn')) return;
     el.tabIndex=-1;
-  });
-}
-
-/* ── Link öffnen ──────────────────────────────────────────────
-   Neben dem Eingabefeld für den Beleg steht ein Knopf, der ihn
-   sofort öffnet — man muss zum Nachsehen nicht erst speichern.
-   Gelesen wird der getippte Stand, nicht der gespeicherte.
-   data-go trägt die Kennung des Feldes daneben. */
-function bindUrlGo(box){
-  box.querySelectorAll('[data-go]').forEach(b=>{
-    const inp=box.querySelector('#'+b.dataset.go);
-    if(!inp) return;
-    const sync=()=>{ b.disabled=!inp.value.trim(); };
-    inp.oninput=sync; sync();
-    b.onclick=()=>{
-      const u=inp.value.trim(); if(!u) return;
-      /* Ohne Schema hält der Browser die Adresse für einen Pfad. */
-      window.open(/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u,'_blank','noopener');
-    };
   });
 }
 

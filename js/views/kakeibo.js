@@ -157,8 +157,10 @@ function viewKakeibo(){
 
   /* Der Beleglink der Kategorie — dasselbe Symbol wie beim
      regelmäßigen Posten. */
-  const kLink=k=>(state.kak[k]&&state.kak[k].url)
-    ?` <a class="linkicon" href="${esc(state.kak[k].url)}" target="_blank" rel="noopener" title="${t('year.linkTip')}">${LINK_SVG}</a>`:'';
+  const kLink=k=>{
+    const l=state.kak[k]&&state.kak[k].links;
+    return (l&&l.length)?' '+linkIcon(l,'kak',k):'';
+  };
 
   let rows='';
   order.forEach(mk=>{

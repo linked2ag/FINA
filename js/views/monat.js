@@ -19,7 +19,8 @@ function metaLine(it){
   if(it.pay) p.push(`<span>${esc(payLabel(it.pay))}</span>`);
   if(it.dueDay) p.push(`<span>${DUE_LABEL(it.dueDay)}</span>`);
   if(it.end) p.push(`<span>${t('end.tip',endLabel(it))}</span>`);
-  if(it.url) p.push(`<span><a href="${esc(it.url)}" target="_blank" rel="noopener">${t('month.receipt')}</a></span>`);
+  (it.links||[]).forEach(l=>p.push(`<span><a href="${esc(l.url)}" target="_blank" rel="noopener"
+    data-tip="${esc(l.url)}">${esc(linkLabel(l))}</a></span>`));
   return p.length?`<div class="meta">${p.join('')}</div>`:'';
 }
 
@@ -34,8 +35,8 @@ function itemRow(it,m){
     <td class="markcell"><button class="seal${!p&&e?' est':''}" aria-pressed="${p}" data-paid="${it.id}"
       title="${p?t('month.markOpen'):t('month.markPaid')}">${CHECK_SVG}</button></td>
     <td class="num amt ${e&&!p?'est':cls(it.amounts[m-1])}">${eur(it.amounts[m-1])}</td>
-    <td class="pencell"><div class="ptools"><button class="pencil" data-edit="${it.id}" title="${t('year.editTip')}">&#9998;</button>${lampHtml('item',it.id,m)}</div></td>
-    <td class="nm">${it.url?`<a class="linkicon" href="${esc(it.url)}" target="_blank" rel="noopener" title="${t('month.receiptTip')}">${LINK_SVG}</a> `:''}<span class="iname">${esc(it.name)}</span>${isLastRate(it,m)?`<span class="pill last">${t('month.lastRate')}</span>`:''}
+    <td class="pencell"><div class="ptools"><button class="pencil" data-edit="${it.id}" title="${t('year.editTip')}">&#9998;</button>${linkIcon(it.links,'item',it.id)}${lampHtml('item',it.id,m)}</div></td>
+    <td class="nm"><span class="iname">${esc(it.name)}</span>${isLastRate(it,m)?`<span class="pill last">${t('month.lastRate')}</span>`:''}
       ${metaLine(it)}${note?`<div class="itemnote">${esc(note)}</div>`:''}</td></tr>`;
 }
 
@@ -55,7 +56,7 @@ function balanceRow(m){
       <td class="markcell"></td>
       <td class="num amt ${cls(v)}">${eur(v)}</td>
       <td class="pencell"><div class="ptools"><button class="pencil" data-edit="${BALANCE_ID}"
-        title="${t('bal.editTip')}">&#9998;</button>${lampHtml('item',BALANCE_ID,m)}</div></td>
+        title="${t('bal.editTip')}">&#9998;</button>${linkIcon(state.balance.links,'item',BALANCE_ID)}${lampHtml('item',BALANCE_ID,m)}</div></td>
       <td class="nm"><span class="balname" data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>
         ${note?`<div class="itemnote">${esc(note)}</div>`:''}</td></tr></table></div>`;
 }
@@ -68,9 +69,9 @@ function kakRow(k,m){
     <td class="markcell"><button class="seal${!done&&e.estimated?' est':''}" aria-pressed="${done}" data-kpaid="${esc(k)}"
       ${imported?`disabled title="${t('month.imported')}"`:`title="${done?t('month.markOpen'):t('month.markDone')}"`}>${CHECK_SVG}</button></td>
     <td class="num amt ${est?'est':cls(v)}">${eur(v)}</td>
-    <td class="pencell"><div class="ptools"><button class="pencil" data-kedit="${esc(k)}" title="${t('month.editKak')}">&#9998;</button>${lampHtml('kak',k,m)}</div></td>
+    <td class="pencell"><div class="ptools"><button class="pencil" data-kedit="${esc(k)}" title="${t('month.editKak')}">&#9998;</button>${linkIcon(e.links,'kak',k)}${lampHtml('kak',k,m)}</div></td>
     <td class="nm"><div class="rowline">
-        <span>${e.url?`<a class="linkicon" href="${esc(e.url)}" target="_blank" rel="noopener" title="${t('month.receiptTip')}">${LINK_SVG}</a> `:''}<span class="iname">${esc(keyLabel(k))}</span></span>
+        <span><span class="iname">${esc(keyLabel(k))}</span></span>
         ${kakOv(k,m)!=null?'<span class="pill corrp">corrected</span>':(imported?'<span class="pill">imported</span>':(e.estimated?`<span class="pill">${t('g.estimated')}</span>`:''))}</div>
       ${e.notes[m-1]?`<div class="itemnote">${esc(e.notes[m-1])}</div>`:''}</td></tr>`;
 }

@@ -264,7 +264,6 @@ const STR={
 'year.monthTip':{en:'Go to {0}',de:'Zum Monat {0}'},
 'year.monthDone':{en:'Everything recorded and paid — ',de:'Alles erfasst und bezahlt — '},
 'year.editTip':{en:'Edit item',de:'Position ändern'},
-'year.linkTip':{en:'Open receipt or contract',de:'Beleg oder Vertrag öffnen'},
 'year.hint':{en:'The pencil — or a double-click on any amount — opens the item · clicking a month jumps to the month view · B (bank) and PT (payment type) open the lists · DD (due date) is A/M/E or the day, LP the last payment.',
   de:'Stift oder Doppelklick auf einen Betrag öffnet die Position · Klick auf einen Monat springt in die Monatsansicht · Klick auf B (bank) oder PT (payment type) öffnet die Listen · DD (due date) ist A/M/E oder der Tag, LP die letzte Zahlung.'},
 /* Kein Monatsname in der Regel selbst — welcher Monat gerade
@@ -362,8 +361,6 @@ const STR={
 'month.legEst':{en:'amount estimated',de:'Betrag geschätzt'},
 'month.editKak':{en:'Edit Flexible Payments category',de:'Flexible-Payments-Kategorie ändern'},
 'month.done':{en:'{0} of {1} items done',de:'{0} von {1} Positionen erledigt'},
-'month.receipt':{en:'Receipt',de:'Beleg'},
-'month.receiptTip':{en:'Open receipt',de:'Beleg öffnen'},
 /* Bereich zuklappen — steht im Kopf der Flexible Payments, links
    vom Knopf, der eine Kategorie anlegt. */
 'month.minAreaTip':{en:'Show only the heading of this area — applies to every month',
@@ -421,6 +418,8 @@ const STR={
    dieselbe wie beim Rechnen — Korrektur schlägt Import, Import
    schlägt Haken, Haken schlägt eingetippten Betrag. */
 'kak.colKind':{en:'Kind',de:'Art'},
+'kdlg.corrTip':{en:'Corrected by hand — the imported value was {0}',
+  de:'Von Hand korrigiert — importiert war {0}'},
 'kak.kImp':{en:'imported',de:'importiert'},
 'kak.kCorr':{en:'corrected',de:'korrigiert'},
 'kak.kDone':{en:'closed',de:'abgeschlossen'},
@@ -565,10 +564,28 @@ const STR={
 'item.due':{en:'Due date (DD)',de:'Fälligkeit (DD)'},
 'item.endM':{en:'Last payment (LP) — month',de:'Letzte Zahlung (LP) — Monat'},
 'item.endY':{en:'Last payment (LP) — year',de:'Letzte Zahlung (LP) — Jahr'},
-'item.url':{en:'Link to receipt or contract',de:'Link zu Beleg oder Vertrag'},
-'item.urlOpen':{en:'Open',de:'\u00d6ffnen'},
-'item.urlOpenTip':{en:'Open this link in a new tab — the typed address counts, saving is not needed first',
-  de:'Diesen Link in einem neuen Tab \u00f6ffnen — es gilt die getippte Adresse, gespeichert werden muss vorher nicht'},
+/* ── Zugehörige Links ─────────────────────────────────────────
+   Eine Position kann mehrere tragen: Vertrag, Rechnung,
+   Kundenkonto. Der Name ist freiwillig — ohne ihn steht die
+   Adresse selbst da. */
+'item.links':{en:'Associated links',de:'Zugehörige Links'},
+'link.add':{en:'Add link',de:'Link hinzufügen'},
+'link.addTip':{en:'Add another link to this entry',de:'Diesem Eintrag einen weiteren Link hinzufügen'},
+'link.edit':{en:'Edit link',de:'Link ändern'},
+'link.editTip':{en:'Change name and address',de:'Name und Adresse ändern'},
+'link.sub':{en:'The name is what you will see. It fills itself from the address — overwrite it as you like.',
+  de:'Der Name ist das, was du später siehst. Er füllt sich aus der Adresse — überschreib ihn, wie du magst.'},
+'link.name':{en:'Shown as',de:'Angezeigter Name'},
+'link.namePh':{en:'e.g. Contract, Invoice, Customer account',de:'z. B. Vertrag, Rechnung, Kundenkonto'},
+'link.url':{en:'Web address',de:'Webseite'},
+'link.urlEmpty':{en:'Please enter a web address.',de:'Bitte gib eine Webseite ein.'},
+'link.del':{en:'Delete link',de:'Link löschen'},
+'link.delTip':{en:'Delete this link',de:'Diesen Link löschen'},
+'link.delAsk':{en:'Delete the link “{0}”?',de:'Den Link „{0}" wirklich löschen?'},
+'link.max':{en:'At most {0} links per entry.',de:'Höchstens {0} Links je Eintrag.'},
+'link.title':{en:'Associated links',de:'Zugehörige Links'},
+'link.pick':{en:'Show links',de:'Links anzeigen'},
+'link.pickTip':{en:'{0} links — click to choose',de:'{0} Links — zum Auswählen klicken'},
 'item.kind':{en:'Kind of amount',de:'Betragsart'},
 'item.est':{en:'Amount is estimated and may differ — shown in yellow with a question mark',
   de:'Summe ist geschätzt und kann abweichen — wird gelb mit Fragezeichen dargestellt'},

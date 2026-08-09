@@ -94,3 +94,44 @@ function endHint(it){
   if(n===1) return t('end.now',endLabel(it));
   return t('end.in',endLabel(it),n);
 }
+
+/* ── Der Name einer Webseite aus ihrer Adresse ────────────────
+   Beim Eintragen eines Links soll nicht die nackte Adresse
+   dastehen, sondern ein Name, den man wiedererkennt. Den *Titel*
+   der Seite könnte nur der Server holen — FINA hat keinen, und
+   `fetch` scheidet unter file:// ohnehin aus (Regel 4). Also wird
+   er aus der Adresse abgeleitet, und das reicht: wer „Telekom"
+   liest, weiß, worum es geht.
+
+   Genommen wird der Name der Domäne ohne Länderkürzel und ohne
+   `www.`: aus `https://www.telekom.de/kundencenter` wird
+   „Telekom". Bei zusammengesetzten Endungen (`bbc.co.uk`) eine
+   Ebene weiter, sonst hieße die Seite „Co".
+
+   Zwei kleine Höflichkeiten: bis zu drei Buchstaben werden groß
+   geschrieben — „ing" ist ING und nicht Ing —, und Bindestriche
+   trennen Wörter, die einzeln groß anfangen. */
+function siteName(u){
+  if(!u) return '';
+  let host='';
+  try{ host=new URL(/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u).hostname; }
+  catch(e){ return ''; }
+  /* Was keine Adresse ist, bekommt auch keinen Namen. `new URL`
+     nimmt fast alles an und kodiert den Rest — aus „irgendein Text"
+     würde sonst „Irgendein%20Text". Lieber nichts vorschlagen als
+     Unsinn. */
+  if(!/^[a-z0-9.-]+$/i.test(host)) return '';
+  /* Eine IP-Adresse hat keinen Namen, den man kürzen könnte: die
+     zweitletzte Zahl wäre „0" und sagte gar nichts. */
+  if(/^[\d.]+$/.test(host)) return host;
+  const p=host.replace(/^www\./i,'').split('.').filter(Boolean);
+  if(!p.length) return '';
+  /* Endungen, die nie der Name sind: davor steht er. */
+  const filler=/^(co|com|net|org|gov|edu|ac)$/i;
+  let n=p.length>2&&filler.test(p[p.length-2])?p[p.length-3]
+       :(p.length>1?p[p.length-2]:p[0]);
+  if(!n) return '';
+  return n.split('-').filter(Boolean)
+    .map(w=>w.length<=3?w.toUpperCase():w.charAt(0).toUpperCase()+w.slice(1))
+    .join('-');
+}

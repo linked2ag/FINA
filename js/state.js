@@ -52,6 +52,39 @@ const allQFields=()=>{const o={};QFIELDS.forEach(k=>o[k]=true);return o;};
    man nicht danach sucht. */
 const qAll=()=>!!(state&&state.qHidden);
 
+/* ── Zugehörige Links ─────────────────────────────────────────
+   Eine Position und eine Flexible-Payments-Kategorie tragen eine
+   **Liste** von Links: Vertrag, Rechnung, Kundenkonto, was auch
+   immer dazugehört. Jeder Eintrag ist `{name,url}` — der Name ist
+   freiwillig; fehlt er, steht die Adresse selbst da (siehe
+   linkLabel() in js/ui.js).
+
+   **Höchstens zehn.** Nicht aus technischer Not, sondern weil eine
+   Position mit zwanzig Links keine Position mehr ist, sondern ein
+   Ordner — und weil das Auswahlfenster am Kettensymbol ohne Rollen
+   auskommen soll.
+
+   Ältere Dateien haben statt der Liste ein einzelnes Feld `url`.
+   Das wandert hier als erster Eintrag hinein und wird gelöscht:
+   ein Wert an zwei Stellen läuft früher oder später auseinander. */
+const MAX_LINKS=10;
+/* Ohne Schema hält der Browser eine Adresse für einen Pfad:
+   „example.com/vertrag" landete auf der eigenen Seite statt im
+   Netz. Beim Eintippen ergänzt das Webseitenänderungsfenster es
+   (js/ui.js) — hier wird nachgeholt, was in älteren Dateien steht:
+   das alte Feld `url` durfte ohne Schema gespeichert werden, weil
+   der Knopf daneben es erst beim Öffnen ergänzte. */
+const linkUrl=u=>/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u;
+function normLinks(o){
+  let l=Array.isArray(o.links)?o.links:[];
+  if(!l.length&&typeof o.url==='string'&&o.url.trim()) l=[{name:'',url:o.url.trim()}];
+  delete o.url;
+  o.links=l.filter(x=>x&&typeof x.url==='string'&&x.url.trim())
+    .map(x=>({name:String(x.name||'').trim(),url:linkUrl(x.url.trim())}))
+    .slice(0,MAX_LINKS);
+  return o;
+}
+
 /* Ergänzt fehlende Felder einer Position auf zwölf Monate. */
 function normalize(it){
   it.note=it.note||'';                  /* Notiz zur ganzen Position */
@@ -61,7 +94,7 @@ function normalize(it){
   it.estimated=!!it.estimated;
   while(it.notes.length<12) it.notes.push('');
   while(it.paid.length<12) it.paid.push(false);
-  it.bank=it.bank||''; it.pay=it.pay||''; it.dueDay=it.dueDay||''; it.url=it.url||'';
+  it.bank=it.bank||''; it.pay=it.pay||''; it.dueDay=it.dueDay||''; normLinks(it);
   if(it.end===undefined) it.end=null;
   return it;
 }
@@ -158,11 +191,11 @@ function emptyState(){
 }
 
 /* Neue Kakeibo-Kategorie: Planwerte, Haken, Notizen, Korrekturen
-   und ein Link — dieselbe Ausstattung wie ein regelmäßiger
+   und zugehörige Links — dieselbe Ausstattung wie ein regelmäßiger
    Posten, nur ohne Bank, Zahlungsart und Fälligkeit. */
 function blankKak(v){
   return {plan:Array(12).fill(v||0),paid:Array(12).fill(false),estimated:true,
-    note:'',notes:Array(12).fill(''),override:Array(12).fill(null),url:''};
+    note:'',notes:Array(12).fill(''),override:Array(12).fill(null),links:[]};
 }
 
 /* Einmal beim Öffnen einer Datei: was die Ansicht daraus macht.
@@ -275,7 +308,7 @@ function migrate(s){
     if(!Array.isArray(e.override)) e.override=Array(12).fill(null);
     while(e.override.length<12) e.override.push(null);
     if(e.estimated===undefined) e.estimated=true;
-    if(typeof e.url!=='string') e.url='';
+    normLinks(e);
   });
   if(!s.labWidth) s.labWidth=250;
   if(!s.monWidth) s.monWidth=100;

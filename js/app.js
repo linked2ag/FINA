@@ -219,15 +219,51 @@ function wire(){
      niemand: dann bleibt der Fokus, wo er ist. Sonst spränge die
      Schreibmarke bei jedem Haken in ein Feld, das gar nicht
      gebraucht wird. */
+  /* ── Ein geschätzter Betrag wird nicht einfach abgehakt ──────
+     Abhaken heißt „so war es". Bei einem geschätzten Betrag stimmt
+     das aber gerade nicht — der Haken machte aus einer Vermutung
+     eine Tatsache, ohne dass jemand die Zahl angesehen hat.
+
+     Deshalb öffnet der Klick auf das Siegel dort das Fenster der
+     Position, mit dem Betrag **dieses** Monats fertig markiert:
+     erst die Zahl richtigstellen, dann im Fenster abhaken, dann
+     speichern. Wer abbricht, hat nichts geändert und nichts
+     abgehakt.
+
+     Nur beim Setzen des Hakens. Einen Haken wieder wegzunehmen
+     ändert keine Zahl und braucht keinen Umweg. */
+  const askFirst=(est,on)=>est&&!on;
   document.querySelectorAll('[data-paid]').forEach(b=>b.onclick=()=>{
     const it=findItem(b.dataset.paid); if(!it) return;
+    if(askFirst(estOf(it),it.paid[ui.month-1])){ editItem(it,null,null,ui.month); return; }
     it.paid[ui.month-1]=!it.paid[ui.month-1];
     keepQFocus(); save();render();
   });
   document.querySelectorAll('[data-kpaid]').forEach(b=>b.onclick=()=>{
     if(b.disabled) return;
-    const e=state.kak[b.dataset.kpaid]; if(!e) return;
+    const k=b.dataset.kpaid, e=state.kak[k]; if(!e) return;
+    if(askFirst(e.estimated,e.paid[ui.month-1])){ editKak(k,null,ui.month); return; }
     e.paid[ui.month-1]=!e.paid[ui.month-1]; keepQFocus(); save();render();
+  });
+  /* Mehrere Links an einer Zeile: das Kettensymbol öffnet die
+     Auswahl (openLinkList in js/ui.js). Bei genau einem Link ist
+     das Symbol ein gewöhnlicher Link und kommt hier nicht an. */
+  document.querySelectorAll('[data-links]').forEach(b=>b.onclick=()=>{
+    const i=b.dataset.links.indexOf(':');
+    openLinkList(b.dataset.links.slice(0,i),b.dataset.links.slice(i+1));
+  });
+  /* Der Strich, wo noch kein Link steht: er öffnet das Fenster der
+     Position und darin gleich das Webseitenänderungsfenster — der
+     Weg, den man ohnehin ginge, nur ohne die zwei Klicks dazwischen.
+     Gedrückt wird dafür schlicht das Plus des frisch gebauten
+     Fensters; so gibt es die Reihenfolge nur an einer Stelle. */
+  document.querySelectorAll('[data-lnnew]').forEach(b=>b.onclick=()=>{
+    const i=b.dataset.lnnew.indexOf(':');
+    const kind=b.dataset.lnnew.slice(0,i), key=b.dataset.lnnew.slice(i+1);
+    if(kind==='kak') editKak(key); else { const it=findItem(key); if(it) editItem(it); }
+    const box=[...document.querySelectorAll('.modal')].pop();
+    const add=box&&box.querySelector('[data-lnadd]');
+    if(add) add.click();
   });
 
   /* Filter und Navigation. Ein zweiter Klick auf denselben Knopf

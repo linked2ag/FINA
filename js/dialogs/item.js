@@ -66,8 +66,12 @@ function groupOpts(cur){
    ein neuer Posten behandelt — angelegt wird sie erst mit
    „Speichern", und wer abbricht, hinterlässt nichts. Gebaut wird
    sie unten in #fDup. */
-function editItem(item,group,copyOf){
+function editItem(item,group,copyOf,focusMonth){
   const isNew=!item||!!copyOf;
+  /* Die Links werden im Fenster bearbeitet, nicht im Zustand: eine
+     Arbeitskopie, die erst „Speichern" übernimmt. Wer abbricht,
+     hinterlässt nichts — wie beim Namen und bei den Beträgen. */
+  const links=((item&&item.links)||[]).map(x=>({name:x.name,url:x.url}));
   /* Ein neuer Posten bekommt nur dann einen Block, wenn der
      Aufrufer einen nennt — „Neue Einnahme" tut das. Sonst bleibt
      die Auswahl leer: welcher Block gemeint ist, weiß nur der
@@ -111,13 +115,15 @@ function editItem(item,group,copyOf){
       <div class="field"><label>${t('item.pay')}</label><select id="fPay">${optList(state.pays,it.pay)}</select></div>
       <div class="field"><label>${t('item.due')}</label><select id="fDue">${DUE_OPTS.map(([v,l])=>`<option value="${v}"${v===String(it.dueDay)?' selected':''}>${l}</option>`).join('')}</select></div>
     </div>
-    <div class="cols c6">
+    <div class="cols c2">
       <div class="field"><label>${t('item.endM')}</label><select id="fEndM"><option value="">—</option>${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${it.end&&it.end.m===i+1?' selected':''}>${n}</option>`).join('')}</select></div>
       <div class="field"><label>${t('item.endY')}</label><input id="fEndY" class="num" type="number" min="2020" max="2099" value="${it.end?it.end.y:''}"></div>
-      <div class="field span4"><label>${t('item.url')}</label>
-        <div class="urlrow"><input id="fUrl" value="${esc(it.url)}" placeholder="https://…">
-          <button type="button" class="btn small urlgo" data-go="fUrl" title="${esc(t('item.urlOpenTip'))}">${t('item.urlOpen')}</button></div></div>
     </div>
+    <!-- Die Links stehen außerhalb der Reihe: die Liste wächst mit
+         jedem Eintrag, und in einer Rasterreihe zöge sie die
+         Auswahllisten daneben in die Länge. Das Plus rechts der
+         Überschrift ist dasselbe wie in den Einstellungen. -->
+    <div class="field linkfield">${linkHead()}<div id="fLinks">${linkRows(links)}</div></div>
     ${isBal?'':`<div class="field"><label>${t('item.kind')}</label>
       <label style="display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">
         <input type="checkbox" id="fEst" ${it.estimated?'checked':''} style="width:auto">
@@ -270,7 +276,14 @@ function editItem(item,group,copyOf){
   box.querySelector('#fLists').onclick=()=>{box.remove();editLists();};
   box.querySelector('#fCancel').onclick=()=>closeModal(box);
   box.onclick=e=>{if(e.target===box)closeModal(box);};
-  bindUrlGo(box);
+  /* Die Linkliste zeichnet sich nach jeder Änderung neu; die Klicks
+     hängen deshalb an der frisch gebauten Liste, nicht ein für
+     alle Mal. */
+  const drawLinks=()=>{
+    box.querySelector('#fLinks').innerHTML=linkRows(links);
+    bindLinks(box.querySelector('.linkfield'),links,drawLinks);
+  };
+  bindLinks(box.querySelector('.linkfield'),links,drawLinks);
 
   /* Löschen nimmt die zwölf Beträge, die Haken und die Notizen
      mit. Deshalb erst die Rückfrage; wer sie abbricht, ändert
@@ -291,7 +304,8 @@ function editItem(item,group,copyOf){
     const gEl=box.querySelector('#fGroup');
     if(gEl) o.group=gEl.value;
     o.bank=box.querySelector('#fBank').value; o.pay=box.querySelector('#fPay').value;
-    o.dueDay=box.querySelector('#fDue').value; o.url=box.querySelector('#fUrl').value.trim();
+    o.dueDay=box.querySelector('#fDue').value;
+    o.links=links.map(x=>({name:x.name,url:x.url}));
     const estEl=box.querySelector('#fEst');
     o.estimated=estEl?estEl.checked:false;
     const em=+box.querySelector('#fEndM').value, ey=+box.querySelector('#fEndY').value;
@@ -336,5 +350,16 @@ function editItem(item,group,copyOf){
   };
   /* Ohne Bezeichnung steht der erste Schritt im Kopf — dorthin
      der Fokus. Sonst ins erste Feld, wie bisher. */
-  (name?(box.querySelector('#fGroup')||box.querySelector('#fBank')):title).focus();
+  /* Kommt das Fenster vom Siegel eines geschätzten Betrags
+     (js/app.js), steht die Schreibmarke im Betrag genau dieses
+     Monats — fertig markiert, damit die Zahl mit dem ersten
+     Zeichen richtiggestellt ist. Das ist der ganze Zweck des
+     Umwegs, deshalb geht der Fokus dorthin und nicht ins erste
+     Feld. */
+  const mCell=focusMonth?box.querySelector(`[data-mi="${focusMonth-1}"]`):null;
+  if(mCell&&!mCell.disabled){
+    mCell.focus(); mCell.select();
+    mCell.closest('.cell').classList.add('askcell');
+  }
+  else (name?(box.querySelector('#fGroup')||box.querySelector('#fBank')):title).focus();
 }

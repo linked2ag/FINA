@@ -869,7 +869,24 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.9.1 <span class="pill">latest</span></h4>
+<h4>26.8.9.2 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>The year view holds its headings.</b> Column names, “Balance per month” and the
+      block row stay put while you scroll — and the horizontal scrollbar now sits above the
+      table instead of across its last row.</li>
+  <li><b>Every entry can carry several links</b>, each with a name of your own: contract,
+      invoice, customer account. The name fills itself from the address, the order can be
+      dragged, and where there is no link yet a dash invites you to add one.</li>
+  <li><b>An estimated amount is no longer ticked off blindly.</b> The seal opens the entry
+      with that month’s figure ready to correct; you tick it there.</li>
+  <li><b>${t('view.kakeibo')}</b> — the fourth tab’s new name, opened with
+      Ctrl/Cmd + Shift + D, and it starts with the largest single items.</li>
+  <li><b>Corrected imported months say so at once</b>, in orange, and name the imported
+      value when you point at them.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.9.1</h4>
 <ul>
   <li><b>The guide on a full page:</b> the button next to the ✕ opens it in a browser tab of
       its own, all three parts one after another.</li>
@@ -954,7 +971,24 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.9.1 <span class="pill">neu</span></h4>
+<h4>26.8.9.2 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Die Jahresansicht hält ihre Überschriften fest.</b> Spaltennamen, „Saldo je Monat"
+      und die Blockzeile bleiben beim Scrollen stehen — und der waagerechte Rollbalken steht
+      jetzt über der Tabelle statt quer über ihrer letzten Zeile.</li>
+  <li><b>Jeder Eintrag kann mehrere Links tragen</b>, jeder mit eigenem Namen: Vertrag,
+      Rechnung, Kundenkonto. Der Name füllt sich aus der Adresse, die Reihenfolge lässt sich
+      ziehen, und wo noch kein Link steht, lädt ein Strich zum Anlegen ein.</li>
+  <li><b>Ein geschätzter Betrag wird nicht mehr blind abgehakt.</b> Das Siegel öffnet den
+      Eintrag mit dem Betrag dieses Monats zum Richtigstellen; abgehakt wird dort.</li>
+  <li><b>${t('view.kakeibo')}</b> — so heißt der vierte Reiter jetzt, geöffnet mit
+      Strg/Cmd + Umschalt + D, und er beginnt mit den größten Einzelposten.</li>
+  <li><b>Korrigierte Importmonate sagen es sofort</b>, in Orange, und nennen beim Überfahren
+      den importierten Wert.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.9.1</h4>
 <ul>
   <li><b>Die Anleitung über die ganze Seite:</b> der Knopf neben dem ✕ öffnet sie in einem
       eigenen Reiter des Browsers, alle drei Teile hintereinander.</li>

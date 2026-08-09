@@ -54,7 +54,8 @@ zurücknehmen) ·
 `wload` `wnew` (Begrüßungsseite) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
 (Sprünge in eine andere Ansicht) ·
-`edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen).
+`edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) ·
+`links` (Auswahl der zugehörigen Links).
 
 `data-dbledit` und `data-dblkedit` sitzen an der **Zeile**, nicht an der Zelle, und sie
 gibt es in **jeder** Ansicht: ein Doppelklick auf den Betrag oder auf die Bezeichnung
@@ -232,6 +233,24 @@ Breite frei, in der bei einem einzelnen Monat ein Wort stand und in den Unterzei
 nichts — und sie trennte die beiden Angaben, die man zusammen liest. In der Klammer trägt
 die Marke auch keinen Rahmen mehr (`.kinds`, `.kk`, `.ksep` in `css/ledger.css`): die
 Klammer fasst schon zusammen, es bleibt die Farbe.
+
+**Im Beträge-Fenster steht dieselbe Auskunft je Monat** (`tag()` in
+`js/dialogs/kakeibo-betraege.js`): **IMPORTED** grün für den unveränderten Import,
+**CORRECTED** orange für den von Hand gesetzten Wert.
+
+**Die Marke liest das Feld, nicht den Zustand**, und springt beim Tippen sofort um — nicht
+erst nach Speichern und erneutem Öffnen. Sie sitzt dafür in einem eigenen Platzhalter
+(`.tagslot`, `data-tag`), den `showTag(i)` austauscht. Die Regel ist **dieselbe wie beim
+Speichern** (`override` bleibt leer, wenn der Wert dem Import entspricht) — stünde hier eine
+andere, verspräche die Marke etwas anderes, als die Datei bekommt. Und wie überall gilt:
+**was ein Knopf ins Feld schreibt, löst kein `input` aus** — Schnelleingabe und „Leeren"
+rufen `showTags()` deshalb selbst, genau wie `signValues()` und `showAvg()`. Beim Aufbau
+gibt es die Felder noch nicht; dann zählt der gespeicherte Stand — dieselbe Farbe, die in der ganzen
+Anwendung „steht noch nicht fest, das hat jemand gesetzt" heißt. Rot wäre eine Warnung, und
+eine Korrektur ist keine. Die Marke sagt beim Überfahren, **was importiert war**
+(`kdlg.corrTip`): wer eine Korrektur sieht, will als Erstes wissen, wovon abgewichen wurde.
+Der Ursprungswert steht weiter in `state.flexActual` — die Korrektur liegt daneben in
+`override` und überschreibt ihn nicht.
 
 **`flexKind()` prüft in derselben Reihenfolge wie `kakVal()` und `kakDone()`** — Korrektur
 vor Import, Import vor Haken, Haken vor eingetipptem Betrag. Wer die Rangfolge dort ändert,
@@ -809,6 +828,130 @@ Entwurfs setzt **kein** dirty-Flag — geschrieben wird sie erst mit dem Fenster
 
 **Wer ein Fenster baut, das eine Position anlegt, ruft `useDraft()` nach `appendChild`** —
 sonst melden seine Lampen „gibt es nicht mehr".
+
+## Zugehörige Links
+
+Eine Position und eine Flexible-Payments-Kategorie tragen eine **Liste** von Links —
+Vertrag, Rechnung, Kundenkonto. Jeder Eintrag ist `{name,url}`; **höchstens zehn**
+(`MAX_LINKS`). Der Name ist freiwillig: fehlt er, steht die Adresse selbst da
+(`linkLabel()` in `js/ui.js`) — lieber eine lange Adresse als eine leere Zeile, unter der
+sich nichts finden lässt.
+
+**Ältere Dateien haben statt der Liste ein Feld `url`.** `normLinks()` in `js/state.js`
+zieht es als ersten Eintrag hinein und **löscht es**: ein Wert an zwei Stellen läuft früher
+oder später auseinander. Dort steht auch `linkUrl()`, das ein fehlendes `https://` ergänzt —
+ohne Schema hält der Browser eine Adresse für einen Pfad der eigenen Seite. Es wird an zwei
+Stellen gebraucht: beim Laden alter Dateien und beim Eintippen im Fenster.
+
+**Im Fenster steht kein Eingabefeld mehr, sondern eine Liste** (`linkRows()` /
+`bindLinks()`, gebaut in `js/ui.js`, verwendet von `js/dialogs/item.js` und
+`js/dialogs/kakeibo-betraege.js`). Je Zeile von links: der **Griff** ⋮⋮ zum Sortieren, der
+**Stift** (öffnet das Webseitenänderungsfenster), das **Kreuz** (löschen) — und dann erst
+der **Link als Text**. Der Link ist ein Link: ein Klick öffnet die Seite in einem neuen
+Reiter, beim Überfahren nennt die Sprechblase die volle Adresse. Der Name allein wäre eine
+Behauptung, die man nicht prüfen kann.
+
+**Die drei Bedienelemente stehen vorn und auseinander** (14 px zwischen Griff und Stift,
+10 px zwischen Stift und Kreuz, 18 px vor dem Link). Sie tun sehr verschiedene Dinge —
+verschieben, ändern, löschen —, und eines davon ist nicht zurückzunehmen: dicht an dicht
+träfe man beim schnellen Klicken das falsche. Stift und Kreuz sind dabei **gleich groß**
+(13 px, Feld 20×20): sie stehen nebeneinander und sind gleich wichtig — der Stift trägt
+außerhalb dieser Liste 17 px, das ist die Größe für eine Tabellenzeile.
+
+**Die Liste sieht aus wie eine Tabelle:** ein Strich unter der Überschrift, einer unter
+jeder Zeile — auch unter der letzten, auch wenn es nur eine gibt. Erst der Abschluss unten
+macht aus den Zeilen einen Block; ohne ihn franst die Liste aus, und man weiß nicht, ob noch
+etwas kommt. Ohne Links gibt es keinen einzigen Strich: dann steht dort nur die Überschrift
+mit ihrem Plus. Das ergibt sich von selbst, weil `linkRows()` dann gar nichts liefert.
+Im **Auswahlfenster** (`openLinkList()`) bleibt es beim alten Bild — dort schließt der Knopf
+darunter ab, kein Strich (`.linklist:not(.edit)`).
+
+**Sortiert wird durch Ziehen**, mit derselben Mechanik wie die Listen im
+Einstellungsfenster (`.grip`, `.dragging`, `.over`; Vorbild in `js/dialogs/settings.js`).
+Die Reihenfolge ist keine Kleinigkeit: **der erste Link ist der, den das Kettensymbol
+öffnet**, wenn es nur einen gibt, und der, der in der Auswahl oben steht. Über der Liste steht „Associated links" und **direkt dahinter das Plus** — dieselbe
+Bauart wie die Listen im Einstellungsfenster (`linkHead()` in `js/ui.js`, Vorbild
+`listHead()` in `js/dialogs/settings.js`, dieselbe Klasse `.plusmini`). Am rechten Rand
+suchte man es, und bei einer langen Liste stünde es weit weg von dem, was es ergänzt.
+
+**Ohne Links steht darunter nichts.** Ein Satz „noch keine Links" sagte nur, was die leere
+Fläche schon zeigt, und machte aus einer Zeile Überschrift drei Zeilen Fenster.
+
+**Gelöscht wird nur nach Rückfrage.** Ein Link ist schnell angelegt, aber hinterher weiß
+niemand mehr, welche Adresse dort stand.
+
+Die Liste ist eine **Arbeitskopie**: geändert wird im Fenster, übernommen erst mit
+„Speichern" — wie der Name und die Beträge. Wer abbricht, hinterlässt nichts.
+
+**Das Webseitenänderungsfenster** (`editLink()` in `js/ui.js`) hat zwei Felder: oben der
+Name, darunter die Adresse. Die Reihenfolge ist Absicht — man liest zuerst, *wofür* der Link
+steht, und dann erst, wohin er zeigt. Enter übernimmt, Escape bricht ab. Ohne Adresse wird
+nicht übernommen; ein Link, der nirgendwohin führt, ist kein Eintrag, sondern ein Fehler.
+
+**Der Name füllt sich aus der Adresse** — `siteName()` in `js/format.js`: aus
+`https://www.telekom.de/kundencenter` wird „Telekom". Den *Titel* der Seite könnte nur ein
+Server holen; FINA hat keinen, und `fetch` scheidet unter `file://` ohnehin aus (Regel 4).
+Genommen wird die Domäne ohne `www.` und ohne Länderkürzel, bei zusammengesetzten Endungen
+(`bbc.co.uk`) eine Ebene weiter — sonst hieße die Seite „Co". Bis zu drei Buchstaben werden
+groß geschrieben (ING, BBC, N26), Bindestriche trennen Wörter. Eine IP-Adresse bleibt, wie
+sie ist; was gar keine Adresse ist, bekommt **keinen** Vorschlag — lieber nichts als
+„Irgendein%20Text".
+
+**Gefüllt wird nur, was niemand selbst geschrieben hat** (`auto` in `editLink()`): sobald im
+Namensfeld getippt wurde, rührt die Adresse es nicht mehr an — auch nicht, wenn der Name
+danach wieder geleert wird. Beim Ändern eines vorhandenen Links, der schon einen Namen hat,
+gilt dasselbe von Anfang an. Wer eine Adresse einfügt und sofort Enter drückt, bekommt den
+Namen trotzdem: `ok()` holt ihn nach.
+
+**In den Ansichten bleibt es beim Kettensymbol** (`linkIcon()`): bei **keinem** Link ein
+Strich `–` mit `data-lnnew`, bei **einem** ein gewöhnlicher `<a>`, bei **mehreren** ein Knopf
+mit `data-links="item:<id>"` bzw. `kak:<name>`, der `openLinkList()` öffnet — ein Fenster, in dem alle Links stehen. Ein
+Symbol je Link stünde bei zehn Links zehnmal vor dem Namen und nähme der
+Bezeichnungsspalte der Jahresmatrix den Platz, den sie ohnehin knapp hat. Alle drei Formen
+sehen gleich aus (`.linkicon` trägt deshalb `background:none;border:0`); welche es ist,
+geht den Leser nichts an.
+
+**Der Strich ist kein Platzhalter, sondern ein Weg.** Eine leere Zelle sagt nur, dass hier
+nichts ist; der Strich sagt, dass hier etwas hinkönnte — und ein Klick darauf öffnet das
+Fenster der Position und darin gleich das Webseitenänderungsfenster. Verdrahtet ist das in
+`wire()`: es öffnet das Fenster und **drückt dessen Plus** (`[data-lnadd]`), statt den Weg
+ein zweites Mal zu beschreiben. **Nur wo eine Position steht** — Summen- und Gruppenzeilen
+bekommen keinen Strich, dort gäbe es nichts, dem ein Link gehören könnte; erkennbar am
+fehlenden Schlüssel.
+
+## Ein geschätzter Betrag wird nicht einfach abgehakt
+
+Abhaken heißt „so war es". Bei einem geschätzten Betrag stimmt das gerade nicht — der Haken
+machte aus einer Vermutung eine Tatsache, ohne dass jemand die Zahl angesehen hat.
+
+Deshalb öffnet der Klick auf das Siegel dort **das Fenster der Position**, mit dem Betrag
+genau dieses Monats fertig markiert und seine Zelle gelb umrandet (`.askcell`): erst die
+Zahl richtigstellen, dann im Fenster abhaken, dann speichern. Wer abbricht, hat nichts
+geändert und nichts abgehakt.
+
+Gebaut ist das in `wire()` (`js/app.js`, `askFirst()`): `editItem(it,null,null,ui.month)`
+bzw. `editKak(k,null,ui.month)` — der vierte bzw. dritte Parameter ist der Monat, dessen
+Feld den Fokus bekommt. **Nur beim Setzen des Hakens.** Einen Haken wieder wegzunehmen
+ändert keine Zahl und braucht keinen Umweg.
+
+## Stift und Notizlampe der Monatsansicht
+
+Zwischen Betrag und Bezeichnung stehen **drei** Symbole — Stift, Link, Notizlampe, in
+derselben Reihenfolge wie die festen Spalten der Jahresmatrix —, und **alle Abstände sind
+gleich: 12 px**. Die Symbole gehören zu keiner der beiden Angaben; wäre ein Abstand kleiner, sähe das Symbol wie
+ein Anhängsel der näheren Angabe aus.
+
+Gemacht wird das von den Innenabständen der Zellen (6 px links und rechts, also 12 px an
+jeder Grenze) und einem gleich großen Abstand im Flex dazwischen (`.pencell .ptools` in
+`css/ledger.css`). Die Spalte ist deshalb genau so breit wie ihr Inhalt:
+3 × 20 + 2 × 12 + 12 Polster = **96 px** (`--penw`). **Wer an `--penw` dreht, verschiebt auch
+die Breite des Suchfelds** (`--leadw`) und muss die Abstände hier nachrechnen.
+
+**Der Stift ist so groß wie das Symbol der Lampe** (15 px): sie stehen nebeneinander und
+sind gleich wichtig. Außerhalb dieser Spalte behält er seine 17 px — das ist die Größe für
+eine Tabellenzeile ohne Nachbarn.
+
+
 
 ## Notizen behalten ihre Zeilen
 

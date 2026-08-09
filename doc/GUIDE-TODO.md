@@ -81,6 +81,23 @@ beide Sprachen — in **Schritt für Schritt** und **Was FINA kann** fehlt es we
   Der laufende Monat ist statt einer Fläche von zwei roten Linien eingefasst, wie seine
   Spalte in der Jahresmatrix.
 
+Am 9. August 2026 als Version **26.8.9.2** im Reiter **Was ist neu** — in **Schritt für
+Schritt** und **Was FINA kann** fehlt es weiter:
+
+- ⚠ **Eine Position kann mehrere Links tragen** (bis zu zehn), jeder mit einem eigenen
+  Namen. Im Fenster heißt der Bereich **„Associated links"**, mit einem Plus zum Anlegen,
+  einem Stift je Zeile und einem Kreuz zum Löschen (mit Rückfrage). Das Feld „Link zu Beleg
+  oder Vertrag" gibt es nicht mehr — die Anleitung nennt es an mehreren Stellen.
+  **Der Name füllt sich aus der Adresse** (aus telekom.de wird „Telekom") und lässt sich
+  überschreiben. **Die Reihenfolge lässt sich ziehen** — der erste Link ist der, den das
+  Kettensymbol in den Ansichten direkt öffnet.
+- **Das Kettensymbol in den Ansichten öffnet bei mehreren Links eine Auswahl**, bei einem
+  Link geht es wie bisher direkt zur Seite.
+- ⚠ **Ein geschätzter Betrag lässt sich nicht mehr direkt abhaken.** Das Siegel öffnet das
+  Fenster der Position, der Betrag des Monats steht markiert da, abgehakt wird im Fenster.
+  Betrifft jede Stelle, an der die Anleitung das Abhaken beschreibt.
+- **CORRECTED steht orange** und nennt beim Überfahren den importierten Ursprungswert.
+
 ## Zuletzt eingearbeitet
 
 Am 8. August 2026, dritter Durchgang: **„Schritt für Schritt" auf acht Schritte

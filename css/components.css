@@ -110,8 +110,17 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    Überschrift der Fenster. */
 .lamp.pos{margin-right:6px;vertical-align:-4px}
 .modal h3 .lamp.pos{vertical-align:-3px}
-.linkicon{display:inline-grid;place-items:center;width:20px;height:20px;color:var(--ink-2);text-decoration:none}
+/* Das Kettensymbol ist mal ein Link (ein einziger Eintrag), mal ein
+   Knopf (mehrere — dann öffnet er die Auswahl). Beide sehen gleich
+   aus: welcher es ist, geht den Leser nichts an. */
+.linkicon{display:inline-grid;place-items:center;width:20px;height:20px;color:var(--ink-2);text-decoration:none;
+  background:none;border:0;padding:0}
 .linkicon:hover{color:var(--seal)}
+/* Wo noch kein Link steht, steht ein Strich: eine leere Zelle sagt
+   nur, dass hier nichts ist — der Strich sagt, dass hier etwas
+   hinkönnte. Blass wie eine Vorgabe, nicht wie eine Angabe. */
+.linkicon.linkdash{color:var(--rule-strong);font-size:14px;line-height:1}
+.linkicon.linkdash:hover{color:var(--seal)}
 .linkicon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
 
 /* ── Marken, Plaketten, Legende ───────────────────────────── */
@@ -126,8 +135,12 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    Rot wäre eine Warnung, Grün eine Bestätigung. */
 .guide .pill{border-color:var(--amber);color:var(--amber)}
 .lock{color:var(--seal);font-family:var(--font-data);font-size:8.5px;letter-spacing:.08em}
+/* Grün: unverändert so importiert. Orange: von Hand korrigiert —
+   dieselbe Farbe, die überall „steht noch nicht fest, das hat
+   jemand gesetzt" bedeutet. Rot wäre eine Warnung, und eine
+   Korrektur ist keine. */
 .lock.imp{color:var(--ok)}
-.lock.corr{color:var(--seal)}
+.lock.corr{color:var(--amber);cursor:help}
 /* Die Zeichenerklärung steht unter allen Karten und nicht am Fuß
    der regelmäßigen Kosten: dieselben Siegel gibt es auch bei den
    Einnahmen und den Flexible Payments.
@@ -201,9 +214,72 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 
 /* Eingabefeld mit Knopf daneben — der Beleglink lässt sich so
    öffnen, ohne vorher zu speichern. */
-.urlrow{display:flex;gap:6px;align-items:stretch}
-.urlrow input{flex:1;min-width:0}
-.urlrow .urlgo{white-space:nowrap;flex:0 0 auto}
+/* ── Zugehörige Links ─────────────────────────────────────────
+   Je Zeile drei Dinge: der Stift links, der Link als Text, das
+   Kreuz rechts. Der Stift steht links, weil er zur Zeile gehört —
+   wie in jeder Tabelle der Anwendung; das Kreuz rechts, weil es
+   die Zeile beendet.
+
+   Der Link ist ein Link und sieht auch so aus: ein Klick öffnet
+   die Seite, beim Überfahren nennt die Sprechblase die volle
+   Adresse. Der Name allein wäre sonst eine Behauptung, die man
+   nicht prüfen kann.
+
+   Die Überschrift trägt das Pluszeichen direkt hinter sich
+   (.plusmini, wie die Listen im Einstellungsfenster); ohne Links
+   steht darunter gar nichts. */
+.linklist{list-style:none;margin:0;padding:0}
+.linklist li{display:flex;align-items:center;gap:8px;padding:3px 0;border-bottom:1px solid var(--rule)}
+/* Im Auswahlfenster ist die letzte Zeile die letzte — darunter
+   kommt der Knopf. In der Liste des Änderungsfensters schließt
+   dagegen ein Strich ab (siehe unten). */
+.linklist:not(.edit) li:last-child{border-bottom:0}
+.linklist a{color:var(--ink);text-decoration:underline;text-underline-offset:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.linklist.edit a{flex:1 1 auto}
+.linklist a:hover{color:var(--accent-2)}
+
+/* ── Die Zeile eines Links ────────────────────────────────────
+   Von links: der Griff zum Sortieren, der Stift, dann der Link —
+   und **das Kreuz ganz rechts**, wie in den Listen des
+   Einstellungsfensters (`.listrow`: Griff links, Löschen rechts).
+   Dasselbe Muster an beiden Stellen, damit man es nur einmal
+   lernen muss.
+
+   Griff und Stift stehen dabei **auseinander**: sie tun sehr
+   verschiedene Dinge, und dicht an dicht träfe man beim schnellen
+   Klicken das falsche. */
+/* **Die Liste sieht aus wie eine Tabelle**: ein Strich unter der
+   Überschrift, einer unter jeder Zeile — auch unter der letzten,
+   auch wenn es nur eine gibt. Erst der Abschluss unten macht aus
+   den Zeilen einen Block; ohne ihn franst die Liste nach unten
+   aus und man weiß nicht, ob noch etwas kommt.
+
+   Ohne Links gibt es keine Striche: dann steht dort nur die
+   Überschrift mit ihrem Plus, und eine Tabelle ohne Inhalt wäre
+   ein leerer Rahmen. Das ergibt sich von selbst — linkRows()
+   liefert dann gar nichts. */
+.linklist.edit{border-top:1px solid var(--rule)}
+.linklist.edit li{gap:0;padding:4px 0}
+.linklist.edit .grip{flex:0 0 auto;cursor:grab;color:var(--ink);font-size:14px;font-weight:700;
+  line-height:1;letter-spacing:-2px;user-select:none;width:16px;text-align:center}
+.linklist.edit .grip:hover{color:var(--seal)}
+/* Stift und Kreuz sind gleich groß: sie stehen nebeneinander und
+   sind gleich wichtig. Der Stift trägt sonst 17px — das ist die
+   Größe für eine Tabellenzeile, hier stünde er über dem Kreuz. */
+.linklist.edit .pencil{flex:0 0 auto;margin-left:14px;margin-right:18px;font-size:13px}
+.linklist.edit .lndel{flex:0 0 auto;margin-left:18px;
+  background:none;border:0;padding:0;width:20px;height:20px;border-radius:2px;
+  color:var(--ink-2);font-size:13px;line-height:1;display:inline-grid;place-items:center}
+.linklist.edit .lndel:hover{color:var(--seal);background:rgba(0,0,0,.05)}
+/* Gezogen wird wie in den Einstellungen: die gehaltene Zeile tritt
+   zurück, die Zeile darunter zeigt, wo sie landet. */
+.linklist.edit li.dragging{opacity:.4}
+.linklist.edit li.over{background:var(--bg-out)}
+/* Der Monat, dessentwegen das Fenster aufging (Siegel eines
+   geschätzten Betrags): kurz hervorgehoben, damit man ihn unter
+   zwölf Feldern sofort findet. */
+.mgrid .cell.askcell{box-shadow:inset 0 0 0 2px var(--amber)}
 
 /* ── Formularfelder ───────────────────────────────────────── */
 input,select,textarea{font-family:var(--font-ui);font-size:14px;background:var(--paper-2);color:var(--ink);

@@ -85,8 +85,8 @@ function mrow(label,vals,opt={}){
   const edit=it?`data-edit="${it.id}"`:(kk?`data-kedit="${esc(kk)}"`:'');
   const pencil=edit?`<button class="pencil" ${edit} title="${opt.editTip||t('year.editTip')}">&#9998;</button>`:'';
   /* Der Beleglink — Posten wie Flexible Payments haben einen. */
-  const url=it?it.url:(kk&&state.kak[kk]?state.kak[kk].url:'');
-  const link=url?`<a class="linkicon" href="${esc(url)}" target="_blank" rel="noopener" title="${t('year.linkTip')}">${LINK_SVG}</a>`:'';
+  const links=it?it.links:(kk&&state.kak[kk]?state.kak[kk].links:null);
+  const link=linkIcon(links,it?'item':'kak',it?it.id:kk);
   /* Geschätzt gilt je Monat und nur, solange nicht abgehakt: ein
      bezahlter Betrag ist bestätigt und wird nach Vorzeichen
      eingefärbt, nicht mehr gelb. */
