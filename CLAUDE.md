@@ -883,9 +883,19 @@ sonst melden seine Lampen „gibt es nicht mehr".
 
 Eine Position und eine Flexible-Payments-Kategorie tragen eine **Liste** von Links —
 Vertrag, Rechnung, Kundenkonto. Jeder Eintrag ist `{name,url}`; **höchstens zehn**
-(`MAX_LINKS`). Der Name ist freiwillig: fehlt er, steht die Adresse selbst da
-(`linkLabel()` in `js/ui.js`) — lieber eine lange Adresse als eine leere Zeile, unter der
-sich nichts finden lässt.
+(`MAX_LINKS`).
+
+**Ohne Namen wird kein Link angelegt.** Der Name ist das Einzige, was der Link später zeigt
+— in der Liste, in der Auswahl und in der Sprechblase des Kettensymbols. Meistens merkt der
+Nutzer davon nichts, weil `siteName()` ihn aus der Adresse holt; kommt dabei nichts heraus,
+**umrandet sich das Namensfeld rot** (`input.bad` in `css/components.css`, gesetzt von
+`mark()` in `editLink()`), sobald in der Adresse etwas steht. Der Rahmen ist der Hinweis,
+nicht die Sperre: er zeigt beim Tippen, was fehlt, statt erst beim Klick auf „Übernehmen" zu
+widersprechen — dort steht dann `link.nameEmpty`.
+
+`linkLabel()` in `js/ui.js` fällt trotzdem weiter auf die Adresse zurück: **ältere Dateien**
+können namenlose Links enthalten, und eine leere Zeile wäre schlimmer als eine lange
+Adresse.
 
 **Ältere Dateien haben statt der Liste ein Feld `url`.** `normLinks()` in `js/state.js`
 zieht es als ersten Eintrag hinein und **löscht es**: ein Wert an zwei Stellen läuft früher
@@ -960,6 +970,12 @@ Symbol je Link stünde bei zehn Links zehnmal vor dem Namen und nähme der
 Bezeichnungsspalte der Jahresmatrix den Platz, den sie ohnehin knapp hat. Alle drei Formen
 sehen gleich aus (`.linkicon` trägt deshalb `background:none;border:0`); welche es ist,
 geht den Leser nichts an.
+
+**In der Sprechblase des Symbols steht nur die Bezeichnung** — bei mehreren ihre Anzahl. Die
+Adresse dahinter war eine zweite Zeile Kleingedrucktes über einem Symbol von 15 px; wer sie
+sehen will, findet sie in der Statuszeile des Browsers. In der **Liste** des Fensters und in
+der **Auswahl** steht sie weiterhin: dort ist der Name der sichtbare Text, und wer gleich
+klickt, will wissen, wohin.
 
 **Der Strich ist kein Platzhalter, sondern ein Weg.** Eine leere Zelle sagt nur, dass hier
 nichts ist; der Strich sagt, dass hier etwas hinkönnte — und ein Klick darauf öffnet das
@@ -1191,11 +1207,20 @@ die Seite lädt `tokens.css`, `layout.css` und `components.css` und trägt `.gui
 Hält der Browser den Reiter auf, bleibt der Bereich stehen und `toast()` sagt es — sonst
 stünde der Nutzer ohne beides da.
 
-**Reiter gibt es dort keine.** Die drei Teile stehen hintereinander, jeder als `<section
-id="g-…">` mit seinem `<h2>`, oben eine Zeile mit Sprungmarken (`.gnav`). Ein Reiter
-verbirgt, um Platz zu sparen, und auf einer ganzen Seite ist keiner knapp — damit kommt die
-Seite ohne eigenes Skript aus. Gebaut wird sie in `gLang`, nicht in der Sprache der
-Oberfläche: `guideDoc()` steht ganz in `inGuideLang()`.
+**Die drei Teile stehen dort hintereinander**, jeder als `<section id="g-…">` mit seinem
+`<h2>` — verbergen muss auf einer ganzen Seite niemand etwas. Oben führt trotzdem dieselbe
+**Reiterzeile** hin wie im Seitenbereich (`.gnav`, gestaltet wie `.gtabs`): gleiches Bild,
+gleiche Bedienung. Sie **klebt** (`position:sticky`), damit man von überall zum nächsten
+Teil kommt, ohne zurückzurollen. Es sind Sprungmarken und keine Schalter — welchen Teil man
+liest, sagt die Überschrift darunter, und ohne Skript ließe sich ein „gewählt" ohnehin nicht
+führen. Damit kommt die Seite ohne eigenes Skript aus. Gebaut wird sie in `gLang`, nicht in
+der Sprache der Oberfläche: `guideDoc()` steht ganz in `inGuideLang()`.
+
+**Unten rechts steht in beiden Fassungen derselbe Knopf zurück nach oben** (`.gtop`). Auf
+der ganzen Seite ist es ein **Anker** auf `#g-top` — die Seite hat kein Skript; im
+Seitenbereich ein **Knopf**, der `.gbody` rollt, denn ein Anker rollte dort die Seite
+dahinter und nicht den Text. Im Seitenbereich zeigt er sich erst ab 200 px Rollweg: ein
+Knopf, der nichts täte, soll auch nicht dastehen.
 
 **„Schritt für Schritt" ist kurz und bleibt kurz.** Acht Schritte, je zwei bis vier Sätze:
 was einer braucht, um sein Buch zum Laufen zu bringen, und nichts darüber hinaus. Jede

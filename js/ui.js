@@ -265,8 +265,14 @@ function linkIcon(links,kind,key){
      Schlüssel. */
   if(!l.length) return key?`<button type="button" class="linkicon linkdash" data-lnnew="${esc(kind+':'+key)}"
     aria-label="${esc(t('link.add'))}" data-tip="${esc(t('link.addTip'))}">&ndash;</button>`:'';
+  /* **In der Sprechblase steht nur die Bezeichnung.** Sie ist das,
+     was der Nutzer vergeben hat, und seit ein Link ohne Namen gar
+     nicht erst angelegt wird (editLink weiter unten), sagt sie
+     immer etwas. Die Adresse dahinter war eine zweite Zeile
+     Kleingedrucktes über einem Symbol von 15 px — wer sie sehen
+     will, sieht sie in der Statuszeile des Browsers. */
   if(l.length===1) return `<a class="linkicon" href="${esc(l[0].url)}" target="_blank" rel="noopener"
-    data-tip="${esc(linkLabel(l[0])+' — '+l[0].url)}">${LINK_SVG}</a>`;
+    data-tip="${esc(linkLabel(l[0]))}">${LINK_SVG}</a>`;
   return `<button type="button" class="linkicon" data-links="${esc(kind+':'+key)}"
     aria-label="${esc(t('link.pick'))}" data-tip="${esc(t('link.pickTip',l.length))}">${LINK_SVG}</button>`;
 }
@@ -343,11 +349,31 @@ function editLink(cur,onOk){
      Namensfeld tippt, ist Schluss — auch wenn er es wieder
      leert. */
   let auto=!(cur&&cur.name);
-  nm.oninput=()=>{ auto=false; };
-  ur.oninput=()=>{
-    if(!auto) return;
-    nm.value=siteName(ur.value.trim());
+
+  /* ── Ohne Namen wird nichts übernommen ──────────────────────
+     Der Name ist das Einzige, was der Link später zeigt: in der
+     Liste, in der Auswahl und in der Sprechblase des
+     Kettensymbols. Bliebe er leer, stünde dort die nackte Adresse
+     — eine Zeile, unter der sich nichts finden lässt.
+
+     Meistens merkt der Nutzer davon nichts, weil siteName() ihn
+     aus der Adresse holt. Kommt dabei nichts heraus (eine
+     IP-Adresse, ein Verzeichnis, etwas, das keine Adresse ist),
+     **umrandet das Namensfeld sich rot**, sobald in der Adresse
+     etwas steht. Der Rahmen ist der Hinweis, nicht die Sperre —
+     er zeigt schon beim Tippen, was noch fehlt, statt erst beim
+     Klick auf „Übernehmen" zu widersprechen. */
+  const mark=()=>{
+    nm.classList.toggle('bad',!nm.value.trim()&&!!ur.value.trim());
+    err.hidden=true;
   };
+
+  nm.oninput=()=>{ auto=false; mark(); };
+  ur.oninput=()=>{
+    if(auto) nm.value=siteName(ur.value.trim());
+    mark();
+  };
+  mark();
 
   const ok=()=>{
     const url=ur.value.trim();
@@ -358,6 +384,10 @@ function editLink(cur,onOk){
        zwar gefeuert, aber wer die Adresse per Tastatur einsetzt und
        gleich abschickt, soll den Namen trotzdem bekommen. */
     const name=nm.value.trim()||(auto?siteName(url):'');
+    if(!name){
+      nm.value=''; mark();
+      err.textContent=t('link.nameEmpty'); err.hidden=false; nm.focus(); return;
+    }
     /* Ohne Schema hält der Browser die Adresse für einen Pfad —
        „example.com" landete sonst auf der eigenen Seite. linkUrl()
        steht in js/state.js, weil auch das Laden älterer Dateien es

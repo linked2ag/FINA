@@ -55,9 +55,10 @@ const qAll=()=>!!(state&&state.qHidden);
 /* ── Zugehörige Links ─────────────────────────────────────────
    Eine Position und eine Flexible-Payments-Kategorie tragen eine
    **Liste** von Links: Vertrag, Rechnung, Kundenkonto, was auch
-   immer dazugehört. Jeder Eintrag ist `{name,url}` — der Name ist
-   freiwillig; fehlt er, steht die Adresse selbst da (siehe
-   linkLabel() in js/ui.js).
+   immer dazugehört. Jeder Eintrag ist `{name,url}` — **beides ist
+   nötig**, editLink() in js/ui.js legt ohne Namen nichts an. Ältere
+   Dateien können trotzdem namenlose Links mitbringen; für die fällt
+   linkLabel() in js/ui.js auf die Adresse zurück.
 
    **Höchstens zehn.** Nicht aus technischer Not, sondern weil eine
    Position mit zwanzig Links keine Position mehr ist, sondern ein

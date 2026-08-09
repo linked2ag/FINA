@@ -17,102 +17,41 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-Alles Gebaute steht seit dem 8. August 2026 als Version **26.8.8.1** im Reiter **Was ist
-neu** und ist in **Schritt für Schritt** und **Was FINA kann** eingearbeitet. Offen sind nur
-noch zwei Kleinigkeiten von früher:
+Nichts. Die Anleitung ist am 9. August 2026 vollständig nachgezogen worden — siehe unten.
 
-- **Der Reiter „Fast Budget Details" startet mit dem ganzen Jahr** und mit den größten
-  Einzelposten im rechten Bereich. Ein Halbsatz im Produktreiter, wo der Reiter beschrieben
-  ist.
-- **Sprechblasen stehen über oder unter dem Element.** Verhalten, kein eigener Absatz — nur
-  zu erwähnen, falls die Anleitung einmal beschreibt, wo sie erscheinen.
-
-Die Bilder sind seit dem 8. August 2026 **alle neu** (siehe unten).
-
-Am 9. August 2026 steht alles Folgende als Version **26.8.9.1** im Reiter **Was ist neu**,
-beide Sprachen — in **Schritt für Schritt** und **Was FINA kann** fehlt es weiter:
-
-- **Die Anleitung hat ihre eigene Sprache.** Zwei Kürzel EN · DE im Kopf des Bereichs, links
-  neben dem Kreuz. Sie schalten nur die Anleitung um, nicht die Oberfläche; die Wahl lebt
-  nur in der Sitzung. ⚠ „Vorgabe ist Englisch" gilt nur noch auf der Begrüßungsseite: mit
-  geladener Datei geht die Anleitung bei **jedem** Öffnen in der Sprache auf, die in den
-  Einstellungen steht.
-- **Die Anleitung über die ganze Seite.** Ein Knopf im Kopf des Bereichs, zwischen der
-  Sprachwahl und dem Kreuz, öffnet sie in einem eigenen Reiter des Browsers und schließt den
-  Seitenbereich. Dort stehen alle drei Teile hintereinander, mit Sprungmarken oben, in der
-  Sprache, in der man gerade liest.
-- ⚠ **Der vierte Reiter heißt „Fast Budget Details"** (vorher „Flexible Payment Details"),
-  und sein Tastengriff ist **Strg/Cmd + Umschalt + D** (vorher X). Beide Reiter der Anleitung
-  nennen den Namen über `t('view.kakeibo')` und ziehen von selbst mit; **die Buchstabenreihe
-  M · Y · F · X steht dagegen als Text da** und ist an drei Stellen auf D geändert —
-  „Die Ansichten" in beiden Sprachen und der Punkt in Version 26.8.8.1.
-- ⚠ **Der Knopf in der Kopfzeile heißt „Import Fast Budget Data"** statt „Import CSV". Die
-  Anleitung nennt ihn über `t('app.import')`; wo drumherum von „CSV" die Rede ist, stimmt der
-  Satz noch, der Knopfname aber nicht mehr.
-- **Der waagerechte Rollbalken steht außerhalb der Tabelle** — in der Jahresansicht in der
-  Knopfleiste über der Tabelle, in der Prognose über der Tabelle in der Karte. Vorher saß er
-  in der Tabelle, quer über der letzten Zeile.
-- **Die Jahresansicht füllt den Bildschirm und rollt in sich selbst.** Spaltennamen, die
-  Zeile „Saldo je Monat" und die Blockzeile hängen dabei fest oben, wie in einer Tabelle mit
-  fixierter Kopfzeile; die Seite rollt in dieser Ansicht nicht mehr.
-- **„Fast Budget Details" geht rechts mit den größten Einzelposten auf** — vorher mit der
-  ersten Kategorie der Liste. ⚠ Betrifft den Halbsatz, der im Produktreiter noch offen ist
-  (siehe oben).
-- **Die Prognose scrollt.** Jedes Rasterfeld der Verlaufsspalte ist mindestens so breit wie
-  die Monatsspalte. Wird das Fenster zu schmal, scrollt die Tabelle nach rechts — an der
-  Leiste über ihr; die Monatsspalte bleibt dabei stehen.
-- **Ein Tastengriff je Ansicht:** Strg/Cmd + Umschalt + M · Y · F · D. Jeder Reiter nennt
-  seinen Griff beim Überfahren. Der alte Griff ins
-  Suchfeld (dieselbe Kombination mit F) ist dafür entfallen — seit ein Buchstabe von selbst
-  im Filter landet, war er der umständlichere Weg. Steht schon im Reiter „Was ist neu" und in
-  „Was FINA kann"; ⚠ in „Schritt für Schritt" ist der alte Griff gestrichen.
-- **„Sicherung speichern"** in der Kopfzeile, zwischen Speichern und Schließen: eine datierte
-  Kopie in den Download-Ordner, in jedem Browser. ⚠ „Close file" heißt jetzt **„Daten
-  schließen"** — die Anleitung nennt den Knopf über `t('app.unlink')` und zieht von selbst
-  mit, der beschreibende Satz drumherum aber nicht überall.
-- **Die heruntergeladene Kopie trägt ihren Zeitpunkt im Namen:** `YYMMDD-HHMMSS ` vor dem
-  ursprünglichen Dateinamen. Betrifft nur Browser ohne File System Access API — Chrome und
-  Edge schreiben weiter in dieselbe Datei. ⚠ „andere Browser legen eine Kopie im
-  Download-Ordner ab" (Schritt 8 und Produktreiter, beide Sprachen) sagt jetzt nur noch die
-  halbe Wahrheit.
-- **Ein Feld anklicken markiert seinen Inhalt.** Tippen ersetzt ihn; Notizfelder bleiben
-  unberührt.
-- **Der Anfangsbestand steht violett** — Beschriftung, Betrag und Balken in derselben Farbe.
-  Der laufende Monat ist statt einer Fläche von zwei roten Linien eingefasst, wie seine
-  Spalte in der Jahresmatrix.
-
-Am 9. August 2026 als Version **26.8.9.2** im Reiter **Was ist neu** — in **Schritt für
-Schritt** und **Was FINA kann** fehlt es weiter:
-
-- ⚠ **Eine Position kann mehrere Links tragen** (bis zu zehn), jeder mit einem eigenen
-  Namen. Im Fenster heißt der Bereich **„Associated links"**, mit einem Plus zum Anlegen,
-  einem Stift je Zeile und einem Kreuz zum Löschen (mit Rückfrage). Das Feld „Link zu Beleg
-  oder Vertrag" gibt es nicht mehr — die Anleitung nennt es an mehreren Stellen.
-  **Der Name füllt sich aus der Adresse** (aus telekom.de wird „Telekom") und lässt sich
-  überschreiben. **Die Reihenfolge lässt sich ziehen** — der erste Link ist der, den das
-  Kettensymbol in den Ansichten direkt öffnet.
-- **Das Kettensymbol in den Ansichten öffnet bei mehreren Links eine Auswahl**, bei einem
-  Link geht es wie bisher direkt zur Seite.
-- ⚠ **Ein geschätzter Betrag lässt sich nicht mehr direkt abhaken.** Das Siegel öffnet das
-  Fenster der Position, der Betrag des Monats steht markiert da, abgehakt wird im Fenster.
-  Betrifft jede Stelle, an der die Anleitung das Abhaken beschreibt.
-- **CORRECTED steht orange** und nennt beim Überfahren den importierten Ursprungswert.
-
-Nach Version 26.8.9.2 gebaut:
-
-- **Ein Doppelklick auf einen Betrag hebt diesen Monat im Fenster hervor** (oranger Rahmen);
-  ist der Monat noch offen, steht sein Betrag gleich markiert da.
-- ⚠ **Die Zeile „Saldo je Monat" der Jahresansicht heißt jetzt „Kontostand zum Monatsende"**
-  und zeigt den laufenden Kontostand statt des Monatssaldos — dieselbe Zahl wie END in der
-  Prognose. Der Anfangsbestand steht hinter der Beschriftung, die Gesamtspalte zeigt den
-  Stand am Jahresende.
-- **Die Grafik der Prognose fängt dort an, wo etwas steht** — kein leeres Rasterfeld mehr
-  am Anfang.
-- ⚠ **Die Prognose hat andere Spalten:** statt „Saldo" und „Kumuliert" stehen dort jetzt
-  **START** und **END** — der Kontostand vor und nach dem Monat, dazwischen die vier
-  Bewegungen. Die Anleitung beschreibt die alte Aufteilung.
+Die Bildschirmfotos in `doc/img/` sind vom 8. August 2026 und zeigen den Stand von damals:
+das alte Linkfeld im Posten-Fenster, die alten Prognose-Spalten, die fünfte Kennzahl der
+Monatsansicht. Neue werden nur auf ausdrückliche Bitte gemacht.
 
 ## Zuletzt eingearbeitet
+
+Am 9. August 2026, vollständiger Durchgang durch **Schritt für Schritt** und **Was FINA
+kann**, beide Sprachen. Abgearbeitet wurde alles, was seit dem 8. August aufgelaufen war:
+
+- **Zugehörige Links** statt des einen Feldes „Link zu Beleg oder Vertrag": bis zu zehn je
+  Position, Plus · Stift · Kreuz · Griff, der Name aus der Adresse, die Reihenfolge gezogen.
+  Dazu das Kettensymbol in den Ansichten und der Strich, wo noch keiner steht (Schritt 5 und
+  „Regelmäßige Kosten, Schritt für Schritt").
+- **Ein geschätzter Betrag wird nicht nebenbei abgehakt** — an beiden Stellen, an denen das
+  Abhaken beschrieben ist (Schritt 7 und der Produktreiter). Dazu der Doppelklick auf einen
+  Betrag, der den Monat im Fenster hervorhebt.
+- **Die Prognose mit START und END**, die eigene Zeile des Anfangsbestands darüber und die
+  Achse, die dort anfängt, wo etwas steht.
+- **„Kontostand zum Monatsende"** in der Jahrestabelle samt Anfangsbestand und Gesamtspalte;
+  dazu die festen Kopfzeilen und die Rollleiste über der Tabelle.
+- **„Sicherung speichern"** und der Zeitstempel im Dateinamen (Schritt 8 und „Speichern und
+  Sicherheit").
+- **CORRECTED in Orange**, sofort beim Tippen, mit dem importierten Wert in der Sprechblase.
+- **Fast Budget Details** geht mit dem ganzen Jahr und den größten Einzelposten auf.
+- **Ein Klick in ein Feld markiert seinen Inhalt** (Schritt 5).
+- Ein neuer Abschnitt **„Diese Anleitung"**: eigene Sprache, ganze Seite, Breite ziehen.
+
+Danach noch gebaut und **nicht** in der Anleitung beschrieben — Bedienung, die sich von
+selbst erklärt: der Knopf „nach oben" unten rechts (in beiden Fassungen) und die klebende
+Reiterzeile der ganzseitigen Fassung.
+
+Nicht übernommen: „Sprechblasen stehen über oder unter dem Element" — die Anleitung
+behauptet nirgends, wo sie erscheinen, also gibt es nichts richtigzustellen.
 
 Am 8. August 2026, dritter Durchgang: **„Schritt für Schritt" auf acht Schritte
 eingedampft**, beide Sprachen. Der Reiter sagt jetzt nur noch, was zum Anfangen nötig ist —

@@ -89,6 +89,7 @@ const STR={
 'guide.tabSteps':{en:'Step by step',de:'Schritt für Schritt'},
 'guide.tabProduct':{en:'What FINA can do',de:'Was FINA kann'},
 'guide.tabNews':{en:"What's New",de:'Was ist neu'},
+'guide.top':{en:'Back to top',de:'Nach oben'},
 'guide.zoom':{en:'Click a picture to open it full size.',de:'Klick auf ein Bild öffnet es in voller Größe.'},
 /* Die Anleitung über die ganze Breite, in einem eigenen Reiter des
    Browsers — der Seitenbereich schließt dabei. */
@@ -582,8 +583,9 @@ const STR={
 'link.addTip':{en:'Add another link to this entry',de:'Diesem Eintrag einen weiteren Link hinzufügen'},
 'link.edit':{en:'Edit link',de:'Link ändern'},
 'link.editTip':{en:'Change name and address',de:'Name und Adresse ändern'},
-'link.sub':{en:'The name is what you will see. It fills itself from the address — overwrite it as you like.',
-  de:'Der Name ist das, was du später siehst. Er füllt sich aus der Adresse — überschreib ihn, wie du magst.'},
+'link.sub':{en:'Every link needs a name — it is what you will see later. It fills itself from the address; overwrite it as you like.',
+  de:'Jeder Link braucht einen Namen — er ist das, was du später siehst. Er füllt sich aus der Adresse; überschreib ihn, wie du magst.'},
+'link.nameEmpty':{en:'Please give the link a name.',de:'Bitte gib dem Link einen Namen.'},
 'link.name':{en:'Shown as',de:'Angezeigter Name'},
 'link.namePh':{en:'e.g. Contract, Invoice, Customer account',de:'z. B. Vertrag, Rechnung, Kundenkonto'},
 'link.url':{en:'Web address',de:'Webseite'},

@@ -96,8 +96,12 @@ what you receive each month. Income is typed <b>without a sign</b>.</p>
 ${gshot('item-dialog','The item window: who and what, the amounts, the ticks')}
 <p>Press <b>${t('year.addItem')}</b>, one item per contract. At the top: name, category, account,
 how it is paid, the day it is due. Pick a category — without one the item is not saved.</p>
+<p>Under <b>${t('item.links')}</b> you can keep the pages that belong to the item: the contract,
+the invoice, your customer account. Press the <b>+</b>, paste the address — the name fills itself
+in, and you can overwrite it.</p>
 <p>Below that, twelve boxes. <b>An expense is typed with a minus</b>: “-49,90”. Same amount every
-month? Type it once in the quick entry and apply it to all of them.</p>
+month? Type it once in the quick entry and apply it to all of them. Clicking into a box selects
+what is in it, so typing replaces it.</p>
 <p>Under every month is a <b>tick</b>: “this one is settled”. It locks the amount. If a figure is
 not fixed yet, tick <b>“${t('item.est')}”</b> instead — it then shows in yellow with a question
 mark.</p>
@@ -118,8 +122,12 @@ ${gshot('month-out','The regular costs of one month')}
   <li>Correct anything that turned out different — remove the tick, type, tick again.</li>
   <li>Press <b>${t('app.save')}</b>.</li>
 </ol>
-<p>To change a row, take the pencil next to it or <b>double-click the amount or the name</b>. To
-find something, just start typing — the first letter goes into the search field.</p>
+<p><b>A guessed amount is not ticked off in passing.</b> Its seal opens the item instead, with
+that month’s figure ready to correct. Put the real number in, tick the month there, save. Cancel
+and nothing has changed — a guess should not become a fact unseen.</p>
+<p>To change a row, take the pencil next to it or <b>double-click the amount or the name</b>. A
+double-click on an amount marks that month in the window, so you find it again among the twelve.
+To find something, just start typing — the first letter goes into the search field.</p>
 ${gshot('legend','The marks, as they appear below the month view')}
 <p>Three marks, in every block: an <b>empty circle</b> is due, a <b>green</b> one is settled, a
 <b>yellow</b> one means the amount is a guess. A row on <b>grey</b> has nothing left to pay this
@@ -127,7 +135,11 @@ year.</p>
 
 <h4>Step 8 — Save, and keep the file safe</h4>
 <p><b>${t('app.save')}</b> writes everything into your file. Chrome and Edge write back into the
-same file; other browsers put a copy in your downloads folder.</p>
+same file; other browsers put a copy in your downloads folder, with the date and time in front of
+the name so the newest is easy to spot.</p>
+<p><b>${t('app.backup')}</b> makes such a dated copy on purpose, in every browser. Use it before
+anything you are unsure about. It does not count as saving: the file you work in still has the
+change ahead of it.</p>
 <p>The file is plain text and yours alone. Copy it somewhere safe now and then — it is the only
 place your figures exist.</p>
 
@@ -193,8 +205,12 @@ Felder ein, was jeden Monat kommt. Einnahmen werden <b>ohne Vorzeichen</b> gesch
 ${gshot('item-dialog','Das Posten-Fenster: wer und was, die Beträge, die Haken')}
 <p>Klick auf <b>${t('year.addItem')}</b>, je Vertrag eine Position. Oben: Name, Kategorie, Konto,
 Zahlungsart, Zahltag. Wähl eine Kategorie — ohne sie wird der Posten nicht gespeichert.</p>
+<p>Unter <b>${t('item.links')}</b> sammelst du die Seiten, die dazugehören: den Vertrag, die
+Rechnung, dein Kundenkonto. Klick auf das <b>+</b> und füg die Adresse ein — der Name trägt sich
+selbst ein, und du kannst ihn überschreiben.</p>
 <p>Darunter zwölf Felder. <b>Eine Ausgabe wird mit Minus geschrieben</b>: „-49,90". Jeden Monat
-derselbe Betrag? Tipp ihn einmal in die schnelle Eingabe und übernimm ihn für alle.</p>
+derselbe Betrag? Tipp ihn einmal in die schnelle Eingabe und übernimm ihn für alle. Ein Klick in
+ein Feld markiert seinen Inhalt — tippen ersetzt ihn.</p>
 <p>Unter jedem Monat steht ein <b>Haken</b>: „dieser ist erledigt". Er sperrt den Betrag. Steht
 eine Zahl noch nicht fest, setz stattdessen den Haken bei <b>„${t('item.est')}"</b> — sie steht
 dann gelb mit einem Fragezeichen da.</p>
@@ -216,9 +232,14 @@ ${gshot('month-out','Die regelmäßigen Kosten eines Monats')}
   <li>Korrigier, was anders ausgefallen ist — Haken weg, tippen, Haken wieder setzen.</li>
   <li>Klick auf <b>${t('app.save')}</b>.</li>
 </ol>
+<p><b>Ein geschätzter Betrag wird nicht nebenbei abgehakt.</b> Sein Siegel öffnet stattdessen die
+Position, und der Betrag dieses Monats steht markiert da. Trag die richtige Zahl ein, hak den
+Monat dort ab, speichere. Wer abbricht, hat nichts geändert — aus einer Vermutung soll keine
+Tatsache werden, ohne dass jemand hingesehen hat.</p>
 <p>Zum Ändern nimmst du den Stift neben der Zeile oder machst einen <b>Doppelklick auf den Betrag
-oder auf die Bezeichnung</b>. Zum Suchen tippst du einfach los — der erste Buchstabe landet im
-Suchfeld.</p>
+oder auf die Bezeichnung</b>. Der Doppelklick auf einen Betrag hebt diesen Monat im Fenster
+hervor, damit du ihn unter zwölf Feldern wiederfindest. Zum Suchen tippst du einfach los — der
+erste Buchstabe landet im Suchfeld.</p>
 ${gshot('legend','Die Zeichen, wie sie unter der Monatsansicht stehen')}
 <p>Drei Zeichen, in jedem Block: ein <b>leerer Kreis</b> ist fällig, ein <b>grüner</b> ist
 erledigt, ein <b>gelber</b> heißt, der Betrag ist geschätzt. Eine Zeile auf <b>grauem Grund</b>
@@ -226,7 +247,11 @@ hat für dieses Jahr nichts mehr offen.</p>
 
 <h4>Schritt 8 — Speichern und die Datei sichern</h4>
 <p><b>${t('app.save')}</b> schreibt alles in deine Datei. Chrome und Edge schreiben in dieselbe
-Datei zurück; andere Browser legen eine Kopie im Download-Ordner ab.</p>
+Datei zurück; andere Browser legen eine Kopie im Download-Ordner ab — mit Datum und Uhrzeit vor
+dem Namen, damit die neueste zu erkennen ist.</p>
+<p><b>${t('app.backup')}</b> legt so eine datierte Kopie mit Absicht an, in jedem Browser. Nimm
+sie vor allem, was du dir nicht ganz zutraust. Als Speichern zählt sie nicht: die Datei, in der
+du arbeitest, hat die Änderung danach immer noch vor sich.</p>
 <p>Die Datei ist einfacher Text und gehört dir allein. Kopier sie ab und zu an einen sicheren Ort
 — sie ist der einzige Ort, an dem deine Zahlen stehen.</p>
 
@@ -318,8 +343,17 @@ the balance you can expect on 31 December.</p>
 ${gshot('forecast','The forecast: every month up to the year-end balance')}
 <p>It is <b>one table across the full width</b>: a row per month, short headings that explain
 themselves when you point at them, the current month highlighted, the settled months pale.</p>
+<p><b>Every row reads like a bank statement of that month:</b> <b>START</b> is the balance the
+month finds on the account, then the four movements — income, regular costs, flexible payments,
+correction — and <b>END</b> is what is left. END is the next month’s START, and in December it is
+the balance at the year end.</p>
+<p>Above January stands a row of its own, <b>${t('set.opening')}</b>. That is the money that was
+already there before this book began — what last year left over. It is not a movement of any
+month, so it gets its own row and its own colour, and every balance below counts on from it. You
+type it in the settings; leave it at zero and the year simply starts at nothing.</p>
 <p>On the right sits <b>${t('prog.colFlow')}</b> — the same waterfall as in the month view, only
-over twelve months. Its grid lines carry their balance above them instead of a column heading.</p>
+over twelve months. Its grid lines carry their balance above them instead of a column heading, and
+the axis begins where the first bar begins: an empty field would be nothing to read.</p>
 <p>The assumption the forecast works from for the coming months is kept where the twelve months
 are: in the category window, by pencil or double-click. The average of the months that are already
 settled stands there in orange above the amount, so you have both in front of you while you
@@ -328,7 +362,9 @@ type.</p>
 each category costs in the chosen period, and what it costs on average per month.</p>
 <p>It only appears <b>once you have imported bookings</b> from Fast Budget, and it sits last,
 after ${t('view.prognose')}. It reads exactly those bookings; without them it would show an empty
-outline.</p>
+outline. It opens on the <b>whole year</b> and, on the right, with the <b>largest single
+items</b> — the question you came with is where the money went, not what the first category in
+the list did.</p>
 <p>Mind the name: the tab is called ${t('view.kakeibo')}, while the kind of money keeps its own
 name, <b>${t('g.flex')}</b>, in the blocks and categories everywhere else.</p>
 ${gshot('flex-view','Flexible Payments: spending by category')}
@@ -386,8 +422,20 @@ Click it again and the filter is off.</p>
 The window that opens has three parts.</p>
 <p><b>At the top, who and what:</b> the name, the group it belongs to, which account it is paid
 from, how it is paid, and the day of the month it is due. And, if it ever stops, the month and
-year of the last payment. There is also room for a link to the invoice or the contract.</p>
+year of the last payment.</p>
 <p>The group is not preselected. A new item asks for it, and without one it is not saved.</p>
+<p><b>Under ${t('item.links')} live the pages that belong to the item</b> — the contract, the
+invoice, your customer account. Up to ten of them. The <b>+</b> next to the heading adds one, the
+pencil in a row changes it, the cross deletes it after asking. Drag a row by its handle to change
+the order.</p>
+<p>Every link has a name of your own. Paste an address and the name fills itself in from it —
+telekom.de becomes “Telekom” — and you can overwrite it with anything you like. A link without a
+name is not saved: the name field turns red until something stands in it. The name is all you see
+later, so a link without one would be a line you cannot read.</p>
+<p>In the month view, the year table and the details a <b>chain symbol</b> stands next to the row.
+One link and it goes straight there; several and it opens a small list to choose from. That is why
+the order matters: the first link is the one a single click reaches. Where an item has no link
+yet, a <b>dash</b> stands instead — click it and the window opens ready to add one.</p>
 <p><b>In the middle, the amounts:</b> twelve boxes, one per month. <b>An expense is written with a
 minus sign</b>: “-49,90”. Income has no sign.</p>
 <p>The sign shows while you type: <span class="neg">red</span> from the minus,
@@ -403,8 +451,15 @@ yet.</p>
 ${gshot('item-dialog','The item window')}
 <p>Is an amount not fixed yet — the electricity bill, roughly? Tick the box
 <b>“${t('item.est')}”</b>. FINA then shows the figure in yellow with a question mark, so you can
-see at a glance which numbers are guesses. As soon as you tick the month off, the guess counts as
-confirmed and the colour goes back to normal.</p>
+see at a glance which numbers are guesses.</p>
+<p><b>A guess is not ticked off in passing.</b> Click the seal of such a month in the month view
+and FINA opens the item instead, with that month’s figure ready to correct. Put the real number
+in, tick the month there, save. Cancel and nothing has changed — neither the figure nor the tick.
+Taking a tick away needs no detour: that changes no number.</p>
+<p>A <b>double-click on an amount</b> opens the item too, and marks that month with an orange
+frame, so you find it again among the twelve. If the month is still open its figure stands ready
+selected; if it is ticked, only the frame is there. Opening the item any other way marks
+nothing.</p>
 <p>At the bottom of the window, next to Cancel, stands <b>${t('item.dup')}</b>. It opens the same
 window once more with a copy of what is currently typed: all the master data and all twelve
 amounts, but not a single tick and no notes. So every month is editable straight away.</p>
@@ -429,8 +484,9 @@ what it is about to overwrite.</p>
 <p>Only the very last button changes anything, and the chosen months are <b>replaced, not added
 to</b>. After that the app also knows your subcategories and every single booking behind them.</p>
 <p>Both ways can live side by side. Months you imported show the real figures, months you did not
-show the ones you typed. If an imported figure is wrong you can simply overwrite it. The month is
-then marked as corrected, and the import is not lost.</p>
+show the ones you typed. If an imported figure is wrong you can simply overwrite it. In the
+amounts window that month then says <b>CORRECTED</b> in orange instead of IMPORTED, the moment you
+type — and pointing at the word tells you what the imported figure was. The import is not lost.</p>
 
 <h4>Reading the year table</h4>
 <ul>
@@ -457,10 +513,14 @@ then marked as corrected, and the import is not lost.</p>
       searches all twelve months, as far as you allow it to — see below. It shares its word with
       the month view. Hit the name of a block or of a category, and that block stands there
       whole.</li>
-  <li><b>${t('year.balanceRow')}</b> is the exception: it belongs to the frame like the column
-      headings and stays put whatever you type.</li>
-  <li>The three block rows stay at the top of the screen while you scroll through their
-      block.</li>
+  <li><b>${t('year.balanceRow')}</b> is the <b>balance on the account</b> at the end of each
+      month, not what that month alone did — the same figure the forecast shows under END. If a
+      year starts with money already there, it is included, and the amount is named right under
+      the heading. The total column carries the balance at the year end.</li>
+  <li>That row belongs to the frame like the column headings and stays put whatever you type.</li>
+  <li>The column headings, that row and the three block rows all stay at the top while you scroll.
+      The table scrolls inside itself; sideways you move it with the bar above it, so nothing lies
+      across your figures.</li>
   <li>Clicking a month name takes you into that month. A double-click on an amount or on the name
       opens the item, the same window as the pencil.</li>
 </ul>
@@ -534,10 +594,29 @@ it, and is dropped with it when you cancel.</p>
 lamp, in the two lines of preview under the name, and in the month cells of the edit window. A
 note can be a list.</p>
 
+<h4>This guide</h4>
+<p>The orange <b>${t('app.guide')}</b> button opens and closes this panel. It stays open while you
+carry on working in the table; the page next to it simply gets narrower. Drag its left edge to
+change the width.</p>
+<p>It has <b>a language of its own</b>. The two letters EN · DE in its header switch only what you
+are reading — the app itself stays in the language from ${t('app.settings')}. With a file open the
+guide comes up in that same language, so you normally never touch them.</p>
+<p>Next to them sits a button that opens the guide <b>on a full page</b>, in a browser tab of its
+own, with all three parts one after another. Reading a manual in a narrow column is work; this is
+for when you really want to read it.</p>
+
 <h4>Saving and safety</h4>
 <p>Nothing is ever written by itself. <b>${t('app.save')}</b> writes everything into your file:
 figures and settings. In Chrome and Edge it writes back into the very same file; other browsers
 put a fresh copy in your downloads folder.</p>
+<p>Such a copy carries <b>the date and time in front of its name</b> — “260809-142530 fina.json”.
+In a folder full of them the newest is then simply the last, and you can see at a glance which is
+which.</p>
+<p><b>${t('app.backup')}</b> makes exactly such a dated copy on purpose, in every browser —
+including Chrome and Edge, which otherwise only ever write into the one file and never leave a
+second state behind. Use it before an import, before a big change, before anything you would not
+want to redo. It does not count as saving: the file you work in still has the change ahead of
+it.</p>
 <p><b>${t('app.unlink')}</b> puts the file down and empties the screen. If anything is unsaved you
 are warned first.</p>
 <p>The file is plain text and yours alone. Copy it, back it up, take it to another computer. FINA
@@ -623,9 +702,18 @@ zeigt den Saldo, der am 31. Dezember zu erwarten ist.</p>
 ${gshot('forecast','Die Prognose: jeder Monat bis zum Saldo am Jahresende')}
 <p>Sie ist <b>eine Tabelle über die volle Breite</b>: eine Zeile je Monat, kurze Überschriften mit
 Erklärung beim Überfahren, der laufende Monat hervorgehoben, die abgerechneten Monate blass.</p>
+<p><b>Jede Zeile liest sich wie ein Kontoauszug dieses Monats:</b> <b>START</b> ist der Stand, den
+der Monat auf dem Konto vorfindet, dann die vier Bewegungen — Einnahmen, regelmäßige Kosten,
+Flexible Payments, Korrektur — und <b>END</b> ist, was übrig bleibt. END ist der START des
+nächsten Monats, im Dezember der Stand zum Jahresende.</p>
+<p>Über dem Januar steht eine eigene Zeile, <b>${t('set.opening')}</b>. Das ist das Geld, das schon
+da war, bevor dieses Buch anfing — was das letzte Jahr übrig gelassen hat. Es ist keine Bewegung
+eines Monats, deshalb bekommt es eine eigene Zeile und eine eigene Farbe, und jeder Kontostand
+darunter rechnet von ihm aus weiter. Eingetragen wird es in den Einstellungen; lässt du es auf
+null, fängt das Jahr eben bei nichts an.</p>
 <p>Ganz rechts steht der <b>${t('prog.colFlow')}</b> — derselbe Wasserfall wie im Monat, nur über
-zwölf Monate. Seine Rasterlinien tragen statt einer Spaltenüberschrift ihren Kontostand über
-sich.</p>
+zwölf Monate. Seine Rasterlinien tragen statt einer Spaltenüberschrift ihren Kontostand über sich,
+und die Achse fängt dort an, wo der erste Balken anfängt: ein leeres Feld gäbe nichts zu lesen.</p>
 <p>Die Annahme, mit der die Prognose für die kommenden Monate rechnet, wird dort gepflegt, wo die
 zwölf Monate stehen: im Fenster der Kategorie, über Stift oder Doppelklick. Der Mittelwert der
 Monate, die schon feststehen, steht dort orange über dem Betrag. Du hast beim Eintragen also
@@ -635,7 +723,9 @@ Einzelnen: was jede Kategorie im gewählten Zeitraum kostet und was sie im Schni
 kostet.</p>
 <p>Ihn gibt es <b>nur mit importierten Buchungen</b> aus Fast Budget, und er steht als letzter,
 hinter der ${t('view.prognose')}. Er wertet genau diese Buchungen aus, ohne sie stünde dort eine
-leere Gliederung.</p>
+leere Gliederung. Er geht mit dem <b>ganzen Jahr</b> auf und rechts mit den <b>größten
+Einzelposten</b> — die Frage, mit der man herkommt, lautet „wohin ist das Geld gegangen" und nicht
+„was hat die erste Kategorie der Liste gemacht".</p>
 <p>Achte auf den Namen: der Reiter heißt ${t('view.kakeibo')}, die Art von Geld behält überall
 sonst ihren eigenen — <b>${t('g.flex')}</b>.</p>
 ${gshot('flex-view','Flexible Payments: die Ausgaben je Kategorie')}
@@ -695,8 +785,19 @@ der du gerade liest. Ein zweiter Klick nimmt den Filter wieder zurück.</p>
 Position. Das Fenster, das aufgeht, hat drei Teile.</p>
 <p><b>Oben, wer und was:</b> der Name, die Gruppe, zu der die Position gehört, von welchem Konto
 sie abgeht, wie bezahlt wird und an welchem Tag im Monat sie fällig ist. Und, falls sie einmal
-endet, Monat und Jahr der letzten Zahlung. Dazu ist Platz für einen Link zur Rechnung oder zum
-Vertrag.</p>
+endet, Monat und Jahr der letzten Zahlung.</p>
+<p><b>Unter ${t('item.links')} stehen die Seiten, die dazugehören</b> — der Vertrag, die Rechnung,
+dein Kundenkonto. Bis zu zehn. Das <b>+</b> neben der Überschrift legt einen an, der Stift in der
+Zeile ändert ihn, das Kreuz löscht ihn nach Rückfrage. Am Griff ziehst du eine Zeile an eine
+andere Stelle.</p>
+<p>Jeder Link hat einen Namen, den du vergibst. Fügst du eine Adresse ein, trägt er sich selbst
+ein — aus telekom.de wird „Telekom" —, und du kannst ihn überschreiben. Ohne Namen wird ein Link
+nicht gespeichert: das Namensfeld bleibt rot umrandet, bis etwas darin steht. Später siehst du nur
+noch den Namen — ein Link ohne ihn wäre eine Zeile, die man nicht lesen kann.</p>
+<p>In Monatsansicht, Jahrestabelle und Details steht neben der Zeile ein <b>Kettensymbol</b>. Bei
+einem Link führt es direkt hin, bei mehreren öffnet es eine kleine Auswahl. Deshalb zählt die
+Reihenfolge: der erste Link ist der, den ein Klick erreicht. Wo noch kein Link steht, steht ein
+<b>Strich</b> — ein Klick darauf öffnet das Fenster gleich zum Anlegen.</p>
 <p>Die Gruppe ist nicht vorausgewählt. Eine neue Position fragt danach und wird ohne sie nicht
 gespeichert.</p>
 <p><b>In der Mitte die Beträge:</b> zwölf Felder, eines je Monat. <b>Eine Ausgabe wird mit Minus
@@ -714,8 +815,16 @@ noch nicht zu Ende.</p>
 ${gshot('item-dialog','Das Posten-Fenster')}
 <p>Steht ein Betrag noch nicht fest — die Stromrechnung, ungefähr? Dann setz den Haken bei
 <b>„${t('item.est')}"</b>. FINA zeigt die Zahl daraufhin gelb mit einem Fragezeichen, du siehst
-also auf einen Blick, welche Zahlen geschätzt sind. Sobald du den Monat abhakst, gilt die
-Schätzung als bestätigt und die Farbe wird wieder normal.</p>
+also auf einen Blick, welche Zahlen geschätzt sind.</p>
+<p><b>Eine Schätzung wird nicht nebenbei abgehakt.</b> Klickst du in der Monatsansicht auf das
+Siegel eines solchen Monats, öffnet FINA stattdessen die Position, und der Betrag dieses Monats
+steht bereit. Trag die richtige Zahl ein, hak den Monat dort ab, speichere. Wer abbricht, hat
+nichts geändert — weder die Zahl noch den Haken. Einen Haken wegzunehmen braucht keinen Umweg:
+das ändert keine Zahl.</p>
+<p>Ein <b>Doppelklick auf einen Betrag</b> öffnet die Position ebenfalls und umrandet diesen Monat
+orange, damit du ihn unter zwölf Feldern wiederfindest. Ist der Monat noch offen, steht sein
+Betrag markiert da; ist er abgehakt, bleibt es beim Rahmen. Öffnest du die Position anders, ist
+nichts markiert.</p>
 <p>Unten im Fenster, neben „Abbrechen", steht <b>${t('item.dup')}</b>. Der Knopf öffnet dasselbe
 Fenster noch einmal mit einer Kopie des gerade Getippten: alle Stammdaten und alle zwölf Beträge,
 aber kein einziger Haken und keine Notiz. Jeder Monat ist damit sofort änderbar.</p>
@@ -742,8 +851,9 @@ und sagt dir genau, was überschrieben wird.</p>
 ergänzt</b>. Danach kennt die Anwendung auch deine Unterkategorien und jede einzelne Buchung
 dahinter.</p>
 <p>Beide Wege vertragen sich: importierte Monate zeigen die echten Zahlen, die übrigen deine
-eigenen. Ist ein importierter Wert falsch, überschreib ihn einfach. Der Monat gilt dann als
-korrigiert, der Import geht dabei nicht verloren.</p>
+eigenen. Ist ein importierter Wert falsch, überschreib ihn einfach. Im Beträge-Fenster steht bei
+diesem Monat dann <b>CORRECTED</b> in Orange statt IMPORTED, und zwar sofort beim Tippen — und
+wenn du über das Wort fährst, steht dort, was importiert war. Der Import geht nicht verloren.</p>
 
 <h4>Die Jahrestabelle lesen</h4>
 <ul>
@@ -771,9 +881,15 @@ korrigiert, der Import geht dabei nicht verloren.</p>
       sucht über alle zwölf Monate, soweit du es zulässt (siehe unten). Es teilt sein Wort mit der
       Monatsansicht. Triffst du den Namen eines Blocks oder einer Kategorie, steht dieser Block
       ganz da.</li>
-  <li>Die Ausnahme ist <b>${t('year.balanceRow')}</b>: die Zeile gehört zum Gerüst wie die
-      Spaltenköpfe und bleibt stehen, ganz gleich, was du tippst.</li>
-  <li>Die drei Blockzeilen bleiben beim Scrollen oben stehen, solange ihr Block läuft.</li>
+  <li><b>${t('year.balanceRow')}</b> ist der <b>Kontostand</b> am Ende jedes Monats, nicht das,
+      was der Monat allein bewegt hat — dieselbe Zahl, die die Prognose unter END zeigt. Fängt das
+      Jahr mit Geld an, das schon da war, steckt es darin, und der Betrag steht klein unter der
+      Beschriftung. Die Gesamtspalte trägt den Stand zum Jahresende.</li>
+  <li>Diese Zeile gehört zum Gerüst wie die Spaltenköpfe und bleibt stehen, ganz gleich, was du
+      tippst.</li>
+  <li>Spaltenköpfe, diese Zeile und die drei Blockzeilen bleiben beim Scrollen oben stehen. Die
+      Tabelle rollt in sich selbst; zur Seite schiebst du sie an der Leiste über ihr, damit nichts
+      quer über deinen Zahlen liegt.</li>
   <li>Ein Klick auf einen Monatsnamen bringt dich in diesen Monat. Ein Doppelklick auf einen
       Betrag oder auf die Bezeichnung öffnet die Position — dasselbe Fenster wie der Stift.</li>
 </ul>
@@ -850,10 +966,30 @@ in die Datei und wird mit ihr verworfen, wenn du abbrichst.</p>
 Sprechblase an der Lampe, in den zwei Zeilen Vorschau unter dem Namen und in den Monatsfeldern des
 Bearbeitungsfensters. Eine Notiz darf also eine Liste sein.</p>
 
+<h4>Diese Anleitung</h4>
+<p>Der orange Knopf <b>${t('app.guide')}</b> klappt diesen Bereich auf und wieder zu. Er bleibt
+offen, während du in der Tabelle weiterarbeitest; die Seite daneben wird einfach schmaler. Am
+linken Rand kannst du ihn breiter ziehen.</p>
+<p>Er hat <b>eine eigene Sprache</b>. Die beiden Kürzel EN · DE in seinem Kopf schalten nur das
+um, was du gerade liest — die Anwendung bleibt in der Sprache aus den ${t('app.settings')}. Mit
+geladener Datei geht die Anleitung ohnehin in derselben Sprache auf; meistens rührst du die
+Kürzel also nie an.</p>
+<p>Daneben steht ein Knopf, der die Anleitung <b>über die ganze Seite</b> öffnet, in einem eigenen
+Reiter des Browsers, mit allen drei Teilen hintereinander. Eine Anleitung in einer schmalen Spalte
+zu lesen ist Arbeit; dafür ist dieser Knopf da.</p>
+
 <h4>Speichern und Sicherheit</h4>
 <p>Von allein wird nie geschrieben. <b>${t('app.save')}</b> schreibt alles in deine Datei: Zahlen
 und Einstellungen. Chrome und Edge schreiben dabei in genau dieselbe Datei zurück; andere Browser
 legen eine frische Kopie im Download-Ordner ab.</p>
+<p>So eine Kopie trägt <b>Datum und Uhrzeit vor dem Namen</b> — „260809-142530 fina.json". In
+einem Ordner voller Kopien ist die neueste dann einfach die letzte, und du siehst auf einen Blick,
+welche welche ist.</p>
+<p><b>${t('app.backup')}</b> legt genau so eine datierte Kopie mit Absicht an, in jedem Browser —
+auch in Chrome und Edge, die sonst immer nur in die eine Datei schreiben und nie einen zweiten
+Stand hinterlassen. Nimm sie vor einem Import, vor einer großen Änderung, vor allem, was du nicht
+noch einmal machen möchtest. Als Speichern zählt sie nicht: die Datei, in der du arbeitest, hat
+die Änderung danach immer noch vor sich.</p>
 <p><b>${t('app.unlink')}</b> legt die Datei aus der Hand und leert den Bildschirm. Ist etwas
 ungespeichert, wirst du vorher gewarnt.</p>
 <p>Die Datei ist einfacher Text und gehört dir allein. Kopiere sie, sichere sie, nimm sie mit an
@@ -1227,6 +1363,11 @@ function renderGuide(){}
 function guideDoc(){
   return inGuideLang(()=>{
     const title=`FINA — ${t('app.guide')}`;
+    /* Die drei Reiter wie im Seitenbereich — nur sind es hier
+       Sprungmarken, keine Schalter: die drei Teile stehen alle auf
+       der Seite. Sie kleben oben, damit man von überall zum
+       nächsten Teil kommt, ohne zurückzurollen. Ohne Skript, wie
+       die ganze Seite (Regel 4). */
     const nav=GUIDE_TABS.map(([k,lab])=>`<a href="#g-${k}">${t(lab)}</a>`).join('');
     const parts=GUIDE_TABS.map(([k,lab])=>{
       const text=GUIDE[k]||GUIDE.steps;
@@ -1248,12 +1389,17 @@ function guideDoc(){
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
 </head>
-<body>
+<body id="g-top">
 <main class="guide gpage">
   <h1>${esc(title)}</h1>
   <nav class="gnav">${nav}</nav>
   ${parts}
 </main>
+<!-- Zurück nach oben: auf einer Seite mit allen drei Teilen ist der
+     Weg dorthin sonst weit. Ein Anker, kein Knopf — die Seite hat
+     kein Skript. -->
+<a class="gtop" href="#g-top" aria-label="${esc(t('guide.top'))}"
+  title="${esc(t('guide.top'))}">&#8593;</a>
 </body>
 </html>`;
   });
@@ -1307,7 +1453,9 @@ function fillGuide(el){
     </div>
     <div class="gtabs" role="tablist">${GUIDE_TABS.map(([k,lab])=>
       `<button role="tab" data-gtab="${k}" aria-selected="${k===guideTab}">${t(lab)}</button>`).join('')}</div>
-    <div class="gbody guide">${zoom}${body}</div>`;
+    <div class="gbody guide">${zoom}${body}</div>
+    <button type="button" class="gtop" id="gTop" aria-label="${esc(t('guide.top'))}"
+      title="${esc(t('guide.top'))}" hidden>&#8593;</button>`;
   });
   box.querySelector('#gClose').onclick=()=>closeGuide();
   box.querySelector('#gFull').onclick=()=>openGuideTab();
@@ -1315,6 +1463,17 @@ function fillGuide(el){
   box.querySelectorAll('[data-glang]').forEach(b=>b.onclick=()=>guideLangTo(b.dataset.glang));
   bindGuideHandle(box.querySelector('#gHandle'));
   const nb=box.querySelector('.gbody'); if(nb) nb.scrollTop=y;
+  /* Der Weg zurück nach oben. Er zeigt sich erst, wenn es etwas
+     zurückzurollen gibt — ein Knopf, der nichts täte, soll auch
+     nicht dastehen. Gerollt wird der Textbereich, nicht die Seite:
+     ein Anker wie auf der ganzen Seite ginge hier ins Leere. */
+  const top=box.querySelector('#gTop');
+  if(nb&&top){
+    const sync=()=>{ top.hidden=nb.scrollTop<200; };
+    nb.addEventListener('scroll',sync,{passive:true});
+    top.onclick=()=>{ nb.scrollTo({top:0,behavior:'smooth'}); nb.focus&&nb.focus(); };
+    sync();
+  }
 }
 
 /* ── Der Griff an der linken Kante ────────────────────────────
