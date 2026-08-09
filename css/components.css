@@ -318,6 +318,16 @@ body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
    Sie schalten **nur** die Anleitung um; die Sprache der Oberfläche
    steht in den Einstellungen. */
 .guidepanel .gact{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+/* Der Pfeil aus dem Kasten steht zwischen der Sprachwahl und dem
+   Kreuz: er nimmt die Anleitung mit, das Kreuz lässt sie zurück.
+   Ein Symbol statt eines Wortes — im Kopf ist die Zeile schmal, und
+   „In neuem Reiter öffnen" stünde dort dreizeilig. */
+/* Das Polster ist um ein Pixel höher als am Kreuz daneben: dort
+   trägt ein Schriftzeichen die Höhe, hier ein 13-px-Symbol — beide
+   Knöpfe sollen gleich hoch sein. */
+.guidepanel .gfull{display:inline-grid;place-items:center;padding:5px 8px}
+.guidepanel .gfull svg{width:13px;height:13px;stroke:currentColor;fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .guidepanel .glangs{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
 .guidepanel .glang{background:transparent;border:0;cursor:pointer;padding:3px 7px;
   font-family:var(--font-data);font-size:10px;letter-spacing:.1em;color:var(--ink-2);line-height:1.5}
@@ -363,6 +373,26 @@ body.gresize{user-select:none;cursor:col-resize}
 .gshot img{display:block;width:100%;height:auto;border:1px solid var(--rule);background:var(--paper-2)}
 .gshot a:hover img{border-color:var(--accent)}
 .gshot figcaption{font-size:11px;line-height:1.35;color:var(--ink-2);margin-top:4px}
+
+/* ── Die Anleitung als eigene Seite ───────────────────────────
+   Dieselben Stylesheets, nur ohne Tabelle daneben: eine einzelne
+   Spalte in Lesebreite, mittig. Gebaut wird die Seite in
+   js/dialogs/guide.js und in einen neuen Reiter des Browsers
+   geschrieben; Reiter gibt es dort keine, die drei Teile stehen
+   hintereinander und oben eine Zeile mit Sprungmarken. */
+.gpage{max-width:820px;margin:0 auto;padding:26px 24px 90px}
+.gpage h1{font-family:var(--font-display);font-size:25px;letter-spacing:.04em;margin:0}
+.gpage .gnav{display:flex;flex-wrap:wrap;gap:16px;margin:9px 0 0;padding:9px 0 0;
+  border-top:2px solid var(--ink)}
+.gpage .gnav a{font-family:var(--font-data);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-2);text-decoration:none}
+.gpage .gnav a:hover{color:var(--accent)}
+.gpage h2{font-family:var(--font-display);font-size:21px;margin:0 0 2px}
+/* Zwischen den drei Teilen eine kräftige Linie: auf einer Seite
+   ohne Reiter ist sie das, was den Wechsel sichtbar macht. */
+.gpage section{padding-top:30px}
+.gpage section+section{border-top:1px solid var(--rule-strong);margin-top:34px}
+.gpage section>h4:first-of-type{border-top:0;padding-top:0;margin-top:16px}
 
 /* ── Anleitung ────────────────────────────────────────────── */
 .guide h4{font-family:var(--font-data);font-size:11px;letter-spacing:.16em;text-transform:uppercase;

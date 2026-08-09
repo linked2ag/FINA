@@ -88,6 +88,13 @@ const STR={
 'guide.tabProduct':{en:'What FINA can do',de:'Was FINA kann'},
 'guide.tabNews':{en:"What's New",de:'Was ist neu'},
 'guide.zoom':{en:'Click a picture to open it full size.',de:'Klick auf ein Bild öffnet es in voller Größe.'},
+/* Die Anleitung über die ganze Breite, in einem eigenen Reiter des
+   Browsers — der Seitenbereich schließt dabei. */
+'guide.full':{en:'Open in a new tab',de:'In neuem Reiter öffnen'},
+'guide.fullTip':{en:'The whole guide on a full page, in its own browser tab',
+  de:'Die ganze Anleitung über die volle Breite, in einem eigenen Reiter des Browsers'},
+'guide.fullBlocked':{en:'The browser blocked the new tab.',
+  de:'Der Browser hat den neuen Reiter verhindert.'},
 'app.chooseView':{en:'Choose view',de:'Ansicht wählen'},
 'app.chooseMonth':{en:'Choose month',de:'Monat wählen'},
 

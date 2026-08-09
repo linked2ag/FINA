@@ -35,4 +35,7 @@ Object.defineProperty(window,'DUE_OPTS',{get:()=>[['','—'],['A',t('due.A')],['
 /* Symbole */
 const LINK_SVG='<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>';
 const LAMP_SVG='<svg><use href="#ic-lamp"/></svg>';
+/* Pfeil aus dem Kasten heraus: etwas verlässt diese Seite und
+   öffnet sich in einem eigenen Reiter des Browsers. */
+const EXPAND_SVG='<svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-8 8"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
 const CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>';

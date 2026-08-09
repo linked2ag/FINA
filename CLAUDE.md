@@ -950,6 +950,36 @@ wird nichts. Wer dort etwas anbaut, das `t()` benutzt, baut es **innerhalb** die
 sonst spricht ein Teil des Kopfes die andere Sprache. Und weil die Anleitung damit an keiner
 Angabe der Oberfläche mehr hängt, hat `renderGuide()` nichts mehr zu prüfen.
 
+**Womit sie aufgeht, entscheidet `guideLangOnOpen()`** — aufgerufen in `openGuide()`, also
+bei **jedem** Öffnen: mit geladener Datei setzt es `gLang` auf `state.lang`. Wer die
+Oberfläche auf Deutsch führt, bekommt die Anleitung auf Deutsch, ohne sie umzuschalten; die
+Kürzel im Kopf bleiben der Weg, beim Lesen eine andere Sprache zu wählen, und diese Wahl
+gilt bis zum nächsten Öffnen. Auf der **Begrüßungsseite** bleibt es beim bisherigen Wert:
+dort gibt es keine Einstellung, an der man sich ausrichten könnte — `state.lang` ist die
+Vorgabe eines leeren Buches und keine Entscheidung des Nutzers.
+
+**Die Anleitung geht auch über die ganze Seite.** Der Seitenbereich ist zum Nachschlagen
+neben der Tabelle da. Wer die Anleitung wirklich liest, braucht die ganze Seite — dafür
+steht im Kopf zwischen der Sprachwahl und dem Kreuz
+`#gFull` (`EXPAND_SVG` aus `js/config.js`, Erklärung über `data-tip`). `openGuideTab()`
+baut mit `guideDoc()` eine **vollständige Seite**, schreibt sie in einen neuen Reiter des
+Browsers und schließt danach den Bereich: beides nebeneinander wäre dieselbe Anleitung
+zweimal, einmal davon zu schmal.
+
+Geschrieben wird mit `document.write` in ein `window.open('','_blank')` — es gibt keinen
+Server, und `fetch` scheidet unter `file://` aus (Regel 4). Das `<base href>` der neuen
+Seite zeigt auf die Anwendung, damit die Stylesheets und die Bilder aus `doc/img/` mit ihren
+gewohnten relativen Pfaden gefunden werden; **eigene Gestaltung steht nicht im JavaScript**,
+die Seite lädt `tokens.css`, `layout.css` und `components.css` und trägt `.guide.gpage`.
+Hält der Browser den Reiter auf, bleibt der Bereich stehen und `toast()` sagt es — sonst
+stünde der Nutzer ohne beides da.
+
+**Reiter gibt es dort keine.** Die drei Teile stehen hintereinander, jeder als `<section
+id="g-…">` mit seinem `<h2>`, oben eine Zeile mit Sprungmarken (`.gnav`). Ein Reiter
+verbirgt, um Platz zu sparen, und auf einer ganzen Seite ist keiner knapp — damit kommt die
+Seite ohne eigenes Skript aus. Gebaut wird sie in `gLang`, nicht in der Sprache der
+Oberfläche: `guideDoc()` steht ganz in `inGuideLang()`.
+
 **„Schritt für Schritt" ist kurz und bleibt kurz.** Acht Schritte, je zwei bis vier Sätze:
 was einer braucht, um sein Buch zum Laufen zu bringen, und nichts darüber hinaus. Jede
 Ausnahme, jede Nebenwirkung, jeder zweite Weg gehört in **„Was FINA kann"** — der Reiter

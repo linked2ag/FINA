@@ -869,7 +869,20 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.8.1 <span class="pill">latest</span></h4>
+<h4>26.8.9.1 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>The guide on a full page:</b> the button next to the ✕ opens it in a browser tab of
+      its own, all three parts one after another.</li>
+  <li><b>The guide has its own language.</b> EN · DE in its header. It opens in the language
+      from ${t('app.settings')}; the two letters change the reading only.</li>
+  <li><b>${t('app.backup')}</b> — a dated copy in your downloads folder, in every browser.</li>
+  <li><b>Clicking a field selects what is in it</b>, so typing replaces it.</li>
+  <li><b>The forecast scrolls column by column</b> when the window is too narrow for its
+      graph.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.8.1</h4>
 <ul>
   <li><b>${t('set.opening')}</b> — the balance your book starts from, next to the year in
       ${t('app.settings')}. Every balance counts on from there.</li>
@@ -941,7 +954,21 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.8.1 <span class="pill">neu</span></h4>
+<h4>26.8.9.1 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Die Anleitung über die ganze Seite:</b> der Knopf neben dem ✕ öffnet sie in einem
+      eigenen Reiter des Browsers, alle drei Teile hintereinander.</li>
+  <li><b>Die Anleitung hat ihre eigene Sprache.</b> EN · DE in ihrem Kopf. Sie geht in der
+      Sprache aus den ${t('app.settings')} auf; die beiden Kürzel ändern nur das Lesen.</li>
+  <li><b>${t('app.backup')}</b> — eine datierte Kopie im Download-Ordner, in jedem
+      Browser.</li>
+  <li><b>Ein Feld anklicken markiert seinen Inhalt</b>, tippen ersetzt ihn.</li>
+  <li><b>Die Prognose scrollt spaltenweise</b>, wenn das Fenster für ihre Grafik zu schmal
+      ist.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.8.1</h4>
 <ul>
   <li><b>${t('set.opening')}</b> — der Stand, bei dem dein Buch anfängt, neben dem Jahr in den
       ${t('app.settings')}. Jeder Kontostand rechnet von da an weiter.</li>
@@ -1066,6 +1093,22 @@ function guideLangTo(l){
   if(guideOpen()) fillGuide();
 }
 
+/* ── Womit die Anleitung aufgeht ──────────────────────────────
+   Wer schon mit einer Datei arbeitet, hat seine Sprache in den
+   Einstellungen gewählt — die Anleitung fängt dann bei jedem Öffnen
+   in derselben an, und zwar wieder, auch wenn zwischendurch
+   umgeschaltet wurde: die Wahl im Kopf gilt dem Lesen, nicht der
+   Anwendung.
+
+   Auf der Begrüßungsseite bleibt es beim bisherigen Wert. Dort gibt
+   es keine Einstellung, an der man sich ausrichten könnte —
+   `state.lang` ist die Vorgabe eines leeren Buches und keine
+   Entscheidung des Nutzers. */
+function guideLangOnOpen(){
+  if(ui.welcome) return;
+  if(state&&state.lang) gLang=(state.lang==='de')?'de':'en';
+}
+
 function guideMax(){ return Math.max(GUIDE_MIN,Math.round(window.innerWidth*0.66)); }
 
 function setGuideWidth(w){
@@ -1081,6 +1124,7 @@ function guideOpen(){ return !!document.getElementById('guidePanel'); }
 
 function openGuide(){
   if(guideOpen()) return;
+  guideLangOnOpen();
   const el=document.createElement('aside');
   el.id='guidePanel'; el.className='guidepanel';
   el.setAttribute('aria-label',t('app.guide'));
@@ -1124,6 +1168,74 @@ function syncGuideBtn(){
    Leseposition. */
 function renderGuide(){}
 
+/* ── Die Anleitung über die ganze Breite ──────────────────────
+   Der Seitenbereich ist zum Nachschlagen neben der Tabelle da. Wer
+   die Anleitung wirklich liest, braucht die ganze Seite — dafür der
+   Knopf im Kopf: er öffnet sie in einem eigenen Reiter des Browsers
+   und schließt den Bereich. Beides nebeneinander wäre dieselbe
+   Anleitung zweimal, einmal davon zu schmal.
+
+   Geschrieben wird eine vollständige Seite in den neuen Reiter
+   (`document.write`): es gibt keinen Server, und `fetch` scheidet
+   unter file:// aus (Regel 4). Das `<base>` zeigt auf die
+   Anwendung, damit die Stylesheets und die Bilder aus doc/img mit
+   ihren gewohnten relativen Pfaden gefunden werden — dieselben
+   Dateien, dieselbe Gestaltung.
+
+   Reiter gibt es dort keine: die drei Teile stehen hintereinander,
+   oben eine Zeile mit Sprungmarken. Ein Reiter verbirgt, um Platz
+   zu sparen, und auf einer ganzen Seite ist keiner knapp. Damit
+   kommt die Seite ohne eigenes Skript aus.
+
+   Gebaut wird alles in der Sprache der Anleitung (gLang), nicht in
+   der der Oberfläche — wie der Seitenbereich auch. */
+function guideDoc(){
+  return inGuideLang(()=>{
+    const title=`FINA — ${t('app.guide')}`;
+    const nav=GUIDE_TABS.map(([k,lab])=>`<a href="#g-${k}">${t(lab)}</a>`).join('');
+    const parts=GUIDE_TABS.map(([k,lab])=>{
+      const text=GUIDE[k]||GUIDE.steps;
+      const body=(text[gLang]||text.en)();
+      const zoom=body.indexOf('<figure')>=0?`<p class="gzoom">${t('guide.zoom')}</p>`:'';
+      return `<section id="g-${k}"><h2>${t(lab)}</h2>${zoom}${body}</section>`;
+    }).join('');
+    return `<!DOCTYPE html>
+<html lang="${gLang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="${esc(location.href)}">
+<title>${esc(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<main class="guide gpage">
+  <h1>${esc(title)}</h1>
+  <nav class="gnav">${nav}</nav>
+  ${parts}
+</main>
+</body>
+</html>`;
+  });
+}
+
+/* Der Knopf im Kopf. Der neue Reiter wird im Klick geöffnet, sonst
+   hielte der Browser ihn für ungefragt. Hält er ihn trotzdem auf,
+   bleibt der Bereich stehen — sonst stünde der Nutzer ohne beides
+   da. */
+function openGuideTab(){
+  const html=guideDoc();
+  const w=window.open('','_blank');
+  if(!w){ toast(t('guide.fullBlocked')); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  closeGuide();
+}
+
 /* Inhalt und Beschriftungen. Die Leseposition überlebt den
    Neuaufbau nur innerhalb desselben Reiters — beim Wechsel fängt
    man oben an, das ist beim Lesen einer Anleitung auch richtig. */
@@ -1153,6 +1265,8 @@ function fillGuide(el){
       <span class="gact">
         <span class="glangs" role="group" aria-label="${esc(t('guide.lang'))}"
           data-tip="${esc(t('guide.lang'))}">${langs}</span>
+        <button class="btn small gfull" id="gFull" aria-label="${esc(t('guide.full'))}"
+          data-tip="${esc(t('guide.fullTip'))}">${EXPAND_SVG}</button>
         <button class="btn small" id="gClose" title="${t('g.close')}" aria-label="${t('g.close')}">&#10005;</button>
       </span>
     </div>
@@ -1161,6 +1275,7 @@ function fillGuide(el){
     <div class="gbody guide">${zoom}${body}</div>`;
   });
   box.querySelector('#gClose').onclick=()=>closeGuide();
+  box.querySelector('#gFull').onclick=()=>openGuideTab();
   box.querySelectorAll('[data-gtab]').forEach(b=>b.onclick=()=>guideTo(b.dataset.gtab));
   box.querySelectorAll('[data-glang]').forEach(b=>b.onclick=()=>guideLangTo(b.dataset.glang));
   bindGuideHandle(box.querySelector('#gHandle'));

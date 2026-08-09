@@ -28,11 +28,18 @@ noch zwei Kleinigkeiten von früher:
 
 Die Bilder sind seit dem 8. August 2026 **alle neu** (siehe unten).
 
-Dazu, seit dem 8. August 2026 gebaut und noch in keinem Reiter beschrieben:
+Am 9. August 2026 steht alles Folgende als Version **26.8.9.1** im Reiter **Was ist neu**,
+beide Sprachen — in **Schritt für Schritt** und **Was FINA kann** fehlt es weiter:
 
 - **Die Anleitung hat ihre eigene Sprache.** Zwei Kürzel EN · DE im Kopf des Bereichs, links
-  neben dem Kreuz. Sie schalten nur die Anleitung um, nicht die Oberfläche; Vorgabe ist
-  Englisch, und die Wahl lebt nur in der Sitzung.
+  neben dem Kreuz. Sie schalten nur die Anleitung um, nicht die Oberfläche; die Wahl lebt
+  nur in der Sitzung. ⚠ „Vorgabe ist Englisch" gilt nur noch auf der Begrüßungsseite: mit
+  geladener Datei geht die Anleitung bei **jedem** Öffnen in der Sprache auf, die in den
+  Einstellungen steht.
+- **Die Anleitung über die ganze Seite.** Ein Knopf im Kopf des Bereichs, zwischen der
+  Sprachwahl und dem Kreuz, öffnet sie in einem eigenen Reiter des Browsers und schließt den
+  Seitenbereich. Dort stehen alle drei Teile hintereinander, mit Sprungmarken oben, in der
+  Sprache, in der man gerade liest.
 - **Die Prognose scrollt.** Jedes Rasterfeld der Verlaufsspalte ist mindestens so breit wie
   die Monatsspalte. Wird das Fenster zu schmal, scrollt die Tabelle nach rechts; die
   Monatsspalte bleibt dabei stehen, und gescrollt wird spaltenweise — nie eine halbe
