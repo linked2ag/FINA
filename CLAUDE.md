@@ -1544,10 +1544,17 @@ dabei, wie er ist:** eine Sicherung ist kein Speichern, die Datei, in der gearbe
 hat die Änderung danach immer noch nicht. Die Meldung sagt beides.
 
 **Deshalb trägt die heruntergeladene Kopie einen Zeitstempel vorn**, gebaut in
-`downloadName()`: `YYMMDD-HHMMSS ` vor dem ursprünglichen Namen. Die Stände stehen damit im
+`downloadName()`: `YYMMDD-HHMM ` vor dem ursprünglichen Namen. Die Stände stehen damit im
 Ordner von selbst in der richtigen Reihenfolge, und der Name der Datei bleibt hinten
 erhalten. Ein **vorhandener** Stempel wird ersetzt, nicht gestapelt (`STAMP_RE`) — sonst
-hieße die Datei nach dem zweiten Mal „260808-210000 260808-204500 fina.json".
+hieße die Datei nach dem zweiten Mal „260808-2100 260808-2045 fina.json".
+
+**Auf die Minute, nicht auf die Sekunde.** Der Stempel sortiert und soll sich lesen lassen;
+zwei Sicherungen in derselben Minute sind der seltene Fall, und dann hängt der Browser von
+sich aus „ (1)" an. `STAMP_RE` erkennt deshalb **beide** Formen (`\d{4}(\d{2})?`): aus einer
+Datei mit dem alten Stempel bliebe sonst ein „00" mitten im Namen stehen. Ein Name, der
+selbst mit Ziffern anfängt („2026 Kasse.json"), wird nicht getroffen — dafür steht der
+Bindestrich an fester Stelle.
 
 Die Meldung nennt den Namen (`store.downloaded`): er ist nicht der, unter dem die Datei
 geöffnet wurde, und man soll ihn im Download-Ordner wiederfinden.

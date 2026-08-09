@@ -23,18 +23,27 @@ function save(){ dirty=true; renderStatus(); }
    neueste ist.
 
    Deshalb trägt die Kopie ihren Zeitpunkt vorn:
-   `YYMMDD-HHMMSS ` vor dem ursprünglichen Namen. So stehen die
+   `YYMMDD-HHMM ` vor dem ursprünglichen Namen. So stehen die
    Stände im Ordner von selbst in der richtigen Reihenfolge, und
    der Name der Datei bleibt hinten erhalten.
 
+   **Auf die Minute genau, nicht auf die Sekunde.** Der Stempel soll
+   die Stände sortieren und sich lesen lassen; zwei Sicherungen in
+   derselben Minute sind der seltene Fall, und dann hängt der
+   Browser von sich aus „ (1)" an. Zwei Zeichen weniger vor jedem
+   Dateinamen sind den Tausch wert.
+
    **Ein vorhandener Stempel wird ersetzt, nicht gestapelt.** Wer
    eine so gespeicherte Datei wieder öffnet und erneut speichert,
-   bekäme sonst „260808-210000 260808-204500 fina.json". */
-const STAMP_RE=/^\d{6}-\d{6} /;
+   bekäme sonst „260808-2100 260808-2045 fina.json". Erkannt wird
+   dabei auch die **alte** Form mit Sekunden — sonst bliebe von
+   „260808-210000 fina.json" beim nächsten Speichern ein „00" mitten
+   im Namen stehen. */
+const STAMP_RE=/^\d{6}-\d{4}(\d{2})? /;
 function stamp(d){
   const p=n=>String(n).padStart(2,'0');
   return `${p(d.getFullYear()%100)}${p(d.getMonth()+1)}${p(d.getDate())}`
-    +`-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+    +`-${p(d.getHours())}${p(d.getMinutes())}`;
 }
 function downloadName(){
   const base=(fileName||`fina-${YEAR}.json`).replace(STAMP_RE,'');
