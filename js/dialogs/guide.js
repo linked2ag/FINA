@@ -1019,6 +1019,8 @@ en:()=>`
       Ctrl/Cmd + Shift + D, and it starts with the largest single items.</li>
   <li><b>Corrected imported months say so at once</b>, in orange, and name the imported
       value when you point at them.</li>
+  <li><b>Entries without any monthly amount are shown in the year view too</b>, so a new one
+      does not go missing before you have filled it in.</li>
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
@@ -1121,6 +1123,8 @@ de:()=>`
       Strg/Cmd + Umschalt + D, und er beginnt mit den größten Einzelposten.</li>
   <li><b>Korrigierte Importmonate sagen es sofort</b>, in Orange, und nennen beim Überfahren
       den importierten Wert.</li>
+  <li><b>Posten ohne Monatsbeträge stehen auch in der Jahresansicht</b>, damit ein frisch
+      angelegter nicht verlorengeht, bevor du ihn ausgefüllt hast.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
