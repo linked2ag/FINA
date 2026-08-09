@@ -71,7 +71,9 @@ const STR={
 /* Der Import steht in der Kopfzeile, nicht mehr im Reiter: den
    Reiter gibt es erst nach dem ersten Import (siehe hasImport()
    in js/calc.js), der Knopf muss vorher erreichbar sein. */
-'app.import':{en:'Import CSV',de:'CSV importieren'},
+/* Der Knopf nennt die App, aus der die Datei kommt, nicht das
+   Dateiformat: „CSV" sagt nichts darüber, welche CSV gemeint ist. */
+'app.import':{en:'Import Fast Budget Data',de:'Fast Budget Daten importieren'},
 'app.importTip':{en:'Read Flexible Payments from a Fast Budget CSV export — nothing is changed until you confirm',
   de:'Flexible Payments aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
 'app.settings':{en:'Settings',de:'Einstellungen'},
@@ -111,9 +113,11 @@ const STR={
 'view.jahr':{en:'Year',de:'Jahr'},
 /* Der Reiter heißt anders als die Geldart: er zeigt die
    Auswertung der importierten Buchungen und gibt es nur mit
-   Import. Wo die Geldart gemeint ist — die drei Blöcke, eine
-   Kategorie —, steht g.flex. */
-'view.kakeibo':{en:'Flexible Payment Details',de:'Flexible Payment Details'},
+   Import. Er nennt deshalb die App, aus der sie kommen — wo die
+   Geldart gemeint ist (die drei Blöcke, eine Kategorie), steht
+   g.flex. Der Name steht in beiden Sprachen gleich da, wie
+   „Fast Budget" selbst. */
+'view.kakeibo':{en:'Fast Budget Details',de:'Fast Budget Details'},
 'view.prognose':{en:'Forecast',de:'Prognose'},
 
 /* ── Allgemeine Wörter ────────────────────────────────────── */

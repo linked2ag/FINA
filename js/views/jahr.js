@@ -35,7 +35,14 @@ const COLS=()=>`<colgroup><col class="c-ed"><col class="c-ln"><col class="c-nt">
    behalten ihre alten Namen: sie stehen in css/matrix.css an
    einem guten Dutzend Stellen und sagen nur, welche Spalte
    gemeint ist. */
-function matrixHead(){
+/* `extra` ist die Saldozeile: sie steht **im Kopf**, nicht im
+   Rumpf. Sie gehört zum Gerüst wie die Spaltennamen — sie hat keine
+   Zeilen unter sich, kein Filter nimmt sie weg, und man liest jede
+   andere Zeile gegen sie. Im Kopf klebt sie außerdem von selbst
+   unter den Spaltennamen: `position:sticky` hält nur innerhalb
+   desselben Elternteils, und eine Zeile im Rumpf hörte am Ende
+   ihres `tbody` auf zu kleben. */
+function matrixHead(extra){
   return `<thead><tr><th class="ed"></th><th class="ln"></th><th class="nt"></th><th class="lab">${t('g.position')}</th>
     <th class="code cB"><button class="codehead" data-lists="1" title="${t('year.bankTip')}">B</button></th>
     <th class="code cZ"><button class="codehead" data-lists="1" title="${t('year.payTip')}">PT</button></th>
@@ -45,7 +52,7 @@ function matrixHead(){
       return `<th class="${cmAmt(m).trim()}"><button class="mhead${done?' done':''}" data-goto="${m}"
         title="${done?t('year.monthDone'):''}${t('year.monthTip',MONTHS_LONG[m-1])}">${MONTHS[m-1]}</button></th>
       <th class="mkh${cmMark(m)}"></th>`;}).join('')}
-    <th class="toth">${t('g.total')}</th></tr></thead>`;
+    <th class="toth">${t('g.total')}</th></tr>${extra||''}</thead>`;
 }
 
 /* Der Pfeil, der einen Block der Matrix zu- und aufklappt. Er steht
@@ -136,8 +143,15 @@ function mrow(label,vals,opt={}){
     <td class="num tot ${estTot?'est':cls(sum)}">${eur(sum)}</td></tr>`;
 }
 
-const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(8)}${visMonths().map(m=>
-  `<td class="${cmAmt(m).trim()}"></td><td class="${(m===CUR?'cm-r':'')}"></td>`).join('')}<td class="tot"></td></tr>`;
+/* Die Leerzeile zwischen zwei Blöcken. Sie trägt **keine Marke des
+   laufenden Monats**: die grauen Trennlinien der Monate setzen hier
+   aus, und die beiden roten Linien sollen es genauso tun — sonst
+   liefe der laufende Monat als einzige Spalte durch die Lücke
+   hindurch. Sichtbar wurde das beim Scrollen: die Blockzeilen
+   kleben oben und wandern über die Lücke, die roten Stücke blieben
+   darin stehen, wo längst keine Zeile mehr ist. */
+const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(8)}${visMonths().map(()=>
+  `<td></td><td></td>`).join('')}<td class="tot"></td></tr>`;
 
 function viewJahr(){
   /* „Abgeschlossene ausblenden" versteckt nur Zeilen, in denen
@@ -200,7 +214,8 @@ function viewJahr(){
 
   /* Der Saldo je Monat bleibt beim Scrollen unter den Spalten-
      köpfen stehen (.balpin in css/matrix.css) — er fasst zusammen,
-     was darunter Zeile für Zeile aufgeschlüsselt wird.
+     was darunter Zeile für Zeile aufgeschlüsselt wird. Gebaut wird
+     er hier, eingehängt wird er in den **Kopf** (matrixHead).
 
      Ihn nimmt der Suchbegriff **nicht** weg. Er gehört zum Gerüst
      wie die Spaltenköpfe, nicht zum Inhalt: er hat keine Zeilen
@@ -209,7 +224,7 @@ function viewJahr(){
      Filtern, verlöre die Tabelle beim Scrollen genau die Zeile,
      für die das Kleben gebaut ist — und der Suchbegriff müsste
      zufällig in „Saldo je Monat" vorkommen, damit sie bleibt. */
-  parts.push(mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'}));
+  const balRow=mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'});
 
   /* Die Saldokorrektur steht über den Einnahmen: eine einzige
      Zeile, wie eine Kategorie gezeigt, aber über den Stift wie
@@ -272,7 +287,15 @@ function viewJahr(){
     parts.push(mrow(t('g.fixed'),MONTHS.map((_,i)=>fixedCost(i+1)),
       {cls:'sec r-out secpin',...foldOpt('out',fOut)})+(fOut?'':outRows));
 
-  const body=parts.join(spacer());
+  /* Je Block ein eigener `tbody` — eine Gliederung, die man liest,
+     wenn man die Tabelle einmal von Hand durchgeht, und die Stelle,
+     an der die Leerzeile zwischen zwei Blöcken hängt.
+
+     Fürs Kleben der Blockzeilen tut er nichts: `position:sticky` an
+     einer Tabellenzeile wird vom `tbody` nicht begrenzt. Welche der
+     drei Zeilen oben zu sehen ist, entscheidet die Stapelfolge in
+     css/matrix.css. */
+  const body=parts.map((p,i)=>`<tbody>${i?spacer():''}${p}</tbody>`).join('');
 
   const V=visMonths(), hidden=12-V.length;
   /* Die Leiste fängt links mit dem Filter an und führt gleich die
@@ -292,7 +315,13 @@ function viewJahr(){
       </span>
       <span class="fbgroup">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
-        <button class="btn small" data-newitem="1">${t('year.addItem')}</button></span></div>
+        <button class="btn small" data-newitem="1">${t('year.addItem')}</button></span>
+      <!-- Der waagerechte Rollbalken der Matrix, außerhalb der
+           Tabelle: in ihr säße er quer über der letzten Zeile, und
+           die steht bei zweihundert Positionen weit unterhalb des
+           Bildschirms. Hier klebt er mit der Leiste unter der
+           Kopfzeile und ist immer zu greifen. -->
+      ${scrollRail('yearScroll')}</div>
     <!-- Unter der Tabelle steht nichts mehr. Der lange Hinweis, der
          hier stand — Stift und Doppelklick, die Kürzel B · PT · DD ·
          LP, die Ampel der Restlaufzeit, der graue Grund, der
@@ -302,5 +331,10 @@ function viewJahr(){
          Am Ende einer Tabelle, die man ohnehin scrollt, las ihn
          niemand. Die Texte stehen weiter in js/i18n.js (year.hint …
          year.current) — sie gehören zur Anleitung. -->
-    <div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead()}<tbody>${body}</tbody></table></div>`;
+    <!-- Der Rahmen schneidet den waagerechten Rollbalken ab: die
+         Fläche darin ist genau um seine Höhe höher als er zeigt
+         (sizeMatrix in js/app.js). Gerollt wird dadurch weiter vom
+         Browser selbst — nur den Balken sieht man nicht, den gibt
+         es oben in der Leiste. -->
+    <div class="yearpane"><div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead(balRow)}${body}</table></div></div>`;
 }

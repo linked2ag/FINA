@@ -48,6 +48,11 @@ function renderChrome(){
     if(el) el.hidden=wel||id==='btnLoad';
   });
 
+  /* Die Jahresansicht füllt den Bildschirm: ihre Matrix rollt
+     senkrecht selbst, die Seite darunter soll es nicht auch noch
+     tun (siehe body.yearview in css/layout.css und sizeMatrix). */
+  document.body.classList.toggle('yearview',!wel&&ui.view==='jahr');
+
   const mEl=document.getElementById('months');
   mEl.setAttribute('aria-label',t('app.chooseMonth'));
   mEl.style.display = (!wel&&ui.view==='monat') ? 'flex' : 'none';
@@ -104,70 +109,82 @@ function syncStickyTops(){
   document.querySelectorAll('.card > .sechead').forEach(sh=>{ sh.style.top=base+'px'; });
 }
 
-/* ── Mitlaufende Spaltenköpfe der Jahresmatrix ────────────────
-   Die Matrix scrollt nur waagerecht, senkrecht scrollt die Seite.
-   position:sticky richtet sich immer am nächsten Rollrahmen aus —
-   das wäre hier der waagerechte, die Köpfe blieben also nicht
-   stehen. Sie werden darum um genau den Betrag verschoben, um den
-   die Tabelle unter die Kopfzeile der Seite gewandert ist.
-   matrix.css liest den Wert aus --headY. */
+/* ── Die Jahresmatrix ist eine eigene Fläche ──────────────────
+   Sie rollt in beiden Richtungen selbst; die Seite rollt in dieser
+   Ansicht gar nicht. Genau daran hängt, dass Spaltenköpfe,
+   Saldozeile und Blockzeilen mit `position:sticky` stehenbleiben:
+   sticky richtet sich am nächsten Rollrahmen aus, und der ist jetzt
+   die Matrix selbst. Der Browser hält sie fest, ohne dass jemand
+   rechnet — deshalb steht hier so wenig.
+
+   Früher rollte die Seite und die Zeilen wurden bei jedem
+   Scroll-Ereignis per translateY nachgeschoben. Das lief dem
+   Scrollen immer ein Bild hinterher: die Kopfzeile schwamm sichtbar
+   und blieb bei jeder verpassten Messung stehen. Kein Maß der Welt
+   macht das ruhig — die Rechnung musste weg, nicht schneller
+   werden.
+
+   Zu tun bleiben zwei Maße, und beide nur beim Zeichnen:
+
+     die Höhe der Fläche — so viel, wie unter der Knopfleiste bis
+     zum unteren Rand des Fensters bleibt, abzüglich der Statuszeile
+     darunter,
+     --headH und --pinH — die Höhen von Spaltenkopf und Saldozeile,
+     an denen die Zeilen darunter kleben (css/matrix.css). */
+function sizeMatrix(){
+  const box=document.getElementById('yearScroll'); if(!box) return;
+  const pane=box.parentElement;
+  const head=box.querySelector('thead tr:first-child');
+  const pin=box.querySelector('tr.balpin');
+  if(head) box.style.setProperty('--headH',head.offsetHeight+'px');
+  box.style.setProperty('--pinH',(pin?pin.offsetHeight:0)+'px');
+  /* Erst die Höhen freigeben, dann messen: sonst misst man die vom
+     letzten Mal mit. */
+  pane.style.height=''; box.style.height='';
+  const top=pane.getBoundingClientRect().top+window.scrollY;
+  let h=Math.max(240,window.innerHeight-top);
+  pane.style.height=h+'px'; box.style.height=h+'px';
+  /* Was danach unter der Fläche noch steht — Statuszeile, Polster —
+     macht die Seite wieder rollbar. Es wird nicht geschätzt,
+     sondern gemessen und abgezogen: ein Überstand von sieben Pixeln
+     reicht, damit die ganze Fläche beim Rollen davonwandert. */
+  const over=document.documentElement.scrollHeight-window.innerHeight;
+  if(over>0){ h=Math.max(240,h-over); pane.style.height=h+'px'; box.style.height=h+'px'; }
+  /* Und zum Schluss der Kniff: die Fläche wird um die Höhe ihres
+     waagerechten Rollbalkens **höher** als der Rahmen, der sie
+     zeigt — der Balken liegt damit außerhalb und ist weg, ohne dass
+     jemand das Rollen selbst in die Hand nehmen müsste.
+
+     Gemessen wird er, nicht geraten: gestaltete Balken sind 11 px
+     hoch, überlagernde (macOS) messen 0 und schweben trotzdem über
+     der letzten Zeile. Deshalb mindestens 14 px, aber nur, wenn es
+     waagerecht überhaupt etwas zu rollen gibt. */
+  const c=getComputedStyle(box);
+  const by=parseFloat(c.borderTopWidth)+parseFloat(c.borderBottomWidth);
+  const bar=box.scrollWidth>box.clientWidth
+    ? Math.max(box.offsetHeight-box.clientHeight-by,14) : 0;
+  if(bar) box.style.height=(h+bar)+'px';
+}
+
+/* Der volle Weg nach jeder Änderung, die Höhen verschiebt:
+   Zeichnen, Größenwechsel, die Breite der Anleitung. */
 function syncMatrixHead(){
   syncStickyTops();
-  const box=document.getElementById('yearScroll'); if(!box) return;
-  const head=box.querySelector('thead'); if(!head) return;
-  /* Die Knopfleiste klebt unter der Kopfzeile, die Spaltenköpfe
-     kleben unter der Knopfleiste. */
-  const bar=document.getElementById('yearBar');
-  const top=bar?bar.getBoundingClientRect().bottom
-                :document.querySelector('header').getBoundingClientRect().bottom;
-  const r=box.getBoundingClientRect();
-  /* Die Saldozeile wandert mit demselben Maß mit — sie muss beim
-     Anschlag am unteren Rand also mitgerechnet werden, sonst
-     schöbe sie sich aus der Tabelle heraus. */
-  const pin=box.querySelector('tr.balpin');
-  const keep=head.offsetHeight+(pin?pin.offsetHeight:0);
-  const y=Math.max(0,Math.min(top-r.top,r.height-keep));
-  box.style.setProperty('--headY',y+'px');
-  syncSecRows(box,top+keep);
+  sizeMatrix();
 }
 
-/* ── Die Blockzeilen der Matrix bleiben stehen ────────────────
-   Einnahmen, Flexible Payments, Regelmäßige Kosten: solange man
-   in einem Block liest, steht seine Zeile oben — wie der Kopf
-   einer Karte in der Monatsansicht. Dasselbe Mittel wie bei den
-   Spaltenköpfen (translateY), denn position:sticky griffe hier
-   nicht: der Rollrahmen der Matrix rollt nur waagerecht.
+/* Beim Scrollen ist nichts zu tun: beide Tabellen rollen frei wie
+   jede andere, und was oben klebt, hält der Browser über CSS
+   (css/matrix.css). Kein Nachrollen, kein Einrasten — wer rollt,
+   bestimmt selbst, wo es stehen bleibt.
 
-   Jede Zeile bekommt ihr eigenes Maß, begrenzt durch das Ende
-   ihres Blocks — die nächste Blockzeile schiebt die vorige hinaus.
-   `line` ist die Höhe, an der gestapelt wird: unter Knopfleiste,
-   Spaltenköpfen und Saldozeile. */
-function syncSecRows(box,line){
-  const rows=[...box.querySelectorAll('tbody tr')];
-  const secs=rows.filter(tr=>tr.classList.contains('secpin'));
-  if(!secs.length) return;
-  /* Erst alles zurücksetzen, dann messen: sonst misst man die
-     Verschiebung vom letzten Mal gleich mit. */
-  secs.forEach(tr=>tr.style.setProperty('--secY','0px'));
-  secs.forEach(tr=>{
-    const i=rows.indexOf(tr);
-    /* Der Block reicht bis zur nächsten Blockzeile; die Leerzeile
-       davor gehört nicht mehr dazu. */
-    let end=rows.length-1;
-    for(let j=i+1;j<rows.length;j++){ if(rows[j].classList.contains('secpin')){ end=j-1; break; } }
-    while(end>i&&rows[end].classList.contains('spacer')) end--;
-    const rTop=tr.getBoundingClientRect().top;
-    const rBot=rows[end].getBoundingClientRect().bottom;
-    const h=tr.getBoundingClientRect().height;
-    tr.style.setProperty('--secY',Math.max(0,Math.min(line-rTop,rBot-h-rTop))+'px');
-  });
-}
-addEventListener('scroll',syncMatrixHead,{passive:true});
-addEventListener('resize',syncMatrixHead);
+   Wird das Fenster breiter, hat die Tabelle womöglich nichts mehr
+   zu rollen — dann verschwindet die Leiste, und umgekehrt. */
+addEventListener('resize',()=>{ syncMatrixHead(); fitRails(); });
 
 /* Zeichnet alles neu und hält dabei die Scrollposition. */
 function render(){
-  /* „Flexible Payment Details" gibt es nur mit Import (siehe
+  /* „Fast Budget Details" gibt es nur mit Import (siehe
      VIEWS in js/config.js). Steht die Ansicht trotzdem noch —
      nach dem Trennen der Datei, nach einer Datei ohne Buchungen —,
      gäbe es einen Reiter weniger als Ansichten: keiner wäre
@@ -187,6 +204,11 @@ function render(){
   window.scrollTo(sx,sy);
   const ysNew=document.getElementById('yearScroll');
   if(ysNew&&yTop!=null){ ysNew.scrollTop=yTop; ysNew.scrollLeft=yLeft; }
+  /* Die Rollleiste hat ihre Tabelle beim Verdrahten gemessen — da
+     stand die noch am Anfang. Jetzt steht sie wieder dort, wo sie
+     vorher stand, und der Griff gehört an dieselbe Stelle. Ebenso
+     die Köpfe der Matrix hält der Browser selbst. */
+  fitRails();
 }
 
 /* ── Klicks der frisch gezeichneten Ansicht ───────────────── */
@@ -395,27 +417,30 @@ function wire(){
   }
   ui.qFocus=false;
 
+  /* Die Rollleisten über den beiden breiten Tabellen: Breite messen
+     und beide Richtungen verdrahten. Nach jedem Zeichnen neu — die
+     Tabelle darunter ist eine andere geworden. */
+  bindRails();
   syncMatrixHead();
 }
 
 /* ── Strg/Cmd + Umschalt + Buchstabe: die Ansicht wechseln ───
    Ein Griff je Reiter, in der Reihenfolge der Reiter:
 
-     M  Monat · Y  Jahr · F  Prognose · X  Flexible Payment Details
+     M  Monat · Y  Jahr · F  Prognose · D  Fast Budget Details
 
    Die Buchstaben stehen für den **englischen** Namen und wechseln
    deshalb nicht mit der Sprache — wie B · PT · DD · LP in der
    Jahresmatrix und wie die Kürzel der Prognose. Y statt J, weil
-   „Year"; F für „Forecast". Für die Details bleibt kein Buchstabe
-   aus ihrem Namen übrig — X ist der Platzhalter, den man ohnehin
-   für „das Weitere" liest.
+   „Year"; F für „Forecast"; D für „Details" — F und B sind schon
+   vergeben.
 
    Ins Suchfeld führte diese Taste einmal (Strg/Cmd+Umschalt+F).
    Den Weg gibt es nicht mehr: seit ein einzelner Buchstabe im
    Monat und im Jahr von selbst im Filter landet, war er der
    umständlichere von zweien.
 
-   **Nur Reiter, die es gibt.** „Flexible Payment Details"
+   **Nur Reiter, die es gibt.** „Fast Budget Details"
    erscheint erst mit importierten Buchungen (VIEWS in
    js/config.js); ohne sie tut der Griff nichts, statt in eine
    Ansicht zu springen, die kein Reiter zeigt.
@@ -424,7 +449,7 @@ function wire(){
    keine Reiter) und ein offenes Fenster — dort wird gerade
    getippt, und die Ansicht darunter zu wechseln nähme dem Fenster
    den Boden. */
-const VIEW_KEYS={m:'monat',y:'jahr',f:'prognose',x:'kakeibo'};
+const VIEW_KEYS={m:'monat',y:'jahr',f:'prognose',d:'kakeibo'};
 /* Der Buchstabe zu einer Ansicht — für die Sprechblase am Reiter
    (renderChrome). Groß geschrieben, wie man ihn auf der Taste
    sieht. */
@@ -483,9 +508,18 @@ addEventListener('keydown',ev=>{
 
    **Nur, wenn kein Fenster offen ist.** Dort gehört Escape dem
    Fenster (js/ui.js), und es schließt es; den Filter dabei
-   nebenbei zu leeren wäre eine zweite, ungefragte Wirkung. Und
-   nur, wenn überhaupt gefiltert wird — sonst passiert nichts, und
-   der Tastendruck bleibt für den Browser, was er ist. */
+   nebenbei zu leeren wäre eine zweite, ungefragte Wirkung.
+
+   Zwei Bedingungen sagen dasselbe, und beide werden gebraucht:
+   `defaultPrevented` fängt den Druck, der gerade ein Fenster
+   geschlossen hat — dessen Handler hängt am Dokument und läuft
+   vorher, das Fenster ist hier also schon aus dem DOM und die
+   Abfrage darauf ginge ins Leere. `.modal` fängt den Fall, dass ein
+   Fenster offen ist und den Druck aus einem anderen Grund nicht
+   angenommen hat.
+
+   Und nur, wenn überhaupt gefiltert wird — sonst passiert nichts,
+   und der Tastendruck bleibt für den Browser, was er ist. */
 addEventListener('keydown',ev=>{
   if(ev.key!=='Escape'||ev.defaultPrevented) return;
   if(ui.welcome||document.querySelector('.modal')) return;

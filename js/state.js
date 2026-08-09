@@ -173,17 +173,22 @@ function blankKak(v){
    in der View, die bei jedem Zeichnen läuft. */
 function afterLoad(){
   ui.kakDetail=!!(state&&state.tx&&state.tx.length);
-  /* Der Reiter „Flexible Payment Details" fängt beim **ganzen
-     Jahr** an und mit der **ersten** Kategorie im rechten Bereich.
-     Ohne Vorauswahl stand die rechte Spalte leer da und der Reiter
-     zeigte beim ersten Blick nur eine halbe Ansicht; der erste
-     Eintrag ist die naheliegende Wahl, und ein Klick auf einen
-     anderen Pfeil wechselt sie. Ein einzelner Monat wäre die
-     engere Sicht — hier wird verglichen, und verglichen wird über
-     das Jahr. */
+  /* Der Reiter „Fast Budget Details" fängt beim **ganzen Jahr** an
+     und rechts bei den **größten Einzelposten** — das ist die
+     Bedeutung von `ui.kakPick=null` (siehe js/views/kakeibo.js).
+
+     Eine vorgewählte Kategorie wäre in beiden Fassungen die falsche
+     Antwort: die erste der Liste steht dort, weil sie zuerst
+     angelegt wurde, und die teuerste sagt nur, was die linke Spalte
+     ohnehin schon zeigt. Wer den Reiter öffnet, will die einzelnen
+     Buchungen sehen, die am meisten ausmachen; welche Kategorie das
+     ist, liest er daran ab. Ein Klick auf einen Pfeil links
+     wechselt in die Kategorie.
+
+     Ein einzelner Monat wäre die engere Sicht — hier wird
+     verglichen, und verglichen wird über das Jahr. */
   ui.scope='jahr';
-  const first=(typeof kakCats==='function')?kakCats()[0]:null;
-  ui.kakPick=first?{main:first,sub:''}:null;
+  ui.kakPick=null;
 
   /* Womit man begrüßt wird. Mit Datei fängt man im laufenden
      Monat an — das ist die Ansicht, in der gearbeitet wird:

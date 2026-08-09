@@ -345,7 +345,12 @@ function viewPrognose(){
        jetzt dort, wo sie gepflegt werden — im Fenster der
        Kategorie, mit dem Mittelwert über der Schnelleingabe. -->
   <div class="card"><h2>${t('prog.title',YEAR)}</h2>
-    <div class="scroll progscroll" style="border:0"><table class="ledger progtable"
+    <!-- Der waagerechte Rollbalken steht über der Tabelle, nicht in
+         ihr: dort läge er quer über der letzten Zeile. Bei zu
+         schmalem Fenster erscheint er von selbst (bindRails in
+         js/ui.js), sonst steht dort nichts. -->
+    ${scrollRail('progScroll')}
+    <div class="scroll progscroll" id="progScroll" style="border:0"><table class="ledger progtable"
       style="--flowcells:${cells.toFixed(3)}">
       <tr>${PROG_COLS.map(c=>`<th class="${c.cls}${c.ab==='COR'&&corEmpty?' mid':''}"
         data-tip="${esc(t(c.name)+' — '+t(c.tip))}">${c.ab}</th>`).join('')}

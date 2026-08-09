@@ -129,7 +129,7 @@ const settledLast=arr=>arr.slice().sort((a,b)=>(yearFinished(a)?1:0)-(yearFinish
 const hasActual=m=>!!state.flexSource[m];
 
 /* Gibt es überhaupt importierte Buchungen? Daran hängt der Reiter
-   „Flexible Payment Details": er wertet genau sie aus, ohne
+   „Fast Budget Details": er wertet genau sie aus, ohne
    Import stünde dort eine leere Gliederung. Gefragt wird nach
    beidem — den Buchungen und der Quelle je Monat —, damit auch
    eine von Hand zusammengestellte Datei erkannt wird. */

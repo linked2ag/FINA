@@ -12,12 +12,21 @@ function toast(msg){
 
 /* Escape schließt immer das oberste Fenster. Fenster, die beim
    Schließen aufräumen müssen, legen ihren eigenen Weg in
-   box._close ab (siehe js/dialogs/settings.js). */
+   box._close ab (siehe js/dialogs/settings.js).
+
+   **Der Tastendruck ist damit verbraucht** (preventDefault): hinter
+   diesem Handler hängt der in js/app.js, der Escape sonst als
+   „Filter zurücknehmen" versteht. Er läuft, weil dieser hier am
+   Dokument hängt und jener am Fenster — und er sähe das Fenster
+   nicht mehr, es ist an dieser Stelle schon weg. Ein Escape würde
+   sonst zweierlei tun: das Fenster schließen und nebenbei den
+   Filter leeren, hinter dem die halbe Liste steht. */
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape') return;
   const all=[...document.querySelectorAll('.modal')];
   if(!all.length) return;
   const top=all[all.length-1];
+  e.preventDefault();
   (top._close||closeModal)(top);
 });
 
@@ -30,6 +39,69 @@ function closeModal(box){
   window.scrollTo(sx,sy);
   if(ys&&yTop!=null){ ys.scrollTop=yTop; ys.scrollLeft=yLeft; }
 }
+
+/* ── Die Rollleiste über einer Tabelle ────────────────────────
+   Eine breite Tabelle scrollt waagerecht, und ihr Rollbalken sitzt
+   von Haus aus **in** ihr: am unteren Rand des Rollrahmens, also
+   quer über der letzten Zeile — und bei der Jahresmatrix erst nach
+   Hunderten von Zeilen, weil die Tabelle in voller Länge im
+   Dokument steht. Ein Balken, den man erst suchen muss, ist keiner.
+
+   Deshalb steht er außerhalb: `scrollRail(id)` liefert ein eigenes
+   Element, das über der Tabelle sitzt und sie führt. Innen liegt
+   ein Streifen von genau der Breite der Tabelle — dadurch hat der
+   Balken dieselbe Länge und dasselbe Verhältnis wie der, den die
+   Tabelle selbst hätte. Die Prognose verbirgt ihren eigenen
+   (css/layout.css), der Jahresmatrix wird er abgeschnitten
+   (.yearpane in css/matrix.css) — gerollt wird in beiden Fällen
+   weiter vom Browser selbst.
+
+   Wo die Leiste steht, entscheidet die Ansicht: in der Jahresmatrix
+   in der Knopfleiste, die ohnehin oben klebt — damit steht sie auch
+   nach tausend Zeilen noch im Bild und wird von syncMatrixHead()
+   von selbst mitgemessen. In der Prognose steht sie in der Karte
+   direkt über der Tabelle.
+
+   Beide Richtungen werden verdrahtet. Nach einem Zug an der Leiste
+   wird sie 180 ms lang **nicht** nachgeführt: eine Tabelle, die
+   noch ausrollt, zöge ihr sonst den Griff unter dem Finger weg.
+   Danach schon, sonst stünde er nach dem Loslassen am falschen
+   Platz. Umgekehrt läuft sie einer Tabelle, die per Rad oder Taste
+   rollt, ohne Verzug nach.
+
+   Was die Leiste selbst gesetzt bekommt, gibt sie nicht weiter
+   (`<1`): sonst schöbe jede Nachführung die Tabelle erneut an. */
+const scrollRail=id=>`<div class="scrollrail" data-rail="${id}" aria-hidden="true"><div></div></div>`;
+
+function bindRails(){
+  document.querySelectorAll('.scrollrail[data-rail]').forEach(rail=>{
+    const box=document.getElementById(rail.dataset.rail); if(!box) return;
+    let led=0, tid=0;
+    const pull=()=>{ rail.scrollLeft=box.scrollLeft; };
+    rail.addEventListener('scroll',()=>{
+      if(Math.abs(rail.scrollLeft-box.scrollLeft)<1) return;
+      led=Date.now(); box.scrollLeft=rail.scrollLeft;
+    },{passive:true});
+    box.addEventListener('scroll',()=>{
+      const wait=led+180-Date.now();
+      clearTimeout(tid);
+      if(wait<=0) pull(); else tid=setTimeout(pull,wait);
+    },{passive:true});
+    fitRail(rail,box);
+  });
+}
+
+/* Breite und Sichtbarkeit. Passt die Tabelle ins Fenster, gibt es
+   nichts zu rollen — dann steht dort auch keine Leiste, statt einer
+   leeren Rille. Nach jedem Zeichnen und bei jeder Größenänderung. */
+function fitRail(rail,box){
+  box=box||document.getElementById(rail.dataset.rail); if(!box) return;
+  rail.classList.toggle('off',box.scrollWidth-box.clientWidth<=1);
+  rail.firstElementChild.style.width=box.scrollWidth+'px';
+  rail.scrollLeft=box.scrollLeft;
+}
+
+function fitRails(){ document.querySelectorAll('.scrollrail[data-rail]').forEach(r=>fitRail(r)); }
 
 /* ── Filterzeile ──────────────────────────────────────────────
    Zwei Bausteine, die Monats- und Jahresansicht sich teilen.

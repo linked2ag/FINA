@@ -186,18 +186,18 @@ geladenen Dateien sichtbar.
 ## Welche Reiter es gibt
 
 `VIEWS` in `js/config.js` ist die Reihenfolge der Reiter — und die Liste selbst hängt am
-Zustand: **„Flexible Payment Details" erscheint nur, wenn einmal importiert wurde**
+Zustand: **„Fast Budget Details" erscheint nur, wenn einmal importiert wurde**
 (`hasImport()` in `js/calc.js`: Buchungen in `state.tx` oder eine Quelle in
 `state.flexSource`). Der Reiter wertet genau diese Buchungen aus; ohne sie stünde dort eine
 leere Gliederung. Er steht als **letzter**, nach der Prognose.
 
 **Jeder Reiter hat einen Tastengriff**, `VIEW_KEYS` unten in `js/app.js`:
-Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **F** Prognose · **X** Flexible Payment
+Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **F** Prognose · **D** Fast Budget
 Details. Die Buchstaben folgen den **englischen** Namen und wechseln deshalb nicht mit der
 Sprache — wie B · PT · DD · LP in der Jahresmatrix. Y statt J, weil „Year"; F für
-„Forecast"; X für die Details, in deren Namen kein freier Buchstabe steckt. Wer einen Reiter hinzufügt,
+„Forecast"; D für „Details" — F und B sind schon vergeben. Wer einen Reiter hinzufügt,
 trägt ihn dort ein. **Gesprungen wird nur in Reiter, die es gerade gibt** — der Griff prüft
-`VIEWS`, sonst führte X ohne Import in eine Ansicht ohne Reiter.
+`VIEWS`, sonst führte D ohne Import in eine Ansicht ohne Reiter.
 
 **Jeder Reiter nennt seinen Griff in der Sprechblase** (`view.keyTip`, gesetzt in
 `renderChrome()` über `viewKey(k)`). Ein Griff, den niemand findet, gibt es nicht — und die
@@ -290,13 +290,10 @@ Reicht das Fenster dafür nicht, **scrollt die Tabelle waagerecht** in ihrem `.s
 und die Monatsspalte bleibt stehen (`position:sticky` an `td/th:first-child`) — eine Zahl
 ohne ihren Monat ist keine Zeile mehr.
 
-**Gescrollt wird spaltenweise.** `.progscroll` trägt `scroll-snap-type:x mandatory`, jede
-Zelle einen Rastpunkt: eine halbe Spalte ist eine halbe Zahl, und in einer Tabelle, deren
-Spalten alle etwas anderes bedeuten, soll man am Rand nicht raten müssen. Das
-`scroll-padding-left` der Länge `--progleadw` rückt die Rastpunkte um die klebende
-Monatsspalte ein — ohne das käme jede Spalte hinter ihr zu liegen. Die klebende Zelle braucht dafür einen **deckenden**
-Grund; deshalb tritt sie in vergangenen Monaten mit ihrer *Schriftfarbe* zurück und nicht
-mit der Deckkraft (`opacity` färbte auch den Hintergrund durchsichtig).
+**Gerollt wird frei** — die Tabelle rastet nirgends ein (siehe „Waagerecht scrollen" weiter
+unten). Die klebende Monatsspalte braucht dafür einen **deckenden** Grund; deshalb tritt sie
+in vergangenen Monaten mit ihrer *Schriftfarbe* zurück und nicht mit der Deckkraft
+(`opacity` färbte auch den Hintergrund durchsichtig).
 
 **Drei Dinge teilen sich die beiden Grafiken, und keins davon darf auseinanderlaufen:**
 
@@ -668,6 +665,14 @@ die ganze Zeit daneben, denn der Fokus kehrt immer wieder dorthin zurück (siehe
 gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — die stehen in der Datei
 und sind eine Einstellung, kein Handgriff. **Escape tut dasselbe** (Handler in `js/app.js`),
 aber nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.js`).
+
+**Ein Druck, eine Wirkung.** Der Handler des Fensters hängt am *Dokument*, der des Filters am
+*Fenster* — er läuft also danach, und das Fenster ist da schon aus dem DOM: eine Abfrage auf
+`.modal` allein genügt nicht, sie ginge ins Leere und der Filter wäre nebenbei mit weg.
+Deshalb **verbraucht das Fenster den Druck** (`preventDefault()` in `js/ui.js`), und der
+Filter-Handler lässt `defaultPrevented` liegen. Bei zwei Fenstern übereinander schließt jedes
+Escape genau eins; erst wenn keins mehr steht, nimmt der nächste Druck den Filter zurück.
+Gefiltert nichts und kein Fenster offen, bleibt Escape unangetastet beim Browser.
 
 **Drei Wege führen ins Feld**, alle drei als Handler unten in `js/app.js`:
 
@@ -1096,6 +1101,13 @@ Kommen die ersten Buchungen per Import herein, schaltet `js/dialogs/csv-import.j
 Unterkategorien ein — aber nur, wenn vorher gar keine da waren; eine spätere eigene Wahl
 bleibt unangetastet.
 
+Dort fällt auch die **Vorauswahl der rechten Karte** in „Fast Budget Details": **keine** —
+`ui.kakPick=null` heißt „größte Einzelposten" (`kak.top`), und genau damit geht der Reiter
+auf. Eine vorgewählte Kategorie wäre die falsche Antwort: die erste der Liste steht dort,
+weil sie zuerst angelegt wurde, und die teuerste sagt nur, was die linke Spalte ohnehin
+zeigt. Wer den Reiter öffnet, will die einzelnen Buchungen sehen, die am meisten ausmachen.
+Der Zeitraum ist das ganze Jahr (`ui.scope='jahr'`): hier wird verglichen.
+
 Dort steht auch, **womit man begrüßt wird**: mit Datei der laufende Monat
 (`ui.view='monat'`, `ui.month=CUR`), ohne Datei die Jahresansicht. Der Unterschied ist der
 Zweck der beiden Ansichten — im Monat wird gearbeitet, im Jahr angelegt, und ein leerer
@@ -1144,7 +1156,7 @@ Flexible Payments, die Auswertung samt Filterzeile im Monat und die Kennzahlenle
 Prognose. Das `top` dieser Leisten steht **nicht**
 im Stylesheet — die Kopfzeile ist je nach Ansicht unterschiedlich hoch, weil es die
 Monatsreiter nur im Monat gibt. `syncStickyTops()` in `js/app.js` misst sie und setzt das
-Maß; die Funktion läuft am Ende von `wire()` sowie bei jedem Scrollen und Größenwechsel.
+Maß; die Funktion läuft am Ende von `wire()` und bei jedem Größenwechsel.
 Eine neue mitlaufende Leiste braucht deshalb nur die Klasse. Weil gemessen und nicht
 geraten wird, rücken die Kartenköpfe darunter von selbst nach, wenn die Auswertung
 aufgeklappt wird.
@@ -1155,22 +1167,53 @@ Die Kennzahlen der Prognose stecken aus demselben Grund in einem Rahmen: `.kpi` 
 ihre eigene Hintergrundfarbe für die 1px-Trennlinien und kann den Papiergrund nicht
 zugleich tragen.
 
-In der **Jahresmatrix** gilt dasselbe für die drei Blockzeilen (Einnahmen, Flexible
-Payments, Regelmäßige Kosten): sie tragen die Klasse `secpin` und bleiben oben stehen,
-solange ihr Block läuft. `position:sticky` griffe dort nicht — der Rollrahmen der Matrix
-rollt nur waagerecht —, deshalb dasselbe Mittel wie bei den Spaltenköpfen und der
-Saldozeile: `syncSecRows()` in `js/app.js` rechnet je Zeile ein `--secY` und begrenzt es
-auf das Ende des Blocks, die nächste Blockzeile schiebt die vorige hinaus.
+## Die Jahresmatrix ist eine eigene Fläche
 
-**Wer dort etwas verschiebt, denkt an die Stapelfolge.** Alle drei Sorten sind
-positioniert; bei gleichem `z-index` entschiede die Reihenfolge im Dokument, und die
-späteren Zeilen gewännen gegen die Kopfzeile — eine Blockzeile, die am Ende ihres Blocks
-nach oben aus dem Bild wandert, lief dann über die Monatsnamen. Sichtbar wurde das vor
-allem beim Filtern, weil kurze Blöcke schnell enden. Die Leiter steht oben in
-`css/matrix.css`: gewöhnliche Zellen 0, feste Spalten links 1, Blockzeile 2/3, Saldozeile
-4/5, Spaltenköpfe 6/7 — die linke Spaltengruppe jeweils eine Stufe über den Monatszellen
-derselben Zeile. **Geprüft wird so etwas an der Monatsspalte, nicht an der Bezeichnung:**
-links liegen die Köpfe ohnehin oben, verdeckt wird nur rechts davon.
+**Sie rollt in beiden Richtungen selbst, und die Seite rollt in dieser Ansicht gar nicht.**
+`.yearscroll` trägt `overflow:auto` und eine Höhe, die `sizeMatrix()` in `js/app.js` einmal
+je Zeichnung setzt: alles, was unter der Knopfleiste bis zum Fensterrand bleibt. Was danach
+noch übersteht — Statuszeile, Polster —, wird gemessen und abgezogen; `body.yearview`
+nimmt dem Seitenende zusätzlich sein Polster (`css/layout.css`). Sieben Pixel Überstand
+genügen, damit die ganze Fläche beim Rollen davonwandert.
+
+Daran hängt alles Weitere: **Spaltenköpfe, Saldozeile und Blockzeilen bleiben mit
+`position:sticky` stehen** — sticky richtet sich am nächsten Rollrahmen aus, und der ist
+jetzt die Matrix selbst. Der Browser hält sie fest; es wird nichts gerechnet und nichts
+nachgeschoben.
+
+Vorher rollte die Seite senkrecht, und die Zeilen wurden bei jedem Scroll-Ereignis per
+`translateY` nachgeschoben. Das lief dem Scrollen immer ein Bild hinterher — die Kopfzeile
+schwamm sichtbar und blieb bei jeder verpassten Messung stehen. **Kein Maß der Welt macht
+das ruhig; die Rechnung musste weg, nicht schneller werden.** Wer dort etwas anbaut, baut es
+nicht in einen Scroll-Handler zurück.
+
+Zwei Maße bleiben, beide nur beim Zeichnen: `--headH` und `--pinH`, die Höhen von
+Spaltenkopf und Saldozeile. An ihnen kleben die Zeilen darunter (`css/matrix.css`).
+
+**Die Saldozeile steht im `<thead>`**, nicht im Rumpf (`matrixHead(extra)` in
+`js/views/jahr.js`). Sie gehört zum Gerüst wie die Spaltennamen — kein Filter nimmt sie weg
+—, und im Kopf klebt sie über die ganze Tabelle: sticky hält nur innerhalb desselben
+Elternteils, eine Zeile im Rumpf hörte am Ende ihres `tbody` auf.
+
+**Die drei Blockzeilen decken sich zu, statt sich zu schieben.** Alle drei kleben an
+derselben Höhe (`--headH` + `--pinH`), und die Stapelfolge entscheidet, welche man sieht:
+Einnahmen 2, Flexible Payments 3, Regelmäßige Kosten 4 — der spätere Block deckt den
+früheren zu, sichtbar ist immer die Zeile des Blocks, in dem man liest. Ein Hinausschieben
+wäre das Naheliegende, geht aber nicht: **`position:sticky` an einer Tabellenzeile wird vom
+`tbody` nicht begrenzt** (der umgebende Block einer Zeile ist die Tabelle, und
+`position:relative` am `tbody` ändert daran nichts — geprüft). Daraus folgt eine Bedingung:
+**die Hintergründe der Blockzeilen müssen deckend bleiben**, sonst schiene die verdeckte
+Zeile durch. Sie sitzen an den Zellen (`.matrix tr.sec.r-* td`), nicht an der Zeile.
+
+Geklebt wird an der **Zeile**, nicht an ihren Zellen: je Zelle ein eigener Klebepunkt risse
+die Zeile beim seitlichen Rollen auseinander. Die festen Spalten links kleben zusätzlich
+nach links — eine Zelle darf in beiden Richtungen kleben, die Kopfzellen tun genau das.
+
+**Wer dort etwas verschiebt, denkt an die Stapelfolge.** Die Leiter steht oben in
+`css/matrix.css`: gewöhnliche Zellen 0, feste Spalten links 1 (innerhalb ihrer Zeile),
+Blockzeilen 2 · 3 · 4, Saldozeile 5, Spaltenköpfe 6/7. **Geprüft wird so etwas an der
+Monatsspalte, nicht an der Bezeichnung:** links liegen die Köpfe ohnehin oben, verdeckt wird
+nur rechts davon.
 
 **Und darunter die Köpfe der Karten.** `.card > .sechead` klebt ebenfalls — solange die
 Karte im Bild ist. Wer sich durch die regelmäßigen Kosten scrollt, sieht so immer, in
@@ -1185,6 +1228,48 @@ jeder Stelle — deshalb rücken die Kartenköpfe von selbst nach, wenn die Ausw
 aufgeklappt wird. Auch hier gilt: deckender Hintergrund — der Kartenkopf trägt
 die Farbe seiner Karte (`--bg-in/-flex/-out`) und wird über negative Außenabstände auf die
 volle Kartenbreite gezogen, damit rechts und links nichts durchscheint.
+
+## Waagerecht scrollen: Jahresmatrix und Prognose
+
+Zwei Tabellen sind breiter als das Fenster — die Jahresmatrix und die Prognose. Beide rollen
+**frei wie jede andere Tabelle**: kein Einrasten, kein Nachrollen, keine Rechnung. Wer rollt,
+bestimmt selbst, wo es stehen bleibt. (Es gab beides schon — `scroll-snap-type:x mandatory`
+und danach ein sanftes Gleiten nach dem Rollen; beides ist wieder heraus. Wer es
+zurückbauen will, weiß jetzt, dass es zweimal nicht überzeugt hat.)
+
+**Der Rollbalken steht über der Tabelle, nicht darunter.** Von Haus aus sitzt er am unteren
+Rand des Rollrahmens, also quer über der letzten Zeile. Deshalb verbergen beide Tabellen
+ihren waagerechten und bekommen einen eigenen darüber: `scrollRail(id)` / `bindRails()` in
+`js/ui.js`, `.scrollrail` in `css/layout.css` — ein Rollrahmen mit einem Streifen darin, der
+so breit ist wie die Tabelle. In der Matrix steht er **in der Knopfleiste** (`#yearBar`), in
+der Prognose in der Karte direkt über der Tabelle. Er wird ausdrücklich **gestaltet**, damit
+er dauerhaft zu sehen ist: hier ist er der Weg zum Rollen und nicht dessen Anzeige. Passt
+eine Tabelle ins Fenster, verschwindet er (`.off`).
+
+Wie versteckt wird, ist je Tabelle verschieden — und das ist kein Zufall, sondern die
+einzige Möglichkeit:
+
+* **Die Prognose** rollt nur waagerecht und legt ihren Balken ganz ab
+  (`scrollbar-width:none`, `::-webkit-scrollbar{display:none}`).
+* **Die Jahresmatrix** rollt in beiden Richtungen und **braucht** ihren senkrechten. Je Achse
+  lässt sich ein Balken nicht abschalten: `::-webkit-scrollbar:horizontal` befolgt Chrome
+  nicht (geprüft), und `scrollbar-width` kennt keine Achse. Ihr waagerechter wird deshalb
+  **abgeschnitten**: die Fläche steckt in `.yearpane` (`overflow:hidden`) und ist um genau
+  die Höhe ihres Balkens höher als der Rahmen, der sie zeigt — `sizeMatrix()` misst und
+  setzt beides.
+
+  **`overflow-x:hidden` wäre der naheliegende Weg und ist der falsche.** Dann rollt der
+  Browser nicht mehr selbst, und was man von Hand im Rad-Ereignis nachrechnet, verliert den
+  Schwung: es ruckelt sichtbar, während dieselbe Tabelle in der Prognose weich läuft. Der
+  Balken wird versteckt, das Rollen bleibt beim Browser.
+
+  Gemessen wird die Balkenhöhe, nicht geraten — gestaltete Balken sind 11 px hoch,
+  überlagernde (macOS) messen 0 und schweben trotzdem über der letzten Zeile, deshalb
+  mindestens 14 px und nur, wenn es waagerecht überhaupt etwas zu rollen gibt.
+
+Beide Richtungen der Leiste sind verdrahtet; nach einem Zug an ihr wird sie 180 ms lang
+nicht nachgeführt, damit sie sich nicht selbst schiebt, und was sie gesetzt bekommt, gibt sie
+nicht weiter (`<1`).
 
 ## Wie die Datei heißt
 

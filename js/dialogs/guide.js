@@ -299,7 +299,7 @@ ${gshot('set-lists','Settings: every list has a code and a label of your own')}
 
 <h4>The views</h4>
 <p>You reach each of them with a shortcut, from anywhere: <b>Ctrl/Cmd + Shift + M · Y · F ·
-X</b> — month, year, forecast, details. The letters follow the English names and are the same in
+D</b> — month, year, forecast, details. The letters follow the English names and are the same in
 both languages.</p>
 <p><b>${t('view.monat')}</b> — one month, close up. This is where you work day to day. You see
 every amount due, and you tick off what you have paid. The tabs above take you from month to
@@ -603,7 +603,7 @@ ${gshot('set-lists','Die Einstellungen: jede Liste hat ein eigenes Kürzel und e
 
 <h4>Die Ansichten</h4>
 <p>Jede erreichst du von überall mit einem Tastengriff: <b>Strg/Cmd + Umschalt + M · Y · F ·
-X</b> — Monat, Jahr, Prognose, Details. Die Buchstaben folgen den englischen Namen und sind in
+D</b> — Monat, Jahr, Prognose, Details. Die Buchstaben folgen den englischen Namen und sind in
 beiden Sprachen dieselben.</p>
 <p><b>${t('view.monat')}</b> — ein Monat aus der Nähe. Hier arbeitest du im Alltag: du siehst
 jeden fälligen Betrag und hakst ab, was du bezahlt hast. Über die Reiter darüber gehst du von
@@ -889,7 +889,7 @@ en:()=>`
   <li><b>The year view folds</b> like the month view: a block down to its twelve totals.</li>
   <li><b>While you filter, every block stands open.</b></li>
   <li><b>New ways with the filter:</b> just start typing, ✕ to take it all back, Escape.</li>
-  <li><b>A shortcut per view:</b> Ctrl/Cmd + Shift + M · Y · F · X.</li>
+  <li><b>A shortcut per view:</b> Ctrl/Cmd + Shift + M · Y · F · D.</li>
   <li><b>${t('flt.fHidden')}</b> — a search term now beats the other filters.</li>
   <li><b>The forecast graph carries its own axis:</b> the balance above every grid line.</li>
   <li>Bugfixing and cosmetic changes.</li>
@@ -976,7 +976,7 @@ de:()=>`
       Summen.</li>
   <li><b>Solange du filterst, steht jeder Block offen.</b></li>
   <li><b>Neue Wege mit dem Filter:</b> einfach lostippen, ✕ nimmt alles zurück, Escape.</li>
-  <li><b>Ein Tastengriff je Ansicht:</b> Strg/Cmd + Umschalt + M · Y · F · X.</li>
+  <li><b>Ein Tastengriff je Ansicht:</b> Strg/Cmd + Umschalt + M · Y · F · D.</li>
   <li><b>${t('flt.fHidden')}</b> — ein Suchbegriff schlägt jetzt die übrigen Filter.</li>
   <li><b>Die Grafik der Prognose trägt ihre eigene Achse:</b> über jeder Rasterlinie ihr
       Kontostand.</li>
@@ -1114,10 +1114,11 @@ function guideMax(){ return Math.max(GUIDE_MIN,Math.round(window.innerWidth*0.66
 function setGuideWidth(w){
   guideW=Math.min(Math.max(Math.round(w),GUIDE_MIN),guideMax());
   document.documentElement.style.setProperty('--guidew',guideW+'px');
-  /* Die Seite ist jetzt schmaler: die mitlaufenden Leisten und
-     die Spaltenköpfe der Jahresmatrix müssen neu gemessen
-     werden. */
+  /* Die Seite ist jetzt schmaler: die mitlaufenden Leisten, die
+     Spaltenköpfe der Jahresmatrix und die Rollleisten über den
+     Tabellen müssen neu gemessen werden. */
   if(typeof syncMatrixHead==='function') syncMatrixHead();
+  if(typeof fitRails==='function') fitRails();
 }
 
 function guideOpen(){ return !!document.getElementById('guidePanel'); }

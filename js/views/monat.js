@@ -445,7 +445,7 @@ function viewMonat(){
       <span style="display:flex;gap:12px;align-items:center">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
         <!-- Der Sprung in die Auswertung nur, wenn es sie gibt:
-             den Reiter „Flexible Payment Details" bringt erst der
+             den Reiter „Fast Budget Details" bringt erst der
              Import mit (hasImport in js/calc.js). -->
         ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}
         <span class="tot neg">${eur(kakeiboFor(m))}</span></span></div>

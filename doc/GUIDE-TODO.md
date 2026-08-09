@@ -21,8 +21,9 @@ Alles Gebaute steht seit dem 8. August 2026 als Version **26.8.8.1** im Reiter *
 neu** und ist in **Schritt für Schritt** und **Was FINA kann** eingearbeitet. Offen sind nur
 noch zwei Kleinigkeiten von früher:
 
-- **Der Reiter „Flexible Payment Details" startet mit dem ganzen Jahr** und der ersten
-  Kategorie im rechten Bereich. Ein Halbsatz im Produktreiter, wo der Reiter beschrieben ist.
+- **Der Reiter „Fast Budget Details" startet mit dem ganzen Jahr** und mit den größten
+  Einzelposten im rechten Bereich. Ein Halbsatz im Produktreiter, wo der Reiter beschrieben
+  ist.
 - **Sprechblasen stehen über oder unter dem Element.** Verhalten, kein eigener Absatz — nur
   zu erwähnen, falls die Anleitung einmal beschreibt, wo sie erscheinen.
 
@@ -40,11 +41,27 @@ beide Sprachen — in **Schritt für Schritt** und **Was FINA kann** fehlt es we
   Sprachwahl und dem Kreuz, öffnet sie in einem eigenen Reiter des Browsers und schließt den
   Seitenbereich. Dort stehen alle drei Teile hintereinander, mit Sprungmarken oben, in der
   Sprache, in der man gerade liest.
+- ⚠ **Der vierte Reiter heißt „Fast Budget Details"** (vorher „Flexible Payment Details"),
+  und sein Tastengriff ist **Strg/Cmd + Umschalt + D** (vorher X). Beide Reiter der Anleitung
+  nennen den Namen über `t('view.kakeibo')` und ziehen von selbst mit; **die Buchstabenreihe
+  M · Y · F · X steht dagegen als Text da** und ist an drei Stellen auf D geändert —
+  „Die Ansichten" in beiden Sprachen und der Punkt in Version 26.8.8.1.
+- ⚠ **Der Knopf in der Kopfzeile heißt „Import Fast Budget Data"** statt „Import CSV". Die
+  Anleitung nennt ihn über `t('app.import')`; wo drumherum von „CSV" die Rede ist, stimmt der
+  Satz noch, der Knopfname aber nicht mehr.
+- **Der waagerechte Rollbalken steht außerhalb der Tabelle** — in der Jahresansicht in der
+  Knopfleiste über der Tabelle, in der Prognose über der Tabelle in der Karte. Vorher saß er
+  in der Tabelle, quer über der letzten Zeile.
+- **Die Jahresansicht füllt den Bildschirm und rollt in sich selbst.** Spaltennamen, die
+  Zeile „Saldo je Monat" und die Blockzeile hängen dabei fest oben, wie in einer Tabelle mit
+  fixierter Kopfzeile; die Seite rollt in dieser Ansicht nicht mehr.
+- **„Fast Budget Details" geht rechts mit den größten Einzelposten auf** — vorher mit der
+  ersten Kategorie der Liste. ⚠ Betrifft den Halbsatz, der im Produktreiter noch offen ist
+  (siehe oben).
 - **Die Prognose scrollt.** Jedes Rasterfeld der Verlaufsspalte ist mindestens so breit wie
-  die Monatsspalte. Wird das Fenster zu schmal, scrollt die Tabelle nach rechts; die
-  Monatsspalte bleibt dabei stehen, und gescrollt wird spaltenweise — nie eine halbe
-  Spalte.
-- **Ein Tastengriff je Ansicht:** Strg/Cmd + Umschalt + M · Y · F · X. Jeder Reiter nennt
+  die Monatsspalte. Wird das Fenster zu schmal, scrollt die Tabelle nach rechts — an der
+  Leiste über ihr; die Monatsspalte bleibt dabei stehen.
+- **Ein Tastengriff je Ansicht:** Strg/Cmd + Umschalt + M · Y · F · D. Jeder Reiter nennt
   seinen Griff beim Überfahren. Der alte Griff ins
   Suchfeld (dieselbe Kombination mit F) ist dafür entfallen — seit ein Buchstabe von selbst
   im Filter landet, war er der umständlichere Weg. Steht schon im Reiter „Was ist neu" und in

@@ -12,7 +12,7 @@
 /* Die Hauptansichten: interner Schlüssel + Beschriftung. Die
    Reihenfolge ist auch die der Reiter.
 
-   „Flexible Payment Details" steht als letzter und **nur mit
+   „Fast Budget Details" steht als letzter und **nur mit
    Import**: der Reiter wertet die Buchungen aus Fast Budget aus,
    ohne sie gäbe es dort nichts zu sehen. Der Weg zum Import
    hängt deshalb nicht an ihm, sondern in der Kopfzeile

@@ -396,6 +396,63 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
   .trow .tflow{display:none}
 }
 
+/* ── Die Rollleiste über einer Tabelle ────────────────────────
+   Der waagerechte Rollbalken einer Tabelle sitzt von Haus aus in
+   ihr: am unteren Rand des Rollrahmens, quer über der letzten
+   Zeile — und bei der Jahresmatrix, die in voller Länge im Dokument
+   steht, erst nach allen Zeilen. Beides ist der falsche Ort.
+
+   Deshalb verbergen die beiden Tabellen ihren eigenen Balken und
+   bekommen einen über sich gesetzt (scrollRail in js/ui.js). Er ist
+   ein gewöhnlicher Rollrahmen mit einem Streifen darin, der so
+   breit ist wie die Tabelle — mehr braucht ein Rollbalken nicht.
+
+   Er wird **gestaltet**, damit er dauerhaft zu sehen ist: ein
+   Balken, der wie unter macOS erst beim Rollen auftaucht, wäre an
+   dieser Stelle keine Hilfe, denn er ist hier der Weg zum Rollen
+   und nicht dessen Anzeige. */
+.scrollrail{overflow-x:auto;overflow-y:hidden;height:10px;margin:0;
+  scrollbar-width:thin;scrollbar-color:var(--rule-strong) var(--paper)}
+.scrollrail>div{height:1px}
+/* Passt die Tabelle ins Fenster, gibt es nichts zu rollen — dann
+   steht dort auch keine leere Rille (bindRails setzt die Klasse). */
+.scrollrail.off{display:none}
+.scrollrail::-webkit-scrollbar{height:10px}
+.scrollrail::-webkit-scrollbar-track{background:var(--paper);border:1px solid var(--rule)}
+.scrollrail::-webkit-scrollbar-thumb{background:var(--rule-strong);border:1px solid var(--paper)}
+.scrollrail::-webkit-scrollbar-thumb:hover{background:var(--ink-2)}
+/* In der Knopfleiste der Jahresmatrix steht sie auf einer eigenen
+   Zeile, über die ganze Breite: sie gehört zur Tabelle darunter und
+   nicht zwischen die Knöpfe. */
+.yearbar .scrollrail{flex:0 0 100%;margin-top:2px}
+/* In der Prognose steht sie in der Karte, direkt über der Tabelle. */
+.progscroll+.scrollrail,.scrollrail+.progscroll{margin-top:6px}
+/* Und die Tabellen selbst zeigen unten **keinen** waagerechten
+   Balken: dafür ist die Leiste oben da, zwei wären einer zu viel.
+
+   Die Prognose rollt nur waagerecht und legt ihren Balken einfach
+   ab. Die Jahresmatrix rollt in beiden Richtungen und braucht ihren
+   senkrechten; je Achse lässt sich aber keiner abschalten
+   (`::-webkit-scrollbar:horizontal` befolgt Chrome nicht). Ihr wird
+   der waagerechte deshalb **abgeschnitten** — siehe .yearpane in
+   css/matrix.css. Gerollt wird dabei weiter vom Browser selbst, und
+   nur das rollt weich. */
+.progscroll{scrollbar-width:none}
+.progscroll::-webkit-scrollbar{height:0;display:none}
+.yearscroll{scrollbar-width:thin}
+.yearscroll::-webkit-scrollbar{width:11px}
+.yearscroll::-webkit-scrollbar-track{background:var(--paper)}
+.yearscroll::-webkit-scrollbar-thumb{background:var(--rule-strong);border:2px solid var(--paper)}
+.yearscroll::-webkit-scrollbar-thumb:hover{background:var(--ink-2)}
+
+/* ── Die Jahresansicht füllt den Bildschirm ───────────────────
+   Die Matrix rollt senkrecht selbst; die Seite darunter soll es
+   dann nicht auch noch tun, sonst schöbe sich die ganze Fläche
+   samt ihren klebenden Zeilen aus dem Bild. Das Polster am
+   Seitenende, das sonst Luft nach unten lässt, wäre hier nur ein
+   Grund zum Rollen. */
+body.yearview .wrap{padding-bottom:14px}
+
 /* ── Restliches Gerüst ────────────────────────────────────── */
 .scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--paper-2)}
 .empty{padding:34px 18px;text-align:center;color:var(--ink-2);border:1px dashed var(--rule-strong);background:var(--paper-2)}

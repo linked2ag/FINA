@@ -170,17 +170,6 @@
    sonst schiene das Gescrollte darunter durch. */
 .progtable td:first-child,.progtable th:first-child{position:sticky;left:0;z-index:2;
   background:var(--paper-2)}
-/* Gescrollt wird **spaltenweise**: eine halbe Spalte ist eine halbe
-   Zahl, und in einer Tabelle, deren Spalten alle etwas anderes
-   bedeuten, muss man am Rand nicht raten, was dort angeschnitten
-   steht. Jede Zelle ist ein Rastpunkt; weil die Zellen einer Spalte
-   übereinanderstehen, ist es in Wahrheit einer je Spalte.
-
-   `scroll-padding-left` rückt den Rastpunkt um die Breite der
-   klebenden Monatsspalte ein — ohne das käme jede Spalte genau
-   hinter ihr zu liegen und wäre verdeckt. */
-.progscroll{scroll-snap-type:x mandatory;scroll-padding-left:var(--progleadw)}
-.progtable td,.progtable th{scroll-snap-align:start}
 /* Senkrechte Linien durch die **ganze** Tabelle, nicht nur in der
    Grafik: das Raster der letzten Spalte wäre sonst ein Fremdkörper
    zwischen Zahlenspalten ohne Trennung. Die letzte Spalte bekommt

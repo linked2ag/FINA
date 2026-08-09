@@ -4,16 +4,32 @@
    Spaltengruppe und zwei Zellen je Monat (Betrag + Haken).
    ══════════════════════════════════════════════════════════════ */
 
-/* Die Matrix scrollt nur waagerecht — senkrecht scrollt die Seite,
-   die Tabelle steht also in voller Länge im Dokument. Damit gibt es
-   nur einen senkrechten Rollbalken. Die Spaltenköpfe bleiben über
-   --headY stehen, das syncMatrixHead() in js/app.js setzt. */
-.yearscroll{overflow-x:auto;overflow-y:hidden}
+/* ── Die Matrix ist eine eigene Fläche ────────────────────────
+   Sie rollt in **beiden** Richtungen selbst und ist so hoch wie der
+   Platz unter der Knopfleiste (sizeMatrix() in js/app.js setzt die
+   Höhe). Das ist der ganze Grund, warum Kopf- und Blockzeilen mit
+   `position:sticky` stehenbleiben können: sticky richtet sich immer
+   am nächsten Rollrahmen aus, und der ist jetzt dieser hier.
 
-/* Die Knopfleiste über der Tabelle bleibt beim Scrollen unter der
-   Kopfzeile der Seite stehen; ihr top setzt syncMatrixHead(),
-   weil die Kopfzeile je nach Ansicht unterschiedlich hoch ist.
-   Die Spaltenköpfe der Tabelle richten sich danach aus. */
+   Vorher rollte die Seite senkrecht und die Zeilen wurden per
+   JavaScript nachgeschoben — das lief dem Scrollen immer ein Bild
+   hinterher, die Kopfzeile schwamm sichtbar. Sticky rechnet der
+   Browser selbst; da ruckelt nichts, weil nichts gerechnet wird. */
+/* **Gerollt wird in beiden Richtungen vom Browser selbst.** Das ist
+   der Unterschied zwischen weich und ruckelig: jede eigene Rechnung
+   im Rad-Ereignis verliert den Schwung, den der Browser dem Rollen
+   mitgibt. Der waagerechte Balken wird deshalb nicht abgeschaltet,
+   sondern **abgeschnitten** — die Fläche ist um seine Höhe höher
+   als der Rahmen `.yearpane`, der sie zeigt (sizeMatrix in
+   js/app.js). Unten bleibt damit nur die Tabelle; gerollt wird
+   waagerecht an der Leiste darüber. */
+.yearpane{overflow:hidden}
+.yearscroll{overflow:auto}
+
+/* Die Knopfleiste über der Tabelle; ihr top setzt syncStickyTops(),
+   weil die Kopfzeile je nach Ansicht unterschiedlich hoch ist. In
+   der Jahresansicht rollt die Seite nicht mehr — die Leiste steht
+   dort ohnehin fest —, das Maß bleibt aber richtig. */
 .yearbar{position:sticky;top:0;z-index:30;background:var(--paper);
   margin:0 0 0;padding:6px 0 10px;box-shadow:0 8px 10px -10px rgba(0,0,0,.4)}
 .matrix{border-collapse:separate;border-spacing:0;table-layout:fixed;font-variant-numeric:tabular-nums;margin:0;
@@ -39,25 +55,33 @@
    gegen die Kopfzeile. Deshalb eine Leiter, von unten nach oben:
 
      0  gewöhnliche Zellen
-     1  die festgepinnten Spalten links
-     2  Blockzeile (secpin), Monatszellen
-     3  Blockzeile, Spalten links
-     4  Saldozeile (balpin), Monatszellen
-     5  Saldozeile, Spalten links
+     1  die festgepinnten Spalten links (innerhalb ihrer Zeile)
+     2  Blockzeile Einnahmen
+     3  Blockzeile Flexible Payments
+     4  Blockzeile Regelmäßige Kosten
+     5  Saldozeile (balpin)
      6  Spaltenköpfe, Monatszellen
      7  Spaltenköpfe, Spalten links
 
    Die Spaltenköpfe stehen ganz oben, weil alles andere unter sie
-   geschoben wird: eine Blockzeile am Ende ihres Blocks wandert
-   nach oben aus dem Bild (syncSecRows in js/app.js) und lief
-   dabei früher über die Monatsnamen. Zu sehen war das vor allem
-   beim Filtern — kurze Blöcke enden schnell. */
+   geschoben wird.
+
+   **Die drei Blockzeilen steigen in der Reihenfolge der Blöcke**,
+   und das ist keine Kosmetik, sondern die Ablösung: alle drei
+   kleben an derselben Höhe, und wer weiter unten steht, deckt den
+   darüber zu. Sichtbar ist damit immer die Zeile des Blocks, in dem
+   man gerade liest. Ein „Hinausschieben" wäre das Naheliegende, es
+   geht aber nicht: `position:sticky` an einer Tabellenzeile wird
+   vom `tbody` **nicht** begrenzt (der umgebende Block einer Zeile
+   ist die Tabelle), und ohne diese Grenze klebt jede Blockzeile bis
+   zum Tabellenende. Deshalb decken sie sich zu — dafür müssen ihre
+   Hintergründe deckend bleiben. */
 
 /* ── Zellen ───────────────────────────────────────────────── */
 .matrix th,.matrix td{padding:6px 8px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .matrix thead th{font-family:var(--font-data);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
-  text-align:right;font-weight:500;background:var(--paper-2);position:relative;z-index:6;border-bottom:1px solid var(--rule-strong);
-  transform:translateY(var(--headY,0px))}
+  text-align:right;font-weight:500;background:var(--paper-2);border-bottom:1px solid var(--rule-strong);
+  position:sticky;top:0;z-index:6}
 .matrix thead th.ed,.matrix thead th.ln,.matrix thead th.lab{text-align:left}
 .matrix thead th.code{text-align:center}
 .matrix td.num{text-align:right;font-family:var(--font-data)}
@@ -65,9 +89,9 @@
 .matrix td.code{font-family:var(--font-data);font-size:11px;color:var(--ink-2);text-align:center;padding:6px 2px}
 
 /* ── Festgepinnte Spalten links ───────────────────────────────
-   Waagerecht hält position:sticky die Spalten am linken Rand des
-   Rollrahmens fest; senkrecht bleiben die Köpfe über --headY
-   stehen (siehe oben). */
+   Dieselbe Mechanik, andere Achse: die Zellen kleben am linken Rand
+   des Rollrahmens. Eine Zelle darf in beiden Richtungen kleben —
+   die Kopfzellen tun genau das (oben `top:0`, hier `left`). */
 .matrix thead th.ed{left:0;position:sticky;z-index:7}
 .matrix thead th.ln{left:30px;position:sticky;z-index:7}
 .matrix thead th.nt{left:60px;position:sticky;z-index:7}
@@ -165,30 +189,29 @@
 
 /* ── Die Saldozeile bleibt stehen ─────────────────────────────
    Sie fasst alles zusammen, was darunter steht — beim Scrollen
-   durch hundert Posten soll sie nicht verschwinden. Senkrecht
-   geht das wie bei den Spaltenköpfen über --headY: position:
-   sticky griffe hier nicht, weil der Rollrahmen der Matrix nur
-   waagerecht rollt (siehe .yearscroll). syncMatrixHead() in
-   js/app.js rechnet den Wert und lässt Platz für diese Zeile.
-   Die links festgepinnten Zellen behalten ihr sticky, sonst
-   liefen sie beim seitlichen Rollen mit. */
-.matrix tr.balpin td{transform:translateY(var(--headY,0px));position:relative;z-index:4;
-  border-bottom:1px solid var(--edge-sal)}
-.matrix tr.balpin td.ed,.matrix tr.balpin td.ln,.matrix tr.balpin td.nt,.matrix tr.balpin td.lab,
-.matrix tr.balpin td.cB,.matrix tr.balpin td.cZ,.matrix tr.balpin td.cF,.matrix tr.balpin td.cE{
-  position:sticky;z-index:5}
+   durch hundert Posten soll sie nicht verschwinden. Sie steht im
+   **Kopf** der Tabelle (matrixHead in js/views/jahr.js) und klebt
+   unter den Spaltennamen: `--headH` ist deren Höhe, gemessen einmal
+   je Zeichnung in sizeMatrix() (js/app.js). Die links
+   festgepinnten Zellen kleben zusätzlich nach links. */
+.matrix tr.balpin{position:sticky;top:var(--headH,0px);z-index:5}
+.matrix tr.balpin td{border-bottom:1px solid var(--edge-sal)}
 
 /* ── Die Blockzeilen bleiben stehen ───────────────────────────
-   Einnahmen, Flexible Payments, Regelmäßige Kosten: dieselbe
-   Mechanik wie bei der Saldozeile, nur mit einem eigenen Maß je
-   Zeile — syncSecRows() in js/app.js rechnet es und begrenzt es
-   auf das Ende des jeweiligen Blocks. Sie liegen eine Stufe
-   tiefer im Stapel als die Saldozeile: die gehört immer nach
-   oben. */
-.matrix tr.secpin td{transform:translateY(var(--secY,0px));position:relative;z-index:2}
-.matrix tr.secpin td.ed,.matrix tr.secpin td.ln,.matrix tr.secpin td.nt,.matrix tr.secpin td.lab,
-.matrix tr.secpin td.cB,.matrix tr.secpin td.cZ,.matrix tr.secpin td.cF,.matrix tr.secpin td.cE{
-  position:sticky;z-index:3}
+   Einnahmen, Flexible Payments, Regelmäßige Kosten: dasselbe eine
+   Stufe tiefer — sie kleben unter der Saldozeile (--headH plus
+   --pinH). Dass jede Zeile nur bis zum Ende **ihres** Blocks klebt,
+   macht der eigene `tbody` je Block (siehe viewJahr).
+
+   **Geklebt wird an der Zeile, nicht an ihren Zellen** — sonst
+   entstünde je Zelle ein eigener Klebepunkt und die Zeile risse
+   beim seitlichen Rollen auseinander. Welche der drei Zeilen man
+   sieht, entscheidet die Stapelfolge oben: sie kleben alle an
+   derselben Höhe, und der spätere Block deckt den früheren zu. */
+.matrix tr.secpin{position:sticky;top:calc(var(--headH,0px) + var(--pinH,0px))}
+.matrix tr.secpin.r-in{z-index:2}
+.matrix tr.secpin.r-flex{z-index:3}
+.matrix tr.secpin.r-out{z-index:4}
 
 /* ── Trennlinien ──────────────────────────────────────────── */
 .matrix td.mk,.matrix th.mkh{border-right:1px solid rgba(0,0,0,.16)}
