@@ -317,8 +317,15 @@ function spanScale(lo,hi,force){
   const move=hi-lo, full=Math.max(0,hi)-Math.min(0,lo);
   const cut=force||(full>0&&move/full<0.5);
   if(!cut){ lo=Math.min(0,lo); hi=Math.max(0,hi); }
-  else { const pad=move*0.08||1; lo-=pad; hi+=pad; }
-  return {lo,hi,span:(hi-lo)||1,cut};
+  /* `rawLo`/`rawHi` sind die Grenzen **ohne** die Luft: genau der
+     Bereich, in dem etwas gezeichnet wird. Der Zeitstrahl der
+     Monatsansicht braucht die Luft (er hat kein Raster, an dem sich
+     ein Balken festhält); die Prognose zieht ihre Achse stattdessen
+     aufs Raster und kommt ohne aus — sonst entstünde vorn ein
+     leeres Feld (siehe viewPrognose). */
+  const rawLo=lo, rawHi=hi;
+  if(cut){ const pad=move*0.08||1; lo-=pad; hi+=pad; }
+  return {lo,hi,span:(hi-lo)||1,cut,rawLo,rawHi};
 }
 function flowScale(flow){
   let lo=Infinity,hi=-Infinity;

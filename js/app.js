@@ -382,14 +382,29 @@ function wire(){
      wird vorher aufgehoben — sie stünde sonst blau hinter dem
      Fenster. */
   const DBLCELL='td.num,td.amt,td.lab,td.nm';
+  /* **Welcher Monat war gemeint?** Der Doppelklick auf einen
+     *Betrag* zeigt auf genau einen Monat — im Fenster wird dessen
+     Feld hervorgehoben, damit man wiederfindet, worauf man geklickt
+     hat. In der Jahresmatrix steht der Monat an der Zelle
+     (`data-m`), in der Monatsansicht ist es der gezeigte Monat.
+     Ein Doppelklick auf die **Bezeichnung** meint keinen Monat —
+     dann bleibt das Fenster unmarkiert, wie beim Stift. */
+  const dblMonth=cell=>{
+    if(!cell) return null;
+    if(cell.dataset.m) return +cell.dataset.m;
+    if(cell.matches('td.amt')) return ui.month;
+    if(cell.matches('td.num')&&ui.view==='kakeibo') return ui.scope==='monat'?ui.month:null;
+    return null;
+  };
   const dblOpen=(sel,open)=>document.querySelectorAll(sel).forEach(tr=>tr.ondblclick=ev=>{
-    if(!ev.target.closest(DBLCELL)) return;
+    const cell=ev.target.closest(DBLCELL);
+    if(!cell) return;
     if(ev.target.closest('button,a,input,select,textarea')) return;
     const s=window.getSelection(); if(s) s.removeAllRanges();
-    open(tr);
+    open(tr,dblMonth(cell));
   });
-  dblOpen('[data-dbledit]',tr=>editItem(findItem(tr.dataset.dbledit)));
-  dblOpen('[data-dblkedit]',tr=>editKak(tr.dataset.dblkedit));
+  dblOpen('[data-dbledit]',(tr,m)=>editItem(findItem(tr.dataset.dbledit),null,null,m));
+  dblOpen('[data-dblkedit]',(tr,m)=>editKak(tr.dataset.dblkedit,null,m));
   /* Neu anlegen — in beiden Ansichten und in beiden Arten. Der
      Wert von data-newitem ist der vorgewählte Block ("1" = der
      erste der Liste). */

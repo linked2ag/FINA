@@ -357,9 +357,16 @@ function editItem(item,group,copyOf,focusMonth){
      Umwegs, deshalb geht der Fokus dorthin und nicht ins erste
      Feld. */
   const mCell=focusMonth?box.querySelector(`[data-mi="${focusMonth-1}"]`):null;
-  if(mCell&&!mCell.disabled){
-    mCell.focus(); mCell.select();
+  if(mCell){
+    /* **Der Rahmen kommt immer**: er sagt, auf welchen Monat
+       geklickt wurde, und das gilt für einen abgehakten Betrag
+       genauso wie für einen offenen. Die Schreibmarke bekommt nur
+       das offene Feld — ein gesperrtes lässt sich nicht ändern, und
+       ein Fokus darin sähe nach einem Angebot aus, das es nicht
+       gibt. */
     mCell.closest('.cell').classList.add('askcell');
+    if(!mCell.disabled){ mCell.focus(); mCell.select(); }
+    else (name?(box.querySelector('#fGroup')||box.querySelector('#fBank')):title).focus();
   }
   else (name?(box.querySelector('#fGroup')||box.querySelector('#fBank')):title).focus();
 }

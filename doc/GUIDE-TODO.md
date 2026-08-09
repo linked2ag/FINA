@@ -98,6 +98,20 @@ Schritt** und **Was FINA kann** fehlt es weiter:
   Betrifft jede Stelle, an der die Anleitung das Abhaken beschreibt.
 - **CORRECTED steht orange** und nennt beim Überfahren den importierten Ursprungswert.
 
+Nach Version 26.8.9.2 gebaut:
+
+- **Ein Doppelklick auf einen Betrag hebt diesen Monat im Fenster hervor** (oranger Rahmen);
+  ist der Monat noch offen, steht sein Betrag gleich markiert da.
+- ⚠ **Die Zeile „Saldo je Monat" der Jahresansicht heißt jetzt „Kontostand zum Monatsende"**
+  und zeigt den laufenden Kontostand statt des Monatssaldos — dieselbe Zahl wie END in der
+  Prognose. Der Anfangsbestand steht hinter der Beschriftung, die Gesamtspalte zeigt den
+  Stand am Jahresende.
+- **Die Grafik der Prognose fängt dort an, wo etwas steht** — kein leeres Rasterfeld mehr
+  am Anfang.
+- ⚠ **Die Prognose hat andere Spalten:** statt „Saldo" und „Kumuliert" stehen dort jetzt
+  **START** und **END** — der Kontostand vor und nach dem Monat, dazwischen die vier
+  Bewegungen. Die Anleitung beschreibt die alte Aufteilung.
+
 ## Zuletzt eingearbeitet
 
 Am 8. August 2026, dritter Durchgang: **„Schritt für Schritt" auf acht Schritte

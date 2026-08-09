@@ -328,9 +328,16 @@ function editKak(k,copy,focusMonth){
   /* Ohne Bezeichnung steht der erste Schritt im Kopf — dorthin der
      Fokus. Sonst ins Feld der Schnelleingabe: dort wird gearbeitet. */
   const mCell=focusMonth?box.querySelector(`[data-mi="${focusMonth-1}"]`):null;
-  if(mCell&&!mCell.disabled){
-    mCell.focus(); mCell.select();
+  if(mCell){
+    /* **Der Rahmen kommt immer**: er sagt, auf welchen Monat
+       geklickt wurde, und das gilt für einen abgehakten Betrag
+       genauso wie für einen offenen. Die Schreibmarke bekommt nur
+       das offene Feld — ein gesperrtes lässt sich nicht ändern, und
+       ein Fokus darin sähe nach einem Angebot aus, das es nicht
+       gibt. */
     mCell.closest('.cell').classList.add('askcell');
+    if(!mCell.disabled){ mCell.focus(); mCell.select(); }
+    else (name?box.querySelector('#kVal'):title).focus();
   }
   else (name?box.querySelector('#kVal'):title).focus();
 }

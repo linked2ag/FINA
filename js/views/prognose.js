@@ -61,14 +61,33 @@ function yearTrack(f,pos,cut){
    beiden Sprachen eingeführt. Deshalb stehen sie hier und nicht
    in js/i18n.js — dort stehen nur der volle Name und der Satz
    dazu, aus denen die Sprechblase gebaut wird. */
+/* ── Die Spalten der Prognose ─────────────────────────────────
+   Eine Zeile liest sich wie ein Kontoauszug des Monats: **womit er
+   anfängt, was ihn bewegt, womit er schließt.**
+
+     START  der Kontostand, den der Monat vorfindet
+     IN · REG · FLEX · COR   die vier Bewegungen
+     END    der Kontostand danach
+
+   Vorher stand dort statt START/END die Summe der Bewegungen
+   („BAL") und der laufende Stand („CUM"). Das war dieselbe
+   Rechnung, aber die falsche Erzählung: die Zahl, die man im
+   Balken daneben sieht, ist der **Kontostand**, und der stand
+   ganz rechts, während links eine Summe stand, die es auf keinem
+   Konto gibt. Wer in einem Monat −823,97 las und im Balken das
+   Konto bei 5.422 sah, musste beides erst zusammenrechnen.
+
+   Die Summe der Bewegungen gibt es weiterhin — als Unterschied
+   zwischen START und END, und als Länge des Balkens. Eine eigene
+   Spalte braucht sie nicht. */
 const PROG_COLS=[
-  {ab:'M',    cls:'',           name:'g.month',          tip:'prog.tipMonth'},
-  {ab:'IN',   cls:'num',        name:'prog.colIncome',   tip:'prog.tipIncome'},
-  {ab:'REG',  cls:'num',        name:'prog.colFixed',    tip:'prog.tipFixed'},
-  {ab:'FLEX', cls:'num',        name:'prog.colKak',      tip:'prog.tipKak'},
-  {ab:'COR',  cls:'num balcol', name:'prog.colBal',      tip:'prog.tipBal'},
-  {ab:'BAL',  cls:'num',        name:'prog.colBalance',  tip:'prog.tipBalance'},
-  {ab:'CUM',  cls:'num',        name:'prog.colCum',      tip:'prog.tipCum'},
+  {ab:'M',     cls:'',           name:'g.month',          tip:'prog.tipMonth'},
+  {ab:'START', cls:'num',        name:'prog.colStart',    tip:'prog.tipStart'},
+  {ab:'IN',    cls:'num',        name:'prog.colIncome',   tip:'prog.tipIncome'},
+  {ab:'REG',   cls:'num',        name:'prog.colFixed',    tip:'prog.tipFixed'},
+  {ab:'FLEX',  cls:'num',        name:'prog.colKak',      tip:'prog.tipKak'},
+  {ab:'COR',   cls:'num balcol', name:'prog.colBal',      tip:'prog.tipBal'},
+  {ab:'END',   cls:'num',        name:'prog.colEnd',      tip:'prog.tipEnd'},
 ];
 
 /* Das Rastermaß in der Spaltenüberschrift: ganze Zahl mit
@@ -133,13 +152,37 @@ function viewPrognose(){
      Vielfaches, und das vergrößert die Spanne. Genommen wird die
      **feinste** Stufe, die danach höchstens zehn Felder ergibt —
      dieselbe Regel wie oben, nur auf die gezogene Spanne
-     angewandt. */
-  step=STEPS.find(v=>{
-    const lo=Math.floor(sc.lo/v)*v, hi=Math.ceil(sc.hi/v)*v;
-    return (hi-lo)/v<=10;
-  })||STEPS[STEPS.length-1];
+     angewandt.
+
+     **Gezogen wird auf die Werte selbst, nicht auf die gepolsterte
+     Spanne.** Der Zeitstrahl der Monatsansicht bekommt 8 % Luft an
+     beiden Enden, weil er kein Raster hat, an dem sich ein Balken
+     festhalten könnte. Hier gibt es eines — und die Luft schöbe die
+     Grenze über die nächste Rasterlinie hinaus, sodass vorn ein
+     Feld stünde, in dem nichts ist. Ein leeres Feld ist keine
+     Aussage, es ist nur Weg zum Lesen. Deshalb `rawLo`/`rawHi` aus
+     spanScale (js/calc.js): die Grenzen ohne Luft.
+
+     **Der Balken des Anfangsbestands zählt mit.** Er fängt an der
+     Rasterlinie vor ihm an und liegt damit unter allen anderen
+     Werten; ohne ihn schnitte die Achse ihn ab. Wo genau er
+     anfängt, hängt von der Schrittweite ab — deshalb wird er je
+     Stufe mitgerechnet und nicht einmal vorab. */
+  const op=opening();
+  const openFrom=v=>{
+    if(!op) return null;
+    const line=op>0?Math.floor(op/v)*v:Math.ceil(op/v)*v;
+    return line!==op?line:(op>0?op-v:op+v);
+  };
+  const bounds=v=>{
+    const of=openFrom(v);
+    const lo=Math.min(sc.rawLo,of==null?Infinity:of);
+    const hi=Math.max(sc.rawHi,of==null?-Infinity:of);
+    return [Math.floor(lo/v)*v,Math.ceil(hi/v)*v];
+  };
+  step=STEPS.find(v=>{ const [lo,hi]=bounds(v); return (hi-lo)/v<=10; })||STEPS[STEPS.length-1];
   {
-    const lo=Math.floor(sc.lo/step)*step, hi=Math.ceil(sc.hi/step)*step;
+    const [lo,hi]=bounds(step);
     sc={lo,hi,span:(hi-lo)||1,cut:sc.cut};
   }
   /* Links der Null der rote, rechts der grüne Bereich — wie im
@@ -246,7 +289,7 @@ function viewPrognose(){
      Ausgefranst wird an der Seite, aus der er kommt: bei einem
      Guthaben links, bei einem Minus rechts. */
   const openRow=(()=>{
-    const op=opening(); if(!op) return '';
+    if(!op) return '';
     /* Liegt der Anfangsbestand **genau auf einer Rasterlinie**, wäre
        der Balken null breit und die Zeile leer — dann wird das ganze
        Feld davor genommen. Bei einem Guthaben liegt es links vom
@@ -263,8 +306,8 @@ function viewPrognose(){
        wie in den Monatszeilen: er markiert überall den Stand, mit
        dem die Zeile schließt. */
     return `<tr class="openrow"><td>${t('set.opening')}</td>
-      <td class="num"></td><td class="num"></td><td class="num"></td>
-      <td class="num balcol${corEmpty?' mid':''}"></td><td class="num"></td>
+      <td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td>
+      <td class="num balcol${corEmpty?' mid':''}"></td>
       <td class="num ${cls(op)}">${eur(op)}</td>
       <td class="flowcell">${rails}<span class="ttrack ytrack two"
         ><span class="tsum yopen solo${fade}" style="left:${l}%;width:${r-l}%"></span
@@ -273,6 +316,11 @@ function viewPrognose(){
 
   const rows=MONTHS.map((name,i)=>{
     const m=i+1,s=saldo(m);
+    /* Der Stand, den der Monat vorfindet — für den Januar der
+       Anfangsbestand. Er ist zugleich der Anfang des Balkens
+       daneben; beides kommt aus derselben Zahl, damit Tabelle und
+       Grafik nicht auseinanderlaufen können. */
+    const start=cum;
     cum+=s;
     /* Blass werden nur die Zahlenspalten (siehe css/ledger.css):
        der Verlauf behält seine Farbe. Er ist eine Kurve über das
@@ -280,11 +328,11 @@ function viewPrognose(){
        genau dort, wo man sie am ehesten liest. */
     return `<tr${m<CUR?' class="past"':(m===CUR?' class="now"':'')}>
       <td>${name}</td>
+      <td class="num ${cls(start)}">${eur(start)}</td>
       <td class="num pos">${eur(income(m))}</td>
       <td class="num neg">${eur(fixedCost(m))}</td>
       <td class="num neg">${eur(kakeiboFor(m))}</td>
       <td class="num balcol${corEmpty?' mid':''} ${cls(balanceFix(m))}">${eur(balanceFix(m))}</td>
-      <td class="num ${cls(s)}">${eur(s)}</td>
       <td class="num ${cls(cum)}">${eur(cum)}</td>
       <td class="flowcell">${rails}${yearTrack(flow[i],pos,sc.cut)}</td></tr>`;
   }).join('');

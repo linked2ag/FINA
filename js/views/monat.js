@@ -97,6 +97,13 @@ function kakRow(k,m){
    Kästchen kein weiteres anklickbares Element, nur data-tip für
    die Erklärung. Die Filterzeile steht daneben, nicht darin: sie
    hat ihre eigenen Knöpfe. */
+/* ── Die Auswertung über der Monatsansicht ────────────────────
+   Vier Zahlen: was hereinkommt, die Flexible Payments, die
+   regelmäßigen Kosten, was davon noch offen ist. **Kein
+   Kontostand.** Den zeigt die Jahresansicht — dort steht er neben
+   den elf anderen Monaten und lässt sich lesen; hier stünde er
+   allein und ohne Vergleich. Was der Monat mit dem Konto macht,
+   sagt der Zeitstrahl darunter, Zeile für Zeile. */
 function anaBar(m){
   const open=!!ui.ana;
   const due=dueIn(m).filter(it=>!isIncome(it));
@@ -105,7 +112,6 @@ function anaBar(m){
   const openTip=t('month.kpiOpenN',openN,due.length,uncN?t('month.kpiUnclear',uncN):'');
   const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
       ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
-  const bal=saldo(m);
   return `<div class="stickybar anabar">
     <button class="anahead" data-ana="1" aria-expanded="${open}"
       data-tip="${esc(open?t('month.anaClose'):t('month.anaOpen'))}">
@@ -115,7 +121,6 @@ function anaBar(m){
         ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),kakeiboFor(m),'neg')}
         ${cell('t-out',t('month.kpiFixed'),fixedCost(m),'neg')}
         ${cell('t-out',t('month.kpiOpen'),openCost(m),openN?'neg':'',openTip)}
-        ${cell('',t('month.kpiBalance'),bal,cls(bal))}
       </span>
     </button>
     <!-- Zwischen den Zahlen und der Grafik der Satz, der sagt, was

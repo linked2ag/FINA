@@ -81,7 +81,11 @@ function yfoldBtn(key,on){
    Das braucht genau die Saldokorrektur. */
 function mrow(label,vals,opt={}){
   const it=opt.item||null, kk=opt.kak||null;
-  const sum=vals.reduce((a,b)=>a+b,0);
+  /* Die Gesamtspalte ist normalerweise die Summe der zwölf Monate.
+     Bei einer Zeile, deren Werte **Kontostände** sind (die
+     Saldozeile), wäre eine Summe sinnlos — dann gibt der Aufrufer
+     den Wert vor: den Stand am Jahresende. */
+  const sum=opt.total!==undefined?opt.total:vals.reduce((a,b)=>a+b,0);
   const edit=it?`data-edit="${it.id}"`:(kk?`data-kedit="${esc(kk)}"`:'');
   const pencil=edit?`<button class="pencil" ${edit} title="${opt.editTip||t('year.editTip')}">&#9998;</button>`:'';
   /* Der Beleglink — Posten wie Flexible Payments haben einen. */
@@ -138,7 +142,7 @@ function mrow(label,vals,opt={}){
     <td class="code cZ"${pay?` title="${esc(payLabel(pay))}"`:''}>${esc(pay)}</td>
     <td class="code cF"${it&&it.dueDay?` title="${esc(DUE_LABEL(it.dueDay))}"`:''}>${it?esc(DUE_SHORT(it.dueDay)):''}</td>
     <td class="code cE ${it&&!settled?endClass(it):''}"${it&&it.end?` title="${esc(endHint(it))}"`:''}>${esc(endShort(it))}</td>
-    ${visMonths().map(m=>`<td class="num ${estAt(m)&&vals[m-1]!==0?'est':cls(vals[m-1])}${cmAmt(m)}">${eur(vals[m-1])}</td>
+    ${visMonths().map(m=>`<td class="num ${estAt(m)&&vals[m-1]!==0?'est':cls(vals[m-1])}${cmAmt(m)}" data-m="${m}">${eur(vals[m-1])}</td>
       <td class="mk${cmMark(m)}">${mark(m)}</td>`).join('')}
     <td class="num tot ${estTot?'est':cls(sum)}">${eur(sum)}</td></tr>`;
 }
@@ -224,7 +228,32 @@ function viewJahr(){
      Filtern, verlöre die Tabelle beim Scrollen genau die Zeile,
      für die das Kleben gebaut ist — und der Suchbegriff müsste
      zufällig in „Saldo je Monat" vorkommen, damit sie bleibt. */
-  const balRow=mrow(t('year.balanceRow'),MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'});
+  /* ── Die Saldozeile zeigt den Kontostand ────────────────────
+     Nicht den Saldo des einzelnen Monats, sondern den **Stand am
+     Monatsende** — dieselbe Zahl, die in der Prognose unter END
+     steht. Zwei Ansichten desselben Buches dürfen nicht zwei
+     verschiedene Zahlen „Saldo" nennen: wer im Jahr −823,97 liest
+     und in der Prognose 5.422,59, hält eine von beiden für falsch.
+
+     Der Anfangsbestand steckt darin (carryIn beginnt bei
+     opening()); damit man ihn nicht suchen muss, steht er hinter
+     der Beschriftung. Ohne Anfangsbestand steht dort nichts —
+     eine Null ist keine Angabe.
+
+     In der Gesamtspalte steht der Stand am Jahresende, nicht die
+     Summe der zwölf Stände: die ergäbe eine Zahl, die es nirgends
+     gibt. */
+  const runBal=m=>carryIn(m)+saldo(m);
+  const op=opening();
+  /* Der Anfangsbestand steht **unter** der Beschriftung, nicht
+     dahinter: er ist keine zweite Überschrift, sondern die Herkunft
+     der Zahlen daneben — und in einer Zeile hinter dem Namen wäre
+     er bei schmaler Bezeichnungsspalte das Erste, was abgeschnitten
+     wird. */
+  const balLabel=t('year.balanceRow')
+    +(op?`<div class="openhint" data-tip="${esc(t('year.openTip'))}">${t('year.openLab',eur(op),YEAR-1)}</div>`:'');
+  const balRow=mrow(balLabel,MONTHS.map((_,i)=>runBal(i+1)),
+    {cls:'sec r-sal balpin',total:runBal(12)});
 
   /* Die Saldokorrektur steht über den Einnahmen: eine einzige
      Zeile, wie eine Kategorie gezeigt, aber über den Stift wie

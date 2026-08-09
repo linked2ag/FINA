@@ -250,7 +250,17 @@ const STR={
   de:'Nur die Kopfzeile dieses Blocks zeigen — wird in der Datei gemerkt'},
 'year.maxAreaTip':{en:'Show this block in full again — kept in your file',
   de:'Diesen Block wieder ganz zeigen — wird in der Datei gemerkt'},
-'year.balanceRow':{en:'Balance per month',de:'Saldo je Monat'},
+/* Die Zeile zeigt den Kontostand am Monatsende — dieselbe Zahl wie
+   END in der Prognose. „Saldo je Monat" hieße der Monat für sich;
+   gemeint ist der Stand danach. */
+'year.balanceRow':{en:'Balance at month end',de:'Kontostand zum Monatsende'},
+/* So kurz wie möglich: die Zeile steht unter der Beschriftung und
+   nimmt sonst Platz weg, den die Bezeichnungen darunter brauchen.
+   Die Jahreszahl sagt genauer, woher der Betrag kommt, als „letztes
+   Jahr" — und ist kürzer. Den ganzen Satz trägt die Sprechblase. */
+'year.openLab':{en:'from {1}: {0}',de:'aus {1}: {0}'},
+'year.openTip':{en:'The opening balance the year starts from — it is included in every figure in this row. You set it in the settings.',
+  de:'Der Anfangsbestand, mit dem das Jahr beginnt — er steckt in jeder Zahl dieser Zeile. Eingetragen wird er in den Einstellungen.'},
 /* Die Blockzeile der Jahresmatrix ist zweizeilig: oben der
    Name, darunter klein, woher die Zahlen kommen können. */
 'year.kakRow':{en:'Flexible Payments',de:'Flexible Payments'},
@@ -318,7 +328,6 @@ const STR={
 'month.kpiOpen':{en:'Still open',de:'Noch offen'},
 'month.kpiOpenN':{en:'{0} of {1} items{2}',de:'{0} von {1} Posten{2}'},
 'month.kpiUnclear':{en:' · {0} estimated',de:' · {0} geschätzt'},
-'month.kpiBalance':{en:'Balance',de:'Saldo'},
 'month.noIncome':{en:'No income recorded.',de:'Keine Einnahmen hinterlegt.'},
 'month.noKak':{en:'No Flexible Payments categories yet — add them under Settings.',
   de:'Noch keine Flexible-Payments-Kategorien angelegt — anzulegen unter Einstellungen.'},
@@ -485,13 +494,13 @@ const STR={
 'prog.colFixed':{en:'Regular',de:'Regelmäßig'},
 'prog.colKak':{en:'Flexible',de:'Flexible'},
 'prog.colBal':{en:'Correction',de:'Korrektur'},
-'prog.colBalance':{en:'Balance',de:'Saldo'},
-'prog.colCum':{en:'Cumulative',de:'Kumuliert'},
+'prog.colStart':{en:'Balance at the start of the month',de:'Kontostand zu Monatsbeginn'},
+'prog.colEnd':{en:'Balance at the end of the month',de:'Kontostand zum Monatsende'},
 'prog.colFlow':{en:'Course',de:'Verlauf'},
 'prog.kpiLab':{en:'Outlook {0}',de:'Ausblick {0}'},
 'prog.gridShort':{en:'grid',de:'Raster'},
-/* Die Kopfzeile der Prognose trägt Kürzel (M · IN · REG · FLEX ·
-   COR · BAL · CUM, in beiden Sprachen gleich). Was sie bedeuten,
+/* Die Kopfzeile der Prognose trägt Kürzel (M · START · IN · REG ·
+   FLEX · COR · END, in beiden Sprachen gleich). Was sie bedeuten,
    sagt die Sprechblase: voller Name aus den col*-Schlüsseln, dann
    dieser Satz. */
 'prog.tipMonth':{en:'the twelve months of the file; months before the current one are shown pale.',
@@ -504,14 +513,14 @@ const STR={
   de:'die Flexible Payments des Monats: importiert, wo vorhanden, sonst die Annahme.'},
 'prog.tipBal':{en:'what you entered by hand to correct the balance. Usually empty.',
   de:'was du von Hand nachträgst, um den Saldo zu berichtigen. Meistens leer.'},
-'prog.tipBalance':{en:'the month on its own: income minus all costs.',
-  de:'der Monat für sich: Einnahmen minus alle Kosten.'},
-'prog.tipCum':{en:'all months up to and including this one added up — the last row is the year-end balance.',
-  de:'alle Monate bis einschließlich diesem addiert — die letzte Zeile ist der Saldo zum Jahresende.'},
+'prog.tipStart':{en:'what is on the account before this month — the closing balance of the month above.',
+  de:'was vor diesem Monat auf dem Konto liegt — der Schlussstand des Monats darüber.'},
+'prog.tipEnd':{en:'what is left after the four movements. It is the starting balance of the next month, and in December the year-end balance.',
+  de:'was nach den vier Bewegungen übrig ist. Es ist zugleich der Anfangsstand des nächsten Monats — im Dezember der Stand zum Jahresende.'},
 'prog.colFlowTip':{en:'How the balance moves through the year: each month starts at the previous month’s balance and ends at its own. The colours are the kinds of money.',
   de:'Wie sich der Kontostand durch das Jahr bewegt: jeder Monat fängt beim Stand des Monats davor an und endet bei seinem eigenen. Die Farben sind die Geldarten.'},
-'prog.greyed':{en:'Months before {0} are greyed out. The cumulation runs over the whole year, so the last row is the year-end balance.',
-  de:'Ausgegraut sind die Monate vor {0}. Die Kumulation läuft über das ganze Jahr — die letzte Zeile ist der Saldo zum Jahresende.'},
+'prog.greyed':{en:'Months before {0} are greyed out. Each row reads from left to right: the balance the month starts with, the four movements, the balance it ends with — that one is the next month’s starting balance.',
+  de:'Ausgegraut sind die Monate vor {0}. Jede Zeile liest sich von links nach rechts: der Stand, mit dem der Monat anfängt, die vier Bewegungen, der Stand, mit dem er schließt — und der ist der Anfangsstand des nächsten Monats.'},
 'prog.card':{en:'Flexible Payments assumption per month',de:'Flexible-Payments-Annahme je Monat'},
 'prog.cardHint':{en:'For months without a Fast Budget import the app does not know the real Flexible Payments spending. These values tell it what to expect per category. Actual figures exist for: {0}.',
   de:'Für Monate ohne Fast-Budget-Import kennt die App die tatsächlichen Flexible-Payments-Ausgaben nicht. Diese Werte sagen ihr, mit wie viel sie pro Kategorie rechnen soll. Ist-Zahlen liegen vor für: {0}.'},

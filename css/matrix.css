@@ -195,6 +195,11 @@
    je Zeichnung in sizeMatrix() (js/app.js). Die links
    festgepinnten Zellen kleben zusätzlich nach links. */
 .matrix tr.balpin{position:sticky;top:var(--headH,0px);z-index:5}
+/* Der Anfangsbestand hinter der Beschriftung: er gehört zur Zeile,
+   ist aber keine ihrer zwölf Zahlen — deshalb kleiner, in der Farbe
+   des Anfangsbestands aus der Prognose (--ink-sal). */
+.matrix tr.balpin .openhint{margin-top:1px;font-family:var(--font-data);font-size:9.5px;
+  letter-spacing:.04em;text-transform:none;color:var(--ink-sal);font-weight:400;cursor:help;line-height:1.25}
 .matrix tr.balpin td{border-bottom:1px solid var(--edge-sal)}
 
 /* ── Die Blockzeilen bleiben stehen ───────────────────────────

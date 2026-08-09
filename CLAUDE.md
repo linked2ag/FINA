@@ -265,6 +265,27 @@ Hauptzeile. Was die fünf Wörter bedeuten, sagt `kak.kindHint` unter der Tabell
 setzt `ui.month=CUR` und `ui.scope='monat'` (`kak.cur`, gesperrt, wenn der laufende Monat
 schon gewählt ist).
 
+## Die Spalten der Prognose
+
+Eine Zeile liest sich wie ein Kontoauszug des Monats: **womit er anfängt, was ihn bewegt,
+womit er schließt.**
+
+| M | START | IN · REG · FLEX · COR | END |
+|---|---|---|---|
+| Monat | Stand, den der Monat vorfindet | die vier Bewegungen | Stand danach |
+
+`START` einer Zeile ist `END` der Zeile darüber, im Januar der Anfangsbestand — und er ist
+zugleich der Anfang des Balkens daneben. Beides kommt aus derselben Zahl (`start` in
+`viewPrognose()`), damit Tabelle und Grafik nicht auseinanderlaufen können.
+
+**Vorher standen dort „BAL" und „CUM"** — die Summe der Bewegungen und der laufende Stand.
+Dieselbe Rechnung, aber die falsche Erzählung: die Zahl, die man im Balken daneben sieht,
+ist der **Kontostand**, und der stand ganz rechts, während links eine Summe stand, die es
+auf keinem Konto gibt. Wer in einem Monat −823,97 las und im Balken das Konto bei 5.422 sah,
+musste beides erst zusammenrechnen und hielt die Grafik für falsch. Die Summe der Bewegungen
+gibt es weiterhin: als Unterschied zwischen START und END und als Länge des Balkens. Eine
+eigene Spalte braucht sie nicht.
+
 ## Die Annahme der Prognose
 
 Die rechte Karte zeigt je Kategorie zwei **gerechnete** Zahlen: die Annahme, mit der
@@ -378,7 +399,16 @@ Anfangsbestand, der genau auf einer Rasterlinie liegt.
 
 **Die Achse liegt auf dem Raster.** Anfang und Ende werden auf ein Vielfaches der
 Schrittweite gezogen (`viewPrognose()`), und die Schrittweite danach neu gewählt: die
-feinste Stufe, die für die gezogene Spanne höchstens zehn Felder ergibt. Dadurch fällt die
+feinste Stufe, die für die gezogene Spanne höchstens zehn Felder ergibt.
+
+**Gezogen wird auf die Werte selbst, nicht auf die gepolsterte Spanne.** `spanScale()` gibt
+dafür `rawLo`/`rawHi` zurück — die Grenzen **ohne** die 8 % Luft. Die Luft braucht der
+Zeitstrahl der Monatsansicht, weil er kein Raster hat, an dem sich ein Balken festhalten
+könnte; hier schöbe sie die Grenze über die nächste Rasterlinie hinaus, und vorn stünde ein
+Feld, in dem nichts ist. **Ein leeres Feld ist keine Aussage, nur Weg zum Lesen.** Der
+Balken des Anfangsbestands zählt dabei mit (`openFrom(v)`): er fängt an der Rasterlinie vor
+ihm an und liegt damit unter allen anderen Werten — wo genau, hängt von der Schrittweite ab,
+deshalb wird er je Stufe mitgerechnet und nicht einmal vorab. Dadurch fällt die
 **erste Rasterlinie genau auf den linken Rand der Spalte** — und das ist derselbe Strich,
 der die Spalte „Kumuliert" abschließt. Die Grafik zeichnet die äußeren beiden Linien deshalb
 **nicht** selbst (links der Strich der Tabelle, rechts ihr Rand) und fängt ohne
@@ -400,6 +430,23 @@ Die Farberklärung steht als `.thint` unter der Tabelle — dieselben Marken wie
 und bei beschnittener Achse ihr Maßstab dazu. **Vergangene Monate bleiben blass**
 (`opacity:.42` an der Zeile): das gilt für die Zahlen wie für den Balken, Ist und Plan
 sollen unterscheidbar bleiben.
+
+## Die Saldozeile der Jahresmatrix zeigt den Kontostand
+
+Nicht den Saldo des einzelnen Monats, sondern den **Stand am Monatsende** — dieselbe Zahl,
+die in der Prognose unter `END` steht (`runBal(m) = carryIn(m) + saldo(m)` in
+`js/views/jahr.js`). **Zwei Ansichten desselben Buches dürfen nicht zwei verschiedene Zahlen
+„Saldo" nennen:** wer im Jahr −823,97 liest und in der Prognose 5.422,59, hält eine von
+beiden für falsch. Deshalb heißt die Zeile jetzt „Kontostand zum Monatsende"
+(`year.balanceRow`).
+
+**Der Anfangsbestand steckt darin** (`carryIn()` beginnt bei `opening()`) und steht deshalb
+hinter der Beschriftung — klein, in `--ink-sal`, mit Sprechblase (`.openhint`,
+`year.openLab`). Ohne Anfangsbestand steht dort nichts: eine Null ist keine Angabe.
+
+**In der Gesamtspalte steht der Stand am Jahresende**, nicht die Summe der zwölf Stände —
+die ergäbe eine Zahl, die es nirgends gibt. Dafür nimmt `mrow()` ein `opt.total`, das die
+sonst übliche Summe überschreibt.
 
 ## Die Leiste der Jahresansicht
 
@@ -431,9 +478,12 @@ aufgeklappte Auswertung) bleibt in `ui` und damit ungespeichert.
 
 ## Die Auswertung über der Monatsansicht
 
-Über den Karten steht eine einzige dünne Zeile mit den fünf Zahlen des Monats — Einnahmen,
-Flexible Payments, regelmäßige Kosten, noch offen, Saldo — und klein **darüber** die
-Überschrift „Auswertung" (`.analab`). Sie ist kein Kästchen in der Reihe: sie benennt die
+Über den Karten steht eine einzige dünne Zeile mit den vier Zahlen des Monats — Einnahmen,
+Flexible Payments, regelmäßige Kosten, noch offen — und klein **darüber** die Überschrift
+„Auswertung" (`.analab`). **Ein Kontostand steht dort nicht:** den zeigt die Jahresansicht,
+wo er neben den elf anderen Monaten steht und sich lesen lässt; hier stünde er allein und
+ohne Vergleich. Was der Monat mit dem Konto macht, sagt der Zeitstrahl darunter, Zeile für
+Zeile. Sie ist kein Kästchen in der Reihe: sie benennt die
 Leiste, sie ist keine Kennzahl. Ein Klick irgendwo darauf klappt sie auf, und darunter
 erscheint der Zeitstrahl. **Einen Pfeil trägt sie nicht:** ob sie offen ist, sagt der Zeitstrahl
 selbst; für Tastatur und Vorlesehilfe steht es in `aria-expanded`. Gebaut wird sie in
@@ -463,9 +513,9 @@ Summe der Monate davor in derselben Datei. Ein Kontoauszug ist das nicht — die
 keinen Anfangsbestand, im Januar steht dort also nichts. In diesen Abschnitt wird nichts
 fällig: er ist ein `span` statt eines Knopfes und kein Filter — grau hinterlegt ist er
 deswegen nicht, er sieht aus wie jede andere Zeile. Einen Balken hat er sehr wohl: von der
-Null bis zu seinem Wert, damit man sieht, wo der Monat anfängt. Daraus
-folgt, dass der letzte laufende Wert `carryIn(m) + saldo(m)` ist und **nicht** mehr `saldo(m)`
-— die Kennzahl „Saldo" in der Zeile darüber meint weiter den Monat allein.
+Null bis zu seinem Wert, damit man sieht, wo der Monat anfängt. Daraus folgt, dass der
+letzte laufende Wert `carryIn(m) + saldo(m)` ist — **dieselbe Zahl, die in der Jahresmatrix
+und in der Prognose steht.**
 
 **Der Monatsabschluss ist der Sammelplatz für alles ohne Fälligkeit**: die Flexible
 Payments, die Saldokorrektur und jeden Posten ohne Zahltag. Deshalb liefert `dueGroup()` in
@@ -931,8 +981,27 @@ geändert und nichts abgehakt.
 
 Gebaut ist das in `wire()` (`js/app.js`, `askFirst()`): `editItem(it,null,null,ui.month)`
 bzw. `editKak(k,null,ui.month)` — der vierte bzw. dritte Parameter ist der Monat, dessen
-Feld den Fokus bekommt. **Nur beim Setzen des Hakens.** Einen Haken wieder wegzunehmen
+Feld hervorgehoben wird. **Nur beim Setzen des Hakens.** Einen Haken wieder wegzunehmen
 ändert keine Zahl und braucht keinen Umweg.
+
+## Welcher Monat im Fenster hervorgehoben ist
+
+Denselben Parameter bekommt der **Doppelklick auf einen Betrag** — in jeder Ansicht. Er
+zeigt auf genau einen Monat, und im Fenster soll man wiederfinden, worauf man geklickt hat:
+
+* **Der orange Rahmen kommt immer** (`.askcell`), ob der Monat abgehakt ist oder nicht. Er
+  beantwortet die Frage „welcher Monat war das?", und die stellt sich bei einem gesperrten
+  Feld genauso.
+* **Markiert wird nur ein offenes Feld.** Ein gesperrtes lässt sich nicht ändern; die
+  Schreibmarke darin sähe nach einem Angebot aus, das es nicht gibt.
+* **Ein Doppelklick auf die Bezeichnung meint keinen Monat** — dann bleibt das Fenster
+  unmarkiert, genau wie beim Stift, beim Sprung aus einer anderen Ansicht und bei jedem
+  anderen Weg ins Fenster.
+
+Woher der Monat kommt, entscheidet `dblMonth(cell)` in `wire()`: in der Jahresmatrix steht
+er an der Zelle (`data-m`, gesetzt in `mrow()`), in der Monatsansicht ist es der gezeigte
+Monat (`td.amt` → `ui.month`), in den Fast Budget Details nur bei einem einzelnen Monat —
+über das ganze Jahr zeigt ein Betrag auf zwölf und damit auf keinen.
 
 ## Stift und Notizlampe der Monatsansicht
 
