@@ -511,7 +511,9 @@ aufgeklappte Auswertung) bleibt in `ui` und damit ungespeichert.
 ## Die Auswertung über der Monatsansicht
 
 Über den Karten steht eine einzige dünne Zeile mit den vier Zahlen des Monats — Einnahmen,
-Flexible Payments, regelmäßige Kosten, noch offen — und klein **darüber** die Überschrift
+Flexible Payments, regelmäßige Kosten, noch offen. **Es sind die Zahlen der Zeilen, die
+darunter stehen**, nicht die des ganzen Monats: wird gefiltert, rechnet die Leiste mit
+(siehe „Was ein Filter mit den Summen macht"). Und klein **darüber** die Überschrift
 „Auswertung" (`.analab`). **Ein Kontostand steht dort nicht:** den zeigt die Jahresansicht,
 wo er neben den elf anderen Monaten steht und sich lesen lässt; hier stünde er allein und
 ohne Vergleich. Was der Monat mit dem Konto macht, sagt der Zeitstrahl darunter, Zeile für
@@ -534,7 +536,8 @@ Knopf (`data-ana`); in den Kästchen steht deshalb nichts weiter Anklickbares, n
 Monatsmitte, Monatsende, Monatsabschluss. Jede Zeile nennt links ihren Namen samt Tagen
 (1.–10., 11.–20., ab dem 21.), dann die Veränderung und den Kontostand danach; rechts
 steht über die ganze übrige Breite ihr Balken. Gerechnet wird das in `monthFlow()`
-(`js/calc.js`) aus der Fälligkeit der einzelnen Positionen.
+(`js/calc.js`) aus der Fälligkeit der einzelnen Positionen — und zwar aus denen, die der
+Filter übrig lässt (`sel`, siehe „Was ein Filter mit den Summen macht").
 
 Die Tage stehen deshalb in der Beschriftung und nicht mehr als Leiste darunter: die Breite
 gehört jetzt dem Betrag, nicht der Zeit. Fällt der heutige Tag in eine Zeile, trägt sie
@@ -547,7 +550,8 @@ fällig: er ist ein `span` statt eines Knopfes und kein Filter — grau hinterle
 deswegen nicht, er sieht aus wie jede andere Zeile. Einen Balken hat er sehr wohl: von der
 Null bis zu seinem Wert, damit man sieht, wo der Monat anfängt. Daraus folgt, dass der
 letzte laufende Wert `carryIn(m) + saldo(m)` ist — **dieselbe Zahl, die in der Jahresmatrix
-und in der Prognose steht.**
+und in der Prognose steht.** **Solange nicht gefiltert wird**: dieser Abschnitt filtert
+nie mit (die Monate davor stehen nicht zur Auswahl), die vier darunter schon.
 
 **Der Monatsabschluss ist der Sammelplatz für alles ohne Fälligkeit**: die Flexible
 Payments, die Saldokorrektur und jeden Posten ohne Zahltag. Deshalb liefert `dueGroup()` in
@@ -796,6 +800,65 @@ Weil die Zeile oben klebt, kostet jeder Umbruch dauerhaft Platz. Deshalb sitzt s
 als sonst (`.anabar .filterbar` in `css/layout.css`), und ihr Suchfeld gibt nach
 (`.fltbox.flttop`, 230 px statt der `--leadw`-Breite der Jahresansicht): bis hinunter zu
 etwa 1100 px bleibt alles in einer Zeile.
+
+## Was ein Filter mit den Summen macht
+
+**Jede Zahl der beiden Ansichten zählt, was zu sehen ist.** Die vier Kennzahlen der
+Auswertung, der Zeitstrahl, Kartensumme und Kategoriezeile der Monatsansicht, Block-,
+Kategorie- und Gesamtzeile der Jahresmatrix — alle rechnen über die übrig gebliebenen
+Zeilen und nicht über den Zustand. Eine Karte, die drei von zwanzig Posten zeigt und
+darüber die Summe aller zwanzig nennt, beantwortet eine Frage, die niemand gestellt hat:
+wer filtert, will wissen, was das Gefundene zusammen ausmacht. Ohne Filter ist beides
+dieselbe Zahl — dann steht überall wieder die volle Summe.
+
+**Prognose und Fast Budget Details bleiben draußen** — dort wird nicht gefiltert, und
+`income(m)`, `fixedCost(m)`, `kakeiboFor(m)` und `openCost(m)` stehen weiter für den ganzen
+Monat.
+
+Daraus folgt für beide Views eine feste Reihenfolge: **erst sammeln, was gezeigt wird, dann
+summieren.**
+
+* **`js/views/monat.js`** — `sumIt(arr)` über die Monatsbeträge; `incSum`, `flexSum`
+  (über `kakVal`, nicht über `amounts`) und `outSum` entstehen aus `incUse`, `flexUse` und
+  `outItems`, der flachen Liste der gezeigten Kosten. `groupHead()` summiert `items`, nicht
+  `all` — `all` sagt nur noch, wie viele fehlen.
+* **`js/views/jahr.js`** — `monSums(arr)` liefert die zwölf Monatssummen einer Liste. Die
+  Blöcke füllen beim Bauen `incVis`, `kakVis` und `outVis`; die Gesamtspalte rechnet `mrow()`
+  ohnehin aus den zwölf Werten.
+
+**Die Auswertung bekommt die Auswahl als ein Stück.** `sel = {items, kaks, bal}` entsteht in
+`viewMonat()` aus **denselben** Listen, aus denen die Zeilen gebaut werden, und geht an
+`anaBar(m,sel)` → `timeline(m,sel)` → `monthFlow(m,sel)`. Deshalb können Leiste, Zeitstrahl
+und Karten nicht auseinanderlaufen. Ohne `sel` rechnet `monthFlow()` wie bisher über den
+ganzen Monat — dieser Weg bleibt, weil er der ist, den eine Ansicht ohne Filter nähme.
+
+**`carryIn(m)` filtert nicht mit.** Die erste Zeile des Zeitstrahls ist der Stand, den der
+Monat vorfindet, und den machen die Monate davor. Gefiltert steht dort also der echte
+Anfang, und was darunter kommt, ist das, was die gezeigten Zeilen daraus machen; der letzte
+laufende Wert ist dann **nicht** mehr `saldo(m)`.
+
+Zwei Nebenwirkungen, die man kennen muss:
+
+* **Die Sprechblase an „noch offen"** zählt „x von y" ebenfalls über die gezeigten Posten —
+  sonst stünde dort „3 von 20", während darunter drei Zeilen sind. Dafür ist
+  `unclearCount()` aus `js/calc.js` verschwunden: die Zahl steht nicht mehr im Zustand.
+* **Der Zeitstrahl ist zugleich der Fälligkeitsfilter** (`data-tpart`). Wer eine Zeile
+  anklickt, sieht danach nur noch ihre Bewegung, die übrigen vier liegen flach. Das ist
+  gewollt — ein zweiter Klick nimmt es zurück —, aber es ist der einzige Filter, der seine
+  eigene Bedienung mitfiltert.
+
+**Die Gesamtzeile wird deshalb erst nach den Blöcken gebaut** und dann in den Kopf gehängt
+(`matrixHead(totRow)`): sie ist die Summe der drei Blockzeilen samt Saldokorrektur, nicht
+mehr `saldo(m)`. Ohne Filter ist das dieselbe Zahl; mit Filter wäre `saldo(m)` das Ergebnis
+von Zeilen, die man gerade nicht sieht, und die Matrix ginge von oben nach unten nicht mehr
+auf. Weggefiltert wird die Zeile weiterhin nie — sie gehört zum Gerüst.
+
+Zuklappen ist **kein** Filter: eine zugeklappte Karte behält ihre volle Summe, und die
+Blockzeile der Matrix zeigt ihre zwölf Summen wie zuvor. Ohnehin schließen beide einander
+aus (siehe „Was das Klappen überschreibt").
+
+Wer eine weitere Summe baut, rechnet sie aus derselben Liste, aus der die Zeilen entstehen —
+nicht aus `state`.
 
 ## Worin das Suchfeld sucht
 

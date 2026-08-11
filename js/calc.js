@@ -99,7 +99,11 @@ function sumF(m,f){return dueIn(m).filter(f).reduce((s,it)=>s+it.amounts[m-1],0)
 const income=m=>sumF(m,isIncome);
 const fixedCost=m=>sumF(m,it=>!isIncome(it));
 const openCost=m=>sumF(m,it=>!isIncome(it)&&!paidAt(it,m));
-const unclearCount=m=>dueIn(m).filter(it=>!isIncome(it)&&estOf(it)&&!paidAt(it,m)).length;
+/* `unclearCount(m)` stand hier und zählte die geschätzten offenen
+   Posten eines Monats. Die eine Stelle, die das brauchte — die
+   Sprechblase an „noch offen" —, zählt seit dem Filtern über die
+   gezeigten Zeilen (anaBar in js/views/monat.js) und kann die Zahl
+   nicht mehr aus dem Zustand holen. */
 
 /* Position ist für dieses Jahr erledigt: sie hat überhaupt
    Beträge und jeder davon ist abgehakt — es steht also keine
@@ -247,12 +251,27 @@ const saldo=m=>income(m)+fixedCost(m)+kakeiboFor(m)+balanceFix(m);
    beide als Beträge ohne Vorzeichen. Ein Posten zählt dorthin, wo
    sein Vorzeichen hinweist: eine Rückzahlung bei den regelmäßigen
    Kosten steht in der Zufuhr, und die Farbe der Art sagt trotzdem,
-   woher sie kommt. */
+   woher sie kommt.
+
+   **`sel` ist die Auswahl, über die gerechnet wird** — die Zeilen,
+   die die Monatsansicht nach dem Filtern übrig lässt
+   (`{items, kaks, bal}`, siehe „Was ein Filter mit den Summen
+   macht" in CLAUDE.md). Ohne `sel` ist es der ganze Monat, und
+   dann ist der letzte laufende Wert wieder genau `saldo(m)`.
+
+   **`carryIn(m)` bleibt davon unberührt.** Es ist der Stand, den
+   der Monat vorfindet — das Ergebnis der Monate davor, und die
+   filtert niemand. Gefiltert steht in der ersten Zeile also der
+   echte Anfang, und was darunter kommt, ist das, was die gezeigten
+   Zeilen daraus machen. */
 const carryIn=m=>{ let s=opening(); for(let i=1;i<m;i++) s+=saldo(i); return s; };
 const FLOW_KINDS=['in','flex','out','bal'];
 const FLOW_PARTS=['A','M','E','Z'];
 const MONTH_PARTS=['P'].concat(FLOW_PARTS);
-function monthFlow(m){
+function monthFlow(m,sel){
+  const items=sel?sel.items:dueIn(m);
+  const kaks=sel?sel.kaks:kakCats();
+  const bal=sel?!!sel.bal:true;
   const part={};
   FLOW_PARTS.forEach(k=>part[k]={sum:0,n:0,up:{},down:{}});
   const add=(p,kind,v)=>{
@@ -261,9 +280,9 @@ function monthFlow(m){
     const side=v>0?b.up:b.down;
     side[kind]=(side[kind]||0)+Math.abs(v);
   };
-  dueIn(m).forEach(it=>add(dueGroup(it.dueDay),isIncome(it)?'in':'out',it.amounts[m-1]));
-  kakCats().forEach(k=>add('Z','flex',kakVal(k,m)));
-  add('Z','bal',balanceFix(m));
+  items.forEach(it=>add(dueGroup(it.dueDay),isIncome(it)?'in':'out',it.amounts[m-1]));
+  kaks.forEach(k=>add('Z','flex',kakVal(k,m)));
+  if(bal) add('Z','bal',balanceFix(m));
 
   let run=carryIn(m);
   const out=[{key:'P',sum:run,n:Math.max(0,m-1),up:{},down:{},prev:0,run}];

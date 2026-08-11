@@ -17,39 +17,37 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-- ⚠ **Der Import steht nicht mehr in der Kopfzeile**, sondern im Einstellungsfenster im
-  neuen Bereich **Import**. Die Anleitung sagt an drei Stellen etwas anderes: im
-  Fast-Budget-Schritt von „Schritt für Schritt", im Absatz „Die alltäglichen Ausgaben" des
-  Produktreiters (beide „lade sie hier mit *Import Fast Budget Data*") und in der
-  Versionsliste 26.8.5.x („steht in der Kopfzeile" — das ist ein historischer Eintrag und
-  bleibt, wie er ist). Die Kopfzeile trägt jetzt: Speichern · Sicherung · Schließen ·
-  Einstellungen · Anleitung.
-- **FINA-Tabelle einlesen (CSV)** — der zweite Knopf im selben Bereich: die
-  Tabellenkalkulation, aus der FINA entstanden ist, wird zu einem ganzen Buch. Was der Leser
-  wissen muss: die Kopfzeile wird an den zwölf Monatsnamen erkannt; die Gliederung liest FINA
-  aus den Summenzeilen (`/` hinter dem Monat) und daraus, dass eine Überschrift ihre Zeilen
-  zusammenzählt; Schritt 1 zeigt je Block „STIMMT" oder „WEICHT AB" und lässt einstellen,
-  welcher Block Einnahmen, Flexible Payments oder Kosten sind; die Tabelle **ersetzt** das
-  Buch (samt Saldokorrektur, nicht aber dem Anfangsbestand); zwei Haken — Abrechnungsjahr
-  übernehmen und abgeschlossene Monate abhaken. Die Spalte P wird nicht übernommen, eine
-  Deadline, die kein Monat ist, wird zur Notiz.
-
-- **Die oberste Zeile der Jahresmatrix heißt „Gesamt je Monat"** und zeigt, was der Monat
-  allein bringt und kostet (`saldo(m)`) — nicht mehr den Kontostand am Monatsende. Der steht
-  in der Prognose unter END. Die eine Aufzählung, die genau diese Zeile beschreibt, ist in
-  **beiden** Sprachen gleich mitgeändert worden (der Schlüssel hieß vorher
-  `year.balanceRow`, sonst stünde dort jetzt roher Text). Offen bleibt: im Reiter „Schritt
-  für Schritt" und im Produktreiter steht nirgends sonst etwas dazu — geprüft; der
-  Anfangsbestand wird weiterhin richtig beschrieben, er steckt nur nicht mehr in dieser
-  Zeile.
-
-Die Anleitung war am 9. August 2026 vollständig nachgezogen — siehe unten.
+Nichts. Die Anleitung war am 11. August 2026 zuletzt vollständig nachgezogen — siehe unten.
 
 Die Bildschirmfotos in `doc/img/` sind vom 8. August 2026 und zeigen den Stand von damals:
 das alte Linkfeld im Posten-Fenster, die alten Prognose-Spalten, die fünfte Kennzahl der
 Monatsansicht. Neue werden nur auf ausdrückliche Bitte gemacht.
 
 ## Zuletzt eingearbeitet
+
+Am 11. August 2026, Durchgang durch **alle drei** Reiter, beide Sprachen, dazu die neue
+Version **26.8.11.1**. Die Bildschirmfotos blieben liegen (siehe oben):
+
+- **Filtern rechnet über das Gezeigte** — der Absatz „Filtern und wiederfinden" / „Filtering
+  and finding" fing mit der gegenteiligen Aussage an („Jede Summe … zählt weiter das ganze
+  Buch") und sagt jetzt, welche Zahlen mitrechnen: Bereichs- und Kategoriesummen des Monats,
+  die vier Kennzahlen der Auswertung, in der Jahrestabelle Block-, Kategorie- und
+  Gesamtzeile. Genannt sind auch die beiden Ausnahmen: die Monatseröffnung des Zeitstrahls
+  und die Prognose. Dazu je ein Satz in Schritt 7 und im Abschnitt zum Zeitstrahl.
+- ⚠ **Die Auswertung hatte „fünf Zahlen"** — sie hat seit dem Wegfall des Kontostands vier.
+  Das stand in **beiden** Sprachen falsch da und ist beim selben Durchgang mitgerichtet
+  worden, samt einem Satz, warum kein Kontostand dabei ist.
+- **Der Import steht in den Einstellungen**, Bereich Import, nicht mehr in der Kopfzeile —
+  im Absatz „Die alltäglichen Ausgaben" beider Sprachen. Der historische Eintrag in der
+  Versionsliste 26.8.5.x bleibt, wie er ist.
+- **FINA-Tabelle einlesen** als eigener Abschnitt „Mit deiner Tabelle anfangen" /
+  „Starting from your spreadsheet", direkt hinter „Die ersten Schritte": Aufbau der Tabelle,
+  das `/` in der schmalen Spalte, die gerechnete Gliederung, STIMMT/WEICHT AB, die Zuordnung
+  der Blöcke, „ersetzt statt ergänzt" samt bleibendem Anfangsbestand, Spalte P und Deadline,
+  die zwei Haken — und die Probe gegen „Gesamt je Monat". Dazu ein Verweis in Schritt 1 und
+  im Schlussabsatz von „Schritt für Schritt".
+- **„Gesamt je Monat"** war in der Aufzählung der Jahrestabelle schon richtig beschrieben;
+  neu ist nur der Punkt in der Versionsliste.
 
 Am 9. August 2026, vollständiger Durchgang durch **Schritt für Schritt** und **Was FINA
 kann**, beide Sprachen. Abgearbeitet wurde alles, was seit dem 8. August aufgelaufen war:

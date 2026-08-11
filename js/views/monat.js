@@ -103,12 +103,25 @@ function kakRow(k,m){
    Kontostand.** Den zeigt die Jahresansicht — dort steht er neben
    den elf anderen Monaten und lässt sich lesen; hier stünde er
    allein und ohne Vergleich. Was der Monat mit dem Konto macht,
-   sagt der Zeitstrahl darunter, Zeile für Zeile. */
-function anaBar(m){
+   sagt der Zeitstrahl darunter, Zeile für Zeile.
+
+   **Gerechnet wird über `sel`** — die Zeilen, die nach dem Filtern
+   übrig sind, dieselben, aus denen die Karten darunter ihre Summen
+   ziehen. Die Leiste beschreibt damit nicht mehr den ganzen Monat,
+   sondern das, was man gerade vor sich hat: wer nach einer
+   Kategorie sucht, liest hier, was sie einbringt und kostet.
+   Ungefiltert ist es dieselbe Zahl wie zuvor.
+
+   Auch die Zahl hinter „noch offen" zählt nur die gezeigten
+   Posten — sonst nennte die Sprechblase „3 von 20", während
+   darunter drei Zeilen stehen. */
+function anaBar(m,sel){
   const open=!!ui.ana;
-  const due=dueIn(m).filter(it=>!isIncome(it));
+  const inc=sel.items.filter(isIncome);
+  const due=sel.items.filter(it=>!isIncome(it));
   const openN=due.filter(it=>!paidAt(it,m)).length;
-  const uncN=unclearCount(m);
+  const uncN=due.filter(it=>estOf(it)&&!paidAt(it,m)).length;
+  const sum=arr=>arr.reduce((s,it)=>s+it.amounts[m-1],0);
   const openTip=t('month.kpiOpenN',openN,due.length,uncN?t('month.kpiUnclear',uncN):'');
   const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
       ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
@@ -117,16 +130,16 @@ function anaBar(m){
       data-tip="${esc(open?t('month.anaClose'):t('month.anaOpen'))}">
       <span class="analab">${t('month.ana')}</span>
       <span class="anarow">
-        ${cell('t-in',t('month.kpiIncome'),income(m),'pos')}
-        ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),kakeiboFor(m),'neg')}
-        ${cell('t-out',t('month.kpiFixed'),fixedCost(m),'neg')}
-        ${cell('t-out',t('month.kpiOpen'),openCost(m),openN?'neg':'',openTip)}
+        ${cell('t-in',t('month.kpiIncome'),sum(inc),'pos')}
+        ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sel.kaks.reduce((s,k)=>s+kakVal(k,m),0),'neg')}
+        ${cell('t-out',t('month.kpiFixed'),sum(due),'neg')}
+        ${cell('t-out',t('month.kpiOpen'),sum(due.filter(it=>!paidAt(it,m))),openN?'neg':'',openTip)}
       </span>
     </button>
     <!-- Zwischen den Zahlen und der Grafik der Satz, der sagt, was
          ein Klick in der Grafik tut. Er steht nur bei offener
          Auswertung: zugeklappt gibt es nichts zu klicken. -->
-    ${open?`<p class="anafilter">${t('month.anaFilterHint')}</p>${timeline(m)}`:''}
+    ${open?`<p class="anafilter">${t('month.anaFilterHint')}</p>${timeline(m,sel)}`:''}
     <!-- Eine Zeile in der Reihenfolge, in der man filtert: erst
          suchen, dann nach Fälligkeit einschränken, dann nach
          Zahlungsstand. Sie gilt für alle drei Bereiche. -->
@@ -235,8 +248,8 @@ function flowTrack(f,pos,zero,zones,cut){
     +`<span class="tconn" style="left:${pos(f.prev)}%"></span>${mark}`);
 }
 
-function timeline(m){
-  const flow=monthFlow(m), sc=flowScale(flow), last=daysInMonth(m);
+function timeline(m,sel){
+  const flow=monthFlow(m,sel), sc=flowScale(flow), last=daysInMonth(m);
   const today=(new Date().getFullYear()===YEAR&&m===CUR)?new Date().getDate():0;
   const NAME={P:t('month.tlOpen'),A:t('month.fDueA'),M:t('month.fDueM'),
     E:t('month.fDueE'),Z:t('month.tlClose')};
@@ -367,8 +380,37 @@ function viewMonat(){
     const all=pool.filter(it=>it.group===g);
     return {g,all,items:settledLast(all.filter(show))};
   });
+  /* Die gezeigten Kosten in einer flachen Liste — daraus kommen
+     die Zahl neben der Überschrift, die Kartensumme und der
+     Kostenanteil der Auswertung. */
+  const outItems=outGroups.reduce((a,x)=>a.concat(x.items),[]);
   const outAll=outGroups.reduce((n,x)=>n+x.all.length,0);
-  const outUse=outGroups.reduce((n,x)=>n+x.items.length,0);
+  const outUse=outItems.length;
+
+  /* ── Alles rechnet über das, was zu sehen ist ────────────────
+     Jede Zahl dieser Ansicht — die vier Kennzahlen der
+     Auswertung, der Zeitstrahl, die drei Kartensummen und die
+     Zeile jeder Kategorie — rechnet über die **übrig
+     gebliebenen** Zeilen, nicht über den Zustand. Eine Karte, die
+     drei von zwanzig Posten zeigt und darüber die Summe aller
+     zwanzig nennt, beantwortet eine Frage, die niemand gestellt
+     hat: wer filtert, will wissen, was das Gefundene zusammen
+     ausmacht. Ohne Filter ist beides dasselbe — dann bleibt jede
+     Zahl, wie sie war.
+
+     `sel` ist diese Auswahl in einem Stück, wie monthFlow() sie
+     erwartet (js/calc.js). Sie entsteht aus **denselben** Listen,
+     aus denen die Zeilen gebaut werden — Auswertung und Karten
+     können deshalb nicht auseinanderlaufen.
+
+     Was `sel` **nicht** anfasst: `carryIn(m)` in der ersten Zeile
+     des Zeitstrahls. Das ist der Stand, den der Monat vorfindet,
+     und den machen die Monate davor — die filtert niemand. */
+  const sumIt=arr=>arr.reduce((s,it)=>s+it.amounts[m-1],0);
+  const sel={items:incUse.concat(outItems),kaks:flexUse,bal:balOn};
+  const incSum=sumIt(incUse);
+  const flexSum=flexUse.reduce((s,k)=>s+kakVal(k,m),0);
+  const outSum=sumIt(outItems);
 
   /* ── Wann ein Bereich zugeklappt ist ─────────────────────────
      Gewöhnlich sagt es die Datei (state.folded). Zwei Dinge klappen
@@ -392,8 +434,9 @@ function viewMonat(){
 
   /* Dieselbe Zeile wie im Kostenblock: Summe, Name, Zahl der
      ausgeblendeten. Gebaut mit derselben Funktion, damit beide
-     Bereiche nicht auseinanderlaufen. */
-  const groupHead=(g,all,items)=>`<tr class="group"><td></td><td class="num amt">${eur(all.reduce((s,it)=>s+it.amounts[m-1],0))}</td><td></td>
+     Bereiche nicht auseinanderlaufen. Summiert werden die
+     **gezeigten** Posten; wie viele fehlen, steht daneben. */
+  const groupHead=(g,all,items)=>`<tr class="group"><td></td><td class="num amt">${eur(sumIt(items))}</td><td></td>
       <td>${esc(keyLabel(g))}${items.length!==all.length?` <span class="note">${t('month.hidden',all.length-items.length)}</span>`:''}</td></tr>`;
   let incRows='';
   if(!fIn){
@@ -430,7 +473,7 @@ function viewMonat(){
      Karten. Bezahlt und Noch offen stehen nicht mehr darunter —
      beides sagt schon die Auswertung. */
   return `
-  ${anaBar(m)}
+  ${anaBar(m,sel)}
 
   ${balOn?balanceRow(m):''}
 
@@ -441,7 +484,7 @@ function viewMonat(){
              heraus legt man eine Einnahme an. Welcher es ist, sagt
              die Liste — 'EINNAHMEN' steht nicht mehr fest im Code. -->
         <button class="btn small" data-newitem="${esc(incomeGroups()[0])}">${t('year.addIncome')}</button>
-        <span class="tot pos">${eur(income(m))}</span></span></div>
+        <span class="tot pos">${eur(incSum)}</span></span></div>
     ${fIn?'':`<table class="ledger">${incRows||noRows(incAll.length,'month.noIncome')}</table>`}
   </div>
 
@@ -454,7 +497,7 @@ function viewMonat(){
              den Reiter „Fast Budget Details" bringt erst der
              Import mit (hasImport in js/calc.js). -->
         ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}
-        <span class="tot neg">${eur(kakeiboFor(m))}</span></span></div>
+        <span class="tot neg">${eur(flexSum)}</span></span></div>
     ${fFlex?'':`<table class="ledger">${flexRows||noRows(flexAll.length,'month.noKak')}</table>`}
   </div>
 
@@ -462,7 +505,7 @@ function viewMonat(){
     <div class="sechead"${openAll?'':' data-dblfold="out"'}>${foldBtn('out',fOut,openAll)}<h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut)}</h2>
       <span style="display:flex;gap:12px;align-items:center">
         <button class="btn small" data-newitem="1">${t('year.addItem')}</button>
-        <span class="tot neg">${eur(fixedCost(m))}</span></span></div>
+        <span class="tot neg">${eur(outSum)}</span></span></div>
     ${fOut?'':`<table class="ledger">${outRows||noRows(outAll,'month.noItems')}</table>`}
   </div>
 

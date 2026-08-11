@@ -231,6 +231,21 @@ function viewJahr(){
      doppelte Lücke. */
   const parts=[];
 
+  /* ── Die Summen zählen, was zu sehen ist ─────────────────────
+     Blockzeile, Kategoriezeile und die Gesamtzeile ganz oben
+     rechnen über die **übrig gebliebenen** Zeilen, nicht über den
+     Zustand. Wer nach „WOHNEN" sucht, will wissen, was WOHNEN je
+     Monat ausmacht — nicht, was alle Kosten ausmachen, die er
+     gerade nicht sieht. Ohne Filter ist beides dasselbe, dann
+     steht überall wieder die volle Zahl.
+
+     Deshalb sammelt jeder Block seine sichtbaren Zeilen ein
+     (incVis, kakVis, outVis) und die Gesamtzeile wird erst
+     gebaut, wenn alle drei feststehen — sie ist die Summe
+     dessen, was darunter steht, und kann nicht früher stimmen. */
+  const monSums=arr=>MONTHS.map((_,i)=>arr.reduce((s,it)=>s+it.amounts[i],0));
+  const incVis=[], outVis=[];
+
   /* Die Gesamtzeile bleibt beim Scrollen unter den Spalten-
      köpfen stehen (.balpin in css/matrix.css) — sie fasst zusammen,
      was darunter Zeile für Zeile aufgeschlüsselt wird. Gebaut wird
@@ -243,30 +258,11 @@ function viewJahr(){
      Filtern, verlöre die Tabelle beim Scrollen genau die Zeile,
      für die das Kleben gebaut ist — und der Suchbegriff müsste
      zufällig in ihrer Beschriftung vorkommen, damit sie bleibt. */
-  /* ── Die oberste Zeile ist der Monat selbst ─────────────────
-     Was er bringt und was er kostet, zusammengezählt — `saldo(m)`
-     und sonst nichts: **nur dieser Monat**. Damit liest sich die
-     Matrix von oben nach unten als eine Aufschlüsselung derselben
-     Zahl: die Zeile nennt das Ergebnis, die drei Blöcke darunter
-     sagen, woraus es besteht.
-
-     **Der Kontostand steht hier nicht mehr.** Er stand hier als
-     `carryIn(m)+saldo(m)` und trug damit den Anfangsbestand und
-     alle Monate davor in eine Tabelle hinein, in der jede andere
-     Zahl genau einem Monat gehört — zwei verschiedene Bedeutungen
-     in derselben Spalte. Wo das Konto am Monatsende steht, sagt die
-     Prognose in der Spalte END; dort steht es neben dem Verlauf,
-     an dem man es liest.
-
-     In der Gesamtspalte steht damit die gewöhnliche Summe der
-     zwölf Monate: das Ergebnis des Jahres. */
-  const totRow=mrow(`<span data-tip="${esc(t('year.totalTip'))}">${t('year.totalRow')}</span>`,
-    MONTHS.map((_,i)=>saldo(i+1)),{cls:'sec r-sal balpin'});
-
   /* Die Saldokorrektur steht über den Einnahmen: eine einzige
      Zeile, wie eine Kategorie gezeigt, aber über den Stift wie
      jeder Posten zu pflegen. */
-  if(qOk(state.balance)||hit(t('bal.row')))
+  const balOn=qOk(state.balance)||hit(t('bal.row'));
+  if(balOn)
     parts.push(mrow(`<span data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>`,
       state.balance.amounts,{item:state.balance,asCat:true,cls:'sec r-bal',editTip:t('bal.editTip')}));
 
@@ -285,11 +281,12 @@ function viewJahr(){
     const gHit=secIn||hit(keyLabel(g));
     const vis=settledLast(items).filter(it=>base(it)&&(gHit||qOk(it)));
     if(!vis.length) return;
-    if(incMany) incRows+=mrow(esc(keyLabel(g)),MONTHS.map((_,i)=>items.reduce((s,it)=>s+it.amounts[i],0)),{cls:'grp r-in'});
+    incVis.push(...vis);
+    if(incMany) incRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-in'});
     vis.forEach(it=>{incRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'});});
   });
   if(incRows||secIn)
-    parts.push(mrow(t('g.income'),MONTHS.map((_,i)=>income(i+1)),
+    parts.push(mrow(t('g.income'),monSums(incVis),
       {cls:'sec r-in secpin',...foldOpt('in',fIn)})+(fIn?'':incRows));
 
   /* Alle Flexible Payments stehen hier, auch die noch leeren —
@@ -297,13 +294,17 @@ function viewJahr(){
      soll. Über den Stift bekommt sie ihre Monatswerte. Für
      Einnahmen und Kosten gilt seit base() dasselbe. */
   const secFlex=hit(t('year.kakRow'));
-  const kakRows=kakCats().filter(k=>state.kak[k]&&(secFlex||!q||hayKak(k).includes(q)))
+  const kakVis=kakCats().filter(k=>state.kak[k]&&(secFlex||!q||hayKak(k).includes(q)));
+  const kakRows=kakVis
     .map(k=>mrow(esc(keyLabel(k)),MONTHS.map((_,i)=>kakVal(k,i+1)),{kak:k,cls:'r-flex'})).join('');
+  /* Die Flexible Payments hängen nicht an `amounts`, sondern an
+     kakVal() — sie brauchen deshalb ihre eigene Summe. */
+  const kakSums=MONTHS.map((_,i)=>kakVis.reduce((s,k)=>s+kakVal(k,i+1),0));
   /* Nur der Name des Blocks. Der Hinweis auf den Import stand
      früher klein darunter — er erklärt aber nicht die Zeile,
      sondern eine Funktion, und dafür gibt es die Anleitung. */
   if(kakRows||secFlex)
-    parts.push(mrow(t('year.kakRow'),MONTHS.map((_,i)=>kakeiboFor(i+1)),
+    parts.push(mrow(t('year.kakRow'),kakSums,
       {cls:'sec r-flex secpin',...foldOpt('flex',fFlex)})+(fFlex?'':kakRows));
 
   const secOut=hit(t('g.fixed'));
@@ -318,11 +319,12 @@ function viewJahr(){
     const gHit=secOut||hit(keyLabel(g));
     const vis=settledLast(items).filter(it=>base(it)&&(gHit||qOk(it)));
     if(!vis.length) return;
-    outRows+=mrow(esc(keyLabel(g)),MONTHS.map((_,i)=>items.reduce((s,it)=>s+it.amounts[i],0)),{cls:'grp r-out'});
+    outVis.push(...vis);
+    outRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-out'});
     vis.forEach(it=>{outRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-out'});});
   });
   if(outRows||secOut)
-    parts.push(mrow(t('g.fixed'),MONTHS.map((_,i)=>fixedCost(i+1)),
+    parts.push(mrow(t('g.fixed'),monSums(outVis),
       {cls:'sec r-out secpin',...foldOpt('out',fOut)})+(fOut?'':outRows));
 
   /* Je Block ein eigener `tbody` — eine Gliederung, die man liest,
@@ -340,6 +342,40 @@ function viewJahr(){
      abgesetzt sind. Beim Scrollen verschwindet die Lücke unter der
      Gesamtzeile — die klebt, die Leerzeile nicht. */
   const body=parts.map(p=>`<tbody>${spacer()}${p}</tbody>`).join('');
+
+  /* ── Die oberste Zeile ist der Monat selbst ─────────────────
+     Was er bringt und was er kostet, zusammengezählt — **nur
+     dieser Monat**. Damit liest sich die Matrix von oben nach
+     unten als eine Aufschlüsselung derselben Zahl: die Zeile
+     nennt das Ergebnis, die drei Blöcke darunter sagen, woraus es
+     besteht.
+
+     Aufgeschlüsselt wird genau das, was dasteht: die Zeile ist
+     die Summe der drei Blockzeilen samt Saldokorrektur, nicht
+     `saldo(m)`. Ohne Filter ist beides dieselbe Zahl; mit Filter
+     wäre `saldo(m)` das Ergebnis von Zeilen, die man gerade nicht
+     sieht — und die Aufschlüsselung ginge nicht mehr auf.
+
+     **Der Kontostand steht hier nicht mehr.** Er stand hier als
+     `carryIn(m)+saldo(m)` und trug damit den Anfangsbestand und
+     alle Monate davor in eine Tabelle hinein, in der jede andere
+     Zahl genau einem Monat gehört — zwei verschiedene Bedeutungen
+     in derselben Spalte. Wo das Konto am Monatsende steht, sagt die
+     Prognose in der Spalte END; dort steht es neben dem Verlauf,
+     an dem man es liest.
+
+     In der Gesamtspalte steht damit die gewöhnliche Summe der
+     zwölf Monate: das Ergebnis des Jahres.
+
+     Weggefiltert wird sie nie (siehe oben) — sie gehört zum
+     Gerüst wie die Spaltenköpfe. */
+  const balVals=balOn?state.balance.amounts:MONTHS.map(()=>0);
+  const totVals=MONTHS.map((_,i)=>
+    incVis.reduce((s,it)=>s+it.amounts[i],0)
+    +outVis.reduce((s,it)=>s+it.amounts[i],0)
+    +kakSums[i]+(balVals[i]||0));
+  const totRow=mrow(`<span data-tip="${esc(t('year.totalTip'))}">${t('year.totalRow')}</span>`,
+    totVals,{cls:'sec r-sal balpin'});
 
   const V=visMonths(), hidden=12-V.length;
   /* Die Leiste fängt links mit dem Filter an und führt gleich die
