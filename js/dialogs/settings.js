@@ -26,6 +26,28 @@
    nicht in den Zustand: er wird nicht gespeichert. */
 let setPane='general';
 
+/* ── Die Bereiche ─────────────────────────────────────────────
+   Die Liste ist zweierlei: die Reihenfolge des Menüs links **und**
+   die Namen, die `openSettings()` von außen annimmt. Ein neuer
+   Bereich braucht deshalb einen Eintrag hier, einen `pane(…)`-Aufruf
+   unten und die Texte in js/i18n.js. */
+const SET_PANE_LABEL={general:'set.navGeneral',view:'set.navView',
+  banks:'set.navBanks',groups:'set.groups',kak:'set.kak',import:'set.navImport'};
+
+/* ── Wohin das Fenster aufgeht ────────────────────────────────
+   `openSettings(wohin)` nimmt entweder den Namen eines **Bereichs**
+   (`'banks'`, `'groups'`, `'kak'` — so kommen die Wege aus dem
+   Posten- und dem Kategorie-Fenster hier an) oder die Kennung eines
+   **Feldes** (`'sOpen'` — so kommt der Doppelklick auf den
+   Anfangsbestand aus der Prognose). Bei einem Feld muss das Fenster
+   den Bereich zeigen, in dem es liegt; sonst führte der Weg auf ein
+   verborgenes Feld, und der Nutzer stünde vor der Sprachwahl.
+
+   Diese Zuordnung ist die einzige Stelle, an der steht, welches Feld
+   in welchem Bereich wohnt. Wer ein weiteres Feld von außen
+   ansteuerbar macht, trägt es hier ein. */
+const SET_FIELD_PANE={sOpen:'general'};
+
 /* Überschrift einer Liste. Das Pluszeichen steht direkt hinter
    der Beschriftung, nicht unter der Liste — so bleibt es auch bei
    langen Listen in Sichtweite. */
@@ -34,7 +56,31 @@ function listHead(label,key,addTip){
     title="${esc(addTip)}" aria-label="${esc(addTip)}">+</button></label>`;
 }
 
-function openSettings(){
+/* ── Ein Fenster über einem Fenster ───────────────────────────
+   `done` ist der Rückweg: eine Funktion, die läuft, wenn dieses
+   Fenster wieder weg ist — gespeichert wie abgebrochen. Damit kann
+   das Posten- und das Kategorie-Fenster die Einstellungen **über
+   sich** öffnen, ohne selbst zu schließen: was dort getippt ist,
+   bleibt stehen, und danach holt es sich die neuen Listen ab.
+
+   Gestapelt wird über die Reihenfolge im Dokument — das jüngste
+   .modal liegt oben und bekommt auch Escape (js/ui.js). Zu tun ist
+   dafür nichts.
+
+   `reopen()` reicht beides weiter: „+", Entfernen und Sortieren
+   bauen das Fenster neu auf, und ein Rückweg, der dabei verloren
+   ginge, wäre der Rückweg für den häufigsten Fall überhaupt — man
+   kommt ja her, um etwas anzulegen. */
+function openSettings(where,done){
+  /* Der Bereich wird gestellt, bevor gebaut wird: `pane()` fragt
+     `setPane`, um zu entscheiden, welcher Abschnitt sichtbar ist.
+     Die Wahl bleibt danach stehen, wie jede andere — wer über den
+     Anfangsbestand hereinkommt und das Fenster gleich wieder
+     öffnet, findet „Allgemein" vor. */
+  const focus=SET_FIELD_PANE[where]?where:'';
+  const goPane=focus?SET_FIELD_PANE[focus]:(SET_PANE_LABEL[where]?where:'');
+  if(goPane) setPane=goPane;
+
   const box=document.createElement('div');
   box.className='modal';
 
@@ -68,9 +114,7 @@ function openSettings(){
   const pane=(key,title,hint,inner)=>`<section class="setpane" data-pane="${key}"${key===setPane?'':' hidden'}>
     <h4>${title}</h4>${hint?`<p class="note" style="margin:-2px 0 14px">${hint}</p>`:''}${inner}</section>`;
 
-  const NAV=[['general',t('set.navGeneral')],['view',t('set.navView')],
-    ['banks',t('set.navBanks')],['groups',t('set.groups')],['kak',t('set.kak')],
-    ['import',t('set.navImport')]];
+  const NAV=Object.keys(SET_PANE_LABEL).map(k=>[k,t(SET_PANE_LABEL[k])]);
 
   box.innerHTML=`<div class="box">
     <h3>${t('set.title')}</h3>
@@ -152,6 +196,24 @@ function openSettings(){
     <div class="row-end"><button class="btn" id="lCancel">${t('g.cancel')}</button><button class="btn primary" id="lSave">${t('g.save')}</button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box); bindSign(box);
+
+  /* Kommt das Fenster wegen eines bestimmten Feldes, steht die
+     Schreibmarke darin und der Wert markiert da: tippen ersetzt ihn,
+     wer ihn behalten will, drückt eine Pfeiltaste — dieselbe Regel
+     wie beim Hineinklicken (siehe „Ein Feld anklicken heißt:
+     überschreiben" in js/app.js) und wie beim hervorgehobenen Monat
+     im Posten-Fenster. Sonst bekommt nichts den Fokus: wer die
+     Einstellungen von sich aus öffnet, sucht sich selbst, was er
+     ändern will. */
+  const want=focus?box.querySelector('#'+focus):null;
+  if(want){ want.focus(); want.select(); }
+
+  /* Der Rückweg läuft auf jedem Weg hinaus — Speichern, Abbrechen,
+     Klick daneben, Escape —, aber **nur einmal**: `reopen()` baut das
+     Fenster neu auf und nimmt ihn mit, das alte darf ihn dann nicht
+     schon ausgelöst haben. */
+  let handed=false;
+  const handBack=()=>{ if(handed||!done) return; handed=true; done(); };
 
   /* Bereich wechseln — nur Sichtbarkeit, nichts wird neu gebaut.
      Getipptes bleibt dadurch stehen, auch in den Bereichen, die
@@ -289,11 +351,15 @@ function openSettings(){
     state.incomeGroups=state.incomeGroups.filter(Boolean);
     state.kakCats=state.kakCats.filter(Boolean);
   };
-  const closeSettings=()=>{ tidy(); closeModal(box); };
+  const closeSettings=()=>{ tidy(); closeModal(box); handBack(); };
 
   box._close=closeSettings;          /* auch für Escape (js/ui.js) */
 
-  const reopen=()=>{ box.remove(); openSettings(); };
+  /* Neu aufbauen heißt: dasselbe Fenster noch einmal, mit demselben
+     Ziel und demselben Rückweg. Ohne beides landete man nach jedem
+     „+" wieder ganz vorn — und das Fenster darunter erführe nie,
+     dass es neue Einträge gibt. */
+  const reopen=()=>{ box.remove(); openSettings(where,done); };
 
   /* Die Sprache wirkt sofort — das Fenster selbst wechselt mit. */
   box.querySelector('#sLang').onchange=()=>{ applyEdits(); save(); reopen(); renderChrome(); };
@@ -306,7 +372,14 @@ function openSettings(){
      Fenster standen, und der Import wäre wieder weg. Deshalb
      wird hier übernommen und geschlossen, wie beim Wechsel der
      Sprache — nur ohne Neuaufbau. */
-  const leaveTo=open=>{ applyEdits(); tidy(); save(); box.remove(); render(); open(); };
+  /* **Mit den Einstellungen geht alles, was darunter liegt.** Ein
+     Import ändert das Buch als Ganzes; ein Posten- oder
+     Kategorie-Fenster, das darunter noch offen stünde, schriebe
+     seinen Stand danach in ein Buch, das es so nicht mehr gibt.
+     Deshalb kein Rückweg (`handBack`) — es gibt nichts mehr, wohin. */
+  const leaveTo=open=>{ applyEdits(); tidy(); save();
+    document.querySelectorAll('.modal').forEach(m=>m.remove());
+    render(); open(); };
   box.querySelector('#impFast').onclick=()=>leaveTo(openImportInfo);
   box.querySelector('#impSheet').onclick=()=>leaveTo(openSheetInfo);
 
@@ -384,18 +457,28 @@ function openSettings(){
   box.onclick=e=>{if(e.target===box)closeSettings();};
 
   box.querySelector('#lSave').onclick=()=>{
+    /* Womit die Einnahmen hereinkamen — gebraucht wird das erst
+       unten, gelesen werden muss es hier: applyEdits() schreibt die
+       Liste im nächsten Schritt um. */
+    const inBefore=state.incomeGroups.slice();
     applyEdits();                     /* enthält die Umbenennungen */
     state.banks=state.banks.filter(x=>x.code);
     state.pays=state.pays.filter(x=>x.code);
     state.groups=[...new Set(state.groups.filter(Boolean))];
-    /* Ohne Einnahme-Kategorie gäbe es keine Einnahmen mehr: die
-       Posten zeigten auf einen Namen, den die Liste nicht kennt.
-       Bleibt am Ende nichts übrig, kehrt die Vorgabe zurück. */
+    /* **Keine Einnahme-Kategorie ist erlaubt** — ein frisch
+       angefangenes Buch hat keine, und wer die letzte leert, meint
+       es so. Zurück kommt nur, worauf noch ein Posten zeigt: ohne
+       seine Kategorie entschiede isIncome() ihn stillschweigend zu
+       den Kosten, und seine Zeile wechselte den Block. Die letzte
+       Kategorie **in Gebrauch** gibt das Fenster ohnehin nicht her
+       (siehe das Entfernen weiter oben) — hier bleibt der Weg über
+       das geleerte Namensfeld. */
     state.incomeGroups=[...new Set(state.incomeGroups.filter(Boolean))];
-    if(!state.incomeGroups.length) state.incomeGroups=['EINNAHMEN'];
+    if(!state.incomeGroups.length)
+      state.incomeGroups=inBefore.filter(g=>state.fixed.some(it=>it.group===g));
     state.kakCats=[...new Set(state.kakCats.filter(Boolean))];
     state.kakCats.forEach(ensureKakCat);
-    save(); box.remove(); render(); toast(t('set.saved'));
+    save(); box.remove(); render(); toast(t('set.saved')); handBack();
   };
 }
 

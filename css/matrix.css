@@ -243,6 +243,14 @@
    korrigiert wird, ist die eigentliche Aussage der Zeile. */
 .matrix tr.r-bal td.num.pos{color:var(--ok)}
 .matrix tr.r-bal td.num.neg{color:var(--seal)}
+/* Aus demselben Grund „Gesamt je Monat" (.balpin): die Zeile ist
+   keine Überschrift über etwas, sondern das **Ergebnis** des
+   Monats — ob er ins Plus oder ins Minus läuft, ist ihre ganze
+   Aussage, und schwarz wäre sie die einzige Zahl der Tabelle, der
+   man das erst ansehen müsste. Die Gesamtspalte rechts zählt dazu:
+   sie ist dieselbe Aussage über das Jahr. */
+.matrix tr.balpin td.num.pos{color:var(--ok)}
+.matrix tr.balpin td.num.neg{color:var(--seal)}
 
 /* ── Haken, Fragezeichen, Notizlampe je Monatszelle ───────── */
 .mk-ok{color:var(--ok)}

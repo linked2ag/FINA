@@ -87,6 +87,12 @@ function editKak(k,copy,focusMonth){
       title="${esc(t('kdlg.nameBtnTip'))}"></button></h3>
     <p class="subline">${copy?t('kdlg.dupSub',esc(keyLabel(copy.from)))
       :(isNew?t('kdlg.newSub'):(lockN?t('kdlg.lockedN',lockN):t('kdlg.allOpen'))+' '+t('kdlg.hint'))}</p>
+    <!-- Der Weg zu den Kategorien — hier zu **diesen**: die
+         Flexible Payments haben ihre eigene Liste, und der Weg
+         führt in ihren Bereich und nicht in den der regelmäßigen
+         Kosten. Er steht oben, wie im Posten-Fenster, und das
+         Einstellungsfenster legt sich über dieses hier. -->
+    <p class="note listlinks">${t('item.listsIn')}${setLinks([['kak',t('set.kak')]])}</p>
     <div class="field linkfield">${linkHead()}<div id="kLinks">${linkRows(links)}</div></div>
     <div class="field"><label>${t('item.kind')}</label>
       <label style="display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">
@@ -138,9 +144,31 @@ function editKak(k,copy,focusMonth){
      eigene ist: sonst zeigten zwei Kategorien auf dieselben Daten.
      Zurück kommt der Name selbst — die Meldung nennt ihn. */
   const taken=v=>(v!==k&&(state.kak[v]||state.kakCats.includes(v)))?v:'';
-  bindTitle(title,()=>name,v=>{name=v;},
+  const showName=bindTitle(title,()=>name,v=>{name=v;},
     {title:t('kdlg.nameTitle'),sub:isNew?t('kdlg.nameSubNew'):t('kdlg.nameSub'),
      ph:t('kdlg.namePh'),pick:t('kdlg.namePick')},taken);
+
+  /* ── Zurück aus den Einstellungen ─────────────────────────
+     Dort steht dieselbe Kategorie in der Liste — sie kann also
+     umbenannt oder entfernt worden sein, während dieses Fenster
+     offen war. `k` ist der **Schlüssel**: veraltet legte er beim
+     Speichern eine zweite Kategorie an (renameKakCat fände die alte
+     nicht mehr) und `taken()` hielte den neuen Namen für vergeben.
+
+     Wiedergefunden wird sie über ihren Eintrag selbst —
+     renameKakCat() verschiebt genau dieses Objekt. Ist er nirgends
+     mehr, wurde die Kategorie entfernt: dann hat dieses Fenster
+     nichts mehr zu speichern. Der Name im Kopf zieht nur mit, wenn
+     er noch der alte ist; wer schon einen eigenen eingetippt hat,
+     behält ihn. */
+  const relist=()=>{
+    if(isNew||state.kak[k]===e) return;
+    const now=Object.keys(state.kak).find(n=>state.kak[n]===e);
+    if(!now){ closeModal(box); toast(t('kdlg.gone')); return; }
+    if(name===k) name=now;
+    k=now; showName();
+  };
+  bindSetLinks(box,relist);
 
   /* Eine Kategorie, die es noch nicht gibt, steht in keinem
      state.kak — ihr Schlüssel ist der leere Name. Damit die

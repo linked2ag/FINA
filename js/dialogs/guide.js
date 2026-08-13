@@ -1112,7 +1112,21 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.11.1 <span class="pill">latest</span></h4>
+<h4>26.8.13.1 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>The forecast can be changed where it stands.</b> Double-click a month in the <b>COR</b>
+      column and the balance correction opens at that month. Double-click the amount of the
+      <b>${t('set.opening')}</b> row and the settings open with that field ready to type.</li>
+  <li><b>Every window shows the way to its lists.</b> Above the selects there is one link per
+      list — categories, banks, payment types, and in the Flexible Payments window its own
+      categories. The settings open on top of the window: nothing you typed is lost, and the new
+      entries are in the lists when you come back.</li>
+  <li><b>A new book is really empty.</b> No categories, no banks, no payment types — you set up
+      what you need yourself.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.11.1</h4>
 <ul>
   <li><b>Filtering now adds up what you see.</b> In the month view the block totals, the category
       totals and the four figures of the analytics line; in the year table the block rows, the
@@ -1232,7 +1246,22 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.11.1 <span class="pill">neu</span></h4>
+<h4>26.8.13.1 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Die Prognose lässt sich dort ändern, wo sie steht.</b> Ein Doppelklick auf einen Monat
+      der Spalte <b>COR</b> öffnet die Saldokorrektur mit genau diesem Monat. Ein Doppelklick auf
+      den Betrag der Zeile <b>${t('set.opening')}</b> öffnet die Einstellungen mit diesem Feld
+      bereit zum Tippen.</li>
+  <li><b>Jedes Fenster zeigt den Weg zu seinen Listen.</b> Über den Auswahllisten steht ein Weg
+      je Liste — Kategorien, Banken, Zahlungsarten, im Fenster der Flexible Payments deren eigene
+      Kategorien. Die Einstellungen gehen über dem Fenster auf: Getipptes bleibt stehen, und die
+      neuen Einträge stehen hinterher in den Listen.</li>
+  <li><b>Ein neues Buch ist wirklich leer.</b> Keine Kategorien, keine Banken, keine
+      Zahlungsarten — du richtest dir selbst ein, was du brauchst.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.11.1</h4>
 <ul>
   <li><b>Filtern rechnet jetzt über das, was du siehst.</b> In der Monatsansicht die
       Bereichssummen, die Kategoriesummen und die vier Zahlen der Auswertung; in der

@@ -399,9 +399,11 @@ function applySheet(sheet,opt){
   state.kakCats.forEach(ensureKakCat);
 
   state.banks=banks; state.pays=pays;
-  /* Ohne Einnahme-Kategorie gäbe es keine Einnahmen mehr — dann
-     kehrt die Vorgabe zurück (siehe js/state.js). */
-  if(!state.incomeGroups.length) state.incomeGroups=['EINNAHMEN'];
+  /* Ohne Einnahmenblock in der Tabelle bleibt die Liste leer — es
+     gibt dann auch keinen Posten, der auf eine Einnahme-Kategorie
+     zeigt (sie entstehen oben in fill('in')). Eine untergeschobene
+     Kategorie stünde in einem Buch, dessen Tabelle sie nicht kennt;
+     angelegt wird sie in den Einstellungen. */
   state.lastImport=new Date().toLocaleString('de-DE');
   save();
 

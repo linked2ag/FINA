@@ -482,8 +482,13 @@ function viewMonat(){
       <span style="display:flex;gap:12px;align-items:center">
         <!-- Der Block wird vorgewählt: aus dem Einnahmenbereich
              heraus legt man eine Einnahme an. Welcher es ist, sagt
-             die Liste — 'EINNAHMEN' steht nicht mehr fest im Code. -->
-        <button class="btn small" data-newitem="${esc(incomeGroups()[0])}">${t('year.addIncome')}</button>
+             die Liste — 'EINNAHMEN' steht nicht mehr fest im Code.
+             Gibt es noch keine Einnahme-Kategorie (frisch
+             angefangenes Buch), bleibt die Vorauswahl leer ("1"):
+             das Fenster fragt dann nach dem Block und sagt, wo
+             Kategorien entstehen. Ein untergeschobener Name wäre
+             eine Kategorie, die es nicht gibt. -->
+        <button class="btn small" data-newitem="${esc(incomeGroups()[0]||'1')}">${t('year.addIncome')}</button>
         <span class="tot pos">${eur(incSum)}</span></span></div>
     ${fIn?'':`<table class="ledger">${incRows||noRows(incAll.length,'month.noIncome')}</table>`}
   </div>

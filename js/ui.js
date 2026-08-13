@@ -405,6 +405,29 @@ function editLink(cur,onOk){
   const f=cur?nm:ur; f.focus(); f.select();
 }
 
+/* ── Der Weg in die Einstellungen ─────────────────────────────
+   Ein Fenster, in dem aus einer Liste gewählt wird, sagt auch, wo
+   diese Liste gepflegt wird: eine dünne Zeile **über** den Feldern,
+   ein Weg je Liste. Das Posten-Fenster führt so zu den Kategorien,
+   den Banken und den Zahlungsarten, das Kategorie-Fenster der
+   Flexible Payments zu deren Kategorien — jeder Weg in den Bereich,
+   um den es geht, und nicht bloß „in die Einstellungen".
+
+   `bindSetLinks(box,after)` hängt sie an: das Einstellungsfenster
+   geht **über** dem aufrufenden auf, ohne es zu schließen, und
+   `after` läuft, wenn es wieder weg ist — dort holt sich das Fenster
+   die neuen Einträge ab (siehe openSettings in
+   js/dialogs/settings.js).
+
+   Das Merkmal heißt `data-setlist` und nicht `data-lists`: jenes
+   gehört den Ansichten und wird in wire() bei jedem Zeichnen neu
+   verdrahtet — es überschriebe den Rückweg. */
+const setLinks=list=>list.filter(Boolean)
+  .map(([pane,lab])=>`<button type="button" class="linkish" data-setlist="${esc(pane)}">${esc(lab)}</button>`)
+  .join('<span class="lsep">·</span>');
+const bindSetLinks=(box,after)=>box.querySelectorAll('[data-setlist]')
+  .forEach(b=>{ b.onclick=()=>openSettings(b.dataset.setlist,after); });
+
 /* Die Überschrift des Linkbereichs — dieselbe Bauart wie die
    Listen im Einstellungsfenster (listHead in js/dialogs/settings.js):
    das Pluszeichen steht **direkt hinter** der Beschriftung, nicht am

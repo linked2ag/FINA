@@ -96,6 +96,15 @@ function editItem(item,group,copyOf,focusMonth){
      nicht mehr. Dasselbe wie im Fenster der Flexible Payments. */
   let name=it.name||'';
 
+  /* Ein Weg je Auswahlliste, in der Reihenfolge der Felder darunter:
+     Kategorie, Bank, Zahlungsart. Banken und Zahlungsarten stehen in
+     den Einstellungen im selben Bereich — zwei Wege dorthin sind
+     trotzdem richtig: geklickt wird auf das, was gerade fehlt, und
+     nicht auf den Bereich, in dem es zufällig wohnt. Der
+     Saldokorrektur fehlt die Kategorie, ihr fehlt auch der Weg. */
+  const listLinks=setLinks([isBal?null:['groups',t('set.groups')],
+    ['banks',t('set.banks')],['banks',t('set.pays')]]);
+
   const box=document.createElement('div');
   box.className='modal';
   box.innerHTML=`<div class="box">
@@ -103,6 +112,18 @@ function editItem(item,group,copyOf,focusMonth){
       title="${esc(t('item.nameBtnTip'))}"></button></h3>
     <p class="subline">${copyOf?t('item.dupSub',esc(copyOf))
       :(isBal?t('bal.hint'):(lockN?t('item.lockedN',lockN):t('item.allOpen')))}</p>
+    <!-- ── Woher die Auswahllisten kommen ──────────────────────
+         Ein Weg je Liste, und zwar **über** der Reihe, in der die
+         Listen stehen: dort stellt sich die Frage („diese Kategorie
+         gibt es noch nicht"), und dort steht die Antwort. Vorher
+         stand ein einzelner Sammellink weiter unten, hinter der
+         Betragsart — weit weg von den Feldern, die er meint.
+
+         Das Einstellungsfenster legt sich **über** dieses hier,
+         ohne es zu schließen: was schon getippt ist, bleibt stehen,
+         und wenn es wieder geht, stehen die neuen Einträge in den
+         Listen (relist() weiter unten). -->
+    <p class="note listlinks">${t('item.listsIn')}${listLinks}</p>
     <!-- Die Kategorie steht in derselben Reihe wie Bank,
          Zahlungsart und Fälligkeit: alle vier sind Auswahllisten,
          und alle vier beschreiben, wohin der Posten gehört. Bei
@@ -128,7 +149,6 @@ function editItem(item,group,copyOf,focusMonth){
       <label style="display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">
         <input type="checkbox" id="fEst" ${it.estimated?'checked':''} style="width:auto">
         ${t('item.est')}</label></div>`}
-    <p class="note" style="margin:-4px 0 10px"><button class="linkish" id="fLists">${t('item.lists')}</button></p>
     <div class="quick">
       <div class="field" style="margin-bottom:8px"><label>${t('item.quick')}</label></div>
       <!-- In der Reihenfolge, in der man es denkt: wie oft, ab
@@ -273,7 +293,32 @@ function editItem(item,group,copyOf,focusMonth){
   box.querySelector('#qClear').onclick=()=>{
     cells().forEach(c=>{if(!c.disabled)c.value='';}); signValues(box);
   };
-  box.querySelector('#fLists').onclick=()=>{box.remove();editLists();};
+  /* ── Zurück aus den Einstellungen ─────────────────────────
+     Die drei Auswahllisten werden neu gebaut; alles andere im
+     Fenster bleibt, wie es steht — es war ja nie weg.
+
+     **Gewählt bleibt, was gewählt war.** Nur wenn es den Eintrag
+     nicht mehr gibt, zählt der Posten selbst: Umbenennen zieht ihn
+     mit (renameGroup, askCarryCodes in js/dialogs/settings.js), und
+     ein Fenster, das den alten Namen behielte, schriebe ihn beim
+     Speichern zurück. Ein leeres Feld bleibt leer — „—" ist eine
+     Wahl und keine Lücke. Kennt am Ende niemand den Wert, bleibt er
+     stehen und trägt sein Fragezeichen wie beim Öffnen. */
+  const relist=()=>{
+    const g=box.querySelector('#fGroup');
+    if(g){
+      const all=allGroups();
+      const cur=all.includes(g.value)?g.value:(all.includes(it.group)?it.group:'');
+      g.innerHTML=(cur?'':`<option value="" selected>${t('item.blockPick')}</option>`)+groupOpts(cur);
+    }
+    const codes=(sel,arr,was)=>{
+      const known=c=>!c||arr.some(x=>x.code===c);
+      sel.innerHTML=optList(arr,(known(sel.value)||sel.value===was)?sel.value:was);
+    };
+    codes(box.querySelector('#fBank'),state.banks,it.bank);
+    codes(box.querySelector('#fPay'),state.pays,it.pay);
+  };
+  bindSetLinks(box,relist);
   box.querySelector('#fCancel').onclick=()=>closeModal(box);
   box.onclick=e=>{if(e.target===box)closeModal(box);};
   /* Die Linkliste zeichnet sich nach jeder Änderung neu; die Klicks

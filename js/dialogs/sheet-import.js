@@ -169,7 +169,7 @@ function openSheetImport(sheet,fileName){
       <table class="ledger">
         <tr><th>${t('sheet.what')}</th><th>${t('imp.before')}</th><th>${t('imp.after')}</th></tr>
         ${row(t('sheet.rItems'),state.fixed.length,scan.items)}
-        ${row(t('set.groupsIn'),state.incomeGroups.length,scan.incomeGroups.length||1)}
+        ${row(t('set.groupsIn'),state.incomeGroups.length,scan.incomeGroups.length)}
         ${row(t('set.groupsOut'),state.groups.length,scan.groups.length)}
         ${row(t('set.kak'),state.kakCats.length,scan.kakCats.length)}
         ${row(t('sheet.rTx'),state.tx.length,0)}

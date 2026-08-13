@@ -238,6 +238,23 @@
    dann an der Kante zur Nachbarspalte; mittig stehen sie unter
    ihrer eigenen Überschrift. */
 .progtable td.mid,.progtable th.mid{text-align:center}
+/* ── Die Farbe der Geldart, Spalte für Spalte ────────────────
+   Dieselben vier Farben wie die Kennzahlen darüber, die Karten der
+   Monatsansicht und die Blöcke der Jahresmatrix — die hellste
+   Stufe, denn hier ist es ein Grund unter Zahlen und keine
+   Blockzeile. Gefärbt wird die **Spalte**, Kopfzelle eingeschlossen:
+   erst dadurch liest sie sich als ein Streifen und nicht als zwölf
+   getönte Zellen.
+
+   START trägt nichts (ein Stand, keine Bewegung), END das helle
+   Violett von „alles zusammen". Die Monatsspalte links bleibt
+   ebenfalls frei — sie klebt beim seitlichen Rollen und braucht
+   ihren deckenden Grund für sich. */
+.progtable td.incol,.progtable th.incol{background:var(--bg-in)}
+.progtable td.outcol,.progtable th.outcol{background:var(--bg-out)}
+.progtable td.flexcol,.progtable th.flexcol{background:var(--bg-flex)}
+.progtable td.balcol,.progtable th.balcol{background:var(--bg-bal)}
+.progtable td.endcol,.progtable th.endcol{background:var(--bg-sal)}
 /* Die Rasterlinie überquert die Zeilentrennung, sonst hätte sie
    alle 38 px eine Lücke und wäre zwölfmal unterbrochen statt
    durchgehend. */

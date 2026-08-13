@@ -154,8 +154,23 @@ const blankFolded=()=>({in:false,flex:false,out:false});
 const isFolded=k=>!!(state&&state.folded&&state.folded[k]);
 const isFoldedYear=k=>!!(state&&state.foldedYear&&state.foldedYear[k]);
 
-/* Leerer Zustand ohne jede Vorgabe. Listen, die der Nutzer schon
-   gepflegt hat, bleiben beim Trennen der Datei erhalten. */
+/* ── Ein neues Buch weiß nichts ───────────────────────────────
+   „Neu anfangen" heißt leer: **keine** Kategorien — weder für
+   Einnahmen noch für Kosten noch für die Flexible Payments —,
+   keine Banken, keine Zahlungsarten. Der Nutzer richtet sich
+   selbst ein, und die Begrüßungsseite verspricht genau das
+   (`wel.newSub`: „Jahr, Kategorien und Posten anlegen").
+
+   Früher zog ein neues Buch die vier Listen aus dem vorigen mit
+   und bekam dazu die Einnahme-Kategorie 'EINNAHMEN' geschenkt.
+   Beides waren Angaben, die niemand gemacht hat: die Ordnung eines
+   fremden Jahres in einem Buch, das gerade erst anfängt — und eine
+   Kategorie, die man erst suchen und löschen muss, um die eigene
+   anzulegen.
+
+   Was bleibt, ist keine Angabe über Geld: Sprache, Abrechnungsjahr
+   und die Wahl, worin das Suchfeld sucht. Das sind Einstellungen
+   der Anwendung, keine Inhalte des Buches. */
 function emptyState(){
   const o={},src={};
   for(let m=1;m<=12;m++){o[m]={};src[m]=null;}
@@ -166,10 +181,8 @@ function emptyState(){
        Nutzer: ein neues Buch fängt bei null an, auch wenn das alte
        eine Zahl trug. */
     opening:0,
-    banks:(state&&state.banks)?state.banks:[],
-    pays:(state&&state.pays)?state.pays:[],
-    groups:(state&&state.groups)?state.groups:[],
-    incomeGroups:(state&&state.incomeGroups)?state.incomeGroups:['EINNAHMEN'],
+    banks:[], pays:[],
+    groups:[], incomeGroups:[],
     fixed:[], balance:blankBalance(),
     flexActual:o, flexSource:src, tx:[], plan:{},
     kakCats:[], kak:{}, labWidth:250, monWidth:100, topMin:50, lastImport:null,
@@ -184,8 +197,9 @@ function emptyState(){
        und soll beim nächsten Öffnen wieder gelten. Vorgabe ist
        alles offen. */
     folded:blankFolded(), foldedYear:blankFolded(),
-    /* Wie die vier Listen: eine einmal getroffene Wahl überlebt
-       das Trennen der Datei. */
+    /* Worin das Suchfeld sucht, ist keine Angabe über Geld, sondern
+       eine Gewohnheit beim Lesen — sie überlebt das Trennen der
+       Datei, anders als die vier Listen. */
     filterFields:(state&&state.filterFields)?state.filterFields:allQFields(),
     qHidden:!!(state&&state.qHidden)
   };
@@ -259,11 +273,20 @@ function migrate(s){
   if(!s.banks) s.banks=[];
   if(!s.pays) s.pays=[];
   if(!s.groups) s.groups=[];
-  /* Ältere Dateien kennen nur den einen festen Einnahmenblock.
-     Sie bekommen ihn als erste Kategorie — die Posten zeigen mit
-     it.group='EINNAHMEN' schon darauf, es ändert sich für sie
-     nichts. Eine leere Liste wäre ein Buch ohne Einnahmen. */
-  if(!Array.isArray(s.incomeGroups)||!s.incomeGroups.length) s.incomeGroups=['EINNAHMEN'];
+  /* Ältere Dateien kennen die Liste nicht: sie haben nur den einen
+     festen Einnahmenblock, und ihre Einnahmen zeigen mit
+     it.group='EINNAHMEN' schon darauf. Sie bekommen ihn deshalb als
+     erste Kategorie — für sie ändert sich nichts.
+
+     **Eine leere Liste bleibt leer.** Sie ist keine fehlende
+     Angabe, sondern eine gemachte: ein Buch, das noch keine
+     Einnahme-Kategorie hat, weil es gerade erst angefangen wurde
+     (siehe emptyState). Eine untergeschobene Kategorie stünde nach
+     dem ersten Speichern wieder da, obwohl der Nutzer sie nie
+     angelegt hat. Fehlen kann dabei nichts: ein Posten, der auf
+     eine Einnahme-Kategorie zeigt, hält sie am Leben — das
+     Einstellungsfenster gibt die letzte in Gebrauch nicht her. */
+  if(!Array.isArray(s.incomeGroups)) s.incomeGroups=['EINNAHMEN'];
   if(!s.fixed) s.fixed=[];
   if(!s.flexActual) s.flexActual={};
   if(!s.flexSource) s.flexSource={};

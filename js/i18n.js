@@ -510,12 +510,18 @@ const STR={
   de:'die regelmäßigen Kosten des Monats — Rechnungen, die wiederkehren.'},
 'prog.tipKak':{en:'the Flexible Payments of the month: imported where available, otherwise the assumption.',
   de:'die Flexible Payments des Monats: importiert, wo vorhanden, sonst die Annahme.'},
-'prog.tipBal':{en:'what you entered by hand to correct the balance. Usually empty.',
-  de:'was du von Hand nachträgst, um den Saldo zu berichtigen. Meistens leer.'},
+'prog.tipBal':{en:'what you entered by hand to correct the balance. Usually empty. Double-click a month to change it.',
+  de:'was du von Hand nachträgst, um den Saldo zu berichtigen. Meistens leer. Ein Doppelklick auf einen Monat ändert ihn.'},
 'prog.tipStart':{en:'what is on the account before this month — the closing balance of the month above.',
   de:'was vor diesem Monat auf dem Konto liegt — der Schlussstand des Monats darüber.'},
 'prog.tipEnd':{en:'what is left after the four movements. It is the starting balance of the next month, and in December the year-end balance.',
   de:'was nach den vier Bewegungen übrig ist. Es ist zugleich der Anfangsstand des nächsten Monats — im Dezember der Stand zum Jahresende.'},
+/* Die Zeile über dem Januar: der Anfangsbestand steht in den
+   Einstellungen, weil er keinem Monat gehört. Der Satz sagt den Weg
+   dorthin — er ist der einzige Hinweis darauf, dass diese Zahl
+   anfassbar ist. */
+'prog.openEdit':{en:'The balance before January. It lives in the settings, because it belongs to no month — double-click to change it there.',
+  de:'Der Kontostand vor dem Januar. Er steht in den Einstellungen, weil er zu keinem Monat gehört — ein Doppelklick öffnet ihn dort.'},
 'prog.colFlowTip':{en:'How the balance moves through the year: each month starts at the previous month’s balance and ends at its own. The colours are the kinds of money.',
   de:'Wie sich der Kontostand durch das Jahr bewegt: jeder Monat fängt beim Stand des Monats davor an und endet bei seinem eigenen. Die Farben sind die Geldarten.'},
 'prog.greyed':{en:'Months before {0} are greyed out. Each row reads from left to right: the balance the month starts with, the four movements, the balance it ends with — that one is the next month’s starting balance.',
@@ -598,7 +604,11 @@ const STR={
 'item.kind':{en:'Kind of amount',de:'Betragsart'},
 'item.est':{en:'Amount is estimated and may differ — shown in yellow with a question mark',
   de:'Summe ist geschätzt und kann abweichen — wird gelb mit Fragezeichen dargestellt'},
-'item.lists':{en:'Edit banks, payment types & categories',de:'Banken, Zahlungsarten &amp; Kategorien bearbeiten'},
+/* Über der Reihe der Auswahllisten: ein Weg je Liste in den Bereich
+   der Einstellungen, in dem sie gepflegt wird. Die Wege selbst
+   heißen wie die Bereiche dort (set.groups · set.banks · set.pays ·
+   set.kak) — wer klickt, findet dieselbe Überschrift wieder. */
+'item.listsIn':{en:'Edit in settings:',de:'In den Einstellungen ändern:'},
 'item.quick':{en:'Quick entry',de:'Schnelle Eingabe'},
 'item.rhythm':{en:'Repetition',de:'Wiederholung'},
 'item.fromMonth':{en:'from {0}',de:'ab {0}'},

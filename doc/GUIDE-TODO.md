@@ -17,7 +17,38 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
-Nichts. Die Anleitung war am 11. August 2026 zuletzt vollständig nachgezogen — siehe unten.
+- **In der Prognose lässt sich zweierlei ändern, ohne die Ansicht zu wechseln.** Ein
+  Doppelklick auf einen Betrag der Spalte **COR** öffnet die Saldokorrektur mit genau diesem
+  Monat — dasselbe Fenster wie in der Jahrestabelle. Und ein Doppelklick auf den Betrag der
+  Zeile **Anfangsbestand** (Spalte END, die Zeile über dem Januar) führt in die
+  Einstellungen, Bereich „Allgemein", mit der Schreibmarke im Feld und dem Wert markiert.
+  Betrifft den Produktreiter, Abschnitt zur Prognose: dort steht beim Anfangsbestand „You
+  type it in the settings" / „Du trägst ihn in den Einstellungen ein" — das bleibt richtig,
+  ist aber nicht mehr der einzige Weg. Falsch geworden ist nichts.
+
+- **„Neu anfangen" ist wirklich leer.** Ein frisch angefangenes Buch hat keine Kategorien
+  (weder Einnahmen noch Kosten noch Flexible Payments), keine Banken und keine
+  Zahlungsarten — auch dann nicht, wenn vorher eine Datei mit solchen Listen offen war.
+  Schritt 3 („Deine Konten und deine Kategorien") beschreibt schon das Richtige und braucht
+  nur die Zusage, dass dort tatsächlich nichts steht; erwähnenswert ist, dass ein Posten erst
+  gespeichert werden kann, wenn es eine Kategorie gibt.
+
+- **Der Weg zu den Listen steht in jedem Fenster.** Über den Auswahllisten des
+  Posten-Fensters steht je ein Weg zu den Kategorien, den Banken und den Zahlungsarten, im
+  Fenster der Flexible Payments einer zu deren eigenen Kategorien. Die Einstellungen gehen
+  **über** dem Fenster auf, ohne es zu schließen; danach stehen die neuen Einträge in den
+  Listen. ⚠ Wo die Anleitung den alten Sammellink „Banken, Zahlungsarten & Kategorien
+  bearbeiten" nennt (Schritt 5 und der Produktreiter), stimmt sie nicht mehr — den Link gibt
+  es nicht mehr.
+
+- **Die Prognose färbt ihre Spalten** in den Farben der Geldarten (IN grün, REG rot, FLEX
+  gelb, COR blau, END violett; START bleibt ungefärbt), und **„Gesamt je Monat"** in der
+  Jahrestabelle zeigt seine Zahlen grün und rot wie jeder andere Betrag. Beides ist Kosmetik
+  — nur erwähnenswert, falls ein Absatz die Farben aufzählt.
+
+Die drei Punkte sind am 13. August 2026 in den Reiter **Was ist neu** eingegangen (Version
+26.8.13.1, beide Sprachen); in **Schritt für Schritt** und **Was FINA kann** stehen sie noch
+nicht. Vollständig nachgezogen war die Anleitung zuletzt am 11. August 2026 — siehe unten.
 
 Die Bildschirmfotos in `doc/img/` sind vom 8. August 2026 und zeigen den Stand von damals:
 das alte Linkfeld im Posten-Fenster, die alten Prognose-Spalten, die fünfte Kennzahl der

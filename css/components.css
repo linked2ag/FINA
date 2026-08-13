@@ -514,6 +514,15 @@ body.gresize{user-select:none;cursor:col-resize}
 .modal .subline{font-size:12.5px;color:var(--ink-2);margin:0 0 16px}
 .row-end{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 
+/* ── Die Wege in die Einstellungen ────────────────────────────
+   Eine dünne Zeile über der Reihe der Auswahllisten: die
+   Beschriftung sagt einmal, wohin es geht, danach ein Weg je Liste,
+   durch Mittelpunkte getrennt. Sie steht dicht über den Feldern, die
+   sie meint — der Abstand nach unten ist kleiner als der nach oben.
+   Gebaut wird sie in setLinks() (js/ui.js). */
+.listlinks{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px;margin:0 0 7px}
+.listlinks .lsep{color:var(--rule-strong)}
+
 /* ── Schnelleingabe und Monatsraster im Fenster ───────────── */
 .quick{border:1px solid var(--rule-strong);background:var(--paper);padding:9px 12px 10px;margin:10px 0}
 /* Überschrift links, Mittelwert rechts — in einer Zeile, damit die

@@ -405,6 +405,28 @@ function wire(){
   });
   dblOpen('[data-dbledit]',(tr,m)=>editItem(findItem(tr.dataset.dbledit),null,null,m));
   dblOpen('[data-dblkedit]',(tr,m)=>editKak(tr.dataset.dblkedit,null,m));
+  /* **Beides trägt in der Prognose die Zelle statt der Zeile.** Dort
+     ist eine Zeile ein Monat und keine Position: der Doppelklick auf
+     die Korrektur meint sie und nicht die fünf Zahlen daneben. Für
+     `dblOpen` ändert das nichts — es hängt den Doppelklick an das
+     Element mit dem Merkmal, und `td.num` ist eine der Zellen aus
+     DBLCELL. Den Monat sagt auch hier `data-m`. */
+
+  /* ── Der Anfangsbestand ──────────────────────────────────────
+     Er gehört keinem Monat und steht deshalb nicht in einer Zeile,
+     sondern in den Einstellungen. Seine einzige Zahl in einer
+     Ansicht ist die Zeile über dem Januar in der Prognose — ein
+     Doppelklick darauf führt dorthin, wo sie geändert wird: in den
+     Bereich „Allgemein", mit der Schreibmarke im Feld und dem Wert
+     fertig markiert.
+
+     Ein Fenster statt einer Zelle: der Anfangsbestand ist eine
+     Einstellung und keine Position, und er hat kein Fenster, das
+     ihm allein gehörte. */
+  document.querySelectorAll('[data-opening]').forEach(td=>td.ondblclick=()=>{
+    const s=window.getSelection(); if(s) s.removeAllRanges();
+    openSettings('sOpen');
+  });
   /* Neu anlegen — in beiden Ansichten und in beiden Arten. Der
      Wert von data-newitem ist der vorgewählte Block ("1" = der
      erste der Liste). */
@@ -422,10 +444,11 @@ function wire(){
   const hs=document.getElementById('btnHideSettled');
   if(hs) hs.onclick=()=>{state.hideSettled=!state.hideSettled;keepQFocus();save();render();};
 
-  /* Die Prognose hat nichts zu verdrahten: sie rechnet und zeigt.
-     Die Annahme wird im Fenster der Kategorie gepflegt — der Weg
-     dorthin führt über Stift und Doppelklick, die schon oben
-     hängen. */
+  /* Die Prognose rechnet und zeigt; zu ändern gibt es dort zwei
+     Zahlen, und beide hängen schon oben: die Saldokorrektur eines
+     Monats (data-dbledit an der Zelle) und der Anfangsbestand
+     (data-opening). Die Annahme der Flexible Payments wird im
+     Fenster der Kategorie gepflegt. */
 
   /* Kakeibo: CSV-Import und Zeitraum (Ganzes Jahr oder ein Monat) */
   const km=document.getElementById('kMonth');

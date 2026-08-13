@@ -8,12 +8,19 @@ const kakCats=()=>((state&&state.kakCats)||[]);
 const costGroups=()=>(state&&state.groups?state.groups:[]);
 /* Einnahmen haben eigene Kategorien, genau wie die Kosten — sie
    werden im Einstellungsfenster gepflegt. Früher gab es dafür den
-   einen festen Block 'EINNAHMEN'; er ist jetzt nur noch die
-   Vorgabe, mit der eine Datei ohne eigene Liste startet und in die
-   migrate() alte Dateien überführt. Der Name bleibt dabei roher
-   Schlüssel und wird nicht übersetzt (Regel 3): angezeigt wird er
-   über keyLabel() als INCOME. */
-const incomeGroups=()=>(state&&state.incomeGroups&&state.incomeGroups.length?state.incomeGroups:['EINNAHMEN']);
+   einen festen Block 'EINNAHMEN'; er ist heute nur noch der Name,
+   unter dem migrate() eine **alte** Datei weiterführt. Der Name
+   bleibt dabei roher Schlüssel und wird nicht übersetzt (Regel 3):
+   angezeigt wird er über keyLabel() als INCOME.
+
+   **Die Liste darf leer sein** — sie ist es in einem frisch
+   angefangenen Buch, und dann gibt es eben noch keine Einnahmen.
+   Eine untergeschobene Kategorie stünde in der Monatsansicht, in
+   der Jahresmatrix und in jeder Auswahlliste, ohne dass der Nutzer
+   sie angelegt hätte; wer sie loswerden wollte, müsste sie erst
+   suchen. Leer ist eine Antwort, keine Lücke — dieselbe Regel wie
+   bei costGroups() und kakCats() darüber. */
+const incomeGroups=()=>(state&&Array.isArray(state.incomeGroups)?state.incomeGroups:[]);
 const allGroups=()=>incomeGroups().concat(costGroups());
 const bankLabel=c=>{const b=(state.banks||[]).find(x=>x.code===c);return b?b.label:c;};
 const payLabel=c=>{const p=(state.pays||[]).find(x=>x.code===c);return p?p.label:c;};

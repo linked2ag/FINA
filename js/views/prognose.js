@@ -80,14 +80,27 @@ function yearTrack(f,pos,cut){
    Die Summe der Bewegungen gibt es weiterhin — als Unterschied
    zwischen START und END, und als Länge des Balkens. Eine eigene
    Spalte braucht sie nicht. */
+/* ── Jede Bewegung in der Farbe ihrer Geldart ─────────────────
+   Die vier mittleren Spalten tragen den hellen Grund, den dieselbe
+   Geldart überall trägt: grün die Einnahmen, rot die regelmäßigen
+   Kosten, gelb die Flexible Payments, blau die Korrektur — dieselben
+   Farben wie die Kennzahlen darüber und die Karten der
+   Monatsansicht. In einer Tabelle aus sieben Zahlenspalten sagt die
+   Farbe schneller als die Überschrift, was man gerade liest.
+
+   **START bleibt ungefärbt**: es ist keine Bewegung, sondern ein
+   Stand — derselbe, der eine Zeile höher unter END steht. **END
+   trägt das Violett**, das in dieser Anwendung „alles zusammen"
+   heißt (der Anfangsbestand, die Saldozeile) — und zwar die
+   hellste Stufe: es ist ein Grund und keine Marke. */
 const PROG_COLS=[
-  {ab:'M',     cls:'',           name:'g.month',          tip:'prog.tipMonth'},
-  {ab:'START', cls:'num',        name:'prog.colStart',    tip:'prog.tipStart'},
-  {ab:'IN',    cls:'num',        name:'prog.colIncome',   tip:'prog.tipIncome'},
-  {ab:'REG',   cls:'num',        name:'prog.colFixed',    tip:'prog.tipFixed'},
-  {ab:'FLEX',  cls:'num',        name:'prog.colKak',      tip:'prog.tipKak'},
-  {ab:'COR',   cls:'num balcol', name:'prog.colBal',      tip:'prog.tipBal'},
-  {ab:'END',   cls:'num',        name:'prog.colEnd',      tip:'prog.tipEnd'},
+  {ab:'M',     cls:'',            name:'g.month',          tip:'prog.tipMonth'},
+  {ab:'START', cls:'num',         name:'prog.colStart',    tip:'prog.tipStart'},
+  {ab:'IN',    cls:'num incol',   name:'prog.colIncome',   tip:'prog.tipIncome'},
+  {ab:'REG',   cls:'num outcol',  name:'prog.colFixed',    tip:'prog.tipFixed'},
+  {ab:'FLEX',  cls:'num flexcol', name:'prog.colKak',      tip:'prog.tipKak'},
+  {ab:'COR',   cls:'num balcol',  name:'prog.colBal',      tip:'prog.tipBal'},
+  {ab:'END',   cls:'num endcol',  name:'prog.colEnd',      tip:'prog.tipEnd'},
 ];
 
 /* Das Rastermaß in der Spaltenüberschrift: ganze Zahl mit
@@ -256,6 +269,21 @@ function viewPrognose(){
      die Korrektur: die meisten Bücher brauchen sie nie. */
   const corEmpty=MONTHS.every((_,i)=>!balanceFix(i+1));
 
+  /* ── Die Korrektur wird hier geändert wie überall ────────────
+     Ein Doppelklick auf einen Betrag der Spalte COR öffnet die
+     Saldokorrektur mit genau diesem Monat — dasselbe Fenster und
+     dieselbe Hervorhebung wie ein Doppelklick auf ihre Zeile in der
+     Jahresmatrix. Die Zahl steht hier, also gehört der Weg dorthin
+     auch hierher; sonst müsste man erst die Ansicht wechseln, um
+     eine Zahl zu ändern, die man gerade ansieht.
+
+     Das Merkmal sitzt ausnahmsweise an der **Zelle** und nicht an
+     der Zeile: eine Zeile der Prognose ist ein Monat und keine
+     Position, und die sechs Zahlen daneben gehören anderen Dingen.
+     `data-m` sagt — wie in der Jahresmatrix —, welcher Monat gemeint
+     ist. Verdrahtet ist beides in wire() (js/app.js). */
+  const corEdit=m=>state.balance?`${dblItem(state.balance.id)} data-m="${m}"`:'';
+
   /* Die Kumulation fängt beim Anfangsbestand an — dem Kontostand
      vor dem Januar (opening() in js/state.js). Ohne einen ist es
      die Null wie bisher. Dieselbe Zahl steht als erster Wert im
@@ -305,10 +333,19 @@ function viewPrognose(){
        aus wie ein halber Monat. Am Ende derselbe schwarze Strich
        wie in den Monatszeilen: er markiert überall den Stand, mit
        dem die Zeile schließt. */
+    /* **Der Anfangsbestand wird in den Einstellungen gepflegt**, denn
+       er gehört keinem Monat (siehe „Der Anfangsbestand" in
+       CLAUDE.md). Ein Doppelklick auf seinen Betrag führt genau
+       dorthin — auf das Feld, fertig markiert. Die Zeile ist die
+       einzige Stelle, an der die Zahl in einer Ansicht steht; ohne
+       diesen Weg müsste man sie im Menü suchen. Nur dieser eine
+       Betrag trägt das Merkmal: die Spalte END der Monatszeilen ist
+       eine gerechnete Summe und nichts, was sich ändern ließe. */
     return `<tr class="openrow"><td>${t('set.opening')}</td>
-      <td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td>
+      <td class="num"></td><td class="num incol"></td><td class="num outcol"></td><td class="num flexcol"></td>
       <td class="num balcol${corEmpty?' mid':''}"></td>
-      <td class="num ${cls(op)}">${eur(op)}</td>
+      <td class="num endcol ${cls(op)}" data-opening="1"
+        data-tip="${esc(t('prog.openEdit'))}">${eur(op)}</td>
       <td class="flowcell">${rails}<span class="ttrack ytrack two"
         ><span class="tsum yopen solo${fade}" style="left:${l}%;width:${r-l}%"></span
         ><span class="tmark" style="left:${Math.max(0,Math.min(100,pos(op)))}%"></span></span></td></tr>`;
@@ -329,11 +366,11 @@ function viewPrognose(){
     return `<tr${m<CUR?' class="past"':(m===CUR?' class="now"':'')}>
       <td>${name}</td>
       <td class="num ${cls(start)}">${eur(start)}</td>
-      <td class="num pos">${eur(income(m))}</td>
-      <td class="num neg">${eur(fixedCost(m))}</td>
-      <td class="num neg">${eur(kakeiboFor(m))}</td>
-      <td class="num balcol${corEmpty?' mid':''} ${cls(balanceFix(m))}">${eur(balanceFix(m))}</td>
-      <td class="num ${cls(cum)}">${eur(cum)}</td>
+      <td class="num incol pos">${eur(income(m))}</td>
+      <td class="num outcol neg">${eur(fixedCost(m))}</td>
+      <td class="num flexcol neg">${eur(kakeiboFor(m))}</td>
+      <td class="num balcol${corEmpty?' mid':''} ${cls(balanceFix(m))}"${corEdit(m)}>${eur(balanceFix(m))}</td>
+      <td class="num endcol ${cls(cum)}">${eur(cum)}</td>
       <td class="flowcell">${rails}${yearTrack(flow[i],pos,sc.cut)}</td></tr>`;
   }).join('');
 

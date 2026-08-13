@@ -52,7 +52,7 @@ Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `tpart` `q
 `ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich der Monatsansicht
 zuklappen) · `yfold` `dblyfold` (einen Block der Jahresmatrix zuklappen) · `qclear` (Filter
 zurücknehmen) ·
-`wload` `wnew` (Begrüßungsseite) ·
+`wload` `wnew` (Begrüßungsseite) · `opening` (Anfangsbestand in den Einstellungen öffnen) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
 (Sprünge in eine andere Ansicht) ·
 `edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) ·
@@ -62,6 +62,12 @@ zurücknehmen) ·
 gibt es in **jeder** Ansicht: ein Doppelklick auf den Betrag oder auf die Bezeichnung
 öffnet dasselbe Fenster wie der Stift. Gebaut werden sie mit `dblItem(id)` /
 `dblKak(key)` aus `js/ui.js`; verdrahtet sind sie einmal in `wire()`.
+
+**Ausnahme Prognose: dort trägt die Zelle das Merkmal.** Eine Zeile ist da ein Monat und
+keine Position — an der Zeile stünde der Doppelklick über sechs Zahlen, die verschiedenen
+Dingen gehören. In der Spalte COR trägt deshalb jede Monatszelle `dblItem(state.balance.id)`
+samt `data-m` (siehe „Die Spalten der Prognose"). Für `wire()` ändert das nichts: der
+Doppelklick hängt am Element mit dem Merkmal, und `td.num` steht ohnehin in `DBLCELL`.
 
 Welche Zelle zählt, steht dort in `DBLCELL`: `td.num` (Beträge), `td.amt` (Betrag der
 Monatsansicht), `td.lab` (Bezeichnung der Jahresmatrix), `td.nm` (Bezeichnung überall
@@ -126,11 +132,15 @@ Sammelknöpfen, an „Übernehmen" und an „Leeren". **Was ein Knopf ins Feld s
 ## Einnahmen haben Kategorien wie die Kosten
 
 `state.incomeGroups` ist die zweite Kategorieliste — gepflegt im Einstellungsfenster, neben
-`state.groups`. Früher gab es dafür den einen festen Block `'EINNAHMEN'`; er ist jetzt nur
-noch die **Vorgabe**, mit der `migrate()` alte Dateien versorgt (die Posten zeigen mit
-`it.group='EINNAHMEN'` schon darauf, für sie ändert sich nichts) und auf die
-`incomeGroups()` zurückfällt, wenn die Liste leer wäre. Als roher Schlüssel wird er **nicht**
-übersetzt; angezeigt wird er über `keyLabel()` als `INCOME` (Regel 3).
+`state.groups`. Früher gab es dafür den einen festen Block `'EINNAHMEN'`; er ist heute nur
+noch der Name, unter dem `migrate()` eine **alte** Datei weiterführt — die Posten zeigen mit
+`it.group='EINNAHMEN'` schon darauf, für sie ändert sich nichts. Als roher Schlüssel wird er
+**nicht** übersetzt; angezeigt wird er über `keyLabel()` als `INCOME` (Regel 3).
+
+**Die Liste darf leer sein**, und `incomeGroups()` fällt auf nichts mehr zurück (siehe „Ein
+neues Buch weiß nichts"). Leer heißt: es gibt noch keine Einnahmen — dieselbe Antwort, die
+`costGroups()` und `kakCats()` in diesem Fall geben. Wer irgendwo `incomeGroups()[0]` liest,
+rechnet also mit `undefined`.
 
 **`isIncome(it)` fragt die Liste, nicht einen festen Namen** (`js/calc.js`). Daraus folgt
 das Wichtigste: **ein Name darf über beide Listen zusammen nur einmal vorkommen.** Stünde
@@ -141,8 +151,14 @@ Kategorieliste auch gegen die jeweils andere prüft.
 Beide Listen laufen dort durch dieselben Zweige — `collect()`, `applyRenames()`,
 Hinzufügen, Entfernen, Speichern kennen `'incomeGroups'` neben `'groups'`. Beim Entfernen
 ziehen die Posten in die erste verbliebene Kategorie **derselben** Liste um: eine Einnahme
-darf nicht bei den Kosten landen. Bleibt am Ende keine Einnahme-Kategorie übrig, kehrt
-`'EINNAHMEN'` zurück.
+darf nicht bei den Kosten landen; die letzte Kategorie **in Gebrauch** gibt das Fenster
+nicht her (`set.keepOne`).
+
+**Keine Einnahme-Kategorie ist erlaubt.** Wer die letzte leert, meint es so — ein frisch
+angefangenes Buch hat ohnehin keine. `#lSave` holt nur das zurück, worauf noch ein Posten
+zeigt: ohne seine Kategorie entschiede `isIncome()` ihn stillschweigend zu den Kosten, und
+seine Zeile wechselte den Block. Dafür merkt sich das Fenster die Liste **vor**
+`applyEdits()` — danach steht dort schon die neue.
 
 **Im Posten-Fenster steht eine Liste, nicht zwei.** `groupOpts()` in `js/dialogs/item.js`
 baut sie mit `<optgroup>`: erst die Einnahmen, dann die Ausgaben, grün und rot wie überall.
@@ -280,6 +296,21 @@ womit er schließt.**
 zugleich der Anfang des Balkens daneben. Beides kommt aus derselben Zahl (`start` in
 `viewPrognose()`), damit Tabelle und Grafik nicht auseinanderlaufen können.
 
+**Jede Bewegung trägt die Farbe ihrer Geldart.** Die vier mittleren Spalten bekommen den
+hellen Grund, den dieselbe Geldart überall trägt — `--bg-in` · `--bg-out` · `--bg-flex` ·
+`--bg-bal`, dieselben Farben wie die Kennzahlen darüber und die Karten der Monatsansicht. In
+einer Tabelle aus sieben Zahlenspalten sagt die Farbe schneller als die Überschrift, was man
+gerade liest. Die Klassen stehen in `PROG_COLS` (Kopf) **und** an den Zellen der Zeile
+(`incol` · `outcol` · `flexcol` · `balcol` · `endcol`, gefärbt in `css/ledger.css`): gefärbt
+wird die ganze Spalte, Kopfzelle eingeschlossen, sonst liest sie sich als zwölf getönte
+Zellen statt als ein Streifen.
+
+**`START` bleibt ungefärbt** — es ist keine Bewegung, sondern ein Stand, derselbe, der eine
+Zeile höher unter `END` steht. **`END` trägt `--bg-sal`**, das Violett von „alles zusammen"
+(Anfangsbestand, Saldozeile), in der hellsten Stufe: es ist ein Grund und keine Marke. Die
+Monatsspalte links bleibt frei — sie klebt beim seitlichen Rollen und braucht ihren
+deckenden Grund für sich.
+
 **Vorher standen dort „BAL" und „CUM"** — die Summe der Bewegungen und der laufende Stand.
 Dieselbe Rechnung, aber die falsche Erzählung: die Zahl, die man im Balken daneben sieht,
 ist der **Kontostand**, und der stand ganz rechts, während links eine Summe stand, die es
@@ -287,6 +318,36 @@ auf keinem Konto gibt. Wer in einem Monat −823,97 las und im Balken das Konto 
 musste beides erst zusammenrechnen und hielt die Grafik für falsch. Die Summe der Bewegungen
 gibt es weiterhin: als Unterschied zwischen START und END und als Länge des Balkens. Eine
 eigene Spalte braucht sie nicht.
+
+## Was sich in der Prognose ändern lässt
+
+Die Prognose rechnet, sie führt keine Werte — mit **zwei** Ausnahmen, und beide sind
+Doppelklicks auf die Zahl selbst. Wo eine Zahl steht, soll auch der Weg zu ihr sein; sonst
+wechselt man die Ansicht, um etwas zu ändern, das man gerade ansieht.
+
+* **Spalte COR, eine Monatszeile** → die Saldokorrektur dieses Monats, dasselbe Fenster und
+  dieselbe Hervorhebung wie ein Doppelklick auf ihre Zeile in der Jahresmatrix. Gebaut in
+  `corEdit(m)` (`js/views/prognose.js`): `dblItem(state.balance.id)` **an der Zelle**, dazu
+  `data-m` — verdrahtet ist das schon (siehe die Ausnahme unter Regel 1). Die COR-Zelle der
+  Anfangsbestandszeile bleibt außen vor: sie gehört keinem Monat.
+* **Spalte END, die Zeile „Anfangsbestand"** → das Einstellungsfenster, Bereich
+  „Allgemein", mit der Schreibmarke in `#sOpen` und dem Wert markiert. Das Merkmal ist
+  `data-opening`, verdrahtet in `wire()`; es öffnet `openSettings('sOpen')`. Der
+  Anfangsbestand ist eine Einstellung und hat kein eigenes Fenster (siehe „Der
+  Anfangsbestand"), diese Zeile ist aber die einzige Stelle, an der er in einer Ansicht
+  steht. **Nur diese eine Zelle**: END einer Monatszeile ist eine gerechnete Summe.
+
+Die beiden Sprechblasen sind der einzige Hinweis darauf, dass hier etwas anfassbar ist —
+`prog.tipBal` am Spaltenkopf COR und `prog.openEdit` an der Zelle selbst. Wer die Wege
+ändert, ändert die beiden Sätze mit.
+
+**`openSettings(wohin, done)` nimmt einen Bereich oder ein Feld.** Ein Bereichsname steht in
+`SET_PANE_LABEL` (das ist zugleich die Reihenfolge des Menüs), eine Feldkennung in
+`SET_FIELD_PANE` — dort steht, in welchem Bereich das Feld wohnt. Gestellt wird der Bereich,
+**bevor** gebaut wird, sonst führte der Weg auf ein verborgenes Feld. Ohne Argument bekommt
+nichts den Fokus: wer die Einstellungen selbst öffnet, sucht sich, was er ändern will. Wer
+ein weiteres Feld von außen ansteuerbar macht, trägt es dort ein; `done` ist der Rückweg für
+ein Fenster darunter (siehe „Der Weg zu einer Liste steht über der Liste").
 
 ## Die Annahme der Prognose
 
@@ -456,7 +517,14 @@ dem sechsten Haken (siehe „Worin das Suchfeld sucht").
 ## Die oberste Zeile der Jahresmatrix ist der Monat selbst
 
 Sie zeigt `saldo(m)` — alles, was der Monat bringt, und alles, was er kostet, für **diesen
-einen Monat** (`totRow` in `js/views/jahr.js`, `year.totalRow` „Gesamt je Monat"). Damit
+einen Monat** (`totRow` in `js/views/jahr.js`, `year.totalRow` „Gesamt je Monat").
+
+**Ihre Zahlen tragen die Vorzeichenfarbe**, grün und rot wie jeder Betrag einer Position
+(`.matrix tr.balpin td.num.pos/.neg` in `css/matrix.css`) — die Gesamtspalte rechts
+eingeschlossen. Kategorie- und Blockzeilen bleiben schwarz, weil sie Überschriften über
+etwas sind; diese Zeile ist keine Überschrift, sondern das **Ergebnis** des Monats, und ob er
+ins Plus oder ins Minus läuft, ist ihre ganze Aussage. Dieselbe Ausnahme gilt schon für die
+Saldokorrektur (`tr.r-bal`). Damit
 liest sich die Matrix von oben nach unten als **Aufschlüsselung derselben Zahl**: die Zeile
 nennt das Ergebnis, die drei Blöcke darunter sagen, woraus es besteht. In der Gesamtspalte
 steht folglich die gewöhnliche Summe der zwölf Monate — das Ergebnis des Jahres.
@@ -642,6 +710,36 @@ und bietet dann die beiden einzigen Wege an — `data-wload` öffnet eine Datei 
 **Sie hängt nicht am Inhalt der Datei, sondern daran, ob überhaupt eine gewählt wurde** —
 deshalb steht sie in `ui` und nicht in `afterLoad()`, das nur den Inhalt auswertet. Ein
 leeres Buch (`startEmpty`) ist keine Begrüßung mehr, obwohl `fileName` noch leer ist.
+
+### Ein neues Buch weiß nichts
+
+„Neu anfangen" heißt leer: **keine** Kategorien — weder Einnahmen noch Kosten noch Flexible
+Payments —, **keine** Banken, **keine** Zahlungsarten. Der Nutzer richtet sich selbst ein,
+und die Begrüßungsseite verspricht genau das (`wel.newSub`).
+
+Früher zog `emptyState()` die vier Listen aus dem vorigen Buch mit und legte die
+Einnahme-Kategorie `'EINNAHMEN'` dazu. Beides waren Angaben, die niemand gemacht hat: die
+Ordnung eines fremden Jahres in einem Buch, das gerade erst anfängt — und eine Kategorie,
+die man erst suchen und löschen muss, um die eigene anzulegen. Was bleibt, ist keine Angabe
+über Geld: Sprache, Abrechnungsjahr und die Wahl, worin das Suchfeld sucht.
+
+Daran hängen vier Stellen, und alle vier sagen dasselbe:
+
+* **`emptyState()`** (`js/state.js`) — alle vier Listen leer.
+* **`incomeGroups()`** (`js/calc.js`) — kein Rückfall auf `'EINNAHMEN'` mehr.
+* **`migrate()`** — eine **fehlende** Liste bekommt `'EINNAHMEN'` (alte Datei, deren Posten
+  darauf zeigen), eine **leere** bleibt leer. Sonst stünde die Kategorie nach dem ersten
+  Speichern wieder da.
+* **`#lSave`** im Einstellungsfenster — holt nur zurück, was ein Posten braucht (siehe
+  „Einnahmen haben Kategorien wie die Kosten"). Ebenso `applySheet()` in `js/sheet.js`: eine
+  Tabelle ohne Einnahmenblock ergibt keine Einnahme-Kategorie.
+
+**Ein leeres Buch ist damit erst einmal eine Sackgasse — und das ist richtig so.** Wer „Neue
+Einnahme" oder „Neuer Posten" drückt, findet im Fenster keine Kategorie zur Wahl; `#fSave`
+weist das Speichern zurück und `item.needBlock` sagt, dass Kategorien in den Einstellungen
+entstehen. Für die Kosten war das immer schon so — die Einnahmen folgen jetzt derselben
+Regel. Aus demselben Grund trägt der Knopf „Neue Einnahme" der Monatsansicht `"1"` statt
+`incomeGroups()[0]`, wenn die Liste leer ist.
 
 Zwei Dinge hängen daran, beide in `renderChrome()`: Ansichts- und Monatsreiter sind auf der
 Begrüßungsseite **verborgen** (es gibt nichts zu wählen), und **von der Kopfzeile bleibt
@@ -1162,7 +1260,9 @@ schreibt, löst kein `input` aus** — Schnelleingabe und „Leeren" rufen desha
 Null ist dann die richtige Antwort). Sie darf negativ sein. Gepflegt wird sie auf der
 Hauptseite der Einstellungen, im dritten Feld neben dem Abrechnungsjahr (`#sOpen`,
 `set.opening`): ein Textfeld wie jeder Betrag — `parseGermanNumber` beim Speichern,
-Vorzeichenfarbe über `.signed`, deshalb `bindSign(box)` in `openSettings()`.
+Vorzeichenfarbe über `.signed`, deshalb `bindSign(box)` in `openSettings()`. Der zweite Weg
+dorthin ist der Doppelklick auf seine Zeile in der Prognose (siehe „Was sich in der Prognose
+ändern lässt") — das Feld steht dann fertig markiert da.
 
 **Sie ist kein Posten.** Sie steht in keiner Kategorie, wird nicht abgehakt und gehört
 keinem Monat — deshalb `state.opening` und nicht `state.fixed`, und deshalb die
@@ -1215,7 +1315,9 @@ Kategorien. Stattdessen:
   zurückgesetzt.
 * Gepflegt wird sie im gewöhnlichen Posten-Fenster (`js/dialogs/item.js`); für sie
   entfallen dort Block-Auswahl, Betragsart, Löschknopf und die beiden Sammelknöpfe zum
-  Abschließen (`isBalanceItem(it)`).
+  Abschließen (`isBalanceItem(it)`). Geöffnet wird es aus jeder Ansicht, in der ihr Betrag
+  steht — auch aus der Spalte COR der Prognose (siehe „Was sich in der Prognose ändern
+  lässt").
 * Gezeigt wird sie wie eine Kategorie: in der Monatsansicht als eigene Karte `.sec-bal`,
   in der Jahresmatrix über `mrow(…,{asCat:true, cls:'sec r-bal'})`, in der Prognose als
   Spalte `.balcol`. Die Farbe kommt aus `--bg-bal` / `--bg-bal-2` / `--edge-bal`.
@@ -1235,6 +1337,53 @@ meint, nimmt eine der beiden Stellen:
   Monate bis … abschließen" in den beiden Beträge-Fenstern.
 
 Der Name dazu kommt immer aus `MONTHS[CUR-1]` bzw. `MONTHS_LONG[…]`, nie aus dem Text.
+
+## Der Weg zu einer Liste steht über der Liste
+
+Ein Fenster, in dem aus einer Liste gewählt wird, sagt auch, wo diese Liste gepflegt wird:
+eine dünne Zeile **über** den Auswahllisten, ein Weg je Liste (`setLinks()` /
+`bindSetLinks()` in `js/ui.js`, `.listlinks` in `css/components.css`, Text `item.listsIn`).
+
+* **Posten-Fenster**: Kategorien (Bereich `groups`) · Banken · Zahlungsarten (beide
+  `banks`). Zwei Wege in denselben Bereich sind kein Fehler: geklickt wird auf das, was
+  gerade fehlt, nicht auf den Bereich, in dem es zufällig wohnt. Der Saldokorrektur fehlt
+  die Kategorie, ihr fehlt auch der Weg.
+* **Fenster der Flexible Payments**: deren **eigene** Kategorien (Bereich `kak`) — nicht die
+  der regelmäßigen Kosten.
+
+Vorher stand dort ein einzelner Sammellink (`item.lists`, `#fLists`) weit unten hinter der
+Betragsart, und er **schloss das Fenster**. Beides ist weg.
+
+**Das Einstellungsfenster legt sich darüber, ohne dieses zu schließen.** Gestapelt wird über
+die Reihenfolge im Dokument — das jüngste `.modal` liegt oben und bekommt auch Escape
+(`js/ui.js`); zu tun ist dafür nichts. Was im Fenster darunter getippt ist, bleibt stehen,
+denn es war nie weg.
+
+**Zurück kommt die Steuerung über `done`** — das zweite Argument von `openSettings()`. Es
+läuft auf jedem Weg hinaus (Speichern, Abbrechen, Klick daneben, Escape), aber nur einmal,
+und `reopen()` reicht es weiter: „+", Entfernen und Sortieren bauen das Fenster neu auf, und
+ein Rückweg, der dabei verloren ginge, wäre der Rückweg für den häufigsten Fall überhaupt —
+man kommt ja her, um etwas anzulegen.
+
+Was die beiden Fenster damit tun:
+
+* **`relist()` im Posten-Fenster** baut die drei Auswahllisten neu. **Gewählt bleibt, was
+  gewählt war**; nur wenn es den Eintrag nicht mehr gibt, zählt der Posten selbst
+  (`it.group`, `it.bank`, `it.pay`) — Umbenennen zieht ihn mit (`renameGroup`,
+  `askCarryCodes`), und ein Fenster, das den alten Namen behielte, schriebe ihn beim
+  Speichern zurück. Ein leeres Feld bleibt leer: „—" ist eine Wahl und keine Lücke.
+* **`relist()` im Kategorie-Fenster** prüft den **Schlüssel**. Dort steht dieselbe Kategorie
+  in der Liste, sie kann also umbenannt oder entfernt worden sein: `k` wäre dann veraltet und
+  legte beim Speichern eine zweite an. Wiedergefunden wird sie über ihren Eintrag selbst
+  (`Object.keys(state.kak).find(n=>state.kak[n]===e)`) — `renameKakCat()` verschiebt genau
+  dieses Objekt. Ist er nirgends mehr, schließt das Fenster mit `kdlg.gone`.
+
+**Ein Import nimmt alles mit.** `leaveTo()` entfernt **jedes** offene Fenster, nicht nur das
+eigene: ein Posten-Fenster, das darunter stehen bliebe, schriebe seinen Stand danach in ein
+Buch, das es so nicht mehr gibt.
+
+Das Merkmal heißt `data-setlist` und **nicht** `data-lists`: jenes gehört den Ansichten und
+wird in `wire()` bei jedem Zeichnen neu verdrahtet — es überschriebe den Rückweg.
 
 ## Das Einstellungsfenster
 
