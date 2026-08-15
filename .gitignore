@@ -13,3 +13,35 @@
 # suchen.
 _shot.html
 _*.html
+
+# Planung und Recherche: Marktanalyse, Entwürfe, Kostenrechnungen. Das
+# sind Arbeitsunterlagen zum Projekt und nicht Teil der Anwendung — im
+# Repository stünden sie öffentlich.
+#
+# Die Regel ist der **Unterstrich vorn**: eine Datei, deren Name mit
+# `_` beginnt, bleibt hier. Daran erkennt man sie auch im Finder, wo
+# sie von selbst nach oben sortiert. Wer eine neue Planungsdatei
+# anlegt, hält sich daran und braucht hier nichts nachzutragen.
+/_Planung und Research/
+_*.md
+_*.pdf
+
+# Der Ordner desktop/ baut die Mac- und die Windows-Fassung. Drei
+# Dinge darin gehören nicht ins Repository:
+#
+#   node_modules/  holt npm sich selbst (mehrere hundert Megabyte),
+#   app/           ist eine Kopie der Dateien, die daneben schon
+#                  liegen — gebaut von sync.mjs vor jedem Lauf,
+#   dist/          sind die fertigen Pakete, je rund 100 MB.
+#
+# package-lock.json bleibt drin: sie ist klein, und der Workflow
+# baut mit `npm ci` genau die Fassungen, die hier geprüft wurden.
+desktop/node_modules/
+desktop/app/
+desktop/dist/
+
+# Dasselbe gilt für das Symbol: gezeichnet wird `icon.png` im
+# Stamm — die Webseite trägt es im Reiter, electron-builder macht
+# .icns und .ico daraus. Hierher legt es sync.mjs vor jedem Bau.
+# Zwei gepflegte Kopien desselben Bildes liefen auseinander.
+desktop/build/icon.png

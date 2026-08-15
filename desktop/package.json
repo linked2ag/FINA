@@ -1,0 +1,76 @@
+{
+  "name": "fina",
+  "productName": "FINA Book",
+  "version": "26.8.15",
+  "description": "FINA Book — your whole finance in one place",
+  "main": "main.js",
+  "author": "Alex <github.com/linked2ag>",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "sync": "node sync.mjs",
+    "start": "npm run sync && electron .",
+    "pack": "npm run sync && electron-builder --dir",
+    "dist:mac": "npm run sync && electron-builder --mac",
+    "dist:win": "npm run sync && electron-builder --win"
+  },
+  "build": {
+    "appId": "de.linked2ag.fina",
+    "copyright": "Copyright (c) 2026 Alex. Alle Rechte vorbehalten.",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.finance",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "hardenedRuntime": false,
+      "identity": null
+    },
+    "dmg": {
+      "title": "FINA Book ${version}",
+      "artifactName": "FINA-Book-${version}-${arch}.dmg"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "FINA-Book-${version}-portable.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "FINA-Book-${version}-setup.exe"
+    }
+  },
+  "devDependencies": {
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3"
+  }
+}

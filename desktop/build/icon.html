@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- Die Quelle des App-Symbols.
+
+     Sie holt Farben und Schrift aus css/tokens.css — das Symbol
+     kann deshalb gar nicht anders aussehen als die Anwendung, und
+     wer eine Farbe dort ändert, ändert sie hier mit.
+
+     **Gezeichnet wird nach `icon.png` im Projektstamm, nicht
+     hierher.** Das Bild ist zweierlei zugleich: das Zeichen der
+     Webseite (Reiter, Lesezeichen, Startbildschirm) und die
+     Vorlage, aus der electron-builder .icns und .ico macht. Zwei
+     Dateien liefen früher oder später auseinander, also gibt es
+     eine — `desktop/sync.mjs` legt sie vor jedem Bau nach
+     `desktop/build/icon.png`, wo electron-builder sie sucht, und
+     genau deshalb steht die Kopie nicht im Repository.
+
+     Neu zeichnen (im Projektstamm):
+
+       URL=$(python3 -c "import pathlib;print(pathlib.Path('desktop/build/icon.html').resolve().as_uri())")
+       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+         --headless=new --disable-gpu --hide-scrollbars \
+         --default-background-color=00000000 --window-size=1024,1024 \
+         --screenshot=icon.png "$URL"
+
+     Der Umweg über `as_uri()` ist nötig, weil der Projektpfad ein
+     `#` enthält — Chrome läse es sonst als Sprungmarke. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../css/tokens.css">
+<style>
+  html,body{margin:0;padding:0;background:transparent}
+  body{width:1024px;height:1024px}
+
+  /* Das Blatt. macOS lässt dem Symbol ringsum Luft und rundet die
+     Ecken kräftig — beides gehört ins Bild, electron-builder legt
+     nichts dazu. */
+  .icon{position:absolute;left:100px;top:100px;width:824px;height:824px;
+    border-radius:180px;overflow:hidden;
+    background:var(--paper);
+    box-shadow:0 18px 40px rgba(0,0,0,.18)}
+
+  /* Dieselbe Lineatur wie der Bildschirm, nur im Maßstab des
+     Symbols: sie ist das, was FINA nach Papier aussehen lässt. */
+  .rule{position:absolute;inset:0;
+    background:repeating-linear-gradient(to bottom,transparent 0 72px,rgba(0,0,0,.05) 72px 75px)}
+
+  /* Die drei Geldarten als Kante links — dieselben Farben und
+     dieselbe Reihenfolge wie die Karten der Monatsansicht:
+     Einnahmen, Flexible Payments, regelmäßige Kosten. Sie sind
+     das Einzige, was auch bei 32 px noch zu erkennen ist.
+
+     Deshalb 150 px und nicht 96: bei 32 px waren aus den 96 px
+     knapp drei Pixel geworden, und drei Pixel sind keine drei
+     Farben mehr. Die Rundung oben und unten frisst von diesem
+     Streifen ohnehin einen Teil weg — was in der Mitte übrig
+     bleibt, muss die Aussage allein tragen. */
+  .edge{position:absolute;left:0;top:0;bottom:0;width:150px}
+  .edge i{display:block;height:33.34%}
+  .e1{background:var(--edge-in)}
+  .e2{background:var(--edge-flex)}
+  .e3{background:var(--edge-out)}
+
+  /* Das F: Zilla Slab, derselbe Schnitt wie das Wortzeichen in der
+     Kopfzeile. Optisch ausgerichtet, nicht rechnerisch — die
+     Serifen tragen unten weiter als oben.
+
+     Das Polster links ist die Breite des Streifens: das F steht
+     damit mittig auf dem Papier und nicht mittig im Bild. Wer an
+     `.edge` dreht, dreht hier mit. */
+  .f{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    padding-left:150px;
+    font-family:'Zilla Slab',Georgia,serif;font-weight:700;font-size:600px;
+    line-height:1;color:var(--ink);letter-spacing:0}
+  .f span{transform:translateY(-18px)}
+</style>
+</head>
+<body>
+  <div class="icon">
+    <div class="rule"></div>
+    <div class="edge"><i class="e1"></i><i class="e2"></i><i class="e3"></i></div>
+    <div class="f"><span>F</span></div>
+  </div>
+</body>
+</html>

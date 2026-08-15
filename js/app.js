@@ -209,6 +209,77 @@ function render(){
      vorher stand, und der Griff gehört an dieselbe Stelle. Ebenso
      die Köpfe der Matrix hält der Browser selbst. */
   fitRails();
+  checkUpdate();
+}
+
+/* ── Die Hinweisleiste auf eine neue Fassung ──────────────────
+   FINA gibt es dreimal: als Webseite, als Mac- und als
+   Windows-App. Die Webseite ist immer die neueste — dort gäbe es
+   nichts zu melden. Die beiden Apps tragen die Kopie der
+   Webdateien vom Tag ihres Baus und erfahren von einer neuen
+   Fassung nur, wenn sie nachfragen.
+
+   **Das ist die einzige Netzverbindung, die FINA je aufbaut.** Sie
+   holt eine Zahl und schickt nichts: kein Zählpixel, keine
+   Kennung, kein Bericht. Im Browser läuft sie gar nicht erst an —
+   `window.FINA_NATIVE` setzt desktop/preload.js, sonst niemand.
+
+   Regel 4 („kein fetch") gilt dem **Laden der eigenen Dateien**:
+   die müssen über `file://` per `<script>` hereinkommen. Eine
+   Abfrage an eine fremde Adresse ist etwas anderes, und sie darf
+   scheitern — ohne Netz bleibt die Leiste einfach weg (`catch`).
+
+   **Gefragt wird einmal je Sitzung, und erst mit offenem Buch.**
+   Einmal, weil ein Kassenbuch stundenlang offen steht und die
+   Antwort sich darin nicht ändert; erst mit Buch, weil der
+   Schalter dafür in der Datei steht (state.updateCheck) — auf der
+   Begrüßungsseite ist er noch gar nicht gelesen. Wer ihn abschaltet,
+   wird also nie wieder gefragt. Nichts davon wird gemerkt: FINA
+   führt keine Ablage neben der Datei des Nutzers. */
+let updAsked=false, updNew='';
+function checkUpdate(){
+  if(updNew){ showUpdateBar(); return; }
+  if(updAsked||!window.FINA_NATIVE||ui.welcome||state.updateCheck===false) return;
+  updAsked=true;
+  fetch(VERSION_URL,{cache:'no-store'})
+    .then(r=>r.ok?r.json():null)
+    .then(d=>{ if(d&&newerVersion(d.version,VERSION)){ updNew=String(d.version); showUpdateBar(); } })
+    .catch(()=>{});
+}
+
+/* Vergleicht zwei Nummern der Form Jahr.Monat.Tag — Stelle für
+   Stelle als Zahl, nicht als Text: „26.8.9" wäre sonst neuer als
+   „26.8.15". Was keine Zahl ist, zählt als 0. */
+function newerVersion(a,b){
+  const p=s=>String(s||'').split('.').map(n=>parseInt(n,10)||0);
+  const x=p(a), y=p(b);
+  for(let i=0;i<Math.max(x.length,y.length);i++){
+    const d=(x[i]||0)-(y[i]||0);
+    if(d) return d>0;
+  }
+  return false;
+}
+
+/* Eine schmale Leiste über der Kopfzeile: was es gibt, ein Weg
+   dorthin, ein Weg daran vorbei. Sie steht **über** dem Kopf und
+   klebt nicht — sie ist eine Nachricht und keine Bedienung, und
+   sobald man zu arbeiten anfängt, soll sie aus dem Weg sein.
+   „Später" blendet sie bis zum nächsten Start aus; heruntergeladen
+   und ausgetauscht wird von Hand (die Datendatei bleibt dabei
+   unangetastet, sie liegt außerhalb der App). */
+function showUpdateBar(){
+  if(!updNew||document.getElementById('updBar')) return;
+  const wrap=document.querySelector('.wrap');
+  const bar=document.createElement('div');
+  bar.id='updBar'; bar.className='updatebar'; bar.setAttribute('role','status');
+  bar.innerHTML=`<span>${esc(t('upd.avail',updNew))}</span>
+    <button class="btn" id="updGet" title="${esc(t('upd.getTip'))}">${esc(t('upd.get'))}</button>
+    <button class="btn" id="updHide" title="${esc(t('upd.hideTip'))}">${esc(t('upd.hide'))}</button>`;
+  wrap.insertBefore(bar,wrap.firstChild);
+  /* In der App fängt setWindowOpenHandler das ab und schickt die
+     Adresse an den Browser des Nutzers (desktop/main.js). */
+  bar.querySelector('#updGet').onclick=()=>window.open(DOWNLOAD_URL,'_blank');
+  bar.querySelector('#updHide').onclick=()=>{ updNew=''; bar.remove(); };
 }
 
 /* ── Klicks der frisch gezeichneten Ansicht ───────────────── */

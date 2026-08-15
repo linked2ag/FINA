@@ -5,6 +5,22 @@
 
 .wrap{max-width:none;margin:0;padding:0 24px 80px;--monw:100px}
 
+/* ── Hinweis auf eine neue Fassung ────────────────────────────
+   Es gibt sie nur in der Mac- und der Windows-App (checkUpdate in
+   js/app.js). Sie steht **über** der Kopfzeile und klebt nicht:
+   sie ist eine Nachricht und keine Bedienung — wer zu arbeiten
+   anfängt, scrollt sie weg und hat den Kopf wieder ganz oben.
+
+   Orange trägt in FINA, was etwas anbietet statt etwas zu tun —
+   dieselbe Farbe wie der Anleitungsknopf daneben. Rot wäre eine
+   Warnung, und eine neue Fassung ist keine. */
+.updatebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin:0 -24px 0;padding:7px 24px;
+  background:#FBEFE6;border-bottom:1px solid var(--accent);
+  font-size:12.5px;color:var(--accent-2)}
+.updatebar span{font-weight:600}
+.updatebar .btn{padding:3px 10px;font-size:12px}
+
 /* ── Kopfzeile ────────────────────────────────────────────────
    So flach wie möglich: sie klebt oben und nimmt damit auf jedem
    Bildschirm dauerhaft Platz weg, den die Tabelle darunter
@@ -506,6 +522,13 @@ body.yearview .wrap{padding-bottom:14px}
    Text mehr Abstand zum Papier als eine Knopffläche. */
 .wfoot.wguide{color:var(--accent-2)}
 .wfoot.wguide b{color:var(--accent-2)}
+/* Der Weg zur Downloadseite ist der letzte Satz der Seite und der
+   einzige, der von ihr wegführt. Er bleibt grau wie der Rest —
+   orange trägt hier schon die Anleitung, und zwei Farben nähmen
+   sich gegenseitig die Aufmerksamkeit. Eine feine Linie darüber
+   setzt ihn ab: er gehört nicht mehr zum Einrichten. */
+.wfoot.wapp{border-top:1px solid var(--rule);padding-top:9px;margin-top:13px}
+.wfoot.wapp a{color:var(--ink)}
 @media(max-width:620px){
   .wbox{padding:26px 20px 24px}
   .wpick{grid-template-columns:1fr}

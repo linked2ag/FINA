@@ -49,6 +49,23 @@ function viewWelcome(){
            in der Kopfzeile ist der einzige orange, und der Satz
            schickt genau dorthin. -->
       <p class="wfoot wguide">${t('wel.guide',t('app.guide'))}</p>
+      ${appHint()}
     </div>
   </div>`;
+}
+
+/* ── Es gibt FINA auch zum Herunterladen ──────────────────────
+   Ein Satz, kein Knopf: die beiden Knöpfe darüber sind die Wege
+   in das Buch, und ein dritter, gleich großer daneben führte aus
+   der Anwendung heraus. Er steht ganz unten, weil er die Frage
+   beantwortet, die man sich erst stellt, wenn man weiß, ob einem
+   FINA überhaupt gefällt.
+
+   **In der App steht er nicht.** Dort ist er schon beantwortet —
+   und ein Programm, das seinen eigenen Download bewirbt, sieht
+   aus, als wüsste es nicht, wo es läuft. */
+function appHint(){
+  if(window.FINA_NATIVE) return '';
+  return `<p class="wfoot wapp">${t('wel.app',
+    `<a href="${DOWNLOAD_URL}" target="_blank" rel="noopener">${esc(t('wel.appLink'))}</a>`)}</p>`;
 }

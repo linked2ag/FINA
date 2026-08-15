@@ -14,6 +14,27 @@ const canFS=typeof window.showSaveFilePicker==='function';
 /* Merkt nur vor, dass es ungespeicherte Änderungen gibt. */
 function save(){ dirty=true; renderStatus(); }
 
+/* ── Was in die Datei geschrieben wird ───────────────────────
+   Beide Wege — in dieselbe Datei zurück und als Kopie in den
+   Download-Ordner — gehen hier durch. Deshalb steht der Vermerk,
+   welche Fassung geschrieben hat, an genau einer Stelle.
+
+   Es gibt FINA in drei Fassungen: die Webseite, die Mac-App und
+   die Windows-App, und die laufen nicht im Gleichschritt (siehe
+   VERSION in js/config.js). Bei jedem Fehlerbericht ist „welche
+   Version hattest du?" die erste Frage — sie soll in der Datei
+   stehen und nicht erinnert werden müssen.
+
+   `migrate()` flickt eine geladene Datei an Ort und Stelle und
+   baut sie **nicht** neu auf. Unbekannte Felder überleben deshalb,
+   und eine Datei kann zwischen den Fassungen wandern, ohne etwas
+   zu verlieren. Wer migrate() jemals als „neues Objekt aus den
+   bekannten Feldern" umschreibt, zerstört das lautlos. */
+function stateJson(){
+  state.v=VERSION;
+  return JSON.stringify(state,null,2);
+}
+
 /* ── Der Name der heruntergeladenen Kopie ────────────────────
    Chrome und Edge schreiben in **dieselbe** Datei zurück; dort ist
    der Name keine Frage. Alle anderen Browser können das nicht und
@@ -51,7 +72,7 @@ function downloadName(){
 }
 
 function downloadJson(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const blob=new Blob([stateJson()],{type:'application/json'});
   const a=document.createElement('a');
   const name=downloadName();
   a.href=URL.createObjectURL(blob);
@@ -64,7 +85,7 @@ async function writeHandle(){
   const p=await fileHandle.queryPermission({mode:'readwrite'});
   if(p!=='granted'){ const r=await fileHandle.requestPermission({mode:'readwrite'}); if(r!=='granted') return false; }
   const w=await fileHandle.createWritable();
-  await w.write(JSON.stringify(state,null,2)); await w.close();
+  await w.write(stateJson()); await w.close();
   return true;
 }
 
@@ -169,4 +190,15 @@ function renderStatus(){
     +' &nbsp;·&nbsp; '+t('store.lastImport',state.lastImport||t('store.never'));
 }
 
-window.addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+/* ── Die Rückfrage vor dem Schließen ─────────────────────────
+   Im Browser fragt der Browser. In der nativen Fassung fragt der
+   Hauptprozess (desktop/main.js), und zwar aus zwei Gründen:
+   `beforeunload` greift in Electron unzuverlässig, und ein
+   gesetztes `returnValue` kann das Fenster **stumm** am Schließen
+   hindern — die App ließe sich dann nicht mehr beenden.
+
+   `window.FINA_NATIVE` setzt desktop/preload.js. Im Browser ist es
+   undefiniert; dort ändert sich nichts. */
+window.addEventListener('beforeunload',e=>{
+  if(dirty && !window.FINA_NATIVE){ e.preventDefault(); e.returnValue=''; }
+});

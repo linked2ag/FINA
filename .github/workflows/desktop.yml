@@ -1,0 +1,91 @@
+# FINA — die Mac- und die Windows-Fassung bauen
+#
+# **Nur auf Zuruf und auf Marken, nicht bei jedem Commit.** Die
+# Webseite bekommt jede Version (Workflow „Pages"), die Apps
+# bekommen die, die man ihnen ausdrücklich gibt:
+#
+#   git push                            → Webseite ist aktuell
+#   git tag v26.8.15 && git push --tags → DMG und EXE
+#
+# Web und Apps laufen dabei auseinander — Webseite auf 26.9.7, Apps
+# auf 26.8.15. Das ist kein Fehler, sondern ein Kanal.
+#
+# Ein Windows-Rechner wird nicht gebraucht: macos-latest baut die
+# DMG-Dateien, windows-latest die EXE.
+#
+# **Unsigniert.** Das ist Absicht und kostet 0 € (siehe
+# desktop/README.md). Sobald das Apple-Zertifikat da ist, kommen
+# fünf Secrets für den Mac-Schritt dazu: APPLE_CERT_P12_BASE64,
+# APPLE_CERT_PASSWORD, APPLE_ID, APPLE_APP_PASSWORD, APPLE_TEAM_ID.
+# electron-builder signiert und notarisiert dann von selbst.
+
+name: Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+# Nur lesen — die Release wird von Hand gemacht, damit niemand
+# versehentlich veröffentlicht, was nur ein Probelauf war.
+permissions:
+  contents: read
+
+jobs:
+  bauen:
+    strategy:
+      # Bricht der eine Lauf ab, soll der andere trotzdem fertig
+      # werden: eine Mac-Datei ohne Windows-Datei ist mehr wert als
+      # gar keine.
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      # `npm ci` und nicht `npm install`: gebaut wird mit genau den
+      # Fassungen aus package-lock.json, die von Hand geprüft
+      # wurden.
+      - run: npm ci
+        working-directory: desktop
+
+      # Beide Schritte rufen zuerst sync.mjs auf (siehe "scripts" in
+      # desktop/package.json): app/ entsteht frisch aus den
+      # Webdateien, und die Versionsnummer kommt aus js/config.js.
+      - name: macOS
+        if: runner.os == 'macOS'
+        working-directory: desktop
+        run: npm run dist:mac
+
+      - name: Windows
+        if: runner.os == 'Windows'
+        working-directory: desktop
+        run: npm run dist:win
+
+      # Die Prüfsummen entstehen dort, wo die Dateien entstehen —
+      # nachträglich am eigenen Rechner gerechnet wären sie nur die
+      # Bestätigung dessen, was man ohnehin schon hat.
+      - name: Prüfsummen
+        working-directory: desktop/dist
+        shell: bash
+        run: |
+          shasum -a 256 *.dmg *.exe 2>/dev/null | sed 's|  .*/|  |' > SHA256SUMS.txt || true
+          cat SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FINA-${{ runner.os }}
+          # Nur die fertigen Pakete. Alles andere in dist/ (die
+          # entpackten Ordner, blockmap-Dateien) ist Zwischenstand.
+          path: |
+            desktop/dist/*.dmg
+            desktop/dist/*.exe
+            desktop/dist/SHA256SUMS.txt
+          if-no-files-found: error

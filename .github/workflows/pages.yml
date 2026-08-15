@@ -61,6 +61,17 @@ jobs:
       # `/pro` ist für später vorgesehen: der Teil, der nur gegen
       # Bezahlung ausgeliefert wird und deshalb nie auf Pages gehört
       # (siehe _plan für login and payment.md).
+      #
+      # `/desktop` baut die Mac- und die Windows-Fassung. Der Ordner
+      # trägt zeitweise `node_modules/` mit mehreren hundert Megabyte
+      # und `dist/` mit fertigen Paketen von je rund 100 MB — beides
+      # hat auf der Seite nichts zu suchen. Heruntergeladen werden
+      # die Pakete von GitHub Releases (die 100-MB-Grenze des
+      # Repositories), die Seite verlinkt nur dorthin.
+      #
+      # `--exclude '*.md'` nimmt dabei auch css/fonts/OFL.txt nicht
+      # weg — die Lizenz der drei mitgelieferten Schriften ist .txt
+      # und geht mit auf die Seite, wie es die OFL verlangt.
       - name: Seite zusammenstellen
         run: |
           mkdir -p _site
@@ -75,15 +86,27 @@ jobs:
             --exclude '*.md' \
             --exclude '*.py' \
             --exclude '/pro' \
+            --exclude '/desktop' \
             ./ _site/
           echo "Dateien: $(find _site -type f | wc -l), Größe: $(du -sh _site | cut -f1)"
           # Was nicht mitgehen darf, prüfen wir hier und nicht erst im
           # Browser: ein vergessener Ausschluss fällt sonst nie auf.
-          for f in CLAUDE.md SPEC.md PR.md README.md doc/GUIDE-TODO.md doc/make-shots.py; do
+          for f in CLAUDE.md SPEC.md PR.md README.md doc/GUIDE-TODO.md doc/make-shots.py desktop; do
             if [ -e "_site/$f" ]; then echo "FEHLER: $f gehört nicht auf die Seite"; exit 1; fi
           done
           test -f _site/index.html || { echo "FEHLER: index.html fehlt"; exit 1; }
           test -d _site/doc/img   || { echo "FEHLER: doc/img fehlt — die Anleitung braucht die Bilder"; exit 1; }
+          # Die Schriften liegen seit August 2026 bei: ohne sie sähe
+          # die Seite anders aus, als sie soll, und der Satz im Kopf
+          # von index.html („diese Seite lädt nichts hoch") stimmte
+          # nur noch halb.
+          test -d _site/css/fonts     || { echo "FEHLER: css/fonts fehlt — die Seite holte die Schriften wieder von Google"; exit 1; }
+          test -f _site/css/fonts/OFL.txt || { echo "FEHLER: css/fonts/OFL.txt fehlt — die Lizenz muss mit"; exit 1; }
+          test -f _site/version.json  || { echo "FEHLER: version.json fehlt — die Apps fragen sie ab"; exit 1; }
+          # Dasselbe Bild, das die Apps als Symbol tragen: die Seite
+          # zeigt es im Reiter (link rel=icon in index.html).
+          test -f _site/icon.png      || { echo "FEHLER: icon.png fehlt — die Seite stünde ohne Zeichen im Reiter"; exit 1; }
+          test -f _site/download/index.html || { echo "FEHLER: die Downloadseite fehlt"; exit 1; }
 
       - uses: actions/upload-pages-artifact@v3
         with:

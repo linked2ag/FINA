@@ -1,0 +1,7 @@
+{
+  "_": "Welche Fassung die Mac- und die Windows-App gerade haben. Die Datei beschreibt den APP-KANAL, nicht die Webseite: stuende hier jede Webversion, meldete jeder Push allen installierten Apps ein Update, das es als Download gar nicht gibt. Hochgesetzt wird sie deshalb erst, WENN die Pakete an der Release haengen (siehe desktop/README.md).",
+  "version": "26.8.15",
+  "date": "2026-08-15",
+  "url": "https://linked2ag.github.io/FINA/download/",
+  "note": "Die erste Fassung fuer Mac und Windows."
+}

@@ -4,6 +4,11 @@ Jahres- und Monatskassenbuch im Browser. Statische Dateien, keine Frameworks, ke
 kein Server. Alle Inhalte kommen aus einer JSON-Datei, die der Nutzer hochlädt — **im Code
 stehen keine Beträge, Banken, Kategorien oder sonstigen Daten**.
 
+**Es gibt FINA dreimal, aus denselben Dateien:** als Webseite auf GitHub Pages, als
+Mac-App und als Windows-App. Der Rahmen für die beiden Apps steht in `desktop/`
+(Electron); die Anwendung selbst weiß davon nur eins — `window.FINA_NATIVE`. Siehe
+„Die drei Fassungen" weiter unten und `desktop/README.md`.
+
 Der Bereich, der früher **Kakeibo** hieß, heißt in der Oberfläche **Flexible Payments**.
 Die Schlüssel im Zustand und in den Dateinamen (`kak`, `kakCats`, `flexActual`,
 `ui.view='kakeibo'`, `js/views/kakeibo.js`) behalten ihren alten Namen — umbenannt wurde
@@ -17,12 +22,14 @@ ganze Projekt zu lesen.
 | Anliegen | Datei |
 |---|---|
 | Beschriftung, Sprache, Monatsnamen, `YEAR`, `CUR` | `js/i18n.js` |
-| Farbe, Schrift, Abstand global | `css/tokens.css` |
+| Farbe, Schrift, Abstand global; die `@font-face`-Regeln | `css/tokens.css` |
+| Die Schriftdateien selbst und ihre Lizenz | `css/fonts/` |
 | Kopfzeile, Reiter, Karten, Kennzahlenleiste, mitlaufende Leisten | `css/layout.css` |
 | Knöpfe, Siegel, Lampen, Fenster, Formulare, Tooltip | `css/components.css` |
 | Tabellen der Monats-/Prognose-/Flexible-Payments-Ansicht | `css/ledger.css` |
 | Jahresmatrix: Spalten, Trennlinien, Betragsfarben | `css/matrix.css` |
 | Reihenfolge der Reiter, welcher Reiter überhaupt erscheint, Auswahllisten, SVG-Symbole | `js/config.js` |
+| Die Versionsnummer — **die einzige Stelle** | `js/config.js` (`VERSION`) |
 | Zahlen-/Textformat, Fälligkeitsregeln (A/M/E, Zahltag) | `js/format.js` |
 | Aufbau des Zustands, Altdateien reparieren (`migrate`) | `js/state.js` |
 | Kategorie umbenennen/anlegen/löschen | `js/categories.js` |
@@ -38,6 +45,11 @@ ganze Projekt zu lesen.
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
 | Was der Anleitung noch fehlt (Merkzettel) | `doc/GUIDE-TODO.md` |
 | Was beim Klick passiert; Start der Anwendung | `js/app.js` |
+| Fenster, Menü, fremde Links der Mac-/Windows-App | `desktop/main.js` |
+| Wie die Apps gebaut und veröffentlicht werden | `desktop/README.md` |
+| Die Downloadseite und ihre Gestaltung | `download/index.html`, `css/download.css` |
+| Welche Fassung die Apps als aktuell melden | `version.json` |
+| Das Symbol — Reiter der Seite **und** App-Icon | `desktop/build/icon.html` → `icon.png` |
 
 ## Die vier Regeln
 
@@ -200,6 +212,121 @@ Keine ES-Module und kein `fetch`, damit die Seite auch per Doppelklick über `fi
 läuft. Neue Dateien in `index.html` eintragen: `i18n.js` zuerst, dann Werkzeuge,
 dann Ansichten, `app.js` bleibt die letzte. Auf oberster Ebene deklarierte `const`/`function` sind für alle später
 geladenen Dateien sichtbar.
+
+**Die Regel gilt dem Laden der eigenen Dateien.** Die müssen über `<script>` und `<link>`
+hereinkommen — `fetch` auf eine Datei daneben scheitert unter `file://`, und genau deshalb
+gibt es hier keinen Build. Eine Abfrage an eine **fremde** Adresse ist etwas anderes: es
+gibt sie genau einmal (`checkUpdate()` in `js/app.js`, siehe „Die drei Fassungen"), sie
+läuft nur in der App, und sie darf scheitern.
+
+## Die drei Fassungen
+
+Dieselben Dateien laufen an drei Orten: als **Webseite** auf GitHub Pages, als **Mac-App**
+und als **Windows-App**. Der Rahmen für die beiden Apps steht in `desktop/` — Electron,
+also dieselbe Chromium-Maschine, an der FINA ohnehin gemessen ist. Wie gebaut und
+veröffentlicht wird, steht in `desktop/README.md`; hier steht nur, was die **Anwendung**
+davon merkt.
+
+**Sie merkt genau eins: `window.FINA_NATIVE`.** Gesetzt wird es von `desktop/preload.js`,
+im Browser ist es undefiniert. Daran hängen drei Stellen und sonst nichts:
+
+* **`js/storage.js`** — `beforeunload` fragt in der App **nicht** selbst. Dort greift es
+  unzuverlässig, und ein gesetztes `returnValue` kann das Fenster stumm am Schließen
+  hindern. Gefragt wird im Hauptprozess (`win.on('close')` in `desktop/main.js`), der dafür
+  die Variable `dirty` aus der Seite liest.
+* **`js/app.js`** — `checkUpdate()` fragt `version.json` ab. **Nur in der App**, denn die
+  Seite im Browser ist immer die neueste; **einmal je Sitzung**, weil ein Kassenbuch
+  stundenlang offen steht; **erst mit offenem Buch**, weil der Schalter dafür in der Datei
+  steht (`state.updateCheck`) und auf der Begrüßungsseite noch gar nicht gelesen ist.
+  Gemerkt wird nichts — FINA führt keine Ablage neben der Datei des Nutzers.
+* **`js/views/willkommen.js`** — `appHint()` lässt den Weg zur Downloadseite weg. In einer
+  App ist er beantwortet.
+
+**Die Versionsnummer steht an einer Stelle:** `VERSION` in `js/config.js`, dreiteilig als
+`Jahr.Monat.Tag`. `desktop/sync.mjs` schreibt sie in `desktop/package.json` (und weist eine
+vierte Stelle zurück — electron-builder braucht gültiges semver), `stateJson()` in
+`js/storage.js` legt sie beim Speichern als `state.v` in die Datei. Der Guide-Reiter „Was
+ist neu" trägt dieselbe Form, muss aber **nicht** dieselbe Nummer nennen: Versionen
+entstehen dort nur auf Zuruf.
+
+**Web und Apps laufen auseinander, und das ist ein Kanal, kein Fehler.** Die Webseite
+bekommt jeden Push, die Apps nur eine gesetzte Marke. `version.json` beschreibt deshalb den
+**App-Kanal** — stünde dort die Webversion, meldete jeder Push allen Apps ein Update, das
+es als Download gar nicht gibt.
+
+**Daraus folgt eine Bedingung an `migrate()`:** es **darf niemals zu einer Positivliste
+werden**. `migrate(s)` in `js/state.js` flickt das übergebene Objekt an Ort und Stelle
+(`if(!s.groups) s.groups=[]` …) und baut es **nicht** aus bekannten Feldern neu auf.
+Unbekannte Felder überleben deshalb, und `stateJson()` schreibt sie wieder hinaus — dadurch
+kann eine Datei zwischen den Fassungen wandern: wer in der neueren Webfassung arbeitet und
+dieselbe Datei später in der älteren App öffnet und speichert, verliert nichts. Wer
+`migrate()` als „neues Objekt aus den bekannten Feldern zusammensetzen" umschreibt — was
+sauberer aussieht —, zerstört das lautlos, und der Datenverlust fällt erst Wochen später
+auf.
+
+**In `desktop/main.js` steht kein Verhalten der Anwendung.** Was dort steht, gilt nur
+dafür, dass FINA außerhalb eines Browsers läuft: wohin fremde Links gehen
+(`setWindowOpenHandler` / `will-navigate` → `shell.openExternal`), dass `about:blank` — die
+ganzseitige Anleitung — als eigenes Fenster erlaubt bleibt, das Menü (ohne `editMenu` gäbe
+es auf dem Mac kein Cmd+C) und die Einzelinstanz. Wer an FINA etwas ändert, ändert es in
+`js/` und `css/`.
+
+## Die Anwendung heißt FINA Book
+
+**Nach außen `FINA Book`, im Fließtext `FINA`.** Der lange Name steht dort, wo das
+Programm sich vorstellt: Fenstertitel (`title` in `desktop/main.js`), Seitentitel und
+Wortzeichen (`<title>`, `.brand h1` in `index.html`), Startseite, Downloadseite, die Namen
+der Pakete (`productName` und die drei `artifactName` in `desktop/package.json`) und die
+ganzseitige Anleitung (`guideDoc()`). Der Untertitel „your whole finance in one place"
+gehört zum Titel der Seite, nicht ins Wortzeichen — in der Kopfzeile steht neben dem Namen
+das Jahr.
+
+**Im Fließtext bleibt es beim kurzen FINA**, und zwar in beiden Sprachen: „FINA liest den
+CSV-Export", „Ist das eine FINA-Tabelle?". Die Tabelle, aus der die Anwendung entstanden
+ist, heißt so — sie ist kein Buch, und `FINA-Book-Tabelle` wäre falsch. Wer einen Satz
+ergänzt, hält sich daran; wer eine neue Stelle baut, an der sich das Programm **vorstellt**,
+nimmt den langen Namen.
+
+`appId` (`de.linked2ag.fina`) und der Paketname `fina` bleiben, wie sie sind: daran hängen
+die Einstellungen und der Datenpfad einer schon installierten App, und sichtbar sind sie
+nirgends.
+
+## Das Symbol gibt es einmal
+
+`icon.png` im Stamm ist beides — das Zeichen der **Webseite** (`<link rel="icon">` in
+`index.html`, `Landing.html`, `download/index.html`, `FinaInBrowser.html` und in
+`guideDoc()`) und die Vorlage, aus der **electron-builder** .icns und .ico macht.
+`desktop/sync.mjs` legt es vor jedem Bau nach `desktop/build/icon.png`, wo
+electron-builder es sucht; deshalb steht diese Kopie in `.gitignore`. Zwei gepflegte
+Bilder liefen früher oder später auseinander, und man sähe es erst an der fertigen App.
+
+Gezeichnet wird es aus `desktop/build/icon.html` — Farben und Schrift kommen aus
+`css/tokens.css`, das Symbol kann also gar nicht anders aussehen als die Anwendung. Der
+Befehl steht oben in dieser Datei.
+
+**Der farbige Rücken ist 150 px breit und nicht 96.** Bei 32 px — Reiter, Dock, Taskleiste
+— blieben von 96 px knapp drei Pixel für drei Farben übrig; die Rundung der Ecken nimmt
+oben und unten ohnehin einen Teil davon weg. Wer ihn ändert, ändert das Polster von `.f`
+mit: das F steht mittig auf dem **Papier**, nicht mittig im Bild.
+
+## Die Schriften liegen bei
+
+Zilla Slab, Archivo und IBM Plex Mono stehen als `.woff2` in `css/fonts/`, eingebunden über
+`@font-face` ganz oben in `css/tokens.css`. Sie kamen bis August 2026 von
+`fonts.googleapis.com`; das war an drei Stellen falsch: die App sähe ohne Internet anders
+aus, als sie soll; im Kopf von `index.html` steht, die Seite lade nichts hoch, während jeder
+Aufruf die IP-Adresse des Besuchers an Google überträgt; und dasselbe Einbinden hat das LG
+München im Januar 2022 als DSGVO-Verstoß gewertet.
+
+Je Schnitt zwei Dateien: `latin` deckt Deutsch und Englisch ab, `latin-ext` holt der Browser
+nur nach, wenn wirklich ein Zeichen daraus auf dem Schirm steht. **Archivo ist variabel** —
+eine Datei je Bereich trägt 400 bis 600, deshalb dort `font-weight:400 600` statt dreier
+Regeln. Alle drei stehen unter der SIL Open Font License; `css/fonts/OFL.txt` muss
+mitgeliefert werden, und der Pages-Workflow prüft, dass sie da ist.
+
+Wer einen weiteren Schnitt braucht, legt die `.woff2` daneben und schreibt eine Regel dazu.
+**Heruntergeladen wird nichts mehr** — auch nicht von `guideDoc()`, das seine ganzseitige
+Anleitung über dasselbe `tokens.css` versorgt.
 
 ## Welche Reiter es gibt
 
@@ -1572,13 +1699,20 @@ Rahmen. Rot wäre eine Warnung, Grün eine Bestätigung — Gelb zieht den Blick
 behaupten.
 
 **Der Reiter wächst nach oben:** die neueste Fassung zuoberst. Die Nummer ist
-das Datum — `Jahr.Monat.Tag.Zählung`, also `26.8.4.1` für die erste Änderung des 4. August
-2026. **Erklärt wird das im Reiter nicht**: er fängt ohne Vorrede mit der ersten Version an.
-Wie die Nummer zustande kommt, geht den Leser nichts an; er sieht nur, was neu ist. Eine
+das Datum — `Jahr.Monat.Tag`, also `26.8.4` für den 4. August 2026, **dieselbe Form wie
+`VERSION` in `js/config.js`**. Eine Zählung als vierte Stelle gab es bis August 2026
+(`26.8.13.1`); sie ist weg, weil sie kein gültiges semver ergibt und electron-builder sie
+zurückweist. Wo an einem Tag zweimal etwas fertig wurde, steht es seitdem unter einer
+Nummer. **Erklärt wird das im Reiter nicht**: er fängt ohne Vorrede mit der ersten Version
+an. Wie die Nummer zustande kommt, geht den Leser nichts an; er sieht nur, was neu ist. Eine
 neue Version bekommt ein eigenes `<h4>` mit der Nummer, und das `<span class="pill">`
 („neu") wandert von der bisher obersten dorthin. Beschrieben wird grob und in der Sprache
 des Nutzers — was er merkt, nicht was im Code steht. Der Hinweis auf die Bilder erscheint
 nur über Reitern, die welche haben; die Versionsliste kommt ohne aus.
+
+**Der Reiter muss die Nummer aus `js/config.js` nicht einholen.** Die Webseite läuft ihm
+voraus (jeder Push), die Apps hinken ihm nach (nur auf Marke) — dass die oberste Überschrift
+eine ältere Nummer trägt als `VERSION`, ist der Normalfall und kein Rückstand.
 
 **Angelegt wird eine Version nur, wenn der Nutzer es verlangt.** Nicht bei jeder Änderung
 und auch nicht als weiterer Punkt in der obersten — sonst wächst die Liste schneller, als
@@ -1887,6 +2021,18 @@ Ansichten wiederfinden, und in beiden Beträge-Fenstern abschließen und wieder 
 nichts doppelt gezählt — das ist die eine Prüfung, die sich nicht durch Hinsehen ersetzen
 lässt. Geprüft wird sie über ein Buch, das schon voll ist (die Kategorien müssen ganz
 verschwinden), und danach über Speichern und erneutes Laden.
+
+**Die App hat ihre eigene Liste** — vierzehn Punkte in `desktop/README.md`, darunter die
+drei, die nur dort schiefgehen können: schreibt „Daten speichern" wirklich in dieselbe
+Datei zurück, kommt die Rückfrage beim Schließen (und lässt sich beides, abbrechen *und*
+schließen), und sehen die Schriften **ohne Netzverbindung** richtig aus.
+
+**Ohne Fenster prüfen geht auch, und oft genauer.** Die gebaute App lässt sich mit
+`--remote-debugging-port=…` starten und über das DevTools-Protokoll ausfragen — Maße,
+berechnete Stile, `window.FINA_NATIVE`, geladene Schriftschnitte. Ein Bildschirmfoto sagt
+darüber weniger. **In VS Code muss dafür `ELECTRON_RUN_AS_NODE` weg** (`env -u
+ELECTRON_RUN_AS_NODE …`), sonst läuft jede Electron-Binary als reines Node und `main.js`
+bricht mit `Cannot read properties of undefined (reading 'requestSingleInstanceLock')` ab.
 
 Nach jeder Textänderung prüfen, ob jeder benutzte Schlüssel im Wörterbuch steht:
 

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  FINA — Kassenbuch
+  FINA Book — Kassenbuch
   Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
 
   Der Quelltext dieser Seite ist einsehbar, weil ein Browser ihn zum
@@ -18,14 +18,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
-<title>FINA — Cash book</title>
+<title>FINA Book — your whole finance in one place</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Dasselbe Bild, aus dem die Mac- und die Windows-App ihr Symbol
+     bekommen (icon.png im Stamm, gezeichnet aus
+     desktop/build/icon.html). Ein Reiter zeigt es klein: dass die
+     drei Farben links auch dann noch zu erkennen sind, ist der
+     Grund für ihre Breite. -->
+<link rel="icon" href="icon.png" sizes="any">
 
 <!-- Gestaltung — Reihenfolge zählt: allgemeine Regeln zuerst,
-     spezielle danach. -->
+     spezielle danach.
+
+     Die drei Schriften kamen bis August 2026 von
+     fonts.googleapis.com. Sie liegen jetzt in css/fonts/ und werden
+     in tokens.css eingebunden: die Seite ruft damit **keinen
+     fremden Server mehr auf** — was oben steht, stimmt dann auch
+     für die Schriften. -->
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
@@ -37,7 +46,7 @@
 <div class="wrap">
 <header>
   <div class="masthead">
-    <div class="brand"><h1>FINA</h1><span class="sub" id="yearLbl"></span></div>
+    <div class="brand"><h1>FINA Book</h1><span class="sub" id="yearLbl"></span></div>
     <div class="tools">
       <!-- Die Beschriftungen kommen aus js/i18n.js: data-t setzt den
            Text, data-ttip den Tooltip (siehe renderChrome). -->

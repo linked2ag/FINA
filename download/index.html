@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<!--
+  FINA Book — die Downloadseite
+  Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
+
+  ══════════════════════════════════════════════════════════════
+  BEIM VERÖFFENTLICHEN EINER NEUEN APP-FASSUNG ÄNDERN SICH VIER
+  DINGE, UND ALLE VIER STEHEN AUF DIESER SEITE:
+
+    1. die Versionsnummer in den vier `dlmeta`-Zeilen,
+    2. Größe und Datum ebendort,
+    3. die Prüfsummen unten,
+    4. `version.json` im Stamm der Seite — aber ERST, wenn die
+       Dateien wirklich an der Release hängen (siehe
+       desktop/README.md, „Der Ablauf einer Veröffentlichung").
+
+  Die Links selbst bleiben: `releases/latest/download/…` zeigt
+  immer auf die neueste Release. Der Dateiname darin trägt aber
+  die Version, also wandert er mit.
+  ══════════════════════════════════════════════════════════════
+
+  Warum die Pakete nicht hier liegen: GitHub lehnt Dateien über
+  100 MB im Repository ab, und Pages baut aus dem Repository. Eine
+  Electron-DMG liegt bei rund 120 MB. Sie hängen deshalb als Assets
+  an einer GitHub Release (bis 2 GB je Datei).
+
+  Zwei Sprachen ohne Skript: beide stehen auf der Seite, oben führen
+  zwei Sprungmarken hin — dieselbe Bauart wie die Reiterzeile der
+  ganzseitigen Anleitung (.gnav in css/components.css).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
+<meta name="description" content="FINA Book for macOS and Windows — a cash book that keeps your figures on your own computer.">
+<title>FINA Book — Download</title>
+<link rel="icon" href="../icon.png" sizes="any">
+
+<!-- Dieselben Stylesheets wie die Anwendung, dazu das eine für
+     diese Seite. Die Schriften bringt tokens.css mit (css/fonts/):
+     auch diese Seite ruft keinen fremden Server auf. -->
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/download.css">
+</head>
+<body id="top">
+<main class="guide gpage">
+
+  <h1>FINA Book</h1>
+  <nav class="gnav">
+    <a href="#en">English</a>
+    <a href="#de">Deutsch</a>
+    <a href="../FinaInBrowser.html">Open in the browser</a>
+  </nav>
+
+  <!-- ══ English ══════════════════════════════════════════════ -->
+  <section id="en" lang="en">
+    <h2>Download</h2>
+
+    <p class="dllead">FINA Book is a cash book for one year: twelve months, three kinds of
+    money, one file. <b>Your figures stay on your own computer.</b> Nothing is uploaded,
+    there is no account and no server — the app writes into a JSON file that you choose
+    and that you can read yourself.</p>
+
+    <p class="dlnote">You do not have to download anything to try it:
+    <a href="../FinaInBrowser.html">FINA Book runs in the browser</a>, with the same files. The app is for when
+    you want it in your dock, without a tab and without the internet.</p>
+
+    <div class="dltiles">
+      <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-arm64.dmg">
+        <b>macOS</b>
+        <span class="dlfor">Apple silicon — M1 and newer</span>
+        <span class="dlmeta">26.8.15 · 116 MB · 15 Aug 2026</span>
+      </a>
+      <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-x64.dmg">
+        <b>macOS</b>
+        <span class="dlfor">Intel</span>
+        <span class="dlmeta">26.8.15 · 118 MB · 15 Aug 2026</span>
+      </a>
+      <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-portable.exe">
+        <b>Windows</b>
+        <span class="dlfor">One file, no installing — runs from a USB stick</span>
+        <span class="dlmeta">26.8.15 · 64-bit</span>
+      </a>
+    </div>
+
+    <p class="dlalt">Would you rather have it installed properly, with a start menu entry?
+    <a href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-setup.exe">Windows
+    installer</a> — same program, and it can update itself in place later on.</p>
+
+    <div class="dlgate">
+      <h3>The first start takes a few clicks</h3>
+      <p>FINA Book is not signed yet. A signature costs 99 € a year at Apple and about 120 $ at
+      Microsoft, and FINA Book does not cost anything. So your system does not know who wrote
+      the program and says so — clearly, and in the case of macOS rather harshly. The
+      program is fine; nobody has vouched for it.</p>
+      <p><b>macOS:</b></p>
+      <ol>
+        <li>Open the DMG and drag FINA Book into Applications.</li>
+        <li>Double-click FINA Book. macOS refuses and offers only “Move to Bin”. Say no.</li>
+        <li>Open System Settings → Privacy &amp; Security and scroll right down.</li>
+        <li>There it says “FINA Book was blocked”. Click “Open Anyway”.</li>
+        <li>Enter your password, then confirm once more.</li>
+      </ol>
+      <p><b>Windows:</b> “Windows protected your PC” → “More info” → “Run anyway”. Two
+      clicks. Some virus scanners are wary of unsigned programs as a matter of course.</p>
+      <p>Every following start is a normal double-click. And you can check for yourself
+      what you downloaded: the checksums are below.</p>
+    </div>
+
+    <p class="dlfacts">
+      <b>Requirements</b> — macOS 12 or newer · Windows 10 (64-bit) or newer<br>
+      <b>Your data</b> — one JSON file wherever you keep it. Replacing the app does not
+      touch it.<br>
+      <b>Checksums</b> —
+      <a href="https://github.com/linked2ag/FINA/releases/latest">SHA256SUMS.txt with the
+      release</a><br>
+      <b>Updates</b> — the app tells you when a new version is out and sends you here. You
+      can switch that off in the settings; it is the only time FINA Book talks to the network.
+    </p>
+  </section>
+
+  <!-- ══ Deutsch ══════════════════════════════════════════════ -->
+  <section id="de" lang="de">
+    <h2>Herunterladen</h2>
+
+    <p class="dllead">FINA Book ist ein Kassenbuch für ein Jahr: zwölf Monate, drei Arten von
+    Geld, eine Datei. <b>Deine Zahlen bleiben auf deinem Rechner.</b> Nichts wird
+    hochgeladen, es gibt kein Konto und keinen Server — die Anwendung schreibt in eine
+    JSON-Datei, die du aussuchst und selbst lesen kannst.</p>
+
+    <p class="dlnote">Zum Ausprobieren musst du nichts herunterladen:
+    <a href="../FinaInBrowser.html">FINA Book läuft im Browser</a>, aus denselben Dateien. Die App ist für den
+    Fall, dass du sie im Dock haben willst — ohne Reiter und ohne Internet.</p>
+
+    <div class="dltiles">
+      <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-arm64.dmg">
+        <b>macOS</b>
+        <span class="dlfor">Apple Silicon — M1 und neuer</span>
+        <span class="dlmeta">26.8.15 · 116 MB · 15.08.2026</span>
+      </a>
+      <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-x64.dmg">
+        <b>macOS</b>
+        <span class="dlfor">Intel</span>
+        <span class="dlmeta">26.8.15 · 118 MB · 15.08.2026</span>
+      </a>
+      <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-portable.exe">
+        <b>Windows</b>
+        <span class="dlfor">Eine Datei, kein Installieren — läuft vom USB-Stick</span>
+        <span class="dlmeta">26.8.15 · 64 Bit</span>
+      </a>
+    </div>
+
+    <p class="dlalt">Lieber richtig installiert, mit Eintrag im Startmenü?
+    <a href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-setup.exe">Windows-Installer</a>
+    — dasselbe Programm, und er kann sich später an Ort und Stelle erneuern.</p>
+
+    <div class="dlgate">
+      <h3>Der erste Start kostet ein paar Klicks</h3>
+      <p>FINA Book ist noch nicht signiert. Eine Signatur kostet bei Apple 99 € im Jahr und bei
+      Microsoft rund 120 $, und FINA Book kostet nichts. Dein System weiß deshalb nicht, wer das
+      Programm geschrieben hat, und sagt das auch — deutlich, unter macOS sogar
+      unfreundlich. Mit dem Programm ist alles in Ordnung; es hat nur niemand dafür
+      gebürgt.</p>
+      <p><b>macOS:</b></p>
+      <ol>
+        <li>Die DMG öffnen und FINA Book nach „Programme“ ziehen.</li>
+        <li>FINA Book doppelklicken. macOS weigert sich und bietet nur „In den Papierkorb
+            legen“ an. Nicht darauf klicken.</li>
+        <li>Systemeinstellungen → Datenschutz &amp; Sicherheit öffnen und ganz nach unten
+            scrollen.</li>
+        <li>Dort steht „FINA Book wurde blockiert“. Auf „Trotzdem öffnen“ klicken.</li>
+        <li>Passwort eingeben, danach noch einmal bestätigen.</li>
+      </ol>
+      <p><b>Windows:</b> „Der Computer wurde durch Windows geschützt“ → „Weitere
+      Informationen“ → „Trotzdem ausführen“. Zwei Klicks. Manche Virenscanner sind bei
+      unsignierten Programmen grundsätzlich misstrauisch.</p>
+      <p>Jeder weitere Start ist ein gewöhnlicher Doppelklick. Und du kannst selbst
+      nachsehen, was du geladen hast: die Prüfsummen stehen unten.</p>
+    </div>
+
+    <p class="dlfacts">
+      <b>Voraussetzungen</b> — macOS 12 oder neuer · Windows 10 (64 Bit) oder neuer<br>
+      <b>Deine Daten</b> — eine JSON-Datei dort, wo du sie hinlegst. Die App auszutauschen
+      rührt sie nicht an.<br>
+      <b>Prüfsummen</b> —
+      <a href="https://github.com/linked2ag/FINA/releases/latest">SHA256SUMS.txt bei der
+      Release</a><br>
+      <b>Aktualisieren</b> — die App sagt Bescheid, wenn es etwas Neues gibt, und schickt
+      dich hierher. In den Einstellungen lässt sich das abschalten; es ist das einzige Mal,
+      dass FINA Book ins Netz geht.
+    </p>
+  </section>
+
+</main>
+
+<a class="gtop" href="#top" aria-label="Back to top" title="Back to top">&#8593;</a>
+</body>
+</html>

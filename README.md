@@ -1,4 +1,7 @@
-# FINA — Kassenbuch
+# FINA Book — your whole finance in one place
+
+*Die Anwendung heißt nach außen **FINA Book** — im Fenstertitel, auf der Seite, in den
+Paketen. Im Fließtext und in den Schlüsseln bleibt es beim kurzen **FINA**.*
 
 Jahres- und Monatsabrechnung im Browser. Ersetzt eine handgepflegte
 Google-Sheets-Tabelle und führt zwei Quellen zusammen: die regelmäßigen Kosten und
@@ -31,7 +34,25 @@ Die Seite öffnen und auf **Load data** klicken. Bearbeiten, dann **Save data**.
   linken Kante ziehen.
 
 Lokal genügt ein Doppelklick auf `index.html` — es wird nichts nachgeladen, was
-ein Browser bei `file://` blockieren würde.
+ein Browser bei `file://` blockieren würde. Auch die drei Schriften liegen bei
+(`css/fonts/`); FINA ruft keinen fremden Server auf.
+
+### Ohne Browser: die Apps für Mac und Windows
+
+Dieselben Dateien laufen auch in einem eigenen Fenster — Electron, also dieselbe
+Chromium-Maschine, an der FINA ohnehin gemessen ist. Die Pakete stehen auf der
+[Downloadseite](https://linked2ag.github.io/FINA/download/); gebaut werden sie aus
+`desktop/`, beschrieben in [`desktop/README.md`](desktop/README.md).
+
+Zu wissen ist dreierlei:
+
+- **Sie sind noch nicht signiert.** Beim ersten Start warnt das System; die Downloadseite
+  führt Schritt für Schritt daran vorbei.
+- **Die Datendatei liegt außerhalb.** Die App auszutauschen rührt sie nicht an.
+- **Web und Apps laufen auseinander.** Die Webseite bekommt jeden Push, die Apps nur eine
+  gesetzte Marke — das ist ein Kanal und kein Rückstand. Die App fragt beim Start einmal
+  `version.json` ab und meldet, wenn es etwas Neueres gibt; abschaltbar unter
+  **Settings → General**. Es ist die einzige Netzverbindung, die FINA aufbaut.
 
 ## Die vier Ansichten
 
@@ -79,6 +100,7 @@ Struktur, Gestaltung und Logik liegen getrennt. Wer etwas ändern will, findet d
 
 ```
 index.html              Gerüst der Seite und die Ladereihenfolge
+version.json            welche Fassung die Apps als aktuell melden
 
 css/
   tokens.css            Farben, Schriften, Reset — hier wirkt jede Änderung global
@@ -86,10 +108,17 @@ css/
   components.css        Schaltflächen, Siegel, Lampen, Formulare, Fenster, Listen
   ledger.css            die einspaltigen Tabellen (Monat, Prognose, Flexible Payments)
   matrix.css            die Jahresmatrix
+  download.css          nur für die Downloadseite
+  fonts/                die drei Schriften als .woff2, dazu ihre Lizenz
+
+download/
+  index.html            die Seite, von der die Apps geladen werden
+
+desktop/                der Electron-Rahmen für Mac und Windows (siehe dortige README)
 
 js/
   i18n.js               alle Texte auf Englisch und Deutsch, Monatsnamen, YEAR, CUR
-  config.js             Ansichtsliste, Auswahllisten, Symbole
+  config.js             Ansichtsliste, Auswahllisten, Symbole, VERSION
   format.js             Zahlen, Text, Fälligkeitsbeschriftungen — reine Funktionen
   state.js              Datenmodell, leerer Zustand, migrate() für ältere Dateien
   categories.js         Kategorien umbenennen/anlegen/löschen samt Referenzen

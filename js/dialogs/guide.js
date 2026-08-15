@@ -1107,12 +1107,22 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
    Die Versionsliste, neueste Fassung oben. Sie wächst nach oben:
    eine neue Version bekommt einen eigenen <h4> mit der Nummer und
    darunter eine Liste dessen, was sich geändert hat — grob, in
-   der Sprache des Nutzers, nicht in der des Codes. Die Nummer ist
-   das Datum: Jahr.Monat.Tag.Zählung. */
+   der Sprache des Nutzers, nicht in der des Codes.
+
+   **Die Nummer ist das Datum: Jahr.Monat.Tag** — drei Stellen,
+   dieselbe Form wie VERSION in js/config.js. Eine Zählung dahinter
+   gab es bis August 2026 (`26.8.13.1`); sie ist weg, weil sie kein
+   gültiges semver ergibt und electron-builder sie zurückweist. Wo
+   an einem Tag zweimal etwas fertig wurde, steht es jetzt unter
+   einer Nummer.
+
+   Dieser Reiter zählt **nicht** jede Änderung auf, und er läuft
+   der Webseite absichtlich hinterher: eine Version entsteht hier
+   nur auf ausdrücklichen Wunsch (siehe doc/GUIDE-TODO.md). */
 news:{
 
 en:()=>`
-<h4>26.8.13.1 <span class="pill">latest</span></h4>
+<h4>26.8.13 <span class="pill">latest</span></h4>
 <ul>
   <li><b>The forecast can be changed where it stands.</b> Double-click a month in the <b>COR</b>
       column and the balance correction opens at that month. Double-click the amount of the
@@ -1126,7 +1136,7 @@ en:()=>`
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.8.11.1</h4>
+<h4>26.8.11</h4>
 <ul>
   <li><b>Filtering now adds up what you see.</b> In the month view the block totals, the category
       totals and the four figures of the analytics line; in the year table the block rows, the
@@ -1142,7 +1152,7 @@ en:()=>`
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.8.9.2</h4>
+<h4>26.8.9</h4>
 <ul>
   <li><b>The year view holds its headings.</b> Column names, “Balance per month” and the
       block row stay put while you scroll — and the horizontal scrollbar now sits above the
@@ -1158,11 +1168,6 @@ en:()=>`
       value when you point at them.</li>
   <li><b>Entries without any monthly amount are shown in the year view too</b>, so a new one
       does not go missing before you have filled it in.</li>
-  <li>Bugfixing and cosmetic changes.</li>
-</ul>
-
-<h4>26.8.9.1</h4>
-<ul>
   <li><b>The guide on a full page:</b> the button next to the ✕ opens it in a browser tab of
       its own, all three parts one after another.</li>
   <li><b>The guide has its own language.</b> EN · DE in its header. It opens in the language
@@ -1174,7 +1179,7 @@ en:()=>`
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.8.8.1</h4>
+<h4>26.8.8</h4>
 <ul>
   <li><b>${t('set.opening')}</b> — the balance your book starts from, next to the year in
       ${t('app.settings')}. Every balance counts on from there.</li>
@@ -1187,7 +1192,7 @@ en:()=>`
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.8.7.1</h4>
+<h4>26.8.7</h4>
 <ul>
   <li><b>Income has categories of its own</b>, in a second list next to the expense
       categories.</li>
@@ -1198,7 +1203,7 @@ en:()=>`
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.8.6.1</h4>
+<h4>26.8.6</h4>
 <ul>
   <li><b>A first screen</b> with no file open: open a file, or start from scratch.</li>
   <li><b>${t('month.ana')}</b> — the five figures of the month open a timeline of it.</li>
@@ -1207,25 +1212,20 @@ en:()=>`
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.8.5.2</h4>
+<h4>26.8.5</h4>
 <ul>
   <li><b>The filter searches only where you want it to</b> — the ☰ button in front of the
       field.</li>
   <li><b>${t('view.kakeibo')} only with an import</b>, and now the last tab.</li>
   <li><b>${t('app.import')} moved to the top bar.</b></li>
   <li><b>${t('view.prognose')} only calculates now</b> — it no longer writes.</li>
-  <li>Bugfixing and cosmetic changes.</li>
-</ul>
-
-<h4>26.8.5.1</h4>
-<ul>
   <li><b>Duplicate an item or a category</b> — same window, copy inside.</li>
   <li><b>The sign shows while you type:</b> red below zero, green above.</li>
   <li><b>Note lamps from the first moment</b>, and notes keep their line breaks.</li>
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.8.4.1</h4>
+<h4>26.8.4</h4>
 <ul>
   <li><b>Double-click opens an item</b> — in every view, on the amount or on the name.</li>
   <li><b>The search field holds the cursor</b> while you tick things off.</li>
@@ -1233,7 +1233,7 @@ en:()=>`
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
-<h4>26.7.30.1</h4>
+<h4>26.7.30</h4>
 <p>The first complete version:</p>
 <ul>
   <li><b>One file, one year</b>, on your own computer. Nothing is written until you save.</li>
@@ -1246,7 +1246,7 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.13.1 <span class="pill">neu</span></h4>
+<h4>26.8.13 <span class="pill">neu</span></h4>
 <ul>
   <li><b>Die Prognose lässt sich dort ändern, wo sie steht.</b> Ein Doppelklick auf einen Monat
       der Spalte <b>COR</b> öffnet die Saldokorrektur mit genau diesem Monat. Ein Doppelklick auf
@@ -1261,7 +1261,7 @@ de:()=>`
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.8.11.1</h4>
+<h4>26.8.11</h4>
 <ul>
   <li><b>Filtern rechnet jetzt über das, was du siehst.</b> In der Monatsansicht die
       Bereichssummen, die Kategoriesummen und die vier Zahlen der Auswertung; in der
@@ -1277,7 +1277,7 @@ de:()=>`
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.8.9.2</h4>
+<h4>26.8.9</h4>
 <ul>
   <li><b>Die Jahresansicht hält ihre Überschriften fest.</b> Spaltennamen, „Saldo je Monat"
       und die Blockzeile bleiben beim Scrollen stehen — und der waagerechte Rollbalken steht
@@ -1293,11 +1293,6 @@ de:()=>`
       den importierten Wert.</li>
   <li><b>Posten ohne Monatsbeträge stehen auch in der Jahresansicht</b>, damit ein frisch
       angelegter nicht verlorengeht, bevor du ihn ausgefüllt hast.</li>
-  <li>Bugfixing und kosmetische Anpassungen.</li>
-</ul>
-
-<h4>26.8.9.1</h4>
-<ul>
   <li><b>Die Anleitung über die ganze Seite:</b> der Knopf neben dem ✕ öffnet sie in einem
       eigenen Reiter des Browsers, alle drei Teile hintereinander.</li>
   <li><b>Die Anleitung hat ihre eigene Sprache.</b> EN · DE in ihrem Kopf. Sie geht in der
@@ -1310,7 +1305,7 @@ de:()=>`
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.8.8.1</h4>
+<h4>26.8.8</h4>
 <ul>
   <li><b>${t('set.opening')}</b> — der Stand, bei dem dein Buch anfängt, neben dem Jahr in den
       ${t('app.settings')}. Jeder Kontostand rechnet von da an weiter.</li>
@@ -1325,7 +1320,7 @@ de:()=>`
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.8.7.1</h4>
+<h4>26.8.7</h4>
 <ul>
   <li><b>Einnahmen haben eigene Kategorien</b>, in einer zweiten Liste neben den
       Ausgabe-Kategorien.</li>
@@ -1337,7 +1332,7 @@ de:()=>`
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.8.6.1</h4>
+<h4>26.8.6</h4>
 <ul>
   <li><b>Eine erste Seite</b> ohne Datei: öffnen oder neu anfangen.</li>
   <li><b>${t('month.ana')}</b> — die fünf Zahlen des Monats öffnen seinen Zeitstrahl.</li>
@@ -1346,24 +1341,19 @@ de:()=>`
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.8.5.2</h4>
+<h4>26.8.5</h4>
 <ul>
   <li><b>Der Filter sucht nur dort, wo du es willst</b> — der ☰-Knopf vor dem Feld.</li>
   <li><b>${t('view.kakeibo')} nur mit Import</b>, und jetzt als letzter Reiter.</li>
   <li><b>${t('app.import')} steht in der Kopfzeile.</b></li>
   <li><b>Die ${t('view.prognose')} rechnet nur noch</b> — sie schreibt nicht mehr.</li>
-  <li>Bugfixing und kosmetische Anpassungen.</li>
-</ul>
-
-<h4>26.8.5.1</h4>
-<ul>
   <li><b>Posten und Kategorien duplizieren</b> — dasselbe Fenster, eine Kopie darin.</li>
   <li><b>Das Vorzeichen zeigt sich beim Tippen:</b> rot unter null, grün darüber.</li>
   <li><b>Notizlampen von Anfang an</b>, und Notizen behalten ihre Zeilen.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.8.4.1</h4>
+<h4>26.8.4</h4>
 <ul>
   <li><b>Doppelklick öffnet die Position</b> — in jeder Ansicht, auf Betrag oder
       Bezeichnung.</li>
@@ -1372,7 +1362,7 @@ de:()=>`
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
-<h4>26.7.30.1</h4>
+<h4>26.7.30</h4>
 <p>Die erste vollständige Fassung:</p>
 <ul>
   <li><b>Eine Datei, ein Jahr</b>, auf dem eigenen Rechner. Geschrieben wird erst beim
@@ -1534,7 +1524,7 @@ function renderGuide(){}
    der der Oberfläche — wie der Seitenbereich auch. */
 function guideDoc(){
   return inGuideLang(()=>{
-    const title=`FINA — ${t('app.guide')}`;
+    const title=`FINA Book — ${t('app.guide')}`;
     /* Die drei Reiter wie im Seitenbereich — nur sind es hier
        Sprungmarken, keine Schalter: die drei Teile stehen alle auf
        der Seite. Sie kleben oben, damit man von überall zum
@@ -1554,12 +1544,13 @@ function guideDoc(){
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="${esc(location.href)}">
 <title>${esc(title)}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Die Schriften bringt tokens.css mit (css/fonts/). Das <base>
+     oben zeigt auf die Anwendung, deshalb findet die neue Seite
+     sie über denselben relativen Pfad wie index.html. -->
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
+<link rel="icon" href="icon.png" sizes="any">
 </head>
 <body id="g-top">
 <main class="guide gpage">

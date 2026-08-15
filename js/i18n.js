@@ -101,6 +101,18 @@ const STR={
 'app.chooseView':{en:'Choose view',de:'Ansicht wählen'},
 'app.chooseMonth':{en:'Choose month',de:'Monat wählen'},
 
+/* ── Die Hinweisleiste auf eine neue Fassung ────────────────
+   Nur in der Mac- und der Windows-App: im Browser ist die Seite
+   immer die neueste, dort gäbe es nichts zu melden. Der Hinweis
+   nennt die Nummer und führt zur Downloadseite; heruntergeladen
+   und ausgetauscht wird von Hand (siehe checkUpdate in app.js). */
+'upd.avail':{en:'Version {0} is available.',de:'Version {0} ist verfügbar.'},
+'upd.get':{en:'Download',de:'Herunterladen'},
+'upd.getTip':{en:'Opens the download page in your browser',
+  de:'Öffnet die Downloadseite im Browser'},
+'upd.hide':{en:'Not now',de:'Später'},
+'upd.hideTip':{en:'Hide until the next start',de:'Bis zum nächsten Start ausblenden'},
+
 /* ── Ansichtsnamen ────────────────────────────────────────── */
 /* „Flexible Payments" ist der Name des Bereichs, der früher
    Kakeibo hieß. Er bleibt in beiden Sprachen gleich — wie
@@ -314,6 +326,13 @@ const STR={
   de:'Von selbst wird nichts geschrieben: gespeichert wird nur, wenn du auf „{0}" klickst. In Chrome, Edge und Opera schreibt FINA in genau die Datei zurück, die du geöffnet hast; andere Browser laden eine Kopie herunter.'},
 'wel.guide':{en:'Never kept a cash book? Open <b>{0}</b> in the top bar — it walks you through it once, step by step.',
   de:'Noch nie ein Kassenbuch geführt? Öffne oben <b>{0}</b> — dort wirst du einmal Schritt für Schritt durchgeführt.'},
+/* Der Weg zur Downloadseite, ganz unten auf der Begrüßungsseite.
+   In der Mac- und der Windows-App steht er nicht (appHint() in
+   js/views/willkommen.js). Der Platzhalter ist der Link — der Text
+   drumherum sagt, wofür man ihn anklickt. */
+'wel.app':{en:'Rather have it in your dock? There is {0} for macOS and Windows — the same program, without a tab and without the internet.',
+  de:'Lieber im Dock? Es gibt {0} für macOS und Windows — dasselbe Programm, ohne Reiter und ohne Internet.'},
+'wel.appLink':{en:'FINA to download',de:'FINA zum Herunterladen'},
 
 /* ── Monatsansicht ────────────────────────────────────────── */
 'month.income':{en:'Income — {0}',de:'Einnahmen — {0}'},
@@ -742,6 +761,12 @@ const STR={
 'set.opening':{en:'Opening balance',de:'Anfangsbestand'},
 'set.openingHint':{en:'What was in your account before January — every balance in FINA counts up from here. Leave it empty and the year starts at zero; a minus sign is allowed.',
   de:'Was vor dem Januar auf deinem Konto lag — jeder Kontostand in FINA zählt von hier aus weiter. Leer heißt: das Jahr fängt bei null an; ein Minus ist erlaubt.'},
+/* Der Haken für die Frage nach einer neueren Fassung. Er nennt
+   die Adresse, weil FINA sonst nichts abruft — was einmal im Netz
+   nachschlägt, soll auch sagen, wo. */
+'set.upd':{en:'Tell me about new versions',de:'Auf neue Versionen hinweisen'},
+'set.updHint':{en:'Only in the Mac and Windows app: at start it asks linked2ag.github.io which version is current. It sends nothing — the browser version is always the current one anyway.',
+  de:'Nur in der Mac- und der Windows-App: beim Start wird bei linked2ag.github.io nachgefragt, welche Fassung aktuell ist. Gesendet wird dabei nichts — die Fassung im Browser ist ohnehin immer die neueste.'},
 'set.labw':{en:'Item column',de:'Positionsspalte'},
 'set.monw':{en:'Month columns',de:'Monatsspalten'},
 'set.widthHint':{en:'Widths of the year matrix in pixels, 50 to 800.',de:'Breiten der Jahresmatrix in Pixel, 50 bis 800.'},

@@ -201,7 +201,13 @@ function emptyState(){
        eine Gewohnheit beim Lesen — sie überlebt das Trennen der
        Datei, anders als die vier Listen. */
     filterFields:(state&&state.filterFields)?state.filterFields:allQFields(),
-    qHidden:!!(state&&state.qHidden)
+    qHidden:!!(state&&state.qHidden),
+    /* Ob die Mac- und die Windows-App beim Start nach einer neueren
+       Fassung fragen dürfen (checkUpdate in js/app.js). Im Browser
+       bedeutungslos — dort ist die Seite immer die neueste. Wie die
+       Wahl des Suchfelds ist das eine Gewohnheit und keine Angabe
+       über Geld: sie überlebt das Trennen der Datei. */
+    updateCheck:(state&&state.updateCheck===false)?false:true
   };
 }
 
@@ -270,6 +276,11 @@ function migrate(s){
   /* Dateien von vor dem Anfangsbestand fangen bei null an — genau
      so, wie sie es bisher getan haben. */
   if(typeof s.opening!=='number'||!isFinite(s.opening)) s.opening=0;
+  /* Dateien von vor den Apps kennen den Schalter nicht. Die Frage
+     nach einer neueren Fassung ist die einzige Netzverbindung, die
+     FINA aufbaut — sie steht deshalb offen in den Einstellungen und
+     ist von Haus aus an. */
+  if(typeof s.updateCheck!=='boolean') s.updateCheck=true;
   if(!s.banks) s.banks=[];
   if(!s.pays) s.pays=[];
   if(!s.groups) s.groups=[];

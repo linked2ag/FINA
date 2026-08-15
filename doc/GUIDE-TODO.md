@@ -17,6 +17,42 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 ## Offen
 
+- ⚠ **Die Anwendung heißt FINA Book.** Sichtbar wird das im Wortzeichen der Kopfzeile, im
+  Reiter des Browsers, im Fenstertitel der App und in den Namen der Pakete
+  (`FINA-Book-…dmg`, `FINA-Book-…exe`). Im Fließtext bleibt es beim kurzen **FINA** — auch
+  die FINA-Tabelle heißt weiter so. Betrifft die Anleitung überall dort, wo sie das
+  Programm beim Namen nennt und dabei ein Wortzeichen oder einen Dateinamen zeigt; die
+  Bildschirmfotos in `doc/img/` zeigen noch das alte Wortzeichen.
+
+- **Das Symbol steht jetzt auch im Reiter des Browsers.** Dasselbe Bild, das die Mac- und
+  die Windows-App tragen. Der farbige Rücken ist dafür breiter geworden, damit die drei
+  Geldarten auch bei 32 px noch auseinanderzuhalten sind. Kein eigener Punkt im Reiter
+  „Was ist neu" wert — eher eine Zeile in der Sammelmeldung.
+
+- **FINA gibt es zum Herunterladen — für macOS und für Windows.** Dasselbe Programm, nur
+  ohne Browser: ein eigenes Fenster, ein Eintrag im Dock, und es läuft ohne Internet. Der
+  Weg dorthin steht ganz unten auf der Begrüßungsseite und auf einer eigenen Seite
+  (`/download/`), die auch erklärt, warum das System beim ersten Start warnt: FINA ist noch
+  nicht signiert. **Die Datei bleibt, wo sie ist** — die App auszutauschen rührt sie nicht
+  an. Betrifft vor allem den Produktreiter; in **Schritt für Schritt** genügt am Anfang ein
+  Satz, dass man nichts installieren muss, aber kann.
+
+- **Die App sagt Bescheid, wenn es eine neue Fassung gibt.** Beim Start erscheint dann oben
+  eine schmale Leiste mit der Nummer und einem Weg zur Downloadseite; „Später" blendet sie
+  bis zum nächsten Start aus. Heruntergeladen und ausgetauscht wird von Hand. **Es ist die
+  einzige Netzverbindung, die FINA je aufbaut**, sie schickt nichts, und in den
+  Einstellungen unter „Allgemein" lässt sie sich abschalten. Im Browser gibt es sie nicht —
+  dort ist die Seite immer die neueste. Das gehört in den Produktreiter, in den Absatz, der
+  sagt, dass FINA nichts überträgt: die Aussage stimmt weiter, ist aber jetzt genauer zu
+  fassen.
+
+- **Die Schriften liegen jetzt bei.** Für den Nutzer heißt das: die Seite lädt schneller und
+  ruft **keinen fremden Server mehr auf** — vorher kamen die drei Schriften von Google, und
+  damit ging bei jedem Aufruf die IP-Adresse des Besuchers dorthin. Kein eigener Punkt im
+  Reiter „Was ist neu" wert (das ist Kosmetik plus Datenschutz), aber der Produktreiter
+  behauptet an mehreren Stellen, FINA übertrage nichts — **jetzt stimmt das auch für die
+  Schriften**, und der Satz darf entsprechend fester ausfallen.
+
 - **In der Prognose lässt sich zweierlei ändern, ohne die Ansicht zu wechseln.** Ein
   Doppelklick auf einen Betrag der Spalte **COR** öffnet die Saldokorrektur mit genau diesem
   Monat — dasselbe Fenster wie in der Jahrestabelle. Und ein Doppelklick auf den Betrag der
@@ -46,9 +82,19 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
   Jahrestabelle zeigt seine Zahlen grün und rot wie jeder andere Betrag. Beides ist Kosmetik
   — nur erwähnenswert, falls ein Absatz die Farben aufzählt.
 
-Die drei Punkte sind am 13. August 2026 in den Reiter **Was ist neu** eingegangen (Version
-26.8.13.1, beide Sprachen); in **Schritt für Schritt** und **Was FINA kann** stehen sie noch
-nicht. Vollständig nachgezogen war die Anleitung zuletzt am 11. August 2026 — siehe unten.
+Die letzten drei Punkte sind am 13. August 2026 in den Reiter **Was ist neu** eingegangen
+(Version 26.8.13, beide Sprachen); in **Schritt für Schritt** und **Was FINA kann** stehen
+sie noch nicht. Die drei Punkte darüber — Apps, Update-Hinweis, Schriften — stehen in
+**keinem** der drei Reiter. Vollständig nachgezogen war die Anleitung zuletzt am 11. August
+2026 — siehe unten.
+
+**Die Versionsnummern sind seit dem 15. August 2026 dreiteilig** (`Jahr.Monat.Tag`, ohne
+die Zählung dahinter): electron-builder braucht gültiges semver, und `VERSION` in
+`js/config.js` ist jetzt die eine Stelle, an der die Nummer steht. Die vorhandenen Einträge
+im Reiter „Was ist neu" wurden entsprechend gekürzt; wo an einem Tag zwei Versionen standen
+(26.8.9.1 + 26.8.9.2 und 26.8.5.1 + 26.8.5.2), sind sie zu **einer** zusammengelegt. In den
+Absätzen der Reiter unten steht die alte, vierteilige Form noch als Notiz aus der Zeit, in
+der sie galt — die bleibt so stehen, es ist ein Protokoll.
 
 Die Bildschirmfotos in `doc/img/` sind vom 8. August 2026 und zeigen den Stand von damals:
 das alte Linkfeld im Posten-Fenster, die alten Prognose-Spalten, die fünfte Kennzahl der

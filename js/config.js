@@ -9,6 +9,35 @@
    DUE_OPTS bleiben als Fundstellen unverändert.
    ══════════════════════════════════════════════════════════════ */
 
+/* ── Die Versionsnummer ───────────────────────────────────────
+   **Eine Zahl, eine Stelle.** Hier steht sie, alles andere leitet
+   sich daraus ab: `desktop/sync.mjs` schreibt sie vor jedem Bauen
+   in `desktop/package.json`, die Update-Hinweisleiste vergleicht
+   sie mit `version.json`, und beim Speichern wandert sie als
+   `state.v` in die Datei des Nutzers.
+
+   **Sie ist das Datum: Jahr.Monat.Tag**, also `26.8.15` für den
+   15. August 2026. Drei Stellen, keine Zählung dahinter — die
+   vierteilige Form (`26.8.13.1`) ist kein gültiges semver, und
+   electron-builder weist sie zurück. Wer an einem Tag zweimal
+   veröffentlicht, tut es unter derselben Nummer: die Webseite ist
+   dann einfach neuer als das, was der Guide auflistet.
+
+   Der letzte Eintrag im Guide-Reiter „Was ist neu" muss **nicht**
+   diese Nummer tragen. Versionen entstehen dort nur auf Zuruf; die
+   Webseite läuft ihnen voraus, und die Apps hinterher (siehe
+   „Die zwei Veröffentlichungskanäle" in der Planung). */
+const VERSION='26.8.15';
+
+/* Wo die Apps ihre Fassung nachschlagen. Die Datei beschreibt den
+   **App-Kanal**, nicht die Webseite: stünde dort jede Webversion,
+   meldete jeder Push allen installierten Apps ein Update, das es
+   als Download gar nicht gibt. Abgefragt wird sie nur in der
+   nativen Fassung (window.FINA_NATIVE) und höchstens einmal am Tag
+   — es ist die einzige Netzverbindung, die FINA je aufbaut. */
+const VERSION_URL='https://linked2ag.github.io/FINA/version.json';
+const DOWNLOAD_URL='https://linked2ag.github.io/FINA/download/';
+
 /* Die Hauptansichten: interner Schlüssel + Beschriftung. Die
    Reihenfolge ist auch die der Reiter.
 

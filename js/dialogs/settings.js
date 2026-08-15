@@ -140,7 +140,15 @@ function openSettings(where,done){
             <div class="field"><label for="sOpen">${t('set.opening')}</label>
               <input id="sOpen" class="num signed" placeholder="0,00" value="${opening()?nf.format(opening()):''}"></div>
           </div>
-          <p class="note">${t('set.openingHint')} ${t('set.yearHint')}</p>`)}
+          <p class="note">${t('set.openingHint')} ${t('set.yearHint')}</p>
+          <!-- Die einzige Netzverbindung, die FINA je aufbaut, und
+               deshalb steht sie offen da — mit ihrer Adresse. Sie
+               wirkt nur in der Mac- und der Windows-App: im Browser
+               ist die Seite immer die neueste. Genau darum steht
+               unter dem Haken, für wen er gilt. -->
+          <div class="checklist wherelist"><label class="checkrow">
+            <input type="checkbox" id="sUpd" ${state.updateCheck===false?'':'checked'}>
+            <span class="clab">${t('set.upd')}</span><span class="chint">${t('set.updHint')}</span></label></div>`)}
 
         ${pane('view',t('set.navView'),t('set.viewSub'),`
           <div class="cols c3">
@@ -257,6 +265,7 @@ function openSettings(where,done){
     const lw=num('#sLabW',50,800); if(lw) state.labWidth=lw;
     const mw=num('#sMonW',50,400); if(mw) state.monWidth=mw;
     const tm=num('#sTopMin',0,100000); if(tm!=null) state.topMin=tm;
+    state.updateCheck=box.querySelector('#sUpd').checked;
   };
 
   /* ── Geänderte Kürzel ─────────────────────────────────────────
