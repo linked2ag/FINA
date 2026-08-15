@@ -91,7 +91,12 @@ jobs:
           shopt -s nullglob
           pakete=(*.dmg *.exe)
           [ ${#pakete[@]} -gt 0 ] || { echo "FEHLER: keine Pakete in dist/"; exit 1; }
-          sum "${pakete[@]}" | sed 's|  .*/|  |' > SHA256SUMS.txt
+          # `sha256sum` schreibt den Binärmodus als Stern vor den
+          # Namen, `shasum` nicht. Beide Formen liest ein Prüfprogramm,
+          # aber die beiden Dateien werden für die Release zu einer
+          # zusammengelegt — und die soll nicht zwei Schreibweisen
+          # untereinander zeigen.
+          sum "${pakete[@]}" | sed 's|  .*/|  |; s|^\([0-9a-f]\{64\}\) \*|\1  |' > SHA256SUMS.txt
           cat SHA256SUMS.txt
           [ -s SHA256SUMS.txt ] || { echo "FEHLER: SHA256SUMS.txt ist leer"; exit 1; }
 
