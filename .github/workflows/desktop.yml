@@ -72,12 +72,28 @@ jobs:
       # Die Prüfsummen entstehen dort, wo die Dateien entstehen —
       # nachträglich am eigenen Rechner gerechnet wären sie nur die
       # Bestätigung dessen, was man ohnehin schon hat.
+      #
+      # **Zwei Namen für dieselbe Rechnung.** macOS bringt `shasum`
+      # mit, das Git-Bash von Windows `sha256sum`. Bis August 2026
+      # stand hier nur `shasum`, dazu `2>/dev/null` und `|| true` —
+      # unter Windows kam damit eine **leere** Datei heraus, und
+      # gemerkt hätte es erst der Nutzer, der seinen Download prüfen
+      # will. Deshalb wird beides versucht und nichts mehr
+      # verschluckt: keine Prüfsumme, kein Lauf.
       - name: Prüfsummen
         working-directory: desktop/dist
         shell: bash
         run: |
-          shasum -a 256 *.dmg *.exe 2>/dev/null | sed 's|  .*/|  |' > SHA256SUMS.txt || true
+          sum() {
+            if command -v sha256sum >/dev/null; then sha256sum "$@"
+            else shasum -a 256 "$@"; fi
+          }
+          shopt -s nullglob
+          pakete=(*.dmg *.exe)
+          [ ${#pakete[@]} -gt 0 ] || { echo "FEHLER: keine Pakete in dist/"; exit 1; }
+          sum "${pakete[@]}" | sed 's|  .*/|  |' > SHA256SUMS.txt
           cat SHA256SUMS.txt
+          [ -s SHA256SUMS.txt ] || { echo "FEHLER: SHA256SUMS.txt ist leer"; exit 1; }
 
       - uses: actions/upload-artifact@v4
         with:
