@@ -6,25 +6,22 @@
 # macOS legt das in jedem Ordner an, den der Finder einmal geöffnet hat.
 .DS_Store
 
-# Die Wegwerfseiten von doc/make-shots.py und den Prüfläufen: sie
-# entstehen im Projektverzeichnis, weil die Seite ihre Skripte über
-# relative Pfade lädt, und werden danach wieder gelöscht. Bricht ein
-# Lauf ab, bleiben sie liegen — im Repository haben sie nichts zu
-# suchen.
-_shot.html
-_*.html
-
-# Planung und Recherche: Marktanalyse, Entwürfe, Kostenrechnungen. Das
-# sind Arbeitsunterlagen zum Projekt und nicht Teil der Anwendung — im
-# Repository stünden sie öffentlich.
+# Alles, dessen Name mit einem Unterstrich beginnt, bleibt hier —
+# Dateien wie Ordner, gleich in welcher Tiefe; bei einem Ordner auch
+# sein ganzer Inhalt, egal welche Endung darin steht. Daran erkennt
+# man es auch im Finder, wo es von selbst nach oben sortiert. Wer
+# eine neue Datei oder einen neuen Ordner dieser Art anlegt, hält
+# sich an den Unterstrich und braucht hier nichts nachzutragen.
 #
-# Die Regel ist der **Unterstrich vorn**: eine Datei, deren Name mit
-# `_` beginnt, bleibt hier. Daran erkennt man sie auch im Finder, wo
-# sie von selbst nach oben sortiert. Wer eine neue Planungsdatei
-# anlegt, hält sich daran und braucht hier nichts nachzutragen.
-/_Planung und Research/
-_*.md
-_*.pdf
+# Zwei Sorten fallen bisher darunter: die Wegwerfseiten von
+# doc/make-shots.py und den Prüfläufen (_shot.html — entstehen im
+# Projektverzeichnis, weil die Seite ihre Skripte über relative Pfade
+# lädt, und werden danach wieder gelöscht; bricht ein Lauf ab,
+# bleiben sie liegen), und Arbeitsunterlagen zum Projekt wie
+# /_Planung und Research/ (Marktanalyse, Entwürfe, Kostenrechnungen) —
+# das sind Arbeitsunterlagen, nicht Teil der Anwendung, und im
+# Repository stünden sie öffentlich.
+_*
 
 # Der Ordner desktop/ baut die Mac- und die Windows-Fassung. Drei
 # Dinge darin gehören nicht ins Repository:
