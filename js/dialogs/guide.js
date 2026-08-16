@@ -1122,7 +1122,19 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.13 <span class="pill">latest</span></h4>
+<h4>26.8.15 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>FINA is now FINA Book</b> — the name in the window, the browser tab and the icon; in
+      running text it stays the short FINA.</li>
+  <li><b>FINA Book for macOS and for Windows</b> — a download, its own window in the dock or the
+      taskbar, and it runs without the internet. The file you open stays exactly what it was.</li>
+  <li><b>The app tells you when a newer version is out</b>, with a link to the download page;
+      “Not now” hides it until the next start, and it can be switched off in
+      ${t('app.settings')}.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.13</h4>
 <ul>
   <li><b>The forecast can be changed where it stands.</b> Double-click a month in the <b>COR</b>
       column and the balance correction opens at that month. Double-click the amount of the
@@ -1246,7 +1258,20 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.13 <span class="pill">neu</span></h4>
+<h4>26.8.15 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>FINA heißt jetzt FINA Book</b> — im Fenster, im Reiter des Browsers und im Symbol; im
+      Fließtext bleibt es beim kurzen FINA.</li>
+  <li><b>FINA Book für macOS und für Windows</b> — ein Download, ein eigenes Fenster im Dock oder
+      in der Taskleiste, und es läuft ohne Internet. Die Datei, die du öffnest, bleibt genau die,
+      die sie war.</li>
+  <li><b>Die App sagt Bescheid, wenn es eine neuere Fassung gibt</b>, mit einem Weg zur
+      Downloadseite; „Später" blendet die Leiste bis zum nächsten Start aus, abschalten lässt sie
+      sich in den ${t('app.settings')}.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.13</h4>
 <ul>
   <li><b>Die Prognose lässt sich dort ändern, wo sie steht.</b> Ein Doppelklick auf einen Monat
       der Spalte <b>COR</b> öffnet die Saldokorrektur mit genau diesem Monat. Ein Doppelklick auf

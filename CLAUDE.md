@@ -1714,10 +1714,14 @@ nur über Reitern, die welche haben; die Versionsliste kommt ohne aus.
 voraus (jeder Push), die Apps hinken ihm nach (nur auf Marke) — dass die oberste Überschrift
 eine ältere Nummer trägt als `VERSION`, ist der Normalfall und kein Rückstand.
 
-**Angelegt wird eine Version nur, wenn der Nutzer es verlangt.** Nicht bei jeder Änderung
-und auch nicht als weiterer Punkt in der obersten — sonst wächst die Liste schneller, als
-sie jemand liest. Bis dahin steht das Gebaute in `doc/GUIDE-TODO.md`; von dort wird auf
-Zuruf eine Version gemacht.
+**Eine Version wird automatisch angelegt, sobald ein Stand fertig ist** — nicht erst auf
+Zuruf. Was seit der obersten Fassung an größeren funktionalen Änderungen zusammengekommen
+ist, bekommt seinen eigenen Punkt; das hält die Liste aktuell, ohne dass jemand eigens
+danach fragen muss. Kurz bleibt sie trotzdem, weil nur die größeren Änderungen überhaupt
+einen eigenen Punkt bekommen (siehe oben) — alles Kleinere sammelt sich in der einen Zeile
+„Bugfixing und kosmetische Anpassungen" am Ende des Blocks, statt die Liste aufzublähen.
+Ein neuer `<h4>`-Block entsteht dabei nur zu einem tatsächlichen Versionswechsel
+(`VERSION` in `js/config.js`), nicht zu jedem einzelnen Commit dazwischen.
 
 **Bilder.** `gshot('dateiname','Bildunterschrift')` setzt ein Bild aus `doc/img/`; der Klick
 öffnet es in voller Größe in einem neuen Reiter, weil im schmalen Bereich sonst nichts zu
@@ -1998,11 +2002,12 @@ Datei ausschließlich über „Daten speichern".
 
 ## Die Anleitung wird nicht bei jeder Änderung mitgeschrieben
 
-Neue Funktionen kommen **nicht** sofort in den Guide-Bereich. Wer eine baut, schreibt sie
-stattdessen in `doc/GUIDE-TODO.md` — mit einem ⚠, wenn ein vorhandener Absatz dadurch
-falsch geworden ist. Die Anleitung wird dann in einem Zug nachgezogen, wenn der Nutzer es
-verlangt; danach wird die Liste geleert. Die Bilder bleiben dabei, wie sie sind — neue
-werden nur auf ausdrückliche Bitte gemacht.
+Das gilt für **„Schritt für Schritt"** und **„Was FINA kann"** — nicht mehr für **„Was ist
+neu"**, siehe dort. Neue Funktionen kommen **nicht** sofort in diese beiden Reiter. Wer eine
+baut, schreibt sie stattdessen in `doc/GUIDE-TODO.md` — mit einem ⚠, wenn ein vorhandener
+Absatz dadurch falsch geworden ist. Nachgezogen werden die beiden Reiter dann in einem Zug,
+wenn der Nutzer es verlangt; danach wird die Liste geleert. Die Bilder bleiben dabei, wie
+sie sind — neue werden nur auf ausdrückliche Bitte gemacht.
 Der Grund ist schlicht Aufwand: die Anleitung steht in zwei Sprachen und in zwei Reitern,
 jede kleine Änderung dort kostet mehr als die Änderung selbst.
 

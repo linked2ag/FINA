@@ -1,8 +1,9 @@
 # Noch nicht in der Anleitung
 
-Was hier steht, gibt es in der Anwendung, aber noch nicht im Bereich **Guide**
-(`js/dialogs/guide.js`). Die Liste ist der Merkzettel dafür: die Anleitung wird nicht bei
-jeder Änderung mitgeschrieben, sondern in einem Zug nachgezogen, wenn der Nutzer es sagt.
+Was hier steht, gibt es in der Anwendung, aber noch nicht in **„Schritt für Schritt"** oder
+**„Was FINA kann"** (`js/dialogs/guide.js`). Die Liste ist der Merkzettel dafür: diese
+beiden Reiter werden nicht bei jeder Änderung mitgeschrieben, sondern in einem Zug
+nachgezogen, wenn der Nutzer es sagt.
 
 Wer eine Funktion baut, trägt sie hier ein — mit einem ⚠, wenn dadurch ein vorhandener
 Absatz der Anleitung **falsch** geworden ist; solche Stellen gehen vor. Wer die Anleitung
@@ -11,9 +12,11 @@ bleiben dabei liegen: neue werden nur gemacht, wenn ausdrücklich darum gebeten 
 
 ---
 
-Der Reiter **Was ist neu** wird ebenfalls nicht laufend mitgeschrieben: eine neue Version
-entsteht nur, wenn der Nutzer ausdrücklich darum bittet — sonst gäbe es zu viele. Diese
-Liste ist deshalb der Merkzettel für **alle drei** Reiter.
+**Der Reiter „Was ist neu" läuft nicht mehr über diese Liste.** Eine neue Version bekommt
+ihren Eintrag automatisch, sobald ein Stand fertig ist — nicht erst auf Zuruf (siehe
+CLAUDE.md, Abschnitt „Drei Reiter, drei Fragen"). Ein Punkt hier kann also schon im Reiter
+„Was ist neu" stehen und trotzdem offen bleiben, weil „Schritt für Schritt" oder „Was FINA
+kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
@@ -22,12 +25,14 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
   (`FINA-Book-…dmg`, `FINA-Book-…exe`). Im Fließtext bleibt es beim kurzen **FINA** — auch
   die FINA-Tabelle heißt weiter so. Betrifft die Anleitung überall dort, wo sie das
   Programm beim Namen nennt und dabei ein Wortzeichen oder einen Dateinamen zeigt; die
-  Bildschirmfotos in `doc/img/` zeigen noch das alte Wortzeichen.
+  Bildschirmfotos in `doc/img/` zeigen noch das alte Wortzeichen. *Im Reiter „Was ist neu"
+  erledigt (26.8.15); in Schritt für Schritt und Was FINA kann noch offen.*
 
 - **Das Symbol steht jetzt auch im Reiter des Browsers.** Dasselbe Bild, das die Mac- und
   die Windows-App tragen. Der farbige Rücken ist dafür breiter geworden, damit die drei
-  Geldarten auch bei 32 px noch auseinanderzuhalten sind. Kein eigener Punkt im Reiter
-  „Was ist neu" wert — eher eine Zeile in der Sammelmeldung.
+  Geldarten auch bei 32 px noch auseinanderzuhalten sind. *Im Reiter „Was ist neu" mit in der
+  FINA-Book-Zeile erwähnt (26.8.15), kein eigener Punkt; in Schritt für Schritt und Was FINA
+  kann noch offen.*
 
 - **FINA gibt es zum Herunterladen — für macOS und für Windows.** Dasselbe Programm, nur
   ohne Browser: ein eigenes Fenster, ein Eintrag im Dock, und es läuft ohne Internet. Der
@@ -35,7 +40,8 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
   (`/download/`), die auch erklärt, warum das System beim ersten Start warnt: FINA ist noch
   nicht signiert. **Die Datei bleibt, wo sie ist** — die App auszutauschen rührt sie nicht
   an. Betrifft vor allem den Produktreiter; in **Schritt für Schritt** genügt am Anfang ein
-  Satz, dass man nichts installieren muss, aber kann.
+  Satz, dass man nichts installieren muss, aber kann. *Im Reiter „Was ist neu" erledigt
+  (26.8.15); in Schritt für Schritt und Was FINA kann noch offen.*
 
 - **Die App sagt Bescheid, wenn es eine neue Fassung gibt.** Beim Start erscheint dann oben
   eine schmale Leiste mit der Nummer und einem Weg zur Downloadseite; „Später" blendet sie
@@ -44,14 +50,17 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
   Einstellungen unter „Allgemein" lässt sie sich abschalten. Im Browser gibt es sie nicht —
   dort ist die Seite immer die neueste. Das gehört in den Produktreiter, in den Absatz, der
   sagt, dass FINA nichts überträgt: die Aussage stimmt weiter, ist aber jetzt genauer zu
-  fassen.
+  fassen. *Im Reiter „Was ist neu" erledigt (26.8.15); in Schritt für Schritt und Was FINA
+  kann noch offen.*
 
 - **Die Schriften liegen jetzt bei.** Für den Nutzer heißt das: die Seite lädt schneller und
   ruft **keinen fremden Server mehr auf** — vorher kamen die drei Schriften von Google, und
   damit ging bei jedem Aufruf die IP-Adresse des Besuchers dorthin. Kein eigener Punkt im
-  Reiter „Was ist neu" wert (das ist Kosmetik plus Datenschutz), aber der Produktreiter
-  behauptet an mehreren Stellen, FINA übertrage nichts — **jetzt stimmt das auch für die
-  Schriften**, und der Satz darf entsprechend fester ausfallen.
+  Reiter „Was ist neu" wert (das ist Kosmetik plus Datenschutz); sie zählt in 26.8.15 zur
+  Sammelzeile „Bugfixing und kosmetische Anpassungen". Der Produktreiter behauptet an
+  mehreren Stellen, FINA übertrage nichts — **jetzt stimmt das auch für die Schriften**, und
+  der Satz darf entsprechend fester ausfallen. *In Schritt für Schritt und Was FINA kann noch
+  offen.*
 
 - **In der Prognose lässt sich zweierlei ändern, ohne die Ansicht zu wechseln.** Ein
   Doppelklick auf einen Betrag der Spalte **COR** öffnet die Saldokorrektur mit genau diesem
@@ -84,9 +93,11 @@ Liste ist deshalb der Merkzettel für **alle drei** Reiter.
 
 Die letzten drei Punkte sind am 13. August 2026 in den Reiter **Was ist neu** eingegangen
 (Version 26.8.13, beide Sprachen); in **Schritt für Schritt** und **Was FINA kann** stehen
-sie noch nicht. Die drei Punkte darüber — Apps, Update-Hinweis, Schriften — stehen in
-**keinem** der drei Reiter. Vollständig nachgezogen war die Anleitung zuletzt am 11. August
-2026 — siehe unten.
+sie noch nicht. Am 16. August 2026 folgten dort, in Version **26.8.15**, FINA Book (Name und
+Symbol im Reiter, mit in derselben Zeile) sowie die Mac- und die Windows-App samt
+Update-Hinweis; die Schriften liefen mit unter „Bugfixing und kosmetische Anpassungen". In
+**Schritt für Schritt** und **Was FINA kann** stehen auch diese Punkte noch nicht.
+Vollständig nachgezogen war die Anleitung zuletzt am 11. August 2026 — siehe unten.
 
 **Die Versionsnummern sind seit dem 15. August 2026 dreiteilig** (`Jahr.Monat.Tag`, ohne
 die Zählung dahinter): electron-builder braucht gültiges semver, und `VERSION` in
