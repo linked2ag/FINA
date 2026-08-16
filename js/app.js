@@ -33,6 +33,24 @@ function renderChrome(){
   document.querySelectorAll('[data-t]').forEach(el=>{ el.textContent=t(el.dataset.t); });
   document.querySelectorAll('[data-ttip]').forEach(el=>{ el.title=t(el.dataset.ttip); });
   const yl=document.getElementById('yearLbl'); if(yl) yl.textContent=t('app.sub',YEAR);
+  /* Der Name wechselt die Sprache mit (FINA Buch / FINA Book) —
+     Wortzeichen und Reitertitel kommen deshalb aus t(), nicht aus
+     dem HTML (dort steht nur der englische Rückfall).
+
+     Im Browser ist das Wortzeichen ein Link zur Startseite. In der
+     App heißt der Web-Client selbst index.html (desktop/sync.mjs) —
+     der Klick wäre dort ein stilles Neuladen mitsamt der
+     ungespeicherten Arbeit, deshalb verliert der Link sein href
+     (die dritte FINA_NATIVE-Stelle, siehe CLAUDE.md). */
+  const bh=document.querySelector('.brand h1 a')||document.querySelector('.brand h1');
+  if(bh){
+    bh.textContent=t('app.name');
+    if(bh.tagName==='A'){
+      if(window.FINA_NATIVE){ bh.removeAttribute('href'); bh.removeAttribute('title'); }
+      else bh.title=t('app.homeTip');
+    }
+  }
+  document.title=t('app.name');
 
   /* Auf der Begrüßungsseite gibt es nichts zu wählen: weder Monat
      noch Ansicht. Und „Daten hochladen" steht nur dort — im
@@ -43,7 +61,10 @@ function renderChrome(){
      fehlt umgekehrt „Daten hochladen" — geladen wird auf der
      Seite, gearbeitet in der Anwendung. */
   const wel=!!ui.welcome;
-  ['btnLoad','btnSave','btnBackup','btnUnlink','btnSettings','filePath'].forEach(id=>{
+  /* Auch die Anleitung und das Jahr: die Begrüßung ist bewusst
+     leer — die Anleitung gehört ins geladene Buch, und ein Jahr
+     gibt es ohne Datei noch nicht. */
+  ['btnLoad','btnSave','btnBackup','btnUnlink','btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel||id==='btnLoad';
   });
@@ -440,6 +461,12 @@ function wire(){
   /* Die beiden Wege der Begrüßungsseite. */
   document.querySelectorAll('[data-wload]').forEach(b=>b.onclick=()=>loadData());
   document.querySelectorAll('[data-wnew]').forEach(b=>b.onclick=()=>startEmpty());
+  /* Die Sprachwahl der Begrüßungsseite: sie schreibt in state.lang
+     des noch leeren Buches und zeichnet neu. Kein save() — es gibt
+     noch keine Datei, die schmutzig werden könnte; eine geladene
+     überstimmt die Wahl wie immer, und in den localStorage der
+     Startseite (finaLang) wird nichts zurückgeschrieben. */
+  document.querySelectorAll('[data-wlang]').forEach(b=>b.onclick=()=>{ state.lang=b.dataset.wlang; render(); });
 
   /* Fenster öffnen */
   document.querySelectorAll('[data-lists]').forEach(b=>b.onclick=()=>editLists());
@@ -775,7 +802,18 @@ document.getElementById('fileSheet').onchange=e=>{
 
 /* ── Start ────────────────────────────────────────────────────
    Leer und auf Englisch beginnen. Inhalte und Einstellungen
-   kommen über „Load data" aus der JSON-Datei. */
+   kommen über „Load data" aus der JSON-Datei.
+
+   Eine Ausnahme: die Sprachwahl der Startseite (`finaLang` im
+   localStorage, gesetzt vom DE/EN-Schalter dort) gilt hier als
+   Vorgabe für das noch leere Buch — wer die Seite auf Deutsch
+   liest, soll nicht auf einer englischen Begrüßung landen. Eine
+   geladene Datei überstimmt das wie immer (state.lang kommt dann
+   aus ihr); zurückgeschrieben wird nichts. */
 state=emptyState();
+try{
+  const siteLang=localStorage.getItem('finaLang');
+  if(siteLang==='de'||siteLang==='en') state.lang=siteLang;
+}catch(e){/* file:// ohne Speicher: englischer Start wie bisher */}
 afterLoad();
 render();

@@ -21,6 +21,7 @@
       "output": "dist",
       "buildResources": "build"
     },
+    "afterPack": "./adhoc.cjs",
     "files": [
       "main.js",
       "preload.js",

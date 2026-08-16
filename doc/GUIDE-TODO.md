@@ -20,6 +20,11 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- **Die Begrüßungsseite hat eine Sprachwahl** — EN · DE oben rechts, sie stellt das noch
+  leere Buch um; eine geladene Datei entscheidet weiter selbst. Und das Wortzeichen oben
+  links führt im Browser zur Startseite zurück. *Im Reiter „Was ist neu" erledigt
+  (26.8.16); in Schritt für Schritt und Was FINA kann noch offen.*
+
 - ⚠ **Die Anwendung heißt FINA Book.** Sichtbar wird das im Wortzeichen der Kopfzeile, im
   Reiter des Browsers, im Fenstertitel der App und in den Namen der Pakete
   (`FINA-Book-…dmg`, `FINA-Book-…exe`). Im Fließtext bleibt es beim kurzen **FINA** — auch

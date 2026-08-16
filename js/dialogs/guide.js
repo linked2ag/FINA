@@ -19,7 +19,7 @@
      Jeder Schritt sagt zuerst, was zu tun ist, dann warum, und
      zeigt ein Bild derselben Stelle.
    * „Was FINA kann" ist die Beschreibung für den, der weiß, was
-     ein Kassenbuch ist, und wissen will, was diese Anwendung
+     ein Haushaltsbuch ist, und wissen will, was diese Anwendung
      daraus macht.
 
    Die Bilder liegen in doc/img und entstehen mit doc/make-shots.py
@@ -43,7 +43,7 @@ const GUIDE={
 steps:{
 
 en:()=>`
-<p class="glead">Never kept a cash book before? Work through this once, from top to bottom. Half
+<p class="glead">Never kept a household book before? Work through this once, from top to bottom. Half
 an hour, and your book is standing. Everything this leaves out is in
 <b>${t('guide.tabProduct')}</b>.</p>
 
@@ -157,7 +157,7 @@ filters, the notes, the two ways of bringing numbers in from outside. When you d
 `,
 
 de:()=>`
-<p class="glead">Noch nie ein Kassenbuch geführt? Arbeite das hier einmal von oben nach unten
+<p class="glead">Noch nie ein Haushaltsbuch geführt? Arbeite das hier einmal von oben nach unten
 durch. Eine halbe Stunde, und dein Buch steht. Alles, was hier fehlt, steht in
 <b>${t('guide.tabProduct')}</b>.</p>
 
@@ -280,7 +280,7 @@ product:{
 
 en:()=>`
 <h4>What FINA is</h4>
-<p>FINA is a cash book for one single year. You write down what comes in and what goes out, month
+<p>FINA is a household book for one single year. You write down what comes in and what goes out, month
 by month, and tick off what has actually been paid. In return it tells you at any moment how much
 is left this month and how the year is going to end.</p>
 <p>Everything lives in <b>one file on your own computer</b>. No account, no server. Nothing is sent
@@ -350,7 +350,7 @@ exactly the sum of the rows below it. A CSV file has no indentation, but it has 
 read as an item and its numbers would be counted twice. Better cancel and look at the table.</p>
 <p>In the same step you say which sum row is your income, which is everyday spending and which are
 the bills. FINA suggests, you decide.</p>
-<p><b>A table is a whole cash book, not an addition to one.</b> It replaces what is in this file —
+<p><b>A table is a whole household book, not an addition to one.</b> It replaces what is in this file —
 items, categories, Flexible Payments, the balance correction. Your ${t('set.opening')} stays: that
 is a setting, not part of the year. You see what disappears before anything is changed.</p>
 <p>Two things have no counterpart, and FINA says so rather than losing them quietly. The column
@@ -683,7 +683,7 @@ will read it there just the same.</p>
 
 de:()=>`
 <h4>Was FINA ist</h4>
-<p>FINA ist ein Kassenbuch für genau ein Jahr. Du trägst ein, was hereinkommt und was hinausgeht,
+<p>FINA ist ein Haushaltsbuch für genau ein Jahr. Du trägst ein, was hereinkommt und was hinausgeht,
 Monat für Monat, und hakst ab, was tatsächlich bezahlt ist. Dafür sagt dir die Anwendung
 jederzeit, wie viel dir in diesem Monat bleibt und wie das Jahr ausgehen wird.</p>
 <p>Alles steht in <b>einer einzigen Datei auf deinem eigenen Rechner</b>. Kein Konto, kein Server.
@@ -755,7 +755,7 @@ schreibt <b>${t('sheet.ok')}</b> oder <b>${t('sheet.off')}</b> daneben. Weicht e
 die Tabelle sehen.</p>
 <p>Im selben Schritt sagst du, welche Summenzeile deine Einnahmen sind, welche die alltäglichen
 Ausgaben und welche die Rechnungen. FINA schlägt vor, du entscheidest.</p>
-<p><b>Eine Tabelle ist ein ganzes Kassenbuch und kein Nachtrag.</b> Sie ersetzt, was in dieser
+<p><b>Eine Tabelle ist ein ganzes Haushaltsbuch und kein Nachtrag.</b> Sie ersetzt, was in dieser
 Datei steht — Positionen, Kategorien, Flexible Payments, die Saldokorrektur. Dein
 ${t('set.opening')} bleibt: das ist eine Einstellung und gehört nicht zum Jahr. Was verschwindet,
 siehst du, bevor etwas geändert wird.</p>
@@ -1122,7 +1122,16 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.15 <span class="pill">latest</span></h4>
+<h4>26.8.16 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>Choose your language on the welcome page</b> — EN · DE at the top right, before any
+      file is open. A loaded file still decides for itself.</li>
+  <li><b>The word mark leads back to the FINA page</b> — in the browser, one click on the name
+      at the top left; the apps keep it as a plain title.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.15</h4>
 <ul>
   <li><b>FINA is now FINA Book</b> — the name in the window, the browser tab and the icon; in
       running text it stays the short FINA.</li>
@@ -1258,7 +1267,16 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.15 <span class="pill">neu</span></h4>
+<h4>26.8.16 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Sprachwahl auf der Begrüßungsseite</b> — EN · DE oben rechts, noch bevor eine Datei
+      offen ist. Eine geladene Datei entscheidet weiter selbst.</li>
+  <li><b>Das Wortzeichen führt zur FINA-Seite zurück</b> — im Browser ein Klick auf den Namen
+      oben links; in den Apps bleibt er eine gewöhnliche Überschrift.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.15</h4>
 <ul>
   <li><b>FINA heißt jetzt FINA Book</b> — im Fenster, im Reiter des Browsers und im Symbol; im
       Fließtext bleibt es beim kurzen FINA.</li>

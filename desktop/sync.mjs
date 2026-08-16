@@ -34,10 +34,16 @@ const dst  = join(here, 'app');
 
    `LICENSE` liegt bei, weil eine ausgelieferte Anwendung sagen
    muss, unter welchen Bedingungen sie benutzt werden darf. */
-const NIMM = ['index.html', 'css', 'js', 'icon.png', 'LICENSE', join('doc', 'img')];
+const NIMM = ['css', 'js', 'icon.png', 'LICENSE', join('doc', 'img')];
 
 rmSync(dst, {recursive: true, force: true});
 for (const p of NIMM) cpSync(join(src, p), join(dst, p), {recursive: true});
+/* Die Anwendung heißt im Stamm Webclient.html — index.html ist
+   dort die Startseite (Verkauf, Downloads). Die App lädt weiter
+   app/index.html (main.js), deshalb wird beim Kopieren umbenannt:
+   so bleibt main.js unberührt, und in die App gelangt nie die
+   Verkaufsseite. */
+cpSync(join(src, 'Webclient.html'), join(dst, 'index.html'));
 
 /* ── Das Symbol, eine Datei ──────────────────────────────────
    `icon.png` im Stamm ist beides: das Zeichen der Webseite und

@@ -58,7 +58,16 @@ const keyLabel=k=>KEY_LABELS[k]||k;
 
 const STR={
 /* ── Kopfzeile und Gerüst ─────────────────────────────────── */
-'app.sub':{en:'Cash book {0}',de:'Kassenbuch {0}'},
+/* Der Name des Produkts, sprachabhängig: Deutsch „FINA Buch",
+   Englisch „FINA Book". Gesetzt von renderChrome() in Wortzeichen
+   und Seitentitel; die Pakete (productName, artifactName,
+   Fenstertitel der App) bleiben englisch — sie wechseln die
+   Sprache nicht mit. Daneben steht nur noch das Jahr. */
+'app.name':{en:'FINA Book',de:'FINA Buch'},
+/* Die Sprechblase am Wortzeichen — nur im Browser, wo es ein Link
+   zur Startseite ist (renderChrome in js/app.js). */
+'app.homeTip':{en:'Back to the FINA page',de:'Zurück zur FINA-Seite'},
+'app.sub':{en:'{0}',de:'{0}'},
 'app.load':{en:'Load data',de:'Daten hochladen'},
 'app.loadTip':{en:'Open a JSON file and show its contents',de:'JSON-Datei öffnen und ihren Inhalt anzeigen'},
 'app.save':{en:'Save data',de:'Daten speichern'},
@@ -306,33 +315,15 @@ const STR={
    Die Seite vor allem anderen: was FINA ist, und die beiden Wege
    hinein. Sie steht am Anfang und wieder nach dem Trennen der
    Datei (js/views/willkommen.js). */
-'wel.title':{en:'Your cash book for {0}',de:'Dein Kassenbuch für {0}'},
-'wel.lead':{en:'FINA keeps one year of income and spending — in your browser, in a single file on your own computer. There is no account, no server and nothing is sent anywhere.',
-  de:'FINA führt ein Jahr an Einnahmen und Ausgaben — im Browser, in einer einzigen Datei auf deinem eigenen Rechner. Kein Konto, kein Server, nichts wird irgendwohin geschickt.'},
-'wel.kIn':{en:'wages, refunds, everything that comes in.',de:'Lohn, Rückzahlungen, alles, was hereinkommt.'},
-'wel.kOut':{en:'bills that repeat and whose amount you know in advance.',
-  de:'Rechnungen, die wiederkehren und deren Höhe du vorher kennst.'},
-'wel.kFlex':{en:'everyday spending, a handful of categories with one amount per month.',
-  de:'die alltäglichen Ausgaben, eine Handvoll Kategorien mit je einem Betrag pro Monat.'},
-'wel.lead2':{en:'You tick off what has been paid, and FINA shows you month by month what is left — and where the balance is heading by the end of the year.',
-  de:'Du hakst ab, was bezahlt ist, und FINA zeigt dir Monat für Monat, was übrig bleibt — und worauf der Saldo bis zum Jahresende zuläuft.'},
+'wel.title':{en:'Your money. Your plan.',de:'Dein Geld. Dein Plan.'},
+'wel.lead':{en:'No account. No cloud. Your numbers stay on your computer.',
+  de:'Kein Konto. Keine Cloud. Deine Zahlen bleiben auf deinem Rechner.'},
 'wel.open':{en:'Open your file',de:'Vorhandene Datei öffnen'},
-'wel.openHint':{en:'A FINA file you saved before — pick the .json and carry on where you left off.',
-  de:'Eine FINA-Datei, die du schon gespeichert hast — wähl die .json und mach weiter, wo du aufgehört hast.'},
+'wel.openHint':{en:'Pick your saved FINA file and carry on.',
+  de:'Deine gespeicherte FINA-Datei wählen und weitermachen.'},
 'wel.new':{en:'Start from scratch',de:'Neu anfangen'},
-'wel.newHint':{en:'An empty book. Set the year, your categories and your items — and save it wherever you like.',
-  de:'Ein leeres Buch. Jahr, Kategorien und Posten anlegen — und dort speichern, wo du willst.'},
-'wel.foot':{en:'Nothing is written by itself: your file is only saved when you press “{0}”. In Chrome, Edge and Opera FINA writes back into the very file you opened; other browsers download a copy.',
-  de:'Von selbst wird nichts geschrieben: gespeichert wird nur, wenn du auf „{0}" klickst. In Chrome, Edge und Opera schreibt FINA in genau die Datei zurück, die du geöffnet hast; andere Browser laden eine Kopie herunter.'},
-'wel.guide':{en:'Never kept a cash book? Open <b>{0}</b> in the top bar — it walks you through it once, step by step.',
-  de:'Noch nie ein Kassenbuch geführt? Öffne oben <b>{0}</b> — dort wirst du einmal Schritt für Schritt durchgeführt.'},
-/* Der Weg zur Downloadseite, ganz unten auf der Begrüßungsseite.
-   In der Mac- und der Windows-App steht er nicht (appHint() in
-   js/views/willkommen.js). Der Platzhalter ist der Link — der Text
-   drumherum sagt, wofür man ihn anklickt. */
-'wel.app':{en:'Rather have it in your dock? There is {0} for macOS and Windows — the same program, without a tab and without the internet.',
-  de:'Lieber im Dock? Es gibt {0} für macOS und Windows — dasselbe Programm, ohne Reiter und ohne Internet.'},
-'wel.appLink':{en:'FINA to download',de:'FINA zum Herunterladen'},
+'wel.newHint':{en:'An empty book. Pick the year, off you go.',
+  de:'Ein leeres Buch. Jahr wählen, loslegen.'},
 
 /* ── Monatsansicht ────────────────────────────────────────── */
 'month.income':{en:'Income — {0}',de:'Einnahmen — {0}'},
@@ -730,8 +721,8 @@ const STR={
 'set.navView':{en:'Appearance',de:'Darstellung'},
 'set.navBanks':{en:'Banks & payment types',de:'Banken & Zahlungsarten'},
 'set.navImport':{en:'Import',de:'Import'},
-'set.generalSub':{en:'Language of the interface, the year this cash book is kept for, and the balance it starts from. All three travel in the file — when you load it, the app follows the file.',
-  de:'Sprache der Oberfläche, das Jahr, für das dieses Kassenbuch geführt wird, und der Stand, mit dem es anfängt. Alle drei stehen in der Datei — beim Laden richtet sich die Anwendung nach ihr.'},
+'set.generalSub':{en:'Language of the interface, the year this household book is kept for, and the balance it starts from. All three travel in the file — when you load it, the app follows the file.',
+  de:'Sprache der Oberfläche, das Jahr, für das dieses Haushaltsbuch geführt wird, und der Stand, mit dem es anfängt. Alle drei stehen in der Datei — beim Laden richtet sich die Anwendung nach ihr.'},
 'set.viewSub':{en:'How wide the year matrix is drawn, and from which amount a booking counts as a large single item.',
   de:'Wie breit die Jahresmatrix gezeichnet wird, und ab welchem Betrag eine Buchung als großer Einzelposten gilt.'},
 'set.banksSub':{en:'The code appears in the year overview in columns B and PT, the label below each item in the month view. Both lists are yours alone — name them the way you think of your accounts. Change a code later and FINA asks whether the items that carry it should be moved along.',
@@ -748,8 +739,8 @@ const STR={
   de:'Zwei Wege, Zahlen von außen hereinzuholen. Beide zeigen erst, was sie tun würden, bevor sich etwas ändert — und keiner schreibt in die Datei auf der Festplatte: dafür ist „Daten speichern" da.'},
 'set.impFastHint':{en:'Adds the everyday spending of single months: the CSV export of the Fast Budget app becomes the actual values of the Flexible Payments. Everything else in the file stays as it is.',
   de:'Ergänzt die alltäglichen Ausgaben einzelner Monate: der CSV-Export der App Fast Budget wird zu den Ist-Werten der Flexible Payments. Alles andere in der Datei bleibt, wie es ist.'},
-'set.impSheetHint':{en:'Brings a whole year in: the spreadsheet FINA grew out of, with items, categories and Flexible Payments. It replaces the cash book in this file.',
-  de:'Holt ein ganzes Jahr herein: die Tabelle, aus der FINA entstanden ist, mit Positionen, Kategorien und Flexible Payments. Sie ersetzt das Kassenbuch dieser Datei.'},
+'set.impSheetHint':{en:'Brings a whole year in: the spreadsheet FINA grew out of, with items, categories and Flexible Payments. It replaces the household book in this file.',
+  de:'Holt ein ganzes Jahr herein: die Tabelle, aus der FINA entstanden ist, mit Positionen, Kategorien und Flexible Payments. Sie ersetzt das Haushaltsbuch dieser Datei.'},
 'set.lang':{en:'Interface language',de:'Sprache der Oberfläche'},
 'set.year':{en:'Accounting year',de:'Abrechnungsjahr'},
 'set.yearHint':{en:'Changing the year changes only the labelling — the twelve months keep their amounts.',
@@ -891,8 +882,8 @@ const STR={
   de:'letzte Zahlung als 25-08. Alles andere — „Variabel", „mtl. kündbar" — wird zur Notiz der Position.'},
 'shInfo.rest':{en:'Semicolon and comma both work as separators. Column <code>P</code> — payments per year — is not taken over: the twelve monthly amounts say the same thing and say it exactly.',
   de:'Semikolon und Komma gehen beide als Trennzeichen. Die Spalte <code>P</code> — Zahlungen im Jahr — wird nicht übernommen: die zwölf Monatsbeträge sagen dasselbe, und zwar genau.'},
-'shInfo.replace':{en:'A table is a whole cash book, not an addition to one. It <b>replaces</b> what is in this file. You will see what disappears before anything is changed.',
-  de:'Eine Tabelle ist ein ganzes Kassenbuch und kein Nachtrag. Sie <b>ersetzt</b>, was in dieser Datei steht. Was dabei verschwindet, siehst du, bevor etwas geändert wird.'},
+'shInfo.replace':{en:'A table is a whole household book, not an addition to one. It <b>replaces</b> what is in this file. You will see what disappears before anything is changed.',
+  de:'Eine Tabelle ist ein ganzes Haushaltsbuch und kein Nachtrag. Sie <b>ersetzt</b>, was in dieser Datei steht. Was dabei verschwindet, siehst du, bevor etwas geändert wird.'},
 'sheet.noMonths':{en:'No header row with twelve month names found — is this a FINA table?',
   de:'Keine Kopfzeile mit zwölf Monatsnamen gefunden — ist das eine FINA-Tabelle?'},
 'sheet.noBlocks':{en:'No sum row found. In the narrow column behind each month a “/” marks the blocks — without it FINA cannot tell headings from items.',
@@ -933,7 +924,7 @@ const STR={
 'sheet.willMake':{en:'This makes {0} items in {1} income and {2} expense categories, plus {3} Flexible Payments categories.',
   de:'Daraus werden {0} Positionen in {1} Einnahme- und {2} Ausgabe-Kategorien, dazu {3} Flexible-Payments-Kategorien.'},
 'sheet.needKind':{en:'Assign at least one sum row.',de:'Mindestens eine Summenzeile zuordnen.'},
-'sheet.step2':{en:'Replace the cash book',de:'Kassenbuch ersetzen'},
+'sheet.step2':{en:'Replace the household book',de:'Haushaltsbuch ersetzen'},
 'sheet.step2Sub':{en:'The table is a whole year. What is in this file now is <b>replaced, not added to</b> — items, categories, Flexible Payments and imported bookings.',
   de:'Die Tabelle ist ein ganzes Jahr. Was jetzt in dieser Datei steht, wird <b>ersetzt, nicht ergänzt</b> — Positionen, Kategorien, Flexible Payments und importierte Buchungen.'},
 'sheet.what':{en:'What',de:'Was'},

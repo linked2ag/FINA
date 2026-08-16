@@ -1,4 +1,635 @@
-/* FINA — Startseite. Die Farben und Schriften stammen aus tokens.css. */
-:root{--landing-dark:#1b2320;--landing-orange:#c25a19;--landing-cream:#f4f5f0}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-ui);font-size:16px;line-height:1.5;background-image:repeating-linear-gradient(to bottom,transparent 0 27px,rgba(0,0,0,.028) 27px 28px)}a{color:inherit}.site-header{max-width:1240px;margin:auto;min-height:82px;padding:0 32px;display:flex;align-items:center;gap:32px;border-bottom:1px solid var(--rule)}.wordmark{font:700 30px/1 var(--font-display);letter-spacing:.06em;text-decoration:none}.site-header nav{display:flex;gap:24px;margin-left:auto}.site-header nav a,footer a:last-child{font-size:13px;text-decoration:none}.site-header nav a:hover,.text-link:hover,footer a:last-child:hover{text-decoration:underline}.header-cta{font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--ink);padding:9px 13px}.header-cta span,.button span{padding-left:10px}.hero{max-width:1240px;margin:auto;padding:104px 32px 112px;display:grid;grid-template-columns:1.2fr .8fr;align-items:center;gap:100px}.eyebrow{font:600 10px/1.2 var(--font-data);letter-spacing:.13em;color:var(--accent-2);margin:0 0 16px}.hero h1,.section-heading h2,.browser-callout h2,.principles h2{font:600 clamp(48px,6.4vw,88px)/.93 var(--font-display);letter-spacing:-.04em;margin:0}.hero h1 em{font-weight:400;color:var(--accent-2)}.hero-text{max-width:470px;font-size:18px;line-height:1.6;margin:29px 0}.hero-actions{display:flex;align-items:center;gap:26px}.button{display:inline-block;padding:14px 18px;font-size:14px;font-weight:600;text-decoration:none}.button-primary{color:#fff;background:var(--landing-orange)}.button-primary:hover{background:var(--accent-2)}.text-link{font-size:14px}.privacy-note{font-size:12px;color:var(--ink-2);margin:26px 0 0}.privacy-note span{color:var(--ok);padding-right:5px}.book-preview{max-width:360px;justify-self:end;box-shadow:10px 11px 0 var(--rule-strong);border:1px solid var(--ink);background:var(--paper-2);font-size:12px}.preview-top,.preview-title,.preview-balance,.preview-row,.preview-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--rule)}.preview-top{font:600 11px var(--font-data);letter-spacing:.08em;background:var(--ink);color:var(--paper)}.preview-title b{font:600 24px var(--font-display)}.preview-title span{font:10px var(--font-data);color:var(--ink-2)}.preview-balance{background:var(--bg-sal)}.preview-balance span{font-size:11px}.preview-balance strong{font:600 14px var(--font-data);color:var(--ink-sal)}.preview-row b{font:500 11px var(--font-data)}.income{background:var(--bg-in)}.income b{color:var(--ok)}.expense{background:var(--bg-out)}.expense b{color:var(--seal)}.fixed{background:var(--bg-flex)}.preview-lines{padding:13px 14px}.preview-lines i{display:block;height:5px;background:var(--rule);margin:7px 0}.preview-lines i:nth-child(2){width:74%}.preview-lines i:nth-child(3){width:88%}.preview-lines i:nth-child(4){width:50%}.preview-foot{border:0;font:9px var(--font-data);color:var(--ink-2)}.preview-foot span:last-child{color:var(--ok)}.principles{display:grid;grid-template-columns:1.1fr .7fr .7fr;gap:52px;padding:72px max(32px,calc((100vw - 1176px)/2));background:var(--landing-dark);color:var(--paper)}.number{font:11px var(--font-data);color:#e6b281}.principles h2{font-size:36px;margin-top:17px}.principles p{align-self:end;margin:0;color:#c7cbc0;font-size:14px;line-height:1.65}.how-it-works,.download{max-width:1240px;margin:auto;padding:112px 32px}.section-heading h2{font-size:clamp(42px,5vw,67px)}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;list-style:none;padding:0;margin:65px 0 0;counter-reset:steps}.steps li{border-top:2px solid var(--ink);padding-top:14px}.steps span{font:11px var(--font-data);color:var(--accent-2)}.steps h3{font:600 23px var(--font-display);margin:33px 0 8px}.steps p{font-size:14px;line-height:1.6;color:var(--ink-2);max-width:250px;margin:0}.browser-callout{max-width:1176px;margin:0 auto 112px;padding:63px 72px;display:grid;grid-template-columns:1fr 1fr;gap:80px;background:var(--bg-flex);border:1px solid var(--rule-strong);border-left:6px solid var(--amber)}.browser-callout h2{font-size:55px}.browser-callout div+div{max-width:370px}.browser-callout p:not(.eyebrow){font-size:15px;line-height:1.65;margin:0 0 25px}.button-dark{background:var(--landing-dark);color:white}.button-dark:hover{background:#3a4742}.download{padding-top:0}.section-intro{color:var(--ink-2);max-width:430px;margin:17px 0 0;line-height:1.6}.download-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:45px}.download-card{min-height:165px;padding:28px;display:flex;align-items:center;gap:20px;text-decoration:none;background:var(--paper-2);border:1px solid var(--rule-strong)}.download-card:hover{border-color:var(--ink);box-shadow:4px 4px 0 var(--rule-strong)}.download-card h3{font:600 26px/1 var(--font-display);margin:0 0 8px}.download-card p{font-size:12px;line-height:1.55;color:var(--ink-2);margin:0}.arrow{margin-left:auto;font-size:26px}.platform-icon{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;color:var(--ink)}.apple{font-size:35px}.windows{grid-template-columns:repeat(2,15px);grid-template-rows:repeat(2,15px);gap:2px}.windows i{display:block;background:var(--ink);width:15px;height:15px}footer{max-width:1240px;margin:auto;border-top:1px solid var(--rule);padding:28px 32px 36px;display:flex;align-items:center;gap:20px}footer .wordmark{font-size:22px}footer p{font-size:12px;color:var(--ink-2);margin:0}footer a:last-child{margin-left:auto;font-weight:600}
-@media (max-width:760px){.site-header{padding:0 20px;min-height:66px}.site-header nav{display:none}.header-cta{margin-left:auto}.hero{padding:72px 24px;display:block}.hero h1{font-size:58px}.hero-text{font-size:16px}.book-preview{margin:65px auto 0;justify-self:auto}.principles{grid-template-columns:1fr;padding:55px 24px;gap:25px}.principles p{font-size:14px}.how-it-works,.download{padding:72px 24px}.steps{grid-template-columns:1fr;margin-top:42px;gap:38px}.browser-callout{margin:0 24px 72px;padding:42px 28px;display:block}.browser-callout div+div{margin-top:30px}.browser-callout h2{font-size:47px}.download-cards{grid-template-columns:1fr;margin-top:32px}.download-card{min-height:130px;padding:22px}footer{padding:24px;gap:12px;flex-wrap:wrap}footer a:last-child{margin-left:auto}}
+/* ══════════════════════════════════════════════════════════════
+   FINA — Startseite (index.html) und Guide-Seite (guide.html)
+
+   Farben und Schriften kommen aus tokens.css — die Seiten können
+   gar nicht anders aussehen als die Anwendung. Geladen wird nichts
+   von fremden Servern; dieselbe Regel wie überall.
+
+   ── Zwei Sprachen ────────────────────────────────────────────
+   Jeder Text steht zweimal im HTML (data-l="de" / data-l="en"),
+   die englische Fassung mit `hidden`. Ein Skript tauscht nach
+   Browsersprache. Die eine Regel hier unten ([hidden]) sorgt
+   dafür, dass `hidden` auch gegen display:flex und Co. gewinnt.
+
+   ── Die Bewegung ─────────────────────────────────────────────
+   * `.reveal` tritt beim Scrollen ein (Skript setzt `.in`).
+   * Die Haken der Matrix ticken je Spalte versetzt ab, die
+     Zeilen gleiten von links herein.
+   * Das Laufband (.ticker) zieht langsam durch, der Balken oben
+     (.progress) zeigt den Leseweg, der Sync-Knopf pulsiert.
+   * Ohne JavaScript ist ALLES sichtbar (Startlagen gelten nur
+     unter html.js), prefers-reduced-motion schaltet alles ab.
+   ══════════════════════════════════════════════════════════════ */
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--font-ui);font-size:16.5px;line-height:1.6}
+a{color:inherit}
+.wrap{max-width:1240px;margin:auto;padding:0 32px}
+/* `hidden` muss auch gewinnen, wenn eine Klasse display setzt */
+[hidden]{display:none!important}
+
+:root{
+  --r:16px;   /* Karten und Kästen */
+  --rs:12px;  /* Knöpfe */
+  --sh-1:0 1px 2px rgba(27,35,32,.05),0 10px 28px rgba(27,35,32,.08);
+  --sh-2:0 2px 6px rgba(27,35,32,.08),0 22px 48px rgba(27,35,32,.15);
+}
+
+/* ── Der Hintergrund atmet ────────────────────────────────────*/
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5}
+.bg i:nth-child(1){width:620px;height:620px;background:var(--bg-in-2);top:-200px;right:-140px}
+.bg i:nth-child(2){width:520px;height:520px;background:var(--bg-sal-2);top:38%;left:-220px}
+.bg i:nth-child(3){width:560px;height:560px;background:var(--bg-flex-2);bottom:-240px;right:12%}
+html.js .bg i{animation:drift 30s ease-in-out infinite alternate}
+html.js .bg i:nth-child(2){animation-duration:38s}
+html.js .bg i:nth-child(3){animation-duration:34s}
+@keyframes drift{to{transform:translate(-46px,54px) scale(1.09)}}
+
+/* ── Der Leseweg: feine Leiste oben ───────────────────────────*/
+.progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:30;pointer-events:none}
+.progress i{display:block;height:100%;width:0;background:var(--accent)}
+
+/* ── Eintreten beim Scrollen ──────────────────────────────────*/
+html.js .reveal{opacity:0;transform:translateY(24px);
+  transition:opacity .65s ease var(--d,0s),transform .65s cubic-bezier(.2,.7,.3,1) var(--d,0s)}
+html.js .reveal.in{opacity:1;transform:none}
+
+/* ── Kopfzeile ────────────────────────────────────────────────*/
+.site-header{position:sticky;top:0;z-index:20;
+  background:rgba(233,234,227,.82);
+  -webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid rgba(169,175,162,.45)}
+.site-header .wrap{min-height:72px;display:flex;align-items:center;gap:30px}
+.wordmark{font:700 27px/1 var(--font-display);letter-spacing:.05em;text-decoration:none}
+.site-header nav{display:flex;gap:24px;margin-left:auto}
+.site-header nav a{font-size:14px;font-weight:500;text-decoration:none;opacity:.85}
+.site-header nav a:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}
+.header-cta{font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap;
+  color:#fff;background:var(--accent);padding:10px 18px;border-radius:var(--rs);
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.header-cta:hover{background:var(--accent-2);transform:translateY(-1px);box-shadow:var(--sh-1)}
+/* Der Sprachschalter: zwei Pillen, die gewählte dunkel */
+.langsw{display:flex;gap:4px}
+.langsw button{font:600 11.5px var(--font-data);letter-spacing:.06em;cursor:pointer;
+  padding:7px 11px;border:1px solid var(--rule-strong);border-radius:8px;
+  background:var(--paper-2);color:var(--ink-2);
+  transition:background .18s ease,color .18s ease,border-color .18s ease}
+.langsw button:hover{border-color:var(--ink);color:var(--ink)}
+.langsw button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* ── Der Kopf ─────────────────────────────────────────────────*/
+.hero{padding-top:84px;text-align:center}
+.eyebrow{font:600 11px/1.2 var(--font-data);letter-spacing:.15em;
+  color:var(--accent-2);margin:0 0 20px}
+.hero h1{font:600 clamp(38px,5.6vw,76px)/1.03 var(--font-display);
+  letter-spacing:-.03em;margin:0;max-width:15.5em;margin-inline:auto}
+.hero h1 em{font-style:normal;color:var(--accent-2);position:relative;white-space:nowrap}
+/* Der Strich unter dem Kernsatz zeichnet sich einmal von selbst */
+.hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:-.04em;height:.09em;
+  background:var(--accent);border-radius:3px;opacity:.5;transform-origin:left}
+html.js .hero h1 em::after{transform:scaleX(0);animation:draw .8s cubic-bezier(.2,.7,.3,1) .9s forwards}
+@keyframes draw{to{transform:scaleX(1)}}
+.hero-sub{font-size:20px;line-height:1.6;max-width:34em;margin:28px auto 0;color:var(--ink-2)}
+.hero-sub b{color:var(--ink);font-weight:600}
+.hero-model{font:600 17px var(--font-ui);margin:16px auto 0}
+.hero-actions{display:flex;justify-content:center;align-items:center;
+  gap:16px;flex-wrap:wrap;margin:34px 0 0}
+.button{display:inline-block;padding:16px 26px;font-size:15.5px;font-weight:600;
+  text-decoration:none;border:1px solid transparent;border-radius:var(--rs);
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
+.button-primary{color:#fff;background:var(--accent);box-shadow:var(--sh-1)}
+.button-primary:hover{background:var(--accent-2);transform:translateY(-2px);box-shadow:var(--sh-2)}
+.button-quiet{border-color:var(--rule-strong);background:var(--paper-2)}
+.button-quiet:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--sh-1)}
+.button-dark{background:var(--ink);color:var(--paper)}
+.button-dark:hover{background:#39443f;transform:translateY(-2px);box-shadow:var(--sh-1)}
+
+/* Die vier Chips: gut lesbar, jede mit ihrem grünen Haken */
+.trust{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;
+  gap:10px;padding:0;margin:26px auto 0;max-width:760px}
+.trust li{display:flex;align-items:center;gap:9px;
+  font-size:14.5px;font-weight:500;
+  background:var(--paper-2);border:1px solid var(--rule);border-radius:999px;
+  padding:9px 17px}
+.trust .ck{flex:0 0 19px;width:19px;height:19px;border-radius:50%;
+  background:var(--ok);color:#fff;font-size:11px;font-weight:700;
+  display:grid;place-items:center}
+
+/* ── Die Jahresmatrix im Kopf ─────────────────────────────────
+   Nachgebaut, nicht fotografiert — die Farben kommen aus
+   tokens.css. Laufender Monat März; Januar und Februar sind
+   abgerechnet: Kopf durchgestrichen, Haken RECHTS am Betrag.
+   Einnahmen grün mit Plus, Kosten rot mit Minus, Schätzungen
+   orange. Wer Zahlen ändert, rechnet die Summen nach. */
+.shot{margin:58px 0 0;border-radius:var(--r);overflow:hidden;
+  border:1px solid var(--rule-strong);background:var(--paper-2);
+  box-shadow:var(--sh-2);text-align:left}
+.shot-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;
+  background:var(--ink);color:var(--paper);font:600 11.5px var(--font-data);letter-spacing:.08em}
+.shot-bar .dot{width:10px;height:10px;border-radius:50%}
+.shot-bar .dot.r{background:#D98379}.shot-bar .dot.y{background:#DEC077}.shot-bar .dot.g{background:#8FBF9C}
+.shot-bar .ttl{margin-left:8px}
+.shot-bar .tab{margin-left:auto;font-weight:400;opacity:.72}
+.shot-bar .tab b{font-weight:600;opacity:1}
+.shot-scroll{overflow-x:auto}
+.mx{width:100%;min-width:1220px;border-collapse:collapse;
+  font:400 11px var(--font-data);white-space:nowrap}
+.mx th,.mx td{padding:6px 7px;border-bottom:1px solid var(--rule);text-align:right}
+.mx .lab{text-align:left;width:168px;font-family:var(--font-ui);font-size:12.5px}
+.mx thead th{font-weight:600;font-size:10px;letter-spacing:.06em;
+  color:var(--ink-2);border-bottom:1px solid var(--rule-strong)}
+/* Abgerechnete Monate: durchgestrichen, wie in der Anwendung */
+.mx thead th.past{text-decoration:line-through;color:var(--rule-strong)}
+.mx .tot{border-left:1px solid var(--rule-strong);font-weight:600}
+.mx tr.pin td{background:var(--bg-sal);font-weight:600;border-bottom:1px solid var(--rule-strong)}
+.mx tr.pin .lab{font-family:var(--font-ui)}
+.mx tr.sec td{font-family:var(--font-ui);font-size:11px;font-weight:600;
+  letter-spacing:.05em;text-transform:uppercase}
+.mx tr.sec.in  td{background:var(--bg-in-3)}
+.mx tr.sec.flex td{background:var(--bg-flex-3)}
+.mx tr.sec.out td{background:var(--bg-out-3)}
+.mx tr.in  td{background:var(--bg-in)}
+.mx tr.flex td{background:var(--bg-flex)}
+.mx tr.out td{background:var(--bg-out)}
+/* Vorzeichenfarben: Einnahmen grün, Kosten rot, geschätzt orange */
+.mx .p{color:var(--ok)}
+.mx .n{color:var(--seal)}
+.mx .es{color:var(--amber)}
+.mx .mute{color:var(--ink-2)}
+/* Bezahlt: der Haken RECHTS am Betrag; er tickt beim Eintreten
+   der Matrix Spalte für Spalte ab (Januar zuerst). */
+.mx td.dn::after{content:"✓";color:var(--ok);font-weight:700;font-size:9.5px;
+  display:inline-block;margin-left:4px;vertical-align:.06em}
+html.js .shot td.dn::after{opacity:0;transform:scale(.2)}
+html.js .shot.in td.dn::after{opacity:1;transform:none;
+  transition:transform .4s cubic-bezier(.2,1.5,.4,1) var(--ckd,.25s),opacity .2s ease var(--ckd,.25s)}
+.mx td.dn:nth-child(3){--ckd:.3s}
+.mx td.dn:nth-child(4){--ckd:.5s}
+/* Die Zeilen gleiten nacheinander herein */
+html.js .shot tbody tr{opacity:0;transform:translateX(-16px)}
+html.js .shot.in tbody tr{opacity:1;transform:none;
+  transition:opacity .5s ease var(--rd,0s),transform .5s cubic-bezier(.2,.7,.3,1) var(--rd,0s)}
+.mx tbody tr:nth-child(1){--rd:.02s}.mx tbody tr:nth-child(2){--rd:.06s}
+.mx tbody tr:nth-child(3){--rd:.1s}.mx tbody tr:nth-child(4){--rd:.14s}
+.mx tbody tr:nth-child(5){--rd:.18s}.mx tbody tr:nth-child(6){--rd:.22s}
+.mx tbody tr:nth-child(7){--rd:.26s}.mx tbody tr:nth-child(8){--rd:.3s}
+.mx tbody tr:nth-child(9){--rd:.34s}.mx tbody tr:nth-child(10){--rd:.38s}
+.mx tbody tr:nth-child(11){--rd:.42s}.mx tbody tr:nth-child(12){--rd:.46s}
+/* Der laufende Monat: rot eingefasst, wie im Programm */
+.mx .now{box-shadow:inset 1px 0 0 var(--seal),inset -1px 0 0 var(--seal)}
+.mx thead .now{color:var(--seal);font-weight:600;text-decoration:none}
+/* Die Ampel der Restlaufzeit */
+.mx .lp{width:44px;text-align:center;font-size:10px}
+.mx .lp i{display:inline-block;padding:1px 6px;font-style:normal;border-radius:999px}
+.lp-now{background:var(--end-now)}.lp-soon{background:var(--end-soon)}
+.lp-mid{background:var(--end-mid)}.lp-far{background:var(--end-far)}
+/* Die Zeichenerklärung: lesbar, in der Schrift der Seite */
+.shot-foot{display:flex;flex-wrap:wrap;gap:8px 22px;padding:11px 16px;
+  border-top:1px solid var(--rule);font-size:13px;color:var(--ink-2)}
+.shot-foot .ckx{color:var(--ok);font-weight:700}
+.shot-foot .esx{color:var(--amber);font-weight:600}
+.shot-foot .strx{text-decoration:line-through;font-weight:600}
+.shotnote{font-size:13.5px;color:var(--ink-2);margin:16px auto 0;text-align:center;max-width:38em}
+
+/* ── Das Laufband ─────────────────────────────────────────────
+   Kurze Zusagen, langsam durchziehend. Der Text steht doppelt im
+   Band, damit die Schleife ohne Sprung schließt; ohne JavaScript
+   steht das Band still und zeigt den Anfang. */
+.ticker{margin:84px 0 0;padding:16px 0;overflow:hidden;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  background:var(--paper-2)}
+.ticker .track{display:inline-block;white-space:nowrap;
+  font:600 14px var(--font-data);letter-spacing:.1em;color:var(--ink-2)}
+html.js .ticker .track{animation:tick 36s linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* ── Der Unterschied ──────────────────────────────────────────
+   Kein Schwarz-Weiß: die übliche Art in gedecktem Rot (die Farbe
+   der Kosten — der Blick zurück), FINA in kräftigem Grün (die
+   Farbe der Einnahmen — der Blick nach vorn). Zwischen beiden
+   ein oranger Pfeil: von dort nach hier. */
+.contrast{padding-top:104px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:22px;position:relative}
+.duo::after{content:"→";position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;
+  background:var(--accent);color:#fff;display:grid;place-items:center;
+  font-size:26px;font-weight:600;box-shadow:var(--sh-2);z-index:1}
+.ccard{border-radius:var(--r);padding:46px 44px;box-shadow:var(--sh-1);
+  transition:transform .25s ease,box-shadow .25s ease}
+.ccard:hover{transform:translateY(-4px);box-shadow:var(--sh-2)}
+.ccard .num{font:600 11px var(--font-data);letter-spacing:.14em;display:block;margin:0 0 16px}
+.ccard h2{font:600 clamp(27px,2.6vw,34px)/1.18 var(--font-display);
+  letter-spacing:-.015em;margin:0 0 18px}
+.ccard p{margin:0;font-size:17.5px;line-height:1.8}
+.ccard.was{background:var(--bg-out);border:1px solid var(--edge-out)}
+.ccard.was .num{color:var(--seal)}
+.ccard.was h2{color:var(--ink)}
+.ccard.was p{color:var(--ink-2)}
+.ccard.us{background:linear-gradient(135deg,#2E6A4C,#1E4630);
+  color:#EAF4EC;border:1px solid var(--ok);
+  box-shadow:0 2px 6px rgba(46,106,76,.18),0 22px 48px rgba(46,106,76,.28)}
+.ccard.us .num{color:#A8D8B9}
+.ccard.us h2{color:#fff}
+.ccard.us p{color:#DDEEE2}
+.ccard.us b{color:#fff}
+.ccard em{font-style:italic}
+
+/* ── Monat und Prognose ───────────────────────────────────────
+   Zwei nachgebaute Ansichten nebeneinander, so nah an der
+   Anwendung, wie eine Verkaufsseite es erlaubt. Der Monat:
+   Auswertungszeile (.mana, wie die .anabar der App), darunter die
+   drei farbigen Karten mit linker Kante und der Spaltenfolge der
+   App — Siegel · Betrag · Bezeichnung. Die Prognose: der
+   Kontoauszug M · START · IN · REG · FLEX · END mit den gefärbten
+   Bewegungsspalten und dem Verlauf als Wasserfall (Zufluss oben,
+   Abfluss darunter, schwarzer Strich = Kontostand). Die Zahlen
+   stehen im HTML; wer sie ändert, rechnet die Prozentwerte der
+   Balken nach (Kopfkommentar in index.html). */
+.showcase{padding-top:104px}
+/* Ungleiche Spalten mit Absicht: die Prognose lebt von der Breite
+   ihrer Verlaufsspalte, der Monat kommt mit weniger aus. */
+.showduo{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;
+  margin:50px 0 0;align-items:stretch}
+.mini{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--sh-2);display:flex;flex-direction:column}
+.mini .minicap{margin:auto 0 0;padding:12px 18px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--ink-2)}
+.mini .p{color:var(--ok)}
+.mini .n{color:var(--seal)}
+.mbody,.pbody{display:flex;flex-direction:column;gap:10px;padding:12px 14px;flex:1}
+/* Die Auswertungszeile: kleine Überschrift, daneben die Kennzahlen
+   in den hellen Gründen ihrer Geldart — wie in der Anwendung. */
+.malab{display:block;font:600 8.5px var(--font-data);letter-spacing:.22em;
+  color:var(--ink-2);margin:0 0 3px}
+.marow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);
+  gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.mk{background:var(--paper-2);padding:4px 8px;min-width:0}
+.mk.t-in{background:var(--bg-in)}
+.mk.t-flex{background:var(--bg-flex)}
+.mk.t-out{background:var(--bg-out)}
+.mk i{display:block;font:500 8.5px var(--font-data);font-style:normal;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk b{font:600 12px var(--font-data)}
+/* Die drei Karten der Monatsansicht: linke Kante und Grund in der
+   Farbe der Geldart, die Kopfzeile mit der Summe rechts. */
+.mcard{border:1px solid var(--rule);border-left:4px solid;border-radius:2px}
+.mcard.cin{background:var(--bg-in);border-left-color:var(--edge-in)}
+.mcard.cflex{background:var(--bg-flex);border-left-color:var(--edge-flex)}
+.mcard.cout{background:var(--bg-out);border-left-color:var(--edge-out)}
+.mhead{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:6px 12px;font:600 9.5px var(--font-data);letter-spacing:.14em;text-transform:uppercase}
+.mcard.cin .mhead{border-bottom:2px solid var(--edge-in)}
+.mcard.cflex .mhead{border-bottom:2px solid var(--edge-flex)}
+.mcard.cout .mhead{border-bottom:2px solid var(--edge-out)}
+.mhead b{font:600 12.5px var(--font-data);letter-spacing:0}
+/* Eine Zeile wie in der App: Siegel · Betrag · Bezeichnung */
+.mrow{display:grid;grid-template-columns:28px 88px 1fr;align-items:center;gap:10px;
+  padding:5px 12px;font-size:13.5px}
+.mrow+.mrow{border-top:1px solid var(--rule)}
+.mrow .amt{font:600 12px var(--font-data);text-align:right}
+.seal{width:21px;height:21px;border-radius:50%;justify-self:start;
+  display:grid;place-items:center;font-size:11px;font-weight:700}
+.seal.ok{border:2px solid var(--ok);background:rgba(46,106,76,.13);color:var(--ok)}
+.seal.open{border:1.5px dashed var(--rule-strong);background:transparent}
+/* Die Prognose-Tabelle: gefärbte Bewegungsspalten, END violett,
+   vergangene Monate blass, der laufende rot eingefasst. */
+.pscroll{overflow-x:auto}
+.px{width:100%;min-width:520px;border-collapse:collapse;
+  font:400 10px var(--font-data);white-space:nowrap}
+.px th,.px td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--rule)}
+.px thead th{font-weight:600;font-size:9px;letter-spacing:.08em;
+  color:var(--ink-2);border-bottom:1px solid var(--rule-strong)}
+.px .m{text-align:left;font-weight:600;font-size:9px;letter-spacing:.06em;color:var(--ink-2)}
+.px .ci{background:var(--bg-in)}
+.px .co{background:var(--bg-out)}
+.px .cf{background:var(--bg-flex)}
+.px .ce{background:var(--bg-sal)}
+.px td.ci{color:var(--ok)}
+.px td.co,.px td.cf{color:var(--seal)}
+.px td.ce{color:var(--ok);font-weight:600}
+.px tr.past td:not(.track){opacity:.42}
+.px tr.now td{border-top:1px solid var(--seal);border-bottom:1px solid var(--seal)}
+.px tr.now .m{color:var(--seal)}
+/* Die Verlaufsspalte: Rasterlinien als Hintergrundmuster (alle
+   6.000 auf der Achse 0–18.000, also alle 33,33 %), die Balken
+   absolut nach den Prozentwerten aus dem HTML. Zufluss oben,
+   Abfluss darunter (Flexible + Kosten), feine Linie = Stand davor,
+   kräftiger Strich = neuer Kontostand — die Treppe der App. */
+.px .track{position:relative;min-width:150px;width:42%;padding:0;height:19px;
+  border-left:1px solid var(--rule-strong);
+  background-image:linear-gradient(to right,var(--rule) 1px,transparent 1px);
+  background-size:33.333% 100%}
+.px th.track{height:auto}
+.px .track i{position:absolute;font-style:normal}
+.px .tax{top:3px;font:600 8px var(--font-data);color:var(--ink-2);transform:translateX(-50%)}
+.px .tax:first-child{transform:none;padding-left:3px}
+.px .tax.end{right:0;left:auto;transform:none;padding-right:2px}
+.px .tup{top:3px;height:5px;background:var(--edge-in)}
+.px .tdn{bottom:3px;height:5px;display:flex}
+.px .tdn b{display:block;height:100%}
+.px .tdn .sf{background:var(--bg-flex-3)}
+.px .tdn .sr{background:var(--edge-out);flex:1}
+.px .tc{top:2px;bottom:2px;width:1px;background:var(--rule-strong)}
+.px .tm{top:1px;bottom:1px;width:2px;background:var(--ink)}
+/* Die Farberklärung unter der Tabelle — wie .thint in der App */
+.plegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--ink-2)}
+.plegend i{display:inline-block;width:10px;height:6px;margin-right:5px;border-radius:1px;vertical-align:baseline}
+.plegend .lm{width:2px;height:9px;background:var(--ink);vertical-align:-1px}
+/* Die Zeilen beider Ansichten gleiten nacheinander herein, die
+   Siegel ticken ein — Staffelung über --rd/--sd im HTML bzw. den
+   nth-child-Regeln der Prognose. */
+html.js .mini .mrow,html.js .mini .px tbody tr{opacity:0;transform:translateX(-12px)}
+html.js .mini.in .mrow,html.js .mini.in .px tbody tr{opacity:1;transform:none;
+  transition:opacity .5s ease var(--rd,0s),transform .5s cubic-bezier(.2,.7,.3,1) var(--rd,0s)}
+.px tbody tr:nth-child(1){--rd:.02s}.px tbody tr:nth-child(2){--rd:.06s}
+.px tbody tr:nth-child(3){--rd:.1s}.px tbody tr:nth-child(4){--rd:.14s}
+.px tbody tr:nth-child(5){--rd:.18s}.px tbody tr:nth-child(6){--rd:.22s}
+.px tbody tr:nth-child(7){--rd:.26s}.px tbody tr:nth-child(8){--rd:.3s}
+.px tbody tr:nth-child(9){--rd:.34s}.px tbody tr:nth-child(10){--rd:.38s}
+.px tbody tr:nth-child(11){--rd:.42s}.px tbody tr:nth-child(12){--rd:.46s}
+html.js .mini .seal.ok{opacity:0;transform:scale(.3)}
+html.js .mini.in .seal.ok{opacity:1;transform:none;
+  transition:transform .4s cubic-bezier(.2,1.5,.4,1) var(--sd,.2s),opacity .2s ease var(--sd,.2s)}
+
+/* ── Vier Dinge ───────────────────────────────────────────────*/
+.features{padding-top:104px}
+.section-heading{max-width:36em}
+.section-heading h2{font:600 clamp(34px,4.2vw,52px)/1.06 var(--font-display);
+  letter-spacing:-.025em;margin:0}
+.section-heading p{color:var(--ink-2);margin:18px 0 0;font-size:18px;line-height:1.65}
+.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:50px 0 0}
+.fcard{background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  padding:28px 26px;box-shadow:var(--sh-1);
+  transition:transform .22s ease,box-shadow .22s ease}
+.fcard:hover{transform:translateY(-4px);box-shadow:var(--sh-2)}
+.fcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  font-size:19px;margin:0 0 18px}
+.fcard.in .ic{background:var(--bg-in-2);color:var(--ok)}
+.fcard.flex .ic{background:var(--bg-flex-2);color:var(--amber)}
+.fcard.out .ic{background:var(--bg-out-2);color:var(--seal)}
+.fcard.bal .ic{background:var(--bg-sal-2);color:var(--ink-sal)}
+.fcard h3{font:600 21px/1.25 var(--font-display);margin:0 0 10px}
+.fcard p{margin:0;font-size:14.5px;line-height:1.65;color:var(--ink-2)}
+.morelink{margin:26px 0 0;font-size:15px}
+.morelink a{font-weight:600;color:var(--accent-2);text-decoration:none}
+.morelink a:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* ── Preise ───────────────────────────────────────────────────*/
+.pricing{padding-top:104px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:50px 0 0;
+  align-items:stretch}
+.plan{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:var(--r);
+  padding:32px 28px 28px;display:flex;flex-direction:column;box-shadow:var(--sh-1);
+  transition:transform .22s ease,box-shadow .22s ease}
+.plan:hover{transform:translateY(-4px);box-shadow:var(--sh-2)}
+.plan.pick{border:2px solid var(--accent);box-shadow:var(--sh-2)}
+.plan .flag{font:600 10.5px var(--font-data);letter-spacing:.13em;color:var(--ink-2);
+  margin:0 0 12px;min-height:15px}
+.plan.pick .flag{color:#fff;background:var(--accent);display:inline-block;
+  align-self:flex-start;padding:5px 12px;border-radius:999px}
+.plan h3{font:600 26px/1 var(--font-display);margin:8px 0 4px}
+.plan .price{font:600 42px/1.05 var(--font-data);margin:16px 0 2px;letter-spacing:-.02em}
+.plan .per{font:12px var(--font-data);color:var(--ink-2);margin:0 0 18px}
+.plan ul{list-style:none;margin:0 0 26px;padding:0;font-size:14.5px;line-height:1.6}
+.plan li{padding:8px 0 8px 26px;position:relative;border-top:1px solid var(--rule)}
+.plan li:first-child{border-top:0}
+.plan li::before{content:"✓";position:absolute;left:2px;top:8px;
+  font-size:12px;font-weight:700;color:var(--ok)}
+.plan .button{margin-top:auto;text-align:center}
+
+/* Die Regeln des Modells — drei Versprechen, gut lesbar */
+.rules{margin:36px 0 0;border:1px solid var(--rule-strong);background:var(--bg-flex);
+  border-radius:var(--r);padding:32px 36px;box-shadow:var(--sh-1)}
+.rules h3{font:600 22px var(--font-display);margin:0 0 18px}
+.rules ul{margin:0;padding:0;list-style:none;display:grid;
+  grid-template-columns:repeat(3,1fr);gap:14px 40px;font-size:15.5px;line-height:1.6}
+.rules li{padding-left:30px;position:relative}
+.rules li::before{content:"✓";position:absolute;left:0;top:1px;
+  width:20px;height:20px;border-radius:50%;background:var(--ok);color:#fff;
+  font-size:11px;font-weight:700;display:grid;place-items:center}
+.rules b{font-weight:600}
+
+/* ── FINA Sync: bewusst auffällig ─────────────────────────────
+   Violett wie „alles zusammen" in der Anwendung, kräftiger Rand,
+   pulsierender Knopf: der Punkt soll nicht übersehen werden. */
+.later{margin:18px 0 0;border:2px solid var(--edge-sal);border-radius:var(--r);
+  background:var(--bg-sal);padding:32px 36px;display:flex;align-items:center;
+  gap:28px;flex-wrap:wrap;box-shadow:var(--sh-1)}
+.later div{flex:1 1 380px}
+.later .soon{font:600 10.5px var(--font-data);letter-spacing:.14em;color:#fff;
+  background:var(--ink-sal);display:inline-block;padding:5px 12px;
+  border-radius:999px;margin:0 0 10px}
+.later h3{font:600 30px/1 var(--font-display);margin:0 0 10px;color:var(--ink-sal)}
+.later p{margin:0;font-size:16px;color:var(--ink);line-height:1.7}
+.later .button{flex:0 0 auto}
+.button-sync{background:var(--ink-sal);color:#fff;box-shadow:var(--sh-1)}
+.button-sync:hover{background:#571DA3;transform:translateY(-2px);box-shadow:var(--sh-2)}
+html.js .button-sync{animation:syncpulse 2.6s ease-out infinite}
+@keyframes syncpulse{
+  0%{box-shadow:0 0 0 0 rgba(109,48,196,.45)}
+  70%{box-shadow:0 0 0 14px rgba(109,48,196,0)}
+  100%{box-shadow:0 0 0 0 rgba(109,48,196,0)}
+}
+
+/* ── Downloads ────────────────────────────────────────────────*/
+.getit{padding-top:104px}
+.gcards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:50px 0 0}
+.gcard{display:flex;flex-direction:column;gap:8px;padding:30px 28px;text-decoration:none;
+  background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  min-height:186px;box-shadow:var(--sh-1);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.gcard:hover{transform:translateY(-4px);box-shadow:var(--sh-2);border-color:var(--rule-strong)}
+.gcard .ic{height:40px;display:flex;align-items:center;font-size:32px;line-height:1}
+.gcard .ic .win{display:grid;grid-template-columns:repeat(2,14px);
+  grid-template-rows:repeat(2,14px);gap:2px}
+.gcard .ic .win i{display:block;background:var(--ink);width:14px;height:14px;border-radius:2px}
+.gcard h3{font:600 24px/1 var(--font-display);margin:8px 0 0}
+.gcard p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.gcard .go{margin-top:auto;font:600 13.5px var(--font-data);color:var(--accent-2);
+  transition:transform .18s ease;display:inline-block}
+.gcard:hover .go{transform:translateX(4px)}
+.gcard.first{background:var(--bg-in);border-color:var(--edge-in)}
+
+/* Die Kachelgruppen: die Karte öffnet ihre Gruppe (.open, Skript
+   in index.html), ein zweiter Klick schließt sie — die gedrückte
+   Karte zeigt es über aria-expanded. Ohne JavaScript springt
+   :target als Rückfallweg ein. Die Fakten (.dlextra) erscheinen
+   mit der gewählten Gruppe. */
+.gcard[data-dl]{cursor:pointer}
+.gcard[aria-expanded="true"]{border-color:var(--accent);box-shadow:var(--sh-2)}
+.gcard .golabel.ghide{display:none}
+.gcard[aria-expanded="true"] .golabel.gshow{display:none}
+.gcard[aria-expanded="true"] .golabel.ghide{display:inline}
+.dlpanel{display:none;margin:22px 0 0;scroll-margin-top:96px}
+.dlpanel.open,.dlpanel:target{display:block;animation:panelin .45s ease}
+@keyframes panelin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.dlextra{display:none;margin:14px 0 0}
+.dlextra.open,.dlpanel:target~.dlextra{display:block;animation:panelin .55s ease}
+/* Eine Fläche je Plattform: oben die beiden Kacheln, darunter die
+   drei Schritte des ersten Starts. */
+.dlbox{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:var(--r);
+  box-shadow:var(--sh-1);padding:20px 22px}
+.dltiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.dltile{position:relative;display:block;padding:18px 52px 16px 22px;
+  text-decoration:none;color:var(--ink);
+  background:var(--paper);border:1px solid var(--rule);border-radius:var(--rs);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.dltile:hover{transform:translateY(-3px);box-shadow:var(--sh-1);border-color:var(--rule-strong)}
+.dltile b{display:block;font-family:var(--font-display);font-size:20px;font-weight:600;line-height:1.2}
+.dltile .dlfor{display:block;font-size:13.5px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+.dltile .dlmeta{display:block;font-family:var(--font-data);font-size:11px;
+  letter-spacing:.06em;color:var(--ink-2);margin-top:12px}
+.dltile::after{content:"↓";position:absolute;top:16px;right:20px;
+  font-size:19px;font-weight:600;color:var(--accent-2);
+  transition:transform .18s ease}
+.dltile:hover::after{transform:translateY(3px)}
+/* Der erste Start: drei nummerierte Schritte, ruhig gesetzt; der
+   seltene macOS-Sonderfall wohnt zugeklappt im details darunter. */
+.dlstart{margin:18px 0 0;border-top:1px solid var(--rule);padding-top:16px}
+.dlh{margin:0 0 10px;font-size:14.5px;font-weight:600}
+.dlsteps{list-style:none;margin:0;padding:0;display:grid;gap:7px;
+  counter-reset:dstep;font-size:14px;line-height:1.55}
+.dlsteps li{position:relative;padding-left:34px;counter-increment:dstep}
+.dlsteps li::before{content:counter(dstep);position:absolute;left:0;top:0;
+  width:22px;height:22px;border-radius:50%;background:var(--shade);
+  font:600 12px/22px var(--font-data);text-align:center}
+.dlhelp{margin:12px 0 0;font-size:13.5px;color:var(--ink-2)}
+.dlhelp summary{cursor:pointer;font-weight:600}
+.dlhelp summary:hover{color:var(--ink)}
+.dlhelp p{margin:8px 0 0;line-height:1.65}
+.dlhelp code{font:600 12px var(--font-data);background:var(--paper);
+  border:1px solid var(--rule-strong);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.fact{background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  padding:18px 22px}
+.fact b{display:block;font:600 11px var(--font-data);letter-spacing:.12em;
+  color:var(--accent-2);margin:0 0 7px}
+.fact p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2)}
+
+/* ── Guide-Seite ──────────────────────────────────────────────
+   Dieselben Bausteine, eine schmalere Lesespalte. */
+.gwrap{max-width:900px;margin:auto;padding:0 32px}
+.ghead{padding-top:72px;text-align:center}
+.ghead h1{font:600 clamp(36px,5vw,58px)/1.05 var(--font-display);
+  letter-spacing:-.03em;margin:0}
+.ghead p{font-size:18px;color:var(--ink-2);max-width:30em;margin:18px auto 0;line-height:1.6}
+.gsec{margin:64px 0 0}
+.gsec h2{font:600 26px/1.15 var(--font-display);margin:0 0 16px}
+.gsec p{font-size:16px;line-height:1.7;margin:0 0 10px;color:var(--ink)}
+.gcards3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 0}
+.gstep{counter-reset:none}
+.gsteps{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:12px}
+.gsteps li{background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  padding:16px 20px 16px 58px;position:relative;font-size:15px;line-height:1.6}
+.gsteps li::before{content:counter(step);counter-increment:step;
+  position:absolute;left:18px;top:14px;width:26px;height:26px;border-radius:50%;
+  background:var(--accent);color:#fff;font:600 13px/26px var(--font-data);text-align:center}
+.gsteps{counter-reset:step}
+.gcta{margin:64px 0 0;text-align:center}
+.gcta .button{margin:0 8px}
+/* Bildschirmfotos im Guide: so groß wie möglich — sie brechen aus
+   der Lesespalte aus und laufen bis 1200 px auf (zentriert über
+   die Spalte, die selbst zentriert ist; das margin-left rechnet
+   den Überstand). Damit die Pixelwand trotzdem nicht erschlägt,
+   steckt jedes Bild in einem App-Fenster: die dunkle Titelleiste
+   mit den drei Punkten — dieselben Bausteine wie die Mockups der
+   Startseite (.shot-bar oben) — nennt die Ansicht und hebt ihren
+   Reiter hervor. So liest man erst „wo bin ich", dann das Bild. */
+.shotimg{margin:30px 0 0;padding:0;
+  width:min(1200px,calc(100vw - 64px));
+  margin-left:calc((100% - min(1200px,100vw - 64px))/2)}
+/* Drei Formate, je nachdem, was das Bild braucht: die volle
+   Ausbruchsbreite (Jahr, Prognose), die Lesespalte (.mid, der
+   Zeitstrahl) und schmal zentriert (.slim, der Monat — schmal
+   fotografiert, schmal gezeigt). */
+.shotimg.mid{width:100%;margin-left:0}
+.shotimg.slim{width:min(580px,calc(100vw - 64px));
+  margin-left:calc((100% - min(580px,100vw - 64px))/2)}
+.shotwin{border-radius:var(--r);overflow:hidden;
+  border:1px solid var(--rule-strong);background:var(--paper-2);box-shadow:var(--sh-2);
+  transition:transform .22s ease,box-shadow .22s ease}
+.shotwin:hover{transform:translateY(-3px);
+  box-shadow:0 4px 10px rgba(27,35,32,.1),0 30px 60px rgba(27,35,32,.2)}
+.shotimg img{display:block;width:100%}
+.shotimg figcaption{font-size:13px;color:var(--ink-2);margin-top:10px;text-align:center}
+/* Ein Bild, das unten weiterginge, wird ausgeblendet statt
+   abgeschnitten: der Verlauf sagt „es geht weiter", eine harte
+   Kante sähe wie ein Fehler aus. */
+.fadecut{display:block;position:relative}
+.fadecut::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;
+  background:linear-gradient(to bottom,transparent,var(--paper-2))}
+/* Die Jahresmatrix: nicht verkleinert, sondern beschnitten. Der
+   große Ausschnitt zeigt die linke obere Ecke in Originalgröße —
+   Zahlen zum Lesen —, die kleine Karte rechts unten die ganze
+   Matrix samt Rahmen um den Ausschnitt: Detail und Überblick in
+   einem Bild. Die Werte hängen am Bildmaß (year.png, 2480×1560)
+   und am Zoom (199 %): sichtbar sind die linken 50 % der Breite
+   und ab 8 % Höhe rund 40 % — margin-top:-10% überspringt die
+   Kopfzeile der App, und der Rahmen der Karte (.zmap i) zeichnet
+   genau dieses Rechteck. Wer year.png neu fotografiert oder am
+   Zoom dreht, rechnet beides nach. */
+.zoomcrop{display:block;position:relative;aspect-ratio:2/1;overflow:hidden;
+  background:var(--paper-2)}
+.zoomcrop .zbig{width:199%;max-width:none;margin-top:-10%}
+.zmap{position:absolute;right:16px;bottom:16px;width:min(300px,30%);display:block;
+  border:1px solid var(--rule-strong);border-radius:8px;overflow:hidden;
+  background:var(--paper-2);box-shadow:var(--sh-2);z-index:1}
+.zmap img{display:block;width:100%}
+.zmap i{position:absolute;left:0;top:8%;width:50%;height:40%;
+  border:2px solid var(--accent);background:rgba(194,90,25,.1);border-radius:2px}
+.gnote{font-size:13.5px;color:var(--ink-2)}
+
+/* ── Fuß ──────────────────────────────────────────────────────*/
+footer{margin-top:104px;border-top:1px solid var(--rule)}
+footer .wrap{padding:32px 32px 46px;display:flex;align-items:center;
+  gap:22px;flex-wrap:wrap}
+footer .wordmark{font-size:21px}
+footer p{font-size:13px;color:var(--ink-2);margin:0}
+footer nav{margin-left:auto;display:flex;gap:22px}
+footer nav a{font-size:13.5px;text-decoration:none}
+footer nav a:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* ── Schmale Fenster ──────────────────────────────────────────*/
+@media (max-width:1100px){
+  .cards4{grid-template-columns:repeat(2,1fr)}
+  .rules ul{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  .duo{grid-template-columns:1fr}
+  .duo::after{content:"↓"}
+  .ccard{padding:36px 30px}
+  .plans{grid-template-columns:1fr;gap:14px}
+  .gcards,.gcards3,.showduo{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wrap,.gwrap{padding:0 20px}
+  .site-header nav{display:none}
+  .site-header .wrap{min-height:62px;gap:12px}
+  .langsw{margin-left:auto}
+  .hero{padding-top:52px}
+  .hero h1{font-size:32px}
+  /* Auf schmalen Fenstern darf der Kernsatz umbrechen — gesperrt
+     liefe er bei 390 px aus dem Bild. Der gezeichnete Strich fällt
+     mit weg: an einem umbrochenen Inline-Element säße er nur an
+     der letzten Zeile und damit falsch. */
+  .hero h1 em{white-space:normal}
+  .hero h1 em::after{display:none}
+  .hero-sub{font-size:17px}
+  .hero-actions{gap:12px}
+  .hero-actions .button{width:100%;text-align:center}
+  .trust{gap:8px}
+  .trust li{font-size:13.5px;padding:8px 14px}
+  .ticker{margin-top:60px}
+  .cards4,.dltiles,.facts{grid-template-columns:1fr}
+  .contrast,.features,.pricing,.getit{padding-top:72px}
+  .rules{padding:26px 22px}
+  .later{padding:26px 22px}
+  .later .button{width:100%;text-align:center}
+  .ghead{padding-top:48px}
+  footer{margin-top:72px}
+  footer nav{margin-left:0;width:100%}
+}

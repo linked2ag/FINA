@@ -47,7 +47,9 @@ ganze Projekt zu lesen.
 | Was beim Klick passiert; Start der Anwendung | `js/app.js` |
 | Fenster, Menü, fremde Links der Mac-/Windows-App | `desktop/main.js` |
 | Wie die Apps gebaut und veröffentlicht werden | `desktop/README.md` |
-| Die Downloadseite und ihre Gestaltung | `download/index.html`, `css/download.css` |
+| Die Startseite — Verkauf, Preise, Downloads, Sprachweiche | `index.html`, `css/landing.css` |
+| Die Guide-Seite (Kurzübersicht fürs Netz) | `guide.html` |
+| Der Web-Client — die Anwendung selbst | `Webclient.html` (lädt `js/` und `css/`) |
 | Welche Fassung die Apps als aktuell melden | `version.json` |
 | Das Symbol — Reiter der Seite **und** App-Icon | `desktop/build/icon.html` → `icon.png` |
 
@@ -209,7 +211,7 @@ gebraucht wird, bleibt der rohe Name stehen.
 
 **4. Klassische Skripte, feste Reihenfolge.**
 Keine ES-Module und kein `fetch`, damit die Seite auch per Doppelklick über `file://`
-läuft. Neue Dateien in `index.html` eintragen: `i18n.js` zuerst, dann Werkzeuge,
+läuft. Neue Dateien in `Webclient.html` eintragen: `i18n.js` zuerst, dann Werkzeuge,
 dann Ansichten, `app.js` bleibt die letzte. Auf oberster Ebene deklarierte `const`/`function` sind für alle später
 geladenen Dateien sichtbar.
 
@@ -239,8 +241,29 @@ im Browser ist es undefiniert. Daran hängen drei Stellen und sonst nichts:
   stundenlang offen steht; **erst mit offenem Buch**, weil der Schalter dafür in der Datei
   steht (`state.updateCheck`) und auf der Begrüßungsseite noch gar nicht gelesen ist.
   Gemerkt wird nichts — FINA führt keine Ablage neben der Datei des Nutzers.
-* **`js/views/willkommen.js`** — `appHint()` lässt den Weg zur Downloadseite weg. In einer
-  App ist er beantwortet.
+* **`renderChrome()` in `js/app.js`** — das Wortzeichen oben links ist im Browser ein Link
+  zur Startseite (`<a href="index.html">` in `Webclient.html`). In der App heißt der
+  Web-Client selbst `index.html` (siehe unten): der Klick wäre dort ein stilles Neuladen
+  mitsamt der ungespeicherten Arbeit, deshalb nimmt `renderChrome()` dem Link dort `href`
+  und `title`.
+Die Begrüßungsseite braucht `FINA_NATIVE` nicht mehr: sie nennt keine Downloads — das
+erledigt die Startseite (`index.html`), und `download/` leitet als Stub dorthin weiter
+(ältere App-Fassungen öffnen diese Adresse beim Update-Hinweis).
+
+**Der Web-Client heißt in der Auslieferung der App weiter `index.html`:** `desktop/sync.mjs`
+kopiert `Webclient.html` nach `desktop/app/index.html` — so bleibt `desktop/main.js`
+unberührt, und in die App gelangt nie die Verkaufsseite.
+
+**Die Sprachwahl der Startseite gilt als Vorgabe.** Der DE/EN-Schalter dort (Englisch ist
+der Grundzustand) schreibt `finaLang` in den localStorage; der Start des Web-Clients
+liest ihn für das noch leere Buch (Block „Start" in `js/app.js`). Eine geladene Datei
+überstimmt ihn wie immer (`state.lang`), und zurückgeschrieben wird nichts.
+
+**macOS braucht mindestens eine Ad-hoc-Signatur.** `identity: null` allein ließe die App
+ganz unsigniert, und eine unsignierte App startet auf Apple Silicon überhaupt nicht —
+macOS meldet „beschädigt", was wie ein kaputter Download aussieht. `desktop/adhoc.cjs`
+(afterPack in `desktop/package.json`) signiert deshalb ad hoc; der erste Start läuft dann
+über „Trotzdem öffnen", wie es die Downloadhilfe auf der Startseite beschreibt.
 
 **Die Versionsnummer steht an einer Stelle:** `VERSION` in `js/config.js`, dreiteilig als
 `Jahr.Monat.Tag`. `desktop/sync.mjs` schreibt sie in `desktop/package.json` (und weist eine
@@ -271,15 +294,19 @@ ganzseitige Anleitung — als eigenes Fenster erlaubt bleibt, das Menü (ohne `e
 es auf dem Mac kein Cmd+C) und die Einzelinstanz. Wer an FINA etwas ändert, ändert es in
 `js/` und `css/`.
 
-## Die Anwendung heißt FINA Book
+## Die Anwendung heißt FINA Buch / FINA Book
 
-**Nach außen `FINA Book`, im Fließtext `FINA`.** Der lange Name steht dort, wo das
-Programm sich vorstellt: Fenstertitel (`title` in `desktop/main.js`), Seitentitel und
-Wortzeichen (`<title>`, `.brand h1` in `index.html`), Startseite, Downloadseite, die Namen
-der Pakete (`productName` und die drei `artifactName` in `desktop/package.json`) und die
-ganzseitige Anleitung (`guideDoc()`). Der Untertitel „your whole finance in one place"
-gehört zum Titel der Seite, nicht ins Wortzeichen — in der Kopfzeile steht neben dem Namen
-das Jahr.
+**Nach außen sprachabhängig: `FINA Buch` auf Deutsch, `FINA Book` auf Englisch — im
+Fließtext `FINA`.** In der Anwendung setzt `renderChrome()` Wortzeichen und Seitentitel
+über `t('app.name')`; im HTML von `Webclient.html` steht nur der englische Rückfall. Auf
+Startseite und Guide-Seite steht der Name als `data-l`-Paar. **Sprachunabhängig englisch
+bleiben** die Pakete (`productName` und die drei `artifactName` in
+`desktop/package.json`) und der Fenstertitel der App (`title` in `desktop/main.js`) —
+eine installierte App wechselt ihren Namen nicht mit der Oberflächensprache.
+
+**„Kassenbuch" und „cash book" sind gestrichen** — überall „Haushaltsbuch" /
+„household book"; wer einen Satz ergänzt, hält sich daran. In der Kopfzeile steht neben
+dem Namen nur noch das Jahr (`app.sub` ist `{0}`).
 
 **Im Fließtext bleibt es beim kurzen FINA**, und zwar in beiden Sprachen: „FINA liest den
 CSV-Export", „Ist das eine FINA-Tabelle?". Die Tabelle, aus der die Anwendung entstanden
@@ -294,7 +321,7 @@ nirgends.
 ## Das Symbol gibt es einmal
 
 `icon.png` im Stamm ist beides — das Zeichen der **Webseite** (`<link rel="icon">` in
-`index.html`, `Landing.html`, `download/index.html`, `FinaInBrowser.html` und in
+`Webclient.html`, `index.html`, `guide.html`, dem `download/`-Stub und in
 `guideDoc()`) und die Vorlage, aus der **electron-builder** .icns und .ico macht.
 `desktop/sync.mjs` legt es vor jedem Bau nach `desktop/build/icon.png`, wo
 electron-builder es sucht; deshalb steht diese Kopie in `.gitignore`. Zwei gepflegte
@@ -834,6 +861,14 @@ im `#view` steht: beim Start und wieder nach `unlinkData()`. Sie sagt zuerst, wo
 und bietet dann die beiden einzigen Wege an — `data-wload` öffnet eine Datei (`loadData()`),
 `data-wnew` fängt leer an (`startEmpty()` in `js/storage.js`).
 
+**Oben rechts steht die Sprachwahl** (`.wlangs`, `data-wlang`, verdrahtet in `wire()`): das
+Einstellungsfenster gibt es erst im geladenen Buch, und ohne diesen Weg säße, wer ohne die
+Startseite ankommt, auf der falschen Sprache fest. Geschrieben wird in `state.lang` des
+leeren Buches — kein `save()`, es gibt noch nichts, das schmutzig werden könnte; eine
+geladene Datei überstimmt die Wahl wie immer, und `finaLang` im localStorage bleibt
+unangetastet (die Vorgabe der Startseite, siehe „Die drei Fassungen"). Die Kürzel EN · DE
+kommen aus `LANGS` und wechseln die Sprache nicht — wie im Kopf der Anleitung.
+
 **Sie hängt nicht am Inhalt der Datei, sondern daran, ob überhaupt eine gewählt wurde** —
 deshalb steht sie in `ui` und nicht in `afterLoad()`, das nur den Inhalt auswertet. Ein
 leeres Buch (`startEmpty`) ist keine Begrüßung mehr, obwohl `fileName` noch leer ist.
@@ -869,11 +904,11 @@ Regel. Aus demselben Grund trägt der Knopf „Neue Einnahme" der Monatsansicht 
 `incomeGroups()[0]`, wenn die Liste leer ist.
 
 Zwei Dinge hängen daran, beide in `renderChrome()`: Ansichts- und Monatsreiter sind auf der
-Begrüßungsseite **verborgen** (es gibt nichts zu wählen), und **von der Kopfzeile bleibt
-dort nur die Anleitung** — Öffnen und Anfangen bietet die Seite selbst an, alles andere hat
-ohne Datei keinen Sinn. Im geladenen Buch fehlt umgekehrt „Daten hochladen": geladen wird
-auf der Seite, gearbeitet in der Anwendung. Beides steht in einer Zeile, der Liste der
-Kennungen.
+Begrüßungsseite **verborgen** (es gibt nichts zu wählen), und **die Kopfzeile ist dort
+leer** — auch Anleitung und Jahr erscheinen erst im geladenen Buch: die Anleitung gehört
+zur Arbeit, und ein Jahr gibt es ohne Datei noch nicht. Öffnen und Anfangen bietet die
+Seite selbst an. Im geladenen Buch fehlt umgekehrt „Daten hochladen": geladen wird auf der
+Seite, gearbeitet in der Anwendung. Alles steht in einer Zeile, der Liste der Kennungen.
 
 Die Knöpfe der Seite bleiben in der Tab-Reihenfolge: `tabThroughFields()` nimmt `.welcome`
 ausdrücklich aus (`js/ui.js`), dort sind die Knöpfe der Inhalt und nicht das Beiwerk.

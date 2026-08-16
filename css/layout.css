@@ -32,6 +32,10 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
   border-bottom:2px solid var(--ink);padding-bottom:7px}
 .brand{display:flex;align-items:baseline;gap:10px}
 .brand h1{font-family:var(--font-display);font-weight:700;font-size:23px;letter-spacing:.04em;margin:0;line-height:1.1}
+/* Das Wortzeichen ist ein Link zur Startseite (im Browser; in der
+   App nimmt renderChrome ihm das href) — aussehen soll es wie die
+   Überschrift, die es ist. */
+.brand h1 a{color:inherit;text-decoration:none}
 .brand .sub{font-family:var(--font-data);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
 .tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .tools .btn{padding:5px 10px;font-size:12.5px}
@@ -491,6 +495,16 @@ body.yearview .wrap{padding-bottom:14px}
   border-top:4px solid var(--ink);padding:34px 42px 30px}
 .wmark{font-family:var(--font-data);font-size:10px;letter-spacing:.34em;text-transform:uppercase;
   color:var(--ink-2)}
+/* Kopfreihe der Begrüßung: links das Wortzeichen, rechts die
+   Sprachwahl — dieselbe Bauart wie die Kürzel EN · DE im Kopf der
+   Anleitung (.glangs in css/components.css). */
+.wtop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wlangs{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+.wlang{background:transparent;border:0;cursor:pointer;padding:3px 8px;
+  font:600 10px var(--font-data);letter-spacing:.08em;color:var(--ink-2)}
+.wlang+.wlang{border-left:1px solid var(--rule-strong)}
+.wlang:hover{background:rgba(0,0,0,.05);color:var(--ink)}
+.wlang[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
 .wbox h2{font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.2;
   letter-spacing:.01em;margin:8px 0 14px;color:var(--ink)}
 /* Kein eigenes Zeilenmaß für den Text: er läuft so weit wie die

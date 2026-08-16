@@ -27,7 +27,7 @@
    diese Nummer tragen. Versionen entstehen dort nur auf Zuruf; die
    Webseite läuft ihnen voraus, und die Apps hinterher (siehe
    „Die zwei Veröffentlichungskanäle" in der Planung). */
-const VERSION='26.8.15';
+const VERSION='26.8.16';
 
 /* Wo die Apps ihre Fassung nachschlagen. Die Datei beschreibt den
    **App-Kanal**, nicht die Webseite: stünde dort jede Webversion,
@@ -36,7 +36,9 @@ const VERSION='26.8.15';
    nativen Fassung (window.FINA_NATIVE) und höchstens einmal am Tag
    — es ist die einzige Netzverbindung, die FINA je aufbaut. */
 const VERSION_URL='https://linked2ag.github.io/FINA/version.json';
-const DOWNLOAD_URL='https://linked2ag.github.io/FINA/download/';
+/* Die Downloads wohnen auf der Startseite; download/ leitet als
+   Stub dorthin weiter und fängt die Links älterer App-Fassungen. */
+const DOWNLOAD_URL='https://linked2ag.github.io/FINA/#downloads';
 
 /* Die Hauptansichten: interner Schlüssel + Beschriftung. Die
    Reihenfolge ist auch die der Reiter.

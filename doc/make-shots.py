@@ -103,6 +103,11 @@ SHOTS = [
     # ── die vier Ansichten, für die README ────────────────────────
     ('year',        'v=jahr&all=1',                       2480, 1560),
     ('month',       'v=monat&m=8&fold=',                  1500, 1500),
+    # Der schmale Monat für die Guide-Seite: nur der Inhalt (#view,
+    # als %23 — ein rohes „#" wäre die Sprungmarke), schmal
+    # fotografiert, damit die Karten kompakt stehen statt in die
+    # Breite zu laufen.
+    ('month-slim',  'v=monat&m=8&fold=&only=%23view',      880, 1180),
     ('flexible',    'v=kakeibo&scope=jahr',               1500, 1180),
     ('forecast',    'v=prognose',                         1500),
     ('guide',       'v=monat&m=8&guide=1',                1700, 1250),
@@ -146,7 +151,7 @@ def chrome(url, size, shot=None):
 
 def build_page():
     demo = json.load(open(DEMO, encoding='utf-8'))
-    src = open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+    src = open(os.path.join(ROOT, 'Webclient.html'), encoding='utf-8').read()
     body = HARNESS.replace('__DEMO__', json.dumps(demo, ensure_ascii=False))
     open(PAGE, 'w', encoding='utf-8').write(src.replace('</body>', body + '\n</body>'))
     return demo

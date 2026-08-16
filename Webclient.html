@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!--
+  FINA — der Web-Client (die Anwendung selbst; die Startseite ist index.html)
+  Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
+
+  Der Quelltext dieser Seite ist einsehbar, weil ein Browser ihn zum
+  Ausführen braucht — das ist kein Verzicht auf Rechte. Benutzen ist
+  erlaubt und erwünscht; Vervielfältigen, Weitergeben und der Betrieb
+  einer eigenen Kopie sind es nicht. Siehe LICENSE.
+
+  Dass hier alles offen liegt, ist zugleich die Antwort auf die
+  wichtigste Frage bei einem Haushaltsbuch: Wohin gehen meine Zahlen?
+  Nirgendwohin. Sie stehen in einer Datei auf deinem Rechner, und
+  diese Seite lädt nichts hoch — nachlesbar, Zeile für Zeile.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
+<title>FINA Book — your whole finance in one place</title>
+
+<!-- Dasselbe Bild, aus dem die Mac- und die Windows-App ihr Symbol
+     bekommen (icon.png im Stamm, gezeichnet aus
+     desktop/build/icon.html). Ein Reiter zeigt es klein: dass die
+     drei Farben links auch dann noch zu erkennen sind, ist der
+     Grund für ihre Breite. -->
+<link rel="icon" href="icon.png" sizes="any">
+
+<!-- Gestaltung — Reihenfolge zählt: allgemeine Regeln zuerst,
+     spezielle danach.
+
+     Die drei Schriften kamen bis August 2026 von
+     fonts.googleapis.com. Sie liegen jetzt in css/fonts/ und werden
+     in tokens.css eingebunden: die Seite ruft damit **keinen
+     fremden Server mehr auf** — was oben steht, stimmt dann auch
+     für die Schriften. -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/ledger.css">
+<link rel="stylesheet" href="css/matrix.css">
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <div class="masthead">
+    <!-- Das Wortzeichen ist im Browser ein Link zur Startseite
+         (index.html liegt daneben). In der App ist index.html der
+         Web-Client selbst — dort legt renderChrome() den Link
+         still (js/app.js, dritte FINA_NATIVE-Stelle). -->
+    <div class="brand"><h1><a href="index.html">FINA Book</a></h1><span class="sub" id="yearLbl"></span></div>
+    <div class="tools">
+      <!-- Die Beschriftungen kommen aus js/i18n.js: data-t setzt den
+           Text, data-ttip den Tooltip (siehe renderChrome). -->
+      <span class="filepath" id="filePath"></span>
+      <button class="btn" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
+      <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
+      <!-- Eine Kopie mit Zeitstempel im Namen, neben der laufenden
+           Datei her. Es ist derselbe Weg, den „Daten speichern" in
+           Safari und Firefox ohnehin geht — hier auf Wunsch, in
+           jedem Browser (js/storage.js). -->
+      <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
+      <button class="btn" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
+      <!-- Beide Importe stehen im Einstellungsfenster im Bereich
+           „Import" (js/dialogs/settings.js). In der Kopfzeile
+           standen sie zwischen Laden und Speichern und sahen aus
+           wie ein dritter Weg, eine Datei zu öffnen — sie sind
+           aber keiner: sie ändern das Buch, das schon offen ist. -->
+      <button class="btn" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
+      <!-- Der einzige farbige Knopf: er klappt die Anleitung rechts
+           auf und wieder zu (aria-pressed sagt, ob sie offen ist). -->
+      <button class="btn guidebtn" id="btnGuide" aria-pressed="false" data-t="app.guide" data-ttip="app.guideTip"></button>
+    </div>
+  </div>
+  <nav class="views" id="views" role="tablist"></nav>
+  <div class="months" id="months" role="tablist"></div>
+</header>
+
+<!-- Hier zeichnet js/app.js die gewählte Ansicht. -->
+<main id="view"></main>
+<p class="status" id="storeStatus"></p>
+</div>
+
+<!-- Symbol der Notizlampe -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ic-lamp" viewBox="0 0 24 24">
+<path d="M9.5 18.5h5M10.5 21h3M12 3a6 6 0 0 0-3.6 10.8c.6.45.9 1.15.9 1.9v.3h5.4v-.3c0-.75.3-1.45.9-1.9A6 6 0 0 0 12 3z"/></symbol></svg>
+
+<!-- Dateiauswahl, wird über die Schaltflächen ausgelöst -->
+<input type="file" id="fileCsv" accept=".csv,text/csv" hidden>
+<!-- Zweite Auswahl für die FINA-Tabelle: dieselbe Dateiendung,
+     aber ein anderer Leser (js/sheet.js). Ein gemeinsames Feld
+     müsste sich merken, wer es geöffnet hat. -->
+<input type="file" id="fileSheet" accept=".csv,text/csv" hidden>
+<input type="file" id="fileJson" accept=".json,application/json" hidden>
+
+<!-- Logik — die Reihenfolge ist verbindlich:
+     Sprache zuerst (MONTHS, YEAR und t() hängen daran), dann
+     Konstanten und Werkzeuge, dann Zustand und Rechnen, dann die
+     Ansichten, zuletzt die Steuerung in app.js. -->
+<script src="js/i18n.js"></script>
+<script src="js/config.js"></script>
+<script src="js/format.js"></script>
+<script src="js/state.js"></script>
+<script src="js/categories.js"></script>
+<script src="js/calc.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/csv.js"></script>
+<!-- Liest die FINA-Tabelle; benutzt splitCsvLine() aus csv.js und
+     steht deshalb dahinter. -->
+<script src="js/sheet.js"></script>
+<script src="js/ui.js"></script>
+
+<script src="js/views/jahr.js"></script>
+<script src="js/views/willkommen.js"></script>
+<script src="js/views/monat.js"></script>
+<script src="js/views/prognose.js"></script>
+<script src="js/views/kakeibo.js"></script>
+
+<script src="js/dialogs/item.js"></script>
+<script src="js/dialogs/kakeibo-betraege.js"></script>
+<script src="js/dialogs/filter-fields.js"></script>
+<script src="js/dialogs/settings.js"></script>
+<script src="js/dialogs/csv-import.js"></script>
+<script src="js/dialogs/sheet-import.js"></script>
+<script src="js/dialogs/guide.js"></script>
+
+<script src="js/app.js"></script>
+</body>
+</html>
