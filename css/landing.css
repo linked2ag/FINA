@@ -1,9 +1,13 @@
 /* ══════════════════════════════════════════════════════════════
-   FINA — Startseite (index.html) und Guide-Seite (guide.html)
+   FINA — die vier Seiten außerhalb der Anwendung
+   index.html · features.html · compare.html · guide.html
 
    Farben und Schriften kommen aus tokens.css — die Seiten können
    gar nicht anders aussehen als die Anwendung. Geladen wird nichts
    von fremden Servern; dieselbe Regel wie überall.
+
+   Das Verhalten aller vier steht in js/landing.js: Sprache,
+   Sprungmenü, Ausschnitt schieben, Downloads, Bewegung.
 
    ── Zwei Sprachen ────────────────────────────────────────────
    Jeder Text steht zweimal im HTML (data-l="de" / data-l="en"),
@@ -84,7 +88,16 @@ html.js .reveal.in{opacity:1;transform:none}
 .hero{padding-top:84px;text-align:center}
 .eyebrow{font:600 11px/1.2 var(--font-data);letter-spacing:.15em;
   color:var(--accent-2);margin:0 0 20px}
-.hero h1{font:600 clamp(38px,5.6vw,76px)/1.03 var(--font-display);
+/* Der erste Satz sagt, WAS das hier ist — nicht, wogegen es sich
+   abgrenzt. Er steht über der Schlagzeile und ist zu lesen, nicht
+   zu entziffern: Überschriftenschrift, gut über 20 px, in der
+   Tintenfarbe. Vorher stand an dieser Stelle eine Zeile in 11 px
+   Versalien; wer die Seite zum ersten Mal sah, wusste nach dem
+   Kopf, dass FINA „zeigt, was kommt" — aber nicht, was es ist. */
+.hero-what{font:500 clamp(19px,2.15vw,27px)/1.42 var(--font-display);
+  color:var(--ink);max-width:22em;margin:0 auto 22px}
+.hero-what b{font-weight:600}
+.hero h1{font:600 clamp(34px,4.9vw,66px)/1.05 var(--font-display);
   letter-spacing:-.03em;margin:0;max-width:15.5em;margin-inline:auto}
 .hero h1 em{font-style:normal;color:var(--accent-2);position:relative;white-space:nowrap}
 /* Der Strich unter dem Kernsatz zeichnet sich einmal von selbst */
@@ -134,12 +147,16 @@ html.js .hero h1 em::after{transform:scaleX(0);animation:draw .8s cubic-bezier(.
 .shot-bar .ttl{margin-left:8px}
 .shot-bar .tab{margin-left:auto;font-weight:400;opacity:.72}
 .shot-bar .tab b{font-weight:600;opacity:1}
-.shot-scroll{overflow-x:auto}
-.mx{width:100%;min-width:1220px;border-collapse:collapse;
-  font:400 11px var(--font-data);white-space:nowrap}
-.mx th,.mx td{padding:6px 7px;border-bottom:1px solid var(--rule);text-align:right}
-.mx .lab{text-align:left;width:168px;font-family:var(--font-ui);font-size:12.5px}
-.mx thead th{font-weight:600;font-size:10px;letter-spacing:.06em;
+/* Die Tabelle steht in Lesegröße — so groß wie in der Anwendung,
+   nicht so klein, dass sie ins Fenster passt. Was rechts nicht
+   mehr hineingeht, holt man mit der Übersichtskarte herein
+   (.panbox weiter unten). Wer die Breite ändert, ändert nichts
+   weiter: die Karte misst selbst. */
+.mx{width:100%;min-width:1560px;border-collapse:collapse;
+  font:400 12px var(--font-data);white-space:nowrap}
+.mx th,.mx td{padding:7px 9px;border-bottom:1px solid var(--rule);text-align:right}
+.mx .lab{text-align:left;width:190px;font-family:var(--font-ui);font-size:13.5px}
+.mx thead th{font-weight:600;font-size:10.5px;letter-spacing:.06em;
   color:var(--ink-2);border-bottom:1px solid var(--rule-strong)}
 /* Abgerechnete Monate: durchgestrichen, wie in der Anwendung */
 .mx thead th.past{text-decoration:line-through;color:var(--rule-strong)}
@@ -182,7 +199,7 @@ html.js .shot.in tbody tr{opacity:1;transform:none;
 .mx .now{box-shadow:inset 1px 0 0 var(--seal),inset -1px 0 0 var(--seal)}
 .mx thead .now{color:var(--seal);font-weight:600;text-decoration:none}
 /* Die Ampel der Restlaufzeit */
-.mx .lp{width:44px;text-align:center;font-size:10px}
+.mx .lp{width:50px;text-align:center;font-size:11px}
 .mx .lp i{display:inline-block;padding:1px 6px;font-style:normal;border-radius:999px}
 .lp-now{background:var(--end-now)}.lp-soon{background:var(--end-soon)}
 .lp-mid{background:var(--end-mid)}.lp-far{background:var(--end-far)}
@@ -193,6 +210,47 @@ html.js .shot.in tbody tr{opacity:1;transform:none;
 .shot-foot .esx{color:var(--amber);font-weight:600}
 .shot-foot .strx{text-decoration:line-through;font-weight:600}
 .shotnote{font-size:13.5px;color:var(--ink-2);margin:16px auto 0;text-align:center;max-width:38em}
+
+/* ── Den Ausschnitt schieben ──────────────────────────────────
+   Zwei Stellen zeigen etwas, das breiter ist als sein Rahmen: die
+   Jahrestabelle im Kopf der Startseite (nachgebaut) und das
+   Bildschirmfoto der Jahresmatrix im Guide. Beide zeigen deshalb
+   einen Ausschnitt in Lesegröße, und rechts unten liegt die ganze
+   Fläche als Karte mit einem Rahmen um das, was man sieht.
+
+   Verkleinern wäre die einfache Antwort und die falsche: eine
+   Matrix mit zwölf Monatsspalten, die ins Fenster passt, hat
+   4-px-Zahlen — man sieht, dass es viel ist, und liest nichts.
+
+   Die Karte ist eine KOPIE des Rahmeninhalts (js/landing.js) und
+   kann deshalb nicht daneben liegen. Gemessen wird dort auch die
+   Höhe — hier steht nur, wie es aussieht. */
+.panbox{position:relative}
+.panview{overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:none;-ms-overflow-style:none;cursor:grab}
+.panview::-webkit-scrollbar{display:none}
+.panbox.grabbing .panview{cursor:grabbing}
+.panbox.grabbing *{user-select:none}
+/* Klein genug, dass sie in der Ecke nicht mehr verdeckt als zwei
+   Zeilen — sie ist die Karte, nicht der Inhalt. */
+.panmap{position:absolute;right:14px;bottom:14px;z-index:2;
+  width:min(240px,28%);cursor:pointer;touch-action:none;
+  border:1px solid var(--rule-strong);border-radius:10px;overflow:hidden;
+  background:var(--paper-2);box-shadow:var(--sh-2)}
+/* Die Kopfzeile der Karte sagt, dass hier etwas anzufassen ist —
+   ein Rahmen allein sähe aus wie eine Markierung. */
+.panmap .maphd{display:block;padding:4px 8px;background:var(--ink);color:var(--paper);
+  font:600 9px var(--font-data);letter-spacing:.1em;text-transform:uppercase}
+.panmap .mapview{display:block;position:relative;overflow:hidden}
+.panmap .mapinner{display:block;position:absolute;left:0;top:0;
+  transform-origin:0 0;pointer-events:none}
+.panmap .mapinner img{display:block;width:100%}
+.panmap>.mapview>i{position:absolute;pointer-events:none;
+  border:2px solid var(--accent);background:rgba(194,90,25,.12);border-radius:2px;
+  box-shadow:0 0 0 9999px rgba(27,35,32,.14)}
+/* Passt alles in den Rahmen, gibt es nichts zu schieben. */
+.panbox.nopan .panmap{display:none}
+.panbox.nopan .panview{cursor:auto}
 
 /* ── Das Laufband ─────────────────────────────────────────────
    Kurze Zusagen, langsam durchziehend. Der Text steht doppelt im
@@ -207,11 +265,37 @@ html.js .ticker .track{animation:tick 36s linear infinite}
 .ticker:hover .track{animation-play-state:paused}
 @keyframes tick{to{transform:translateX(-50%)}}
 
+/* ── Drei Zeiten ──────────────────────────────────────────────
+   Ein Dreiklang, mittig, mit viel Luft: die drei Sätze sollen in
+   einem Blick zu lesen sein und in derselben Sekunde wirken. Die
+   Farben sind dieselben wie in der Anwendung — was vorbei ist,
+   tritt zurück; was noch kommt, trägt das Orange, das hier überall
+   etwas anbietet. Der Satz darunter erklärt, der Dreiklang
+   verkauft. */
+.triad{padding-top:104px;text-align:center}
+.triad h2{font:600 clamp(31px,4.3vw,54px)/1.14 var(--font-display);
+  letter-spacing:-.025em;margin:0}
+.triad .t1{color:var(--ink-2)}
+.triad .t2{color:var(--ink)}
+.triad .t3{color:var(--accent-2)}
+/* Der Satz darunter trägt eine Klasse: `.triad p` erwischte sonst
+   auch die Zeile darüber — die ist ein .eyebrow und bleibt es. */
+.triad .lead{max-width:33em;margin:24px auto 0;font-size:18px;line-height:1.7;color:var(--ink-2)}
+.triad .lead b{color:var(--ink);font-weight:600}
+
 /* ── Der Unterschied ──────────────────────────────────────────
    Kein Schwarz-Weiß: die übliche Art in gedecktem Rot (die Farbe
-   der Kosten — der Blick zurück), FINA in kräftigem Grün (die
-   Farbe der Einnahmen — der Blick nach vorn). Zwischen beiden
-   ein oranger Pfeil: von dort nach hier. */
+   der Kosten — der Blick zurück), FINA im hellen Grün der
+   Einnahmen (der Blick nach vorn). Zwischen beiden ein oranger
+   Pfeil: von dort nach hier.
+
+   Die FINA-Karte stand bis August 2026 in dunklem Flaschengrün.
+   Das war der einzige dunkle Block der ganzen Seite und in keiner
+   Farbe, die die Anwendung kennt — daneben sah die rote Karte
+   heller und freundlicher aus als die eigene. Jetzt tragen beide
+   Karten ihre Geldart in derselben Helligkeit; das Gewicht
+   bekommt FINA über die kräftigere Kante, den Schatten und das
+   grüne Namensschild, nicht über einen dunklen Grund. */
 .contrast{padding-top:104px}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:22px;position:relative}
 .duo::after{content:"→";position:absolute;top:50%;left:50%;
@@ -229,14 +313,19 @@ html.js .ticker .track{animation:tick 36s linear infinite}
 .ccard.was .num{color:var(--seal)}
 .ccard.was h2{color:var(--ink)}
 .ccard.was p{color:var(--ink-2)}
-.ccard.us{background:linear-gradient(135deg,#2E6A4C,#1E4630);
-  color:#EAF4EC;border:1px solid var(--ok);
-  box-shadow:0 2px 6px rgba(46,106,76,.18),0 22px 48px rgba(46,106,76,.28)}
-.ccard.us .num{color:#A8D8B9}
-.ccard.us h2{color:#fff}
-.ccard.us p{color:#DDEEE2}
-.ccard.us b{color:#fff}
+.ccard.us{background:linear-gradient(150deg,var(--bg-in-2),var(--bg-in));
+  border:2px solid var(--edge-in);
+  box-shadow:0 2px 6px rgba(46,106,76,.12),0 22px 48px rgba(46,106,76,.2)}
+.ccard.us .num{color:#fff;background:var(--ok);display:inline-block;
+  padding:5px 13px;border-radius:999px;letter-spacing:.16em}
+.ccard.us h2{color:var(--ink)}
+.ccard.us p{color:var(--ink)}
+.ccard.us b{color:var(--ok);font-weight:600}
 .ccard em{font-style:italic}
+/* Unter den beiden Karten die beiden Seiten, die den Vergleich
+   ausführen — hier steht die Behauptung, dort der Beleg. */
+.duo-cta{display:flex;justify-content:center;align-items:center;
+  gap:14px;flex-wrap:wrap;margin:32px 0 0}
 
 /* ── Monat und Prognose ───────────────────────────────────────
    Zwei nachgebaute Ansichten nebeneinander, so nah an der
@@ -250,9 +339,13 @@ html.js .ticker .track{animation:tick 36s linear infinite}
    stehen im HTML; wer sie ändert, rechnet die Prozentwerte der
    Balken nach (Kopfkommentar in index.html). */
 .showcase{padding-top:104px}
-/* Ungleiche Spalten mit Absicht: die Prognose lebt von der Breite
-   ihrer Verlaufsspalte, der Monat kommt mit weniger aus. */
-.showduo{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;
+/* Ein Viertel und drei Viertel, mit Absicht: die Prognose lebt von
+   der Breite ihrer Verlaufsspalte — dort steht die Aussage der
+   ganzen Ansicht —, der Monat ist eine Liste und kommt mit einem
+   schmalen Streifen aus. In der Anwendung ist es genauso: der
+   Monat ist die schmale Ansicht (deshalb wird er im Guide auch
+   schmal fotografiert). */
+.showduo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);gap:18px;
   margin:50px 0 0;align-items:stretch}
 .mini{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:var(--r);
   overflow:hidden;box-shadow:var(--sh-2);display:flex;flex-direction:column}
@@ -295,15 +388,35 @@ html.js .ticker .track{animation:tick 36s linear infinite}
   display:grid;place-items:center;font-size:11px;font-weight:700}
 .seal.ok{border:2px solid var(--ok);background:rgba(46,106,76,.13);color:var(--ok)}
 .seal.open{border:1.5px dashed var(--rule-strong);background:transparent}
+/* Der Monat im schmalen Streifen: dieselben Bausteine, enger
+   gesetzt. Die Kennzahlen stehen zweizeilig statt in einer Reihe
+   (vier Zahlen nebeneinander wären in 260 px Striche), und die
+   Reiterzeile der Fensterleiste entfällt — welche Ansicht das ist,
+   steht schon im Titel daneben. */
+.mini.narrow .shot-bar .tab{display:none}
+.mini.narrow .mbody{padding:10px;gap:8px}
+.mini.narrow .marow{grid-auto-flow:row;grid-template-columns:1fr 1fr}
+.mini.narrow .mk b{font-size:11px}
+.mini.narrow .mhead{padding:5px 9px;font-size:8.5px;letter-spacing:.08em}
+.mini.narrow .mhead b{font-size:11.5px}
+.mini.narrow .mrow{grid-template-columns:20px 70px 1fr;gap:8px;
+  padding:4px 9px;font-size:12.5px}
+.mini.narrow .mrow .amt{font-size:11px}
+.mini.narrow .seal{width:17px;height:17px;font-size:9px}
+.mini.narrow .minicap{padding:10px 12px;font-size:12.5px}
 /* Die Prognose-Tabelle: gefärbte Bewegungsspalten, END violett,
    vergangene Monate blass, der laufende rot eingefasst. */
 .pscroll{overflow-x:auto}
+/* Drei Viertel der Breite heißt auch: die Zeilen dürfen atmen.
+   Bei 10 px und 3 px Polster stand die Tabelle früher als Block
+   in einer halb leeren Karte — jetzt füllt sie ihre Fläche und
+   ist dabei zu lesen. */
 .px{width:100%;min-width:520px;border-collapse:collapse;
-  font:400 10px var(--font-data);white-space:nowrap}
-.px th,.px td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--rule)}
-.px thead th{font-weight:600;font-size:9px;letter-spacing:.08em;
+  font:400 11px var(--font-data);white-space:nowrap}
+.px th,.px td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--rule)}
+.px thead th{font-weight:600;font-size:9.5px;letter-spacing:.08em;
   color:var(--ink-2);border-bottom:1px solid var(--rule-strong)}
-.px .m{text-align:left;font-weight:600;font-size:9px;letter-spacing:.06em;color:var(--ink-2)}
+.px .m{text-align:left;font-weight:600;font-size:10px;letter-spacing:.06em;color:var(--ink-2)}
 .px .ci{background:var(--bg-in)}
 .px .co{background:var(--bg-out)}
 .px .cf{background:var(--bg-flex)}
@@ -319,7 +432,7 @@ html.js .ticker .track{animation:tick 36s linear infinite}
    absolut nach den Prozentwerten aus dem HTML. Zufluss oben,
    Abfluss darunter (Flexible + Kosten), feine Linie = Stand davor,
    kräftiger Strich = neuer Kontostand — die Treppe der App. */
-.px .track{position:relative;min-width:150px;width:42%;padding:0;height:19px;
+.px .track{position:relative;min-width:150px;width:42%;padding:0;height:23px;
   border-left:1px solid var(--rule-strong);
   background-image:linear-gradient(to right,var(--rule) 1px,transparent 1px);
   background-size:33.333% 100%}
@@ -328,13 +441,13 @@ html.js .ticker .track{animation:tick 36s linear infinite}
 .px .tax{top:3px;font:600 8px var(--font-data);color:var(--ink-2);transform:translateX(-50%)}
 .px .tax:first-child{transform:none;padding-left:3px}
 .px .tax.end{right:0;left:auto;transform:none;padding-right:2px}
-.px .tup{top:3px;height:5px;background:var(--edge-in)}
-.px .tdn{bottom:3px;height:5px;display:flex}
+.px .tup{top:5px;height:6px;background:var(--edge-in)}
+.px .tdn{bottom:5px;height:6px;display:flex}
 .px .tdn b{display:block;height:100%}
 .px .tdn .sf{background:var(--bg-flex-3)}
 .px .tdn .sr{background:var(--edge-out);flex:1}
-.px .tc{top:2px;bottom:2px;width:1px;background:var(--rule-strong)}
-.px .tm{top:1px;bottom:1px;width:2px;background:var(--ink)}
+.px .tc{top:3px;bottom:3px;width:1px;background:var(--rule-strong)}
+.px .tm{top:2px;bottom:2px;width:2px;background:var(--ink)}
 /* Die Farberklärung unter der Tabelle — wie .thint in der App */
 .plegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--ink-2)}
 .plegend i{display:inline-block;width:10px;height:6px;margin-right:5px;border-radius:1px;vertical-align:baseline}
@@ -562,26 +675,130 @@ html.js .button-sync{animation:syncpulse 2.6s ease-out infinite}
 .fadecut{display:block;position:relative}
 .fadecut::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;
   background:linear-gradient(to bottom,transparent,var(--paper-2))}
-/* Die Jahresmatrix: nicht verkleinert, sondern beschnitten. Der
-   große Ausschnitt zeigt die linke obere Ecke in Originalgröße —
-   Zahlen zum Lesen —, die kleine Karte rechts unten die ganze
-   Matrix samt Rahmen um den Ausschnitt: Detail und Überblick in
-   einem Bild. Die Werte hängen am Bildmaß (year.png, 2480×1560)
-   und am Zoom (199 %): sichtbar sind die linken 50 % der Breite
-   und ab 8 % Höhe rund 40 % — margin-top:-10% überspringt die
-   Kopfzeile der App, und der Rahmen der Karte (.zmap i) zeichnet
-   genau dieses Rechteck. Wer year.png neu fotografiert oder am
-   Zoom dreht, rechnet beides nach. */
-.zoomcrop{display:block;position:relative;aspect-ratio:2/1;overflow:hidden;
-  background:var(--paper-2)}
-.zoomcrop .zbig{width:199%;max-width:none;margin-top:-10%}
-.zmap{position:absolute;right:16px;bottom:16px;width:min(300px,30%);display:block;
-  border:1px solid var(--rule-strong);border-radius:8px;overflow:hidden;
-  background:var(--paper-2);box-shadow:var(--sh-2);z-index:1}
-.zmap img{display:block;width:100%}
-.zmap i{position:absolute;left:0;top:8%;width:50%;height:40%;
-  border:2px solid var(--accent);background:rgba(194,90,25,.1);border-radius:2px}
+/* Die Jahresmatrix: nicht verkleinert, sondern beschnitten — und
+   beweglich. Der Rahmen zeigt das Bild in Originalgröße (199 % von
+   1200 px sind rund die 2480 px, die year.png breit ist), die
+   Karte rechts unten die ganze Matrix mit dem Rahmen um das, was
+   man gerade sieht; ziehen verschiebt beides (siehe „Den
+   Ausschnitt schieben"). `data-pan-y` im HTML sagt, wo der
+   Ausschnitt aufsetzt: 8 % überspringen die Kopfzeile der App.
+
+   Vorher standen hier drei nachgerechnete Prozentwerte für den
+   Rahmen der Karte. Sie stimmten für genau ein Bild in genau
+   einer Größe, und niemand hätte gemerkt, wann sie aufhören zu
+   stimmen. Jetzt misst js/landing.js. */
+.zoomcrop{aspect-ratio:2/1;overflow:hidden;background:var(--paper-2)}
+.zoomcrop .zview{height:100%}
+.zoomcrop .zbig{width:199%;max-width:none;display:block}
+/* Das ganze Bild ist einen Klick entfernt — der Ausschnitt selbst
+   gehört jetzt dem Ziehen und ist kein Link mehr. */
+.zopen{position:absolute;right:14px;top:14px;z-index:2;text-decoration:none;
+  font:600 11px var(--font-data);letter-spacing:.06em;
+  color:var(--paper);background:rgba(27,35,32,.82);border-radius:999px;padding:6px 13px;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  transition:background .18s ease}
+.zopen:hover{background:var(--accent)}
 .gnote{font-size:13.5px;color:var(--ink-2)}
+
+/* ── Das Sprungmenü unten links ───────────────────────────────
+   Die Kopfzeile trägt die Links zwischen den Seiten; dieses Menü
+   trägt die Abschnitte DIESER Seite. Auf dem Telefon entfällt die
+   Navigation der Kopfzeile ganz — dort war Scrollen bisher der
+   einzige Weg an eine bestimmte Stelle.
+
+   Unten LINKS, nicht rechts: rechts liegt der Daumen, mit dem
+   gescrollt wird, und dort sitzt auf halber Höhe der Seite
+   ohnehin schon der pulsierende Sync-Knopf.
+
+   Das Menü steht als <nav> im HTML jeder Seite — nur die Seite
+   weiß, welche Überschriften sie hat, und die Beschriftung muss
+   in beiden Sprachen dastehen. js/landing.js schaltet auf und zu
+   und hebt hervor, wo man gerade ist (.here). */
+.jump{position:fixed;left:20px;bottom:20px;z-index:40}
+.jumpbtn{width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;padding:0;
+  background:var(--ink);color:var(--paper);box-shadow:var(--sh-2);
+  display:grid;place-items:center;
+  transition:background .2s ease,transform .2s ease}
+.jumpbtn:hover{background:var(--accent);transform:translateY(-2px)}
+.jumpbtn .bars{display:grid;gap:4.5px;width:21px}
+.jumpbtn .bars i{display:block;height:2px;border-radius:2px;background:currentColor;
+  transition:transform .22s ease,opacity .16s ease}
+.jump.open .jumpbtn{background:var(--accent)}
+.jump.open .bars i:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.jump.open .bars i:nth-child(2){opacity:0}
+.jump.open .bars i:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.jumpmenu{position:absolute;left:0;bottom:64px;width:min(280px,calc(100vw - 40px));
+  max-height:min(70vh,540px);overflow:auto;padding:10px;
+  background:rgba(244,245,240,.94);
+  -webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);
+  border:1px solid var(--rule-strong);border-radius:var(--r);box-shadow:var(--sh-2);
+  opacity:0;visibility:hidden;transform:translateY(10px) scale(.97);transform-origin:0 100%;
+  transition:opacity .18s ease,transform .22s cubic-bezier(.2,.7,.3,1),visibility .22s}
+.jump.open .jumpmenu{opacity:1;visibility:visible;transform:none}
+.jumphd{margin:6px 10px 8px;font:600 9.5px var(--font-data);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-2)}
+.jumphd+.jumphd,.jumpsep+.jumphd{margin-top:12px}
+.jumpmenu a{display:block;padding:9px 12px;border-radius:9px;text-decoration:none;
+  font-size:14.5px;line-height:1.3}
+.jumpmenu a:hover{background:var(--shade)}
+.jumpmenu a.here{background:var(--bg-in-2);font-weight:600}
+.jumpsep{margin:9px 6px 0;border-top:1px solid var(--rule)}
+
+/* ── Funktionsseite (features.html) ───────────────────────────
+   Je Gruppe eine Karte mit der Kante ihrer Geldart, darin eine
+   Liste aus Begriff und Erklärung. Die Klassen heißen gr-*, nicht
+   in/out/flex: `.in` gehört auf diesen Seiten der Bewegung
+   (html.js .reveal.in). */
+.fgroups{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:44px 0 0}
+.fgroup{background:var(--paper-2);border:1px solid var(--rule);
+  border-left:5px solid var(--rule-strong);border-radius:var(--r);
+  padding:26px 28px;box-shadow:var(--sh-1)}
+.fgroup.gr-in{border-left-color:var(--edge-in)}
+.fgroup.gr-flex{border-left-color:var(--edge-flex)}
+.fgroup.gr-out{border-left-color:var(--edge-out)}
+.fgroup.gr-bal{border-left-color:var(--edge-bal)}
+.fgroup.gr-sal{border-left-color:var(--edge-sal)}
+.fgroup h3{font:600 22px/1.2 var(--font-display);margin:0 0 4px}
+.fgroup .sub{margin:0 0 16px;font-size:14px;color:var(--ink-2)}
+.fgroup ul{list-style:none;margin:0;padding:0}
+.fgroup li{padding:11px 0;border-top:1px solid var(--rule);font-size:15px;line-height:1.6}
+.fgroup li:first-child{border-top:0;padding-top:0}
+.fgroup li b{display:block;font-weight:600}
+/* Nur die Erklärung tritt zurück — die Sprachfassungen des
+   Begriffs stehen IN dem <b> und dürfen nicht mitgrauen. */
+.fgroup li>span{color:var(--ink-2)}
+
+/* ── Vergleichsseite (compare.html) ───────────────────────────
+   Drei Spalten: worum es geht, wie es üblicherweise läuft, wie es
+   hier läuft. Kein Konkurrent wird beim Namen genannt — nur die
+   Tendenz; und die Spalte „üblich" beschreibt, statt zu spotten.
+   Auf schmalen Fenstern wird aus jeder Zeile eine Karte: drei
+   Spalten auf 360 px wären drei Wortsäulen. */
+.vs{width:100%;border-collapse:separate;border-spacing:0;margin:30px 0 0;
+  background:var(--paper-2);border:1px solid var(--rule-strong);
+  border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-1)}
+.vs th,.vs td{padding:15px 18px;text-align:left;vertical-align:top;
+  font-size:15px;line-height:1.6;border-bottom:1px solid var(--rule)}
+.vs thead th{font:600 10.5px var(--font-data);letter-spacing:.12em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border-bottom:0}
+.vs .topic{width:24%;font-weight:600}
+.vs .them{width:38%;background:var(--bg-out);color:var(--ink-2)}
+.vs .us{width:38%;background:var(--bg-in)}
+.vs .us b{font-weight:600;color:var(--ok)}
+.vs tbody tr:last-child td{border-bottom:0}
+.vlab{display:none}
+/* Was FINA nicht ist: der Kasten gehört dazu. Eine Seite, die nur
+   sagt, was sie besser kann, liest sich wie Werbung; eine, die
+   ihre Grenzen selbst nennt, wie eine Auskunft. */
+.honest{margin:36px 0 0;border:1px solid var(--rule-strong);background:var(--bg-bal);
+  border-radius:var(--r);padding:30px 34px;box-shadow:var(--sh-1)}
+.honest h3{font:600 22px var(--font-display);margin:0 0 14px}
+.honest ul{margin:0;padding:0;list-style:none;display:grid;gap:10px;
+  font-size:15px;line-height:1.6}
+.honest li{padding-left:26px;position:relative}
+.honest li::before{content:"—";position:absolute;left:0;top:0;
+  color:var(--edge-bal);font-weight:600}
+.honest b{font-weight:600}
 
 /* ── Fuß ──────────────────────────────────────────────────────*/
 footer{margin-top:104px;border-top:1px solid var(--rule)}
@@ -597,6 +814,7 @@ footer nav a:hover{text-decoration:underline;text-underline-offset:4px}
 @media (max-width:1100px){
   .cards4{grid-template-columns:repeat(2,1fr)}
   .rules ul{grid-template-columns:1fr}
+  .fgroups{grid-template-columns:1fr}
 }
 @media (max-width:900px){
   .duo{grid-template-columns:1fr}
@@ -604,6 +822,19 @@ footer nav a:hover{text-decoration:underline;text-underline-offset:4px}
   .ccard{padding:36px 30px}
   .plans{grid-template-columns:1fr;gap:14px}
   .gcards,.gcards3,.showduo{grid-template-columns:1fr}
+}
+/* Aus jeder Zeile des Vergleichs wird eine Karte: die Beschriftung
+   der Spalte steht dann in der Zelle (.vlab), sonst wüsste
+   niemand mehr, welcher Absatz wovon spricht. */
+@media (max-width:700px){
+  .vs,.vs tbody,.vs tr,.vs td{display:block;width:auto}
+  .vs thead{display:none}
+  .vs tr{border-bottom:1px solid var(--rule-strong)}
+  .vs tr:last-child{border-bottom:0}
+  .vs td{border-bottom:0;padding:12px 18px}
+  .vs .topic{padding-bottom:2px;font-size:17px;font-family:var(--font-display)}
+  .vlab{display:block;font:600 9.5px var(--font-data);letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-2);margin-bottom:3px}
 }
 @media (max-width:640px){
   .wrap,.gwrap{padding:0 20px}
@@ -625,11 +856,19 @@ footer nav a:hover{text-decoration:underline;text-underline-offset:4px}
   .trust li{font-size:13.5px;padding:8px 14px}
   .ticker{margin-top:60px}
   .cards4,.dltiles,.facts{grid-template-columns:1fr}
-  .contrast,.features,.pricing,.getit{padding-top:72px}
+  .triad,.contrast,.features,.pricing,.getit{padding-top:72px}
   .rules{padding:26px 22px}
   .later{padding:26px 22px}
   .later .button{width:100%;text-align:center}
   .ghead{padding-top:48px}
   footer{margin-top:72px}
   footer nav{margin-left:0;width:100%}
+  /* Der Knopf rückt an den Rand, die Karte des Ausschnitts wird
+     kleiner: auf 390 px ist sie sonst das halbe Bild. */
+  .jump{left:14px;bottom:14px}
+  .jumpbtn{width:48px;height:48px}
+  .jumpmenu{bottom:58px}
+  .panmap{right:10px;bottom:10px;width:min(210px,46%)}
+  .fgroup{padding:22px 20px}
+  .honest{padding:24px 22px}
 }

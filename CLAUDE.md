@@ -49,6 +49,9 @@ ganze Projekt zu lesen.
 | Wie die Apps gebaut und veröffentlicht werden | `desktop/README.md` |
 | Die Startseite — Verkauf, Preise, Downloads, Sprachweiche | `index.html`, `css/landing.css` |
 | Die Guide-Seite (Kurzübersicht fürs Netz) | `guide.html` |
+| Alle Funktionen im Einzelnen (Verkaufsseite) | `features.html` |
+| Der Vergleich mit dem, was es sonst gibt | `compare.html` |
+| Sprache, Sprungmenü, Ausschnitt, Downloads, Bewegung **dieser vier Seiten** | `js/landing.js` |
 | Der Web-Client — die Anwendung selbst | `Webclient.html` (lädt `js/` und `css/`) |
 | Welche Fassung die Apps als aktuell melden | `version.json` |
 | Das Symbol — Reiter der Seite **und** App-Icon | `desktop/build/icon.html` → `icon.png` |
@@ -293,6 +296,75 @@ dafür, dass FINA außerhalb eines Browsers läuft: wohin fremde Links gehen
 ganzseitige Anleitung — als eigenes Fenster erlaubt bleibt, das Menü (ohne `editMenu` gäbe
 es auf dem Mac kein Cmd+C) und die Einzelinstanz. Wer an FINA etwas ändert, ändert es in
 `js/` und `css/`.
+
+## Die vier Seiten außerhalb der Anwendung
+
+`index.html` (Verkauf), `features.html` (alle Funktionen), `compare.html` (der Vergleich)
+und `guide.html` (Kurzübersicht) sind **keine** Anwendung: sie laden nichts aus `js/`
+außer `js/landing.js` und wissen von `state`, `render()` und `t()` nichts. Gemeinsam sind
+ihnen `css/tokens.css`, `css/landing.css` und `js/landing.js` — Kopfzeile, Fußzeile,
+Sprachschalter, Sprungmenü, Bewegung. **Wer eins davon ändert, ändert es auf allen vier.**
+
+**Jede Seite beantwortet genau eine Frage.** `index.html`: „was ist das und was kostet
+es". `features.html`: „was kann das". `compare.html`: „wie steht es neben dem, was es
+sonst gibt". `guide.html`: „wie sieht das aus". Wer beides mischt, beantwortet keins von
+beiden — deshalb sind Funktionen und Vergleich zwei Seiten und nicht zwei Abschnitte.
+
+**Der erste Satz der Startseite sagt, WAS FINA ist** (`.hero-what`), erst danach kommt,
+wogegen es sich abgrenzt („Andere zeigen dir, was war"). Dort stand bis August 2026 eine
+Zeile in 11 px Versalien; wer die Seite zum ersten Mal sah, wusste danach, dass FINA
+„zeigt, was kommt" — aber nicht, was es ist.
+
+**„Guide" heißt auf Deutsch „Anleitung"**, wie `app.guide` in der Anwendung. Der
+Dateiname `guide.html` bleibt, wie er ist — er ist keine Beschriftung.
+
+**Nur, was es wirklich gibt.** Jede Zeile auf `features.html` und in der Tabelle auf
+`compare.html` ist eine Zusage. Wer eine hinzufügt, prüft sie an der Anwendung. Auf
+`compare.html` kommen zwei Regeln dazu: **kein Konkurrent wird beim Namen genannt** (nur
+die Tendenz — „die meisten", „üblicherweise"), und **die Grenzen stehen auf derselben
+Seite** (`.honest`, „Was FINA nicht ist"). Eine Vergleichsseite ohne sie liest sich wie
+Werbung.
+
+### Das Sprungmenü unten links
+
+Der Knopf `[data-jump]` klappt eine Liste der Abschnitte auf — auf jeder Breite. Die
+Kopfzeile führt zwischen den Seiten, dieses Menü innerhalb einer Seite; auf dem Telefon
+entfällt die Navigation der Kopfzeile ganz (`@media (max-width:640px)`), und dort war
+Scrollen bisher der einzige Weg an eine bestimmte Stelle.
+
+**Die Liste steht im HTML jeder Seite**, nicht im Skript: nur die Seite weiß, welche
+Überschriften sie hat, und beide Sprachen müssen dabei sein. `js/landing.js` schaltet auf
+und zu (Klick daneben und Escape schließen) und hebt über einen `IntersectionObserver`
+hervor, wo man gerade ist (`.here`). Ein neuer Abschnitt braucht also zwei Zeilen: die
+Kennung am `<section>` und den Eintrag im Menü.
+
+### Den Ausschnitt schieben
+
+Zwei Stellen zeigen etwas, das breiter ist als sein Rahmen: die nachgebaute Jahrestabelle
+im Kopf von `index.html` und das Bildschirmfoto der Matrix in `guide.html`. Beide stehen
+in **Lesegröße** und sind beschnitten; rechts unten liegt die ganze Fläche als Karte mit
+einem Rahmen um das, was man sieht. Ziehen verschiebt — auf der Karte wie im Ausschnitt.
+
+Verkleinern wäre die einfache Antwort und die falsche: eine Matrix mit zwölf
+Monatsspalten, die ins Fenster passt, hat 4-px-Zahlen. Man sieht dann, dass es viel ist,
+und liest nichts.
+
+Gebaut wird das in Block 3 von `js/landing.js`, das Bild dazu in `css/landing.css`
+(`.panbox`, `.panview`, `.panmap`). Drei Dinge muss wissen, wer daran arbeitet:
+
+* **Die Karte ist eine Kopie** (`cloneNode`) des Rahmeninhalts und wird auf die Breite der
+  Karte geschrumpft. Ein von Hand gepflegtes Übersichtsbild — und drei nachgerechnete
+  Prozentwerte für den Rahmen, wie sie bis August 2026 im Stylesheet standen — liefen
+  früher oder später neben dem her, was sie zeigen sollen.
+* **Gemessen wird, nicht geraten:** Höhe der Karte, Größe und Lage des Rahmens kommen aus
+  `scrollWidth`/`clientWidth` des Rahmens. Passt alles hinein, verschwindet die Karte
+  (`.nopan`) — wie die Rollleiste der Anwendung.
+* **`overflow-y:hidden` heißt nicht unbeweglich.** Der Rahmen rollt waagerecht von selbst
+  (Touch!), senkrecht nur über `scrollTop` aus dem Skript. Wäre er senkrecht rollbar,
+  finge er das Mausrad ab, das der Seite gehört.
+
+Ein neuer Ausschnitt braucht `data-pan` am Kasten, `.panview` um den Inhalt und ein leeres
+`.panmap` daneben; `data-pan-y="8"` sagt, wo er senkrecht aufsetzt.
 
 ## Die Anwendung heißt FINA Buch / FINA Book
 

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<!--
+  FINA Book — Der Vergleich (compare.html)
+  Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
+
+  DIE EINE FRAGE DIESER SEITE: „Wie steht das neben dem, was es
+  sonst gibt?" — nicht „was kann es alles". Die Funktionen haben
+  ihre eigene Seite (features.html).
+
+  DREI REGELN, und alle drei tragen dieselbe Absicht:
+
+  1. KEIN NAME. Kein Konkurrent wird genannt — nur die Tendenz
+     („die meisten", „üblicherweise"). Wer Namen nennt, verkauft
+     nicht sich, sondern streitet mit anderen.
+  2. KEIN SPOTT. Die linke Spalte beschreibt, was diese Programme
+     tun, und zwar so, wie ihre Nutzer es beschreiben würden. Ein
+     Rückspiegel ist kein schlechtes Werkzeug — er zeigt nur nach
+     hinten.
+  3. DIE GRENZEN STEHEN AUF DERSELBEN SEITE (.honest, „Was FINA
+     nicht ist"). Eine Vergleichsseite ohne sie liest sich wie
+     Werbung; mit ihnen wie eine Auskunft. Wer hier etwas
+     hinzufügt, prüft zuerst, ob es nicht in diesen Kasten gehört.
+
+  Bausteine, Sprachen und Skript wie auf den drei anderen Seiten;
+  „Guide" heißt auf Deutsch „Anleitung".
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
+<meta name="description" content="How FINA Book differs: a year planned ahead instead of a chart about yesterday, no bank connection, one file on your computer, bought once instead of rented.">
+<title data-en="FINA Book — The comparison" data-de="FINA Buch — Der Vergleich">FINA Book — The comparison</title>
+<link rel="icon" href="icon.png" sizes="any">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body id="top">
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="index.html" aria-label="FINA"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
+    <nav aria-label="Hauptnavigation">
+      <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+      <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+      <a href="index.html#downloads">Downloads</a>
+    </nav>
+    <div class="langsw" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+    <a class="header-cta" href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span> <span aria-hidden="true">→</span></a>
+  </div>
+</header>
+
+<main class="gwrap">
+
+  <div class="ghead">
+    <p class="eyebrow reveal"><span data-l="de" hidden>DER VERGLEICH</span><span data-l="en">THE COMPARISON</span></p>
+    <h1 class="reveal" style="--d:.06s"><span data-l="de" hidden>Ein Fahrplan.<br>Kein Rückspiegel.</span><span data-l="en">A timetable.<br>Not a rear-view mirror.</span></h1>
+    <p class="reveal" style="--d:.12s"><span data-l="de" hidden>Die meisten Haushaltsprogramme sammeln, was schon abgebucht ist, und zeichnen daraus ein Bild von gestern. Das ist nützlich. Nur beantwortet es die eine Frage nicht, wegen der man anfängt zu rechnen: Reicht es bis Dezember?</span><span data-l="en">Most budgeting apps collect what has already been charged and draw a picture of yesterday. That is useful. It just doesn’t answer the one question you started counting for: will it last until December?</span></p>
+  </div>
+
+  <!-- ══ Die Tabelle ════════════════════════════════════════
+       Drei Spalten: worum es geht · wie es üblicherweise läuft ·
+       wie es hier läuft. Auf schmalen Fenstern wird aus jeder
+       Zeile eine Karte, und .vlab nennt dann die Spalte. -->
+  <section class="gsec reveal" id="tabelle">
+    <h2><span data-l="de" hidden>Zehn Fragen, zwei Antworten</span><span data-l="en">Ten questions, two answers</span></h2>
+    <table class="vs">
+      <thead>
+        <tr>
+          <th><span data-l="de" hidden>Worum es geht</span><span data-l="en">The question</span></th>
+          <th><span data-l="de" hidden>Die übliche Art</span><span data-l="en">The usual way</span></th>
+          <th>FINA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Zeitrichtung</span><span data-l="en">Direction of time</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Der letzte Monat, ausgewertet. Was kommt, schätzt man selbst.</span><span data-l="en">Last month, analysed. What’s coming is left to you.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Zwölf Monate im Voraus.</b> Der Dezember steht am ersten Tag im Januar schon da.</span><span data-l="en"><b>Twelve months ahead.</b> December is already there on the first of January.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Bankverbindung</span><span data-l="en">Bank connection</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Zugriff aufs Konto, damit die Umsätze von selbst hereinkommen.</span><span data-l="en">Access to your account so transactions arrive by themselves.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Keine.</b> FINA sieht dein Konto nie — und braucht deshalb auch nie ein Passwort dafür.</span><span data-l="en"><b>None.</b> FINA never sees your account — and so never needs a password for it.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Wo deine Zahlen liegen</span><span data-l="en">Where your numbers live</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Auf einem Server, zu dem ein Konto gehört.</span><span data-l="en">On a server that comes with an account.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>In einer Datei bei dir.</b> Auf dem Schreibtisch, im eigenen Cloud-Ordner, auf einem Stick — du entscheidest.</span><span data-l="en"><b>In one file on your machine.</b> On your desktop, in your own cloud folder, on a stick — your call.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Was es kostet</span><span data-l="en">What it costs</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Ein Abo. Wer kündigt, verliert meist den Zugang zu allem.</span><span data-l="en">A subscription. Cancel it and you usually lose access to everything.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Einmal kaufen.</b> Deine Fassung bleibt deine, auch ohne Verlängerung — und deine Datei sowieso.</span><span data-l="en"><b>Bought once.</b> Your version stays yours, even without renewing — and your file does anyway.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Verträge und Kredite</span><span data-l="en">Contracts and loans</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Eine Ausgabe wie jede andere, Monat für Monat.</span><span data-l="en">An expense like any other, month after month.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Mit Restlaufzeit.</b> Eine Ampel sagt, wie viele Zahlungen noch kommen — und wann du wieder Luft hast.</span><span data-l="en"><b>With a countdown.</b> A traffic light says how many payments are left — and when you’ll breathe easier.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Das Geld des Alltags</span><span data-l="en">Everyday money</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Jeder Kaffee einzeln, sortiert in Kategorien.</span><span data-l="en">Every coffee on its own, sorted into categories.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Ein Betrag je Kategorie und Monat.</b> Das genügt für die Planung — und du hörst nach drei Wochen nicht wieder auf.</span><span data-l="en"><b>One amount per category and month.</b> Enough to plan with — and you won’t quit after three weeks.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Sicher oder geschätzt</span><span data-l="en">Certain or estimated</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Eine Zahl ist eine Zahl. Woher sie kommt, sieht man ihr nicht an.</span><span data-l="en">A number is a number. You can’t tell where it came from.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Man sieht es jeder Zahl an.</b> Abgehakt, geschätzt oder noch offen — und Geschätztes wird nicht aus Versehen zur Tatsache.</span><span data-l="en"><b>Every number says so.</b> Ticked, estimated or still open — and an estimate never turns into a fact by accident.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Kontostand im Dezember</span><span data-l="en">Balance in December</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Keine Antwort. Der Verlauf endet heute.</span><span data-l="en">No answer. The chart ends today.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Steht in der Prognose.</b> Mit dem Weg dorthin, Monat für Monat, als Zahl und als Grafik.</span><span data-l="en"><b>It’s in the forecast.</b> Together with the way there, month by month, as a number and as a picture.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Ohne Internet</span><span data-l="en">Without the internet</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Meistens gar nichts — ohne Verbindung fehlt der Server.</span><span data-l="en">Mostly nothing — without a connection there is no server.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Läuft weiter.</b> Auch die Schriften liegen bei; nachgeladen wird von fremden Servern nichts.</span><span data-l="en"><b>Keeps running.</b> Even the fonts are included; nothing is fetched from anyone else’s server.</span></td>
+        </tr>
+        <tr>
+          <td class="topic"><span data-l="de" hidden>Anfangen</span><span data-l="en">Getting started</span></td>
+          <td class="them"><span class="vlab"><span data-l="de" hidden>Üblich</span><span data-l="en">Usual</span></span><span data-l="de" hidden>Konto anlegen, Bank verbinden, Kategorien bestätigen.</span><span data-l="en">Create an account, connect the bank, confirm categories.</span></td>
+          <td class="us"><span class="vlab">FINA</span><span data-l="de" hidden><b>Seite öffnen, „Neu anfangen".</b> Ohne Anmeldung, ohne Kreditkarte — alles ausprobieren, nur das Speichern braucht die Lizenz.</span><span data-l="en"><b>Open the page, “Start from scratch”.</b> No sign-up, no credit card — try everything, only saving needs the licence.</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══ Für wen es nicht ist ═══════════════════════════════ -->
+  <section class="gsec reveal" id="fuerwen">
+    <h2><span data-l="de" hidden>Für wen FINA gemacht ist</span><span data-l="en">Who FINA is for</span></h2>
+    <p><span data-l="de" hidden>Für alle, deren Geld vor allem in feste Dinge geht: Miete, Abos, Versicherungen, Raten — dazu ein Betrag für den Alltag. Wer wissen will, welcher Monat teuer wird, wann ein Kredit ausläuft und was am Jahresende übrig bleibt, ist hier richtig.</span><span data-l="en">For everyone whose money mostly goes into fixed things: rent, subscriptions, insurance, instalments — plus an amount for everyday life. If you want to know which month gets expensive, when a loan runs out and what is left at the end of the year, this is for you.</span></p>
+    <p><span data-l="de" hidden>Wer dagegen jeden einzelnen Einkauf erfassen und hinterher auswerten will, ist mit einem Programm besser bedient, das genau dafür gebaut ist. FINA nimmt dessen Zahlen gern als Import entgegen — und rechnet damit nach vorn.</span><span data-l="en">If instead you want to record every single purchase and analyse it afterwards, you are better served by a program built for exactly that. FINA is happy to take its numbers as an import — and then counts forward with them.</span></p>
+
+    <div class="honest">
+      <h3><span data-l="de" hidden>Was FINA nicht ist</span><span data-l="en">What FINA is not</span></h3>
+      <ul>
+        <li><span data-l="de" hidden><b>Kein Bankzugang.</b> Beträge kommen von dir — oder aus einem CSV-Import. Automatisch abgeholt wird nichts.</span><span data-l="en"><b>Not a bank connection.</b> Amounts come from you — or from a CSV import. Nothing is fetched automatically.</span></li>
+        <li><span data-l="de" hidden><b>Kein Belegscanner.</b> Es gibt keine Fotos, keine automatische Kategorisierung, keine Einkaufslisten.</span><span data-l="en"><b>Not a receipt scanner.</b> No photos, no automatic categorising, no shopping lists.</span></li>
+        <li><span data-l="de" hidden><b>Noch keine App fürs Telefon.</b> FINA läuft im Browser und als Programm für Mac und Windows. Unterwegs erfassen kommt mit FINA Sync.</span><span data-l="en"><b>No phone app yet.</b> FINA runs in the browser and as a program for Mac and Windows. Capturing on the go comes with FINA Sync.</span></li>
+        <li><span data-l="de" hidden><b>Ein Buch ist ein Jahr.</b> Das nächste Jahr ist die nächste Datei — dafür bleibt jedes Jahr so, wie du es abgeschlossen hast.</span><span data-l="en"><b>One book is one year.</b> Next year is the next file — in exchange, every year stays exactly as you closed it.</span></li>
+        <li><span data-l="de" hidden><b>Keine Steuer, kein Depot.</b> FINA führt ein Haushaltsbuch. Aktien, Abschreibungen und Steuererklärungen macht es nicht.</span><span data-l="en"><b>No tax, no portfolio.</b> FINA keeps a household book. Shares, depreciation and tax returns are not its job.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="gcta reveal">
+    <a class="button button-primary" href="Webclient.html"><span data-l="de" hidden>Selbst ausprobieren</span><span data-l="en">Try it yourself</span> <span aria-hidden="true">→</span></a>
+    <a class="button button-quiet" href="features.html"><span data-l="de" hidden>Alle Funktionen</span><span data-l="en">All features</span></a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
+    <p><span data-l="de" hidden>Dein Geld. Dein Plan. Dein Jahr.</span><span data-l="en">Your money. Your plan. Your year.</span></p>
+    <nav aria-label="Fußzeile">
+      <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+      <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+      <a href="index.html#downloads">Downloads</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="jump" data-jump>
+  <nav class="jumpmenu" id="jumpmenu" aria-label="Abschnitte">
+    <p class="jumphd"><span data-l="de" hidden>Auf dieser Seite</span><span data-l="en">On this page</span></p>
+    <a href="#top"><span data-l="de" hidden>Anfang</span><span data-l="en">Top</span></a>
+    <a href="#tabelle"><span data-l="de" hidden>Zehn Fragen, zwei Antworten</span><span data-l="en">Ten questions, two answers</span></a>
+    <a href="#fuerwen"><span data-l="de" hidden>Für wen FINA gemacht ist</span><span data-l="en">Who FINA is for</span></a>
+    <div class="jumpsep" aria-hidden="true"></div>
+    <p class="jumphd"><span data-l="de" hidden>Mehr</span><span data-l="en">More</span></p>
+    <a href="features.html"><span data-l="de" hidden>Alle Funktionen</span><span data-l="en">All features</span></a>
+    <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+    <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+    <a href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
+  </nav>
+  <button class="jumpbtn" type="button" aria-expanded="false" aria-controls="jumpmenu"
+          aria-label="Abschnitte / Sections">
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+</div>
+
+<script src="js/landing.js"></script>
+</body>
+</html>

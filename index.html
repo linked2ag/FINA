@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <!--
-  FINA Book — Startseite (Verkauf, Downloads, Guide-Verweis)
+  FINA Book — Startseite (Verkauf, Downloads, Wege zu den anderen Seiten)
   Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
 
   ══════════════════════════════════════════════════════════════
-  DER SATZ: „Andere zeigen dir, was war. FINA zeigt dir, was kommt."
-  Kein Konkurrent wird beim Namen genannt — nur die Tendenz.
-  Kurze Sätze, Slogans, keine Fachwörter: die Seite ist für
-  Anfänger, nicht für Leute, die schon wissen, worum es geht.
+  DER ERSTE SATZ sagt, WAS das ist (.hero-what) — erst danach
+  kommt, wogegen es sich abgrenzt: „Andere zeigen dir, was war.
+  FINA zeigt dir, was kommt." Kein Konkurrent wird beim Namen
+  genannt — nur die Tendenz. Kurze Sätze, Slogans, keine
+  Fachwörter: die Seite ist für Anfänger, nicht für Leute, die
+  schon wissen, worum es geht.
+
+  VIER SEITEN, EIN BAUKASTEN: index.html (hier), features.html
+  (alle Funktionen), compare.html (der Vergleich) und guide.html.
+  Kopfzeile, Fußzeile, Sprachschalter, Sprungmenü und das Skript
+  js/landing.js sind auf allen vier gleich; wer eins davon ändert,
+  ändert es überall.
 
   ZWEI SPRACHEN, EINE SEITE: Jeder Text steht zweimal da —
   data-l="en" sichtbar (der Grundzustand, auch ohne JavaScript),
@@ -16,10 +24,16 @@
   localStorage("finaLang") — sie gilt auf jeder Seite, und der
   Web-Client nimmt sie als Vorgabe für ein leeres Buch (eine
   geladene Datei überstimmt sie). Wer einen Text ändert, ändert
-  BEIDE Fassungen.
+  BEIDE Fassungen. „Guide" heißt auf Deutsch „Anleitung" — wie
+  der Knopf in der Anwendung.
 
   ALLE DREI ANSICHTEN sind nachgebaut, nicht fotografiert: sie
   erben ihre Farben aus tokens.css und können nicht veralten.
+  Die Jahresmatrix steht dabei in LESEGRÖSSE und ist breiter als
+  ihr Rahmen: rechts unten liegt die ganze Tabelle als Karte, und
+  ziehen verschiebt den Ausschnitt (data-pan, siehe
+  js/landing.js). Die Karte ist eine Kopie der Tabelle daneben —
+  gepflegt wird nichts doppelt.
   Laufender Monat ist MÄRZ; Januar und Februar sind abgerechnet
   (Kopf durchgestrichen, Haken RECHTS am Betrag). Die LP-Ampel
   stimmt mit den Zeilen überein: Streaming (LP 1) endet im März,
@@ -37,8 +51,8 @@
   nach.
 
   DOWNLOADS wohnen hier (Abschnitt #downloads): die Plattform-
-  Karten öffnen ihre Kachelgruppe #mac / #win über das kleine
-  Skript unten (ein zweiter Klick schließt sie wieder); ohne
+  Karten öffnen ihre Kachelgruppe #mac / #win (Block 4 in
+  js/landing.js; ein zweiter Klick schließt sie wieder); ohne
   JavaScript springt :target als Rückfallweg ein. Der Erststart-
   Hinweis steht je Plattform in der Gruppe. BEIM VERÖFFENTLICHEN
   einer neuen App-Fassung ändern sich die Versionsnummern, Größen
@@ -75,8 +89,9 @@
   <div class="wrap">
     <a class="wordmark" href="index.html" aria-label="FINA"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
     <nav aria-label="Hauptnavigation">
-      <a href="#unterschied"><span data-l="de" hidden>Der Unterschied</span><span data-l="en">The difference</span></a>
-      <a href="guide.html">Guide</a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
       <a href="#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
       <a href="#downloads">Downloads</a>
     </nav>
@@ -93,8 +108,12 @@
 <main>
 
   <!-- ══ Kopf ═══════════════════════════════════════════════ -->
-  <section class="hero wrap" aria-labelledby="hero-title">
-    <p class="eyebrow reveal"><span data-l="de" hidden>ALLE EINNAHMEN. ALLE KOSTEN. DEIN GANZES JAHR.</span><span data-l="en">ALL YOUR INCOME. ALL YOUR COSTS. YOUR WHOLE YEAR.</span></p>
+  <section class="hero wrap" id="start" aria-labelledby="hero-title">
+    <!-- Der erste Satz: was das hier ist. Er steht über der
+         Schlagzeile und ist zu lesen, nicht zu entziffern — wer die
+         Seite zum ersten Mal sieht, soll nach einer Zeile wissen,
+         womit er es zu tun hat. -->
+    <p class="hero-what reveal"><span data-l="de" hidden>FINA ist ein <b>Haushaltsbuch für ein ganzes Jahr</b>: alle Einnahmen, alle Kosten, Monat für Monat im Voraus geplant.</span><span data-l="en">FINA is a <b>household book for a whole year</b>: all your income, all your costs, planned ahead month by month.</span></p>
     <h1 id="hero-title" class="reveal" style="--d:.06s"><span data-l="de" hidden>Andere zeigen dir, was war.<br><em>FINA zeigt dir, was kommt.</em></span><span data-l="en">Others show you what was.<br><em>FINA shows you what comes.</em></span></h1>
     <p class="hero-sub reveal" style="--d:.12s"><span data-l="de" hidden>Jede Miete. Jedes Abo. Jede Rate. Und der Alltag dazu.<br><b>Das ganze Jahr im Blick — abgehakt, was bezahlt ist.</b></span><span data-l="en">Every rent. Every subscription. Every loan. Plus everyday spending.<br><b>The whole year at a glance — ticked off when paid.</b></span></p>
     <p class="hero-model reveal" style="--d:.18s"><span data-l="de" hidden>Einmal kaufen. Nicht mieten.</span><span data-l="en">Buy once. Don’t rent.</span></p>
@@ -122,100 +141,109 @@
         <span class="ttl"><span data-l="de" hidden>FINA Buch · 2026</span><span data-l="en">FINA Book · 2026</span></span>
         <span class="tab"><span data-l="de" hidden>Monat · <b>Jahr</b> · Prognose</span><span data-l="en">Month · <b>Year</b> · Forecast</span></span>
       </div>
-      <div class="shot-scroll">
-        <table class="mx">
-          <thead>
-            <tr>
-              <th class="lab">&nbsp;</th><th class="lp">LP</th>
-              <th class="past">JAN</th><th class="past">FEB</th>
-              <th class="now"><span data-l="de" hidden>MRZ</span><span data-l="en">MAR</span></th>
-              <th>APR</th><th><span data-l="de" hidden>MAI</span><span data-l="en">MAY</span></th><th>JUN</th>
-              <th>JUL</th><th>AUG</th><th>SEP</th>
-              <th><span data-l="de" hidden>OKT</span><span data-l="en">OCT</span></th><th>NOV</th>
-              <th><span data-l="de" hidden>DEZ</span><span data-l="en">DEC</span></th>
-              <th class="tot"><span data-l="de" hidden>GESAMT</span><span data-l="en">TOTAL</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="pin">
-              <td class="lab"><span data-l="de" hidden>Gesamt je Monat</span><span data-l="en">Total per month</span></td><td class="lp"></td>
-              <td class="p">811,10</td><td class="p">811,10</td><td class="p now">1.261,10</td>
-              <td class="p">851,00</td><td class="p">851,00</td><td class="p">1.590,00</td>
-              <td class="p">1.140,00</td><td class="p">1.350,00</td><td class="p">1.800,00</td>
-              <td class="p">1.350,00</td><td class="p">1.350,00</td><td class="p">1.800,00</td>
-              <td class="tot p">14.965,30</td>
-            </tr>
+      <!-- Die Tabelle steht in Lesegröße und ist breiter als ihr
+           Rahmen. Rechts unten baut js/landing.js aus ihr selbst
+           eine Übersichtskarte mit dem Rahmen um den sichtbaren
+           Ausschnitt; ziehen verschiebt — auf der Karte wie auf der
+           Tabelle. Passt alles ins Fenster, verschwindet die Karte
+           von selbst. -->
+      <div class="panbox" data-pan>
+        <div class="panview">
+          <table class="mx">
+            <thead>
+              <tr>
+                <th class="lab">&nbsp;</th><th class="lp">LP</th>
+                <th class="past">JAN</th><th class="past">FEB</th>
+                <th class="now"><span data-l="de" hidden>MRZ</span><span data-l="en">MAR</span></th>
+                <th>APR</th><th><span data-l="de" hidden>MAI</span><span data-l="en">MAY</span></th><th>JUN</th>
+                <th>JUL</th><th>AUG</th><th>SEP</th>
+                <th><span data-l="de" hidden>OKT</span><span data-l="en">OCT</span></th><th>NOV</th>
+                <th><span data-l="de" hidden>DEZ</span><span data-l="en">DEC</span></th>
+                <th class="tot"><span data-l="de" hidden>GESAMT</span><span data-l="en">TOTAL</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="pin">
+                <td class="lab"><span data-l="de" hidden>Gesamt je Monat</span><span data-l="en">Total per month</span></td><td class="lp"></td>
+                <td class="p">811,10</td><td class="p">811,10</td><td class="p now">1.261,10</td>
+                <td class="p">851,00</td><td class="p">851,00</td><td class="p">1.590,00</td>
+                <td class="p">1.140,00</td><td class="p">1.350,00</td><td class="p">1.800,00</td>
+                <td class="p">1.350,00</td><td class="p">1.350,00</td><td class="p">1.800,00</td>
+                <td class="tot p">14.965,30</td>
+              </tr>
 
-            <tr class="sec in"><td class="lab"><span data-l="de" hidden>Einnahmen</span><span data-l="en">Income</span></td><td class="lp"></td>
-              <td>3.400,00</td><td>3.400,00</td><td class="now">3.850,00</td>
-              <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
-              <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
-              <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
-              <td class="tot">42.600,00</td></tr>
-            <tr class="in"><td class="lab"><span data-l="de" hidden>Gehalt</span><span data-l="en">Salary</span></td><td class="lp"></td>
-              <td class="p dn">+3.400,00</td><td class="p dn">+3.400,00</td><td class="p now">+3.400,00</td>
-              <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
-              <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
-              <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
-              <td class="tot p">+40.800,00</td></tr>
-            <tr class="in"><td class="lab"><span data-l="de" hidden>Nebentätigkeit</span><span data-l="en">Side job</span></td><td class="lp"></td>
-              <td class="mute">—</td><td class="mute">—</td><td class="p now">+450,00</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
-              <td class="tot p">+1.800,00</td></tr>
+              <tr class="sec in"><td class="lab"><span data-l="de" hidden>Einnahmen</span><span data-l="en">Income</span></td><td class="lp"></td>
+                <td>3.400,00</td><td>3.400,00</td><td class="now">3.850,00</td>
+                <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
+                <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
+                <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
+                <td class="tot">42.600,00</td></tr>
+              <tr class="in"><td class="lab"><span data-l="de" hidden>Gehalt</span><span data-l="en">Salary</span></td><td class="lp"></td>
+                <td class="p dn">+3.400,00</td><td class="p dn">+3.400,00</td><td class="p now">+3.400,00</td>
+                <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
+                <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
+                <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
+                <td class="tot p">+40.800,00</td></tr>
+              <tr class="in"><td class="lab"><span data-l="de" hidden>Nebentätigkeit</span><span data-l="en">Side job</span></td><td class="lp"></td>
+                <td class="mute">—</td><td class="mute">—</td><td class="p now">+450,00</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
+                <td class="tot p">+1.800,00</td></tr>
 
-            <tr class="sec flex"><td class="lab">Flexible Payments</td><td class="lp"></td>
-              <td>800,00</td><td>800,00</td><td class="now">800,00</td>
-              <td>800,00</td><td>800,00</td><td>800,00</td>
-              <td>800,00</td><td>800,00</td><td>800,00</td>
-              <td>800,00</td><td>800,00</td><td>800,00</td>
-              <td class="tot">9.600,00</td></tr>
-            <tr class="flex"><td class="lab"><span data-l="de" hidden>Haushalt</span><span data-l="en">Household</span></td><td class="lp"></td>
-              <td class="n dn">−620,00</td><td class="n dn">−620,00</td><td class="n now">−620,00</td>
-              <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
-              <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
-              <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
-              <td class="tot n">−7.440,00</td></tr>
-            <tr class="flex"><td class="lab"><span data-l="de" hidden>Freizeit</span><span data-l="en">Leisure</span></td><td class="lp"></td>
-              <td class="n dn">−180,00</td><td class="n dn">−180,00</td><td class="n now">−180,00</td>
-              <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
-              <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
-              <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
-              <td class="tot n">−2.160,00</td></tr>
+              <tr class="sec flex"><td class="lab">Flexible Payments</td><td class="lp"></td>
+                <td>800,00</td><td>800,00</td><td class="now">800,00</td>
+                <td>800,00</td><td>800,00</td><td>800,00</td>
+                <td>800,00</td><td>800,00</td><td>800,00</td>
+                <td>800,00</td><td>800,00</td><td>800,00</td>
+                <td class="tot">9.600,00</td></tr>
+              <tr class="flex"><td class="lab"><span data-l="de" hidden>Haushalt</span><span data-l="en">Household</span></td><td class="lp"></td>
+                <td class="n dn">−620,00</td><td class="n dn">−620,00</td><td class="n now">−620,00</td>
+                <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
+                <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
+                <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
+                <td class="tot n">−7.440,00</td></tr>
+              <tr class="flex"><td class="lab"><span data-l="de" hidden>Freizeit</span><span data-l="en">Leisure</span></td><td class="lp"></td>
+                <td class="n dn">−180,00</td><td class="n dn">−180,00</td><td class="n now">−180,00</td>
+                <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
+                <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
+                <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
+                <td class="tot n">−2.160,00</td></tr>
 
-            <tr class="sec out"><td class="lab"><span data-l="de" hidden>Regelmäßige Kosten</span><span data-l="en">Regular costs</span></td><td class="lp"></td>
-              <td>1.788,90</td><td>1.788,90</td><td class="now">1.788,90</td>
-              <td>1.749,00</td><td>1.749,00</td><td>1.460,00</td>
-              <td>1.460,00</td><td>1.250,00</td><td>1.250,00</td>
-              <td>1.250,00</td><td>1.250,00</td><td>1.250,00</td>
-              <td class="tot">18.034,70</td></tr>
-            <tr class="out"><td class="lab"><span data-l="de" hidden>Miete</span><span data-l="en">Rent</span></td><td class="lp"><i class="lp-far">12+</i></td>
-              <td class="n dn">−1.250,00</td><td class="n dn">−1.250,00</td><td class="n now">−1.250,00</td>
-              <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
-              <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
-              <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
-              <td class="tot n">−15.000,00</td></tr>
-            <tr class="out"><td class="lab"><span data-l="de" hidden>Versicherungen</span><span data-l="en">Insurance</span></td><td class="lp"><i class="lp-mid">5</i></td>
-              <td class="n dn">−210,00</td><td class="n dn">−210,00</td><td class="n now">−210,00</td>
-              <td class="n">−210,00</td><td class="n">−210,00</td><td class="n">−210,00</td>
-              <td class="n">−210,00</td><td class="mute">—</td><td class="mute">—</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-              <td class="tot n">−1.470,00</td></tr>
-            <tr class="out"><td class="lab"><span data-l="de" hidden>Autokredit</span><span data-l="en">Car loan</span></td><td class="lp"><i class="lp-soon">3</i></td>
-              <td class="n dn">−289,00</td><td class="n dn">−289,00</td><td class="n now">−289,00</td>
-              <td class="n">−289,00</td><td class="n">−289,00</td><td class="mute">—</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-              <td class="tot n">−1.445,00</td></tr>
-            <tr class="out"><td class="lab"><span data-l="de" hidden>Streaming-Abo</span><span data-l="en">Streaming</span></td><td class="lp"><i class="lp-now">1</i></td>
-              <td class="n dn">−39,90</td><td class="n dn">−39,90</td><td class="n now">−39,90</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-              <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-              <td class="tot n">−119,70</td></tr>
-          </tbody>
-        </table>
+              <tr class="sec out"><td class="lab"><span data-l="de" hidden>Regelmäßige Kosten</span><span data-l="en">Regular costs</span></td><td class="lp"></td>
+                <td>1.788,90</td><td>1.788,90</td><td class="now">1.788,90</td>
+                <td>1.749,00</td><td>1.749,00</td><td>1.460,00</td>
+                <td>1.460,00</td><td>1.250,00</td><td>1.250,00</td>
+                <td>1.250,00</td><td>1.250,00</td><td>1.250,00</td>
+                <td class="tot">18.034,70</td></tr>
+              <tr class="out"><td class="lab"><span data-l="de" hidden>Miete</span><span data-l="en">Rent</span></td><td class="lp"><i class="lp-far">12+</i></td>
+                <td class="n dn">−1.250,00</td><td class="n dn">−1.250,00</td><td class="n now">−1.250,00</td>
+                <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
+                <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
+                <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
+                <td class="tot n">−15.000,00</td></tr>
+              <tr class="out"><td class="lab"><span data-l="de" hidden>Versicherungen</span><span data-l="en">Insurance</span></td><td class="lp"><i class="lp-mid">5</i></td>
+                <td class="n dn">−210,00</td><td class="n dn">−210,00</td><td class="n now">−210,00</td>
+                <td class="n">−210,00</td><td class="n">−210,00</td><td class="n">−210,00</td>
+                <td class="n">−210,00</td><td class="mute">—</td><td class="mute">—</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
+                <td class="tot n">−1.470,00</td></tr>
+              <tr class="out"><td class="lab"><span data-l="de" hidden>Autokredit</span><span data-l="en">Car loan</span></td><td class="lp"><i class="lp-soon">3</i></td>
+                <td class="n dn">−289,00</td><td class="n dn">−289,00</td><td class="n now">−289,00</td>
+                <td class="n">−289,00</td><td class="n">−289,00</td><td class="mute">—</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
+                <td class="tot n">−1.445,00</td></tr>
+              <tr class="out"><td class="lab"><span data-l="de" hidden>Streaming-Abo</span><span data-l="en">Streaming</span></td><td class="lp"><i class="lp-now">1</i></td>
+                <td class="n dn">−39,90</td><td class="n dn">−39,90</td><td class="n now">−39,90</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
+                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
+                <td class="tot n">−119,70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panmap"><span class="maphd"><span data-l="de" hidden>Ausschnitt ziehen</span><span data-l="en">Drag the frame</span></span></div>
       </div>
       <div class="shot-foot">
         <span><b class="ckx">✓</b> <span data-l="de" hidden>= bezahlt und abgehakt</span><span data-l="en">= paid and ticked off</span></span>
@@ -224,7 +252,7 @@
         <span><b>LP</b> <span data-l="de" hidden>= läuft noch so viele Monate — grün: bald geschafft</span><span data-l="en">= months left to pay — green: almost done</span></span>
       </div>
     </div>
-    <p class="shotnote reveal"><span data-l="de" hidden>Die Jahresansicht mit Beispielzahlen. Schau, wie das Monatsergebnis oben steigt, sobald Kredit und Abos auslaufen.</span><span data-l="en">The year view with sample figures. Watch the monthly result grow as the loan and subscriptions run out.</span></p>
+    <p class="shotnote reveal"><span data-l="de" hidden>Die Jahresansicht mit Beispielzahlen — in Originalgröße, wie in der Anwendung. Zieh die Tabelle nach links: das Monatsergebnis oben steigt, sobald Kredit und Abos auslaufen.</span><span data-l="en">The year view with sample figures — at full size, just like the app. Drag the table to the left: the monthly result at the top grows as the loan and subscriptions run out.</span></p>
   </section>
 
   <!-- ══ Laufband ═══════════════════════════════════════════ -->
@@ -234,6 +262,23 @@
       <span data-l="en">No subscription needed ✦ No bank connection ✦ Fixed and everyday costs ✦ Your whole year at a glance ✦ Ticked off when paid ✦ Works without the internet ✦ No subscription needed ✦ No bank connection ✦ Fixed and everyday costs ✦ Your whole year at a glance ✦ Ticked off when paid ✦ Works without the internet ✦&nbsp;</span>
     </div>
   </div>
+
+  <!-- ══ Drei Zeiten ════════════════════════════════════════
+       Der Kern des Angebots in einem Dreiklang — und zugleich die
+       drei Ansichten des Programms: Jahr, Monat, Prognose. Drei
+       kurze Sätze statt eines langen: „Wir kombinieren Rückblick,
+       operatives Monatsgeschäft und Vorausplanung" sagt dasselbe
+       und wird nicht gelesen.
+
+       Die Farben tragen die Aussage mit: was war, tritt zurück
+       (--ink-2, wie die abgerechneten Monate in der Anwendung),
+       was läuft, steht kräftig da, was kommt, ist orange — die
+       Farbe, die hier überall etwas anbietet. -->
+  <section class="triad wrap" id="dreizeiten">
+    <p class="eyebrow reveal"><span data-l="de" hidden>RÜCKBLICK · LAUFENDER MONAT · PLAN BIS DEZEMBER</span><span data-l="en">LOOK BACK · THIS MONTH · PLAN THROUGH DECEMBER</span></p>
+    <h2 class="reveal" style="--d:.06s"><span data-l="de" hidden><span class="t1">Was war.</span> <span class="t2">Was läuft.</span> <span class="t3">Was kommt.</span></span><span data-l="en"><span class="t1">What was.</span> <span class="t2">What’s running.</span> <span class="t3">What’s ahead.</span></span></h2>
+    <p class="lead reveal" style="--d:.12s"><span data-l="de" hidden>Alle drei in einem Buch: die Monate, die schon abgerechnet sind. Der Monat, in dem du gerade abhakst. Der Plan bis Dezember.<br><b>Dein ganzes Jahr an einer Stelle — übersichtlich und planbar.</b></span><span data-l="en">All three in one book: the months you have already settled. The month you are ticking off right now. The plan through December.<br><b>Your whole year in one place — clear and plannable.</b></span></p>
+  </section>
 
   <!-- ══ Der Unterschied ════════════════════════════════════ -->
   <section class="contrast wrap" id="unterschied">
@@ -248,6 +293,13 @@
         <h2><span data-l="de" hidden>Wir zeigen, was noch kommt.</span><span data-l="en">We show what’s still ahead.</span></h2>
         <p><span data-l="de" hidden>Dein Jahr, im Voraus geplant.<br>Bezahlt? <b>Abgehakt.</b> Geschätzt? <b>Orange.</b><br>Kontostand bis Dezember? <b>Steht drin.</b></span><span data-l="en">Your year, planned ahead.<br>Paid? <b>Ticked.</b> Estimated? <b>Orange.</b><br>Balance through December? <b>Right there.</b></span></p>
       </div>
+    </div>
+    <!-- Hier steht die Behauptung, dort der Beleg: zwei Seiten,
+         zwei Fragen — was kann es, und wie steht es neben dem, was
+         es sonst gibt. -->
+    <div class="duo-cta reveal">
+      <a class="button button-dark" href="compare.html"><span data-l="de" hidden>Der Vergleich im Einzelnen</span><span data-l="en">The comparison in detail</span> <span aria-hidden="true">→</span></a>
+      <a class="button button-quiet" href="features.html"><span data-l="de" hidden>Alle Funktionen ansehen</span><span data-l="en">See all features</span></a>
     </div>
   </section>
 
@@ -266,7 +318,11 @@
     </div>
     <div class="showduo">
 
-      <div class="mini reveal">
+      <!-- Der Monat bekommt ein Viertel der Breite (.narrow): er ist
+           auch in der Anwendung die schmale Ansicht — eine Liste,
+           kein Raster. Die Karten nennen deshalb nur ihre Geldart;
+           welcher Monat es ist, steht in der Fensterleiste. -->
+      <div class="mini narrow reveal">
         <div class="shot-bar">
           <span class="dot r" aria-hidden="true"></span><span class="dot y" aria-hidden="true"></span><span class="dot g" aria-hidden="true"></span>
           <span class="ttl"><span data-l="de" hidden>Monat · MÄRZ</span><span data-l="en">Month · MARCH</span></span>
@@ -283,17 +339,17 @@
             </span>
           </div>
           <div class="mcard cin">
-            <div class="mhead"><span data-l="de" hidden>Einnahmen — März</span><span data-l="en">Income — March</span><b class="p">3.850,00</b></div>
+            <div class="mhead"><span data-l="de" hidden>Einnahmen</span><span data-l="en">Income</span><b class="p">3.850,00</b></div>
             <div class="mrow" style="--rd:.04s"><span class="seal ok" style="--sd:.15s" aria-hidden="true">✓</span><b class="amt p">+3.400,00</b><span class="mlab"><span data-l="de" hidden>Gehalt</span><span data-l="en">Salary</span></span></div>
             <div class="mrow" style="--rd:.08s"><span class="seal ok" style="--sd:.3s" aria-hidden="true">✓</span><b class="amt p">+450,00</b><span class="mlab"><span data-l="de" hidden>Nebentätigkeit</span><span data-l="en">Side job</span></span></div>
           </div>
           <div class="mcard cflex">
-            <div class="mhead"><span data-l="de" hidden>Flexible Payments — März</span><span data-l="en">Flexible Payments — March</span><b class="n">800,00</b></div>
+            <div class="mhead">Flexible Payments<b class="n">800,00</b></div>
             <div class="mrow" style="--rd:.12s"><span class="seal open" aria-hidden="true"></span><b class="amt n">−620,00</b><span class="mlab"><span data-l="de" hidden>Haushalt</span><span data-l="en">Household</span></span></div>
             <div class="mrow" style="--rd:.16s"><span class="seal open" aria-hidden="true"></span><b class="amt n">−180,00</b><span class="mlab"><span data-l="de" hidden>Freizeit</span><span data-l="en">Leisure</span></span></div>
           </div>
           <div class="mcard cout">
-            <div class="mhead"><span data-l="de" hidden>Regelmäßige Kosten — März</span><span data-l="en">Regular costs — March</span><b class="n">1.788,90</b></div>
+            <div class="mhead"><span data-l="de" hidden>Regelmäßige Kosten</span><span data-l="en">Regular costs</span><b class="n">1.788,90</b></div>
             <div class="mrow" style="--rd:.2s"><span class="seal ok" style="--sd:.45s" aria-hidden="true">✓</span><b class="amt n">−1.250,00</b><span class="mlab"><span data-l="de" hidden>Miete</span><span data-l="en">Rent</span></span></div>
             <div class="mrow" style="--rd:.24s"><span class="seal ok" style="--sd:.6s" aria-hidden="true">✓</span><b class="amt n">−210,00</b><span class="mlab"><span data-l="de" hidden>Versicherungen</span><span data-l="en">Insurance</span></span></div>
             <div class="mrow" style="--rd:.28s"><span class="seal open" aria-hidden="true"></span><b class="amt n">−289,00</b><span class="mlab"><span data-l="de" hidden>Autokredit</span><span data-l="en">Car loan</span></span></div>
@@ -392,7 +448,7 @@
         <p><span data-l="de" hidden>Bezahlt: Haken. Geschätzt: orange. Offen: sichtbar.</span><span data-l="en">Paid: tick. Estimated: orange. Open: visible.</span></p>
       </article>
     </div>
-    <p class="morelink reveal"><a href="guide.html"><span data-l="de" hidden>Mehr im Guide</span><span data-l="en">More in the guide</span> →</a></p>
+    <p class="morelink reveal"><a href="features.html"><span data-l="de" hidden>Alle Funktionen im Einzelnen</span><span data-l="en">Every feature in detail</span> →</a></p>
   </section>
 
   <!-- ══ Preis ══════════════════════════════════════════════ -->
@@ -574,88 +630,49 @@
     <p><span data-l="de" hidden>Dein Geld. Dein Plan. Dein Jahr.</span><span data-l="en">Your money. Your plan. Your year.</span></p>
     <nav aria-label="Fußzeile">
       <a href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
-      <a href="guide.html">Guide</a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
       <a href="#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
       <a href="#downloads">Downloads</a>
     </nav>
   </div>
 </footer>
 
-<!-- Die Sprache: Englisch ist der Grundzustand (auch ohne
-     JavaScript), der Schalter in der Kopfzeile wechselt nach
-     Deutsch und merkt die Wahl in localStorage("finaLang") —
-     dieselbe Ablage lesen guide.html und der Web-Client. -->
-<script>
-(function(){
-  function setLang(l){
-    document.documentElement.lang=l;
-    document.querySelectorAll('[data-l]').forEach(function(e){
-      e.hidden=e.getAttribute('data-l')!==l;});
-    document.querySelectorAll('.langsw button').forEach(function(b){
-      b.setAttribute('aria-pressed',String(b.dataset.lang===l));});
-    var t=document.querySelector('title');
-    if(t&&t.dataset[l]) document.title=t.dataset[l];
-    try{localStorage.setItem('finaLang',l);}catch(e){}
-  }
-  document.querySelectorAll('.langsw button').forEach(function(b){
-    b.onclick=function(){setLang(b.dataset.lang);};});
-  var saved=null; try{saved=localStorage.getItem('finaLang');}catch(e){}
-  if(saved==='de') setLang('de');
-})();
-</script>
+<!-- ══ Das Sprungmenü ═══════════════════════════════════════
+     Unten links, auf jeder Breite. Die Kopfzeile führt zwischen
+     den Seiten, dieses Menü innerhalb dieser einen — und auf dem
+     Telefon, wo die Kopfzeilen-Navigation entfällt, tut es beides.
+     Die Liste steht hier und nicht im Skript: nur die Seite weiß,
+     welche Abschnitte sie hat, und beide Sprachen müssen dabei
+     sein. -->
+<div class="jump" data-jump>
+  <nav class="jumpmenu" id="jumpmenu" aria-label="Abschnitte">
+    <p class="jumphd"><span data-l="de" hidden>Auf dieser Seite</span><span data-l="en">On this page</span></p>
+    <a href="#start"><span data-l="de" hidden>Anfang</span><span data-l="en">Top</span></a>
+    <a href="#dreizeiten"><span data-l="de" hidden>Was war, was läuft, was kommt</span><span data-l="en">Was, running, ahead</span></a>
+    <a href="#unterschied"><span data-l="de" hidden>Der Unterschied</span><span data-l="en">The difference</span></a>
+    <a href="#ansichten"><span data-l="de" hidden>Monat und Prognose</span><span data-l="en">Month and forecast</span></a>
+    <a href="#kann"><span data-l="de" hidden>Was du siehst</span><span data-l="en">What you see</span></a>
+    <a href="#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+    <a href="#downloads">Downloads</a>
+    <div class="jumpsep" aria-hidden="true"></div>
+    <p class="jumphd"><span data-l="de" hidden>Mehr</span><span data-l="en">More</span></p>
+    <a href="features.html"><span data-l="de" hidden>Alle Funktionen</span><span data-l="en">All features</span></a>
+    <a href="compare.html"><span data-l="de" hidden>Der Vergleich</span><span data-l="en">The comparison</span></a>
+    <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+    <a href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
+  </nav>
+  <button class="jumpbtn" type="button" aria-expanded="false" aria-controls="jumpmenu"
+          aria-label="Abschnitte / Sections">
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+</div>
 
-<!-- Downloads: die Plattform-Karte öffnet ihre Kachelgruppe, ein
-     zweiter Klick schließt sie wieder; die Fakten erscheinen mit.
-     Bewusst getrennt vom Bewegungs-Skript darunter: das steigt bei
-     prefers-reduced-motion aus, dieses Verhalten muss bleiben.
-     Ohne JavaScript greift :target (siehe css/landing.css). -->
-<script>
-(function(){
-  var cards=[].slice.call(document.querySelectorAll('[data-dl]'));
-  if(!cards.length) return;
-  var extra=document.querySelector('.dlextra');
-  function set(id){
-    cards.forEach(function(c){
-      var on=!!id&&c.dataset.dl===id;
-      c.setAttribute('aria-expanded',String(on));
-      var p=document.getElementById(c.dataset.dl);
-      if(p) p.classList.toggle('open',on);
-    });
-    if(extra) extra.classList.toggle('open',!!id);
-  }
-  cards.forEach(function(c){
-    c.addEventListener('click',function(e){
-      e.preventDefault();
-      var open=c.getAttribute('aria-expanded')==='true';
-      set(open?null:c.dataset.dl);
-      if(!open){
-        var p=document.getElementById(c.dataset.dl);
-        if(p) p.scrollIntoView({behavior:'smooth',block:'nearest'});
-      }
-    });
-  });
-})();
-</script>
-
-<!-- Die Bewegung: Eintreten beim Scrollen, Haken der Matrix,
-     Fortschrittsleiste oben. Ohne JavaScript und bei
-     prefers-reduced-motion ist alles einfach sichtbar. -->
-<script>
-(function(){
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  document.documentElement.classList.add('js');
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
-    });
-  },{threshold:.15,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-  var p=document.getElementById('prog');
-  if(p){addEventListener('scroll',function(){
-    var h=document.documentElement,max=h.scrollHeight-innerHeight;
-    p.style.width=(max>0?(h.scrollTop/max)*100:0)+'%';
-  },{passive:true});}
-})();
-</script>
+<!-- Sprache, Sprungmenü, Ausschnitt, Downloads und Bewegung stehen
+     in js/landing.js — dieselbe Datei auf allen vier Seiten. Ganz
+     unten und ohne defer: die Startlagen der Bewegung sollen
+     stehen, bevor gezeichnet wird. -->
+<script src="js/landing.js"></script>
 </body>
 </html>

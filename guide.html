@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  FINA — Guide (Produktübersicht mit Bildschirmfotos)
+  FINA — Guide / Anleitung (Produktübersicht mit Bildschirmfotos)
   Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
 
   Die Produktübersicht für Besucher der Startseite: die drei
@@ -13,7 +13,10 @@
   Gleiche Regeln wie index.html: Englisch ist der Grundzustand,
   der DE/EN-Schalter tauscht data-l-Paare und merkt die Wahl in
   localStorage("finaLang"). Kurze Sätze, keine Fachwörter, kein
-  Konkurrentenname. Design und Bewegung aus css/landing.css.
+  Konkurrentenname. Design aus css/landing.css, Verhalten aus
+  js/landing.js — beides dasselbe wie auf den drei anderen Seiten.
+  Auf Deutsch heißt „Guide" ANLEITUNG, wie der Knopf in der
+  Anwendung.
 -->
 <html lang="en">
 <head>
@@ -21,7 +24,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
 <meta name="description" content="FINA in five minutes: the year matrix, the month view with its seals, the traffic light for subscriptions and loans, and the forecast until December.">
-<title data-en="FINA Book — Guide" data-de="FINA Buch — Guide">FINA Book — Guide</title>
+<title data-en="FINA Book — Guide" data-de="FINA Buch — Anleitung">FINA Book — Guide</title>
 <link rel="icon" href="icon.png" sizes="any">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/landing.css">
@@ -34,6 +37,8 @@
     <a class="wordmark" href="index.html" aria-label="FINA"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
     <nav aria-label="Hauptnavigation">
       <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
       <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
       <a href="index.html#downloads">Downloads</a>
     </nav>
@@ -48,20 +53,20 @@
 <main class="gwrap">
 
   <div class="ghead">
-    <p class="eyebrow reveal">GUIDE</p>
+    <p class="eyebrow reveal"><span data-l="de" hidden>ANLEITUNG</span><span data-l="en">GUIDE</span></p>
     <h1 class="reveal" style="--d:.06s"><span data-l="de" hidden>FINA in fünf Minuten.</span><span data-l="en">FINA in five minutes.</span></h1>
     <p class="reveal" style="--d:.12s"><span data-l="de" hidden>Ein Buch für ein Jahr. Drei Ansichten. Ein Ziel: wissen, was kommt.</span><span data-l="en">One book for one year. Three views. One goal: know what’s coming.</span></p>
   </div>
 
   <!-- ══ Was FINA ist ═══════════════════════════════════════ -->
-  <section class="gsec reveal">
+  <section class="gsec reveal" id="was">
     <h2><span data-l="de" hidden>Was FINA ist</span><span data-l="en">What FINA is</span></h2>
     <p><span data-l="de" hidden>FINA führt ein Haushaltsjahr: alles, was hereinkommt, und alles, was hinausgeht — von Januar bis Dezember. Drei Arten von Geld halten das Buch ordentlich: <b>Einnahmen</b> (Gehalt, Nebentätigkeit), <b>regelmäßige Kosten</b> (Miete, Abos, Versicherungen, Kredite) und <b>flexible Ausgaben</b> — das Geld des Alltags, als ein Betrag je Monat und Kategorie, etwa „Haushalt" oder „Freizeit".</span><span data-l="en">FINA keeps one household year: everything that comes in and everything that goes out, January through December. Three kinds of money keep the book tidy: <b>income</b> (salary, side jobs), <b>regular costs</b> (rent, subscriptions, insurance, loans) and <b>flexible spending</b> — everyday money, one amount per month and category, like “household” or “leisure”.</span></p>
     <p><span data-l="de" hidden>Alles liegt in einer einzigen Datei, die auf deinem Rechner bleibt. Kein Konto, keine Cloud, keine Bankverbindung.</span><span data-l="en">Everything lives in a single file that stays on your computer. No account, no cloud, no bank connection.</span></p>
   </section>
 
   <!-- ══ Jahresansicht ══════════════════════════════════════ -->
-  <section class="gsec reveal">
+  <section class="gsec reveal" id="jahr">
     <h2><span data-l="de" hidden>Die Jahresansicht: hier baust du dein Jahr</span><span data-l="en">The year view: build your year here</span></h2>
     <p><span data-l="de" hidden>Zwölf Monate nebeneinander, jede Position eine Zeile. Hier legst du an: einmal die Miete eintragen, und sie steht in allen zwölf Monaten. Abgerechnete Monate werden durchgestrichen, der laufende ist rot eingefasst.</span><span data-l="en">Twelve months side by side, one row per item. This is where you set things up: enter the rent once and it sits in all twelve months. Settled months get struck through, the current one is framed in red.</span></p>
     <p><span data-l="de" hidden>Die Spalte <b>LP</b> ist die Ampel: Sie zeigt, wie viele Zahlungen ein Abo, ein Vertrag oder ein Kredit noch kostet. <b>Grün</b> heißt: läuft diesen Monat aus. <b>Blau</b>: zwei bis drei Monate. <b>Gelb</b>: vier bis sechs. <b>Rot</b>: sieben oder mehr. So siehst du auf einen Blick, wann du wieder Luft hast.</span><span data-l="en">The <b>LP</b> column is the traffic light: it shows how many payments a subscription, contract or loan still costs. <b>Green</b> means: ends this month. <b>Blue</b>: two to three months. <b>Yellow</b>: four to six. <b>Red</b>: seven or more. One glance tells you when you’ll breathe easier.</span></p>
@@ -69,10 +74,13 @@
          dunkle Leiste — dieselben Bausteine wie die Mockups der
          Startseite — nennt die Ansicht und hebt ihren Reiter
          hervor. Die Jahresmatrix ist zusätzlich BESCHNITTEN
-         (.zoomcrop): der große Ausschnitt zeigt die linke obere
-         Ecke in Originalgröße, die kleine Karte rechts unten die
-         ganze Matrix mit dem Rahmen um den Ausschnitt. Maße und
-         Prozentwerte stehen in css/landing.css beim .zoomcrop. -->
+         (.zoomcrop): der Rahmen zeigt das Bild in Originalgröße,
+         die Karte rechts unten die ganze Matrix — und ziehen
+         verschiebt den Ausschnitt, auf der Karte wie im Bild
+         (data-pan, siehe js/landing.js). `data-pan-y` sagt, wo er
+         aufsetzt: 8 % überspringen die Kopfzeile der App. Die
+         Karte entsteht aus dem Bild selbst; ein zweites Bild
+         daneben gibt es nicht mehr. -->
     <figure class="shotimg">
       <div class="shotwin">
         <div class="shot-bar">
@@ -80,17 +88,20 @@
           <span class="ttl"><span data-l="de" hidden>Jahresansicht</span><span data-l="en">Year view</span></span>
           <span class="tab"><span data-l="de" hidden>Monat · <b>Jahr</b> · Prognose</span><span data-l="en">Month · <b>Year</b> · Forecast</span></span>
         </div>
-        <a class="zoomcrop fadecut" href="doc/img/year.png" target="_blank" rel="noopener">
-          <img class="zbig" src="doc/img/year.png" alt="FINA year view: the matrix with twelve month columns, income, flexible payments and regular costs" loading="lazy">
-          <span class="zmap" aria-hidden="true"><img src="doc/img/year.png" alt="" loading="lazy"><i></i></span>
-        </a>
+        <div class="zoomcrop panbox" data-pan data-pan-y="8">
+          <div class="zview panview">
+            <img class="zbig" src="doc/img/year.png" alt="FINA year view: the matrix with twelve month columns, income, flexible payments and regular costs" loading="lazy">
+          </div>
+          <div class="panmap"><span class="maphd"><span data-l="de" hidden>Ausschnitt ziehen</span><span data-l="en">Drag the frame</span></span></div>
+          <a class="zopen" href="doc/img/year.png" target="_blank" rel="noopener"><span data-l="de" hidden>Ganzes Bild</span><span data-l="en">Full image</span> ↗</a>
+        </div>
       </div>
-      <figcaption><span data-l="de" hidden>Die Jahresmatrix, beschnitten auf Lesegröße: die ersten Monate mit Gesamtzeile, Einnahmen und Flexible Payments. Die kleine Karte zeigt, wo der Ausschnitt liegt — anklicken öffnet die ganze Matrix.</span><span data-l="en">The year matrix, cropped to reading size: the first months with the total row, income and flexible payments. The small map shows where the crop sits — click to open the full matrix.</span></figcaption>
+      <figcaption><span data-l="de" hidden>Die Jahresmatrix in Originalgröße — nicht verkleinert, sondern beschnitten. Zieh im Bild oder auf der kleinen Karte rechts unten: der Rahmen zeigt, wo du gerade bist.</span><span data-l="en">The year matrix at full size — not shrunk, cropped. Drag inside the image or on the small map at the bottom right: the frame shows where you are.</span></figcaption>
     </figure>
   </section>
 
   <!-- ══ Monatsansicht ══════════════════════════════════════ -->
-  <section class="gsec reveal">
+  <section class="gsec reveal" id="monat">
     <h2><span data-l="de" hidden>Die Monatsansicht: hier arbeitest du</span><span data-l="en">The month view: this is where you work</span></h2>
     <p><span data-l="de" hidden>Ein Monat, drei Karten: Einnahmen, flexible Ausgaben, regelmäßige Kosten. Was bezahlt ist, hakst du ab — ein Klick auf das Siegel. Jede Zahl sagt dir dabei, wie belastbar sie ist:</span><span data-l="en">One month, three cards: income, flexible spending, regular costs. When something is paid, you tick it off — one click on the seal. Every number tells you how firm it is:</span></p>
     <p><span data-l="de" hidden><b>Abgehakt</b> heißt: so war es wirklich. <b>Offen</b> heißt: steht noch aus. <b>Orange</b> heißt: geschätzt — die Zahl ist eine Annahme, keine Tatsache. Beim Abhaken eines geschätzten Betrags fragt FINA deshalb zuerst nach der richtigen Zahl.</span><span data-l="en"><b>Ticked</b> means: that’s what really happened. <b>Open</b> means: still due. <b>Orange</b> means: estimated — the number is an assumption, not a fact. That’s why FINA asks for the real number before you can tick off an estimate.</span></p>
@@ -125,7 +136,7 @@
        Die flexiblen Ausgaben haben bewusst keinen eigenen
        Abschnitt mehr: der Guide bleibt bei den drei Ansichten,
        der Rest wohnt in der eingebauten Anleitung. -->
-  <section class="gsec reveal">
+  <section class="gsec reveal" id="prognose">
     <h2><span data-l="de" hidden>Die Prognose: dein Kontostand bis Dezember</span><span data-l="en">The forecast: your balance through December</span></h2>
     <p><span data-l="de" hidden>Jede Zeile ist ein Monat und liest sich wie ein Kontoauszug: womit er anfängt, was ihn bewegt, womit er schließt. Daneben zeichnet der Verlauf den Kontostand über das Jahr — du siehst eine Lücke, Monate bevor sie da ist, und genauso, wie viel Luft ein auslaufender Kredit dir verschafft.</span><span data-l="en">Every row is a month and reads like a bank statement: what it starts with, what moves it, what it closes with. Next to it, the track draws your balance across the year — you see a gap months before it arrives, and just as clearly how much room an expiring loan gives you.</span></p>
     <figure class="shotimg">
@@ -142,14 +153,14 @@
   </section>
 
   <!-- ══ Deine Datei ════════════════════════════════════════ -->
-  <section class="gsec reveal">
+  <section class="gsec reveal" id="datei">
     <h2><span data-l="de" hidden>Deine Datei, deine Regeln</span><span data-l="en">Your file, your rules</span></h2>
     <p><span data-l="de" hidden>Dein ganzes Jahr liegt in einer Datei, und die liegt, wo du willst: auf dem Schreibtisch, im eigenen Cloud-Ordner, auf einem Stick. Gespeichert wird nur, wenn du auf Speichern klickst. FINA lädt nichts hoch und braucht kein Internet — Browser, Mac-App und Windows-App öffnen dieselbe Datei.</span><span data-l="en">Your whole year lives in one file, and it lives wherever you want: on your desktop, in your own cloud folder, on a stick. It is only saved when you press save. FINA uploads nothing and needs no internet — browser, Mac app and Windows app open the very same file.</span></p>
     <p class="gnote"><span data-l="de" hidden>Die Bilder oben zeigen die englische Oberfläche — Deutsch ist eingebaut und in den Einstellungen umgeschaltet.</span><span data-l="en">The screenshots show the English interface — German is built in, switchable in the settings.</span></p>
   </section>
 
   <!-- ══ Anfangen ═══════════════════════════════════════════ -->
-  <section class="gsec reveal">
+  <section class="gsec reveal" id="anfangen">
     <h2><span data-l="de" hidden>So fängst du an</span><span data-l="en">How to start</span></h2>
     <ol class="gsteps">
       <li><span data-l="de" hidden><b>Im Browser öffnen.</b> Nichts installieren, nichts anmelden. „Neu anfangen" wählen.</span><span data-l="en"><b>Open it in the browser.</b> Nothing to install, nothing to sign up for. Choose “Start from scratch”.</span></li>
@@ -173,41 +184,39 @@
     <p><span data-l="de" hidden>Dein Geld. Dein Plan. Dein Jahr.</span><span data-l="en">Your money. Your plan. Your year.</span></p>
     <nav aria-label="Fußzeile">
       <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
       <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
       <a href="index.html#downloads">Downloads</a>
     </nav>
   </div>
 </footer>
 
-<script>
-(function(){
-  function setLang(l){
-    document.documentElement.lang=l;
-    document.querySelectorAll('[data-l]').forEach(function(e){
-      e.hidden=e.getAttribute('data-l')!==l;});
-    document.querySelectorAll('.langsw button').forEach(function(b){
-      b.setAttribute('aria-pressed',String(b.dataset.lang===l));});
-    var t=document.querySelector('title');
-    if(t&&t.dataset[l]) document.title=t.dataset[l];
-    try{localStorage.setItem('finaLang',l);}catch(e){}
-  }
-  document.querySelectorAll('.langsw button').forEach(function(b){
-    b.onclick=function(){setLang(b.dataset.lang);};});
-  var saved=null; try{saved=localStorage.getItem('finaLang');}catch(e){}
-  if(saved==='de') setLang('de');
-})();
-</script>
-<script>
-(function(){
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  document.documentElement.classList.add('js');
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
-    });
-  },{threshold:.15,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-})();
-</script>
+<!-- Das Sprungmenü unten links: die Abschnitte dieser Seite und
+     die Wege zu den anderen. Aufbau wie in index.html. -->
+<div class="jump" data-jump>
+  <nav class="jumpmenu" id="jumpmenu" aria-label="Abschnitte">
+    <p class="jumphd"><span data-l="de" hidden>Auf dieser Seite</span><span data-l="en">On this page</span></p>
+    <a href="#top"><span data-l="de" hidden>Anfang</span><span data-l="en">Top</span></a>
+    <a href="#was"><span data-l="de" hidden>Was FINA ist</span><span data-l="en">What FINA is</span></a>
+    <a href="#jahr"><span data-l="de" hidden>Die Jahresansicht</span><span data-l="en">The year view</span></a>
+    <a href="#monat"><span data-l="de" hidden>Die Monatsansicht</span><span data-l="en">The month view</span></a>
+    <a href="#prognose"><span data-l="de" hidden>Die Prognose</span><span data-l="en">The forecast</span></a>
+    <a href="#datei"><span data-l="de" hidden>Deine Datei</span><span data-l="en">Your file</span></a>
+    <a href="#anfangen"><span data-l="de" hidden>So fängst du an</span><span data-l="en">How to start</span></a>
+    <div class="jumpsep" aria-hidden="true"></div>
+    <p class="jumphd"><span data-l="de" hidden>Mehr</span><span data-l="en">More</span></p>
+    <a href="features.html"><span data-l="de" hidden>Alle Funktionen</span><span data-l="en">All features</span></a>
+    <a href="compare.html"><span data-l="de" hidden>Der Vergleich</span><span data-l="en">The comparison</span></a>
+    <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+    <a href="index.html#downloads">Downloads</a>
+  </nav>
+  <button class="jumpbtn" type="button" aria-expanded="false" aria-controls="jumpmenu"
+          aria-label="Abschnitte / Sections">
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+</div>
+
+<script src="js/landing.js"></script>
 </body>
 </html>

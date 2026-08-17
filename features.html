@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!--
+  FINA Book — Funktionen (features.html)
+  Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
+
+  DIE EINE FRAGE DIESER SEITE: „Was kann das?" — nicht „warum ist
+  das besser als etwas anderes". Der Vergleich hat seine eigene
+  Seite (compare.html); wer beides mischt, beantwortet keine der
+  beiden Fragen.
+
+  Gleiche Bausteine wie index.html und guide.html: Kopfzeile,
+  Fußzeile, Sprachschalter, Sprungmenü, css/landing.css,
+  js/landing.js. Englisch ist der Grundzustand, jeder Text steht
+  zweimal da (data-l), „Guide" heißt auf Deutsch „Anleitung".
+
+  NUR, WAS ES WIRKLICH GIBT. Jede Zeile hier ist eine Zusage. Wer
+  eine hinzufügt, prüft sie an der Anwendung — eine Funktion, die
+  jemand auf dieser Seite gelesen hat und im Programm nicht
+  findet, kostet mehr Vertrauen, als sie hier eingebracht hat.
+  Die Gruppen tragen die Kante ihrer Geldart (gr-in, gr-flex,
+  gr-out, gr-bal, gr-sal), damit die Seite dieselbe Ordnung hat
+  wie das Programm.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
+<meta name="description" content="Everything FINA Book does: the year matrix, the month view with its seals, flexible payments, the forecast, your file — and the same app on web, Mac and Windows.">
+<title data-en="FINA Book — Features" data-de="FINA Buch — Funktionen">FINA Book — Features</title>
+<link rel="icon" href="icon.png" sizes="any">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body id="top">
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="index.html" aria-label="FINA"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
+    <nav aria-label="Hauptnavigation">
+      <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+      <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+      <a href="index.html#downloads">Downloads</a>
+    </nav>
+    <div class="langsw" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+    <a class="header-cta" href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span> <span aria-hidden="true">→</span></a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="ghead">
+    <p class="eyebrow reveal"><span data-l="de" hidden>FUNKTIONEN</span><span data-l="en">FEATURES</span></p>
+    <h1 class="reveal" style="--d:.06s"><span data-l="de" hidden>Alles, was FINA kann.</span><span data-l="en">Everything FINA does.</span></h1>
+    <p class="reveal" style="--d:.12s"><span data-l="de" hidden>Ein Haushaltsbuch für ein ganzes Jahr — vom ersten Eintrag bis zum Kontostand im Dezember. Sechs Bereiche, und was in jedem davon steckt.</span><span data-l="en">A household book for a whole year — from the first entry to your balance in December. Six areas, and what sits in each of them.</span></p>
+  </div>
+
+  <div class="fgroups">
+
+    <!-- ══ Das Jahr ═══════════════════════════════════════════ -->
+    <section class="fgroup gr-sal reveal" id="jahr">
+      <h3><span data-l="de" hidden>Die Jahresansicht</span><span data-l="en">The year view</span></h3>
+      <p class="sub"><span data-l="de" hidden>Hier baust du dein Jahr — zwölf Monate nebeneinander.</span><span data-l="en">This is where you build your year — twelve months side by side.</span></p>
+      <ul>
+        <li><b><span data-l="de" hidden>Einmal eintragen, zwölfmal da</span><span data-l="en">Enter once, there twelve times</span></b><span data-l="de" hidden>Die Miete steht nach einem Eintrag in allen zwölf Monaten. Einzelne Monate änderst du, wo sie stehen.</span><span data-l="en">Enter the rent once and it sits in all twelve months. Single months are changed right where they stand.</span></li>
+        <li><b><span data-l="de" hidden>Drei Blöcke, deine Kategorien</span><span data-l="en">Three blocks, your categories</span></b><span data-l="de" hidden>Einnahmen, Flexible Payments, regelmäßige Kosten — mit eigenen Kategorien für Einnahmen wie für Kosten.</span><span data-l="en">Income, flexible payments, regular costs — with your own categories for income as well as for costs.</span></li>
+        <li><b><span data-l="de" hidden>Gesamt je Monat, ganz oben</span><span data-l="en">Total per month, right at the top</span></b><span data-l="de" hidden>Die oberste Zeile sagt, was der Monat unterm Strich bringt oder kostet. Sie bleibt beim Scrollen stehen.</span><span data-l="en">The top row says what the month brings in or costs on balance. It stays put while you scroll.</span></li>
+        <li><b><span data-l="de" hidden>Die Ampel für Abos und Kredite</span><span data-l="en">The traffic light for subs and loans</span></b><span data-l="de" hidden>Die Spalte LP zeigt, wie viele Zahlungen noch kommen: grün heißt, diesen Monat ist Schluss.</span><span data-l="en">The LP column shows how many payments are left: green means it ends this month.</span></li>
+        <li><b><span data-l="de" hidden>Aufräumen, ohne zu löschen</span><span data-l="en">Tidy up without deleting</span></b><span data-l="de" hidden>Abgeschlossene Positionen und erledigte Monate lassen sich ausblenden, ganze Blöcke zuklappen — die Summen bleiben stehen.</span><span data-l="en">Settled items and finished months can be hidden, whole blocks folded away — the totals stay visible.</span></li>
+      </ul>
+    </section>
+
+    <!-- ══ Der Monat ══════════════════════════════════════════ -->
+    <section class="fgroup gr-in reveal" id="monat">
+      <h3><span data-l="de" hidden>Die Monatsansicht</span><span data-l="en">The month view</span></h3>
+      <p class="sub"><span data-l="de" hidden>Hier arbeitest du — ein Monat, drei Karten, ein Klick je Zahlung.</span><span data-l="en">This is where you work — one month, three cards, one click per payment.</span></p>
+      <ul>
+        <li><b><span data-l="de" hidden>Abhaken</span><span data-l="en">Tick it off</span></b><span data-l="de" hidden>Was bezahlt ist, bekommt sein Siegel. Ein Klick, und der Monat rückt seinem Abschluss näher.</span><span data-l="en">Whatever is paid gets its seal. One click, and the month moves closer to being done.</span></li>
+        <li><b><span data-l="de" hidden>Geschätzt ist nicht bezahlt</span><span data-l="en">Estimated is not paid</span></b><span data-l="de" hidden>Ein geschätzter Betrag steht orange da. Beim Abhaken fragt FINA zuerst nach der richtigen Zahl — aus einer Annahme wird keine Tatsache aus Versehen.</span><span data-l="en">An estimated amount stands there in orange. Ticking it off asks for the real number first — an assumption never turns into a fact by accident.</span></li>
+        <li><b><span data-l="de" hidden>Der Zeitstrahl des Monats</span><span data-l="en">The month as a timeline</span></b><span data-l="de" hidden>Die Auswertung zeigt als Wasserfall, wie der Monat dein Konto bewegt: Anfang, Mitte, Ende, Abschluss. Ein Klick auf eine Zeile filtert die Liste darunter.</span><span data-l="en">The analysis draws the month as a waterfall: start, middle, end, close. Clicking a row filters the list below it.</span></li>
+        <li><b><span data-l="de" hidden>Suchen und filtern</span><span data-l="en">Search and filter</span></b><span data-l="de" hidden>Nach Fälligkeit, nach Zahlungsstand, nach allem, was an der Zeile steht — und die Summen rechnen mit, was zu sehen ist.</span><span data-l="en">By due date, by payment status, by anything on the row — and the totals count what you can see.</span></li>
+        <li><b><span data-l="de" hidden>Notizen, wo sie hingehören</span><span data-l="en">Notes where they belong</span></b><span data-l="de" hidden>Eine Notiz zur Position und eine je Monat. Die Lampe daneben sagt, dass etwas dransteht.</span><span data-l="en">One note per item and one per month. The little lamp beside it says there is something to read.</span></li>
+      </ul>
+    </section>
+
+    <!-- ══ Flexible Payments ══════════════════════════════════ -->
+    <section class="fgroup gr-flex reveal" id="flex">
+      <h3>Flexible Payments</h3>
+      <p class="sub"><span data-l="de" hidden>Das Geld des Alltags — ohne jeden Kassenzettel.</span><span data-l="en">Everyday money — without a single receipt.</span></p>
+      <ul>
+        <li><b><span data-l="de" hidden>Ein Betrag je Kategorie und Monat</span><span data-l="en">One amount per category and month</span></b><span data-l="de" hidden>„Haushalt: 620". Das genügt fürs ganze Jahr — niemand tippt zwölfmal den Einkauf vom Dienstag ein.</span><span data-l="en">“Household: 620.” That is enough for the whole year — nobody types in Tuesday’s groceries twelve times.</span></li>
+        <li><b><span data-l="de" hidden>Annahme und Wirklichkeit nebeneinander</span><span data-l="en">Assumption and reality side by side</span></b><span data-l="de" hidden>Was du für die kommenden Monate annimmst, steht neben dem Durchschnitt der Monate, die schon feststehen.</span><span data-l="en">What you assume for the months ahead stands next to the average of the months already settled.</span></li>
+        <li><b><span data-l="de" hidden>Zwölf Monate in einem Zug</span><span data-l="en">Twelve months in one go</span></b><span data-l="de" hidden>Ein Betrag, ein Klick, und er steht in allen offenen Monaten. Einzelne änderst du danach.</span><span data-l="en">One amount, one click, and it sits in every open month. Single ones are changed afterwards.</span></li>
+        <li><b><span data-l="de" hidden>Woher eine Zahl kommt</span><span data-l="en">Where a number comes from</span></b><span data-l="de" hidden>Hinter jedem Betrag steht, ob er importiert, korrigiert, abgehakt, fest oder geschätzt ist.</span><span data-l="en">Behind every amount it says whether it was imported, corrected, ticked off, fixed or estimated.</span></li>
+      </ul>
+    </section>
+
+    <!-- ══ Die Prognose ═══════════════════════════════════════ -->
+    <section class="fgroup gr-bal reveal" id="prognose">
+      <h3><span data-l="de" hidden>Die Prognose</span><span data-l="en">The forecast</span></h3>
+      <p class="sub"><span data-l="de" hidden>Dein Kontostand bis Dezember — die Belohnung fürs Abhaken.</span><span data-l="en">Your balance through December — the reward for ticking things off.</span></p>
+      <ul>
+        <li><b><span data-l="de" hidden>Jeder Monat wie ein Kontoauszug</span><span data-l="en">Every month reads like a statement</span></b><span data-l="de" hidden>Womit er anfängt, was ihn bewegt, womit er schließt — in einer Zeile, in den Farben der Geldarten.</span><span data-l="en">What it starts with, what moves it, what it closes with — in one row, in the colours of the three kinds of money.</span></li>
+        <li><b><span data-l="de" hidden>Der Verlauf als Grafik</span><span data-l="en">The track as a picture</span></b><span data-l="de" hidden>Daneben zieht der Kontostand über das Jahr. Du siehst die Lücke, Monate bevor sie da ist.</span><span data-l="en">Next to it, your balance runs across the year. You see the gap months before it arrives.</span></li>
+        <li><b><span data-l="de" hidden>Anfangsbestand</span><span data-l="en">Opening balance</span></b><span data-l="de" hidden>Womit das Jahr aufsetzt, steht in einer eigenen Zeile über dem Januar.</span><span data-l="en">What the year starts from sits in its own row above January.</span></li>
+        <li><b><span data-l="de" hidden>Saldokorrektur</span><span data-l="en">Balance correction</span></b><span data-l="de" hidden>Für alles, was sich über die Monate an Ungenauigkeit ansammelt: eine Zeile, je Monat ein Betrag.</span><span data-l="en">For everything that drifts over the months: one row, one amount per month.</span></li>
+      </ul>
+    </section>
+
+    <!-- ══ Deine Datei ════════════════════════════════════════ -->
+    <section class="fgroup gr-out reveal" id="datei">
+      <h3><span data-l="de" hidden>Deine Datei</span><span data-l="en">Your file</span></h3>
+      <p class="sub"><span data-l="de" hidden>Ein Jahr, eine Datei — und die liegt, wo du willst.</span><span data-l="en">One year, one file — and it lives wherever you want.</span></p>
+      <ul>
+        <li><b><span data-l="de" hidden>Kein Konto, keine Cloud</span><span data-l="en">No account, no cloud</span></b><span data-l="de" hidden>Nichts wird hochgeladen, nichts angemeldet. Gespeichert wird, wenn du auf Speichern klickst.</span><span data-l="en">Nothing is uploaded, nothing signed up for. It is saved when you press save.</span></li>
+        <li><b><span data-l="de" hidden>Sicherung mit Zeitstempel</span><span data-l="en">Backups with a timestamp</span></b><span data-l="de" hidden>Ein Klick legt eine datierte Kopie ab. Im Ordner stehen die Stände dadurch von selbst in der richtigen Reihenfolge.</span><span data-l="en">One click puts a dated copy aside. In the folder your versions then sort themselves in the right order.</span></li>
+        <li><b><span data-l="de" hidden>Zahlen von woanders</span><span data-l="en">Numbers from elsewhere</span></b><span data-l="de" hidden>FINA liest den CSV-Export einer Ausgaben-App und die CSV-Fassung einer eigenen Tabelle — mit einer Probe, die zeigt, ob alles aufgeht.</span><span data-l="en">FINA reads the CSV export of a spending app and the CSV version of your own spreadsheet — with a check that shows whether the totals add up.</span></li>
+        <li><b><span data-l="de" hidden>Vertrag, Rechnung, Kundenkonto</span><span data-l="en">Contract, invoice, account page</span></b><span data-l="de" hidden>Zu jeder Position gehören bis zu zehn Links. Das Kettensymbol in der Zeile führt hin.</span><span data-l="en">Every item can carry up to ten links. The little chain in the row takes you there.</span></li>
+      </ul>
+    </section>
+
+    <!-- ══ Überall ════════════════════════════════════════════ -->
+    <section class="fgroup gr-in reveal" id="ueberall">
+      <h3><span data-l="de" hidden>Überall dasselbe</span><span data-l="en">The same everywhere</span></h3>
+      <p class="sub"><span data-l="de" hidden>Browser, Mac, Windows — ein Programm, eine Datei.</span><span data-l="en">Browser, Mac, Windows — one program, one file.</span></p>
+      <ul>
+        <li><b><span data-l="de" hidden>Sofort im Browser</span><span data-l="en">Straight in the browser</span></b><span data-l="de" hidden>Nichts installieren, nichts anmelden. Chrome und Edge schreiben dabei in dieselbe Datei zurück.</span><span data-l="en">Nothing to install, nothing to sign up for. Chrome and Edge even save straight back into the same file.</span></li>
+        <li><b><span data-l="de" hidden>Als App für den Schreibtisch</span><span data-l="en">As a desktop app</span></b><span data-l="de" hidden>Für Mac und Windows, gleicher Inhalt, gleiche Bedienung. Die App sagt Bescheid, wenn es eine neue Fassung gibt.</span><span data-l="en">For Mac and Windows, same content, same feel. The app tells you when a new version is out.</span></li>
+        <li><b><span data-l="de" hidden>Ohne Internet</span><span data-l="en">Without the internet</span></b><span data-l="de" hidden>Auch die Schriften liegen bei. FINA lädt von fremden Servern nichts nach.</span><span data-l="en">Even the fonts are included. FINA loads nothing from anyone else’s server.</span></li>
+        <li><b><span data-l="de" hidden>Deutsch und Englisch</span><span data-l="en">German and English</span></b><span data-l="de" hidden>Umschaltbar in den Einstellungen — die Anleitung im Programm sogar getrennt davon.</span><span data-l="en">Switchable in the settings — the built-in guide even independently of it.</span></li>
+        <li><b><span data-l="de" hidden>Hilfe im Programm</span><span data-l="en">Help inside the program</span></b><span data-l="de" hidden>Die Anleitung öffnet sich neben der Tabelle und bleibt offen, während du weiterarbeitest.</span><span data-l="en">The guide opens beside your table and stays open while you keep working.</span></li>
+      </ul>
+    </section>
+
+  </div>
+
+  <div class="gcta reveal">
+    <a class="button button-primary" href="Webclient.html"><span data-l="de" hidden>Direkt im Browser öffnen</span><span data-l="en">Open right in the browser</span> <span aria-hidden="true">→</span></a>
+    <a class="button button-quiet" href="compare.html"><span data-l="de" hidden>Und wie steht es neben anderen?</span><span data-l="en">And next to the others?</span></a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
+    <p><span data-l="de" hidden>Dein Geld. Dein Plan. Dein Jahr.</span><span data-l="en">Your money. Your plan. Your year.</span></p>
+    <nav aria-label="Fußzeile">
+      <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+      <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+      <a href="index.html#downloads">Downloads</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="jump" data-jump>
+  <nav class="jumpmenu" id="jumpmenu" aria-label="Abschnitte">
+    <p class="jumphd"><span data-l="de" hidden>Auf dieser Seite</span><span data-l="en">On this page</span></p>
+    <a href="#top"><span data-l="de" hidden>Anfang</span><span data-l="en">Top</span></a>
+    <a href="#jahr"><span data-l="de" hidden>Die Jahresansicht</span><span data-l="en">The year view</span></a>
+    <a href="#monat"><span data-l="de" hidden>Die Monatsansicht</span><span data-l="en">The month view</span></a>
+    <a href="#flex">Flexible Payments</a>
+    <a href="#prognose"><span data-l="de" hidden>Die Prognose</span><span data-l="en">The forecast</span></a>
+    <a href="#datei"><span data-l="de" hidden>Deine Datei</span><span data-l="en">Your file</span></a>
+    <a href="#ueberall"><span data-l="de" hidden>Überall dasselbe</span><span data-l="en">The same everywhere</span></a>
+    <div class="jumpsep" aria-hidden="true"></div>
+    <p class="jumphd"><span data-l="de" hidden>Mehr</span><span data-l="en">More</span></p>
+    <a href="compare.html"><span data-l="de" hidden>Der Vergleich</span><span data-l="en">The comparison</span></a>
+    <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+    <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
+    <a href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
+  </nav>
+  <button class="jumpbtn" type="button" aria-expanded="false" aria-controls="jumpmenu"
+          aria-label="Abschnitte / Sections">
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+</div>
+
+<script src="js/landing.js"></script>
+</body>
+</html>
