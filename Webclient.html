@@ -72,11 +72,15 @@
            wie ein dritter Weg, eine Datei zu öffnen — sie sind
            aber keiner: sie ändern das Buch, das schon offen ist. -->
       <button class="btn" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
-      <!-- Die Sprachwahl, EN · DE wie auf der Begrüßungsseite und
-           den Verkaufsseiten. Gefüllt von renderChrome() aus LANGS;
-           der Klick schreibt state.lang und gilt damit der Datei
-           (data-wlang, verdrahtet in wire()). -->
-      <div class="wlangs hlangs" id="hdrLangs" role="group" aria-label="Language"></div>
+      <!-- Hier stand bis 18.8.26 eine Sprachwahl EN · DE. Sie ist
+           weg: sobald ein Buch offen ist, bestimmt **die Datei**
+           ihre Sprache (state.lang), und geändert wird sie dort,
+           wo alle Einstellungen der Datei stehen — im
+           Einstellungsfenster. Zwei Wege zu derselben Angabe, einer
+           davon neben den Dateiknöpfen, sahen nach zwei
+           verschiedenen Dingen aus. Die Begrüßungsseite behält ihre
+           Wahl: dort gibt es noch keine Datei, die entscheiden
+           könnte (js/views/willkommen.js). -->
       <!-- Der einzige farbige Knopf: er klappt die Anleitung rechts
            auf und wieder zu (aria-pressed sagt, ob sie offen ist). -->
       <button class="btn guidebtn" id="btnGuide" aria-pressed="false" data-t="app.guide" data-ttip="app.guideTip"></button>

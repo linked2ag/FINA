@@ -85,25 +85,11 @@ function renderChrome(){
     if(el) el.hidden=wel||id==='btnLoad';
   });
 
-  /* Die Sprachwahl in der Kopfzeile: dieselben Kürzel EN · DE wie
-     auf der Begrüßungsseite und den Verkaufsseiten, derselbe Weg
-     (data-wlang). Auf der Begrüßungsseite bleibt sie weg — dort
-     hat die Seite ihre eigene. */
-  const hl=document.getElementById('hdrLangs');
-  if(hl){
-    hl.hidden=wel;
-    hl.innerHTML=LANGS.map(([k,label])=>`<button class="wlang" data-wlang="${k}"
-      aria-pressed="${LANG()===k}" title="${label}">${k.toUpperCase()}</button>`).join('');
-    /* Verdrahtet gleich hier, wie die Monats- und Ansichtsreiter:
-       renderChrome() läuft auch ohne wire() — nach dem
-       Sprachwechsel im Einstellungsfenster etwa —, und die frisch
-       gebauten Pillen wären sonst bis zum nächsten render() taub. */
-    hl.querySelectorAll('.wlang').forEach(b=>b.onclick=()=>{
-      if(!chooseLang(b.dataset.wlang)) return;
-      if(!ui.welcome) save();
-      render();
-    });
-  }
+  /* Eine Sprachwahl steht hier nicht mehr: mit offenem Buch
+     entscheidet die Datei (state.lang), und geändert wird das im
+     Einstellungsfenster — dort stehen die Angaben der Datei
+     beisammen. Auf der Begrüßungsseite gibt es die Wahl weiter,
+     denn dort gibt es noch keine Datei (js/views/willkommen.js). */
 
   /* Der Menüknopf der mobilen Kopfzeile (siehe Webclient.html und
      css/mobile.css). Auf der Begrüßungsseite wäre das Menü leer —
@@ -563,17 +549,15 @@ function wire(){
   /* Die beiden Wege der Begrüßungsseite. */
   document.querySelectorAll('[data-wload]').forEach(b=>b.onclick=()=>loadData());
   document.querySelectorAll('[data-wnew]').forEach(b=>b.onclick=()=>startEmpty());
-  /* Die Sprachwahl — auf der Begrüßungsseite und in der Kopfzeile
-     des geladenen Buches (renderChrome). Sie schreibt über
-     chooseLang() in state.lang **und** in den localStorage, gilt
-     also auch für die Verkaufsseiten (siehe js/i18n.js). save() nur
-     im geladenen Buch: dort ist die Sprache eine Einstellung der
-     Datei wie im Einstellungsfenster; auf der Begrüßungsseite gibt
-     es noch nichts, das schmutzig werden könnte. */
+  /* Die Sprachwahl der Begrüßungsseite — die einzige in der
+     Anwendung: mit offenem Buch entscheidet die Datei, und geändert
+     wird das im Einstellungsfenster. Hier gibt es noch keine Datei,
+     also gilt die gemeinsame Notiz mit den Verkaufsseiten:
+     chooseLang() schreibt state.lang des leeren Buches **und**
+     finaLang in den localStorage (js/i18n.js). Kein save() — es
+     gibt noch nichts, das schmutzig werden könnte. */
   document.querySelectorAll('[data-wlang]').forEach(b=>b.onclick=()=>{
-    if(!chooseLang(b.dataset.wlang)) return;
-    if(!ui.welcome) save();
-    render();
+    if(chooseLang(b.dataset.wlang)) render();
   });
 
   /* Fenster öffnen */

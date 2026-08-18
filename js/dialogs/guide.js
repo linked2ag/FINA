@@ -1127,10 +1127,9 @@ en:()=>`
   <li><b>FINA works on the phone</b> — below 700 px the browser shows a mobile layout: the month
       as a card list with large seals, the year as twelve month cards, the forecast with its
       chart to swipe, and the view tabs at the bottom edge.</li>
-  <li><b>Switch the language right in the header</b> — EN · DE next to the buttons. Your choice
-      now holds everywhere: the FINA website opens in the same language, and switching it there
-      switches it here. It is remembered on this computer, and a loaded file still decides for
-      itself.</li>
+  <li><b>Your language is remembered</b> — pick EN · DE on the FINA website or on the welcome
+      screen, and both open that way next time on this computer. Once a book is open, the book
+      decides: its language lives in the file and is changed in ${t('app.settings')}.</li>
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
@@ -1285,10 +1284,10 @@ de:()=>`
       Oberfläche: der Monat als Kartenliste mit großen Siegeln, das Jahr als zwölf
       Monatskarten, die Prognose mit ihrer Grafik zum Wischen, und die Ansichtsreiter am
       unteren Rand.</li>
-  <li><b>Die Sprache wechselst du direkt in der Kopfzeile</b> — EN · DE neben den Knöpfen. Die
-      Wahl gilt jetzt überall: die FINA-Webseite öffnet in derselben Sprache, und wer sie dort
-      umstellt, stellt sie auch hier um. Sie bleibt auf diesem Rechner gemerkt; eine geladene
-      Datei entscheidet weiter selbst.</li>
+  <li><b>Deine Sprache bleibt gemerkt</b> — wähle EN · DE auf der FINA-Webseite oder auf der
+      Begrüßungsseite, und beide öffnen beim nächsten Mal auf diesem Rechner so. Sobald ein Buch
+      offen ist, entscheidet das Buch: seine Sprache steht in der Datei und wird in
+      ${t('app.settings')} geändert.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 

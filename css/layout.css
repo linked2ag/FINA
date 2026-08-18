@@ -54,25 +54,16 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .tools .btn{padding:5px 10px;font-size:12.5px;border-radius:8px;
   transition:background .15s,border-color .15s,transform .15s}
 .tools .btn:hover{transform:translateY(-1px)}
-/* Die Sprachwahl in der Kopfzeile: dieselben Pillen wie auf der
-   Begrüßungsseite (.wlangs weiter unten) und den Verkaufsseiten —
-   ein Bild für dieselbe Wahl an jeder Stelle, nur mit der Rundung
-   der Kopfzeile. */
-/* flex:0 0 auto, denn die Pillen stehen in einer Leiste, die eng
-   werden kann: ihr overflow:hidden (die Rundung) machte sie sonst
-   zum einzigen Kind, das sich bis auf null zusammendrücken lässt.
-   `.tools .hlangs`, nicht `.hlangs`: die Grundregel .wlangs steht
-   weiter unten und gewänne bei gleicher Spezifität die Rundung.
-   Und [hidden] braucht seinen eigenen Riegel — .wlangs setzt
-   display:flex, und eine Autorenregel schlägt das [hidden] des
-   Browsers unabhängig von jeder Spezifität. */
-.tools .hlangs{margin:0 2px;border-radius:8px;flex:0 0 auto}
-.hlangs[hidden]{display:none!important}
+/* Eine Sprachwahl steht in der Kopfzeile nicht: mit offenem Buch
+   entscheidet die Datei über ihre Sprache, und geändert wird sie
+   im Einstellungsfenster. Die Pillen (.wlangs weiter unten) gibt
+   es nur auf der Begrüßungsseite und auf den Verkaufsseiten. */
 /* Der Menüknopf der Kopfzeile gehört dem Telefon: dort sammelt er
    alle Werkzeuge hinter sich (css/mobile.css). Am Schreibtisch
-   stehen die Werkzeuge selbst da — der Knopf nicht. Und [hidden]
-   (die Begrüßungsseite, renderChrome) braucht denselben Riegel wie
-   .hlangs: die display-Regel des Telefons gewänne sonst. */
+   stehen die Werkzeuge selbst da — der Knopf nicht. [hidden]
+   braucht dabei seinen eigenen Riegel: die display-Regel des
+   Telefons schlüge das [hidden] des Browsers sonst unabhängig von
+   jeder Spezifität. */
 .menubtn{display:none}
 .menubtn[hidden]{display:none!important}
 .filepath{font-family:var(--font-data);font-size:11.5px;color:var(--ink-2);max-width:320px;overflow:hidden;
@@ -546,8 +537,9 @@ body.yearview .wrap{padding-bottom:14px}
   color:var(--accent-2)}
 /* Kopfreihe der Begrüßung: links das Wortzeichen, rechts die
    Sprachwahl — zwei Pillen wie der Sprachschalter der
-   Verkaufsseiten (.langsw), die gewählte dunkel. Dieselben Klassen
-   benutzt die Sprachwahl der Kopfzeile (#hdrLangs). */
+   Verkaufsseiten (.langsw), die gewählte dunkel. Sie steht **nur**
+   hier: sobald ein Buch offen ist, entscheidet die Datei, und
+   geändert wird das im Einstellungsfenster. */
 .wtop{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .wlangs{display:flex;gap:4px}
 .wlang{cursor:pointer;padding:6px 11px;border:1px solid var(--rule-strong);border-radius:8px;

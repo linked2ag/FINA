@@ -15,33 +15,31 @@
 const LANGS=[['en','English'],['de','Deutsch']];
 const LANG=()=>((state&&state.lang)==='de'?'de':'en');
 
-/* ── Die Sprachwahl gilt in beide Richtungen ──────────────────
-   Gewählt wird an vier Stellen, und alle vier meinen dasselbe: die
-   Sprache, in der FINA spricht. Drei davon liegen in der Anwendung
-   (Kopfzeile, Begrüßungsseite, Einstellungsfenster), die vierte auf
-   den Verkaufsseiten (js/landing.js). Damit sie sich nicht
-   widersprechen, führen sie **eine** Notiz: `finaLang` im
-   localStorage.
+/* ── Die Sprache, solange keine Datei etwas dazu sagt ─────────
+   Zwei Stellen wählen sie: der DE/EN-Schalter der Verkaufsseiten
+   (`setLang()` in js/landing.js) und die Begrüßungsseite der
+   Anwendung (`data-wlang`). Beide meinen dasselbe — in welcher
+   Sprache FINA einen anspricht, **bevor** ein Buch offen ist —, und
+   führen deshalb eine gemeinsame Notiz: `finaLang` im localStorage.
+   Gelesen wird sie beim Aufruf jeder Verkaufsseite und beim Start
+   des Web-Clients für das noch leere Buch (Block „Start" in
+   js/app.js). Wer auf der Seite Deutsch wählt, landet auch in der
+   Anwendung auf Deutsch, und umgekehrt.
 
-   Von dort liest die Startseite bei jedem Aufruf und der Web-Client
-   beim Start für ein noch leeres Buch (Block „Start" in js/app.js).
-   Wer also auf der Seite Deutsch wählt, bekommt die Anwendung auf
-   Deutsch — und wer sie in der Anwendung umstellt, findet die Seite
-   beim nächsten Besuch ebenso vor.
-
-   **Eine geladene Datei schreibt nicht zurück.** `state.lang` gehört
-   ihr und überstimmt die Vorgabe wie immer; wer ein englisches Buch
-   öffnet, hat damit aber nichts über die Webseite gesagt — sie
-   wechselte sonst bei jedem Dateiwechsel ungefragt die Sprache.
-   Geschrieben wird nur, was jemand ausdrücklich umstellt.
+   **Ein offenes Buch fragt hier nicht mehr nach.** Seine Sprache
+   steht in `state.lang`, also in der Datei, und wird im
+   Einstellungsfenster geändert — das schreibt `finaLang` nicht:
+   wer ein Buch auf Deutsch führt, hat damit nichts über die
+   Verkaufsseiten gesagt. Deshalb gibt es in der Kopfzeile auch
+   keinen Schalter; es gäbe sonst zwei Wege zu derselben Angabe,
+   von denen einer nach Anwendung und einer nach Datei aussieht.
 
    Unter `file://` kann der Speicher fehlen (Regel 4 gilt dem Laden
    der eigenen Dateien, hier scheitert nur eine Notiz): dann bleibt
-   es bei der Wahl im Zustand, und das ist die richtige Antwort.
+   es bei Englisch, und das ist die richtige Antwort.
 
-   Zurück kommt, **ob sich etwas geändert hat** — die Aufrufer
-   sparen sich damit save() und render(), wenn schon dieselbe
-   Sprache stand. */
+   Zurück kommt, **ob sich etwas geändert hat** — der Aufrufer spart
+   sich damit das render(), wenn schon dieselbe Sprache stand. */
 function chooseLang(l){
   const want=(l==='de')?'de':'en';
   if(!state||state.lang===want) return false;

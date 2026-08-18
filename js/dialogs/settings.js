@@ -256,10 +256,12 @@ function openSettings(where,done){
     return isNaN(v)?null:Math.min(max,Math.max(min,v));
   };                                   /* 0 ist gültig: dann zählt jede Buchung */
   const applyGeneral=()=>{
-    /* chooseLang() statt einer Zuweisung: die Wahl gilt auch für
-       die Verkaufsseiten (finaLang im localStorage, siehe
-       js/i18n.js) — hier wird sie ausdrücklich umgestellt. */
-    chooseLang(box.querySelector('#sLang').value);
+    /* Eine gewöhnliche Zuweisung, **nicht** chooseLang(): das hier
+       ist die Sprache dieser Datei und geht die Webseite nichts an
+       (siehe „Die Sprachwahl gilt überall" in CLAUDE.md). Wer ein
+       Buch auf Deutsch führt, hat damit nicht gesagt, dass er die
+       Verkaufsseiten auf Deutsch lesen will. */
+    state.lang=box.querySelector('#sLang').value==='de'?'de':'en';
     const y=num('#sYear',2000,2099); if(y) state.year=y;
     /* Der Anfangsbestand darf jede Zahl sein — auch eine negative
        und auch die Null. Ein leeres Feld heißt „kein Anfangs-

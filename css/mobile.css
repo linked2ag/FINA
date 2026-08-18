@@ -61,7 +61,6 @@ header{padding-top:6px}
 .tools.open .btn:hover{transform:none}
 .tools.open .filepath{max-width:none;white-space:normal;overflow-wrap:anywhere;
   padding:0 2px 4px;border-bottom:1px solid var(--rule)}
-.tools.open .hlangs{align-self:center;margin:2px 0 0}
 /* Die Ansichtsreiter oben entfallen — dieselben Reiter stehen
    unten am Daumen (.mtabs). Das display setzt renderChrome()
    inline (dort steht die Weiche); die Regel hier ist der doppelte

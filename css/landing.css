@@ -19,7 +19,8 @@
    * `.reveal` tritt beim Scrollen ein (Skript setzt `.in`).
    * Die Haken der Matrix ticken je Spalte versetzt ab, die
      Zeilen gleiten von links herein.
-   * Das Laufband (.ticker) zieht langsam durch, der Balken oben
+   * Das Laufband (.ticker) gibt es seit 18.8.26 auf keiner Seite
+     mehr — die Regeln bleiben, der Balken oben
      (.progress) zeigt den Leseweg, der Sync-Knopf pulsiert.
    * Ohne JavaScript ist ALLES sichtbar (Startlagen gelten nur
      unter html.js), prefers-reduced-motion schaltet alles ab.
@@ -253,6 +254,12 @@ html.js .shot.in tbody tr{opacity:1;transform:none;
 .panbox.nopan .panview{cursor:auto}
 
 /* ── Das Laufband ─────────────────────────────────────────────
+   **Zur Zeit benutzt es keine Seite.** Es lief bis 18.8.26 unter
+   dem Kopf der Startseite und ist dort herausgenommen: die vier
+   Chips über dem Kopf sagen dasselbe im Stehen, und was sich
+   bewegt, liest man nicht — man wartet darauf. Die Regeln bleiben
+   stehen, falls je wieder etwas laufen soll.
+
    Kurze Zusagen, langsam durchziehend. Der Text steht doppelt im
    Band, damit die Schleife ohne Sprung schließt; ohne JavaScript
    steht das Band still und zeigt den Anfang. */
