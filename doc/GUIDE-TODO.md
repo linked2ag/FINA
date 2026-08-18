@@ -20,6 +20,17 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- **FINA hat eine mobile Oberfläche** — unter 700 px baut der Browser die drei Ansichten
+  um: der Monat mit Suchzeile (alle Filter hinter dem Knopf davor), Kennzahl-Kacheln und
+  großen Siegeln; das Jahr als zwölf Monatskarten (ein Tipp führt in den Monat, angelegt
+  wird weiter am Schreibtisch); die Prognose mit Ausblick-Kacheln und der Grafik zum
+  Wischen. Die Ansichtsreiter stehen unten am Rand. *Im Reiter „Was ist neu" erledigt
+  (26.8.18); in Schritt für Schritt und Was FINA kann noch offen.*
+
+- **Die Sprachwahl steht auch in der Kopfzeile** — EN · DE neben den Knöpfen, die Wahl wird
+  mit der Datei gespeichert (wie im Einstellungsfenster). *Im Reiter „Was ist neu" erledigt
+  (26.8.18); in Schritt für Schritt und Was FINA kann noch offen.*
+
 - **Die Begrüßungsseite hat eine Sprachwahl** — EN · DE oben rechts, sie stellt das noch
   leere Buch um; eine geladene Datei entscheidet weiter selbst. Und das Wortzeichen oben
   links führt im Browser zur Startseite zurück. *Im Reiter „Was ist neu" erledigt

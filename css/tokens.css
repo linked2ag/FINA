@@ -102,6 +102,11 @@
   /* Saldokorrektur: ein ganz helles Blau, das sich von Grün,
      Gelb und Rot der drei Geldarten deutlich absetzt. */
   --bg-bal:#EFF4F9; --bg-bal-2:#DFEAF4; --bg-bal-3:#C6DCEE; --edge-bal:#7EA4C4;
+  /* Dasselbe Blau als Schrift: die Kante ist hell genug für einen
+     Balken, aber zu blass für ein Wort auf dem Papier — dieselbe
+     Logik wie --ink-sal. Die Monatskarten der mobilen Jahresansicht
+     schreiben ihr COR damit. */
+  --ink-bal:#4E7CA8;
   /* Saldo je Monat: die Zeile über allem. Ein helles Violett —
      es gehört zu keiner der drei Geldarten, weil es sie alle
      zusammenfasst. */

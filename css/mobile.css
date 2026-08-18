@@ -1,0 +1,318 @@
+/* ══════════════════════════════════════════════════════════════
+   FINA — die mobile Fassung
+   Alles unter 700 px. Die Grenze ist dieselbe wie in isMobile()
+   (js/app.js): die Views bauen unterhalb davon eigenes Markup
+   (mobileTop, viewJahrMobile, der mprog-Zweig der Prognose), und
+   diese Datei gestaltet es. Wer die Grenze ändert, ändert beide
+   Stellen. Vorlage: _TMP/Design - Mobile UI for FINA, Abschnitt t3.
+
+   Farben und Schriften kommen aus tokens.css — die mobile Fassung
+   kann gar nicht anders aussehen als die Anwendung.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Die Reiterleiste unten gibt es nur auf dem Telefon; das Element
+   steht immer im Dokument (Webclient.html), sichtbar wird es erst
+   in der Abfrage darunter. */
+.mtabs{display:none}
+
+@media (max-width:699px){
+
+/* ── Grundgerüst ──────────────────────────────────────────────
+   Schmalere Polster, und unten so viel Luft, dass die feste
+   Reiterleiste die letzte Zeile nicht verdeckt. */
+.wrap{padding:0 12px calc(80px + env(safe-area-inset-bottom,0px))}
+
+/* ── Kopfzeile ────────────────────────────────────────────────
+   Flach wie am Schreibtisch, nur enger: Wortzeichen und Jahr wie
+   im Design (Zilla Slab 700, 20 px, daneben die Mono-Unterzeile).
+   Die Werkzeuge rollen in einer Zeile seitlich, statt die
+   Kopfzeile dreizeilig zu machen — jeder Knopf bleibt erreichbar,
+   keiner nimmt der Tabelle dauerhaft Platz weg. */
+header{padding-top:6px}
+.masthead{gap:8px;padding-bottom:6px;flex-wrap:nowrap;align-items:center;position:relative}
+.brand{gap:8px;flex:1 1 auto;min-width:0}
+.brand h1{font-size:20px}
+.brand .sub{font-size:9px}
+/* ── Alle Werkzeuge hinter einem Knopf ────────────────────────
+   Auf dem Telefon zeigt die Kopfzeile keine Knopfreihe: rechts
+   steht ein einziger Menüknopf (#btnMenu, Webclient.html), und
+   .tools wird zum aufklappbaren Menü darunter — Speichern,
+   Sicherung, Schließen, Einstellungen, Sprache, Anleitung, jeder
+   Eintrag in Fingerhöhe. Geöffnet und geschlossen wird in
+   js/app.js (Klick auf den Knopf, daneben oder auf ein Werkzeug).
+
+   Ungespeichertes bleibt sichtbar, obwohl der Dateiname im Menü
+   steckt: trägt er seine Warnung (.warnpath aus js/storage.js),
+   bekommt der Menüknopf die rote Marke — :has() kennt jeder
+   Browser, der auch FINA trägt; ohne fehlt nur die Marke. */
+.menubtn{display:grid;place-items:center;flex:0 0 auto;position:relative;
+  width:44px;height:44px;padding:0;border-radius:8px;font-size:17px;
+  background:var(--ink);color:var(--paper-2);border:1px solid var(--ink)}
+.masthead:has(.filepath.warnpath) .menubtn::after{content:"";position:absolute;
+  top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;
+  background:var(--seal);border:2px solid var(--paper)}
+.tools{display:none}
+.tools.open{display:flex;position:absolute;right:0;top:calc(100% + 6px);z-index:46;
+  flex-direction:column;align-items:stretch;gap:8px;
+  width:min(270px,calc(100vw - 24px));padding:12px;
+  background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:12px;
+  box-shadow:0 2px 6px rgba(27,35,32,.08),0 22px 48px rgba(27,35,32,.18)}
+.tools.open .btn{width:100%;padding:10px 14px;font-size:14px;text-align:center}
+.tools.open .btn:hover{transform:none}
+.tools.open .filepath{max-width:none;white-space:normal;overflow-wrap:anywhere;
+  padding:0 2px 4px;border-bottom:1px solid var(--rule)}
+.tools.open .hlangs{align-self:center;margin:2px 0 0}
+/* Die Ansichtsreiter oben entfallen — dieselben Reiter stehen
+   unten am Daumen (.mtabs). Das display setzt renderChrome()
+   inline (dort steht die Weiche); die Regel hier ist der doppelte
+   Boden für den Moment vor dem ersten Zeichnen. */
+.views{display:none!important}
+
+/* ── Die Monatsleiste ─────────────────────────────────────────
+   Dieselben Reiter mit Statuspunkt wie am Schreibtisch, nur mit
+   Fingermaß: 52 px je Monat, seitlich rollbar, ohne Rollbalken. */
+.months{scrollbar-width:none}
+.months::-webkit-scrollbar{display:none}
+.mtab{min-width:52px;padding:10px 8px 8px;font-size:11px}
+.mtab .dot{margin-top:4px}
+
+/* ── Die Reiterleiste unten ───────────────────────────────────
+   MONAT · JAHR · PROGNOSE (und mit Import die Details), fest am
+   unteren Rand, über dem Home-Indicator. Der aktive Reiter trägt
+   die rote Kante oben — dasselbe Zeichen wie der gewählte Monat
+   in der Leiste darüber. */
+body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;
+  border-top:2px solid var(--ink);background:var(--paper-2)}
+.mtabs[hidden]{display:none!important}
+.mvtab{flex:1 1 0;min-width:0;background:none;border:0;border-top:3px solid transparent;
+  padding:13px 4px calc(12px + env(safe-area-inset-bottom,0px));cursor:pointer;
+  font-family:var(--font-data);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mvtab[aria-selected="true"]{border-top-color:var(--seal);color:var(--ink);font-weight:600}
+
+/* ── Die Suchzeile der Monatsansicht ──────────────────────────
+   Filterknopf, Suchfeld, Leeren — alle exakt 44 px hoch. Der
+   Filterknopf ist dunkel und trägt die Zahl der greifenden Filter
+   als rote Marke; das Menü dahinter (.mfpanel) hält die gewohnten
+   Filterknöpfe und den Weg ins Suchfelder-Fenster. */
+.msearch{padding:8px 0}
+.msrow{display:flex;gap:6px}
+.mfbtn{position:relative;flex:0 0 44px;width:44px;height:44px;cursor:pointer;
+  border:1px solid var(--ink);background:var(--ink);color:var(--paper-2);
+  border-radius:2px;font-size:16px;padding:0}
+.mfbadge{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:8px;
+  background:var(--seal);color:var(--paper-2);font-family:var(--font-data);font-size:9.5px;
+  font-weight:600;line-height:16px;padding:0 3px}
+.msq{flex:1 1 auto;min-width:0;height:44px;font-family:var(--font-ui);font-size:14px;
+  background:var(--paper-2);color:var(--ink);border:1px solid var(--rule-strong);
+  border-radius:2px;padding:0 10px}
+.msclear{flex:0 0 44px;width:44px;height:44px;cursor:pointer;
+  border:1px solid var(--rule-strong);background:var(--paper-2);
+  border-radius:2px;font-size:13px;color:var(--ink-2);padding:0}
+.msclear:disabled{opacity:.45;cursor:not-allowed}
+/* Das Menü sieht aus wie die Filterzeile am Schreibtisch: grauer
+   Grund, dunkle Kante links — es ist derselbe Bereich. */
+.mfpanel{margin-top:8px;background:var(--shade);border:1px solid var(--rule);
+  border-left:5px solid var(--ink);padding:8px 10px;
+  display:flex;flex-direction:column;gap:8px}
+.mfpanel .fbgroup{margin-left:0;gap:6px}
+.mfpanel .fbgroup+.fbgroup{margin-left:0;border-top:1px solid var(--rule);padding-top:8px}
+.mfpanel .btn.small{min-height:36px;padding:6px 10px}
+
+/* ── Die Kennzahl-Kacheln ─────────────────────────────────────
+   Zwei Spalten mit 1px-Fugen auf --rule, darunter die SALDO-Zeile
+   über beide. Sie scrollen mit — klebend nähmen sie der Liste
+   dauerhaft ein Drittel des Bildschirms. Monat und Prognose
+   benutzen dieselben Kacheln. */
+.mkpi{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
+  border:1px solid var(--rule);margin:0 0 12px}
+.mkpi .mk{display:block;background:var(--paper-2);padding:8px 10px;min-width:0}
+.mkpi .mk.t-in{background:var(--bg-in)}
+.mkpi .mk.t-flex{background:var(--bg-flex)}
+.mkpi .mk.t-out{background:var(--bg-out)}
+.mkpi .mk .lab{display:block;font-family:var(--font-data);font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-2)}
+.mkpi .mk .val{display:block;font-family:var(--font-data);font-size:17px;font-weight:600;
+  font-variant-numeric:tabular-nums;margin-top:2px;white-space:nowrap}
+.mkpi .msal{grid-column:span 2;background:var(--bg-sal);
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mkpi .msal .val{font-size:19px;margin-top:0}
+/* Das Abschnittslabel über den Prognose-Kacheln — dieselbe Zeile
+   wie .analab, nur steht es hier nicht in einem .anahead. */
+.mplab{display:block;font-family:var(--font-data);font-size:9px;line-height:1.25;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin:10px 0 4px 1px}
+
+/* ── Die Karten der Monatsansicht ─────────────────────────────
+   Dasselbe Markup wie am Schreibtisch, nur anders gelegt: aus der
+   Tabellenzeile wird ein Raster — Siegel links (44 px), Name mit
+   Meta und Notiz in der Mitte, Betrag rechts, die Werkzeuge klein
+   darunter. Die Karte verliert ihr Innenpolster: die Zeilen
+   tragen ihres selbst. */
+/* Kein overflow:hidden an der Karte: das machte sie selbst zum
+   Bezugsrahmen ihres klebenden Kopfes, und der rutschte um sein
+   top-Maß in die Zeilen hinein. Alles nur in der Monatsansicht —
+   die Fast-Budget-Details haben dieselben Kartenklassen und
+   behalten ihr gewohntes Bild. */
+.view-monat .card.sec-in,.view-monat .card.sec-flex,.view-monat .card.sec-out{padding:0}
+/* Der Kopf als Raster: erste Zeile Pfeil, Bezeichnung, Summe —
+   die Bezeichnung wird bei Überlänge mit … beschnitten, die Summe
+   steht immer auf ihrer Höhe rechts. Die Anlege-Knöpfe (.secbtns,
+   gebaut in js/views/monat.js) stehen in der zweiten Zeile unter
+   der Bezeichnung. */
+.view-monat .card.sec-in>.sechead,.view-monat .card.sec-flex>.sechead,
+.view-monat .card.sec-out>.sechead{margin:0;padding:10px 12px 8px;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;column-gap:8px}
+.view-monat .sechead{margin-bottom:0}
+.view-monat .sechead .foldarrow,.view-monat .sechead .foldpad{grid-column:1;grid-row:1;width:32px}
+.view-monat .sechead h2{grid-column:2;grid-row:1;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.view-monat .sechead .tot{grid-column:3;grid-row:1;white-space:nowrap}
+.view-monat .sechead .secbtns{grid-column:2/-1;grid-row:2;
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.view-monat .sechead .secbtns:empty{display:none}
+.sechead .tot{font-size:16px}
+.sechead .btn.small{padding:5px 9px;font-size:11.5px}
+
+/* Abbezahlt fürs ganze Jahr: das Grau wandert wie bei tr.group an
+   die Zeile — je Zelle gefärbt blieben im Raster Flecken zwischen
+   Polster und Fugen. */
+.view-monat .card .ledger tr.settled{background:var(--settled)}
+.view-monat .card .ledger tr.settled td{background:transparent}
+
+/* Nur in der Monatsansicht (#view trägt .view-monat, siehe
+   render() in js/app.js): die Tabellen der Fast-Budget-Details und
+   der Prognose haben andere Zellen und blieben sonst nicht heil. */
+.view-monat .card .ledger,.view-monat .card .ledger tbody{display:block}
+.view-monat .card .ledger tr{display:grid;grid-template-columns:52px minmax(0,1fr) auto;
+  grid-template-rows:auto auto;align-items:center;column-gap:10px;
+  padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.10)}
+.view-monat .card .ledger tr:last-child{border-bottom:0}
+.view-monat .card .ledger td{display:block;border-bottom:0;padding:0;width:auto}
+.view-monat .card .ledger td.markcell{grid-column:1;grid-row:1/span 2;justify-self:start}
+.view-monat .card .ledger td.nm{grid-column:2;grid-row:1/span 2;min-width:0}
+.view-monat .card .ledger td.amt{grid-column:3;grid-row:1;align-self:center;text-align:right;
+  font-size:15px;padding-top:0!important}
+.view-monat .card .ledger td.pencell{grid-column:3;grid-row:2;justify-self:end;padding-top:2px!important}
+.view-monat .card .ledger td.pencell .ptools{justify-content:flex-end}
+/* Der Satz einer leeren Karte läuft über die ganze Breite. */
+.view-monat .card .ledger td.note{grid-column:1/-1;padding:4px 2px}
+
+/* Die Siegel mit Fingermaß: 44 px rund, der Haken 20 px. */
+.seal{width:44px;height:44px}
+.seal svg{width:20px;height:20px}
+
+/* Kategoriezeilen als getönte Zwischenzeilen: Name links, Summe
+   rechts, die Kante des Bereichs läuft als inset weiter. Die
+   Tönung wandert von den Zellen an die Zeile — im Raster deckten
+   vier Einzelzellen die Fläche nicht mehr. */
+.view-monat .card .ledger tr.group{display:flex;align-items:baseline;gap:10px;padding:7px 12px}
+/* Auch die Bereichs-Fassungen der Zellen (css/ledger.css setzt sie
+   mit .card.sec-* und gewänne sonst die Spezifität): Tönung, Kante
+   und Ränder trägt jetzt die Zeile. */
+.view-monat .card .ledger tr.group td,
+.view-monat .card.sec-in .ledger tr.group td,.view-monat .card.sec-out .ledger tr.group td{
+  background:transparent!important;border:0;box-shadow:none!important}
+.view-monat .card .ledger tr.group td:nth-child(1),
+.view-monat .card .ledger tr.group td:nth-child(3){display:none}
+.view-monat .card .ledger tr.group td:nth-child(4){order:1;flex:1 1 auto;min-width:0}
+.view-monat .card .ledger tr.group td:nth-child(2){order:2;font-weight:600}
+.view-monat .card.sec-out .ledger tr.group{background:var(--bg-out-2);
+  box-shadow:inset 5px 0 0 var(--edge-out);
+  border-top:1px solid var(--edge-out);border-bottom:1px solid var(--edge-out)}
+.view-monat .card.sec-in .ledger tr.group{background:var(--bg-in-2);
+  box-shadow:inset 5px 0 0 var(--edge-in);
+  border-top:1px solid var(--edge-in);border-bottom:1px solid var(--edge-in)}
+
+/* Die Saldokorrektur: Titel, Betrag, Stift — eine Zeile. */
+.view-monat .card.sec-bal{padding:0}
+.view-monat .card.sec-bal .ledger,.view-monat .card.sec-bal .ledger tbody{display:block}
+.view-monat .card.sec-bal .ledger tr.balrow{display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  grid-template-rows:auto;align-items:center;column-gap:10px;padding:10px 12px}
+.view-monat .card.sec-bal .ledger td.markcell{display:none}
+.view-monat .card.sec-bal .ledger td.nm{grid-column:1;grid-row:1}
+.view-monat .card.sec-bal .ledger td.amt{grid-column:2;grid-row:1;font-size:16px}
+.view-monat .card.sec-bal .ledger td.pencell{grid-column:3;grid-row:1;padding-top:0!important}
+
+/* ── Die mobile Jahresansicht: zwölf Monatskarten ─────────────
+   Oben klebt die violette Gesamtzeile, darunter die Karten
+   (js/views/jahr.js, viewJahrMobile). scroll-margin-top hält beim
+   Sprung zum laufenden Monat die klebenden Leisten frei. */
+.ymbar{padding:8px 0}
+.ymtot{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  background:var(--bg-sal);border:1px solid var(--rule);padding:9px 12px}
+.ymtot .lab{font-family:var(--font-data);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;font-weight:600;color:var(--ink-sal)}
+.ymtot .val{font-family:var(--font-data);font-size:15px;font-weight:600;
+  font-variant-numeric:tabular-nums;color:var(--ink-sal)}
+.ymlist{display:flex;flex-direction:column;gap:8px;padding:2px 0 8px}
+.ymcard{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+  column-gap:10px;text-align:left;font:inherit;color:inherit;cursor:pointer;
+  background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;
+  padding:10px 12px;min-height:60px;scroll-margin-top:112px}
+.ymcard .ymmain{grid-column:1;grid-row:1;display:flex;align-items:baseline;
+  justify-content:space-between;gap:10px}
+.ymname{font-family:var(--font-display);font-weight:600;font-size:15px}
+.ymsum{font-family:var(--font-data);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.ymcard .ymsub{grid-column:1;grid-row:2;display:flex;gap:10px;flex-wrap:wrap;margin-top:3px;
+  font-family:var(--font-data);font-size:10px;white-space:nowrap}
+.ymcard .ymgo{grid-column:2;grid-row:1/span 2;font-size:17px;color:var(--rule-strong)}
+.yk-in{color:var(--ok)}
+.yk-out{color:var(--seal)}
+.yk-flex{color:var(--amber)}
+.yk-bal{color:var(--ink-bal)}
+/* Abgerechnet grau und grün durchgestrichen, der laufende rot
+   eingefasst — je 1 px weniger Polster, damit die Karten trotz
+   dickerem Rahmen gleich groß bleiben. */
+.ymcard.done{background:var(--settled)}
+.ymcard.done .ymname{color:var(--ok);text-decoration:line-through;text-decoration-thickness:2px}
+.ymcard.now{border:2px solid var(--seal);padding:9px 11px}
+.ymcard.now .ymname{color:var(--seal)}
+
+/* ── Die mobile Prognose ──────────────────────────────────────
+   Die klebende Spalte trägt Monat und END zusammen (.mlead), die
+   Grafik dahinter scrollt. Das Rasterfeld ist schmaler als am
+   Schreibtisch, damit mindestens drei Felder zugleich im Bild
+   stehen (--progleadw gilt hier je Feld UND als Mindestbreite der
+   ersten Spalte — deshalb bekommt die ihr eigenes Maß). */
+body.mobile .progtable{--progleadw:78px}
+.mprog td:first-child,.mprog th:first-child{min-width:112px}
+.mprog td.mlead,.mprog th.mlead{display:flex;align-items:center;justify-content:space-between;
+  gap:6px;padding:7px 8px 7px 6px}
+.mprog .mm{font-family:var(--font-data);font-size:11px;letter-spacing:.06em}
+.mprog .me{font-family:var(--font-data);font-size:12px;font-weight:600;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.mprog th.mlead .mm,.mprog th.mlead .me{font-size:9px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-2)}
+/* Der Anfangsbestand in Violett, der Betrag blass wie am
+   Schreibtisch; vergangene Monate bleichen nur ihren END-Betrag —
+   die klebende Spalte selbst bleibt deckend und lesbar.
+
+   Sein Name steht ÜBER dem Betrag, nicht daneben: nebeneinander
+   zwängen die beiden die klebende Spalte auf gut 200 px auf, und
+   die Spaltenbreite einer Tabelle macht die breiteste Zelle —
+   die Grafik verlöre genau die Felder, für die sie da ist. */
+.mprog tr.openrow td.mlead{display:block}
+.mprog tr.openrow .mm{display:block;color:var(--ink-sal);font-size:9px;
+  letter-spacing:.06em;line-height:1.2;text-transform:uppercase;white-space:normal}
+.mprog tr.openrow .me{display:block;color:var(--ink-sal);opacity:.42;margin-top:1px}
+.mprog tr.past .me{opacity:.45}
+
+/* ── Fast Budget Details ──────────────────────────────────────
+   Kein Teil des mobilen Designs: die Ansicht behält ihr Bild,
+   ihre Tabellen rollen bei Bedarf in ihrer Karte seitlich, statt
+   die ganze Seite breit zu machen. Der Kartenkopf darf dann nicht
+   mehr kleben: die rollende Karte wäre sein Bezugsrahmen, und ihr
+   top-Maß schöbe ihn mitten in die Zeilen (dasselbe Fehlerbild
+   wie bei overflow:hidden an den Monatskarten, siehe oben). */
+.view-kakeibo .card{overflow-x:auto}
+.view-kakeibo .card>.sechead{position:static}
+
+/* ── Fenster ──────────────────────────────────────────────────
+   Dieselben Fenster, nur bis an den Rand: auf 390 px ist jedes
+   Polster außen verlorener Platz. */
+.modal{padding:8px}
+.modal .box{padding:14px 12px;max-height:94vh}
+
+}

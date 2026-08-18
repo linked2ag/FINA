@@ -54,8 +54,8 @@
 
   <div class="ghead">
     <p class="eyebrow reveal"><span data-l="de" hidden>ANLEITUNG</span><span data-l="en">GUIDE</span></p>
-    <h1 class="reveal" style="--d:.06s"><span data-l="de" hidden>FINA in fünf Minuten.</span><span data-l="en">FINA in five minutes.</span></h1>
-    <p class="reveal" style="--d:.12s"><span data-l="de" hidden>Ein Buch für ein Jahr. Drei Ansichten. Ein Ziel: wissen, was kommt.</span><span data-l="en">One book for one year. Three views. One goal: know what’s coming.</span></p>
+    <h1 class="reveal" style="--d:.1s"><span data-l="de" hidden>FINA in fünf Minuten.</span><span data-l="en">FINA in five minutes.</span></h1>
+    <p class="reveal" style="--d:.2s"><span data-l="de" hidden>Ein Buch für ein Jahr. Drei Ansichten. Ein Ziel: wissen, was kommt.</span><span data-l="en">One book for one year. Three views. One goal: know what’s coming.</span></p>
   </div>
 
   <!-- ══ Was FINA ist ═══════════════════════════════════════ -->
@@ -107,7 +107,11 @@
     <p><span data-l="de" hidden><b>Abgehakt</b> heißt: so war es wirklich. <b>Offen</b> heißt: steht noch aus. <b>Orange</b> heißt: geschätzt — die Zahl ist eine Annahme, keine Tatsache. Beim Abhaken eines geschätzten Betrags fragt FINA deshalb zuerst nach der richtigen Zahl.</span><span data-l="en"><b>Ticked</b> means: that’s what really happened. <b>Open</b> means: still due. <b>Orange</b> means: estimated — the number is an assumption, not a fact. That’s why FINA asks for the real number before you can tick off an estimate.</span></p>
     <!-- Der Monat ist eine schmale Ansicht und wird auch schmal
          gezeigt: eigens schmal fotografiert (month-slim in
-         doc/make-shots.py), unten ausgeblendet statt beschnitten. -->
+         doc/make-shots.py), unten ausgeblendet statt beschnitten.
+         Die Auswertung ist im Bild AUFGEKLAPPT (ana=1) — ein
+         eigenes Bild nur für den Zeitstrahl gibt es nicht mehr:
+         man sähe ihn zweimal und wüsste beim zweiten Mal nicht,
+         wo er in der Ansicht wohnt. -->
     <figure class="shotimg slim">
       <div class="shotwin">
         <div class="shot-bar">
@@ -115,20 +119,9 @@
           <span class="ttl"><span data-l="de" hidden>Monatsansicht</span><span data-l="en">Month view</span></span>
           <span class="tab"><span data-l="de" hidden><b>Monat</b> · Jahr · Prognose</span><span data-l="en"><b>Month</b> · Year · Forecast</span></span>
         </div>
-        <a class="fadecut" href="doc/img/month-slim.png" target="_blank" rel="noopener"><img src="doc/img/month-slim.png" alt="FINA month view: cards for income, flexible payments and regular costs with seals for paid items" loading="lazy"></a>
+        <a class="fadecut" href="doc/img/month-slim.png" target="_blank" rel="noopener"><img src="doc/img/month-slim.png" alt="FINA month view: the analytics timeline opened on top, below it cards for income, flexible payments and regular costs with seals for paid items" loading="lazy"></a>
       </div>
-      <figcaption><span data-l="de" hidden>Die Monatsansicht mit ihren Siegeln.</span><span data-l="en">The month view with its seals.</span></figcaption>
-    </figure>
-    <figure class="shotimg mid">
-      <div class="shotwin">
-        <div class="shot-bar">
-          <span class="dot r" aria-hidden="true"></span><span class="dot y" aria-hidden="true"></span><span class="dot g" aria-hidden="true"></span>
-          <span class="ttl"><span data-l="de" hidden>Monat · Auswertung</span><span data-l="en">Month · Analytics</span></span>
-          <span class="tab"><span data-l="de" hidden><b>Monat</b> · Jahr · Prognose</span><span data-l="en"><b>Month</b> · Year · Forecast</span></span>
-        </div>
-        <a href="doc/img/ui-waterfall.png" target="_blank" rel="noopener"><img src="doc/img/ui-waterfall.png" alt="FINA month analysis: a waterfall timeline showing how the balance moves through the month" loading="lazy"></a>
-      </div>
-      <figcaption><span data-l="de" hidden>Die Auswertung darüber zeigt als Zeitstrahl, wie sich der Monat auf dein Konto auswirkt — Anfang, Mitte, Ende.</span><span data-l="en">The analysis above it is a timeline of how the month moves your account — start, middle, end.</span></figcaption>
+      <figcaption><span data-l="de" hidden>Die Monatsansicht mit ihren Siegeln — darüber die aufgeklappte Auswertung: der Zeitstrahl zeigt, wie sich der Monat auf dein Konto auswirkt, Anfang, Mitte, Ende. Von Haus aus ist die Auswertung zugeklappt; ein Klick auf ihre Zeile öffnet sie, wenn du den Überblick brauchst.</span><span data-l="en">The month view with its seals — and the analysis opened above it: the timeline shows how the month moves your account, start, middle, end. By default the analysis is collapsed; one click on its row opens it whenever you want the overview.</span></figcaption>
     </figure>
   </section>
 
@@ -206,10 +199,12 @@
     <a href="#anfangen"><span data-l="de" hidden>So fängst du an</span><span data-l="en">How to start</span></a>
     <div class="jumpsep" aria-hidden="true"></div>
     <p class="jumphd"><span data-l="de" hidden>Mehr</span><span data-l="en">More</span></p>
+    <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
     <a href="features.html"><span data-l="de" hidden>Alle Funktionen</span><span data-l="en">All features</span></a>
     <a href="compare.html"><span data-l="de" hidden>Der Vergleich</span><span data-l="en">The comparison</span></a>
     <a href="index.html#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
     <a href="index.html#downloads">Downloads</a>
+    <a href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
   </nav>
   <button class="jumpbtn" type="button" aria-expanded="false" aria-controls="jumpmenu"
           aria-label="Abschnitte / Sections">

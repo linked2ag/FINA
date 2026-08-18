@@ -410,11 +410,19 @@ body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
 .guidepanel .gfull{display:inline-grid;place-items:center;padding:5px 8px}
 .guidepanel .gfull svg{width:13px;height:13px;stroke:currentColor;fill:none;
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.guidepanel .glangs{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
-.guidepanel .glang{background:transparent;border:0;cursor:pointer;padding:3px 7px;
+/* Der Trennstrich ist eine **Fuge**, kein Rand am zweiten Knopf:
+   als border-left war DE genau ein Pixel breiter als EN, und bei
+   zwei Kürzeln nebeneinander sieht man das. Dieselbe Bauart wie
+   die Kennzahlenleisten (.kpi, .anarow) — die 1px-Lücke lässt den
+   Grund des Rahmens durchscheinen, beide Knöpfe bleiben gleich. */
+.guidepanel .glangs{display:flex;gap:1px;background:var(--rule-strong);
+  border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+/* Deckender Grund statt transparent: sonst schiene die Fuge durch
+   die Knöpfe selbst hindurch. Der Kopf der Anleitung steht auf
+   --paper (siehe .guidepanel .ghead). */
+.guidepanel .glang{background:var(--paper);border:0;cursor:pointer;padding:3px 7px;
   font-family:var(--font-data);font-size:10px;letter-spacing:.1em;color:var(--ink-2);line-height:1.5}
-.guidepanel .glang+.glang{border-left:1px solid var(--rule-strong)}
-.guidepanel .glang:hover{background:rgba(0,0,0,.05);color:var(--ink)}
+.guidepanel .glang:hover{background:var(--shade);color:var(--ink)}
 .guidepanel .glang[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
 .guidepanel .glang:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
 /* Zwei Wege durch dieselbe Anleitung: der Weg für Anfänger und

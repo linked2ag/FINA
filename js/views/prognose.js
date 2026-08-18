@@ -114,6 +114,19 @@ const PROG_COLS=[
 const gnum=v=>(Math.round(v)||0).toLocaleString(LANG()==='de'?'de-DE':'en-US');
 
 function viewPrognose(){
+  /* ── Die mobile Fassung teilt sich die ganze Rechnung ─────────
+     Unter 700 px (isMobile in js/app.js) ändert sich nur der
+     Zusammenbau: die Kennzahlen werden Kacheln (wie im Monat), und
+     die Tabelle behält von ihren Spalten nur Monat und END —
+     zusammen in **einer** klebenden Zelle (.mlead), denn
+     `position:sticky` hält die erste Spalte, und zwei klebende
+     Spalten brauchten ein zweites, von Hand gepflegtes left-Maß.
+     Die Grafik dahinter scrollt waagerecht; ihr Rasterfeld ist
+     schmaler (--progleadw in css/mobile.css), damit mindestens
+     drei Felder zugleich im Bild stehen. Achse, Raster, Balken und
+     Farberklärung sind dieselben wie am Schreibtisch — eine zweite
+     Rechnung liefe früher oder später neben der ersten her. */
+  const mob=isMobile();
   /* Die Kumulation läuft über das ganze Jahr: die letzte Zeile ist
      damit der Saldo zum Jahresende, die Zeile vor dem laufenden
      Monat der Stand von heute. */
@@ -341,14 +354,20 @@ function viewPrognose(){
        diesen Weg müsste man sie im Menü suchen. Nur dieser eine
        Betrag trägt das Merkmal: die Spalte END der Monatszeilen ist
        eine gerechnete Summe und nichts, was sich ändern ließe. */
+    const track=`<td class="flowcell">${rails}<span class="ttrack ytrack two"
+        ><span class="tsum yopen solo${fade}" style="left:${l}%;width:${r-l}%"></span
+        ><span class="tmark" style="left:${Math.max(0,Math.min(100,pos(op)))}%"></span></span></td>`;
+    /* Mobil trägt die klebende Zelle beides — Name und Betrag —
+       und mit ihnen den Doppelklick in die Einstellungen. */
+    if(mob) return `<tr class="openrow"><td class="mlead" data-opening="1"
+        data-tip="${esc(t('prog.openEdit'))}"><span class="mm">${t('set.opening')}</span
+        ><span class="me num">${eur(op)}</span></td>${track}</tr>`;
     return `<tr class="openrow"><td>${t('set.opening')}</td>
       <td class="num"></td><td class="num incol"></td><td class="num outcol"></td><td class="num flexcol"></td>
       <td class="num balcol${corEmpty?' mid':''}"></td>
       <td class="num endcol ${cls(op)}" data-opening="1"
         data-tip="${esc(t('prog.openEdit'))}">${eur(op)}</td>
-      <td class="flowcell">${rails}<span class="ttrack ytrack two"
-        ><span class="tsum yopen solo${fade}" style="left:${l}%;width:${r-l}%"></span
-        ><span class="tmark" style="left:${Math.max(0,Math.min(100,pos(op)))}%"></span></span></td></tr>`;
+      ${track}</tr>`;
   })();
 
   const rows=MONTHS.map((name,i)=>{
@@ -363,6 +382,10 @@ function viewPrognose(){
        der Verlauf behält seine Farbe. Er ist eine Kurve über das
        ganze Jahr — ein Stück davon auszubleichen unterbräche sie
        genau dort, wo man sie am ehesten liest. */
+    if(mob) return `<tr${m<CUR?' class="past"':(m===CUR?' class="now"':'')}>
+      <td class="mlead"><span class="mm">${name}</span
+        ><span class="me num ${cls(cum)}">${eur(cum)}</span></td>
+      <td class="flowcell">${rails}${yearTrack(flow[i],pos,sc.cut)}</td></tr>`;
     return `<tr${m<CUR?' class="past"':(m===CUR?' class="now"':'')}>
       <td>${name}</td>
       <td class="num ${cls(start)}">${eur(start)}</td>
@@ -410,6 +433,37 @@ function viewPrognose(){
      verloren gehen soll es trotzdem nicht. */
   const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
       ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
+
+  /* ── Der mobile Zusammenbau ──────────────────────────────────
+     Dieselben fünf Zahlen als Kacheln (wie die der Monatsansicht,
+     die Jahresend-Kachel über beide Spalten), darunter die
+     Hochrechnung mit der klebenden Spalte aus Monat und END. Die
+     Kürzel M und END samt ihren Sprechblasen kommen aus PROG_COLS —
+     es sind dieselben Spalten, nur zusammengelegt. */
+  if(mob){
+    const tile=(c,lab,val,vc)=>`<span class="mk${c?' '+c:''}"><span class="lab">${lab}</span
+      ><span class="val ${vc}">${eur(val)}</span></span>`;
+    const mhead=`<th class="mlead" data-tip="${esc(t(PROG_COLS[0].name)+' — '+t(PROG_COLS[0].tip))}"
+      ><span class="mm">${PROG_COLS[0].ab}</span><span class="me">${PROG_COLS[6].ab}</span></th>`;
+    return `
+    <div class="analab mplab">${t('prog.kpiLab',YEAR)}</div>
+    <div class="mkpi">
+      ${tile('t-in',t('prog.kpiIncome',from),incRest,'pos')}
+      ${tile('t-out',t('prog.kpiFixed',from),fixRest,'neg')}
+      ${tile('t-flex',t('prog.kpiKak',from),kakRest,'neg')}
+      ${tile('',t('prog.kpiSoFar'),soFar,cls(soFar))}
+      <span class="mk msal"><span class="lab">${t('prog.kpiEnd')}</span
+        ><span class="val ${cls(yearEnd)}">${eur(yearEnd)}</span></span>
+    </div>
+    <div class="card"><h2>${t('prog.title',YEAR)}</h2>
+      <div class="scroll progscroll" id="progScroll" style="border:0"><table class="ledger progtable mprog"
+        style="--flowcells:${cells.toFixed(3)}">
+        <tr>${mhead}<th class="flowcell axishead"
+          data-tip="${esc(t('prog.colFlow')+' — '+t('prog.colFlowTip'))}">${axis.join('')}</th></tr>
+        ${openRow}${rows}</table></div>
+      <div class="thint">${chips}</div>
+      <p class="note" style="margin-top:10px">${t('prog.greyed',MONTHS_LONG[CUR-1])}</p></div>`;
+  }
   return `
   <div class="stickybar anabar">
     <div class="anahead">

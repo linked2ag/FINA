@@ -18,8 +18,11 @@ let state=null;
 
    welcome ist die Begrüßungsseite: sie steht am Anfang und wieder
    nach dem Trennen der Datei (js/views/willkommen.js). */
+/* mFilters ist das Filtermenü der mobilen Monatsansicht (der
+   Knopf vor dem Suchfeld): offen oder zu — Anzeige wie ana, nicht
+   in der Datei. Auf dem Schreibtisch wird es nie gelesen. */
 let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPick:null,
-  q:'',qFocus:false,ana:false,welcome:true};
+  q:'',qFocus:false,ana:false,mFilters:false,welcome:true};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────
    Der Nutzer stellt im Fenster hinter dem Hamburger-Knopf ein,
@@ -262,8 +265,10 @@ function afterLoad(){
   ui.q=''; ui.qFocus=false;
   /* Die Auswertung fängt zugeklappt an: sie klebt beim Scrollen
      unter der Kopfzeile und nähme sonst dauerhaft zwei Zeilen weg,
-     die die Tabelle darunter besser gebraucht. */
+     die die Tabelle darunter besser gebraucht. Das Filtermenü der
+     mobilen Monatsansicht aus demselben Grund. */
   ui.ana=false;
+  ui.mFilters=false;
 }
 
 /* Bringt eine geladene Datei auf den aktuellen Aufbau. */

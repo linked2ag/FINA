@@ -17,17 +17,22 @@
 function viewWelcome(){
   return `
   <div class="welcome">
+    <!-- Der Hintergrund atmet wie auf der Startseite: drei weiche
+         Farbflächen hinter der Karte, nur Zierde (css/layout.css,
+         .wbg). Die Seite ist die Tür zwischen Startseite und Buch
+         und trägt deshalb deren Gestalt. -->
+    <div class="wbg" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="wbox">
       <div class="wtop">
         <div class="wmark">FINA</div>
         <!-- Die Sprachwahl gehört auf diese Seite: das
              Einstellungsfenster gibt es erst im geladenen Buch.
-             Geschrieben wird in state.lang des leeren Buches — eine
-             geladene Datei überstimmt das wie immer, und in den
-             localStorage der Startseite (finaLang) wird nichts
-             zurückgeschrieben. Die Kürzel kommen aus LANGS und
-             wechseln die Sprache nicht; verdrahtet in wire()
-             (data-wlang). -->
+             Geschrieben wird über chooseLang() (js/i18n.js) in
+             state.lang des leeren Buches **und** in den
+             localStorage — die Wahl gilt damit auch für die
+             Verkaufsseiten. Eine geladene Datei überstimmt sie wie
+             immer. Die Kürzel kommen aus LANGS und wechseln die
+             Sprache nicht; verdrahtet in wire() (data-wlang). -->
         <div class="wlangs" role="group" aria-label="Language">
           ${LANGS.map(([k,label])=>`<button class="wlang" data-wlang="${k}"
             aria-pressed="${LANG()===k}" title="${label}">${k.toUpperCase()}</button>`).join('')}

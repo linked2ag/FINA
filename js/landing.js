@@ -87,23 +87,38 @@ if(jump){
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape') shut();});
 
-  /* „Anfang" zeigt auf <body id="top"> — das steht immer im Bild
-     und wäre damit immer der Treffer. Beobachtet werden nur die
-     Abschnitte. */
+  /* ── Wo man gerade liest ─────────────────────────────────────
+     Im Menü ist immer genau EIN Abschnitt markiert (.here): der
+     letzte, dessen Anfang über der Leselinie liegt (30 % der
+     Fensterhöhe). „Anfang" zeigt auf <body> und zählt als 0 — am
+     Seitenanfang ist also er der Treffer, nicht nichts. Und wer
+     ganz unten steht, liest den letzten Abschnitt, auch wenn der
+     zu kurz ist, um die Leselinie je zu erreichen.
+
+     Gerechnet wird bei jedem Scrollen neu, samt der Lagen der
+     Abschnitte selbst: die verschieben sich noch, wenn Bilder
+     laden oder die Sprache wechselt. Zehn Rechtecke je Ereignis —
+     das ist keine Messung, der man hinterherlaufen könnte. */
   var marks=[];
   each('a[href^="#"]',function(a){
     var el=document.getElementById(a.getAttribute('href').slice(1));
-    if(el&&el!==document.body) marks.push({a:a,el:el});
+    if(el) marks.push({a:a,el:el});
   },jump);
-  if(marks.length&&window.IntersectionObserver){
-    var seen={};
-    var spy=new IntersectionObserver(function(es){
-      es.forEach(function(e){seen[e.target.id]=e.isIntersecting;});
-      var hit=null;
-      marks.forEach(function(m){if(!hit&&seen[m.el.id]) hit=m;});
+  if(marks.length){
+    var spy=function(){
+      var line=scrollY+innerHeight*.3, hit=marks[0];
+      marks.forEach(function(m){
+        var top=m.el===document.body?0:m.el.getBoundingClientRect().top+scrollY;
+        if(top<=line) hit=m;
+      });
+      if(scrollY+innerHeight>=document.documentElement.scrollHeight-2)
+        hit=marks[marks.length-1];
       marks.forEach(function(m){m.a.classList.toggle('here',m===hit);});
-    },{rootMargin:'-20% 0px -70% 0px'});
-    marks.forEach(function(m){spy.observe(m.el);});
+    };
+    addEventListener('scroll',spy,{passive:true});
+    addEventListener('resize',spy);
+    if(jbtn) jbtn.addEventListener('click',spy);
+    spy();
   }
 }
 
@@ -157,7 +172,12 @@ each('[data-pan]',function(box){
        verschwindet die Karte, wie die Rollleiste der Anwendung. */
     box.classList.toggle('nopan',
       w<=view.clientWidth+2&&h<=view.clientHeight+2);
-    if(!placed&&startY){view.scrollTop=h*startY;placed=true;}
+    /* Der Startversatz gilt erst, wenn es etwas zu verschieben
+       gibt: vor dem Laden des Bildes ist scrollHeight gleich der
+       Rahmenhöhe, scrollTop würde auf 0 geklemmt — und `placed`
+       stünde trotzdem, sodass die Nachmessung bei img.load den
+       Versatz überspränge. */
+    if(!placed&&startY&&h>view.clientHeight+2){view.scrollTop=h*startY;placed=true;}
     update();
   }
   function update(){

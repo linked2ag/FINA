@@ -158,7 +158,54 @@ function mrow(label,vals,opt={}){
 const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(8)}${visMonths().map(()=>
   `<td></td><td></td>`).join('')}<td class="tot"></td></tr>`;
 
+/* ── Die mobile Jahresansicht: zwölf Monatskarten ─────────────
+   Unter 700 px (isMobile in js/app.js) ist die Matrix kein Werkzeug
+   mehr: zwölf Monatsspalten auf 390 px sind 4-px-Zahlen. Statt sie
+   zu verkleinern, wird das Jahr eine Liste aus zwölf Karten — je
+   Monat der Name, sein Saldo und darunter die vier Bewegungen als
+   Kürzel (IN · REG · FLEX · COR, sprachunabhängig wie B · PT · DD ·
+   LP). COR steht nur da, wo eine Korrektur eingetragen ist.
+
+   Oben klebt die violette Gesamtzeile — dieselbe Aussage wie
+   year.totalRow der Matrix, mit der Jahressumme daneben. Angelegt
+   und gefiltert wird hier nicht: dafür wechselt man an den
+   Schreibtisch; ein Tipp auf die Karte führt in den Monat
+   (data-goto, verdrahtet in wire()). Beim Betreten steht der
+   laufende Monat oben (siehe render() in js/app.js) — die
+   abgerechneten liegen darüber, die kommenden darunter.
+
+   Die drei Zustände einer Karte sagen dasselbe wie die
+   Monatsreiter: abgerechnet grau und grün durchgestrichen
+   (monthDone), der laufende rot eingefasst, die kommenden
+   gewöhnlich. */
+function viewJahrMobile(){
+  const yearSum=MONTHS.reduce((s,_,i)=>s+saldo(i+1),0);
+  const cards=MONTHS.map((name,i)=>{
+    const m=i+1, s=saldo(m);
+    /* Beide Zustände können zusammen gelten — ein komplett
+       abgehakter laufender Monat bleibt der laufende, wie in den
+       Monatsreitern der Kopfzeile (mtab alldone current): sonst
+       verlöre er die rote Einfassung und den Sprung zum Jetzt. */
+    const st=(monthDone(m)?' done':'')+(m===CUR?' now':'');
+    const cor=balanceFix(m);
+    return `<button class="ymcard${st}" data-goto="${m}"
+      title="${esc(t('year.monthTip',MONTHS_LONG[i]))}">
+      <span class="ymmain"><span class="ymname">${MONTHS_LONG[i]}</span
+        ><span class="ymsum ${cls(s)}">${eur(s)}</span></span>
+      <span class="ymsub"><span class="yk yk-in">IN ${eur(income(m))}</span
+        ><span class="yk yk-out">REG ${eur(fixedCost(m))}</span
+        ><span class="yk yk-flex">FLEX ${eur(kakeiboFor(m))}</span
+        >${cor?`<span class="yk yk-bal">COR ${eur(cor)}</span>`:''}</span>
+      <span class="ymgo" aria-hidden="true">&rsaquo;</span></button>`;
+  }).join('');
+  return `<div class="stickybar ymbar"><span class="ymtot"
+      ><span class="lab">${t('year.mTotal',YEAR)}</span
+      ><span class="val ${cls(yearSum)}">${eur(yearSum)}</span></span></div>
+    <div class="ymlist">${cards}</div>`;
+}
+
 function viewJahr(){
+  if(isMobile()) return viewJahrMobile();
   /* „Abgeschlossene ausblenden" versteckt nur Zeilen, in denen
      nichts mehr aussteht. Die Summen bleiben davon unberührt.
 

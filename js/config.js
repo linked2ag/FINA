@@ -27,7 +27,7 @@
    diese Nummer tragen. Versionen entstehen dort nur auf Zuruf; die
    Webseite läuft ihnen voraus, und die Apps hinterher (siehe
    „Die zwei Veröffentlichungskanäle" in der Planung). */
-const VERSION='26.8.16';
+const VERSION='26.8.18';
 
 /* Wo die Apps ihre Fassung nachschlagen. Die Datei beschreibt den
    **App-Kanal**, nicht die Webseite: stünde dort jede Webversion,

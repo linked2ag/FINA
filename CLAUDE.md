@@ -257,10 +257,25 @@ erledigt die Startseite (`index.html`), und `download/` leitet als Stub dorthin 
 kopiert `Webclient.html` nach `desktop/app/index.html` — so bleibt `desktop/main.js`
 unberührt, und in die App gelangt nie die Verkaufsseite.
 
-**Die Sprachwahl der Startseite gilt als Vorgabe.** Der DE/EN-Schalter dort (Englisch ist
-der Grundzustand) schreibt `finaLang` in den localStorage; der Start des Web-Clients
-liest ihn für das noch leere Buch (Block „Start" in `js/app.js`). Eine geladene Datei
-überstimmt ihn wie immer (`state.lang`), und zurückgeschrieben wird nichts.
+**Die Sprachwahl gilt überall und in beide Richtungen.** Sie steht an vier Stellen — der
+DE/EN-Schalter der Verkaufsseiten (`js/landing.js`), die Kopfzeile, die Begrüßungsseite und
+das Einstellungsfenster —, und alle vier führen **eine** Notiz: `finaLang` im localStorage.
+Englisch ist der Grundzustand. Die drei Stellen in der Anwendung schreiben über
+`chooseLang()` (`js/i18n.js`), die Verkaufsseiten über `setLang()`; gelesen wird sie beim
+Aufruf jeder Verkaufsseite und beim Start des Web-Clients für das noch leere Buch (Block
+„Start" in `js/app.js`). Wer auf der Seite Deutsch wählt, bekommt die Anwendung auf Deutsch —
+und umgekehrt.
+
+**Geschrieben wird nur, was jemand ausdrücklich umstellt.** Eine geladene Datei überstimmt
+die Vorgabe wie immer (`state.lang`), schreibt aber **nicht** zurück: wer ein englisches Buch
+öffnet, hat damit nichts über die Webseite gesagt — sie wechselte sonst bei jedem
+Dateiwechsel ungefragt die Sprache.
+
+**Ein Cookie ist es ausdrücklich nicht.** Ein Cookie ginge bei jedem Aufruf an den Server;
+im Kopf von `index.html` steht, dass die Seite nichts hochlädt, und das soll auch für die
+Sprache gelten. Der localStorage hält genauso lange und verlässt den Rechner nie. Unter
+`file://` kann er fehlen — dann bleibt es bei Englisch, deshalb steht jeder Zugriff in einem
+`try`.
 
 **macOS braucht mindestens eine Ad-hoc-Signatur.** `identity: null` allein ließe die App
 ganz unsigniert, und eine unsignierte App startet auf Apple Silicon überhaupt nicht —
@@ -935,11 +950,17 @@ und bietet dann die beiden einzigen Wege an — `data-wload` öffnet eine Datei 
 
 **Oben rechts steht die Sprachwahl** (`.wlangs`, `data-wlang`, verdrahtet in `wire()`): das
 Einstellungsfenster gibt es erst im geladenen Buch, und ohne diesen Weg säße, wer ohne die
-Startseite ankommt, auf der falschen Sprache fest. Geschrieben wird in `state.lang` des
-leeren Buches — kein `save()`, es gibt noch nichts, das schmutzig werden könnte; eine
-geladene Datei überstimmt die Wahl wie immer, und `finaLang` im localStorage bleibt
-unangetastet (die Vorgabe der Startseite, siehe „Die drei Fassungen"). Die Kürzel EN · DE
+Startseite ankommt, auf der falschen Sprache fest. Geschrieben wird über `chooseLang()` in
+`state.lang` des leeren Buches **und** in den localStorage — die Wahl gilt damit auch für die
+Verkaufsseiten (siehe „Die Sprachwahl gilt überall"). Kein `save()`: es gibt noch nichts, das
+schmutzig werden könnte; eine geladene Datei überstimmt die Wahl wie immer. Die Kürzel EN · DE
 kommen aus `LANGS` und wechseln die Sprache nicht — wie im Kopf der Anleitung.
+
+**Dieselben Pillen stehen in der Kopfzeile des geladenen Buches** (`#hdrLangs`, gefüllt und
+verdrahtet in `renderChrome()`, nicht in `wire()`): `renderChrome()` läuft auch allein — nach
+dem Sprachwechsel im Einstellungsfenster etwa —, und frisch gebaute Knöpfe ohne Handler wären
+bis zum nächsten `render()` taub. Dort ruft der Klick zusätzlich `save()`: im Buch ist die
+Sprache eine Einstellung der Datei.
 
 **Sie hängt nicht am Inhalt der Datei, sondern daran, ob überhaupt eine gewählt wurde** —
 deshalb steht sie in `ui` und nicht in `afterLoad()`, das nur den Inhalt auswertet. Ein

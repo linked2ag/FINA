@@ -27,7 +27,16 @@
    braucht. Deshalb kleine Polster, ein kleineres Wortzeichen und
    flachere Reiter — nichts davon kostet Verständlichkeit, jedes
    davon zwei bis vier Zeilen Tabelle. */
-header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper);box-shadow:0 6px 12px -8px rgba(0,0,0,.35)}
+/* Der Grund ist halbdurchlässig mit Weichzeichner — dasselbe
+   Milchglas wie die Kopfzeile der Verkaufsseiten (css/landing.css):
+   die Anwendung und die Seiten drumherum sollen aus einem Guss
+   aussehen. Der Rückfall ohne backdrop-filter ist das Papier. */
+header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper);
+  box-shadow:0 6px 12px -8px rgba(0,0,0,.35)}
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  header{background:rgba(233,234,227,.86);
+    -webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px)}
+}
 .masthead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
   border-bottom:2px solid var(--ink);padding-bottom:7px}
 .brand{display:flex;align-items:baseline;gap:10px}
@@ -38,7 +47,34 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .brand h1 a{color:inherit;text-decoration:none}
 .brand .sub{font-family:var(--font-data);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
 .tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.tools .btn{padding:5px 10px;font-size:12.5px}
+/* Die Knöpfe der Kopfzeile tragen die weichere Rundung der
+   Verkaufsseiten (--rs dort ist 12 px, hier reichen 8): sie sind
+   das Erste, was man sieht, und sollen zur Startseite passen. In
+   den Fenstern bleibt der Knopf eckig — dort ist er Werkzeug. */
+.tools .btn{padding:5px 10px;font-size:12.5px;border-radius:8px;
+  transition:background .15s,border-color .15s,transform .15s}
+.tools .btn:hover{transform:translateY(-1px)}
+/* Die Sprachwahl in der Kopfzeile: dieselben Pillen wie auf der
+   Begrüßungsseite (.wlangs weiter unten) und den Verkaufsseiten —
+   ein Bild für dieselbe Wahl an jeder Stelle, nur mit der Rundung
+   der Kopfzeile. */
+/* flex:0 0 auto, denn die Pillen stehen in einer Leiste, die eng
+   werden kann: ihr overflow:hidden (die Rundung) machte sie sonst
+   zum einzigen Kind, das sich bis auf null zusammendrücken lässt.
+   `.tools .hlangs`, nicht `.hlangs`: die Grundregel .wlangs steht
+   weiter unten und gewänne bei gleicher Spezifität die Rundung.
+   Und [hidden] braucht seinen eigenen Riegel — .wlangs setzt
+   display:flex, und eine Autorenregel schlägt das [hidden] des
+   Browsers unabhängig von jeder Spezifität. */
+.tools .hlangs{margin:0 2px;border-radius:8px;flex:0 0 auto}
+.hlangs[hidden]{display:none!important}
+/* Der Menüknopf der Kopfzeile gehört dem Telefon: dort sammelt er
+   alle Werkzeuge hinter sich (css/mobile.css). Am Schreibtisch
+   stehen die Werkzeuge selbst da — der Knopf nicht. Und [hidden]
+   (die Begrüßungsseite, renderChrome) braucht denselben Riegel wie
+   .hlangs: die display-Regel des Telefons gewänne sonst. */
+.menubtn{display:none}
+.menubtn[hidden]{display:none!important}
 .filepath{font-family:var(--font-data);font-size:11.5px;color:var(--ink-2);max-width:320px;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;user-select:text;cursor:default;padding-right:4px}
 .filepath.on{color:var(--ink)}
@@ -486,48 +522,67 @@ body.yearview .wrap{padding-bottom:14px}
 
 /* ══ Die Begrüßungsseite ══════════════════════════════════════
    Steht vor allem anderen — beim Öffnen der Anwendung und wieder
-   nach dem Trennen der Datei (js/views/willkommen.js). Sie ist im
-   Papier der Anwendung gesetzt und nicht in einem fremden Weiß:
-   dieselbe Schrift, dieselben Farben, dieselbe Kante oben wie eine
-   Karte, nur größer. */
-.welcome{display:grid;place-items:start center;padding:34px 0 60px}
-.wbox{width:min(760px,100%);background:var(--paper-2);border:1px solid var(--rule);
-  border-top:4px solid var(--ink);padding:34px 42px 30px}
-.wmark{font-family:var(--font-data);font-size:10px;letter-spacing:.34em;text-transform:uppercase;
-  color:var(--ink-2)}
+   nach dem Trennen der Datei (js/views/willkommen.js). Sie ist die
+   Tür zwischen der Startseite und dem Buch und trägt deshalb die
+   Gestalt der Startseite, nicht die des Kontoblatts: runde Karten,
+   weiche Schatten, der orange Akzent — dieselben Maße und
+   Schattenwerte wie css/landing.css. Die Werte stehen hier
+   ausgeschrieben, denn landing.css lädt der Web-Client nicht. */
+.welcome{position:relative;display:grid;place-items:start center;padding:48px 0 80px}
+/* Der Hintergrund atmet wie auf der Startseite: drei weiche
+   Farbflächen, dieselben Töne (bg der Verkaufsseiten). */
+.wbg{position:absolute;inset:-40px 0 0;overflow:hidden;pointer-events:none}
+.wbg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55}
+.wbg i:nth-child(1){width:420px;height:420px;background:var(--bg-in-2);top:-120px;right:6%}
+.wbg i:nth-child(2){width:360px;height:360px;background:var(--bg-sal-2);top:30%;left:-140px}
+.wbg i:nth-child(3){width:380px;height:380px;background:var(--bg-flex-2);bottom:-160px;right:18%}
+.wbox{position:relative;width:min(720px,100%);background:var(--paper-2);
+  border:1px solid var(--rule-strong);border-radius:16px;
+  box-shadow:0 2px 6px rgba(27,35,32,.08),0 22px 48px rgba(27,35,32,.15);
+  padding:38px 44px 36px}
+/* Das kleine Wortzeichen oben trägt das Orange der Startseiten-
+   Dachzeile (.eyebrow): dieselbe Stimme, dieselbe Farbe. */
+.wmark{font:600 11px var(--font-data);letter-spacing:.34em;text-transform:uppercase;
+  color:var(--accent-2)}
 /* Kopfreihe der Begrüßung: links das Wortzeichen, rechts die
-   Sprachwahl — dieselbe Bauart wie die Kürzel EN · DE im Kopf der
-   Anleitung (.glangs in css/components.css). */
+   Sprachwahl — zwei Pillen wie der Sprachschalter der
+   Verkaufsseiten (.langsw), die gewählte dunkel. Dieselben Klassen
+   benutzt die Sprachwahl der Kopfzeile (#hdrLangs). */
 .wtop{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.wlangs{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
-.wlang{background:transparent;border:0;cursor:pointer;padding:3px 8px;
-  font:600 10px var(--font-data);letter-spacing:.08em;color:var(--ink-2)}
-.wlang+.wlang{border-left:1px solid var(--rule-strong)}
-.wlang:hover{background:rgba(0,0,0,.05);color:var(--ink)}
-.wlang[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
-.wbox h2{font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.2;
-  letter-spacing:.01em;margin:8px 0 14px;color:var(--ink)}
+.wlangs{display:flex;gap:4px}
+.wlang{cursor:pointer;padding:6px 11px;border:1px solid var(--rule-strong);border-radius:8px;
+  background:var(--paper-2);color:var(--ink-2);
+  font:600 11px var(--font-data);letter-spacing:.08em;
+  transition:background .18s ease,color .18s ease,border-color .18s ease}
+.wlang:hover{border-color:var(--ink);color:var(--ink)}
+.wlang[aria-pressed="true"]{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+.wbox h2{font-family:var(--font-display);font-weight:600;font-size:clamp(28px,5vw,38px);
+  line-height:1.15;letter-spacing:-.02em;margin:14px 0 12px;color:var(--ink)}
 /* Kein eigenes Zeilenmaß für den Text: er läuft so weit wie die
    Knopfreihe darunter, und die rechte Kante der Seite ist überall
    dieselbe. Ein Deckel in ch endete mitten in der Fläche und ließ
    die Karten daneben wie einen Nachtrag aussehen; die Breite
    begrenzt schon .wbox. */
-.wlead{font-size:15px;line-height:1.62;margin:0 0 14px}
+.wlead{font-size:16px;line-height:1.65;color:var(--ink-2);margin:0 0 14px}
 .wlist{margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6;color:var(--ink)}
 .wlist li{margin-bottom:3px}
 .wlist li b{font-weight:600}
 /* Zwei Wege, gleich groß nebeneinander — beides sind Angebote, nur
-   eines ist das gewöhnliche und trägt deshalb die Farbe. */
-.wpick{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0 16px}
-.wcard{display:grid;align-content:start;gap:5px;text-align:left;padding:15px 18px 16px;
-  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;color:var(--ink);
-  transition:background .15s,border-color .15s}
-.wcard:hover{border-color:var(--ink);background:var(--shade)}
-.wcard .wt{font-family:var(--font-ui);font-size:16px;font-weight:600}
-.wcard .wd{font-size:12.5px;line-height:1.5;color:var(--ink-2)}
-.wcard.primary{background:var(--ink);border-color:var(--ink);color:var(--paper-2)}
-.wcard.primary:hover{background:#2E3A35;border-color:#2E3A35}
-.wcard.primary .wd{color:#C4CCC7}
+   eines ist das gewöhnliche: es trägt das Orange der Startseite
+   (deren .button-primary) und hebt sich beim Überfahren wie die
+   Karten dort. */
+.wpick{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0 6px}
+.wcard{display:grid;align-content:start;gap:6px;text-align:left;padding:20px 22px;cursor:pointer;
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:14px;color:var(--ink);
+  box-shadow:0 1px 2px rgba(27,35,32,.05),0 10px 28px rgba(27,35,32,.08);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}
+.wcard:hover{transform:translateY(-2px);border-color:var(--ink);
+  box-shadow:0 2px 6px rgba(27,35,32,.08),0 22px 48px rgba(27,35,32,.15)}
+.wcard .wt{font-family:var(--font-ui);font-size:17px;font-weight:600}
+.wcard .wd{font-size:13px;line-height:1.55;color:var(--ink-2)}
+.wcard.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.wcard.primary:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.wcard.primary .wd{color:rgba(255,255,255,.85)}
 .wfoot{font-size:11.5px;line-height:1.55;color:var(--ink-2);margin:8px 0 0}
 /* Der Satz, der zur Anleitung schickt, trägt deren Farbe — in der
    Kopfzeile ist der Anleitungsknopf der einzige orange, und hier

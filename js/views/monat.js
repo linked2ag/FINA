@@ -161,6 +161,73 @@ function anaBar(m,sel){
     </div></div>`;
 }
 
+/* ── Der Kopf der mobilen Monatsansicht ───────────────────────
+   Unter 700 px (isMobile in js/app.js) ersetzt er die Auswertung:
+   oben klebt die Suchzeile — Filterknopf, Suchfeld, Leeren, alle
+   gleich hoch —, darunter scrollen die Kennzahlen als Kacheln mit
+   (2 Spalten, die SALDO-Zeile über beide). Der Zeitstrahl entfällt:
+   auf 390 px ist er kein Maß mehr, an dem sich etwas ablesen ließe.
+
+   **Alle Filter wohnen hinter dem einen Knopf** (data-mfilters,
+   verdrahtet in wire): Fälligkeit und Zahlungsstand als dieselben
+   Knöpfe wie auf dem Schreibtisch (data-duefilter, data-filter),
+   dazu der Weg ins Fenster „Worin der Filter sucht" (data-qfields).
+   Wie viele gerade greifen, sagt die rote Marke am Knopf.
+
+   Gerechnet wird wie in anaBar über `sel` — die Kacheln nennen,
+   was nach dem Filtern zu sehen ist, dieselben Zahlen wie die
+   Karten darunter. Die SALDO-Zeile ist deren Summe samt
+   Saldokorrektur: das Ergebnis dieses Monats, wie es die oberste
+   Zeile der Jahresmatrix nennt. */
+function mobileTop(m,sel,sums){
+  const due=sel.items.filter(it=>!isIncome(it));
+  const openSum=due.filter(it=>!paidAt(it,m)).reduce((s,it)=>s+it.amounts[m-1],0);
+  const sal=sums.inc+sums.flex+sums.out+(sel.bal?balanceFix(m):0);
+  const nFlt=(ui.dueFilter!=='alle'?1:0)+(ui.filter!=='alle'?1:0);
+  const open=!!ui.mFilters;
+  const custom=QFIELDS.some(k=>!qField(k))||qAll();
+  const clearOn=!!(ui.q||'').trim()||nFlt>0;
+  const tile=(c,lab,val,vc)=>`<span class="mk${c?' '+c:''}"><span class="lab">${lab}</span
+    ><span class="val ${vc}">${eur(val)}</span></span>`;
+  return `<div class="stickybar msearch">
+    <div class="msrow">
+      <button class="mfbtn" data-mfilters="1" aria-expanded="${open}" aria-pressed="${nFlt>0}"
+        aria-label="${esc(t('month.mFilters'))}" title="${esc(t('month.mFiltersTip'))}"
+        >&#9776;${nFlt?`<span class="mfbadge">${nFlt}</span>`:''}</button>
+      <input class="fltq msq" data-q type="search" value="${esc(ui.q||'')}"
+        placeholder="${t('g.filter')}" aria-label="${t('g.filter')}">
+      <button class="msclear" data-qclear="1"${clearOn?'':' disabled'}
+        aria-label="${esc(t('g.clearFilter'))}" title="${esc(t('g.clearFilterTip'))}">&#10005;</button>
+    </div>
+    ${open?`<div class="mfpanel">
+      <span class="fbgroup">
+        ${fbtn('duefilter','alle',t('month.fDueAll'),t('month.fDueAllTip'),ui.dueFilter)}
+        ${fbtn('duefilter','A',t('month.fDueA'),t('month.fDueATip'),ui.dueFilter)}
+        ${fbtn('duefilter','M',t('month.fDueM'),t('month.fDueMTip'),ui.dueFilter)}
+        ${fbtn('duefilter','E',t('month.fDueE'),t('month.fDueETip'),ui.dueFilter)}
+        ${fbtn('duefilter','Z',t('month.tlClose'),t('month.fDueZTip'),ui.dueFilter)}
+      </span>
+      <span class="fbgroup">
+        ${fbtn('filter','alle',t('month.fAll'),t('month.fAllTip'),ui.filter)}
+        ${fbtn('filter','offen',t('month.fOpen'),t('month.fOpenTip'),ui.filter)}
+        ${fbtn('filter','unklar',t('month.fEst'),t('month.fEstTip'),ui.filter)}
+        ${fbtn('filter','bezahlt',t('month.fPaid'),t('month.fPaidTip'),ui.filter)}
+      </span>
+      <span class="fbgroup">
+        <button class="btn small" data-qfields="1" aria-pressed="${custom}">${t('flt.title')}</button>
+      </span>
+    </div>`:''}
+  </div>
+  <div class="mkpi">
+    ${tile('t-in',t('month.kpiIncome'),sums.inc,'pos')}
+    ${tile('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sums.flex,'neg')}
+    ${tile('t-out',t('month.kpiFixed'),sums.out,'neg')}
+    ${tile('',t('month.kpiOpen'),openSum,openSum?'neg':'')}
+    <span class="mk msal"><span class="lab">${t('month.kpiSaldo')}</span
+      ><span class="val ${cls(sal)}">${eur(sal)}</span></span>
+  </div>`;
+}
+
 /* ── Der Zeitstrahl ───────────────────────────────────────────
    Fünf Zeilen in der Reihenfolge des Monats — was er vorfindet,
    Anfang, Mitte, Ende, Abschluss. Jede Zeile nennt links ihren
@@ -428,7 +495,13 @@ function viewMonat(){
      wenn der Filter zurückgenommen ist. Dann gilt wieder, was in
      der Datei steht. */
   const filterOn=!!q||ui.filter!=='alle'||ui.dueFilter!=='alle';
-  const openAll=ui.ana||filterOn;
+  /* Auf dem Telefon zählt ui.ana nicht: die Auswertung gibt es
+     dort nicht (mobileTop statt anaBar), und ein am Schreibtisch
+     aufgeklappter Zustand fröre sonst nach dem Verkleinern die
+     Karten offen — ohne Pfeil, ohne sichtbaren Grund und ohne
+     Weg zurück. */
+  const mob=isMobile();
+  const openAll=(!mob&&ui.ana)||filterOn;
   const foldOf=k=>openAll?false:isFolded(k);
   const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
 
@@ -472,45 +545,54 @@ function viewMonat(){
      Payments. Deshalb ein eigener grauer Kasten unter allen
      Karten. Bezahlt und Noch offen stehen nicht mehr darunter —
      beides sagt schon die Auswertung. */
+  /* ── Der Kopf einer Karte, in beiden Fassungen ───────────────
+     Am Schreibtisch stehen Knöpfe und Summe rechts nebeneinander.
+     Auf dem Telefon trägt die erste Zeile nur Bezeichnung und
+     Summe — die Bezeichnung wird bei Überlänge mit … beschnitten,
+     die Summe bleibt auf ihrer Höhe —, und die Anlege-Knöpfe
+     stehen darunter (gestaltet als .secbtns in css/mobile.css). */
+  const secHead=(fk,folded,titleHtml,btnsHtml,totHtml)=>
+    `<div class="sechead"${openAll?'':` data-dblfold="${fk}"`}>${foldBtn(fk,folded,openAll)}<h2 style="margin:0">${titleHtml}</h2>
+      ${mob?`${totHtml}<div class="secbtns">${btnsHtml}</div>`
+        :`<span style="display:flex;gap:12px;align-items:center">${btnsHtml}${totHtml}</span>`}</div>`;
+  /* Der Block wird vorgewählt: aus dem Einnahmenbereich heraus
+     legt man eine Einnahme an. Welcher es ist, sagt die Liste —
+     'EINNAHMEN' steht nicht mehr fest im Code. Gibt es noch keine
+     Einnahme-Kategorie (frisch angefangenes Buch), bleibt die
+     Vorauswahl leer ("1"): das Fenster fragt dann nach dem Block
+     und sagt, wo Kategorien entstehen. Ein untergeschobener Name
+     wäre eine Kategorie, die es nicht gibt. */
+  const incBtns=`<button class="btn small" data-newitem="${esc(incomeGroups()[0]||'1')}">${t('year.addIncome')}</button>`;
+  /* Der Sprung in die Auswertung nur, wenn es sie gibt: den Reiter
+     „Fast Budget Details" bringt erst der Import mit (hasImport in
+     js/calc.js). */
+  const flexBtns=`<button class="btn small" data-newkak="1">${t('year.addKak')}</button>
+        ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}`;
+  const outBtns=`<button class="btn small" data-newitem="1">${t('year.addItem')}</button>`;
+
   return `
-  ${anaBar(m,sel)}
+  ${mob?mobileTop(m,sel,{inc:incSum,flex:flexSum,out:outSum}):anaBar(m,sel)}
 
   ${balOn?balanceRow(m):''}
 
   <div class="card sec-in${fIn?' folded':''}">
-    <div class="sechead"${openAll?'':' data-dblfold="in"'}>${foldBtn('in',fIn,openAll)}<h2 style="margin:0">${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn)}</h2>
-      <span style="display:flex;gap:12px;align-items:center">
-        <!-- Der Block wird vorgewählt: aus dem Einnahmenbereich
-             heraus legt man eine Einnahme an. Welcher es ist, sagt
-             die Liste — 'EINNAHMEN' steht nicht mehr fest im Code.
-             Gibt es noch keine Einnahme-Kategorie (frisch
-             angefangenes Buch), bleibt die Vorauswahl leer ("1"):
-             das Fenster fragt dann nach dem Block und sagt, wo
-             Kategorien entstehen. Ein untergeschobener Name wäre
-             eine Kategorie, die es nicht gibt. -->
-        <button class="btn small" data-newitem="${esc(incomeGroups()[0]||'1')}">${t('year.addIncome')}</button>
-        <span class="tot pos">${eur(incSum)}</span></span></div>
+    ${secHead('in',fIn,
+      `${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn)}`,
+      incBtns,`<span class="tot pos">${eur(incSum)}</span>`)}
     ${fIn?'':`<table class="ledger">${incRows||noRows(incAll.length,'month.noIncome')}</table>`}
   </div>
 
   <div class="card sec-flex${fFlex?' folded':''}">
-    <div class="sechead"${openAll?'':' data-dblfold="flex"'}>${foldBtn('flex',fFlex,openAll)}
-      <h2 style="margin:0">${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex)}</h2>
-      <span style="display:flex;gap:12px;align-items:center">
-        <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
-        <!-- Der Sprung in die Auswertung nur, wenn es sie gibt:
-             den Reiter „Fast Budget Details" bringt erst der
-             Import mit (hasImport in js/calc.js). -->
-        ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}
-        <span class="tot neg">${eur(flexSum)}</span></span></div>
+    ${secHead('flex',fFlex,
+      `${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex)}`,
+      flexBtns,`<span class="tot neg">${eur(flexSum)}</span>`)}
     ${fFlex?'':`<table class="ledger">${flexRows||noRows(flexAll.length,'month.noKak')}</table>`}
   </div>
 
   <div class="card sec-out${fOut?' folded':''}">
-    <div class="sechead"${openAll?'':' data-dblfold="out"'}>${foldBtn('out',fOut,openAll)}<h2 style="margin:0">${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut)}</h2>
-      <span style="display:flex;gap:12px;align-items:center">
-        <button class="btn small" data-newitem="1">${t('year.addItem')}</button>
-        <span class="tot neg">${eur(outSum)}</span></span></div>
+    ${secHead('out',fOut,
+      `${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut)}`,
+      outBtns,`<span class="tot neg">${eur(outSum)}</span>`)}
     ${fOut?'':`<table class="ledger">${outRows||noRows(outAll,'month.noItems')}</table>`}
   </div>
 

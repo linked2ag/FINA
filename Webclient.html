@@ -40,6 +40,9 @@
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/ledger.css">
 <link rel="stylesheet" href="css/matrix.css">
+<!-- Die mobile Fassung, alles unter 700 px: sie überschreibt und
+     steht deshalb als letzte (siehe isMobile in js/app.js). -->
+<link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
 
@@ -51,7 +54,7 @@
          Web-Client selbst — dort legt renderChrome() den Link
          still (js/app.js, dritte FINA_NATIVE-Stelle). -->
     <div class="brand"><h1><a href="index.html">FINA Book</a></h1><span class="sub" id="yearLbl"></span></div>
-    <div class="tools">
+    <div class="tools" id="hdrTools">
       <!-- Die Beschriftungen kommen aus js/i18n.js: data-t setzt den
            Text, data-ttip den Tooltip (siehe renderChrome). -->
       <span class="filepath" id="filePath"></span>
@@ -69,10 +72,21 @@
            wie ein dritter Weg, eine Datei zu öffnen — sie sind
            aber keiner: sie ändern das Buch, das schon offen ist. -->
       <button class="btn" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
+      <!-- Die Sprachwahl, EN · DE wie auf der Begrüßungsseite und
+           den Verkaufsseiten. Gefüllt von renderChrome() aus LANGS;
+           der Klick schreibt state.lang und gilt damit der Datei
+           (data-wlang, verdrahtet in wire()). -->
+      <div class="wlangs hlangs" id="hdrLangs" role="group" aria-label="Language"></div>
       <!-- Der einzige farbige Knopf: er klappt die Anleitung rechts
            auf und wieder zu (aria-pressed sagt, ob sie offen ist). -->
       <button class="btn guidebtn" id="btnGuide" aria-pressed="false" data-t="app.guide" data-ttip="app.guideTip"></button>
     </div>
+    <!-- Auf dem Telefon stecken alle Werkzeuge hinter diesem einen
+         Knopf: .tools wird zum aufklappbaren Menü (css/mobile.css),
+         der Knopf öffnet und schließt es (js/app.js, unten bei den
+         festen Schaltflächen). Am Schreibtisch gibt es ihn nicht. -->
+    <button class="btn menubtn" id="btnMenu" aria-expanded="false"
+      aria-controls="hdrTools" hidden>&#9776;</button>
   </div>
   <nav class="views" id="views" role="tablist"></nav>
   <div class="months" id="months" role="tablist"></div>
@@ -82,6 +96,12 @@
 <main id="view"></main>
 <p class="status" id="storeStatus"></p>
 </div>
+
+<!-- Die Reiterleiste der mobilen Fassung, fest am unteren Rand.
+     Gefüllt von renderChrome() aus VIEWS — dieselben Reiter wie
+     oben, nur am Daumen. Sichtbar macht sie erst css/mobile.css
+     unter 700 px. -->
+<nav class="mtabs" id="mtabs" role="tablist" hidden></nav>
 
 <!-- Symbol der Notizlampe -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ic-lamp" viewBox="0 0 24 24">

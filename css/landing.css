@@ -47,9 +47,9 @@ a{color:inherit}
 .bg i:nth-child(1){width:620px;height:620px;background:var(--bg-in-2);top:-200px;right:-140px}
 .bg i:nth-child(2){width:520px;height:520px;background:var(--bg-sal-2);top:38%;left:-220px}
 .bg i:nth-child(3){width:560px;height:560px;background:var(--bg-flex-2);bottom:-240px;right:12%}
-html.js .bg i{animation:drift 30s ease-in-out infinite alternate}
-html.js .bg i:nth-child(2){animation-duration:38s}
-html.js .bg i:nth-child(3){animation-duration:34s}
+html.js .bg i{animation:drift 46s ease-in-out infinite alternate}
+html.js .bg i:nth-child(2){animation-duration:58s}
+html.js .bg i:nth-child(3){animation-duration:52s}
 @keyframes drift{to{transform:translate(-46px,54px) scale(1.09)}}
 
 /* ── Der Leseweg: feine Leiste oben ───────────────────────────*/
@@ -58,7 +58,7 @@ html.js .bg i:nth-child(3){animation-duration:34s}
 
 /* ── Eintreten beim Scrollen ──────────────────────────────────*/
 html.js .reveal{opacity:0;transform:translateY(24px);
-  transition:opacity .65s ease var(--d,0s),transform .65s cubic-bezier(.2,.7,.3,1) var(--d,0s)}
+  transition:opacity 1.1s ease var(--d,0s),transform 1.1s cubic-bezier(.2,.7,.3,1) var(--d,0s)}
 html.js .reveal.in{opacity:1;transform:none}
 
 /* ── Kopfzeile ────────────────────────────────────────────────*/
@@ -103,7 +103,7 @@ html.js .reveal.in{opacity:1;transform:none}
 /* Der Strich unter dem Kernsatz zeichnet sich einmal von selbst */
 .hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:-.04em;height:.09em;
   background:var(--accent);border-radius:3px;opacity:.5;transform-origin:left}
-html.js .hero h1 em::after{transform:scaleX(0);animation:draw .8s cubic-bezier(.2,.7,.3,1) .9s forwards}
+html.js .hero h1 em::after{transform:scaleX(0);animation:draw 1.4s cubic-bezier(.2,.7,.3,1) 1.2s forwards}
 @keyframes draw{to{transform:scaleX(1)}}
 .hero-sub{font-size:20px;line-height:1.6;max-width:34em;margin:28px auto 0;color:var(--ink-2)}
 .hero-sub b{color:var(--ink);font-weight:600}
@@ -182,19 +182,19 @@ html.js .hero h1 em::after{transform:scaleX(0);animation:draw .8s cubic-bezier(.
   display:inline-block;margin-left:4px;vertical-align:.06em}
 html.js .shot td.dn::after{opacity:0;transform:scale(.2)}
 html.js .shot.in td.dn::after{opacity:1;transform:none;
-  transition:transform .4s cubic-bezier(.2,1.5,.4,1) var(--ckd,.25s),opacity .2s ease var(--ckd,.25s)}
-.mx td.dn:nth-child(3){--ckd:.3s}
-.mx td.dn:nth-child(4){--ckd:.5s}
+  transition:transform .7s cubic-bezier(.2,1.5,.4,1) var(--ckd,.45s),opacity .35s ease var(--ckd,.45s)}
+.mx td.dn:nth-child(3){--ckd:.55s}
+.mx td.dn:nth-child(4){--ckd:.9s}
 /* Die Zeilen gleiten nacheinander herein */
 html.js .shot tbody tr{opacity:0;transform:translateX(-16px)}
 html.js .shot.in tbody tr{opacity:1;transform:none;
-  transition:opacity .5s ease var(--rd,0s),transform .5s cubic-bezier(.2,.7,.3,1) var(--rd,0s)}
-.mx tbody tr:nth-child(1){--rd:.02s}.mx tbody tr:nth-child(2){--rd:.06s}
-.mx tbody tr:nth-child(3){--rd:.1s}.mx tbody tr:nth-child(4){--rd:.14s}
-.mx tbody tr:nth-child(5){--rd:.18s}.mx tbody tr:nth-child(6){--rd:.22s}
-.mx tbody tr:nth-child(7){--rd:.26s}.mx tbody tr:nth-child(8){--rd:.3s}
-.mx tbody tr:nth-child(9){--rd:.34s}.mx tbody tr:nth-child(10){--rd:.38s}
-.mx tbody tr:nth-child(11){--rd:.42s}.mx tbody tr:nth-child(12){--rd:.46s}
+  transition:opacity .9s ease var(--rd,0s),transform .9s cubic-bezier(.2,.7,.3,1) var(--rd,0s)}
+.mx tbody tr:nth-child(1){--rd:.04s}.mx tbody tr:nth-child(2){--rd:.12s}
+.mx tbody tr:nth-child(3){--rd:.2s}.mx tbody tr:nth-child(4){--rd:.28s}
+.mx tbody tr:nth-child(5){--rd:.36s}.mx tbody tr:nth-child(6){--rd:.44s}
+.mx tbody tr:nth-child(7){--rd:.52s}.mx tbody tr:nth-child(8){--rd:.6s}
+.mx tbody tr:nth-child(9){--rd:.68s}.mx tbody tr:nth-child(10){--rd:.76s}
+.mx tbody tr:nth-child(11){--rd:.84s}.mx tbody tr:nth-child(12){--rd:.92s}
 /* Der laufende Monat: rot eingefasst, wie im Programm */
 .mx .now{box-shadow:inset 1px 0 0 var(--seal),inset -1px 0 0 var(--seal)}
 .mx thead .now{color:var(--seal);font-weight:600;text-decoration:none}
@@ -261,7 +261,7 @@ html.js .shot.in tbody tr{opacity:1;transform:none;
   background:var(--paper-2)}
 .ticker .track{display:inline-block;white-space:nowrap;
   font:600 14px var(--font-data);letter-spacing:.1em;color:var(--ink-2)}
-html.js .ticker .track{animation:tick 36s linear infinite}
+html.js .ticker .track{animation:tick 56s linear infinite}
 .ticker:hover .track{animation-play-state:paused}
 @keyframes tick{to{transform:translateX(-50%)}}
 
@@ -457,16 +457,16 @@ html.js .ticker .track{animation:tick 36s linear infinite}
    nth-child-Regeln der Prognose. */
 html.js .mini .mrow,html.js .mini .px tbody tr{opacity:0;transform:translateX(-12px)}
 html.js .mini.in .mrow,html.js .mini.in .px tbody tr{opacity:1;transform:none;
-  transition:opacity .5s ease var(--rd,0s),transform .5s cubic-bezier(.2,.7,.3,1) var(--rd,0s)}
-.px tbody tr:nth-child(1){--rd:.02s}.px tbody tr:nth-child(2){--rd:.06s}
-.px tbody tr:nth-child(3){--rd:.1s}.px tbody tr:nth-child(4){--rd:.14s}
-.px tbody tr:nth-child(5){--rd:.18s}.px tbody tr:nth-child(6){--rd:.22s}
-.px tbody tr:nth-child(7){--rd:.26s}.px tbody tr:nth-child(8){--rd:.3s}
-.px tbody tr:nth-child(9){--rd:.34s}.px tbody tr:nth-child(10){--rd:.38s}
-.px tbody tr:nth-child(11){--rd:.42s}.px tbody tr:nth-child(12){--rd:.46s}
+  transition:opacity .9s ease var(--rd,0s),transform .9s cubic-bezier(.2,.7,.3,1) var(--rd,0s)}
+.px tbody tr:nth-child(1){--rd:.04s}.px tbody tr:nth-child(2){--rd:.12s}
+.px tbody tr:nth-child(3){--rd:.2s}.px tbody tr:nth-child(4){--rd:.28s}
+.px tbody tr:nth-child(5){--rd:.36s}.px tbody tr:nth-child(6){--rd:.44s}
+.px tbody tr:nth-child(7){--rd:.52s}.px tbody tr:nth-child(8){--rd:.6s}
+.px tbody tr:nth-child(9){--rd:.68s}.px tbody tr:nth-child(10){--rd:.76s}
+.px tbody tr:nth-child(11){--rd:.84s}.px tbody tr:nth-child(12){--rd:.92s}
 html.js .mini .seal.ok{opacity:0;transform:scale(.3)}
 html.js .mini.in .seal.ok{opacity:1;transform:none;
-  transition:transform .4s cubic-bezier(.2,1.5,.4,1) var(--sd,.2s),opacity .2s ease var(--sd,.2s)}
+  transition:transform .7s cubic-bezier(.2,1.5,.4,1) var(--sd,.35s),opacity .35s ease var(--sd,.35s)}
 
 /* ── Vier Dinge ───────────────────────────────────────────────*/
 .features{padding-top:104px}
@@ -541,7 +541,7 @@ html.js .mini.in .seal.ok{opacity:1;transform:none;
 .later .button{flex:0 0 auto}
 .button-sync{background:var(--ink-sal);color:#fff;box-shadow:var(--sh-1)}
 .button-sync:hover{background:#571DA3;transform:translateY(-2px);box-shadow:var(--sh-2)}
-html.js .button-sync{animation:syncpulse 2.6s ease-out infinite}
+html.js .button-sync{animation:syncpulse 3.8s ease-out infinite}
 @keyframes syncpulse{
   0%{box-shadow:0 0 0 0 rgba(109,48,196,.45)}
   70%{box-shadow:0 0 0 14px rgba(109,48,196,0)}
@@ -578,10 +578,10 @@ html.js .button-sync{animation:syncpulse 2.6s ease-out infinite}
 .gcard[aria-expanded="true"] .golabel.gshow{display:none}
 .gcard[aria-expanded="true"] .golabel.ghide{display:inline}
 .dlpanel{display:none;margin:22px 0 0;scroll-margin-top:96px}
-.dlpanel.open,.dlpanel:target{display:block;animation:panelin .45s ease}
+.dlpanel.open,.dlpanel:target{display:block;animation:panelin .8s ease}
 @keyframes panelin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .dlextra{display:none;margin:14px 0 0}
-.dlextra.open,.dlpanel:target~.dlextra{display:block;animation:panelin .55s ease}
+.dlextra.open,.dlpanel:target~.dlextra{display:block;animation:panelin .95s ease}
 /* Eine Fläche je Plattform: oben die beiden Kacheln, darunter die
    drei Schritte des ersten Starts. */
 .dlbox{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:var(--r);
@@ -823,18 +823,41 @@ footer nav a:hover{text-decoration:underline;text-underline-offset:4px}
   .plans{grid-template-columns:1fr;gap:14px}
   .gcards,.gcards3,.showduo{grid-template-columns:1fr}
 }
-/* Aus jeder Zeile des Vergleichs wird eine Karte: die Beschriftung
-   der Spalte steht dann in der Zelle (.vlab), sonst wüsste
-   niemand mehr, welcher Absatz wovon spricht. */
+/* Aus jeder Zeile des Vergleichs wird eine Karte: oben die Frage,
+   darunter die beiden Antworten als eigene, voll breite Kästen in
+   der Farbe ihrer Seite — rot das Übliche, grün FINA, jeweils mit
+   der Beschriftung der Spalte (.vlab) darüber.
+
+   Wichtig ist das width:auto an den drei Zellen selbst: die
+   Spaltenbreiten (24 % · 38 % · 38 %) haben höhere Spezifität als
+   ein bloßes `.vs td` und blieben sonst auch als Blöcke stehen —
+   drei schmale Textsäulen neben leerer Fläche, unlesbar. */
 @media (max-width:700px){
-  .vs,.vs tbody,.vs tr,.vs td{display:block;width:auto}
+  .vs{display:block;background:none;border:0;box-shadow:none;overflow:visible}
   .vs thead{display:none}
-  .vs tr{border-bottom:1px solid var(--rule-strong)}
-  .vs tr:last-child{border-bottom:0}
-  .vs td{border-bottom:0;padding:12px 18px}
-  .vs .topic{padding-bottom:2px;font-size:17px;font-family:var(--font-display)}
+  .vs tbody{display:block}
+  .vs tr{display:block;margin:0 0 14px;background:var(--paper-2);
+    border:1px solid var(--rule-strong);border-radius:var(--r);
+    box-shadow:var(--sh-1);overflow:hidden}
+  .vs tr:last-child{margin-bottom:0}
+  .vs td{display:block;border-bottom:0}
+  .vs td.topic{width:auto;padding:14px 16px 8px;
+    font:600 18px/1.35 var(--font-display)}
+  .vs td.them,.vs td.us{width:auto;margin:0 12px 10px;padding:11px 14px 12px;
+    border-radius:10px;font-size:14.5px;line-height:1.6}
+  .vs td.them{background:var(--bg-out);border-left:4px solid var(--edge-out)}
+  .vs td.us{background:var(--bg-in);border-left:4px solid var(--edge-in);margin-bottom:14px}
   .vlab{display:block;font:600 9.5px var(--font-data);letter-spacing:.12em;
-    text-transform:uppercase;color:var(--ink-2);margin-bottom:3px}
+    text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
+  .vs .us .vlab{color:var(--ok)}
+  /* Die beschnittene Jahresmatrix des Guides: das 2:1-Fenster war
+     im Hochformat nur noch ein Schlitz, und 199 % von 350 px
+     zeigten die Matrix in Briefmarkengröße — zu lesen war nichts,
+     bis man das Gerät drehte. Deshalb hier andersherum: das Bild
+     bleibt in seiner echten Größe (lesbar), und der Rahmen wird
+     hoch statt breit — geschoben wird wie immer. */
+  .zoomcrop{aspect-ratio:auto;height:min(58vh,430px)}
+  .zoomcrop .zbig{width:auto}
 }
 @media (max-width:640px){
   .wrap,.gwrap{padding:0 20px}

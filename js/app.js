@@ -24,6 +24,22 @@
    ohne Zutun wieder dort (siehe wire()). */
 const keepQFocus=()=>{ ui.qFocus=(ui.q||'').trim()?'all':false; };
 
+/* ── Die mobile Fassung ───────────────────────────────────────
+   Unter 700 px bauen die drei Ansichten Monat, Jahr und Prognose
+   ein eigenes Layout (Design in _TMP/Design - Mobile UI for FINA):
+   Karten statt Matrix, Kacheln statt Kennzahlenleiste, unten die
+   Reiterleiste. **Die eine Frage stellt jeder hier**: `isMobile()`
+   liest die Fensterbreite, `body.mobile` trägt sie ins CSS
+   (css/mobile.css) — dieselbe Grenze an beiden Stellen, sonst
+   passte das Markup der Views nicht zu den Regeln des Stylesheets.
+
+   Wechselt die Breite über die Grenze — Fenster gezogen, Telefon
+   gedreht —, wird neu gezeichnet: die Views bauen je nach Antwort
+   verschiedenes Markup, ein reiner CSS-Umbau reichte nicht. */
+const MOBILE_MQ=matchMedia('(max-width:699px)');
+const isMobile=()=>MOBILE_MQ.matches;
+MOBILE_MQ.addEventListener('change',()=>render());
+
 /* ── Kopfzeile: feste Beschriftungen, Ansichts- und Monatsreiter ─
    Alles mit data-t bekommt seinen Text aus js/i18n.js, data-ttip
    entsprechend den Tooltip. So wechselt die feste Kopfzeile die
@@ -69,10 +85,43 @@ function renderChrome(){
     if(el) el.hidden=wel||id==='btnLoad';
   });
 
+  /* Die Sprachwahl in der Kopfzeile: dieselben Kürzel EN · DE wie
+     auf der Begrüßungsseite und den Verkaufsseiten, derselbe Weg
+     (data-wlang). Auf der Begrüßungsseite bleibt sie weg — dort
+     hat die Seite ihre eigene. */
+  const hl=document.getElementById('hdrLangs');
+  if(hl){
+    hl.hidden=wel;
+    hl.innerHTML=LANGS.map(([k,label])=>`<button class="wlang" data-wlang="${k}"
+      aria-pressed="${LANG()===k}" title="${label}">${k.toUpperCase()}</button>`).join('');
+    /* Verdrahtet gleich hier, wie die Monats- und Ansichtsreiter:
+       renderChrome() läuft auch ohne wire() — nach dem
+       Sprachwechsel im Einstellungsfenster etwa —, und die frisch
+       gebauten Pillen wären sonst bis zum nächsten render() taub. */
+    hl.querySelectorAll('.wlang').forEach(b=>b.onclick=()=>{
+      if(!chooseLang(b.dataset.wlang)) return;
+      if(!ui.welcome) save();
+      render();
+    });
+  }
+
+  /* Der Menüknopf der mobilen Kopfzeile (siehe Webclient.html und
+     css/mobile.css). Auf der Begrüßungsseite wäre das Menü leer —
+     dort gibt es ihn nicht. */
+  const mb=document.getElementById('btnMenu');
+  if(mb){
+    mb.hidden=wel;
+    mb.title=t('app.menu');
+    mb.setAttribute('aria-label',t('app.menu'));
+  }
+
   /* Die Jahresansicht füllt den Bildschirm: ihre Matrix rollt
      senkrecht selbst, die Seite darunter soll es nicht auch noch
-     tun (siehe body.yearview in css/layout.css und sizeMatrix). */
-  document.body.classList.toggle('yearview',!wel&&ui.view==='jahr');
+     tun (siehe body.yearview in css/layout.css und sizeMatrix).
+     **Nicht auf dem Telefon**: dort ist das Jahr eine Kartenliste
+     und rollt wie jede andere Seite. */
+  document.body.classList.toggle('mobile',isMobile());
+  document.body.classList.toggle('yearview',!wel&&ui.view==='jahr'&&!isMobile());
 
   const mEl=document.getElementById('months');
   mEl.setAttribute('aria-label',t('app.chooseMonth'));
@@ -86,6 +135,14 @@ function renderChrome(){
   /* Auch der Monatswechsel lässt den Fokus im Suchfeld: man hakt
      einen Monat ab, springt in den nächsten und tippt weiter. */
   mEl.querySelectorAll('.mtab').forEach(b=>b.onclick=()=>{ui.month=+b.dataset.m;ui.view='monat';keepQFocus();render();});
+  /* Auf dem Telefon zeigt die Leiste nur sieben, acht Monate —
+     der gewählte soll darin stehen, nicht rechts außerhalb.
+     Gesetzt wird scrollLeft direkt: scrollIntoView zöge die ganze
+     Seite mit. */
+  if(isMobile()){
+    const sel=mEl.querySelector('.mtab[aria-selected="true"]');
+    if(sel) mEl.scrollLeft=sel.offsetLeft-(mEl.clientWidth-sel.offsetWidth)/2;
+  }
 
   /* Die Anleitung steht neben der Seite und wechselt die Sprache
      mit, ohne dass man sie schließen muss. */
@@ -93,7 +150,10 @@ function renderChrome(){
 
   const vEl=document.getElementById('views');
   vEl.setAttribute('aria-label',t('app.chooseView'));
-  vEl.style.display=wel?'none':'flex';
+  /* Auf dem Telefon entfallen die Reiter oben — dieselben stehen
+     unten als .mtabs. Das Inline-display muss das wissen: es
+     gewänne sonst gegen jede Regel in css/mobile.css. */
+  vEl.style.display=(wel||isMobile())?'none':'flex';
   /* Rechts auf Höhe der Reiter steht, was die Zeichen der
      Jahresmatrix bedeuten — dort ist Platz, und in der Leiste der
      Matrix stünde es zwischen lauter Knöpfen. Nur im Jahr: in den
@@ -107,6 +167,20 @@ function renderChrome(){
   vEl.innerHTML=VIEWS.map(([k,l])=>`<button class="vtab" role="tab" aria-selected="${ui.view===k}"
     data-v="${k}" data-tip="${esc(t('view.keyTip',viewKey(k)))}">${l}</button>`).join('')+key;
   vEl.querySelectorAll('.vtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;render();});
+
+  /* Auf dem Telefon stehen dieselben Reiter unten, am Daumen —
+     dieselbe Liste (VIEWS), dieselbe Wirkung. Das Element gibt es
+     immer (Webclient.html), sichtbar macht es erst css/mobile.css
+     unter 700 px; auf der Begrüßungsseite bleibt es weg wie die
+     Reiter oben. */
+  const mt=document.getElementById('mtabs');
+  if(mt){
+    mt.hidden=wel;
+    mt.setAttribute('aria-label',t('app.chooseView'));
+    mt.innerHTML=VIEWS.map(([k,l])=>`<button class="mvtab" role="tab"
+      aria-selected="${ui.view===k}" data-v="${k}">${l}</button>`).join('');
+    mt.querySelectorAll('.mvtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;render();});
+  }
 }
 
 /* ── Leisten, die stehen bleiben ──────────────────────────────
@@ -218,7 +292,12 @@ function render(){
   const yTop=ysOld?ysOld.scrollTop:null, yLeft=ysOld?ysOld.scrollLeft:null;
 
   renderChrome();
-  document.getElementById('view').innerHTML= ui.welcome ? viewWelcome()
+  const vbox=document.getElementById('view');
+  /* Welche Ansicht gerade steht, trägt #view als Klasse — der
+     Haken, an dem css/mobile.css die Monatszeilen umbaut, ohne
+     die Tabellen der anderen Ansichten zu erwischen. */
+  vbox.className=ui.welcome?'':('view-'+ui.view);
+  vbox.innerHTML= ui.welcome ? viewWelcome()
     : ({monat:viewMonat,prognose:viewPrognose,kakeibo:viewKakeibo,jahr:viewJahr})[ui.view]();
   wire(); renderStatus();
 
@@ -231,7 +310,23 @@ function render(){
      die Köpfe der Matrix hält der Browser selbst. */
   fitRails();
   checkUpdate();
+
+  /* Die mobile Jahresansicht fängt beim laufenden Monat an: die
+     abgerechneten Karten liegen darüber und sind per Scroll nach
+     oben erreichbar — wer die Ansicht öffnet, will das Jetzt.
+     Nur beim **Betreten** der Ansicht, nicht bei jedem Zeichnen:
+     wer gescrollt hat und abhakt, bliebe sonst nicht, wo er ist.
+     Wie weit die Karte unter den klebenden Leisten aufsetzt, sagt
+     scroll-margin-top in css/mobile.css. */
+  if(isMobile()&&!ui.welcome&&ui.view==='jahr'&&lastView!=='jahr'){
+    const now=document.querySelector('.ymcard.now');
+    if(now) now.scrollIntoView({block:'start'});
+  }
+  lastView=ui.welcome?'':ui.view;
 }
+/* Die zuletzt gezeichnete Ansicht — nur, um das Betreten einer
+   Ansicht vom bloßen Neuzeichnen zu unterscheiden (siehe oben). */
+let lastView='';
 
 /* ── Die Hinweisleiste auf eine neue Fassung ──────────────────
    FINA gibt es dreimal: als Webseite, als Mac- und als
@@ -424,6 +519,13 @@ function wire(){
      sucht (js/dialogs/filter-fields.js). Die Wahl steht in der
      Datei, geändert wird sie erst mit „Speichern" im Fenster. */
   document.querySelectorAll('[data-qfields]').forEach(b=>b.onclick=()=>openFilterFields());
+  /* Das Filtermenü der mobilen Monatsansicht: derselbe Knopf
+     öffnet und schließt es. Darin stehen die gewohnten
+     Filterknöpfe (data-filter, data-duefilter) — die sind oben
+     schon verdrahtet und lassen das Menü beim Umschalten offen:
+     wer filtert, stellt meist mehr als eins ein. */
+  document.querySelectorAll('[data-mfilters]').forEach(b=>b.onclick=()=>{
+    ui.mFilters=!ui.mFilters; render(); });
   /* Wechsel zwischen Haupt- und Unterkategorien: rechts stehen
      danach wieder die größten Einzelposten, nicht die Auswahl
      einer Zeile, die es so vielleicht gar nicht mehr gibt. */
@@ -461,12 +563,18 @@ function wire(){
   /* Die beiden Wege der Begrüßungsseite. */
   document.querySelectorAll('[data-wload]').forEach(b=>b.onclick=()=>loadData());
   document.querySelectorAll('[data-wnew]').forEach(b=>b.onclick=()=>startEmpty());
-  /* Die Sprachwahl der Begrüßungsseite: sie schreibt in state.lang
-     des noch leeren Buches und zeichnet neu. Kein save() — es gibt
-     noch keine Datei, die schmutzig werden könnte; eine geladene
-     überstimmt die Wahl wie immer, und in den localStorage der
-     Startseite (finaLang) wird nichts zurückgeschrieben. */
-  document.querySelectorAll('[data-wlang]').forEach(b=>b.onclick=()=>{ state.lang=b.dataset.wlang; render(); });
+  /* Die Sprachwahl — auf der Begrüßungsseite und in der Kopfzeile
+     des geladenen Buches (renderChrome). Sie schreibt über
+     chooseLang() in state.lang **und** in den localStorage, gilt
+     also auch für die Verkaufsseiten (siehe js/i18n.js). save() nur
+     im geladenen Buch: dort ist die Sprache eine Einstellung der
+     Datei wie im Einstellungsfenster; auf der Begrüßungsseite gibt
+     es noch nichts, das schmutzig werden könnte. */
+  document.querySelectorAll('[data-wlang]').forEach(b=>b.onclick=()=>{
+    if(!chooseLang(b.dataset.wlang)) return;
+    if(!ui.welcome) save();
+    render();
+  });
 
   /* Fenster öffnen */
   document.querySelectorAll('[data-lists]').forEach(b=>b.onclick=()=>editLists());
@@ -747,6 +855,25 @@ addEventListener('mouseup',ev=>{
 },true);
 
 /* ── Feste Schaltflächen der Kopfzeile ────────────────────── */
+/* Das Werkzeugmenü der mobilen Kopfzeile: derselbe Knopf öffnet
+   und schließt es, ein Klick daneben oder auf ein Werkzeug darin
+   schließt mit. Nur eine Klasse an .tools — die Kopfzeile wird
+   nicht neu gebaut, das Menü überlebt also jedes render(). Am
+   Schreibtisch ist der Knopf per CSS weg und die Klasse wirkungslos. */
+(()=>{
+  const mb=document.getElementById('btnMenu');
+  const tools=document.getElementById('hdrTools');
+  if(!mb||!tools) return;
+  const shut=()=>{ tools.classList.remove('open'); mb.setAttribute('aria-expanded','false'); };
+  mb.onclick=ev=>{
+    ev.stopPropagation();
+    const on=!tools.classList.contains('open');
+    tools.classList.toggle('open',on);
+    mb.setAttribute('aria-expanded',String(on));
+  };
+  document.addEventListener('click',ev=>{ if(!tools.contains(ev.target)) shut(); });
+  tools.addEventListener('click',ev=>{ if(ev.target.closest('button,a')) shut(); });
+})();
 document.getElementById('btnSettings').onclick=()=>openSettings();
 /* Die Anleitung ist ein Bereich, kein Fenster: derselbe Knopf
    klappt sie auf und wieder zu. */
@@ -804,12 +931,14 @@ document.getElementById('fileSheet').onchange=e=>{
    Leer und auf Englisch beginnen. Inhalte und Einstellungen
    kommen über „Load data" aus der JSON-Datei.
 
-   Eine Ausnahme: die Sprachwahl der Startseite (`finaLang` im
-   localStorage, gesetzt vom DE/EN-Schalter dort) gilt hier als
-   Vorgabe für das noch leere Buch — wer die Seite auf Deutsch
-   liest, soll nicht auf einer englischen Begrüßung landen. Eine
-   geladene Datei überstimmt das wie immer (state.lang kommt dann
-   aus ihr); zurückgeschrieben wird nichts. */
+   Eine Ausnahme: die Sprachwahl (`finaLang` im localStorage) gilt
+   hier als Vorgabe für das noch leere Buch — wer die Seite auf
+   Deutsch liest, soll nicht auf einer englischen Begrüßung landen.
+   Geschrieben wird sie von beiden Seiten: vom DE/EN-Schalter der
+   Verkaufsseiten (js/landing.js) und von jeder ausdrücklichen Wahl
+   in der Anwendung (chooseLang in js/i18n.js). Eine geladene Datei
+   überstimmt die Vorgabe wie immer (state.lang kommt dann aus ihr)
+   und schreibt ihrerseits nichts zurück. */
 state=emptyState();
 try{
   const siteLang=localStorage.getItem('finaLang');

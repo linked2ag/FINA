@@ -1122,7 +1122,19 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.16 <span class="pill">latest</span></h4>
+<h4>26.8.18 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>FINA works on the phone</b> — below 700 px the browser shows a mobile layout: the month
+      as a card list with large seals, the year as twelve month cards, the forecast with its
+      chart to swipe, and the view tabs at the bottom edge.</li>
+  <li><b>Switch the language right in the header</b> — EN · DE next to the buttons. Your choice
+      now holds everywhere: the FINA website opens in the same language, and switching it there
+      switches it here. It is remembered on this computer, and a loaded file still decides for
+      itself.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.16</h4>
 <ul>
   <li><b>Choose your language on the welcome page</b> — EN · DE at the top right, before any
       file is open. A loaded file still decides for itself.</li>
@@ -1267,7 +1279,20 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.16 <span class="pill">neu</span></h4>
+<h4>26.8.18 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>FINA läuft auf dem Telefon</b> — unter 700 px zeigt der Browser eine mobile
+      Oberfläche: der Monat als Kartenliste mit großen Siegeln, das Jahr als zwölf
+      Monatskarten, die Prognose mit ihrer Grafik zum Wischen, und die Ansichtsreiter am
+      unteren Rand.</li>
+  <li><b>Die Sprache wechselst du direkt in der Kopfzeile</b> — EN · DE neben den Knöpfen. Die
+      Wahl gilt jetzt überall: die FINA-Webseite öffnet in derselben Sprache, und wer sie dort
+      umstellt, stellt sie auch hier um. Sie bleibt auf diesem Rechner gemerkt; eine geladene
+      Datei entscheidet weiter selbst.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.16</h4>
 <ul>
   <li><b>Sprachwahl auf der Begrüßungsseite</b> — EN · DE oben rechts, noch bevor eine Datei
       offen ist. Eine geladene Datei entscheidet weiter selbst.</li>

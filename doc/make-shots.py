@@ -106,8 +106,10 @@ SHOTS = [
     # Der schmale Monat für die Guide-Seite: nur der Inhalt (#view,
     # als %23 — ein rohes „#" wäre die Sprungmarke), schmal
     # fotografiert, damit die Karten kompakt stehen statt in die
-    # Breite zu laufen.
-    ('month-slim',  'v=monat&m=8&fold=&only=%23view',      880, 1180),
+    # Breite zu laufen. Die Auswertung ist AUFGEKLAPPT (ana=1): die
+    # Guide-Seite zeigt Zahlenzeile und Zeitstrahl in diesem einen
+    # Bild und braucht kein zweites daneben.
+    ('month-slim',  'v=monat&m=8&ana=1&fold=&only=%23view', 880, 1500),
     ('flexible',    'v=kakeibo&scope=jahr',               1500, 1180),
     ('forecast',    'v=prognose',                         1500),
     ('guide',       'v=monat&m=8&guide=1',                1700, 1250),

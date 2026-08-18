@@ -15,6 +15,41 @@
 const LANGS=[['en','English'],['de','Deutsch']];
 const LANG=()=>((state&&state.lang)==='de'?'de':'en');
 
+/* ── Die Sprachwahl gilt in beide Richtungen ──────────────────
+   Gewählt wird an vier Stellen, und alle vier meinen dasselbe: die
+   Sprache, in der FINA spricht. Drei davon liegen in der Anwendung
+   (Kopfzeile, Begrüßungsseite, Einstellungsfenster), die vierte auf
+   den Verkaufsseiten (js/landing.js). Damit sie sich nicht
+   widersprechen, führen sie **eine** Notiz: `finaLang` im
+   localStorage.
+
+   Von dort liest die Startseite bei jedem Aufruf und der Web-Client
+   beim Start für ein noch leeres Buch (Block „Start" in js/app.js).
+   Wer also auf der Seite Deutsch wählt, bekommt die Anwendung auf
+   Deutsch — und wer sie in der Anwendung umstellt, findet die Seite
+   beim nächsten Besuch ebenso vor.
+
+   **Eine geladene Datei schreibt nicht zurück.** `state.lang` gehört
+   ihr und überstimmt die Vorgabe wie immer; wer ein englisches Buch
+   öffnet, hat damit aber nichts über die Webseite gesagt — sie
+   wechselte sonst bei jedem Dateiwechsel ungefragt die Sprache.
+   Geschrieben wird nur, was jemand ausdrücklich umstellt.
+
+   Unter `file://` kann der Speicher fehlen (Regel 4 gilt dem Laden
+   der eigenen Dateien, hier scheitert nur eine Notiz): dann bleibt
+   es bei der Wahl im Zustand, und das ist die richtige Antwort.
+
+   Zurück kommt, **ob sich etwas geändert hat** — die Aufrufer
+   sparen sich damit save() und render(), wenn schon dieselbe
+   Sprache stand. */
+function chooseLang(l){
+  const want=(l==='de')?'de':'en';
+  if(!state||state.lang===want) return false;
+  state.lang=want;
+  try{localStorage.setItem('finaLang',want);}catch(e){}
+  return true;
+}
+
 const MONTH_NAMES={
   en:{short:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
       long:['January','February','March','April','May','June','July','August','September','October','November','December']},
@@ -279,6 +314,11 @@ const STR={
    gehört. Wo das Konto am Monatsende steht, sagt die Prognose in
    der Spalte END. */
 'year.totalRow':{en:'Total per month',de:'Gesamt je Monat'},
+/* Die violette Zeile der mobilen Jahresansicht: dieselbe Aussage
+   wie year.totalRow, nur mit dem Jahr dahinter — auf dem Telefon
+   gibt es keine Kopfzeile, die es nennt. Der Wert daneben ist die
+   Jahressumme. */
+'year.mTotal':{en:'Total per month {0}',de:'Gesamt je Monat {0}'},
 'year.totalTip':{en:'Everything this month brings in and everything it costs, added up — this month alone, broken down by the three blocks below. What is left on the account at the end of the month is in the forecast, column END.',
   de:'Alles, was dieser Monat bringt, und alles, was er kostet, zusammengezählt — nur dieser Monat, aufgeschlüsselt in den drei Blöcken darunter. Was am Monatsende auf dem Konto liegt, steht in der Prognose in der Spalte END.'},
 /* Die Blockzeile der Jahresmatrix ist zweizeilig: oben der
@@ -336,6 +376,16 @@ const STR={
 'month.kpiFixed':{en:'Regular costs',de:'Regelmäßige Kosten'},
 'month.kpiOpen':{en:'Still open',de:'Noch offen'},
 'month.kpiOpenN':{en:'{0} of {1} items{2}',de:'{0} von {1} Posten{2}'},
+/* Nur auf dem Telefon: die SALDO-Kachel unter den vier Kennzahlen
+   und der Filterknopf vor dem Suchfeld, hinter dem Fälligkeit und
+   Zahlungsstand wohnen (siehe mobileTop in js/views/monat.js). */
+'month.kpiSaldo':{en:'Balance',de:'Saldo'},
+'month.mFilters':{en:'Filters',de:'Filter'},
+/* Der Menüknopf der mobilen Kopfzeile — dahinter stehen alle
+   Werkzeuge (Speichern, Sicherung, Einstellungen, Sprache …). */
+'app.menu':{en:'Menu',de:'Menü'},
+'month.mFiltersTip':{en:'Due date and payment state — the filters of this view',
+  de:'Fälligkeit und Zahlungsstand — die Filter dieser Ansicht'},
 'month.kpiUnclear':{en:' · {0} estimated',de:' · {0} geschätzt'},
 'month.noIncome':{en:'No income recorded.',de:'Keine Einnahmen hinterlegt.'},
 'month.noKak':{en:'No Flexible Payments categories yet — add them under Settings.',
