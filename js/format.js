@@ -5,6 +5,14 @@
    ══════════════════════════════════════════════════════════════ */
 
 const nf=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+/* Die Beschriftung einer Rasterlinie: ganze Zahl mit Tausenderpunkt
+   und ohne Währung — so kurz wie möglich, sie steht über einer
+   Linie. Benutzt von der Achse der Prognose und vom Raster des
+   Zeitstrahls. `||0` fängt die **negative Null**: die Linien sind
+   Vielfache der Schrittweite, gerechnet über `Math.ceil(lo/step)` —
+   und `Math.ceil(-0.58)` ist in JavaScript `-0`; über der Nulllinie
+   stünde sonst „-0", und eine Null hat kein Vorzeichen. */
+const gnum=v=>(Math.round(v)||0).toLocaleString(LANG()==='de'?'de-DE':'en-US');
 
 /* Nullbeträge erscheinen als Gedankenstrich, nicht als 0,00. */
 const eur=n=>(n===0||n==null?'—':nf.format(n));

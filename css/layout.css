@@ -271,9 +271,6 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Kontostand selbst und wird in js/views/monat.js aus flowScale()
    in Prozent umgerechnet — alle Zeilen teilen ihn sich, sonst
    stünden ihre Balken nicht auf derselben Achse. */
-/* Zwischen den Zahlen und der Grafik der Satz, der sagt, was ein
-   Klick in der Grafik tut. */
-.anafilter{margin:7px 0 0;font-size:10.5px;line-height:1.4;color:var(--ink-2)}
 .tline{display:flex;flex-direction:column;gap:1px;background:var(--rule);
   border:1px solid var(--rule);border-top:0;margin-top:4px}
 .trow{display:grid;grid-template-columns:186px 100px 108px minmax(0,1fr);align-items:center;gap:8px;
@@ -300,9 +297,11 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
   font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden}
 .trow .tname small{font-size:9.5px;letter-spacing:.04em;color:var(--ink-2);
   text-transform:none;font-weight:400}
-/* Der heutige Tag liegt in dieser Zeile. */
-.trow .tnow{font-size:8.5px;letter-spacing:.08em;color:var(--paper-2);background:var(--seal);
-  padding:1px 4px;font-weight:600}
+/* Der heutige Tag liegt in dieser Zeile: eine Marke in der
+   Hervorhebungsfarbe — nur Rahmen und Schrift, der Grund bleibt
+   durchsichtig. Gefüllt und rot wäre sie eine Warnung. */
+.trow .tnow{font-size:8.5px;letter-spacing:.08em;color:var(--accent-2);
+  border:1px solid var(--accent-2);background:none;padding:0 3px;font-weight:600}
 /* Die Veränderung ist ein Betrag wie jeder andere und wird auch so
    gesetzt: dieselbe Größe wie in der Tabelle darunter. */
 .trow .tflow{font-family:var(--font-data);font-size:14px;font-variant-numeric:tabular-nums;
@@ -332,6 +331,19 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    auch dort zu sehen, wo ein Balken endet. */
 .ttrack{position:relative;min-width:0;overflow:hidden;--bh:12px;--bgap:3px;--bpad:4px;
   height:calc(var(--bh) + 2*var(--bpad))}
+/* Die Trennlinie zwischen der Zahlenseite und der Balkenfläche —
+   dieselbe Linie wie die Null zwischen Minus und Plus. Sie läuft
+   als border, damit Zonen und Balken erst dahinter anfangen, und
+   sie gilt auch der Achszeile: so reicht sie von den Beträgen bis
+   unter die letzte Zeile. Nur im Zeitstrahl — der Verlauf der
+   Prognose (.ytrack) hat seine Trennlinie von der Tabelle.
+
+   Und jede Zeile des Zeitstrahls ist **zwei Balken hoch** — im
+   Wasserfall wie gefiltert: gleiche Höhen in beiden Fassungen,
+   nichts springt beim Filtern. Die Achszeile (.taxis) und mehr als
+   zwei Balken (.tflat, --nbars) überschreiben das weiter unten. */
+.tline .ttrack{border-left:1px solid var(--rule-strong);
+  height:calc(var(--bh)*2 + var(--bgap) + 2*var(--bpad))}
 /* Zwei Balken in einer Zeile brauchen die doppelte Höhe — beide
    sollen gleich hoch sein, keiner gequetscht. Die Klasse trägt nur
    die Zeile, die beide Richtungen hat: jede Zeile ist so hoch, wie
@@ -339,8 +351,11 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .ttrack.two{height:calc(var(--bh)*2 + var(--bgap) + 2*var(--bpad))}
 .ttrack>*{position:absolute;top:0;height:100%}
 .tzone{top:0}
-.z-neg{left:0;background:rgba(178,58,46,.07)}
-.z-pos{background:rgba(46,106,76,.07)}
+/* Minus und Plus tragen dieselben hellen Gründe wie die Zeilen der
+   Bereiche darunter: rot wie ein Posten der regelmäßigen Kosten,
+   grün wie eine Einnahme — dieselbe Aussage, dieselbe Farbe. */
+.z-neg{left:0;background:var(--bg-out)}
+.z-pos{background:var(--bg-in)}
 .tzero{width:1px;background:var(--rule-strong)}
 /* Zufluss oben, Abfluss unten: in einer Zeile, in der erst eine
    Einnahme kommt und danach Kosten abgehen, überdecken sich die
@@ -348,10 +363,11 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .tup,.tdown{display:flex;height:var(--bh);top:var(--bpad);overflow:hidden}
 .tdown{flex-direction:row-reverse}
 .ttrack.two .tdown{top:calc(var(--bpad) + var(--bh) + var(--bgap))}
-/* Der einzige Balken einer Zeile steht oben, denn seine Zeile ist
-   nur so hoch wie er. Nur wenn eine Zeile beide Richtungen hat und
-   trotzdem einer fehlt, rückt er in die Mitte. */
-.ttrack.two .solo{top:calc(var(--bpad) + (var(--bh) + var(--bgap))/2)}
+/* Der einzige Balken einer zweibalkig hohen Zeile rückt in die
+   Mitte — im Zeitstrahl ist das jede Zeile mit nur einer Richtung
+   (siehe .tline .ttrack), im Verlauf der Prognose die .two-Zeile,
+   der eine Richtung fehlt. */
+.ttrack.two .solo,.tline .ttrack .solo{top:calc(var(--bpad) + (var(--bh) + var(--bgap))/2)}
 .ttrack i{display:block;height:100%;flex:0 0 auto;min-width:2px}
 /* Eine helle Fuge zwischen zwei Anteilen — ohne sie liefen zwei
    ähnliche Farben ineinander. */
@@ -380,6 +396,36 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    nicht ganz darin verschwindet. */
 .tsum.cutl{background:linear-gradient(to right,transparent 0,var(--edge-sal) min(38px,60%))}
 .tsum.cutr{background:linear-gradient(to left,transparent 0,var(--edge-sal) min(38px,60%))}
+/* ── Der gewählte Abschnitt (partLine in js/views/monat.js) ────
+   Gefiltert gibt es keinen Wasserfall: die fünf Zeilen bleiben,
+   jede mit ihren Balken je Geldart — die gewählte kräftig, die
+   übrigen blass (.pale). Die Fläche hat keinen eigenen Grund —
+   die Balken liegen auf dem Grund ihrer Zeile, linksbündig auf dem
+   Raster; wie viele es sind, sagt --nbars (mindestens zwei, damit
+   die Fläche beim Wechseln nicht springt), die Höhe rechnet sich
+   aus denselben Maßen wie beim Wasserfall. Das Raster ist
+   kräftiger als in der Prognose (--rule-strong): es ist hier das
+   einzige Maß. */
+.ttrack.tflat{--nbars:2;
+  height:calc(var(--nbars)*var(--bh) + (var(--nbars) - 1)*var(--bgap) + 2*var(--bpad))}
+.tflat .fbar{left:0;height:var(--bh);min-width:2px}
+.tflat .fbar.pale{opacity:.22}
+.tflat .tgrid{background:var(--rule-strong);opacity:1}
+/* Gewählt sagen die Trennlinien: über und unter der gewählten
+   Zeile liegen sie in der Hervorhebungsfarbe — der Schatten malt
+   in die 1-px-Fugen des .tline-Stapels. Der Rahmen nach innen der
+   übrigen Filter bleibt dem Wasserfall (weite Suche). */
+.tline.part .trow[aria-pressed="true"]{
+  box-shadow:0 -1px 0 var(--accent),0 1px 0 var(--accent)}
+/* Die Achszeile über dem Zeitstrahl (tlAxis): an jeder Rasterlinie
+   ihr Betrag — eine schmale Zeile, nur in der Spalte der Balken.
+   Kein Knopf und keine Sprechblase, nur die Beschriftung des
+   Maßes; die Marken kommen mit ihrer Verschiebung aus dem Skript. */
+.trow.taxis{padding-top:0;padding-bottom:0;cursor:default}
+.trow.taxis:hover{background:var(--paper-2)}
+.taxis .ttrack{height:11px;overflow:visible}
+.taxis .tzlab{top:auto;bottom:1px;height:auto;font-family:var(--font-data);font-size:9px;
+  line-height:1;font-weight:600;color:var(--ink-2)}
 /* Derselbe Balken im Verlauf der Prognose (.ytrack) besteht aus
    mehreren Farben — dort franst nicht ein Hintergrund aus, sondern
    der ganze Balken samt seiner Anteile. Deshalb eine Maske und

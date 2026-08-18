@@ -136,10 +136,7 @@ function anaBar(m,sel){
         ${cell('t-out',t('month.kpiOpen'),sum(due.filter(it=>!paidAt(it,m))),openN?'neg':'',openTip)}
       </span>
     </button>
-    <!-- Zwischen den Zahlen und der Grafik der Satz, der sagt, was
-         ein Klick in der Grafik tut. Er steht nur bei offener
-         Auswertung: zugeklappt gibt es nichts zu klicken. -->
-    ${open?`<p class="anafilter">${t('month.anaFilterHint')}</p>${timeline(m,sel)}`:''}
+    ${open?timeline(m,sel):''}
     <!-- Eine Zeile in der Reihenfolge, in der man filtert: erst
          suchen, dann nach Fälligkeit einschränken, dann nach
          Zahlungsstand. Sie gilt für alle drei Bereiche. -->
@@ -278,9 +275,9 @@ function mobileTop(m,sel,sums){
    Beides kann in derselben Zeile vorkommen — erst kommt das
    Gehalt, dann geht die Miete ab —, und dann überdecken sich die
    beiden Strecken auf der Achse. Deshalb steht der Zufluss über
-   dem Abfluss, und die Fläche bekommt die Klasse `two`: beide
-   Balken behalten ihre Höhe, die Zeile wird dafür höher. Gibt es
-   nur eine Richtung, steht sie allein und oben.
+   dem Abfluss (Klasse `two`). Gibt es nur eine Richtung, steht sie
+   allein in der Mitte — jede Zeile ist zwei Balken hoch (.tline
+   .ttrack in css/layout.css), gefiltert wie ungefiltert.
 
    Dazu zwei Marken: eine feine Linie beim Stand davor und ein
    kräftiger Strich beim neuen Stand. Weil die Zeilen aneinander
@@ -315,12 +312,121 @@ function flowTrack(f,pos,zero,zones,cut){
     +`<span class="tconn" style="left:${pos(f.prev)}%"></span>${mark}`);
 }
 
+/* Name, Tage und Beschriftung eines Abschnitts — der Wasserfall
+   und die gefilterte Fassung (partLine) beschriften damit dieselben
+   Zeilen; zwei Fassungen liefen auseinander. */
+const tlName=k=>({P:t('month.tlOpen'),A:t('month.fDueA'),M:t('month.fDueM'),
+  E:t('month.fDueE'),Z:t('month.tlClose')})[k];
+const tlDays=(k,last)=>({A:[1,10],M:[11,20],E:[21,last]})[k];
+const tlToday=m=>(new Date().getFullYear()===YEAR&&m===CUR)?new Date().getDate():0;
+function tlLabel(k,last,today){
+  const d=tlDays(k,last), now=d&&today>=d[0]&&today<=d[1];
+  return `<span class="tname">${tlName(k)}${d?`<small>${t('month.tlDays',d[0],d[1])}</small>`:''}${
+    now?`<b class="tnow">${t('month.tlToday')}</b>`:''}</span>`;
+}
+
+/* Die feinste Stufe der Leiter 1·2·5·10 …, bei der die Spanne in
+   höchstens zehn Felder passt — dieselbe Regel wie die Achse der
+   Prognose, nur bis in den Euro hinunter. Beide Fassungen des
+   Zeitstrahls rastern damit. */
+function tlStep(span){
+  let s=1; for(let i=0;span/s>10;i++) s*=[2,2.5,2][i%3];
+  return s;
+}
+
+/* Die Achszeile über dem Zeitstrahl: an jeder Rasterlinie der
+   Betrag, für den sie steht — eine schmale Zeile, nur in der
+   Spalte der Balken. Marken nahe der Kante legen sich an sie,
+   statt hinauszuragen, wie die Achse der Prognose. */
+function tlAxis(marks){
+  const lab=marks.map(mk=>{
+    const off=mk.x<6?'2px':(mk.x>94?'calc(-100% - 2px)':'-50%');
+    return `<span class="tzlab" style="left:${mk.x}%;transform:translateX(${off})">${gnum(mk.v)}</span>`;
+  }).join('');
+  return `<span class="trow taxis" aria-hidden="true"><span class="ttrack">${lab}</span></span>`;
+}
+
+/* ── Ein gewählter Abschnitt: Balken je Geldart ───────────────
+   Sobald nach einer Fälligkeit gefiltert wird — eine Zeile des
+   Zeitstrahls oder die Knöpfe darunter, beides ui.dueFilter —,
+   gibt es keinen Wasserfall mehr: eine einzelne Stufe ohne ihre
+   Treppe sagte nichts. Die fünf Zeilen bleiben stehen — die
+   Aufteilung des Monats soll man weiter sehen, und ein Klick auf
+   eine andere Zeile wechselt den Abschnitt. Jede Zeile zeigt je
+   Geldart einen Balken, linksbündig auf dem Grund der Zeile: die
+   gewählte kräftig und mit ihrer Summe (der Veränderung der
+   gezeigten Zeilen), die übrigen **blass** (.pale) und ohne Zahl —
+   sie sind Umgebung, keine Auswahl, ihre Balken kommen deshalb aus
+   dem ganzen Monat und nicht aus `sel`. Die Monatseröffnung hat
+   keine Geldarten und behält nur Raster und Name.
+
+   Gewählt sagen die Trennlinien: über und unter der gewählten
+   Zeile liegen sie in der Hervorhebungsfarbe (.tline.part in
+   css/layout.css) — kein Rahmen nach innen, kein gefärbter Name.
+
+   Kein Rot und kein Grün der Fläche: ohne die Achse des
+   Kontostands gibt es kein Plus und kein Minus — das Vorzeichen
+   steht im Betrag, die Länge ist sein Maß. Das Raster läuft über
+   **alle** Zeilen und beginnt an der Trennlinie zur Zahlenseite;
+   der längste Balken des Monats bestimmt die Schrittweite
+   (tlStep), und über jeder Linie steht ihr Betrag (tlAxis). Jede
+   Zeile ist mindestens zwei Balken hoch (--nbars), damit die
+   Fläche beim Wechseln des Abschnitts nicht springt — mehr Balken
+   machen sie höher.
+
+   Ein zweiter Klick auf die gewählte Zeile nimmt den Filter
+   zurück — dann gilt wieder der Wasserfall. */
+function partLine(m,sel){
+  const key=ui.dueFilter;
+  const flow=monthFlow(m,sel), full=monthFlow(m);
+  const last=daysInMonth(m), today=tlToday(m);
+  const fSel=flow.find(x=>x.key===key);
+  /* Je Geldart ihr Ergebnis in einem Abschnitt: Zufuhr minus
+     Abzug — für die gewählte Zeile dieselben Zahlen wie in den
+     Karten darunter. */
+  const valsOf=f=>FLOW_KINDS.map(k=>({k,v:(f.up[k]||0)-(f.down[k]||0)})).filter(x=>x.v);
+  const vals=valsOf(fSel);
+  const ctx={};
+  full.forEach(f=>{ if(f.key!=='P') ctx[f.key]=valsOf(f); });
+  ctx[key]=vals;
+  /* Eine Achse für alle Zeilen: der längste Balken des Monats
+     bestimmt das Raster — die gewählte Auswahl zählt mit, ein
+     Standfilter kann ihren Balken über den vollen Abschnitt
+     hinausheben (nur die Zufuhr weggefiltert, der Abzug bleibt). */
+  const max=Math.max(1,...Object.values(ctx).flat().map(x=>Math.abs(x.v)));
+  const step=tlStep(max), cells=Math.ceil(max/step), axis=cells*step;
+  const grid=Array.from({length:cells-1},(_,i)=>
+    `<span class="tgrid" style="left:${(i+1)/cells*100}%"></span>`).join('');
+  const marks=Array.from({length:cells},(_,k)=>({v:k*step,x:k/cells*100}));
+  const track=(list,pale)=>`<span class="ttrack tflat" style="--nbars:${Math.max(2,list.length)}">${grid}${
+    list.map((x,i)=>`<span class="fbar b-${x.k}${pale?' pale':''}"
+      style="top:calc(var(--bpad) + ${i}*(var(--bh) + var(--bgap)));width:${Math.abs(x.v)/axis*100}%"
+      data-tip="${esc(eur(x.v))}"></span>`).join('')}</span>`;
+  const sum=`<span class="trun ${cls(fSel.sum)}">${(fSel.sum>0?'+':'')+eur(fSel.sum)}</span>`;
+  const rows=flow.map(x=>{
+    if(x.key==='P') return `<span class="trow tp-P">${tlLabel('P',last,today)
+      }<span class="ttrack tflat" style="--nbars:2">${grid}</span></span>`;
+    const on=x.key===key;
+    return `<button class="trow tp-${x.key}" data-tpart="${x.key}" aria-pressed="${on}"
+      aria-label="${esc(tlName(x.key))}">${tlLabel(x.key,last,today)}${on?sum:''}${track(ctx[x.key],!on)}</button>`;
+  }).join('');
+  /* Die Farberklärung nennt alles, was in der Fläche vorkommt —
+     auch die blassen Balken tragen ihre Geldartfarbe. */
+  const kinds=FLOW_KINDS.filter(k=>Object.values(ctx).some(l=>l.some(x=>x.k===k)));
+  const chips=kinds.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('');
+  return `<div class="tline part">${tlAxis(marks)}${rows}
+    ${chips?`<div class="thint">${chips}</div>`:''}
+    ${key==='Z'?`<div class="tnote">${t('month.tlNoDue')}</div>`:''}</div>`;
+}
+
 function timeline(m,sel){
+  /* Bei weiter Suche (qAll) übergeht die Auswahl den
+     Fälligkeitsfilter — dann zeigt auch der Zeitstrahl wieder alle
+     Abschnitte, sonst nennte die eine Zeile eine andere Summe als
+     die Karten (siehe „Was ein Filter mit den Summen macht"). */
+  if(ui.dueFilter!=='alle'&&!(queryQ()&&qAll())) return partLine(m,sel);
   const flow=monthFlow(m,sel), sc=flowScale(flow), last=daysInMonth(m);
-  const today=(new Date().getFullYear()===YEAR&&m===CUR)?new Date().getDate():0;
-  const NAME={P:t('month.tlOpen'),A:t('month.fDueA'),M:t('month.fDueM'),
-    E:t('month.fDueE'),Z:t('month.tlClose')};
-  const DAYS={A:[1,10],M:[11,20],E:[21,last]};
+  const today=tlToday(m);
   /* Von der Achse zur Fläche: 0 % ist der tiefste Stand des Monats
      (höchstens die Null), 100 % der höchste. */
   const pos=v=>(v-sc.lo)/sc.span*100;
@@ -331,15 +437,23 @@ function timeline(m,sel){
   /* Die Null nur, wenn sie im Bild liegt: bei beschnittener Achse
      steht sie weit außerhalb, dann ist die ganze Fläche eine Zone. */
   const zc=Math.max(0,Math.min(100,zero));
+  /* Das Raster der Fläche: Linien in festem Betragsabstand, in
+     jeder Zeile an derselben Stelle (sie hängen an den Zonen und
+     stehen damit in jeder Zeile). Die Null behält ihre kräftigere
+     Linie und bekommt keine zweite; über jeder Linie steht ihr
+     Betrag (tlAxis), die Null eingeschlossen. */
+  const step=tlStep(sc.span);
+  const marks=[]; let gridw='';
+  for(let v=Math.ceil(sc.lo/step)*step; v<=sc.hi; v+=step){
+    marks.push({v,x:pos(v)});
+    if(sc.cut||Math.abs(v)>=step/2) gridw+=`<span class="tgrid" style="left:${pos(v)}%"></span>`;
+  }
   const zones=`<span class="tzone z-neg" style="width:${zc}%"></span
     ><span class="tzone z-pos" style="left:${zc}%;width:${100-zc}%"></span
-    >${sc.cut?'':`<span class="tzero" style="left:${zc}%"></span>`}`;
+    >${sc.cut?'':`<span class="tzero" style="left:${zc}%"></span>`}${gridw}`;
 
   const row=f=>{
-    const d=DAYS[f.key];
-    const now=d&&today>=d[0]&&today<=d[1];
-    const name=`<span class="tname">${NAME[f.key]}${d?`<small>${t('month.tlDays',d[0],d[1])}</small>`:''}${
-      now?`<b class="tnow">${t('month.tlToday')}</b>`:''}</span>`;
+    const name=tlLabel(f.key,last,today);
     const nums=`<span class="tflow ${cls(f.sum)}">${f.key==='P'||!f.sum?'':(f.sum>0?'+':'')+eur(f.sum)}</span
       ><span class="trun ${cls(f.run)}">${eur(f.run)}</span>`;
     /* Keine Sprechblase an der Zeile: sie zeigte beim Überfahren
@@ -349,7 +463,7 @@ function timeline(m,sel){
     if(f.key==='P') return `<span class="trow tp-P">${name}${nums}${track}</span>`;
     return `<button class="trow tp-${f.key}" data-tpart="${f.key}"
       aria-pressed="${ui.dueFilter===f.key}"
-      aria-label="${esc(NAME[f.key])}">${name}${nums}${track}</button>`;
+      aria-label="${esc(tlName(f.key))}">${name}${nums}${track}</button>`;
   };
   /* Unter den Zeilen die Farberklärung. Sie muss sein, seit an
      einem Anteil nur noch sein Betrag steht: die Farbe ist dann
@@ -360,7 +474,7 @@ function timeline(m,sel){
   /* Bei beschnittener Achse gehört ihr Maßstab dazu — sonst läse
      man die Länge des ersten Balkens als seinen ganzen Betrag. */
   const scale=sc.cut?`<span class="lscale">${t('month.tlScale',eur(sc.lo),eur(sc.hi))}</span>`:'';
-  return `<div class="tline${sc.cut?' cut':''}">${flow.map(row).join('')}
+  return `<div class="tline${sc.cut?' cut':''}">${tlAxis(marks)}${flow.map(row).join('')}
     <div class="thint">${chips}${scale}</div>
     <div class="tnote">${t('month.tlNoDue')}</div></div>`;
 }

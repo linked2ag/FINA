@@ -722,15 +722,24 @@ html.js .button-sync{animation:syncpulse 3.8s ease-out infinite}
    in beiden Sprachen dastehen. js/landing.js schaltet auf und zu
    und hebt hervor, wo man gerade ist (.here). */
 .jump{position:fixed;left:20px;bottom:20px;z-index:40}
+/* **Orange von Anfang an.** Der Knopf trug bis 18.8.26 die
+   Tintenfarbe und wurde erst beim Überfahren oder Öffnen orange —
+   er sah damit aus wie ein Teil des Seitengerüsts und wurde
+   übersehen. Orange trägt in FINA, was etwas **anbietet** statt
+   etwas zu tun (siehe tokens.css), und genau das tut dieses Menü:
+   es bietet die Abschnitte der Seite an. Gedrückt und überfahren
+   wird er dunkler (--accent-2, dieselbe Stufe wie beim gedrückten
+   Knopf der Startseite); dass er offen ist, sagt ohnehin das
+   Kreuz, zu dem sich die drei Striche drehen. */
 .jumpbtn{width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;padding:0;
-  background:var(--ink);color:var(--paper);box-shadow:var(--sh-2);
+  background:var(--accent);color:#fff;box-shadow:var(--sh-2);
   display:grid;place-items:center;
   transition:background .2s ease,transform .2s ease}
-.jumpbtn:hover{background:var(--accent);transform:translateY(-2px)}
+.jumpbtn:hover{background:var(--accent-2);transform:translateY(-2px)}
 .jumpbtn .bars{display:grid;gap:4.5px;width:21px}
 .jumpbtn .bars i{display:block;height:2px;border-radius:2px;background:currentColor;
   transition:transform .22s ease,opacity .16s ease}
-.jump.open .jumpbtn{background:var(--accent)}
+.jump.open .jumpbtn{background:var(--accent-2)}
 .jump.open .bars i:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
 .jump.open .bars i:nth-child(2){opacity:0}
 .jump.open .bars i:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}

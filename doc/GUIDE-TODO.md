@@ -20,6 +20,18 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- ⚠ **Der Zeitstrahl folgt dem Fälligkeitsfilter** — bei gewähltem Abschnitt (Zeile oder
+  Filterknopf) bleiben alle Zeilen mit Balken je Geldart stehen, die nicht gewählten blass;
+  orange Trennlinien fassen die gewählte ein, und nur sie trägt Zahlen: eine Summe, rechts
+  kräftige Balken linksbündig; ein zweiter Klick bringt den Wasserfall zurück. In beiden
+  Fassungen: Trennlinie zwischen Zahlen und Balkenfläche, Raster über alle Zeilen, darüber
+  eine Achszeile mit dem Betrag jeder Linie. Der graue Erklärsatz über der Grafik ist
+  gestrichen; die „Heute"-Marke ist orange umrandet statt rot gefüllt. **Falsch geworden:**
+  „Was FINA kann" sagt zum Zeitstrahl-Filter noch „die anderen Zeilen liegen flach … nur
+  die Monatseröffnung behält ihre Zahl" (EN wie DE) — beides stimmt so nicht mehr. *Im
+  Reiter „Was ist neu" erledigt (26.8.18); in Schritt für Schritt und Was FINA kann noch
+  offen.*
+
 - **FINA hat eine mobile Oberfläche** — unter 700 px baut der Browser die drei Ansichten
   um: der Monat mit Suchzeile (alle Filter hinter dem Knopf davor), Kennzahl-Kacheln und
   großen Siegeln; das Jahr als zwölf Monatskarten (ein Tipp führt in den Monat, angelegt

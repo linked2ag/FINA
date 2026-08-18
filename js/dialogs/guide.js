@@ -1130,6 +1130,10 @@ en:()=>`
   <li><b>Your language is remembered</b> — pick EN · DE on the FINA website or on the welcome
       screen, and both open that way next time on this computer. Once a book is open, the book
       decides: its language lives in the file and is changed in ${t('app.settings')}.</li>
+  <li><b>The timeline follows the due-date filter</b> — pick a section (a timeline row or a
+      filter button): orange lines frame it, and only this row keeps its figures — one sum
+      and, per money type, a bar on a labelled grid. The other rows stay put with pale
+      bars; a second click on the chosen one brings the waterfall back.</li>
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
@@ -1288,6 +1292,11 @@ de:()=>`
       Begrüßungsseite, und beide öffnen beim nächsten Mal auf diesem Rechner so. Sobald ein Buch
       offen ist, entscheidet das Buch: seine Sprache steht in der Datei und wird in
       ${t('app.settings')} geändert.</li>
+  <li><b>Der Zeitstrahl folgt dem Fälligkeitsfilter</b> — wer einen Abschnitt wählt (eine
+      Zeile oder einen Filterknopf), sieht ihn orange eingefasst, und nur diese Zeile
+      behält ihre Zahlen: eine Summe und je Geldart einen Balken auf einem beschrifteten
+      Raster. Die übrigen Zeilen bleiben mit blassen Balken stehen; ein zweiter Klick auf
+      die gewählte bringt den Wasserfall zurück.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 

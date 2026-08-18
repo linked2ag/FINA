@@ -454,10 +454,6 @@ const STR={
    trägt. Dieselbe Aussage wie beim Filterknopf „Monatsabschluss". */
 'month.tlNoDue':{en:'Income and costs without a payday — the Flexible Payments, the balance correction and every item with no due date — are taken up at the month close.',
   de:'Einnahmen und Ausgaben ohne Zahltag — die Flexible Payments, die Saldokorrektur und jeder Posten ohne Fälligkeit — werden beim Monatsabschluss aufgenommen.'},
-/* Der graue Satz zwischen den Zahlen und der Grafik: der
-   Zeitstrahl ist auch ein Filter. */
-'month.anaFilterHint':{en:'The timeline is a filter too: click a row to show only that part of the month everywhere below. Hover a colour to see its amount.',
-  de:'Der Zeitstrahl filtert mit: ein Klick auf eine Zeile zeigt unten nur noch diesen Teil des Monats. Über einer Farbe steht ihr Betrag.'},
 /* Die Tage einer Zeile: „1–10" · „1.–10." */
 'month.tlDays':{en:'{0}–{1}',de:'{0}.–{1}.'},
 'month.tlToday':{en:'Today',de:'Heute'},

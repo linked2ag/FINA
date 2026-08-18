@@ -854,7 +854,8 @@ Filter übrig lässt (`sel`, siehe „Was ein Filter mit den Summen macht").
 
 Die Tage stehen deshalb in der Beschriftung und nicht mehr als Leiste darunter: die Breite
 gehört jetzt dem Betrag, nicht der Zeit. Fällt der heutige Tag in eine Zeile, trägt sie
-eine rote Marke (`.tnow`).
+eine Marke in der Hervorhebungsfarbe (`.tnow`) — Rahmen und Schrift in `--accent-2`, der
+Grund durchsichtig: gefüllt und rot wäre sie eine Warnung.
 
 **„Monatseröffnung" (`'P'`) ist kein Zeitraum, sondern ein Stand:** `carryIn(m)`, die
 Summe der Monate davor in derselben Datei. Ein Kontoauszug ist das nicht — die Datei kennt
@@ -906,7 +907,7 @@ Jede Zeile beginnt beim Stand der Zeile darüber (`f.prev`) und endet bei ihrem 
 
 **Beide Strecken überdecken sich auf der Achse**, sobald in einer Zeile erst eine Einnahme
 kommt und danach Kosten abgehen. Deshalb liegt der Zufluss auf der oberen, der Abfluss auf
-der unteren Hälfte der Zeile; gibt es nur eine Richtung, nimmt sie die volle Höhe (`.solo`).
+der unteren Hälfte der Zeile; gibt es nur eine Richtung, steht sie in der Mitte (`.solo`).
 Der Balken reicht dann sichtbar über sein eigenes Ergebnis hinaus und kommt zurück — genau
 das soll man sehen.
 
@@ -919,12 +920,14 @@ ist keine Veränderung, sondern ein Stand.
 **Nur die Anteile tragen eine Sprechblase, und darin steht nur der Betrag.** Die Zeilen
 selbst tragen keine — sonst spränge beim Überfahren der halben Leiste ein Kasten auf.
 Welche Geldart ein Anteil ist, sagt seine Farbe; weil sie es allein sagt, steht unter den
-Zeilen eine Farberklärung (`.thint`). Was ein Klick tut, sagt der graue Satz **über** der
-Grafik (`.anafilter`, `month.anaFilterHint`) — er steht zwischen den Zahlen und dem
-Zeitstrahl und nur, solange die Auswertung offen ist.
+Zeilen eine Farberklärung (`.thint`). Ein Erklärsatz über der Grafik steht dort **nicht
+mehr** (`.anafilter` und `month.anaFilterHint` sind seit 18.8.26 gestrichen): was ein
+Klick tut, zeigt der erste Klick, und ein zweiter nimmt ihn zurück.
 
-**Ein Balken ist 12 px hoch, immer.** Hat eine Zeile beide Richtungen, trägt ihre Fläche die
-Klasse `two` und wird doppelt so hoch — jede Zeile ist so hoch, wie sie sein muss, und keine
+**Ein Balken ist 12 px hoch, und jede Zeile des Zeitstrahls ist zwei Balken hoch** —
+gefiltert wie ungefiltert (`.tline .ttrack` in `css/layout.css`): gleiche Höhen in beiden
+Fassungen, nichts springt beim Filtern. Ein einzelner Balken rückt dafür in die Mitte
+seiner Zeile (`.solo`); nur mehr als zwei Balken (`.tflat`, `--nbars`) machen eine Zeile
 höher. Über und unter den Balken bleiben `--bpad` frei, damit der Strich des Kontostands
 über sie hinausragt und auch dort zu sehen ist, wo ein Balken endet. Die Maße stehen als
 `--bh`, `--bgap` und `--bpad` an `.ttrack`.
@@ -944,6 +947,44 @@ Ein zweiter Klick nimmt ihn zurück. Den Filter gibt es nur bei aufgeklappter Au
 zugeklappt gibt es die Zeilen nicht.
 Gefiltert **wird** dabei nicht dunkel hinterlegt wie sonst: in der Fläche steht der
 Kontostand und muss lesbar bleiben, deshalb ein Rahmen nach innen.
+
+**Bei gewähltem Abschnitt gibt es keinen Wasserfall mehr** (`partLine()` in
+`js/views/monat.js`): eine einzelne Stufe ohne ihre Treppe sagte nichts. **Die fünf Zeilen
+bleiben stehen** — die Aufteilung des Monats soll man weiter sehen, und ein Klick auf eine
+andere Zeile wechselt den Abschnitt. Jede Zeile zeigt je Geldart einen Balken,
+**linksbündig auf dem Grund der Zeile** (`.ttrack.tflat`, kein eigener Hintergrund): die
+gewählte kräftig und mit ihrer Summe (der Veränderung der gezeigten Zeilen), die übrigen
+**blass** (`.pale`, Deckkraft statt eigener Farben) und ohne Zahl — sie sind Umgebung,
+keine Auswahl, ihre Balken kommen aus dem ganzen Monat und nicht aus `sel`. Die
+Monatseröffnung hat keine Geldarten und behält nur Raster und Namen. **Gewählt sagen die
+Trennlinien:** über und unter der gewählten Zeile liegen sie in der Hervorhebungsfarbe
+(`.tline.part` in `css/layout.css`, ein Schatten in die 1-px-Fugen) — kein Rahmen nach
+innen, kein gefärbter Name. Kein Rot und kein Grün der Fläche: ohne die Achse des
+Kontostands gibt es kein Plus und kein Minus — das Vorzeichen steht im Betrag, die Länge
+ist sein Maß. **Jede Zeile ist mindestens zwei Balken hoch** (`--nbars`), damit die Fläche
+beim Wechseln des Abschnitts nicht springt; mehr Balken machen sie höher. Der Satz über
+den Monatsabschluss (`.tnote`) steht nur bei `Z` — er erklärt genau diese Zeile. Ein
+zweiter Klick auf die gewählte Zeile nimmt den Filter zurück, dann gilt wieder der
+Wasserfall. **Bei weiter Suche (`qAll()`) bleibt der Wasserfall** auch mit gesetztem
+Fälligkeitsfilter: die Suche übergeht ihn, die Auswahl enthält dann alle Abschnitte, und
+die eine Zeile nennte eine andere Summe als die Karten.
+
+**Beide Fassungen tragen dasselbe Gerüst aus Trennlinie, Raster und Achse.** Die Balkenfläche
+beginnt mit einer Linie zur Zahlenseite (`.tline .ttrack{border-left}`), im Stil der Null
+zwischen Minus und Plus. Das Raster läuft über **alle** Zeilen: die feinste Stufe der
+Leiter 1·2·5·10 …, bei der die Spanne in höchstens zehn Felder passt (`tlStep()` — dieselbe
+Regel wie die Achse der Prognose, nur bis in den Euro hinunter); im Wasserfall liegen die
+Linien auf Vielfachen der Schrittweite und die Null behält ihre kräftigere. Darüber steht
+die **Achszeile** (`tlAxis()`, `.taxis`/`.tzlab`): an jeder Rasterlinie der Betrag, für den
+sie steht, formatiert mit `gnum()` aus `js/format.js` — derselben Funktion, mit der die
+Prognose ihre Achse beschriftet; Marken nahe der Kante legen sich an sie. Eine eigene
+„Raster"-Angabe in der Farberklärung gibt es deshalb nicht (`month.tlGrid` ist wieder weg);
+die Farberklärung nennt im gefilterten Zustand alle Geldarten, die in der Fläche vorkommen —
+auch die blassen.
+
+**Die Zonen des Wasserfalls tragen die Farben der Einträge:** links der Null `--bg-out`
+wie ein Posten der regelmäßigen Kosten, rechts `--bg-in` wie eine Einnahme (`.z-neg` /
+`.z-pos` in `css/layout.css`) — dieselbe Aussage, dieselbe Farbe.
 
 ## Die Begrüßungsseite
 
@@ -1198,9 +1239,11 @@ Zwei Nebenwirkungen, die man kennen muss:
   sonst stünde dort „3 von 20", während darunter drei Zeilen sind. Dafür ist
   `unclearCount()` aus `js/calc.js` verschwunden: die Zahl steht nicht mehr im Zustand.
 * **Der Zeitstrahl ist zugleich der Fälligkeitsfilter** (`data-tpart`). Wer eine Zeile
-  anklickt, sieht danach nur noch ihre Bewegung, die übrigen vier liegen flach. Das ist
-  gewollt — ein zweiter Klick nimmt es zurück —, aber es ist der einzige Filter, der seine
-  eigene Bedienung mitfiltert.
+  anklickt, sieht danach nur noch ihre Zahlen — die übrigen Zeilen bleiben mit Namen und
+  blassen Balken stehen, orange Trennlinien fassen die gewählte ein, und statt des
+  Wasserfalls stehen Balken je Geldart auf einem beschrifteten Raster (siehe „Ein Klick
+  auf eine Zeile filtert"). Das ist gewollt — ein zweiter Klick auf die Zeile nimmt es
+  zurück —, aber es ist der einzige Filter, der seine eigene Anzeige mitfiltert.
 
 **Die Gesamtzeile wird deshalb erst nach den Blöcken gebaut** und dann in den Kopf gehängt
 (`matrixHead(totRow)`): sie ist die Summe der drei Blockzeilen samt Saldokorrektur, nicht

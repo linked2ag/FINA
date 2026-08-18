@@ -103,15 +103,10 @@ const PROG_COLS=[
   {ab:'END',   cls:'num endcol',  name:'prog.colEnd',      tip:'prog.tipEnd'},
 ];
 
-/* Das Rastermaß in der Spaltenüberschrift: ganze Zahl mit
-   Tausenderpunkt und ohne Währung — es steht in Klammern hinter
-   dem Wort und soll so kurz wie möglich sein. */
-/* `||0` fängt die **negative Null**. Die Rasterlinien sind
-   Vielfache der Schrittweite, gerechnet über `Math.ceil(lo/step)` —
-   und `Math.ceil(-0.58)` ist in JavaScript `-0`. Ohne diesen Griff
-   stünde über der Nulllinie „-0", und eine Null hat kein
-   Vorzeichen. */
-const gnum=v=>(Math.round(v)||0).toLocaleString(LANG()==='de'?'de-DE':'en-US');
+/* Die Beschriftung der Rasterlinien (gnum) steht in js/format.js:
+   auch der Zeitstrahl der Monatsansicht beschriftet damit sein
+   Raster — hier läge sie in einer Ansicht, an der die andere
+   unsichtbar hinge. */
 
 function viewPrognose(){
   /* ── Die mobile Fassung teilt sich die ganze Rechnung ─────────
