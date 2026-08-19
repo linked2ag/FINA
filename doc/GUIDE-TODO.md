@@ -20,6 +20,17 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- **Beim Filtern verschwinden leere Bereiche** — bleibt in einer Karte der Monatsansicht
+  oder in einem Block der Jahresmatrix keine Zeile übrig, wird der ganze Bereich
+  ausgeblendet, solange der Filter greift; ohne Filter bleibt er stehen. Fällt alles weg,
+  steht im Monat eine Zeile „Keine Posten für diesen Filter". Im Reiter „Was ist neu" steht
+  es schon.
+
+- **Der Monat kann mit aufgeklappter Auswertung aufgehen** — neuer Haken in den
+  Einstellungen unter „Darstellung"; er gilt beim Öffnen der Datei, danach entscheidet der
+  Klick auf die Auswertungszeile für diese Sitzung. Steht in der Datei (`state.anaOpen`).
+  Im Reiter „Was ist neu" steht es schon.
+
 - **Mit der Tastatur durch die Monate** — in der Monatsansicht geht Strg/Cmd + ← / → einen
   Monat zurück oder weiter, am Januar und am Dezember ist Schluss. Der Griff steht in der
   Sprechblase jedes Monatsreiters; im Reiter „Was ist neu" steht er schon.

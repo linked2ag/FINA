@@ -267,6 +267,17 @@ function viewJahr(){
      nimmt Spalten weg — in einem Block verbirgt sich dadurch
      nichts, dieser Knopf klappt also nichts auf. */
   const filterOn=!!q||!!state.hideSettled;
+  /* ── Beim Filtern verschwindet ein leerer Block ganz ──────────
+     Bleibt in einem Block keine Zeile übrig, fällt auch seine
+     Blockzeile weg — mitsamt der Leerzeile davor. Zwölf Nullen
+     unter einer Überschrift sind keine Auskunft, sie nehmen nur den
+     Platz weg, den die gefundenen Zeilen brauchen. Dasselbe tut die
+     Monatsansicht mit ihren Karten (siehe keep() in
+     js/views/monat.js).
+
+     **Ohne Filter bleibt der Block stehen**, auch leer: dort sagt
+     er, dass es ihn gibt und dass noch nichts darin steht. */
+  const keepSec=rows=>!!rows||!filterOn;
   const foldOf=k=>filterOn?false:isFoldedYear(k);
   const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
   /* Die Blockzeile bekommt ihren Pfeil nur, wenn geklappt werden
@@ -332,7 +343,7 @@ function viewJahr(){
     if(incMany) incRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-in'});
     vis.forEach(it=>{incRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'});});
   });
-  if(incRows||secIn)
+  if(keepSec(incRows))
     parts.push(mrow(t('g.income'),monSums(incVis),
       {cls:'sec r-in secpin',...foldOpt('in',fIn)})+(fIn?'':incRows));
 
@@ -350,7 +361,7 @@ function viewJahr(){
   /* Nur der Name des Blocks. Der Hinweis auf den Import stand
      früher klein darunter — er erklärt aber nicht die Zeile,
      sondern eine Funktion, und dafür gibt es die Anleitung. */
-  if(kakRows||secFlex)
+  if(keepSec(kakRows))
     parts.push(mrow(t('year.kakRow'),kakSums,
       {cls:'sec r-flex secpin',...foldOpt('flex',fFlex)})+(fFlex?'':kakRows));
 
@@ -370,7 +381,7 @@ function viewJahr(){
     outRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-out'});
     vis.forEach(it=>{outRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-out'});});
   });
-  if(outRows||secOut)
+  if(keepSec(outRows))
     parts.push(mrow(t('g.fixed'),monSums(outVis),
       {cls:'sec r-out secpin',...foldOpt('out',fOut)})+(fOut?'':outRows));
 

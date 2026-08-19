@@ -766,6 +766,13 @@ mit ihrer Zwischenzeile stehen.
 verlangt mindestens einen Betrag — was nie etwas gekostet hat, ist auch nicht abbezahlt. Aus
 demselben Grund zählt `countHidden()` sie nicht in die Zahl neben dem Knopf.
 
+**Beim Filtern verschwindet dagegen ein Block, in dem keine Zeile übrig bleibt** —
+mitsamt der Leerzeile davor (`keepSec()` in `viewJahr()`, gemeint sind das Suchfeld und
+„Abgeschlossene ausblenden"). Zwölf Nullen unter einer Überschrift sind keine Auskunft, sie
+nehmen nur den Platz weg, den die gefundenen Zeilen brauchen. **Ohne Filter bleibt der
+Block stehen**, auch leer: dort sagt er, dass es ihn gibt. Die Gesamtzeile ist davon
+ausgenommen, sie gehört zum Gerüst (siehe oben).
+
 **Die Monatsansicht bleibt davon unberührt.** Dort steht, was in *diesem* Monat fällig ist;
 ein Posten ohne Betrag ist es nicht. Wer ihn dort sucht, findet ihn über das Suchfeld mit
 dem sechsten Haken (siehe „Worin das Suchfeld sucht").
@@ -850,9 +857,15 @@ selbst; für Tastatur und Vorlesehilfe steht es in `aria-expanded`. Gebaut wird 
 Darunter, in derselben `.stickybar`, steht die Filterzeile (siehe unten). Alles zusammen
 bleibt beim Scrollen unter der Kopfzeile stehen.
 
-**Eingeklappt ist der Grundzustand.** Die Leiste nimmt oben dauerhaft Platz weg, den die
-Liste darunter braucht. Der Schalter ist `ui.ana` — er gehört zur Anzeige, nicht in die
-Datei, und `afterLoad()` setzt ihn bei jedem Öffnen zurück. Die Zahlenzeile ist **ein**
+**Womit sie aufgeht, sagt die Datei** — `state.anaOpen`, ein Haken im Einstellungsfenster
+unter „Darstellung" (`#sAna`, `set.ana`). Von Haus aus ist er aus: die Leiste nimmt oben
+dauerhaft Platz weg, den die Liste darunter braucht. Gelesen wird er **einmal beim Öffnen**
+(`afterLoad()` setzt `ui.ana` darauf); danach entscheidet der Klick auf die Leiste, und
+zwar nur für diese Sitzung — geschrieben wird dabei nichts, beim nächsten Öffnen gilt
+wieder der Haken. Er selbst wirkt sofort, aber **nur wenn er im Fenster geändert wurde**
+(`applyGeneral()`): sonst risse ein Speichern in den Einstellungen die Leiste zu, die man
+vorher von Hand aufgeklappt hat. `ui.ana` bleibt also die Anzeige, `state.anaOpen` die
+Einstellung. Die Zahlenzeile ist **ein**
 Knopf (`data-ana`); in den Kästchen steht deshalb nichts weiter Anklickbares, nur
 `data-tip`. Die Filterzeile steht daneben, nicht darin — sie hat ihre eigenen Knöpfe.
 
@@ -937,26 +950,37 @@ Zeilen eine Farberklärung (`.thint`). Ein Erklärsatz über der Grafik steht do
 mehr** (`.anafilter` und `month.anaFilterHint` sind seit 18.8.26 gestrichen): was ein
 Klick tut, zeigt der erste Klick, und ein zweiter nimmt ihn zurück.
 
-**Ein Balken ist 6 px hoch, und jede Zeile des Zeitstrahls ist zwei Balken hoch** —
-gefiltert wie ungefiltert (`.tline .ttrack` in `css/layout.css`): gleiche Höhen in beiden
-Fassungen, nichts springt beim Filtern. Ein einzelner Balken rückt dafür in die Mitte
-seiner Zeile (`.solo`); nur mehr als zwei Balken (`.tflat`, `--nbars`) machen eine Zeile
-höher. Über und unter den Balken bleiben `--bpad` frei, damit der Strich des Kontostands
-über sie hinausragt und auch dort zu sehen ist, wo ein Balken endet. Die Maße stehen als
-`--bh`, `--bgap` und `--bpad` an `.ttrack`.
+**Ein Balken ist 5 px hoch, und alle Zeilen sind gleich hoch** — gefiltert wie ungefiltert,
+in **jeder** Zeile derselben Fläche. Das Maß ist `--nbars`, die Höhe in Balken: es steht am
+`.tline` (gesetzt aus `TL_MINBARS` in `js/views/monat.js`), die Zeile rechnet daraus ihre
+Mindesthöhe (`.tline .trow:not(.taxis)` in `css/layout.css`). Die drei Größen `--bh`,
+`--bgap` und `--bpad` stehen aus demselben Grund ebenfalls am `.tline` und nicht mehr am
+einzelnen `.ttrack`: Zeile und Balken müssen mit denselben Zahlen rechnen. Der Verlauf der
+Prognose bringt seine eigenen mit (`.ytrack`).
 
-**Sie sind seit 19.8.26 halb so groß** (12 · 3 · 4 px). Die Auswertung steht über der
-Liste, an der gearbeitet wird, und klebt beim Rollen mit: jeder Pixel, den eine Zeile hoch
-ist, fehlt der Liste fünfmal. Die Form eines Monats liest man an der **Länge** der Balken,
-nicht an ihrer Dicke — 6 px tragen ihre Farbe immer noch.
+**Drei Balken passen hinein, auch wo nur einer steht.** Braucht eine einzige Zeile mehr —
+gefiltert können in einem Abschnitt alle vier Geldarten stehen —, wachsen **alle** Zeilen
+mit: eine Fläche, deren Zeilen verschieden hoch sind, springt bei jedem Wechsel des
+Abschnitts. Deshalb ist `--nbars` ein Wert für die ganze Fläche und keiner je Zeile.
 
-**Damit ist nicht mehr der Balken das Höchste in einer Zeile, sondern der Betrag.** Die
-Zeile ist deshalb bei 25 px festgehalten (`.tline .trow:not(.taxis)`): 14 px Betrag auf
-`line-height:1.5` und die 2 × 2 px Polster. Ohne dieses Maß schrumpften gefiltert genau die
-Zeilen, die gerade **keine** Zahl tragen (die nicht gewählten Abschnitte) — die Fläche
-spränge beim Filtern, und das ist die Regel, die dieser Abschnitt gibt. Die Achszeile bleibt
-außen vor: sie trägt keine Balken. Wer die Beträge kleiner setzt, macht die Zeile mit —
-dann gehört auch dieses Maß nachgerechnet.
+**Die Balken stehen mittig in ihrer Zeile** — untereinander, aber als **Gruppe** in der
+Mitte. Nimmt ein Filter den zweiten Balken weg, klebte der übrige sonst oben, als fehlte
+darunter noch einer. Gerechnet wird von der Mitte aus (`top:50%` und eine Verschiebung um
+die halbe Gruppenhöhe), nicht vom Polster: die Zeile darf höher sein als ihre Balken. Für
+die beiden festen Fälle des Wasserfalls steht die Rechnung in `css/layout.css`, für die
+gefilterte Fassung in `partLine()` — dort steht die Zahl der Balken erst zur Laufzeit fest.
+
+**Die Balkenfläche füllt ihre Zeile ganz** (`align-self:stretch` an `.tline .ttrack`), und
+die Zeile hat kein senkrechtes Polster mehr — die vier Pixel Luft stecken in ihrer Höhe.
+Nur so laufen Raster, Null und die farbigen Zonen von Zeilenrand zu Zeilenrand: über alle
+Zeilen hinweg **eine durchgehende Linie**, unterbrochen allein von der 1-px-Fuge zwischen
+zwei Zeilen. Vorher endete jede Rasterlinie am Balkenbereich ihrer Zeile, und aus einer
+Linie wurden fünf Striche.
+
+**Die Größen sind mit Bedacht klein.** Die Auswertung steht über der Liste, an der
+gearbeitet wird, und klebt beim Rollen mit: jeder Pixel, den eine Zeile hoch ist, fehlt der
+Liste fünfmal. Die Form eines Monats liest man an der **Länge** der Balken, nicht an ihrer
+Dicke — 5 px tragen ihre Farbe immer noch.
 
 **Die Farberklärung ist das Letzte unter der Fläche.** Darunter stand bis 19.8.26 noch ein
 Satz (`.tnote`, `month.tlNoDue`) über alles ohne Zahltag; er sagte dasselbe wie der
@@ -985,10 +1009,15 @@ soll man weiter sehen, und ein Klick auf eine Zeile wählt ihren Abschnitt dazu.
 je Geldart einen Balken **auf dem Grund der Zeile** (`.ttrack.tflat`, kein eigener
 Hintergrund). Kein Rot und kein Grün der Fläche: ohne die Achse des Kontostands gibt es
 kein Plus und kein Minus der Fläche — das Vorzeichen steht im Betrag, die Länge ist sein
-Maß. **Jede Zeile ist mindestens zwei Balken hoch** (`--nbars`), damit die Fläche beim
-Wechseln des Abschnitts nicht springt; mehr Balken machen sie höher. Die Monatseröffnung
-hat keine Geldarten und behält nur Raster und Namen; eine Zeile ohne Bewegung bleibt leer
-statt „—" zu zeigen, wie im Wasserfall auch.
+Maß. Wie hoch die Zeilen sind, steht oben: `--nbars` gilt für alle zusammen. Die
+Monatseröffnung hat keine Geldarten und behält nur Raster und Namen; eine Zeile ohne
+Bewegung bleibt leer statt „—" zu zeigen, wie im Wasserfall auch.
+
+**Findet der Filter in diesem Monat gar nichts, gibt es auch kein Maß**: keine
+Rasterlinie, keine Null, keine Achszeile (`empty` in `partLine()`). Die fünf Abschnitte
+bleiben mit ihren Namen stehen — dass sie leer sind, sagt der fehlende Balken. Eine Null,
+die eine Fläche teilt, in der nichts steht, und eine „0" darüber behaupten ein Maß, das es
+gerade nicht gibt.
 
 **Ist ein Abschnitt gewählt, ist er die Auswahl und der Rest Umgebung:** nur er trägt seine
 Summe (die Veränderung der gezeigten Zeilen) und volle Farbe, die übrigen sind **blass**
@@ -1211,12 +1240,24 @@ Wie die drei Bereiche gefiltert werden, steht in `viewMonat()`:
 | Flexible Payments | `kakDone` / `e.estimated` | immer `Z` — sie haben keinen Zahltag | `hayKak` |
 | Saldokorrektur | — sie wird nicht abgehakt | immer `Z` | `hayItem` |
 
-Was eine Karte dabei verliert, steht als `(n ausgeblendet)` neben ihrer Überschrift; bleibt
-gar nichts übrig, sagt der Satz darin, ob es am Filter liegt oder ob der Bereich leer ist.
+Was eine Karte dabei verliert, steht als `(n ausgeblendet)` neben ihrer Überschrift.
 **Und solange gefiltert wird, steht jede Karte offen** — auch eine, die in der Datei
 zugeklappt ist, und zuklappen lässt sie sich dabei nicht (siehe „Zugeklappte Bereiche").
-Eine Karte ohne Treffer zeigt also ihren Satz, nicht bloß ihren Kopf. Die drei Gruppen der Zeile — Suchfeld, Fälligkeit,
+Die drei Gruppen der Zeile — Suchfeld, Fälligkeit,
 Zahlungsstand — trennt eine senkrechte Linie (`.anabar .fbgroup`).
+
+**Bleibt in einer Karte keine Zeile übrig, verschwindet sie ganz** (`keep()` in
+`viewMonat()`). Wer nach den regelmäßigen Kosten filtert, braucht die Karte der Einnahmen
+nicht: sie stünde als Kopf mit „(4 ausgeblendet)" und einem Satz darunter da — drei Zeilen
+über der Liste, die man gerade liest, und keine davon sagt etwas. Dasselbe tut die
+Jahresmatrix mit ihren Blöcken (`keepSec()` in `viewJahr()`), und dieselbe Regel gilt der
+Saldokorrektur, die ohnehin an `balOn` hängt.
+
+**Ohne Filter bleibt der leere Bereich stehen.** Dort ist er die Auskunft: es gibt ihn, es
+steht noch nichts darin, und der Knopf daneben ändert das. Der Satz darin sagt deshalb nur
+noch diesen einen Fall (`month.noIncome` · `month.noKak` · `month.noFixed`); „Keine Posten
+für diesen Filter" (`month.noItems`) steht nur noch dort, wo **alle** Karten weggefallen
+sind — eine leere Fläche unter der Filterzeile sähe aus, als wäre etwas kaputt.
 
 Gebaut werden Feld und Knöpfe von `filterField()` und `fbtn()` in `js/ui.js`; die
 Jahresansicht benutzt dasselbe Feld. Ein Knopf zeigt am dunklen Grund, dass er angewendet
@@ -1781,6 +1822,14 @@ steht in `setPane` — einer Modulvariablen, nicht im Zustand: das Fenster baut 
 Mal wieder ganz vorn. Ein neuer Bereich braucht drei Zeilen: einen Eintrag in `NAV`, einen
 `pane(…)`-Aufruf und die Texte in `js/i18n.js`.
 
+### Der Bereich „Darstellung"
+
+Die Breiten der Jahresmatrix, die Schwelle der größten Einzelposten — und der Haken
+**„Monat mit aufgeklappter Auswertung öffnen"** (`#sAna` → `state.anaOpen`). Er ist eine
+**Vorgabe fürs Öffnen** und kein Schalter: was er tut, steht in „Die Auswertung über der
+Monatsansicht". Der Satz daneben (`set.anaHint`) sagt genau das, sonst suchte man hier den
+Weg zum Zuklappen.
+
 ### Der Bereich „Import"
 
 Beide Wege, die Zahlen von außen hereinholen, stehen hier — `#impFast` (Fast Budget,
@@ -2058,6 +2107,11 @@ auf. Eine vorgewählte Kategorie wäre die falsche Antwort: die erste der Liste 
 weil sie zuerst angelegt wurde, und die teuerste sagt nur, was die linke Spalte ohnehin
 zeigt. Wer den Reiter öffnet, will die einzelnen Buchungen sehen, die am meisten ausmachen.
 Der Zeitraum ist das ganze Jahr (`ui.scope='jahr'`): hier wird verglichen.
+
+Dort steht auch, **ob die Auswertung der Monatsansicht aufgeklappt beginnt**: `ui.ana`
+kommt aus `state.anaOpen` (siehe „Die Auswertung über der Monatsansicht"). Die Einstellung
+gehört der Datei, das Auf- und Zuklappen der Sitzung — deshalb wird sie hier gelesen und
+nirgends sonst.
 
 Dort steht auch, **womit man begrüßt wird**: mit Datei der laufende Monat
 (`ui.view='monat'`, `ui.month=CUR`), ohne Datei die Jahresansicht. Der Unterschied ist der

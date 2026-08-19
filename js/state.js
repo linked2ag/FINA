@@ -200,6 +200,13 @@ function emptyState(){
        und soll beim nächsten Öffnen wieder gelten. Vorgabe ist
        alles offen. */
     folded:blankFolded(), foldedYear:blankFolded(),
+    /* Ob die Auswertung der Monatsansicht aufgeklappt beginnt. Auch
+       das ist keine Angabe über Geld, sondern eine Gewohnheit beim
+       Lesen — sie überlebt das Trennen der Datei wie die Wahl des
+       Suchfelds. Gelesen wird sie einmal beim Öffnen (afterLoad);
+       danach entscheidet der Klick auf die Leiste, und der gilt nur
+       für diese Sitzung. */
+    anaOpen:!!(state&&state.anaOpen),
     /* Worin das Suchfeld sucht, ist keine Angabe über Geld, sondern
        eine Gewohnheit beim Lesen — sie überlebt das Trennen der
        Datei, anders als die vier Listen. */
@@ -263,11 +270,19 @@ function afterLoad(){
      Suchbegriff der letzten stünde sonst noch im Feld und
      versteckte die halbe Datei. */
   ui.q=''; ui.qFocus=false;
-  /* Die Auswertung fängt zugeklappt an: sie klebt beim Scrollen
-     unter der Kopfzeile und nähme sonst dauerhaft zwei Zeilen weg,
-     die die Tabelle darunter besser gebraucht. Das Filtermenü der
-     mobilen Monatsansicht aus demselben Grund. */
-  ui.ana=false;
+  /* Womit die Auswertung der Monatsansicht aufgeht, sagt die Datei:
+     state.anaOpen, gepflegt in den Einstellungen unter
+     „Darstellung". Von Haus aus ist sie zu — sie klebt beim Scrollen
+     unter der Kopfzeile und nähme sonst dauerhaft Platz weg, den die
+     Liste darunter besser gebraucht.
+
+     **Danach entscheidet der Klick auf die Leiste**, und zwar nur
+     für diese Sitzung: geschrieben wird dabei nichts, beim nächsten
+     Öffnen gilt wieder die Einstellung. Deshalb steht das hier und
+     nicht in der View.
+
+     Das Filtermenü der mobilen Monatsansicht fängt immer zu an. */
+  ui.ana=!!(state&&state.anaOpen);
   ui.mFilters=false;
 }
 
@@ -358,6 +373,9 @@ function migrate(s){
      gilt die Vorgabe: nichts ausgeblendet. */
   s.hideDoneMonths=!!s.hideDoneMonths;
   s.hideSettled=!!s.hideSettled;
+  /* Ältere Dateien kennen den Schalter für die Auswertung nicht —
+     dann fängt sie zugeklappt an, genau wie bisher. */
+  s.anaOpen=!!s.anaOpen;
   /* Die zugeklappten Bereiche. Ältere Dateien kennen nur den einen
      Schalter der Flexible Payments (flexCollapsed) — er wandert in
      das neue Feld, die beiden anderen Karten fangen offen an. Die

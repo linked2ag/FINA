@@ -159,7 +159,15 @@ function openSettings(where,done){
             <div class="field"><label for="sTopMin">${t('set.topmin')}</label>
               <input type="number" id="sTopMin" class="num" min="0" max="100000" step="5" value="${state.topMin}"></div>
           </div>
-          <p class="note">${t('set.widthHint')} ${t('set.topminHint')}</p>`)}
+          <p class="note">${t('set.widthHint')} ${t('set.topminHint')}</p>
+          <!-- Womit die Auswertung der Monatsansicht aufgeht. Es ist
+               eine Vorgabe, kein Schalter: gelesen wird sie beim
+               Öffnen der Datei (afterLoad in js/state.js), danach
+               entscheidet der Klick auf die Leiste — für diese
+               Sitzung. Genau das sagt der Satz daneben. -->
+          <div class="checklist wherelist"><label class="checkrow">
+            <input type="checkbox" id="sAna" ${state.anaOpen?'checked':''}>
+            <span class="clab">${t('set.ana')}</span><span class="chint">${t('set.anaHint')}</span></label></div>`)}
 
         ${pane('banks',t('set.navBanks'),t('set.banksSub'),`
           <div class="cols c2 liststack">
@@ -271,6 +279,14 @@ function openSettings(where,done){
     const mw=num('#sMonW',50,400); if(mw) state.monWidth=mw;
     const tm=num('#sTopMin',0,100000); if(tm!=null) state.topMin=tm;
     state.updateCheck=box.querySelector('#sUpd').checked;
+    /* Die Auswertung: **geändert heißt jetzt so.** Der Haken ist die
+       Vorgabe fürs Öffnen (ui.ana in afterLoad), aber ein Haken, der
+       erst beim nächsten Laden etwas tut, sieht kaputt aus. Nur
+       geändert — sonst risse ein Speichern in den Einstellungen die
+       Leiste zu, die man vorher von Hand aufgeklappt hat. */
+    const ana=box.querySelector('#sAna').checked;
+    if(ana!==!!state.anaOpen) ui.ana=ana;
+    state.anaOpen=ana;
   };
 
   /* ── Geänderte Kürzel ─────────────────────────────────────────

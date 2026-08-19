@@ -388,6 +388,9 @@ const STR={
 'month.noIncome':{en:'No income recorded.',de:'Keine Einnahmen hinterlegt.'},
 'month.noKak':{en:'No Flexible Payments categories yet — add them under Settings.',
   de:'Noch keine Flexible-Payments-Kategorien angelegt — anzulegen unter Einstellungen.'},
+'month.noFixed':{en:'No regular costs recorded.',de:'Keine regelmäßigen Kosten hinterlegt.'},
+/* Steht nur noch dort, wo der Filter **alles** weggenommen hat:
+   einzelne leere Bereiche verschwinden beim Filtern ganz. */
 'month.noItems':{en:'No items for this filter.',de:'Keine Posten für diesen Filter.'},
 'month.openEval':{en:'Open analysis',de:'Auswertung öffnen'},
 'month.openEvalTip':{en:'Go to the Flexible Payments analysis for {0}',de:'Zur Flexible-Payments-Auswertung für {0}'},
@@ -771,8 +774,8 @@ const STR={
 'set.navImport':{en:'Import',de:'Import'},
 'set.generalSub':{en:'Language of the interface, the year this household book is kept for, and the balance it starts from. All three travel in the file — when you load it, the app follows the file.',
   de:'Sprache der Oberfläche, das Jahr, für das dieses Haushaltsbuch geführt wird, und der Stand, mit dem es anfängt. Alle drei stehen in der Datei — beim Laden richtet sich die Anwendung nach ihr.'},
-'set.viewSub':{en:'How wide the year matrix is drawn, and from which amount a booking counts as a large single item.',
-  de:'Wie breit die Jahresmatrix gezeichnet wird, und ab welchem Betrag eine Buchung als großer Einzelposten gilt.'},
+'set.viewSub':{en:'How wide the year matrix is drawn, from which amount a booking counts as a large single item, and whether the month view opens with its analytics.',
+  de:'Wie breit die Jahresmatrix gezeichnet wird, ab welchem Betrag eine Buchung als großer Einzelposten gilt, und ob die Monatsansicht mit aufgeklappter Auswertung anfängt.'},
 'set.banksSub':{en:'The code appears in the year overview in columns B and PT, the label below each item in the month view. Both lists are yours alone — name them the way you think of your accounts. Change a code later and FINA asks whether the items that carry it should be moved along.',
   de:'Das Kürzel steht in der Jahresübersicht in den Spalten B und PT, die Bezeichnung unter jedem Posten der Monatsansicht. Beide Listen gehören dir allein — benenne sie so, wie du an deine Konten denkst. Änderst du später ein Kürzel, fragt FINA, ob die Posten mit diesem Kürzel mitwandern sollen.'},
 'set.groupsSub':{en:'Two lists, and every regular item belongs to exactly one of them: income on the left, expenses on the right. A name may appear only once across both — it is what tells FINA whether an item is money coming in or going out. Renaming carries every item along; removing moves them into the first category left in the same list.',
@@ -806,6 +809,12 @@ const STR={
 'set.upd':{en:'Tell me about new versions',de:'Auf neue Versionen hinweisen'},
 'set.updHint':{en:'Only in the Mac and Windows app: at start it asks linked2ag.github.io which version is current. It sends nothing — the browser version is always the current one anyway.',
   de:'Nur in der Mac- und der Windows-App: beim Start wird bei linked2ag.github.io nachgefragt, welche Fassung aktuell ist. Gesendet wird dabei nichts — die Fassung im Browser ist ohnehin immer die neueste.'},
+/* Der Haken für die Auswertung der Monatsansicht. Er ist die
+   Vorgabe fürs Öffnen und kein Schalter — das steht im Satz
+   daneben, sonst suchte man den Weg zum Zuklappen hier. */
+'set.ana':{en:'Open the month with its analytics',de:'Monat mit aufgeklappter Auswertung öffnen'},
+'set.anaHint':{en:'Applies when a file is opened. A click on the analytics line opens and closes it as always — that choice holds until you close the file.',
+  de:'Gilt beim Öffnen einer Datei. Ein Klick auf die Auswertungszeile klappt sie wie immer auf und zu — diese Wahl gilt, bis die Datei geschlossen wird.'},
 'set.labw':{en:'Item column',de:'Positionsspalte'},
 'set.monw':{en:'Month columns',de:'Monatsspalten'},
 'set.widthHint':{en:'Widths of the year matrix in pixels, 50 to 800.',de:'Breiten der Jahresmatrix in Pixel, 50 bis 800.'},

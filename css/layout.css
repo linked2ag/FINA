@@ -291,22 +291,34 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Kontostand selbst und wird in js/views/monat.js aus flowScale()
    in Prozent umgerechnet — alle Zeilen teilen ihn sich, sonst
    stünden ihre Balken nicht auf derselben Achse. */
+/* Die Maße der Balken stehen an der Fläche, nicht am einzelnen
+   Gleis: die Zeile rechnet ihre Höhe daraus (siehe unten), und beide
+   müssen dieselben Zahlen nehmen. --nbars ist die Höhe in Balken;
+   gesetzt wird sie am Element (TL_MINBARS in js/views/monat.js), der
+   Wert hier ist nur der Rückfall. */
 .tline{display:flex;flex-direction:column;gap:1px;background:var(--rule);
-  border:1px solid var(--rule);border-top:0;margin-top:4px}
+  border:1px solid var(--rule);border-top:0;margin-top:4px;
+  --bh:5px;--bgap:2px;--bpad:2px;--nbars:3}
 .trow{display:grid;grid-template-columns:186px 100px 108px minmax(0,1fr);align-items:center;gap:8px;
   background:var(--paper-2);border:0;padding:2px 10px;font:inherit;color:inherit;text-align:left}
 .trow:hover{background:var(--shade)}
-/* Alle Zeilen sind gleich hoch, auch die ohne Zahl: gefiltert
-   trägt nur der gewählte Abschnitt seine Beträge, die übrigen
-   stehen als blasse Balken da. Seit die Balken halb so hoch sind
-   (--bh an .ttrack), ist nicht mehr der Balken das Höchste in der
-   Zeile, sondern der Betrag — ohne dieses Maß schrumpften die
-   zahllosen Zeilen um ein paar Pixel, und die Fläche spränge beim
-   Filtern. 25 px sind genau das: 14 px Betrag auf line-height 1.5
-   (21 px) und die 2 × 2 px Polster der Zeile. **Die Achszeile
-   bleibt außen vor**: sie trägt keine Balken, sondern nur die
-   Beträge des Rasters, und ist so hoch wie diese Schrift. */
-.tline .trow:not(.taxis){min-height:25px}
+/* Alle Zeilen sind gleich hoch, auch die ohne Zahl: gefiltert trägt
+   nur der gewählte Abschnitt seine Beträge, die übrigen stehen als
+   blasse Balken da. Das Maß ist --nbars, die Höhe in Balken — und
+   es gilt für **alle** Zeilen der Fläche, damit nichts springt,
+   wenn ein Abschnitt gewechselt wird oder ein Filter greift.
+
+   **Senkrechtes Polster hat die Zeile keins**; die 4 px stecken in
+   ihrer Höhe. Sonst säße zwischen zwei Balkenflächen eine Lücke aus
+   Polster und Fuge, und die Rasterlinien wären in jeder Zeile ein
+   eigener Strich statt einer durchgehenden Linie über die ganze
+   Fläche (siehe .tline .ttrack).
+
+   **Die Achszeile bleibt außen vor**: sie trägt keine Balken,
+   sondern nur die Beträge des Rasters, und ist so hoch wie diese
+   Schrift. */
+.tline .trow:not(.taxis){padding-top:0;padding-bottom:0;
+  min-height:calc(var(--nbars)*var(--bh) + (var(--nbars) - 1)*var(--bgap) + 2*var(--bpad) + 4px)}
 /* Gefiltert heißt hier nicht dunkel: Zahlen und Balken stehen
    darin und müssen lesbar bleiben. Stattdessen ein Rahmen nach
    innen — dieselbe Aussage, ohne etwas zu verdecken. */
@@ -361,13 +373,16 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Strich des Kontostands reicht über sie hinaus und ist dadurch
    auch dort zu sehen, wo ein Balken endet.
 
-   **Die drei Maße sind halb so groß wie früher** (12/3/4). Der
-   Zeitstrahl steht über der Liste, an der gearbeitet wird, und
-   klebt beim Rollen mit; jeder Pixel, den er hoch ist, fehlt den
-   Zeilen darunter fünfmal. Ein Balken von 6 px trägt seine Farbe
-   immer noch, und die Form des Monats liest man an der Länge, nicht
-   an der Dicke. */
-.ttrack{position:relative;min-width:0;overflow:hidden;--bh:6px;--bgap:2px;--bpad:2px;
+   **Die drei Maße stehen nicht hier**, sondern an der Fläche, die
+   sie braucht: .tline für den Zeitstrahl, .ytrack für den Verlauf
+   der Prognose. Dort rechnet auch die Zeile ihre Höhe daraus —
+   stünden sie am Gleis, hätte die Zeile andere Zahlen als ihre
+   Balken. Klein sind sie mit Absicht: der Zeitstrahl steht über der
+   Liste, an der gearbeitet wird, und klebt beim Rollen mit; jeder
+   Pixel, den er hoch ist, fehlt den Zeilen darunter fünfmal. Ein
+   Balken von 5 px trägt seine Farbe immer noch, und die Form des
+   Monats liest man an der Länge, nicht an der Dicke. */
+.ttrack{position:relative;min-width:0;overflow:hidden;
   height:calc(var(--bh) + 2*var(--bpad))}
 /* Die Trennlinie zwischen der Zahlenseite und der Balkenfläche —
    dieselbe Linie wie die Null zwischen Minus und Plus. Sie läuft
@@ -376,17 +391,22 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    unter die letzte Zeile. Nur im Zeitstrahl — der Verlauf der
    Prognose (.ytrack) hat seine Trennlinie von der Tabelle.
 
-   Und jede Zeile des Zeitstrahls ist **zwei Balken hoch** — im
-   Wasserfall wie gefiltert: gleiche Höhen in beiden Fassungen,
-   nichts springt beim Filtern. Die Achszeile (.taxis) und mehr als
-   zwei Balken (.tflat, --nbars) überschreiben das weiter unten. */
+   **Die Fläche füllt ihre Zeile ganz** (align-self:stretch) — so
+   laufen Raster, Null und die farbigen Zonen von Zeilenrand zu
+   Zeilenrand und ergeben über alle Zeilen hinweg eine durchgehende
+   Linie; unterbrochen wird sie nur von der 1-px-Fuge zwischen zwei
+   Zeilen. Wie hoch die Zeile ist, sagt --nbars (siehe oben), nicht
+   die Fläche selbst. Die Achszeile (.taxis) behält ihre eigene
+   Höhe. */
 .tline .ttrack{border-left:1px solid var(--rule-strong);
-  height:calc(var(--bh)*2 + var(--bgap) + 2*var(--bpad))}
+  align-self:stretch;height:auto}
 /* Zwei Balken in einer Zeile brauchen die doppelte Höhe — beide
    sollen gleich hoch sein, keiner gequetscht. Die Klasse trägt nur
-   die Zeile, die beide Richtungen hat: jede Zeile ist so hoch, wie
-   sie sein muss. */
-.ttrack.two{height:calc(var(--bh)*2 + var(--bgap) + 2*var(--bpad))}
+   die Zeile, die beide Richtungen hat: im Verlauf der Prognose ist
+   jede Zeile so hoch, wie sie sein muss. **Nur dort**: im Zeitstrahl
+   sind alle Zeilen gleich hoch (--nbars), und die Fläche füllt ihre
+   Zeile — deshalb .ytrack.two und nicht .ttrack.two. */
+.ytrack.two{height:calc(var(--bh)*2 + var(--bgap) + 2*var(--bpad))}
 .ttrack>*{position:absolute;top:0;height:100%}
 .tzone{top:0}
 /* Minus und Plus tragen dieselben hellen Gründe wie die Zeilen der
@@ -400,12 +420,28 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    beiden Strecken auf der Achse. */
 .tup,.tdown{display:flex;height:var(--bh);top:var(--bpad);overflow:hidden}
 .tdown{flex-direction:row-reverse}
-.ttrack.two .tdown{top:calc(var(--bpad) + var(--bh) + var(--bgap))}
+.ytrack.two .tdown{top:calc(var(--bpad) + var(--bh) + var(--bgap))}
 /* Der einzige Balken einer zweibalkig hohen Zeile rückt in die
-   Mitte — im Zeitstrahl ist das jede Zeile mit nur einer Richtung
-   (siehe .tline .ttrack), im Verlauf der Prognose die .two-Zeile,
-   der eine Richtung fehlt. */
-.ttrack.two .solo,.tline .ttrack .solo{top:calc(var(--bpad) + (var(--bh) + var(--bgap))/2)}
+   Mitte — im Verlauf der Prognose ist das die .two-Zeile, der eine
+   Richtung fehlt. */
+.ytrack.two .solo{top:calc(var(--bpad) + (var(--bh) + var(--bgap))/2)}
+/* ── Im Zeitstrahl stehen die Balken mittig in ihrer Zeile ────
+   Untereinander, aber als **Gruppe** in der Mitte: nimmt ein Filter
+   den zweiten Balken weg, klebte der übrige sonst oben, als fehlte
+   darunter noch einer. Gerechnet wird von der Mitte aus (top:50 %),
+   nicht vom Polster — die Zeile kann höher sein als ihre Balken
+   (mehr Balken in einer anderen Zeile, ein hoher Betrag daneben),
+   und mittig soll es in jedem Fall stehen.
+
+   Die Verschiebung ist die halbe Gruppenhöhe nach oben, dann je
+   Balken eine Stufe nach unten. Für die beiden festen Fälle steht
+   sie hier ausgerechnet; die Balken der gefilterten Fassung
+   (.tflat .fbar) bekommen sie aus partLine(), weil dort erst die
+   Zahl der Balken feststeht. */
+.tline .ttrack .tup,.tline .ttrack .tdown,.tline .ttrack .tsum{top:50%}
+.tline .ttrack .solo{transform:translateY(calc(var(--bh)/-2))}
+.tline .ttrack.two .tup{transform:translateY(calc(-1*(var(--bh) + var(--bgap)/2)))}
+.tline .ttrack.two .tdown{transform:translateY(calc(var(--bgap)/2))}
 .ttrack i{display:block;height:100%;flex:0 0 auto;min-width:2px}
 /* Eine helle Fuge zwischen zwei Anteilen — ohne sie liefen zwei
    ähnliche Farben ineinander. */
@@ -438,17 +474,15 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Gefiltert gibt es keinen Wasserfall: die fünf Zeilen bleiben,
    jede mit ihren Balken je Geldart — die gewählte kräftig, die
    übrigen blass (.pale). Die Fläche hat keinen eigenen Grund —
-   die Balken liegen auf dem Grund ihrer Zeile, linksbündig auf dem
-   Raster; wie viele es sind, sagt --nbars (mindestens zwei, damit
-   die Fläche beim Wechseln nicht springt), die Höhe rechnet sich
-   aus denselben Maßen wie beim Wasserfall — und aus demselben
-   Raster (.tgrid weiter unten): dieselbe Linie in beiden
-   Fassungen, sonst sähe der Filter nach einer anderen Grafik aus.
-   **Die Null steht in der Mitte** (.tzero): was hereinkommt, wächst
-   nach rechts, was abgeht, nach links. Lage und Breite jedes
-   Balkens rechnet partLine() und setzt sie am Element. */
-.ttrack.tflat{--nbars:2;
-  height:calc(var(--nbars)*var(--bh) + (var(--nbars) - 1)*var(--bgap) + 2*var(--bpad))}
+   die Balken liegen auf dem Grund ihrer Zeile, auf demselben Raster
+   (.tgrid weiter unten) wie der Wasserfall: dieselbe Linie in
+   beiden Fassungen, sonst sähe der Filter nach einer anderen
+   Grafik aus. Die Höhe ist die der Zeile (--nbars, siehe oben) —
+   für alle Zeilen dieselbe.
+   **Die Null steht zwischen Minus und Plus** (.tzero): was
+   hereinkommt, wächst nach rechts, was abgeht, nach links. Lage und
+   Breite jedes Balkens rechnet partLine() und setzt sie am Element,
+   senkrecht mittig wie überall. */
 .tflat .fbar{height:var(--bh);min-width:2px}
 .tflat .fbar.pale{opacity:.22}
 /* Gewählt sagen die Trennlinien: über und unter der gewählten

@@ -1126,6 +1126,12 @@ en:()=>`
 <ul>
   <li><b>Step through the months with the keyboard</b> — in ${t('view.monat')}, Ctrl/Cmd and the
       left or right arrow key go one month back or forward.</li>
+  <li><b>Filtering hides empty areas</b> — an area without a single matching row disappears
+      while the filter is on, in the month as well as in the year. Without a filter it stays
+      where it is.</li>
+  <li><b>The month can open with its analytics</b> — a new tick under
+      ${t('app.settings')} → ${t('set.navView')}. A click on the analytics line still opens
+      and closes it, for as long as the file is open.</li>
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
@@ -1293,6 +1299,11 @@ de:()=>`
 <ul>
   <li><b>Mit der Tastatur durch die Monate</b> — in ${t('view.monat')} gehen Strg/Cmd und die
       Pfeiltaste links oder rechts einen Monat zurück oder weiter.</li>
+  <li><b>Beim Filtern verschwinden leere Bereiche</b> — ein Bereich ohne einen einzigen
+      Treffer wird ausgeblendet, im Monat wie im Jahr. Ohne Filter bleibt er stehen.</li>
+  <li><b>Der Monat kann mit aufgeklappter Auswertung aufgehen</b> — ein neuer Haken unter
+      ${t('app.settings')} → ${t('set.navView')}. Ein Klick auf die Auswertungszeile klappt
+      sie weiterhin auf und zu, solange die Datei offen ist.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 

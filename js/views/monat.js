@@ -337,6 +337,19 @@ function tlStep(span){
   return s;
 }
 
+/* ── Wie hoch eine Zeile des Zeitstrahls ist ──────────────────
+   Gemessen in Balken, und für **alle** Zeilen gleich: drei passen
+   von Haus aus hinein, auch dort, wo nur einer oder zwei stehen.
+   Braucht eine einzige Zeile mehr — gefiltert können in einem
+   Abschnitt alle vier Geldarten stehen —, wächst die ganze Fläche
+   mit, damit sie beim Wechseln des Abschnitts nicht springt.
+
+   Gesetzt wird das Maß als `--nbars` an `.tline`, gerechnet in
+   css/layout.css; dieselbe Zahl richtet die Balken mittig aus.
+   Die Balken selbst stehen darin untereinander — mittig ist die
+   Gruppe, nicht der einzelne Balken. */
+const TL_MINBARS=3;
+
 /* Die Achszeile über dem Zeitstrahl: an jeder Rasterlinie der
    Betrag, für den sie steht — eine schmale Zeile, nur in der
    Spalte der Balken. Marken nahe der Kante legen sich an sie,
@@ -437,6 +450,15 @@ function partLine(m,sel,selAny){
      und wird gröber, solange beide Seiten zusammen mehr als zehn
      Felder ergäben (aufgerundet wird ja auf jeder Seite). */
   const vs=Object.values(ctx).flat().map(x=>x.v);
+  /* ── Nichts gefunden heißt: keine Fläche ─────────────────────
+     Findet der Filter in diesem Monat keinen einzigen Betrag, gibt
+     es nichts zu messen. Dann steht dort auch kein Maß: keine
+     Rasterlinie, keine Null, keine Achszeile mit einer „0" darüber.
+     Die fünf Abschnitte bleiben mit ihren Namen stehen — dass sie
+     leer sind, sagt der fehlende Balken. Eine Null, die eine Fläche
+     teilt, in der nichts steht, behauptet ein Maß, das es nicht
+     gibt. */
+  const empty=!vs.length;
   const maxPos=Math.max(0,...vs.filter(v=>v>0));
   const maxNeg=Math.max(0,...vs.filter(v=>v<0).map(v=>-v));
   let step=tlStep(Math.max(1,maxNeg+maxPos));
@@ -449,16 +471,22 @@ function partLine(m,sel,selAny){
   const pos=v=>(v+cellsL*step)/span*100;
   const z=pos(0);
   let grid='';
-  for(let k=1-cellsL;k<cellsR;k++){
-    /* Die Null hat ihre eigene, kräftigere Linie; die beiden
-       äußeren sind die Ränder der Fläche und stehen schon da. */
-    if(!k) continue;
-    grid+=`<span class="tgrid" style="left:${pos(k*step)}%"></span>`;
-  }
-  grid+=`<span class="tzero" style="left:${z}%"></span>`;
   const marks=[];
-  for(let k=-cellsL;k<=cellsR;k++) marks.push({v:k*step,x:pos(k*step)});
-  const track=(list,pale)=>`<span class="ttrack tflat" style="--nbars:${Math.max(2,list.length)}">${grid}${
+  if(!empty){
+    for(let k=1-cellsL;k<cellsR;k++){
+      /* Die Null hat ihre eigene, kräftigere Linie; die beiden
+         äußeren sind die Ränder der Fläche und stehen schon da. */
+      if(!k) continue;
+      grid+=`<span class="tgrid" style="left:${pos(k*step)}%"></span>`;
+    }
+    grid+=`<span class="tzero" style="left:${z}%"></span>`;
+    for(let k=-cellsL;k<=cellsR;k++) marks.push({v:k*step,x:pos(k*step)});
+  }
+  /* Die längste Zeile bestimmt die Höhe **aller** Zeilen (siehe
+     TL_MINBARS): verschieden hohe Zeilen ließen die Fläche bei
+     jedem Wechsel des Abschnitts springen. */
+  const nb=Math.max(TL_MINBARS,...Object.values(ctx).map(l=>l.length));
+  const track=(list,pale)=>`<span class="ttrack tflat">${grid}${
     list.map((x,i)=>{
       /* Angesetzt wird immer **an** der Null: der Zufluss mit
          seiner linken Kante, der Abfluss mit seiner rechten. Über
@@ -466,9 +494,17 @@ function partLine(m,sel,selAny){
          einem winzigen Betrag in die falsche Richtung — die
          Mindestbreite (2 px, damit er überhaupt zu sehen ist)
          wüchse nach rechts und legte ihn auf die Plusseite. */
+      /* Senkrecht steht die **Gruppe** in der Mitte der Zeile, die
+         Balken darin untereinander: nimmt ein Filter den zweiten
+         Balken weg, klebte der übrige sonst oben, als fehlte
+         darunter noch einer. Gerechnet wird von der Mitte aus —
+         die halbe Gruppenhöhe hinauf, dann je Balken eine Stufe
+         hinunter; dieselbe Rechnung wie in css/layout.css für die
+         beiden festen Fälle des Wasserfalls. */
       const w=Math.abs(x.v)/span*100;
+      const up=`(${list.length}*(var(--bh) + var(--bgap)) - var(--bgap))/2`;
       return `<span class="fbar b-${x.k}${pale?' pale':''}"
-        style="top:calc(var(--bpad) + ${i}*(var(--bh) + var(--bgap)));${
+        style="top:50%;transform:translateY(calc(${i}*(var(--bh) + var(--bgap)) - ${up}));${
           x.v>0?`left:${z}`:`right:${100-z}`}%;width:${w}%"
         data-tip="${esc(eur(x.v))}"></span>`;
     }).join('')}</span>`;
@@ -478,7 +514,7 @@ function partLine(m,sel,selAny){
   const sum=f=>f.sum?`<span class="trun ${cls(f.sum)}">${(f.sum>0?'+':'')+eur(f.sum)}</span>`:'';
   const rows=flow.map(x=>{
     if(x.key==='P') return `<span class="trow tp-P">${tlLabel('P',last,today)
-      }<span class="ttrack tflat" style="--nbars:2">${grid}</span></span>`;
+      }<span class="ttrack tflat">${grid}</span></span>`;
     /* Mit gewähltem Abschnitt trägt nur er seine Summe und volle
        Farbe; ohne einen ist keine Zeile ausgezeichnet, also
        bekommt jede beides. */
@@ -491,7 +527,7 @@ function partLine(m,sel,selAny){
      auch die blassen Balken tragen ihre Geldartfarbe. */
   const kinds=FLOW_KINDS.filter(k=>Object.values(ctx).some(l=>l.some(x=>x.k===k)));
   const chips=kinds.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('');
-  return `<div class="tline part">${tlAxis(marks)}${rows}
+  return `<div class="tline part" style="--nbars:${nb}">${empty?'':tlAxis(marks)}${rows}
     ${chips?`<div class="thint">${chips}</div>`:''}</div>`;
 }
 
@@ -554,7 +590,10 @@ function timeline(m,sel,selAny){
   /* Bei beschnittener Achse gehört ihr Maßstab dazu — sonst läse
      man die Länge des ersten Balkens als seinen ganzen Betrag. */
   const scale=sc.cut?`<span class="lscale">${t('month.tlScale',eur(sc.lo),eur(sc.hi))}</span>`:'';
-  return `<div class="tline${sc.cut?' cut':''}">${tlAxis(marks)}${flow.map(row).join('')}
+  /* Zwei Balken hat hier die höchste Zeile (Zufluss über Abfluss);
+     hoch ist die Zeile trotzdem wie überall — gleiche Höhen in
+     beiden Fassungen, nichts springt beim Filtern. */
+  return `<div class="tline${sc.cut?' cut':''}" style="--nbars:${TL_MINBARS}">${tlAxis(marks)}${flow.map(row).join('')}
     <div class="thint">${chips}${scale}</div></div>`;
 }
 
@@ -724,6 +763,22 @@ function viewMonat(){
   const foldOf=k=>openAll?false:isFolded(k);
   const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
 
+  /* ── Beim Filtern verschwindet ein leerer Bereich ganz ────────
+     Wer nach den regelmäßigen Kosten filtert, braucht die Karte der
+     Einnahmen nicht: sie stünde als Kopfzeile mit „(4 ausgeblendet)"
+     und dem Satz „Keine Posten für diesen Filter" da — drei Zeilen
+     über der Liste, die man gerade liest, und keine davon sagt
+     etwas. Dasselbe in der Jahresmatrix (siehe viewJahr).
+
+     **Ohne Filter bleibt sie stehen.** Dort ist der leere Bereich
+     die Auskunft: es gibt ihn, und es steht noch nichts darin — mit
+     dem Knopf, der das ändert.
+
+     Bleibt gar nichts übrig, steht statt der drei Karten eine Zeile
+     (leerLine): eine leere Fläche sähe aus, als wäre etwas kaputt. */
+  const keep=n=>!filterOn||n>0;
+  const showIn=keep(incUse.length), showFlex=keep(flexUse.length), showOut=keep(outUse);
+
   /* Dieselbe Zeile wie im Kostenblock: Summe, Name, Zahl der
      ausgeblendeten. Gebaut mit derselben Funktion, damit beide
      Bereiche nicht auseinanderlaufen. Summiert werden die
@@ -747,9 +802,10 @@ function viewMonat(){
     outRows+=groupHead(g,all,items);
     items.forEach(it=>{outRows+=itemRow(it,m);});
   });
-  /* Nichts übrig: liegt es am Filter oder ist der Bereich leer?
-     Beides sagt einen anderen Satz. */
-  const noRows=(all,key)=>`<tr><td class="note">${all?t('month.noItems'):t(key)}</td></tr>`;
+  /* Ein Bereich ohne eine einzige Zeile. **Am Filter kann es nicht
+     liegen** — dann gäbe es die Karte gar nicht mehr (keep() weiter
+     oben). Bleibt der eine Fall: hier steht noch nichts. */
+  const noRows=key=>`<tr><td class="note">${t(key)}</td></tr>`;
 
   /* Die Auswertung bleibt beim Scrollen stehen — wie die
      Monatsreiter in der Kopfzeile darüber. Die Karten darunter
@@ -789,31 +845,41 @@ function viewMonat(){
         ${hasImport()?`<button class="btn small" data-kview="${m}" title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:''}`;
   const outBtns=`<button class="btn small" data-newitem="1">${t('year.addItem')}</button>`;
 
+  const cardIn=!showIn?'':`<div class="card sec-in${fIn?' folded':''}">
+    ${secHead('in',fIn,
+      `${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn)}`,
+      incBtns,`<span class="tot pos">${eur(incSum)}</span>`)}
+    ${fIn?'':`<table class="ledger">${incRows||noRows('month.noIncome')}</table>`}
+  </div>`;
+
+  const cardFlex=!showFlex?'':`<div class="card sec-flex${fFlex?' folded':''}">
+    ${secHead('flex',fFlex,
+      `${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex)}`,
+      flexBtns,`<span class="tot neg">${eur(flexSum)}</span>`)}
+    ${fFlex?'':`<table class="ledger">${flexRows||noRows('month.noKak')}</table>`}
+  </div>`;
+
+  const cardOut=!showOut?'':`<div class="card sec-out${fOut?' folded':''}">
+    ${secHead('out',fOut,
+      `${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut)}`,
+      outBtns,`<span class="tot neg">${eur(outSum)}</span>`)}
+    ${fOut?'':`<table class="ledger">${outRows||noRows('month.noFixed')}</table>`}
+  </div>`;
+
+  /* Nichts gefunden: die Karten sind alle weg, die Saldokorrektur
+     auch. Dann sagt es eine Zeile — sonst stünde unter der
+     Filterzeile nichts als Papier. */
+  const leerLine=(cardIn||cardFlex||cardOut||balOn)?''
+    :`<div class="card"><p class="note" style="margin:0">${t('month.noItems')}</p></div>`;
+
   return `
   ${mob?mobileTop(m,sel,{inc:incSum,flex:flexSum,out:outSum}):anaBar(m,sel,selAny)}
 
   ${balOn?balanceRow(m):''}
-
-  <div class="card sec-in${fIn?' folded':''}">
-    ${secHead('in',fIn,
-      `${t('month.income',MONTHS_LONG[m-1])}${hiddenNote(incAll.length,incUse.length,fIn)}`,
-      incBtns,`<span class="tot pos">${eur(incSum)}</span>`)}
-    ${fIn?'':`<table class="ledger">${incRows||noRows(incAll.length,'month.noIncome')}</table>`}
-  </div>
-
-  <div class="card sec-flex${fFlex?' folded':''}">
-    ${secHead('flex',fFlex,
-      `${t('month.kak',MONTHS_LONG[m-1])}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex)}`,
-      flexBtns,`<span class="tot neg">${eur(flexSum)}</span>`)}
-    ${fFlex?'':`<table class="ledger">${flexRows||noRows(flexAll.length,'month.noKak')}</table>`}
-  </div>
-
-  <div class="card sec-out${fOut?' folded':''}">
-    ${secHead('out',fOut,
-      `${t('month.fixed',MONTHS_LONG[m-1])}${hiddenNote(outAll,outUse,fOut)}`,
-      outBtns,`<span class="tot neg">${eur(outSum)}</span>`)}
-    ${fOut?'':`<table class="ledger">${outRows||noRows(outAll,'month.noItems')}</table>`}
-  </div>
+  ${leerLine}
+  ${cardIn}
+  ${cardFlex}
+  ${cardOut}
 
   <div class="legendbar">
     <span class="legtitle">${t('month.legTitle')}</span>
