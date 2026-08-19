@@ -116,7 +116,7 @@ function renderChrome(){
     const m=i+1, pt=monthParts(m);
     const s=pt.total===0?'':(pt.done===pt.total?'done':(pt.done>0?'partial':''));
     return `<button class="mtab${s==='done'?' alldone':''}${m===CUR?' current':''}" role="tab" aria-selected="${ui.month===m}" data-m="${m}"
-      title="${t('month.done',pt.done,pt.total)}">${name}<span class="dot ${s}"></span></button>`;
+      title="${t('month.done',pt.done,pt.total)} · ${t('month.keyTip')}">${name}<span class="dot ${s}"></span></button>`;
   }).join('');
   /* Auch der Monatswechsel lässt den Fokus im Suchfeld: man hakt
      einen Monat ab, springt in den nächsten und tippt weiter. */
@@ -726,6 +726,48 @@ addEventListener('keydown',ev=>{
   ev.preventDefault();
   if(!VIEWS.some(([k])=>k===want)||ui.view===want) return;
   ui.view=want; render();
+});
+
+/* ── Strg/Cmd + ← / → blättert durch die Monate ──────────────
+   Der Monatsreiter ist der Griff, der in dieser Ansicht am
+   häufigsten gebraucht wird: abhaken, weiter, abhaken. Mit der
+   Maus sind das zwölf Ziele in einer Leiste; auf der Tastatur ist
+   es ein Schritt nach links oder rechts.
+
+   **Nur in der Monatsansicht.** In den anderen dreien wählt kein
+   Reiter einen Monat aus — in der Jahresmatrix und in der Prognose
+   stehen alle zwölf nebeneinander, und dort gehört der Pfeil dem
+   Rollen. (Die Flexible Payments haben ihre eigenen Knöpfe
+   `data-kmonth`, dazu einen Zeitraum „ganzes Jahr", der sich mit
+   einem Schritt nach links nicht sagen ließe.)
+
+   **Am Rand ist Schluss**, wie bei jenen Knöpfen auch: Januar und
+   Dezember sind die Enden des Jahres, und ein Sprung von Dezember
+   in den Januar wäre ein Sprung in dieselbe Datei zurück, nicht
+   ins nächste Jahr. Der Druck wird trotzdem verbraucht — in dieser
+   Ansicht gehört er uns, auch wenn er nichts mehr zu bewegen hat.
+
+   **Das Suchfeld bleibt ausdrücklich nicht außen vor.** Es ist das
+   einzige Eingabefeld der Ansicht, und der Fokus steht fast immer
+   darin (siehe `keepQFocus`) — gerade dann, wenn man einen Posten
+   sucht und ihn durch die Monate verfolgt. Wer dort das Wortweise
+   Springen der Schreibmarke braucht, hat einen Filterbegriff von
+   zwei Wörtern; wer die Monate durchgeht, hat ihn dauernd. Ein
+   offenes Fenster bleibt außen vor wie bei jedem Griff: dort wird
+   getippt.
+
+   Und wie beim Klick auf den Reiter bleibt der Fokus im Suchfeld
+   (`keepQFocus`): man hakt ab, blättert weiter und tippt dort
+   weiter, wo man war. */
+addEventListener('keydown',ev=>{
+  if(!(ev.ctrlKey||ev.metaKey)||ev.shiftKey||ev.altKey) return;
+  const d=ev.key==='ArrowLeft'?-1:ev.key==='ArrowRight'?1:0;
+  if(!d) return;
+  if(ui.welcome||ui.view!=='monat'||document.querySelector('.modal')) return;
+  ev.preventDefault();
+  const m=Math.min(12,Math.max(1,ui.month+d));
+  if(m===ui.month) return;
+  ui.month=m; keepQFocus(); render();
 });
 
 /* ── Einfach lostippen ───────────────────────────────────────

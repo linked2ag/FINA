@@ -427,6 +427,11 @@ const STR={
 'month.legEst':{en:'amount estimated',de:'Betrag geschätzt'},
 'month.editKak':{en:'Edit Flexible Payments category',de:'Flexible-Payments-Kategorie ändern'},
 'month.done':{en:'{0} of {1} items done',de:'{0} von {1} Positionen erledigt'},
+/* Der Tastengriff an jedem Monatsreiter: Strg/Cmd + Pfeil links
+   oder rechts geht einen Monat zurück oder weiter. Die Pfeile
+   stehen in beiden Sprachen gleich da — nur das Wort davor
+   wechselt, wie bei view.keyTip. */
+'month.keyTip':{en:'Ctrl/Cmd + ← / →',de:'Strg/Cmd + ← / →'},
 /* Bereich zuklappen — steht im Kopf der Flexible Payments, links
    vom Knopf, der eine Kategorie anlegt. */
 'month.minAreaTip':{en:'Show only the heading of this area — applies to every month',
@@ -450,13 +455,12 @@ const STR={
 /* Steht nur bei beschnittener Achse: dann fängt die Fläche nicht
    bei null an, und der erste Balken franst links aus. */
 'month.tlScale':{en:'scale {0} - {1}',de:'Maßstab {0} - {1}'},
-/* Unter der Farberklärung: wohin alles gerät, was keinen Zahltag
-   trägt. Dieselbe Aussage wie beim Filterknopf „Monatsabschluss". */
-'month.tlNoDue':{en:'Income and costs without a payday — the Flexible Payments, the balance correction and every item with no due date — are taken up at the month close.',
-  de:'Einnahmen und Ausgaben ohne Zahltag — die Flexible Payments, die Saldokorrektur und jeder Posten ohne Fälligkeit — werden beim Monatsabschluss aufgenommen.'},
 /* Die Tage einer Zeile: „1–10" · „1.–10." */
 'month.tlDays':{en:'{0}–{1}',de:'{0}.–{1}.'},
-'month.tlToday':{en:'Today',de:'Heute'},
+/* Die Marke an der Zeile, in die der heutige Tag fällt. Sie sagt
+   „jetzt" und nicht „heute": bezeichnet wird der Abschnitt des
+   Monats, in dem man gerade steht, nicht ein einzelner Tag. */
+'month.tlNow':{en:'Now',de:'Jetzt'},
 
 /* ── Saldokorrektur ───────────────────────────────────────────
    Eine einzige, feste Zeile über den Einnahmen. Sie wird wie ein

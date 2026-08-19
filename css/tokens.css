@@ -88,9 +88,19 @@
      der Schnelleingabe der Flexible Payments. Der ist kein Betrag
      der Kategorie, sondern eine Auskunft daneben; in Rot oder Grün
      gäbe er sich als Einnahme oder Kosten aus.
+     Und es trägt, **wo gefiltert wird**: die Trennlinien um die
+     gewählte Zeile des Zeitstrahls und die Marke „Jetzt" an der
+     laufenden. Auch das tut nichts, es sagt einen Zustand.
      --accent für Flächen, --accent-2 für Text: kleine Schrift
      braucht mehr Abstand zum Papier als eine Knopffläche. */
   --accent:#C25A19; --accent-2:#A2470F;
+  /* Die helle, leuchtende Stufe: der Grund einer **Fläche**, die
+     man von weitem sehen soll — die Filterzeile, solange sie
+     greift. --accent ist als Knopffarbe gedacht und wird über eine
+     ganze Leiste hinweg hart; dieser Ton hat mehr Licht und
+     weniger Rot, trägt aber dieselbe Aussage. Dunkle Schrift und
+     helle Knöpfe stehen darauf ruhig. */
+  --accent-soft:#F0A551;
   /* Drei Stufen je Geldart, von hell nach kräftig:
      -1 die Posten, -2 die Kategorie darüber, -3 die Kopfzeile des
      Blocks. Die Stufen sind der Grund, warum man in der

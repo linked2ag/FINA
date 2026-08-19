@@ -246,6 +246,26 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    etwa 1000 px in eine Zeile. */
 .anabar .filterbar{margin:8px 0 0;gap:6px;background:var(--shade);
   border:1px solid var(--rule);border-left:5px solid var(--ink);padding:7px 12px}
+/* Greift einer der drei Filter, färbt sich die ganze Leiste: sie
+   sagt dann, dass hier gerade etwas ausgeblendet wird. Ohne Filter
+   bleibt sie grau wie jeder andere Bereich — eine Farbe, die immer
+   leuchtet, sagt nichts. Gesetzt wird `.on` in anaBar().
+
+   Leuchtend und nicht als blasse Tönung: die Leiste klebt oben
+   unter der Kopfzeile und soll auch dann auffallen, wenn man von
+   der Liste darunter kommt. Genommen wird dafür --accent-soft und
+   nicht --accent: das satte Orange ist als **Knopf**farbe gedacht
+   und wird über eine ganze Leiste hinweg hart. Ihre Knöpfe sind
+   von Haus aus durchsichtig — auf dem farbigen Grund bekommen sie
+   deshalb Papier unter sich, und der gedrückte bleibt dunkel: die
+   Leiste sagt, *dass* gefiltert wird, der Knopf, *was*. Die Linien
+   zwischen den Gruppen werden dunkler statt heller, sonst
+   verschwänden sie im hellen Orange. */
+.anabar .filterbar.on{background:var(--accent-soft);border-color:var(--accent)}
+.anabar .filterbar.on .btn{background:var(--paper-2)}
+.anabar .filterbar.on .btn:hover{background:#fff}
+.anabar .filterbar.on .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
+.anabar .filterbar.on .fbgroup{border-left-color:rgba(122,53,11,.38)}
 .anabar .filterbar .btn.small{padding:3px 7px;font-size:11.5px}
 /* Die Gruppen der Filterzeile stehen durch eine senkrechte Linie
    getrennt: Suchfeld | Fälligkeit | Zahlungsstand. */
@@ -276,6 +296,17 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .trow{display:grid;grid-template-columns:186px 100px 108px minmax(0,1fr);align-items:center;gap:8px;
   background:var(--paper-2);border:0;padding:2px 10px;font:inherit;color:inherit;text-align:left}
 .trow:hover{background:var(--shade)}
+/* Alle Zeilen sind gleich hoch, auch die ohne Zahl: gefiltert
+   trägt nur der gewählte Abschnitt seine Beträge, die übrigen
+   stehen als blasse Balken da. Seit die Balken halb so hoch sind
+   (--bh an .ttrack), ist nicht mehr der Balken das Höchste in der
+   Zeile, sondern der Betrag — ohne dieses Maß schrumpften die
+   zahllosen Zeilen um ein paar Pixel, und die Fläche spränge beim
+   Filtern. 25 px sind genau das: 14 px Betrag auf line-height 1.5
+   (21 px) und die 2 × 2 px Polster der Zeile. **Die Achszeile
+   bleibt außen vor**: sie trägt keine Balken, sondern nur die
+   Beträge des Rasters, und ist so hoch wie diese Schrift. */
+.tline .trow:not(.taxis){min-height:25px}
 /* Gefiltert heißt hier nicht dunkel: Zahlen und Balken stehen
    darin und müssen lesbar bleiben. Stattdessen ein Rahmen nach
    innen — dieselbe Aussage, ohne etwas zu verdecken. */
@@ -328,8 +359,15 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Achse, nicht aus der Reihenfolge im Quelltext. */
 /* --bpad ist der Rand über und unter den Balken: der schwarze
    Strich des Kontostands reicht über sie hinaus und ist dadurch
-   auch dort zu sehen, wo ein Balken endet. */
-.ttrack{position:relative;min-width:0;overflow:hidden;--bh:12px;--bgap:3px;--bpad:4px;
+   auch dort zu sehen, wo ein Balken endet.
+
+   **Die drei Maße sind halb so groß wie früher** (12/3/4). Der
+   Zeitstrahl steht über der Liste, an der gearbeitet wird, und
+   klebt beim Rollen mit; jeder Pixel, den er hoch ist, fehlt den
+   Zeilen darunter fünfmal. Ein Balken von 6 px trägt seine Farbe
+   immer noch, und die Form des Monats liest man an der Länge, nicht
+   an der Dicke. */
+.ttrack{position:relative;min-width:0;overflow:hidden;--bh:6px;--bgap:2px;--bpad:2px;
   height:calc(var(--bh) + 2*var(--bpad))}
 /* Die Trennlinie zwischen der Zahlenseite und der Balkenfläche —
    dieselbe Linie wie die Null zwischen Minus und Plus. Sie läuft
@@ -403,18 +441,22 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    die Balken liegen auf dem Grund ihrer Zeile, linksbündig auf dem
    Raster; wie viele es sind, sagt --nbars (mindestens zwei, damit
    die Fläche beim Wechseln nicht springt), die Höhe rechnet sich
-   aus denselben Maßen wie beim Wasserfall. Das Raster ist
-   kräftiger als in der Prognose (--rule-strong): es ist hier das
-   einzige Maß. */
+   aus denselben Maßen wie beim Wasserfall — und aus demselben
+   Raster (.tgrid weiter unten): dieselbe Linie in beiden
+   Fassungen, sonst sähe der Filter nach einer anderen Grafik aus.
+   **Die Null steht in der Mitte** (.tzero): was hereinkommt, wächst
+   nach rechts, was abgeht, nach links. Lage und Breite jedes
+   Balkens rechnet partLine() und setzt sie am Element. */
 .ttrack.tflat{--nbars:2;
   height:calc(var(--nbars)*var(--bh) + (var(--nbars) - 1)*var(--bgap) + 2*var(--bpad))}
-.tflat .fbar{left:0;height:var(--bh);min-width:2px}
+.tflat .fbar{height:var(--bh);min-width:2px}
 .tflat .fbar.pale{opacity:.22}
-.tflat .tgrid{background:var(--rule-strong);opacity:1}
 /* Gewählt sagen die Trennlinien: über und unter der gewählten
    Zeile liegen sie in der Hervorhebungsfarbe — der Schatten malt
-   in die 1-px-Fugen des .tline-Stapels. Der Rahmen nach innen der
-   übrigen Filter bleibt dem Wasserfall (weite Suche). */
+   in die 1-px-Fugen des .tline-Stapels. **Nur die Linien**: die
+   Zeile behält den Grund aller anderen, denn in ihr stehen Zahlen
+   und Balken. Der Rahmen nach innen der übrigen Filter bleibt dem
+   Wasserfall (weite Suche). */
 .tline.part .trow[aria-pressed="true"]{
   box-shadow:0 -1px 0 var(--accent),0 1px 0 var(--accent)}
 /* Die Achszeile über dem Zeitstrahl (tlAxis): an jeder Rasterlinie
@@ -475,9 +517,9 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 
 /* Die Farberklärung unter den Zeilen — seit an einem Anteil nur
    noch sein Betrag steht, ist die Farbe das Einzige, was die
-   Geldart nennt. Darunter der Satz, wohin alles ohne Zahltag
-   gerät. */
-.tnote{background:var(--paper-2);padding:0 10px 4px;font-size:10px;line-height:1.4;color:var(--ink-2)}
+   Geldart nennt. Sie ist das Letzte unter der Fläche: der Satz
+   darunter, wohin alles ohne Zahltag gerät, ist seit 19.8.26
+   gestrichen — dasselbe sagt der Filterknopf „Monatsabschluss". */
 .thint{display:flex;flex-wrap:wrap;gap:4px 14px;background:var(--paper-2);padding:3px 10px;
   font-size:10px;color:var(--ink-2);cursor:help}
 .thint .lk{display:flex;align-items:center;gap:5px;white-space:nowrap}

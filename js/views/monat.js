@@ -115,7 +115,7 @@ function kakRow(k,m){
    Auch die Zahl hinter „noch offen" zählt nur die gezeigten
    Posten — sonst nennte die Sprechblase „3 von 20", während
    darunter drei Zeilen stehen. */
-function anaBar(m,sel){
+function anaBar(m,sel,selAny){
   const open=!!ui.ana;
   const inc=sel.items.filter(isIncome);
   const due=sel.items.filter(it=>!isIncome(it));
@@ -136,11 +136,14 @@ function anaBar(m,sel){
         ${cell('t-out',t('month.kpiOpen'),sum(due.filter(it=>!paidAt(it,m))),openN?'neg':'',openTip)}
       </span>
     </button>
-    ${open?timeline(m,sel):''}
+    ${open?timeline(m,sel,selAny):''}
     <!-- Eine Zeile in der Reihenfolge, in der man filtert: erst
          suchen, dann nach Fälligkeit einschränken, dann nach
-         Zahlungsstand. Sie gilt für alle drei Bereiche. -->
-    <div class="filterbar fbrow">
+         Zahlungsstand. Sie gilt für alle drei Bereiche.
+         Greift einer der drei, färbt sich die ganze Leiste orange
+         (.on) — sie sagt dann, dass hier gerade etwas ausgeblendet
+         wird; sonst ist sie grau wie jeder andere Bereich. -->
+    <div class="filterbar fbrow${(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle')?' on':''}">
       ${filterField('flttop')}
       <span class="fbgroup">
         ${fbtn('duefilter','alle',t('month.fDueAll'),t('month.fDueAllTip'),ui.dueFilter)}
@@ -322,7 +325,7 @@ const tlToday=m=>(new Date().getFullYear()===YEAR&&m===CUR)?new Date().getDate()
 function tlLabel(k,last,today){
   const d=tlDays(k,last), now=d&&today>=d[0]&&today<=d[1];
   return `<span class="tname">${tlName(k)}${d?`<small>${t('month.tlDays',d[0],d[1])}</small>`:''}${
-    now?`<b class="tnow">${t('month.tlToday')}</b>`:''}</span>`;
+    now?`<b class="tnow">${t('month.tlNow')}</b>`:''}</span>`;
 }
 
 /* Die feinste Stufe der Leiter 1·2·5·10 …, bei der die Spanne in
@@ -356,75 +359,152 @@ function tlAxis(marks){
    Geldart einen Balken, linksbündig auf dem Grund der Zeile: die
    gewählte kräftig und mit ihrer Summe (der Veränderung der
    gezeigten Zeilen), die übrigen **blass** (.pale) und ohne Zahl —
-   sie sind Umgebung, keine Auswahl, ihre Balken kommen deshalb aus
-   dem ganzen Monat und nicht aus `sel`. Die Monatseröffnung hat
-   keine Geldarten und behält nur Raster und Name.
+   sie sind Umgebung, keine Auswahl. **Gerechnet werden sie über
+   `selAny`**: dieselben Filter wie die gewählte Zeile, nur ohne
+   den Fälligkeitsfilter, der ja gerade den Abschnitt wählt. Wer
+   nach „Strom" sucht, sieht in jeder Zeile den Strom — und nicht
+   in einer den Strom und daneben den ganzen Monat. Die
+   Monatseröffnung hat keine Geldarten und behält nur Raster und
+   Namen.
 
    Gewählt sagen die Trennlinien: über und unter der gewählten
    Zeile liegen sie in der Hervorhebungsfarbe (.tline.part in
    css/layout.css) — kein Rahmen nach innen, kein gefärbter Name.
+
+   **Ohne gewählten Abschnitt** — wenn nur Suchbegriff oder
+   Zahlungsstand filtern — ist keine Zeile Auswahl und keine
+   Umgebung: dann trägt **jede** ihre eigene Summe, alle Balken
+   sind kräftig, und eingefasst ist nichts. Auch dieser Fall
+   gehört hierher und nicht zum Wasserfall: dessen Kontostand
+   entsteht aus allem, was der Monat bewegt — mit weggefilterten
+   Zeilen ist er kein Kontostand mehr, sondern eine Summe von
+   Resten. Ein Klick auf eine Zeile wählt von hier aus ihren
+   Abschnitt dazu.
 
    Kein Rot und kein Grün der Fläche: ohne die Achse des
    Kontostands gibt es kein Plus und kein Minus — das Vorzeichen
    steht im Betrag, die Länge ist sein Maß. Das Raster läuft über
    **alle** Zeilen und beginnt an der Trennlinie zur Zahlenseite;
    der längste Balken des Monats bestimmt die Schrittweite
-   (tlStep), und über jeder Linie steht ihr Betrag (tlAxis). Jede
+   (tlStep), und über jeder Linie steht ihr Betrag (tlAxis). Die
+   Linien tragen Farbe und Stärke des Wasserfalls — es ist
+   dieselbe Grafik, nur anders gefüllt. Jede
    Zeile ist mindestens zwei Balken hoch (--nbars), damit die
    Fläche beim Wechseln des Abschnitts nicht springt — mehr Balken
    machen sie höher.
 
-   Ein zweiter Klick auf die gewählte Zeile nimmt den Filter
-   zurück — dann gilt wieder der Wasserfall. */
-function partLine(m,sel){
-  const key=ui.dueFilter;
-  const flow=monthFlow(m,sel), full=monthFlow(m);
+   Ein zweiter Klick auf die gewählte Zeile nimmt den Abschnitt
+   zurück; ist danach gar kein Filter mehr gesetzt, gilt wieder
+   der Wasserfall. */
+function partLine(m,sel,selAny){
+  const key=ui.dueFilter, one=key!=='alle';
+  const flow=monthFlow(m,sel);
+  /* Die Umgebungszeilen kommen ohne den Fälligkeitsfilter; ohne
+     gewählten Abschnitt gibt es keine Umgebung — dann ist es
+     dieselbe Rechnung. */
+  const full=one?monthFlow(m,selAny):flow;
   const last=daysInMonth(m), today=tlToday(m);
-  const fSel=flow.find(x=>x.key===key);
   /* Je Geldart ihr Ergebnis in einem Abschnitt: Zufuhr minus
      Abzug — für die gewählte Zeile dieselben Zahlen wie in den
      Karten darunter. */
   const valsOf=f=>FLOW_KINDS.map(k=>({k,v:(f.up[k]||0)-(f.down[k]||0)})).filter(x=>x.v);
-  const vals=valsOf(fSel);
   const ctx={};
   full.forEach(f=>{ if(f.key!=='P') ctx[f.key]=valsOf(f); });
-  ctx[key]=vals;
-  /* Eine Achse für alle Zeilen: der längste Balken des Monats
-     bestimmt das Raster — die gewählte Auswahl zählt mit, ein
-     Standfilter kann ihren Balken über den vollen Abschnitt
-     hinausheben (nur die Zufuhr weggefiltert, der Abzug bleibt). */
-  const max=Math.max(1,...Object.values(ctx).flat().map(x=>Math.abs(x.v)));
-  const step=tlStep(max), cells=Math.ceil(max/step), axis=cells*step;
-  const grid=Array.from({length:cells-1},(_,i)=>
-    `<span class="tgrid" style="left:${(i+1)/cells*100}%"></span>`).join('');
-  const marks=Array.from({length:cells},(_,k)=>({v:k*step,x:k/cells*100}));
+  if(one) ctx[key]=valsOf(flow.find(x=>x.key===key));
+  /* ── Die Achse: die Null trennt, beide Seiten enden am Wert ──
+     Was hereinkommt, wächst nach rechts, was abgeht, nach links —
+     dieselbe Leserichtung wie im Wasserfall, nur ohne Kontostand.
+     Eine Zeile mit Einnahme und Kosten zeigt damit auf einen Blick,
+     was von beidem überwiegt; linksbündig standen beide gleich
+     herum und man musste die Farben lesen.
+
+     **Jede Seite reicht nur so weit, wie es dort Werte gibt** —
+     bis zur Rasterlinie hinter dem größten Betrag ihrer Richtung.
+     Eine Fläche, die links bis −5.000 aufmacht, weil rechts 5.000
+     stehen, verschenkt die halbe Breite an nichts; die Null steht
+     dann eben nicht in der Mitte, sondern dort, wo die Werte sie
+     hinsetzen. Neu gerechnet wird das bei jeder Änderung, denn es
+     hängt allein an den Zahlen, die gerade zu sehen sind.
+
+     **Der Maßstab bleibt für beide Seiten derselbe** (eine
+     Schrittweite, ein Feldmaß): zwei Maßstäbe machten aus einem
+     doppelt so langen Balken einen beliebigen Betrag.
+
+     Gerechnet wird über alle Zeilen zusammen — die gewählte
+     Auswahl zählt mit, ein Standfilter kann ihren Balken über den
+     vollen Abschnitt hinausheben (nur die Zufuhr weggefiltert, der
+     Abzug bleibt). Die Schrittweite kommt aus der ganzen Spanne
+     und wird gröber, solange beide Seiten zusammen mehr als zehn
+     Felder ergäben (aufgerundet wird ja auf jeder Seite). */
+  const vs=Object.values(ctx).flat().map(x=>x.v);
+  const maxPos=Math.max(0,...vs.filter(v=>v>0));
+  const maxNeg=Math.max(0,...vs.filter(v=>v<0).map(v=>-v));
+  let step=tlStep(Math.max(1,maxNeg+maxPos));
+  while(Math.ceil(maxNeg/step)+Math.ceil(maxPos/step)>10) step=tlStep(step*10+1);
+  const cellsL=Math.ceil(maxNeg/step);
+  /* Ohne einen einzigen Betrag bliebe die Fläche breitenlos. */
+  const cellsR=Math.ceil(maxPos/step)||(cellsL?0:1);
+  const span=(cellsL+cellsR)*step;
+  /* Von der Achse in die Fläche; `z` ist die Null in Prozent. */
+  const pos=v=>(v+cellsL*step)/span*100;
+  const z=pos(0);
+  let grid='';
+  for(let k=1-cellsL;k<cellsR;k++){
+    /* Die Null hat ihre eigene, kräftigere Linie; die beiden
+       äußeren sind die Ränder der Fläche und stehen schon da. */
+    if(!k) continue;
+    grid+=`<span class="tgrid" style="left:${pos(k*step)}%"></span>`;
+  }
+  grid+=`<span class="tzero" style="left:${z}%"></span>`;
+  const marks=[];
+  for(let k=-cellsL;k<=cellsR;k++) marks.push({v:k*step,x:pos(k*step)});
   const track=(list,pale)=>`<span class="ttrack tflat" style="--nbars:${Math.max(2,list.length)}">${grid}${
-    list.map((x,i)=>`<span class="fbar b-${x.k}${pale?' pale':''}"
-      style="top:calc(var(--bpad) + ${i}*(var(--bh) + var(--bgap)));width:${Math.abs(x.v)/axis*100}%"
-      data-tip="${esc(eur(x.v))}"></span>`).join('')}</span>`;
-  const sum=`<span class="trun ${cls(fSel.sum)}">${(fSel.sum>0?'+':'')+eur(fSel.sum)}</span>`;
+    list.map((x,i)=>{
+      /* Angesetzt wird immer **an** der Null: der Zufluss mit
+         seiner linken Kante, der Abfluss mit seiner rechten. Über
+         eine gerechnete linke Kante liefe der Abfluss sonst bei
+         einem winzigen Betrag in die falsche Richtung — die
+         Mindestbreite (2 px, damit er überhaupt zu sehen ist)
+         wüchse nach rechts und legte ihn auf die Plusseite. */
+      const w=Math.abs(x.v)/span*100;
+      return `<span class="fbar b-${x.k}${pale?' pale':''}"
+        style="top:calc(var(--bpad) + ${i}*(var(--bh) + var(--bgap)));${
+          x.v>0?`left:${z}`:`right:${100-z}`}%;width:${w}%"
+        data-tip="${esc(eur(x.v))}"></span>`;
+    }).join('')}</span>`;
+  /* Eine Zeile ohne Bewegung bleibt leer — wie im Wasserfall. Vier
+     Zeilen mit „—" untereinander lesen sich wie ein Fehler; dass
+     dort nichts ist, sagt schon der fehlende Balken. */
+  const sum=f=>f.sum?`<span class="trun ${cls(f.sum)}">${(f.sum>0?'+':'')+eur(f.sum)}</span>`:'';
   const rows=flow.map(x=>{
     if(x.key==='P') return `<span class="trow tp-P">${tlLabel('P',last,today)
       }<span class="ttrack tflat" style="--nbars:2">${grid}</span></span>`;
+    /* Mit gewähltem Abschnitt trägt nur er seine Summe und volle
+       Farbe; ohne einen ist keine Zeile ausgezeichnet, also
+       bekommt jede beides. */
     const on=x.key===key;
     return `<button class="trow tp-${x.key}" data-tpart="${x.key}" aria-pressed="${on}"
-      aria-label="${esc(tlName(x.key))}">${tlLabel(x.key,last,today)}${on?sum:''}${track(ctx[x.key],!on)}</button>`;
+      aria-label="${esc(tlName(x.key))}">${tlLabel(x.key,last,today)}${
+        one&&!on?'':sum(x)}${track(ctx[x.key],one&&!on)}</button>`;
   }).join('');
   /* Die Farberklärung nennt alles, was in der Fläche vorkommt —
      auch die blassen Balken tragen ihre Geldartfarbe. */
   const kinds=FLOW_KINDS.filter(k=>Object.values(ctx).some(l=>l.some(x=>x.k===k)));
   const chips=kinds.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('');
   return `<div class="tline part">${tlAxis(marks)}${rows}
-    ${chips?`<div class="thint">${chips}</div>`:''}
-    ${key==='Z'?`<div class="tnote">${t('month.tlNoDue')}</div>`:''}</div>`;
+    ${chips?`<div class="thint">${chips}</div>`:''}</div>`;
 }
 
-function timeline(m,sel){
-  /* Bei weiter Suche (qAll) übergeht die Auswahl den
-     Fälligkeitsfilter — dann zeigt auch der Zeitstrahl wieder alle
-     Abschnitte, sonst nennte die eine Zeile eine andere Summe als
-     die Karten (siehe „Was ein Filter mit den Summen macht"). */
-  if(ui.dueFilter!=='alle'&&!(queryQ()&&qAll())) return partLine(m,sel);
+function timeline(m,sel,selAny){
+  /* **Sobald irgendein Filter greift, gibt es keinen Wasserfall
+     mehr.** Sein Maß ist der Kontostand, und der entsteht aus
+     allem, was der Monat bewegt — mit weggefilterten Zeilen ist er
+     kein Kontostand mehr, sondern eine Summe von Resten, die auf
+     keinem Konto steht. Gezeigt wird dann, was man tatsächlich
+     gefiltert hat: je Abschnitt seine Beträge als Balken
+     (partLine). Das gilt für alle drei Filter der Leiste, nicht
+     nur für den Fälligkeitsfilter. */
+  if(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle') return partLine(m,sel,selAny);
   const flow=monthFlow(m,sel), sc=flowScale(flow), last=daysInMonth(m);
   const today=tlToday(m);
   /* Von der Achse zur Fläche: 0 % ist der tiefste Stand des Monats
@@ -475,8 +555,7 @@ function timeline(m,sel){
      man die Länge des ersten Balkens als seinen ganzen Betrag. */
   const scale=sc.cut?`<span class="lscale">${t('month.tlScale',eur(sc.lo),eur(sc.hi))}</span>`:'';
   return `<div class="tline${sc.cut?' cut':''}">${tlAxis(marks)}${flow.map(row).join('')}
-    <div class="thint">${chips}${scale}</div>
-    <div class="tnote">${t('month.tlNoDue')}</div></div>`;
+    <div class="thint">${chips}${scale}</div></div>`;
 }
 
 /* Der Pfeil, der eine Karte zu- und aufklappt. Er steht ganz links
@@ -543,6 +622,27 @@ function viewMonat(){
   };
   const balOn=(!q||hayItem(state.balance,m).includes(q))&&(wide||dueOk(''));
 
+  /* ── Dieselbe Auswahl ohne den Fälligkeitsfilter ─────────────
+     Der gefilterte Zeitstrahl lässt die nicht gewählten Abschnitte
+     stehen und zeigt ihre Balken als Umgebung. Gerechnet werden
+     müssen sie über **dieselben** übrigen Filter — Suchbegriff und
+     Zahlungsstand —, nur eben ohne den Fälligkeitsfilter, der ja
+     gerade entscheidet, welcher Abschnitt der gewählte ist.
+     Sonst zeigte eine Suche nach „Strom" in der gewählten Zeile
+     den Strom und daneben den ganzen Monat.
+     Genommen wird nur, was auch in einer Karte stünde (dieselbe
+     Gruppierung), damit beide Zahlen aus derselben Quelle kommen. */
+  const showAny=it=> (!q||hayItem(it,m).includes(q))&&(wide||stateOk(it));
+  const showKakAny=k=>{
+    const e=state.kak[k]; if(!e) return false;
+    const done=kakDone(k,m);
+    if(q&&!hayKak(k,m).includes(q)) return false;
+    if(wide) return true;
+    return ui.filter==='alle'||(ui.filter==='offen'&&!done)
+      ||(ui.filter==='unklar'&&!!e.estimated)||(ui.filter==='bezahlt'&&done);
+  };
+  const balAny=!q||hayItem(state.balance,m).includes(q);
+
   /* Womit die Liste anfängt: gewöhnlich die Posten dieses Monats,
      bei weiter Suche alle. */
   const pool=wide?state.fixed:dueIn(m);
@@ -554,12 +654,12 @@ function viewMonat(){
      über allem und sagte nichts. */
   const incGroups=incomeGroups().map(g=>{
     const all=incAll.filter(it=>it.group===g);
-    return {g,all,items:settledLast(all.filter(show))};
+    return {g,all,items:settledLast(all.filter(show)),any:all.filter(showAny)};
   });
   const flexAll=kakCats(), flexUse=flexAll.filter(showKak);
   const outGroups=costGroups().map(g=>{
     const all=pool.filter(it=>it.group===g);
-    return {g,all,items:settledLast(all.filter(show))};
+    return {g,all,items:settledLast(all.filter(show)),any:all.filter(showAny)};
   });
   /* Die gezeigten Kosten in einer flachen Liste — daraus kommen
      die Zahl neben der Überschrift, die Kartensumme und der
@@ -589,6 +689,11 @@ function viewMonat(){
      und den machen die Monate davor — die filtert niemand. */
   const sumIt=arr=>arr.reduce((s,it)=>s+it.amounts[m-1],0);
   const sel={items:incUse.concat(outItems),kaks:flexUse,bal:balOn};
+  /* Dieselbe Auswahl ohne den Fälligkeitsfilter — nur der
+     gefilterte Zeitstrahl braucht sie, für die Balken der nicht
+     gewählten Abschnitte (siehe showAny oben). */
+  const selAny={items:incGroups.concat(outGroups).reduce((a,x)=>a.concat(x.any),[]),
+    kaks:flexAll.filter(showKakAny),bal:balAny};
   const incSum=sumIt(incUse);
   const flexSum=flexUse.reduce((s,k)=>s+kakVal(k,m),0);
   const outSum=sumIt(outItems);
@@ -685,7 +790,7 @@ function viewMonat(){
   const outBtns=`<button class="btn small" data-newitem="1">${t('year.addItem')}</button>`;
 
   return `
-  ${mob?mobileTop(m,sel,{inc:incSum,flex:flexSum,out:outSum}):anaBar(m,sel)}
+  ${mob?mobileTop(m,sel,{inc:incSum,flex:flexSum,out:outSum}):anaBar(m,sel,selAny)}
 
   ${balOn?balanceRow(m):''}
 

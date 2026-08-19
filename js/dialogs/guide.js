@@ -1122,7 +1122,14 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.18 <span class="pill">latest</span></h4>
+<h4>26.8.19 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>Step through the months with the keyboard</b> — in ${t('view.monat')}, Ctrl/Cmd and the
+      left or right arrow key go one month back or forward.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.18</h4>
 <ul>
   <li><b>FINA works on the phone</b> — below 700 px the browser shows a mobile layout: the month
       as a card list with large seals, the year as twelve month cards, the forecast with its
@@ -1282,7 +1289,14 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.18 <span class="pill">neu</span></h4>
+<h4>26.8.19 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Mit der Tastatur durch die Monate</b> — in ${t('view.monat')} gehen Strg/Cmd und die
+      Pfeiltaste links oder rechts einen Monat zurück oder weiter.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.18</h4>
 <ul>
   <li><b>FINA läuft auf dem Telefon</b> — unter 700 px zeigt der Browser eine mobile
       Oberfläche: der Monat als Kartenliste mit großen Siegeln, das Jahr als zwölf

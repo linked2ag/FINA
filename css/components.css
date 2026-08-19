@@ -171,7 +171,9 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 /* Angewendet heißt dunkel — in der Filterzeile der Monatsansicht
    wie in der Knopfleiste der Jahresmatrix. Beide stecken ihre
    Filter in eine `.fbgroup`; Knöpfe ohne aria-pressed (anlegen)
-   bleiben davon unberührt. */
+   bleiben davon unberührt. Orange ist in der Monatsansicht der
+   Grund der ganzen Leiste (.anabar .filterbar in css/layout.css):
+   sie sagt, **wo** gefiltert wird, der dunkle Knopf, **was**. */
 .filterbar button[aria-pressed="true"],.fbgroup button[aria-pressed="true"]{
   background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
 /* Eine Zeile, drei Abschnitte: Suchfeld · Fälligkeit · Stand.

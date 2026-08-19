@@ -20,13 +20,22 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- **Mit der Tastatur durch die Monate** — in der Monatsansicht geht Strg/Cmd + ← / → einen
+  Monat zurück oder weiter, am Januar und am Dezember ist Schluss. Der Griff steht in der
+  Sprechblase jedes Monatsreiters; im Reiter „Was ist neu" steht er schon.
+
 - ⚠ **Der Zeitstrahl folgt dem Fälligkeitsfilter** — bei gewähltem Abschnitt (Zeile oder
   Filterknopf) bleiben alle Zeilen mit Balken je Geldart stehen, die nicht gewählten blass;
   orange Trennlinien fassen die gewählte ein, und nur sie trägt Zahlen: eine Summe, rechts
   kräftige Balken linksbündig; ein zweiter Klick bringt den Wasserfall zurück. In beiden
   Fassungen: Trennlinie zwischen Zahlen und Balkenfläche, Raster über alle Zeilen, darüber
-  eine Achszeile mit dem Betrag jeder Linie. Der graue Erklärsatz über der Grafik ist
-  gestrichen; die „Heute"-Marke ist orange umrandet statt rot gefüllt. **Falsch geworden:**
+  eine Achszeile mit dem Betrag jeder Linie. Die Balken der nicht gewählten Zeilen
+  berücksichtigen Suchbegriff und Zahlungsstand genauso wie die gewählte — nur die
+  Fälligkeit nicht, die ja den Abschnitt wählt. Die Filterzeile darunter färbt sich
+  orange, solange einer der drei Filter greift. Der graue Erklärsatz über der Grafik ist
+  gestrichen, ebenso der Satz über den Monatsabschluss unter der Farberklärung; die Marke
+  am laufenden Abschnitt heißt „Jetzt" und ist orange umrandet statt rot gefüllt.
+  **Falsch geworden:**
   „Was FINA kann" sagt zum Zeitstrahl-Filter noch „die anderen Zeilen liegen flach … nur
   die Monatseröffnung behält ihre Zahl" (EN wie DE) — beides stimmt so nicht mehr. *Im
   Reiter „Was ist neu" erledigt (26.8.18); in Schritt für Schritt und Was FINA kann noch
