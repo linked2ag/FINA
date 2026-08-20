@@ -82,23 +82,24 @@ function editKak(k,copy,focusMonth){
     if(slot) slot.innerHTML=tag(i);
   };
   const showTags=()=>MONTHS.forEach((_,i)=>showTag(i));
-  box.innerHTML=`<div class="box">
+  /* Dasselbe Gerüst wie das Posten-Fenster: Zuordnung · Links ·
+     Schnelleingabe · Monate, jeder Block in einem eigenen `.dgrp`,
+     und unter der Bezeichnung steht nichts mehr. Zwei
+     Geschwisterfenster, die verschieden aussehen, wären zwei
+     Bedienungen für dieselbe Sache. */
+  box.innerHTML=`<div class="box form">
     <h3>${lampPos('kak',isNew?'':k)}<button type="button" class="titlebtn" id="kTitle"
       title="${esc(t('kdlg.nameBtnTip'))}"></button></h3>
-    <p class="subline">${copy?t('kdlg.dupSub',esc(keyLabel(copy.from)))
-      :(isNew?t('kdlg.newSub'):(lockN?t('kdlg.lockedN',lockN):t('kdlg.allOpen'))+' '+t('kdlg.hint'))}</p>
     <!-- Der Weg zu den Kategorien — hier zu **diesen**: die
          Flexible Payments haben ihre eigene Liste, und der Weg
          führt in ihren Bereich und nicht in den der regelmäßigen
          Kosten. Er steht oben, wie im Posten-Fenster, und das
          Einstellungsfenster legt sich über dieses hier. -->
-    <p class="note listlinks">${t('item.listsIn')}${setLinks([['kak',t('set.kak')]])}</p>
-    <div class="field linkfield">${linkHead()}<div id="kLinks">${linkRows(links)}</div></div>
-    <div class="field"><label>${t('item.kind')}</label>
-      <label style="display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">
-        <input type="checkbox" id="kEst" ${e.estimated?'checked':''} style="width:auto">
-        ${t('kdlg.est')}</label></div>
-    <div class="quick">
+    <div class="dgrp"><p class="note listlinks">${t('item.listsIn')}${setLinks([['kak',t('set.kak')]])}</p></div>
+    <div class="dgrp"><div class="field linkfield">${linkHead()}<div id="kLinks">${linkRows(links)}</div></div></div>
+    <!-- „Geschätzt" steht bei den Beträgen, nicht als eigenes Feld
+         darüber: es sagt etwas über sie, und hier tippt man sie. -->
+    <div class="quick dgrp">
       <!-- Rechts in derselben Zeile der bisherige Schnitt: er steht
            über dem Betragsfeld, in das die Annahme für die
            kommenden Monate getippt wird. -->
@@ -112,11 +113,12 @@ function editKak(k,copy,focusMonth){
         <input id="kVal" class="num signed" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
       </div>
       <div class="qbtns">
+        <label class="qest"><input type="checkbox" id="kEst" ${e.estimated?'checked':''}>${t('kdlg.est')}</label>
         <button class="btn small" id="kClear">${t('item.clear')}</button>
         <button class="btn primary small" id="kApply">${t('item.apply')}</button>
       </div>
     </div>
-    <div class="field"><label>${t('kdlg.perMonth')}</label>
+    <div class="dgrp"><div class="field mfield"><label>${t('kdlg.perMonth')}</label>
       <div style="display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap">
         ${last?`<button class="btn small" id="kLock" title="${esc(t('kdlg.lockTillTip',MONTHS_LONG[last-1]))}">${t('kdlg.lockTill',MONTHS_LONG[last-1])}</button>`:''}
         <button class="btn small" id="kUnlock" title="${esc(t('kdlg.unlockAllTip'))}">${t('item.unlockAll')}</button></div>
@@ -129,7 +131,7 @@ function editKak(k,copy,focusMonth){
               title="${on?t('kdlg.lockedTip'):t('month.markDone')}">${CHECK_SVG}</button></span></div>
         <input class="num signed" data-mi="${i}" ${on?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
         <div class="cellnote">${esc(e.notes[i]||'')}</div></div>`;}).join('')}</div>
-    </div>
+    </div></div>
     <div class="row-end">${isNew?'':`<button class="linkish" id="kDel" style="margin-right:auto">${t('kdlg.del')}</button>`}
       ${isNew?'':`<button class="btn" id="kDup" data-tip="${esc(t('kdlg.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="kCancel">${t('g.cancel')}</button><button class="btn primary" id="kSave">${t('g.save')}</button></div>

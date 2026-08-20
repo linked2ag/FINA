@@ -107,11 +107,23 @@ function editItem(item,group,copyOf,focusMonth){
 
   const box=document.createElement('div');
   box.className='modal';
-  box.innerHTML=`<div class="box">
+  /* ── Das Fenster in vier Blöcken ─────────────────────────────
+     Zuordnung · Links · Schnelleingabe · Monate. Jeder steht in
+     einem eigenen `.dgrp` — ein Feld mehr oder weniger verschiebt
+     dann nichts an der Ordnung, und man sieht, wo eine Angabe
+     hingehört, bevor man ihre Beschriftung liest. Überschriften
+     tragen die Blöcke nicht: ihre Felder sind beschriftet, und ein
+     Wort über jedem Block wäre genau der Text, der ein Fenster
+     zumüllt.
+
+     **Unter der Bezeichnung steht nichts mehr.** Dort stand ein
+     Satz über abgeschlossene Monate („bis Juli abgeschlossen") —
+     das sagen die gesperrten Monatsfelder weiter unten von selbst,
+     und über dem Fenster stand damit eine Zeile, die man bei jedem
+     Öffnen mitliest. */
+  box.innerHTML=`<div class="box form">
     <h3>${lampPos('item',it.id)}<button type="button" class="titlebtn" id="fTitle"
       title="${esc(t('item.nameBtnTip'))}"></button></h3>
-    <p class="subline">${copyOf?t('item.dupSub',esc(copyOf))
-      :(isBal?t('bal.hint'):(lockN?t('item.lockedN',lockN):t('item.allOpen')))}</p>
     <!-- ── Woher die Auswahllisten kommen ──────────────────────
          Ein Weg je Liste, und zwar **über** der Reihe, in der die
          Listen stehen: dort stellt sich die Frage („diese Kategorie
@@ -123,6 +135,7 @@ function editItem(item,group,copyOf,focusMonth){
          ohne es zu schließen: was schon getippt ist, bleibt stehen,
          und wenn es wieder geht, stehen die neuen Einträge in den
          Listen (relist() weiter unten). -->
+    <div class="dgrp">
     <p class="note listlinks">${t('item.listsIn')}${listLinks}</p>
     <!-- Die Kategorie steht in derselben Reihe wie Bank,
          Zahlungsart und Fälligkeit: alle vier sind Auswahllisten,
@@ -140,16 +153,16 @@ function editItem(item,group,copyOf,focusMonth){
       <div class="field"><label>${t('item.endM')}</label><select id="fEndM"><option value="">—</option>${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${it.end&&it.end.m===i+1?' selected':''}>${n}</option>`).join('')}</select></div>
       <div class="field"><label>${t('item.endY')}</label><input id="fEndY" class="num" type="number" min="2020" max="2099" value="${it.end?it.end.y:''}"></div>
     </div>
+    </div>
     <!-- Die Links stehen außerhalb der Reihe: die Liste wächst mit
          jedem Eintrag, und in einer Rasterreihe zöge sie die
          Auswahllisten daneben in die Länge. Das Plus rechts der
          Überschrift ist dasselbe wie in den Einstellungen. -->
-    <div class="field linkfield">${linkHead()}<div id="fLinks">${linkRows(links)}</div></div>
-    ${isBal?'':`<div class="field"><label>${t('item.kind')}</label>
-      <label style="display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">
-        <input type="checkbox" id="fEst" ${it.estimated?'checked':''} style="width:auto">
-        ${t('item.est')}</label></div>`}
-    <div class="quick">
+    <div class="dgrp"><div class="field linkfield">${linkHead()}<div id="fLinks">${linkRows(links)}</div></div></div>
+    <!-- Die Betragsart steht bei der Schnelleingabe und nicht mehr
+         als eigenes Feld darüber: „geschätzt" sagt etwas über die
+         Beträge, und die tippt man hier. -->
+    <div class="quick dgrp">
       <div class="field" style="margin-bottom:8px"><label>${t('item.quick')}</label></div>
       <!-- In der Reihenfolge, in der man es denkt: wie oft, ab
            wann, wie viel. Der Betrag steht zuletzt, weil er das
@@ -167,12 +180,13 @@ function editItem(item,group,copyOf,focusMonth){
            dritte Zeile, und auf einem kleinen Bildschirm entscheidet
            genau die darüber, ob man durch das Fenster scrollen muss. -->
       <div class="qbtns">
+        ${isBal?'':`<label class="qest"><input type="checkbox" id="fEst" ${it.estimated?'checked':''}>${t('item.est')}</label>`}
         <span class="qhint">${t('item.quickHint')}</span>
         <button class="btn small" id="qClear">${t('item.clear')}</button>
         <button class="btn primary small" id="qApply">${t('item.apply')}</button>
       </div>
     </div>
-    <div class="field"><label>${t('item.perMonth')}</label>
+    <div class="dgrp"><div class="field mfield"><label>${t('item.perMonth')}</label>
       ${isBal?'':`<div style="display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap">
         ${last?`<button class="btn small" id="qLock" title="${esc(t('item.lockTillTip',MONTHS_LONG[last-1]))}">${t('item.lockTill',MONTHS_LONG[last-1])}</button>`:''}
         <button class="btn small" id="qUnlock" title="${esc(t('item.unlockAllTip'))}">${t('item.unlockAll')}</button></div>`}
@@ -184,7 +198,7 @@ function editItem(item,group,copyOf,focusMonth){
               title="${lock?t('item.lockedTip'):t('month.markPaid')}">${CHECK_SVG}</button>`}</span></div>
         <input class="num signed" data-mi="${i}" ${lock?'disabled':''} value="${it.amounts[i]?nf.format(it.amounts[i]):''}" placeholder="0,00">
         <div class="cellnote">${esc(it.notes[i]||'')}</div></div>`;}).join('')}</div>
-    </div>
+    </div></div>
     <div class="row-end">${(isNew||isBal)?'':`<button class="linkish" id="fDel" style="margin-right:auto">${t('item.del')}</button>`}
       ${(isNew||isBal)?'':`<button class="btn" id="fDup" data-tip="${esc(t('item.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="fCancel">${t('g.cancel')}</button><button class="btn primary" id="fSave">${t('g.save')}</button></div>

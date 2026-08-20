@@ -568,6 +568,21 @@ Zeile höher unter `END` steht. **`END` trägt `--bg-sal`**, das Violett von „
 Monatsspalte links bleibt frei — sie klebt beim seitlichen Rollen und braucht ihren
 deckenden Grund für sich.
 
+**Zwei Spalten bleiben beim seitlichen Rollen stehen.** Die Monatsspalte klebt am linken
+Rand (`td:first-child`, `left:0`) — eine Zahl ohne ihren Monat ist keine Zeile mehr. Und
+**END klebt daneben**, sobald es dort ankommt (`left:var(--progleadw)`, also genau die Breite
+der Monatsspalte): der Stand zum Monatsende ist die Zahl, gegen die man den Balken daneben
+liest, und beim Rollen nach rechts wanderte sie als erste aus dem Bild. Weil `position:sticky`
+erst greift, wenn die Zelle diese Stelle erreicht, **löst sie sich beim Zurückrollen von
+selbst wieder ab** und steht wieder in ihrer Reihe. Dafür braucht sie einen deckenden Grund
+(`--bg-sal`, ihre eigene Farbe) und eine Stufe unter der Monatsspalte (`z-index` 1 gegen 2).
+
+**Der laufende Monat ist auch in der Balkenspalte eingefasst.** Die beiden roten Linien sind
+sonst ein `inset`-Schatten an der Zelle (`tr.now td`); in `.flowcell` liegen Zonen, Raster
+und Balken als eigene Kinder darüber und decken ihn zu. Dort zeichnet sie deshalb
+`tr.now td.flowcell::after` — ein Pseudo-Element ist das letzte Kind und liegt damit über
+allem, `pointer-events:none` lässt die Sprechblasen der Balken in Ruhe.
+
 **Vorher standen dort „BAL" und „CUM"** — die Summe der Bewegungen und der laufende Stand.
 Dieselbe Rechnung, aber die falsche Erzählung: die Zahl, die man im Balken daneben sieht,
 ist der **Kontostand**, und der stand ganz rechts, während links eine Summe stand, die es
@@ -1862,6 +1877,51 @@ Buch, das es so nicht mehr gibt.
 
 Das Merkmal heißt `data-setlist` und **nicht** `data-lists`: jenes gehört den Ansichten und
 wird in `wire()` bei jedem Zeichnen neu verdrahtet — es überschriebe den Rückweg.
+
+## Ein Fenster steht in Blöcken
+
+Die beiden Fenster, in denen etwas geändert wird — `js/dialogs/item.js` (Posten,
+Saldokorrektur) und `js/dialogs/kakeibo-betraege.js` (Flexible-Payments-Kategorie) —, tragen
+**dasselbe Gerüst**, und zwar in dieser Reihenfolge:
+
+| | Block | worin |
+|---|---|---|
+| 1 | Bezeichnung | die Überschrift, sie ist der Knopf dazu (`.titlebtn`) |
+| 2 | Zuordnung | der Weg zu den Listen, Kategorie · Bank · Zahlungsart · Fälligkeit, letzte Zahlung |
+| 3 | Zugehörige Links | die Liste samt Plus |
+| 4 | Schnelleingabe | Rhythmus · ab wann · Betrag, **und der Schalter „geschätzt"** |
+| 5 | Die Monate | die beiden Sammelknöpfe und die zwölf Kästchen |
+
+Jeder Block steht in einem eigenen `.dgrp` (`css/components.css`): heller Grund, dieselbe
+feine Kante und dieselbe 2-px-Rundung wie ein Knopf der Kopfzeile. **Überschriften tragen
+die Blöcke nicht** — ihre Felder sind beschriftet, und ein Wort über jedem Block wäre genau
+der Text, der ein Fenster zumüllt (siehe „Erklärender Text steht in der Sprechblase").
+Getrennt wird über Abstand und Kante, nicht über Sprache.
+
+**Unter der Bezeichnung steht nichts mehr.** Dort stand eine Zeile über abgeschlossene
+Monate („bis Juli abgeschlossen", „alle Monate offen") — das sagen die gesperrten
+Monatsfelder von selbst. Mit ihr sind zehn Schlüssel aus `js/i18n.js` verschwunden
+(`item.dupSub`, `item.allOpen`, `item.lockedN`, `bal.hint`, `kdlg.dupSub`, `kdlg.newSub`,
+`kdlg.allOpen`, `kdlg.lockedN`, `kdlg.hint`, `item.kind`).
+
+**„Geschätzt" steht bei den Beträgen.** Es war ein eigenes Feld mit der Beschriftung
+„Betragsart" über der Schnelleingabe und sah damit aus wie eine weitere Angabe des Postens;
+es sagt aber etwas über die Beträge, und die tippt man in der Schnelleingabe. Die Kennungen
+`#fEst` / `#kEst` bleiben, `collect()` liest sie wie zuvor.
+
+**Ein Quartal je Zeile.** `.mgrid` stellt die zwölf Monatskästchen zu **dritt** nebeneinander
+— vier Zeilen statt zwei, jede Zeile ein Vierteljahr. Die Breite eines Kästchens bleibt
+dabei dieselbe (rund 166 px); dafür ist das Fenster schmal: `.modal .box.form` ist
+588 px = 3 × 166 + 2 × 8 Fuge + 2 × 12 Polster des Blocks + 2 × 22 des Fensters. **Wer an
+einer dieser Zahlen dreht, rechnet die andere nach**, sonst stehen die Kästchen entweder
+gequetscht oder mit einer leeren Spalte daneben. Im schmalen Fenster stehen die
+Auswahllisten zu zweit (`.box.form .c4`): vier nebeneinander wären 120 px je Liste, und
+darin ist von einer Kategorie nichts mehr zu lesen.
+
+Dieselbe Sprache gilt dem **Einstellungsfenster**: der gewählte Bereich (`.setpane`) steht
+in einem Feld wie ein `.dgrp`, das Menü daneben. Und jede Knopfzeile eines Fensters
+(`.row-end`) steht hinter einer Haarlinie — was darüber steht, wird ausgefüllt, was darunter
+steht, entscheidet.
 
 ## Das Einstellungsfenster
 

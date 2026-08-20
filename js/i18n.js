@@ -473,8 +473,6 @@ const STR={
 'bal.tip':{en:'Manual correction of the balance — for inaccuracies that crept in somewhere over the months',
   de:'Manuelle Korrektur des Saldos — für Ungenauigkeiten, die sich über die Monate eingeschlichen haben'},
 'bal.editTip':{en:'Edit balance correction',de:'Balance Correction ändern'},
-'bal.hint':{en:'One amount per month, plus or minus. It is added to the balance and cannot be deleted.',
-  de:'Ein Betrag je Monat, plus oder minus. Er geht in den Saldo ein und lässt sich nicht löschen.'},
 
 /* ── Flexible Payments (früher Kakeibo) ───────────────────── */
 'kak.empty':{en:'No transactions imported yet.',de:'Noch keine Transaktionen importiert.'},
@@ -613,9 +611,6 @@ const STR={
 
 /* ── Posten-Fenster ───────────────────────────────────────── */
 'item.add':{en:'Add item',de:'Posten hinzufügen'},
-'item.lockedN':{en:'{0} month(s) marked as paid. Remove the tick to change an amount.',
-  de:'{0} Monate sind als bezahlt markiert. Haken entfernen, um den Betrag zu ändern.'},
-'item.allOpen':{en:'All months can be changed.',de:'Alle Monate sind änderbar.'},
 'item.name':{en:'Name',de:'Name'},
 'item.namePh':{en:'e.g. Netflix',de:'z. B. Netflix'},
 /* Wie bei den Flexible Payments: die Bezeichnung wird über die
@@ -659,7 +654,6 @@ const STR={
 'link.title':{en:'Associated links',de:'Zugehörige Links'},
 'link.pick':{en:'Show links',de:'Links anzeigen'},
 'link.pickTip':{en:'{0} links — click to choose',de:'{0} Links — zum Auswählen klicken'},
-'item.kind':{en:'Kind of amount',de:'Betragsart'},
 'item.est':{en:'Amount is estimated and may differ — shown in yellow with a question mark',
   de:'Summe ist geschätzt und kann abweichen — wird gelb mit Fragezeichen dargestellt'},
 /* Über der Reihe der Auswahllisten: ein Weg je Liste in den Bereich
@@ -706,15 +700,8 @@ const STR={
 'item.dupTip':{en:'Opens a copy of this item — amounts included, ticks and notes removed. The copy is created when you press Save; this item stays as it is.',
   de:'Öffnet eine Kopie dieses Postens — mit den Beträgen, ohne Haken und ohne Notizen. Angelegt wird die Kopie erst mit „Speichern"; dieser Posten bleibt, wie er ist.'},
 'item.dupTitle':{en:'Duplicate item',de:'Posten duplizieren'},
-'item.dupSub':{en:'A copy of “{0}”. All ticks and notes have been removed, so every one of the twelve months can be changed. Nothing is created until you press Save — Cancel leaves no trace, and “{0}” itself stays untouched either way.',
-  de:'Eine Kopie von „{0}". Alle Haken und Notizen sind entfernt, deshalb ist jeder der zwölf Monate änderbar. Angelegt wird erst mit „Speichern" — wer abbricht, hinterlässt nichts, und „{0}" selbst bleibt in beiden Fällen unangetastet.'},
 
 /* ── Beträge einer Flexible-Payments-Kategorie ────────────── */
-'kdlg.lockedN':{en:'{0} month(s) are marked IMPORTED — those values come from Fast Budget. Changing one turns it into CORRECTED.',
-  de:'{0} Monate sind mit IMPORTED markiert — die Werte stammen aus Fast Budget. Änderst du einen davon, wird er zu CORRECTED.'},
-'kdlg.allOpen':{en:'All months can be changed.',de:'Alle Monate sind änderbar.'},
-'kdlg.hint':{en:'Remove the tick to change an amount. Flexible Payments categories always run monthly.',
-  de:'Haken entfernen, um einen Betrag zu ändern. Flexible-Payments-Kategorien laufen immer monatlich.'},
 'kdlg.est':{en:'Amount is estimated and may differ — shown in yellow with a question mark',
   de:'Summe ist geschätzt und kann abweichen — wird orange mit Fragezeichen dargestellt'},
 'kdlg.quick':{en:'Quick entry — every month',de:'Schnelle Eingabe — jeden Monat'},
@@ -726,8 +713,6 @@ const STR={
   de:'Markiert jeden Monat bis einschließlich {0} als erfasst — alles, was vorbei ist. Der laufende Monat bleibt offen, importierte Monate bleiben unberührt.'},
 'kdlg.unlockAllTip':{en:'Removes every tick you set yourself so those amounts can be changed again. Imported months are left alone.',
   de:'Entfernt alle selbst gesetzten Haken, damit sich diese Beträge wieder ändern lassen. Importierte Monate bleiben unberührt.'},
-'kdlg.newSub':{en:'A main category of your everyday spending — groceries, leisure, travel. Give it a name and, if you like, its twelve amounts right away.',
-  de:'Eine Hauptkategorie der allt\u00e4glichen Ausgaben — Lebensmittel, Freizeit, Reisen. Gib ihr einen Namen und, wenn du magst, gleich ihre zw\u00f6lf Monatsbetr\u00e4ge.'},
 'kdlg.namePh':{en:'e.g. Groceries',de:'z. B. Lebensmittel'},
 /* Die Bezeichnung wird nicht mehr in einem Feld neben dem Link
    getippt, sondern über die Überschrift geöffnet — sie ist der
@@ -749,8 +734,6 @@ const STR={
 'kdlg.dupTip':{en:'Opens a copy of this category — amounts included, ticks and notes removed. The copy is created when you press Save; this category stays as it is.',
   de:'Öffnet eine Kopie dieser Kategorie — mit den Beträgen, ohne Haken und ohne Notizen. Angelegt wird die Kopie erst mit „Speichern"; diese Kategorie bleibt, wie sie ist.'},
 'kdlg.dupTitle':{en:'Duplicate category',de:'Kategorie duplizieren'},
-'kdlg.dupSub':{en:'A copy of “{0}”. All ticks and notes have been removed, so every one of the twelve months can be changed — imported values come along as plain planned ones, because a new category has no bookings. Give it a name of its own; it is created when you press Save.',
-  de:'Eine Kopie von „{0}". Alle Haken und Notizen sind entfernt, deshalb ist jeder der zwölf Monate änderbar — importierte Werte kommen als gewöhnliche Planwerte mit, denn eine neue Kategorie hat keine Buchungen. Gib ihr einen eigenen Namen; angelegt wird sie erst mit „Speichern".'},
 'kdlg.del':{en:'Delete category',de:'Kategorie l\u00f6schen'},
 'kdlg.delAsk':{en:'Delete “{0}”? Plan values, actual values, corrections and notes of this category go with it. This can only be undone from a saved file.',
   de:'\u201e{0}\u201c l\u00f6schen? Plan- und Ist-Werte, Korrekturen und Notizen dieser Kategorie gehen mit. Das l\u00e4sst sich nur \u00fcber eine gespeicherte Datei r\u00fcckg\u00e4ngig machen.'},

@@ -199,6 +199,19 @@
    sonst schiene das Gescrollte darunter durch. */
 .progtable td:first-child,.progtable th:first-child{position:sticky;left:0;z-index:2;
   background:var(--paper-2)}
+/* ── Und END bleibt daneben stehen ───────────────────────────
+   Der Stand zum Monatsende ist die Zahl, gegen die man den Balken
+   daneben liest — beim Scrollen nach rechts wanderte sie als erste
+   aus dem Bild, und übrig blieb eine Grafik ohne ihr Ergebnis.
+   Sie klebt deshalb an der Monatsspalte: `left` ist genau deren
+   Breite (--progleadw), und weil `position:sticky` erst greift, wenn
+   die Zelle diese Stelle erreicht, löst sie sich beim Zurückscrollen
+   von selbst wieder ab und steht wieder in ihrer Reihe. Zwischen
+   START und COR schiebt sich alles darunter hinweg — deshalb ein
+   **deckender** Grund (--bg-sal, ihre eigene Farbe) und eine
+   Stufe unter der Monatsspalte (z-index 1 gegen 2), damit die
+   beiden sich nicht streiten. */
+.progtable td.endcol,.progtable th.endcol{position:sticky;left:var(--progleadw);z-index:1}
 /* Senkrechte Linien durch die **ganze** Tabelle, nicht nur in der
    Grafik: das Raster der letzten Spalte wäre sonst ein Fremdkörper
    zwischen Zahlenspalten ohne Trennung. Die letzte Spalte bekommt
@@ -303,6 +316,18 @@
    scrollt. */
 .progtable tr.now td{box-shadow:inset 0 1px 0 var(--seal),inset 0 -1px 0 var(--seal)}
 .progtable tr.now td:first-child{color:var(--seal);font-weight:600}
+/* **In der Balkenspalte reicht der Schatten nicht.** Ihre Zonen und
+   Rasterlinien liegen als eigene Kinder über dem Grund der Zelle
+   und decken ihn samt seinem inset-Schatten zu — die Marke des
+   laufenden Monats hörte am Rand der Grafik auf, und genau dort
+   liest man sie. Deshalb legt die Zelle die beiden Linien als
+   ::after darüber: ein Pseudo-Element ist das **letzte** Kind, es
+   liegt also über Zonen, Raster und Balken. Angefasst wird nichts
+   (pointer-events:none), die Sprechblasen der Balken bleiben. */
+.progtable tr.now td.flowcell::after{content:'';position:absolute;left:0;right:0;top:0;bottom:0;
+  pointer-events:none;
+  background:linear-gradient(var(--seal),var(--seal)) top left/100% 1px no-repeat,
+             linear-gradient(var(--seal),var(--seal)) bottom left/100% 1px no-repeat}
 /* Die Zeile des Anfangsbestands steht über dem Januar und gehört
    zu keinem Monat: sie tritt zurück wie die abgerechneten Monate
    und trennt sich mit einer kräftigeren Linie vom Jahr darunter —
