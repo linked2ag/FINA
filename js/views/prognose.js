@@ -17,9 +17,11 @@
    Mal — beides steht in der Tabelle schon. Als Spalte liest man
    Zahl und Form in derselben Zeile.
 
-   Die Balken sind flacher als im Zeitstrahl (--bh an .ytrack):
-   dort trägt eine Zeile eine von fünf, hier eine von zwölf, und
-   die Tabelle daneben gibt die Zeilenhöhe vor. */
+   Die Balken sind so hoch wie im Zeitstrahl (--bh an .ytrack): es
+   ist dieselbe Grafik, eine Ebene höher, und zwei Dicken
+   nebeneinander läsen sich als zwei verschiedene Maße. Wie hoch
+   die Zeile ist, gibt hier die Tabelle daneben vor — nicht --nbars
+   wie im Zeitstrahl. */
 function yearTrack(f,pos,cut){
   const up=sumOf(f.up), down=sumOf(f.down), top=f.prev+up;
   const solo=(up&&down)?'':' solo';

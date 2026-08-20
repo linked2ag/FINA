@@ -41,6 +41,16 @@
   border-bottom:1px solid var(--edge-in);border-top:1px solid var(--edge-in)}
 .card.sec-in .ledger tr.group td:first-child{box-shadow:inset 5px 0 0 var(--edge-in)}
 .ledger tr.sum td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0;vertical-align:middle}
+/* ── Unter der letzten Zeile keine Trennlinie ────────────────
+   Die dünne Linie trennt zwei Posten voneinander. Unter dem
+   letzten steht keiner mehr — dort schließt die Karte selbst ab,
+   und ein Strich quer über ihren unteren Rand sähe aus, als käme
+   noch etwas. Gilt für alle drei Karten der Monatsansicht, damit
+   sie nicht auseinanderlaufen; die mobile Fassung macht es seit
+   jeher so (css/mobile.css, dort sitzt die Linie an der Zeile). */
+.card.sec-in .ledger tr:last-child td,
+.card.sec-flex .ledger tr:last-child td,
+.card.sec-out .ledger tr:last-child td{border-bottom:0}
 /* Saldokorrektur: wie eine Kategoriezeile gesetzt, aber ohne
    deren graue Hinterlegung — die Karte darunter ist schon blau. */
 .ledger tr.balrow td{background:transparent;border-bottom:0;vertical-align:middle;padding:6px}

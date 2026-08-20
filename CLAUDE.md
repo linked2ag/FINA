@@ -955,8 +955,12 @@ in **jeder** Zeile derselben Fläche. Das Maß ist `--nbars`, die Höhe in Balke
 `.tline` (gesetzt aus `TL_MINBARS` in `js/views/monat.js`), die Zeile rechnet daraus ihre
 Mindesthöhe (`.tline .trow:not(.taxis)` in `css/layout.css`). Die drei Größen `--bh`,
 `--bgap` und `--bpad` stehen aus demselben Grund ebenfalls am `.tline` und nicht mehr am
-einzelnen `.ttrack`: Zeile und Balken müssen mit denselben Zahlen rechnen. Der Verlauf der
-Prognose bringt seine eigenen mit (`.ytrack`).
+einzelnen `.ttrack`: Zeile und Balken müssen mit denselben Zahlen rechnen. **Der Verlauf
+der Prognose ist genauso hoch** (`.ytrack`, seit 20.8.26 ebenfalls 5 px): es ist dieselbe
+Grafik, eine Ebene höher, und zwei Dicken nebeneinander läsen sich als zwei verschiedene
+Maße. Nur sein Polster bleibt eigen (`--bpad:3px`) — der kräftige Strich des Kontostands
+soll über die Balken hinausreichen —, und seine Zeilenhöhe gibt die Tabelle vor, nicht
+`--nbars`.
 
 **Drei Balken passen hinein, auch wo nur einer steht.** Braucht eine einzige Zeile mehr —
 gefiltert können in einem Abschnitt alle vier Geldarten stehen —, wachsen **alle** Zeilen
@@ -1638,6 +1642,19 @@ Woher der Monat kommt, entscheidet `dblMonth(cell)` in `wire()`: in der Jahresma
 er an der Zelle (`data-m`, gesetzt in `mrow()`), in der Monatsansicht ist es der gezeigte
 Monat (`td.amt` → `ui.month`), in den Fast Budget Details nur bei einem einzelnen Monat —
 über das ganze Jahr zeigt ein Betrag auf zwölf und damit auf keinen.
+
+## Unter der letzten Zeile einer Karte keine Trennlinie
+
+Die dünne graue Linie unter einer Zeile (`.ledger td` in `css/ledger.css`) trennt zwei
+Posten voneinander. Unter dem **letzten** steht keiner mehr: dort schließt die Karte selbst
+ab, und ein Strich quer über ihren unteren Rand sähe aus, als käme noch etwas. Deshalb
+nimmt `.card.sec-in|sec-flex|sec-out .ledger tr:last-child td` sie weg — für alle drei
+Karten zusammen, damit sie nicht auseinanderlaufen. Die **mobile** Fassung macht es seit
+jeher so (`css/mobile.css`); dort sitzt die Linie an der Zeile, nicht an der Zelle, weil die
+Zeilen dort ein Raster sind.
+
+Die Kategoriezeile (`tr.group`) ist davon unberührt — sie steht nie als letzte, denn ohne
+Posten darunter wird sie gar nicht erst gebaut.
 
 ## Stift und Notizlampe der Monatsansicht
 

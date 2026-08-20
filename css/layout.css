@@ -513,11 +513,15 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
   -webkit-mask-image:linear-gradient(to left,transparent 0,#000 min(38px,60%));
   mask-image:linear-gradient(to left,transparent 0,#000 min(38px,60%))}
 /* Der Verlauf über das Jahr benutzt dieselbe Fläche wie der
-   Zeitstrahl, nur flacher: dort trägt eine Zeile eine von fünf,
-   hier eine von zwölf, und die Tabelle daneben gibt die Zeilenhöhe
-   vor. Die Maße stehen als Variablen an .ttrack — hier werden nur
-   sie überschrieben, alles andere gilt unverändert. */
-.ytrack{--bh:7px;--bgap:2px;--bpad:3px;display:block;width:100%}
+   Zeitstrahl — und **dieselbe Balkenhöhe**: es ist dieselbe Grafik,
+   nur eine Ebene höher, und zwei Dicken nebeneinander läsen sich
+   als zwei verschiedene Maße. Die Zeilenhöhe gibt hier die Tabelle
+   daneben vor, nicht --nbars. Ein größeres Polster bleibt: der
+   kräftige Strich des Kontostands reicht über die Balken hinaus
+   und soll auch dort zu sehen sein, wo einer endet. Die Maße stehen
+   als Variablen an .ttrack — hier werden nur sie überschrieben,
+   alles andere gilt unverändert. */
+.ytrack{--bh:5px;--bgap:2px;--bpad:3px;display:block;width:100%}
 /* Der Anfangsbestand in seiner eigenen Zeile über dem Januar:
    derselbe Balken wie die Monatseröffnung im Zeitstrahl, aber in
    demselben kräftigen Violett wie seine Beschriftung und sein
