@@ -482,8 +482,7 @@ function viewPrognose(){
         <tr>${mhead}<th class="flowcell axishead"
           data-tip="${esc(t('prog.colFlow')+' — '+t('prog.colFlowTip'))}">${axis.join('')}</th></tr>
         ${openRow}${rows}</table></div>
-      <div class="thint">${chips}</div>
-      <p class="note" style="margin-top:10px">${t('prog.greyed',MONTHS_LONG[CUR-1])}</p></div>`;
+      <div class="thint">${chips}</div></div>`;
   }
   return `
   <div class="stickybar anabar">
@@ -516,6 +515,5 @@ function viewPrognose(){
         <th class="flowcell axishead"
           data-tip="${esc(t('prog.colFlow')+' — '+t('prog.colFlowTip'))}">${axis.join('')}</th></tr>
       ${openRow}${rows}</table></div>
-    <div class="thint">${chips}</div>
-    <p class="note" style="margin-top:10px">${t('prog.greyed',MONTHS_LONG[CUR-1])}</p></div>`;
+    <div class="thint">${chips}</div></div>`;
 }

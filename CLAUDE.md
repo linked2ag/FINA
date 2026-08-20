@@ -533,7 +533,8 @@ vor Import, Import vor Haken, Haken vor eingetipptem Betrag. Wer die Rangfolge d
 Bei einem einzelnen Monat steht ein Wort, beim ganzen Jahr je Art eine Marke mit der Zahl
 der Monate, die häufigste zuerst; Monate ohne Betrag zählen nicht mit. Die Unterzeilen
 tragen nichts — Unterkategorien kennt nur der Import, ihre Art steht schon in der
-Hauptzeile. Was die fünf Wörter bedeuten, sagt `kak.kindHint` unter der Tabelle.
+Hauptzeile. Was die fünf Wörter bedeuten, sagt die Marke selbst als Sprechblase
+(`kak.kindTip`, `data-tip` an `.kinds`) — bis 20.8.26 stand es als Absatz unter der Tabelle.
 
 **Der Weg zurück ins Jetzt** steht gleich hinter der Monatsauswahl: `data-kmonth="cur"`
 setzt `ui.month=CUR` und `ui.scope='monat'` (`kak.cur`, gesperrt, wenn der laufende Monat
@@ -1952,6 +1953,34 @@ kündbar"), wird zur **Notiz** der Position. Kürzel, die die Listen nicht kenne
 abhaken" setzt `paid[]` bis `completedMonths()` — in einem vergangenen Jahr also alle zwölf,
 im laufenden bis zum Monat vor diesem. Gefragt wird **nach** dem Jahr: das Jahr entscheidet,
 was „abgeschlossen" heißt.
+
+## Erklärender Text steht in der Sprechblase, nicht in der Ansicht
+
+**Eine Ansicht zeigt Zahlen, keine Erklärungen.** Wer einen Satz schreiben will, der sagt,
+wie etwas zu lesen ist oder was ein Zeichen bedeutet, hängt ihn als `data-tip` an genau das
+Element, um das es geht — nicht als Absatz darunter. Ein Absatz steht immer da, für jeden,
+in jeder Sitzung; gelesen wird er einmal, und danach nimmt er der Liste den Platz weg, für
+die man die Ansicht geöffnet hat. Die Sprechblase steht nur da, wenn jemand fragt, und sie
+steht bei dem, wonach er fragt.
+
+Deshalb sind am 20.8.26 aus den Ansichten verschwunden: der Absatz über die Marke „Art" in
+den Fast Budget Details (jetzt `kak.kindTip` an der Marke), die beiden Sätze über den
+Zeilenpfeil und die Herkunft eines Betrags (der Pfeil trägt seinen `title` längst selbst),
+der Absatz unter der Prognose über blasse Monate und die Leserichtung einer Zeile (jede
+Spalte hat ihre Sprechblase) und die Überschrift „Ausblick 2026" über der Kennzahlenleiste
+(die Karte darunter heißt „Hochrechnung 2026"). Vorher schon: der lange `.note`-Absatz unter
+der Jahresmatrix und der Erklärsatz über dem Zeitstrahl.
+
+**Was bleiben darf**, ist kein erklärender Text, sondern Auskunft:
+
+* **Zeichenerklärungen** — die Farbmarken unter dem Zeitstrahl und unter dem Verlauf
+  (`.thint`), die Siegelerklärung der Monatsansicht (`.legendbar`) und `year.legend` neben
+  den Reitern. Sie benennen, was allein die Farbe oder ein Zeichen sagt; eine Sprechblase
+  erreichte nur, wer schon weiß, worauf er zeigen muss.
+* **Leere Bereiche** — „Keine Einnahmen hinterlegt", „Keine Posten für diesen Filter".
+  Dort ist der Satz der Inhalt und verdrängt nichts.
+* **Zahlen über Zahlen** — „(4 ausgeblendet)", „35 Buchungen ab 50,00", der Maßstab einer
+  beschnittenen Achse. Das sind Angaben und keine Erklärungen.
 
 ## Die Anleitung ist ein Bereich, kein Fenster
 

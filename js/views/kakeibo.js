@@ -150,7 +150,11 @@ function viewKakeibo(){
     months.forEach(m=>{const s=flexKind(k,m); if(s!=='none') per[s]=(per[s]||0)+1;});
     const list=Object.keys(per).sort((a,b)=>per[b]-per[a]);
     if(!list.length) return '';
-    return ` <span class="kinds">(${list.map(s=>`<span class="kk k-${s}">${
+    /* Was die fünf Wörter bedeuten, stand bis 20.8.26 als Absatz
+       unter der Tabelle. Es erklärt diese Marke und sonst nichts —
+       also hängt es an ihr (data-tip) und nimmt der Ansicht keine
+       Zeilen mehr weg. */
+    return ` <span class="kinds" data-tip="${esc(t('kak.kindTip'))}">(${list.map(s=>`<span class="kk k-${s}">${
       months.length>1?per[s]+' ':''}${t(FLEX_KIND_LABEL[s])}</span>`)
       .join('<span class="ksep"> · </span>')})</span>`;
   }
@@ -259,8 +263,7 @@ function viewKakeibo(){
         ${rows}
         <tr class="sum"><td>${t('g.total')}</td><td></td><td class="num ${cls(total)}">${eur(total)}</td>
           <td></td></tr></table>
-      <p class="note" style="margin-top:10px">${t('kak.kindHint')}</p>
-      <p class="note" style="margin-top:6px">${t('kak.rowHint')} ${t('kak.valHint')}</p></div>
+      </div>
     <div class="card"><h2 style="margin-bottom:2px">${esc(sideTitle)}</h2>
       <p class="note" style="margin:0 0 10px">${sideSub}</p>
       <table class="ledger">${sideRows}</table></div>

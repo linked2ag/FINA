@@ -494,8 +494,6 @@ const STR={
 'kak.kDone':{en:'closed',de:'abgeschlossen'},
 'kak.kFix':{en:'fixed',de:'fest'},
 'kak.kEst':{en:'estimated',de:'geschätzt'},
-'kak.kindHint':{en:'<b>Kind</b> says where the figure beside it comes from: <b>imported</b> from Fast Budget · <b>corrected</b> — an imported month you overwrote by hand · <b>closed</b> — no import, but you ticked the month off · <b>fixed</b> — an amount you typed that is not marked as an estimate, so it counts as settled · <b>estimated</b> — still open and expected to change. Over the whole year the column counts the months per kind; months without an amount are not counted.',
-  de:'<b>Art</b> sagt, woher die Zahl daneben stammt: <b>importiert</b> aus Fast Budget · <b>korrigiert</b> — ein importierter Monat, den du von Hand überschrieben hast · <b>abgeschlossen</b> — kein Import, aber du hast den Monat abgehakt · <b>fest</b> — ein eingetippter Betrag, der nicht als Schätzung markiert ist und deshalb als erfasst gilt · <b>geschätzt</b> — noch offen und voraussichtlich anders. Über das ganze Jahr zählt die Spalte die Monate je Art; Monate ohne Betrag zählen nicht mit.'},
 'kak.period':{en:'Period',de:'Zeitraum'},
 /* Der Weg zurück ins Jetzt, gleich hinter der Monatsauswahl. */
 'kak.cur':{en:'Current month',de:'Laufender Monat'},
@@ -510,14 +508,16 @@ const STR={
 'kak.subsNeedImport':{en:'Subcategories come from the Fast Budget import — without imported bookings there are none.',
   de:'Unterkategorien kommen aus dem Fast-Budget-Import — ohne importierte Buchungen gibt es keine.'},
 'kak.byCat':{en:'Spending by category — {0}',de:'Ausgaben nach Kategorie — {0}'},
+/* Die Erklärung der Marke „Art" — sie hängt als Sprechblase an der
+   Marke selbst (kindTag in js/views/kakeibo.js) und nicht mehr als
+   Absatz unter der Tabelle. Deshalb ohne Auszeichnung: eine
+   Sprechblase ist Text und kein HTML (showTip in js/ui.js). */
+'kak.kindTip':{en:'Where the figure comes from: imported from Fast Budget · corrected — an imported month you overwrote by hand · closed — no import, but you ticked the month off · fixed — an amount you typed that is not marked as an estimate · estimated — still open and expected to change. Over a whole year the mark counts the months per kind; months without an amount are not counted.',
+  de:'Woher der Betrag kommt: importiert aus Fast Budget · korrigiert — ein importierter Monat, den du von Hand überschrieben hast · abgeschlossen — kein Import, aber der Monat ist abgehakt · fest — ein eingetippter Betrag, der nicht als Schätzung markiert ist · geschätzt — noch offen und voraussichtlich veränderlich. Über ein ganzes Jahr zählt die Marke die Monate je Art; Monate ohne Betrag zählen nicht mit.'},
 'kak.top':{en:'Largest single items',de:'Größte Einzelposten'},
 'kak.topSub':{en:'{0} · {1} bookings from {2}',de:'{0} · {1} Buchungen ab {2}'},
 'kak.topNone':{en:'No booking reaches {0} in this period.',de:'Keine Buchung erreicht in diesem Zeitraum {0}.'},
 'kak.arrowTip':{en:'Show the bookings of “{0}” on the right',de:'Buchungen von „{0}" rechts zeigen'},
-'kak.rowHint':{en:'The arrow on a row shows all its bookings on the right.',
-  de:'Der Pfeil an einer Zeile zeigt rechts alle Buchungen dazu.'},
-'kak.valHint':{en:'The amount of a category is its imported value where one exists, otherwise your correction or the amount you entered by hand — so every category appears, imported or not. Subcategories only come from the import.',
-  de:'Der Betrag einer Kategorie ist der importierte Wert, wo es einen gibt, sonst deine Korrektur oder der von Hand eingetragene Betrag — so steht jede Kategorie hier, importiert oder nicht. Unterkategorien kennt nur der Import.'},
 'kak.manualSub':{en:'entered by hand / planned',de:'von Hand erfasst / geplant'},
 /* Woher die Zahlen des Zeitraums stammen — beim ganzen Jahr die
    Liste der importierten Monate, bei einem einzelnen die Antwort
@@ -584,8 +584,6 @@ const STR={
   de:'Der Kontostand vor dem Januar. Er steht in den Einstellungen, weil er zu keinem Monat gehört — ein Doppelklick öffnet ihn dort.'},
 'prog.colFlowTip':{en:'How the balance moves through the year: each month starts at the previous month’s balance and ends at its own. The colours are the kinds of money.',
   de:'Wie sich der Kontostand durch das Jahr bewegt: jeder Monat fängt beim Stand des Monats davor an und endet bei seinem eigenen. Die Farben sind die Geldarten.'},
-'prog.greyed':{en:'Months before {0} are greyed out. Each row reads from left to right: the balance the month starts with, the four movements, the balance it ends with — that one is the next month’s starting balance.',
-  de:'Ausgegraut sind die Monate vor {0}. Jede Zeile liest sich von links nach rechts: der Stand, mit dem der Monat anfängt, die vier Bewegungen, der Stand, mit dem er schließt — und der ist der Anfangsstand des nächsten Monats.'},
 'prog.card':{en:'Flexible Payments assumption per month',de:'Flexible-Payments-Annahme je Monat'},
 'prog.cardHint':{en:'For months without a Fast Budget import the app does not know the real Flexible Payments spending. These values tell it what to expect per category. Actual figures exist for: {0}.',
   de:'Für Monate ohne Fast-Budget-Import kennt die App die tatsächlichen Flexible-Payments-Ausgaben nicht. Diese Werte sagen ihr, mit wie viel sie pro Kategorie rechnen soll. Ist-Zahlen liegen vor für: {0}.'},
