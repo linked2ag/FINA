@@ -210,7 +210,8 @@
    die volle Zeilenhöhe — dadurch stoßen sie von Zeile zu Zeile
    aneinander und ergeben durchgehende Linien. */
 .progtable td.flowcell{position:relative}
-.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{position:absolute;top:0;bottom:0;height:auto}
+.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero,
+.progtable td.flowcell>.tzone{position:absolute;top:0;bottom:0;height:auto}
 /* Über der Grafik steht die Achse statt einer Überschrift: an
    jeder Rasterlinie ihr Betrag. Die Marken liegen absolut über der
    Kopfzelle — sie muss also der Bezugspunkt sein, genau wie die
@@ -268,7 +269,8 @@
 /* Die Rasterlinie überquert die Zeilentrennung, sonst hätte sie
    alle 38 px eine Lücke und wäre zwölfmal unterbrochen statt
    durchgehend. */
-.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{bottom:-1px}
+.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero,
+.progtable td.flowcell>.tzone{bottom:-1px}
 .ledger td.flowcell{vertical-align:middle}
 /* Vergangene Monate treten zurück — aber nur mit ihren Zahlen.
    Der Verlauf behält seine Farbe: er ist eine Kurve über das ganze

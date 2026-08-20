@@ -136,11 +136,6 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
 .mkpi .msal{grid-column:span 2;background:var(--bg-sal);
   display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mkpi .msal .val{font-size:19px;margin-top:0}
-/* Das Abschnittslabel über den Prognose-Kacheln — dieselbe Zeile
-   wie .analab, nur steht es hier nicht in einem .anahead. */
-.mplab{display:block;font-family:var(--font-data);font-size:9px;line-height:1.25;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin:10px 0 4px 1px}
-
 /* ── Die Karten der Monatsansicht ─────────────────────────────
    Dasselbe Markup wie am Schreibtisch, nur anders gelegt: aus der
    Tabellenzeile wird ein Raster — Siegel links (44 px), Name mit

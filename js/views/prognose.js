@@ -212,6 +212,15 @@ function viewPrognose(){
      Zeitstrahl. Bei beschnittener Achse liegt die Null außerhalb,
      dann ist die ganze Fläche eine Zone. */
   const zc=Math.max(0,Math.min(100,pos(0)));
+  /* Ob die Null im Bild liegt, entscheidet dieselbe Frage wie im
+     Zeitstrahl (zout in timeline(), js/views/monat.js): liegt sie
+     darin, trennt ihre kräftige Linie Rot von Grün; liegt sie
+     draußen, ist die Fläche eine einzige Zone. Am Schnitt der Achse
+     hängt das **nicht** — eine beschnittene Achse kann die Null
+     durchaus enthalten (Anfangsbestand gesetzt, das Jahr geht ins
+     Minus), und dann fehlte die Linie genau dort, wo die Farbe
+     wechselt. */
+  const zout=pos(0)<0||pos(0)>100;
   const grid=[];
   /* ── Die Achse in der Kopfzeile ──────────────────────────────
      Über der Spalte steht keine Beschriftung mehr, sondern die
@@ -238,7 +247,7 @@ function viewPrognose(){
   };
   for(let v=Math.ceil(sc.lo/step)*step; v<=sc.hi; v+=step){
     /* Die Null hat schon ihre eigene, kräftigere Linie. */
-    if(!sc.cut&&Math.abs(v)<step/2){ mark(v); continue; }
+    if(!zout&&Math.abs(v)<step/2){ mark(v); continue; }
     /* **Die äußeren beiden Linien zeichnet die Tabelle selbst**: am
        linken Rand steht der Strich, der die Spalte „Kumuliert"
        abschließt, am rechten der Rand der Tabelle. Eine eigene Linie
@@ -256,7 +265,23 @@ function viewPrognose(){
      aneinandergrenzen, werden aus zwölf kurzen Strichen zwölf
      durchgehende Linien. Im Balken hörten sie nach 22 px auf und
      die Tabelle zerfiel in Streifen. */
-  const rails=grid.join('')+(sc.cut?'':`<span class="tzero" style="left:${zc}%"></span>`);
+  /* ── Der Grund: links der Null rot, rechts grün ──────────────
+     Dieselben Zonen wie im Zeitstrahl der Monatsansicht und in
+     denselben Farben (--bg-out / --bg-in, `.z-neg` / `.z-pos`) —
+     es ist dieselbe Grafik, eine Ebene höher, und zwei Gründe
+     ließen sie wie zwei Ansichten aussehen. Liegt die Null
+     außerhalb (beschnittene Achse), klemmt `zc` sie an den Rand und
+     die ganze Fläche ist **eine** Zone: genau das soll man dann
+     sehen — das Jahr war nie im Minus.
+
+     Auch sie liegen in der **Zelle** und nicht im Balken, aus
+     demselben Grund wie das Raster: nur so reichen sie über die
+     ganze Zeilenhöhe und stoßen von Monat zu Monat aneinander.
+     **Zuerst gesetzt**, damit Raster, Null und Balken darüber
+     liegen. */
+  const zones=`<span class="tzone z-neg" style="width:${zc}%"></span
+    ><span class="tzone z-pos" style="left:${zc}%;width:${100-zc}%"></span>`;
+  const rails=zones+grid.join('')+(zout?'':`<span class="tzero" style="left:${zc}%"></span>`);
 
   /* ── Wie schmal die Spalte werden darf ───────────────────────
      Die Untergrenze gilt dem einzelnen **Rasterfeld**: der Abstand
@@ -443,7 +468,6 @@ function viewPrognose(){
     const mhead=`<th class="mlead" data-tip="${esc(t(PROG_COLS[0].name)+' — '+t(PROG_COLS[0].tip))}"
       ><span class="mm">${PROG_COLS[0].ab}</span><span class="me">${PROG_COLS[6].ab}</span></th>`;
     return `
-    <div class="analab mplab">${t('prog.kpiLab',YEAR)}</div>
     <div class="mkpi">
       ${tile('t-in',t('prog.kpiIncome',from),incRest,'pos')}
       ${tile('t-out',t('prog.kpiFixed',from),fixRest,'neg')}
@@ -464,7 +488,6 @@ function viewPrognose(){
   return `
   <div class="stickybar anabar">
     <div class="anahead">
-      <span class="analab">${t('prog.kpiLab',YEAR)}</span>
       <span class="anarow">
         ${cell('t-in',t('prog.kpiIncome',from),incRest,'pos')}
         ${cell('t-out',t('prog.kpiFixed',from),fixRest,'neg',t('prog.kpiOpen',eur(openRest)))}

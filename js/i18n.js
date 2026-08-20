@@ -557,7 +557,6 @@ const STR={
 'prog.colStart':{en:'Balance at the start of the month',de:'Kontostand zu Monatsbeginn'},
 'prog.colEnd':{en:'Balance at the end of the month',de:'Kontostand zum Monatsende'},
 'prog.colFlow':{en:'Course',de:'Verlauf'},
-'prog.kpiLab':{en:'Outlook {0}',de:'Ausblick {0}'},
 'prog.gridShort':{en:'grid',de:'Raster'},
 /* Die Kopfzeile der Prognose trägt Kürzel (M · START · IN · REG ·
    FLEX · COR · END, in beiden Sprachen gleich). Was sie bedeuten,

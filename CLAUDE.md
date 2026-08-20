@@ -747,6 +747,10 @@ Abstand von der Trennlinie wie die Beschriftung der Nachbarspalte** auf der ande
 (die 6 px Innenabstand aus `.ledger td,.ledger th`). Bei beschnittener Achse wandern
 sie mit — sie kommen aus derselben Rechnung wie die Linien.
 
+Die Fläche trägt denselben Grund wie der Zeitstrahl — links der Null rot, rechts grün
+(`rails` in `viewPrognose()`); die Zonen liegen wie das Raster in der **Zelle** und nicht im
+Balken, sonst hörten sie nach 19 px auf.
+
 Die Farberklärung steht als `.thint` unter der Tabelle — dieselben Marken wie im Zeitstrahl,
 und bei beschnittener Achse ihr Maßstab dazu. **Vergangene Monate bleiben blass**
 (`opacity:.42` an der Zeile): das gilt für die Zahlen wie für den Balken, Ist und Plan
@@ -1099,10 +1103,18 @@ auch die blassen.
 
 **Die Zonen tragen die Farben der Einträge:** links der Null `--bg-out` wie ein Posten der
 regelmäßigen Kosten, rechts `--bg-in` wie eine Einnahme (`.z-neg` / `.z-pos` in
-`css/layout.css`) — dieselbe Aussage, dieselbe Farbe. **In beiden Fassungen**: der
-Wasserfall setzt sie in `timeline()`, die gefilterte Fläche in `partLine()`. Nur wenn der
+`css/layout.css`) — dieselbe Aussage, dieselbe Farbe. **In allen drei Fassungen**: der
+Wasserfall setzt sie in `timeline()`, die gefilterte Fläche in `partLine()`, der Verlauf
+über das Jahr in `viewPrognose()` (`rails`, siehe „Die Spalte „Verlauf""). Nur wenn der
 Filter gar nichts findet, gibt es auch keine Zonen — dann gibt es kein Maß und also auch
 keine Seite, auf der etwas läge (siehe oben).
+
+**Die kräftige Nulllinie folgt überall derselben Frage:** liegt die Null im Bild, trennt sie
+Rot von Grün; liegt sie draußen, ist die Fläche eine einzige Zone. Gefragt wird an der Lage
+(`zout` in `timeline()` und in `viewPrognose()`) und **nicht** daran, ob die Achse
+beschnitten ist: eine beschnittene Achse kann die Null durchaus enthalten — im Jahr etwa mit
+gesetztem Anfangsbestand und einem Monat im Minus —, und dann fehlte die Linie genau dort,
+wo die Farbe wechselt.
 
 ## Die Begrüßungsseite
 
