@@ -295,10 +295,17 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Gleis: die Zeile rechnet ihre Höhe daraus (siehe unten), und beide
    müssen dieselben Zahlen nehmen. --nbars ist die Höhe in Balken;
    gesetzt wird sie am Element (TL_MINBARS in js/views/monat.js), der
-   Wert hier ist nur der Rückfall. */
+   Wert hier ist nur der Rückfall.
+
+   **Die Fuge (--bgap) ist breiter als die Fuge zwischen zwei
+   Zeilen.** Zwei Balken von 5 px, die nur ein Haar trennt, liest
+   man als einen dicken; erst der Abstand macht aus zwei Farben
+   zwei Angaben. Er kostet je Zeile so wenig, wie er breit ist —
+   deshalb 3 px und nicht mehr: der Zeitstrahl klebt beim Rollen
+   oben, und jeder Pixel fehlt der Liste darunter fünfmal. */
 .tline{display:flex;flex-direction:column;gap:1px;background:var(--rule);
   border:1px solid var(--rule);border-top:0;margin-top:4px;
-  --bh:5px;--bgap:2px;--bpad:2px;--nbars:3}
+  --bh:5px;--bgap:3px;--bpad:2px;--nbars:3}
 .trow{display:grid;grid-template-columns:186px 100px 108px minmax(0,1fr);align-items:center;gap:8px;
   background:var(--paper-2);border:0;padding:2px 10px;font:inherit;color:inherit;text-align:left}
 .trow:hover{background:var(--shade)}
@@ -521,7 +528,7 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    und soll auch dort zu sehen sein, wo einer endet. Die Maße stehen
    als Variablen an .ttrack — hier werden nur sie überschrieben,
    alles andere gilt unverändert. */
-.ytrack{--bh:5px;--bgap:2px;--bpad:3px;display:block;width:100%}
+.ytrack{--bh:5px;--bgap:3px;--bpad:3px;display:block;width:100%}
 /* Der Anfangsbestand in seiner eigenen Zeile über dem Januar:
    derselbe Balken wie die Monatseröffnung im Zeitstrahl, aber in
    demselben kräftigen Violett wie seine Beschriftung und sein
