@@ -1909,6 +1909,13 @@ Monatsfelder von selbst. Mit ihr sind zehn Schlüssel aus `js/i18n.js` verschwun
 es sagt aber etwas über die Beträge, und die tippt man in der Schnelleingabe. Die Kennungen
 `#fEst` / `#kEst` bleiben, `collect()` liest sie wie zuvor.
 
+**Am Schalter steht das Wort, der Satz dahinter in der Sprechblase.** `item.est` und
+`kdlg.est` sind ganze Sätze („Summe ist geschätzt und kann abweichen …"); als Beschriftung
+waren sie 450 bis 500 px breit und machten aus der Knopfzeile einen Absatz. Beschriftet ist
+der Schalter jetzt mit `g.estimated`, der Satz hängt als `data-tip` daran. Aus demselben
+Grund steht der Hinweis zur Schnelleingabe (`item.quickHint`) an „Übernehmen" und nicht mehr
+daneben — die Knopfzeile ist damit 24 px hoch statt 64 (englisch) bzw. 80 (deutsch).
+
 **Ein Quartal je Zeile.** `.mgrid` stellt die zwölf Monatskästchen zu **dritt** nebeneinander
 — vier Zeilen statt zwei, jede Zeile ein Vierteljahr. Die Breite eines Kästchens bleibt
 dabei dieselbe (rund 166 px); dafür ist das Fenster schmal: `.modal .box.form` ist

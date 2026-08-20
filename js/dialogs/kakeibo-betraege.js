@@ -113,7 +113,7 @@ function editKak(k,copy,focusMonth){
         <input id="kVal" class="num signed" aria-label="${t('g.amount')}" placeholder="${t('g.amount')}">
       </div>
       <div class="qbtns">
-        <label class="qest"><input type="checkbox" id="kEst" ${e.estimated?'checked':''}>${t('kdlg.est')}</label>
+        <label class="qest" data-tip="${esc(t('kdlg.est'))}"><input type="checkbox" id="kEst" ${e.estimated?'checked':''}>${t('g.estimated')}</label>
         <button class="btn small" id="kClear">${t('item.clear')}</button>
         <button class="btn primary small" id="kApply">${t('item.apply')}</button>
       </div>

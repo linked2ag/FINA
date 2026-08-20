@@ -175,15 +175,14 @@ function editItem(item,group,copyOf,focusMonth){
       <!-- Rechts, und „Übernehmen" ganz außen: es ist der Knopf,
            der etwas tut, und steht damit dort, wo in jedem Fenster
            der Knopf steht, der etwas tut. -->
-      <!-- Der Hinweis steht in derselben Zeile wie die Knöpfe, links
-           von ihnen: als eigener Absatz darunter kostete er eine
-           dritte Zeile, und auf einem kleinen Bildschirm entscheidet
-           genau die darüber, ob man durch das Fenster scrollen muss. -->
+      <!-- Was „Übernehmen" tut, sagt der Knopf als Sprechblase und
+           nicht als Satz daneben: er stand in derselben Zeile, war
+           in beiden Sprachen zweizeilig und machte aus der Knopf-
+           zeile einen Absatz. -->
       <div class="qbtns">
-        ${isBal?'':`<label class="qest"><input type="checkbox" id="fEst" ${it.estimated?'checked':''}>${t('item.est')}</label>`}
-        <span class="qhint">${t('item.quickHint')}</span>
+        ${isBal?'':`<label class="qest" data-tip="${esc(t('item.est'))}"><input type="checkbox" id="fEst" ${it.estimated?'checked':''}>${t('g.estimated')}</label>`}
         <button class="btn small" id="qClear">${t('item.clear')}</button>
-        <button class="btn primary small" id="qApply">${t('item.apply')}</button>
+        <button class="btn primary small" id="qApply" data-tip="${esc(t('item.quickHint'))}">${t('item.apply')}</button>
       </div>
     </div>
     <div class="dgrp"><div class="field mfield"><label>${t('item.perMonth')}</label>

@@ -1128,6 +1128,13 @@ en:()=>`
       exactly what the month moves, so the bars fill the width. <b>${t('month.tlOpen')}</b> is
       only a hint inside that view: its bar frays out at the edge when your balance is far from
       zero, and the range is printed under the chart.</li>
+  <li><b>The balance stays in view</b> — scroll ${t('view.prognose')} sideways and the
+      <b>${t('prog.colEnd')}</b> column stops next to the month, so every bar keeps the figure
+      it belongs to. Scroll back and it falls into line again. The current month is now framed
+      in red across the chart as well.</li>
+  <li><b>The item window is sorted into blocks</b> — where it belongs, its links, the quick
+      entry with the <i>${t('g.estimated')}</i> switch, and the months, three to a row: one
+      quarter per line. The same for a Flexible Payments category.</li>
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
@@ -1311,6 +1318,13 @@ de:()=>`
       <b>${t('month.tlOpen')}</b> ist darin nur noch ein Hinweis: ihr Balken franst am Rand aus,
       wenn dein Kontostand weit von der Null entfernt liegt, und der gezeigte Bereich steht
       unter der Grafik.</li>
+  <li><b>Der Kontostand bleibt im Bild</b> — rollst du ${t('view.prognose')} zur Seite, bleibt
+      die Spalte <b>${t('prog.colEnd')}</b> neben dem Monat stehen; jeder Balken behält damit
+      seine Zahl. Rollst du zurück, stellt sie sich wieder in ihre Reihe. Der laufende Monat
+      ist jetzt auch quer über die Grafik rot eingefasst.</li>
+  <li><b>Das Fenster eines Postens ist in Blöcke geordnet</b> — Zuordnung, Links,
+      Schnelleingabe mit dem Schalter <i>${t('g.estimated')}</i> und die Monate zu dritt in einer
+      Reihe: ein Quartal je Zeile. Für eine Flexible-Payments-Kategorie gilt dasselbe.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 
