@@ -295,6 +295,18 @@
    und eine durchsichtige Zelle ließe die Zahlen darunter
    durchscheinen. */
 .progtable tr.past td:first-child{opacity:1;color:var(--ink-2)}
+/* **Dasselbe gilt der END-Spalte**, seit sie neben der Monatsspalte
+   stehen bleibt: eine Zelle mit `opacity` ist samt ihrem Grund
+   durchsichtig, und die Zahlen der Spalten darunter zögen beim
+   Rollen sichtbar hindurch. Sie tritt deshalb ebenfalls mit der
+   **Schriftfarbe** zurück. Die Vorzeichenfarbe bleibt dabei
+   erhalten, nur gedämpft — in dieser Spalte steht der Kontostand,
+   und ob er im Plus oder im Minus liegt, ist ihre ganze Aussage.
+   Kennt der Browser `color-mix` nicht, greift die Zeile darüber:
+   dann ist die Zahl grau wie der Monatsname daneben. */
+.progtable tr.past td.endcol{opacity:1;color:var(--ink-2)}
+.progtable tr.past td.endcol.pos{color:color-mix(in srgb,var(--ok) 55%,var(--bg-sal))}
+.progtable tr.past td.endcol.neg{color:color-mix(in srgb,var(--seal) 55%,var(--bg-sal))}
 /* ── Der laufende Monat ───────────────────────────────────────
    Dieselbe Marke wie in der Jahresmatrix, nur um 90° gedreht: dort
    fassen zwei feine rote Linien die Spalte des laufenden Monats
@@ -347,4 +359,8 @@
    (`tr.past`, dieselbe Deckkraft): er ist schon geschehen, bevor
    das Jahr anfing, und keine Bewegung, die noch aussteht. Die
    Beschriftung bleibt kräftig — sie sagt, was die Zeile ist. */
+/* Auch hier nicht über die Deckkraft, wo die Zelle klebt: die
+   END-Zelle des Anfangsbestands trägt ihre Blässe in der Farbe. */
 .progtable tr.openrow td.num{color:var(--ink-sal);opacity:.42}
+.progtable tr.openrow td.num.endcol{opacity:1;
+  color:color-mix(in srgb,var(--ink-sal) 45%,var(--bg-sal))}
