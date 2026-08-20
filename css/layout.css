@@ -480,16 +480,17 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 /* ── Der gewählte Abschnitt (partLine in js/views/monat.js) ────
    Gefiltert gibt es keinen Wasserfall: die fünf Zeilen bleiben,
    jede mit ihren Balken je Geldart — die gewählte kräftig, die
-   übrigen blass (.pale). Die Fläche hat keinen eigenen Grund —
-   die Balken liegen auf dem Grund ihrer Zeile, auf demselben Raster
-   (.tgrid weiter unten) wie der Wasserfall: dieselbe Linie in
-   beiden Fassungen, sonst sähe der Filter nach einer anderen
-   Grafik aus. Die Höhe ist die der Zeile (--nbars, siehe oben) —
-   für alle Zeilen dieselbe.
+   übrigen blass (.pale). Die Fläche trägt **denselben Grund und
+   dasselbe Raster wie der Wasserfall**: links der Null rot, rechts
+   grün (.tzone, gesetzt in partLine), dieselben Linien (.tgrid) —
+   zwei Gründe für dieselbe Grafik ließen den Filter nach einer
+   anderen Ansicht aussehen. Die Höhe ist die der Zeile (--nbars,
+   siehe oben) — für alle Zeilen dieselbe.
    **Die Null steht zwischen Minus und Plus** (.tzero): was
-   hereinkommt, wächst nach rechts, was abgeht, nach links. Lage und
-   Breite jedes Balkens rechnet partLine() und setzt sie am Element,
-   senkrecht mittig wie überall. */
+   hereinkommt, wächst nach rechts, was abgeht, nach links — und
+   genau das sagen auch die beiden Farben. Lage und Breite jedes
+   Balkens rechnet partLine() und setzt sie am Element, senkrecht
+   mittig wie überall. */
 .tflat .fbar{height:var(--bh);min-width:2px}
 .tflat .fbar.pale{opacity:.22}
 /* Gewählt sagen die Trennlinien: über und unter der gewählten

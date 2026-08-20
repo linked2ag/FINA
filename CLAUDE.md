@@ -1026,10 +1026,12 @@ mit weggefilterten Zeilen ist er kein Kontostand mehr, sondern eine Summe von Re
 auf keinem Konto steht. Gezeigt wird stattdessen, was man gefiltert hat: je Abschnitt
 seine Beträge als Balken. **Die fünf Zeilen bleiben stehen** — die Aufteilung des Monats
 soll man weiter sehen, und ein Klick auf eine Zeile wählt ihren Abschnitt dazu. Jede zeigt
-je Geldart einen Balken **auf dem Grund der Zeile** (`.ttrack.tflat`, kein eigener
-Hintergrund). Kein Rot und kein Grün der Fläche: ohne die Achse des Kontostands gibt es
-kein Plus und kein Minus der Fläche — das Vorzeichen steht im Betrag, die Länge ist sein
-Maß. Wie hoch die Zeilen sind, steht oben: `--nbars` gilt für alle zusammen. Die
+je Geldart einen Balken (`.ttrack.tflat`), und die Fläche trägt **denselben Grund wie der
+Wasserfall**: links der Null rot, rechts grün (`.tzone`, gesetzt in `partLine()`). Einen
+Kontostand misst sie hier nicht, ein Vorzeichen hat sie sehr wohl — ihre Null steht mitten
+darin, was abgeht wächst nach links, was hereinkommt nach rechts, und genau das sagen die
+beiden Farben noch einmal. Zwei Gründe für dieselbe Grafik ließen den Filter nach einer
+anderen Ansicht aussehen. Wie hoch die Zeilen sind, steht oben: `--nbars` gilt für alle zusammen. Die
 Monatseröffnung hat keine Geldarten und behält nur Raster und Namen; eine Zeile ohne
 Bewegung bleibt leer statt „—" zu zeigen, wie im Wasserfall auch.
 
@@ -1058,7 +1060,7 @@ Summe als die Karten — jetzt zeigt jede Zeile ihre eigene.
 Ein Klick auf die gewählte Zeile nimmt den Abschnitt zurück; ist danach gar kein Filter
 mehr gesetzt, gilt wieder der Wasserfall.
 
-**Beide Fassungen tragen dasselbe Gerüst aus Trennlinie, Raster und Achse.** Die Balkenfläche
+**Beide Fassungen tragen dasselbe Gerüst aus Grund, Trennlinie, Raster und Achse.** Die Balkenfläche
 beginnt mit einer Linie zur Zahlenseite (`.tline .ttrack{border-left}`), im Stil der Null
 zwischen Minus und Plus. Das Raster läuft über **alle** Zeilen: die feinste Stufe der
 Leiter 1·2·5·10 …, bei der die Spanne in höchstens zehn Felder passt (`tlStep()` — dieselbe
@@ -1095,9 +1097,12 @@ Prognose ihre Achse beschriftet; Marken nahe der Kante legen sich an sie. Eine e
 die Farberklärung nennt im gefilterten Zustand alle Geldarten, die in der Fläche vorkommen —
 auch die blassen.
 
-**Die Zonen des Wasserfalls tragen die Farben der Einträge:** links der Null `--bg-out`
-wie ein Posten der regelmäßigen Kosten, rechts `--bg-in` wie eine Einnahme (`.z-neg` /
-`.z-pos` in `css/layout.css`) — dieselbe Aussage, dieselbe Farbe.
+**Die Zonen tragen die Farben der Einträge:** links der Null `--bg-out` wie ein Posten der
+regelmäßigen Kosten, rechts `--bg-in` wie eine Einnahme (`.z-neg` / `.z-pos` in
+`css/layout.css`) — dieselbe Aussage, dieselbe Farbe. **In beiden Fassungen**: der
+Wasserfall setzt sie in `timeline()`, die gefilterte Fläche in `partLine()`. Nur wenn der
+Filter gar nichts findet, gibt es auch keine Zonen — dann gibt es kein Maß und also auch
+keine Seite, auf der etwas läge (siehe oben).
 
 ## Die Begrüßungsseite
 

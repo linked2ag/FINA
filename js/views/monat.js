@@ -476,6 +476,18 @@ function partLine(m,sel,selAny){
   let grid='';
   const marks=[];
   if(!empty){
+    /* ── Derselbe Grund wie im Wasserfall ────────────────────────
+       Links der Null der rote Bereich, rechts der grüne — dieselben
+       Farben wie die Einträge darunter (--bg-out / --bg-in) und
+       dieselbe Aussage: was abgeht, wächst nach links, was
+       hereinkommt, nach rechts. Die Fläche misst hier keinen
+       Kontostand, aber ein Vorzeichen hat sie sehr wohl, und ihre
+       Null steht mitten darin. Zwei Gründe für dieselbe Grafik
+       ließen den Filter nach einer anderen Ansicht aussehen.
+       **Zuerst gesetzt**, damit Raster, Null und Balken darüber
+       liegen. */
+    grid+=`<span class="tzone z-neg" style="width:${z}%"></span
+      ><span class="tzone z-pos" style="left:${z}%;width:${100-z}%"></span>`;
     for(let k=1-cellsL;k<cellsR;k++){
       /* Die Null hat ihre eigene, kräftigere Linie; die beiden
          äußeren sind die Ränder der Fläche und stehen schon da. */
