@@ -1122,7 +1122,16 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.19 <span class="pill">latest</span></h4>
+<h4>26.8.20 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>The timeline always zooms to the month</b> — the chart in ${t('month.ana')} now spans
+      exactly what the month moves, so the bars fill the width. <b>${t('month.tlOpen')}</b> is
+      only a hint inside that view: its bar frays out at the edge when your balance is far from
+      zero, and the range is printed under the chart.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.19</h4>
 <ul>
   <li><b>Step through the months with the keyboard</b> — in ${t('view.monat')}, Ctrl/Cmd and the
       left or right arrow key go one month back or forward.</li>
@@ -1295,7 +1304,17 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.19 <span class="pill">neu</span></h4>
+<h4>26.8.20 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Der Zeitstrahl zoomt immer auf den Monat</b> — die Grafik in ${t('month.ana')} spannt
+      sich jetzt genau über das, was der Monat bewegt; die Balken füllen damit die Breite.
+      <b>${t('month.tlOpen')}</b> ist darin nur noch ein Hinweis: ihr Balken franst am Rand aus,
+      wenn dein Kontostand weit von der Null entfernt liegt, und der gezeigte Bereich steht
+      unter der Grafik.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.19</h4>
 <ul>
   <li><b>Mit der Tastatur durch die Monate</b> — in ${t('view.monat')} gehen Strg/Cmd und die
       Pfeiltaste links oder rechts einen Monat zurück oder weiter.</li>

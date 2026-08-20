@@ -315,29 +315,46 @@ const sumOf=o=>Object.values(o).reduce((a,b)=>a+b,0);
    Ausschlag ist im Balken zu sehen, also muss er auch auf die
    Achse passen.
 
-   **Die Null gehört dazu, solange die Bewegungen dabei lesbar
-   bleiben.** Sie zeigt, wie weit der Monat vom Minus entfernt ist —
-   aber wer einen Kontostand von 110.000 vor sich hat und im Monat
-   9.000 bewegt, sähe von den Bewegungen nichts mehr, weil sie auf
-   ein Zwanzigstel der Breite zusammenschrumpfen.
+   **Gespannt wird sie über die Bewegungen des Monats, immer.** Die
+   vier Abschnitte sind, was der Monat tut; die Fläche gehört ihnen.
+   Die Null kommt nur ins Bild, wenn der Monat sie berührt — sonst
+   liegt sie außerhalb, und das ist keine Auskunft, die fehlt: dass
+   das Konto nicht bei null steht, sagt der Kontostand in derselben
+   Zeile.
 
-   **Die Grenze ist die Hälfte.** Bekämen die Bewegungen des Monats
-   nicht wenigstens die halbe Breite, wird die Achse beschnitten
-   (cut): sie läuft dann nur über die Werte selbst, mit etwas Luft
-   an beiden Enden, und die Bewegungen haben die Fläche für sich.
-   Der erste Balken ist dann abgeschnitten — die Ansicht lässt ihn
-   zum Rand hin ausfransen und schreibt den Maßstab dazu.
+   **Die Monatseröffnung ist dabei ein Hinweis und kein Maß.** Ihr
+   Balken reicht von der Null bis zum Stand, den der Monat
+   vorfindet, und der ist meist ein Vielfaches dessen, was der Monat
+   bewegt: wer 110.000 auf dem Konto hat und 9.000 bewegt, sähe von
+   den Bewegungen nichts mehr — sie schrumpften auf ein Zwanzigstel
+   der Breite. Deshalb zählt diese Zeile für die Achse **nicht** mit
+   (siehe flowScale); ihr Balken wird in die gezoomte Fläche
+   hineingezeichnet, franst am Rand aus und sagt damit „geht
+   weiter". Der Maßstab steht dann in der Farberklärung dabei.
+
+   Vorher entschied das eine Grenze — bekamen die Bewegungen nicht
+   wenigstens die halbe Breite, wurde beschnitten. Damit sprang der
+   Maßstab: derselbe Monat las sich vor und nach einer Buchung nach
+   zwei verschiedenen Achsen, je nachdem, auf welcher Seite der
+   Hälfte er gerade lag.
 
    Die Regel selbst steht in spanScale() und gilt für **beide**
    Grafiken: den Zeitstrahl eines Monats und den Verlauf über das
    Jahr in der Prognose. Getrennte Fassungen liefen mit der Zeit
    auseinander, und dann hieße derselbe Balken in zwei Ansichten
    zweierlei. */
-/* `force` schneidet immer, ohne zu fragen. Das braucht der Verlauf
-   über das Jahr, sobald ein Anfangsbestand gesetzt ist: die Null
-   ist dann keine Aussage mehr über das Jahr, sondern nur noch der
-   Abstand zu einem Konto, das nie leer war — sie schöbe alle zwölf
-   Monate in die rechte Hälfte. */
+/* `force` schneidet immer, ohne zu fragen: die Achse läuft dann
+   über die Werte selbst und nimmt die Null nur mit, wenn sie
+   zwischen ihnen liegt. Der Zeitstrahl der Monatsansicht tut das
+   ausnahmslos (siehe flowScale), der Verlauf über das Jahr, sobald
+   ein Anfangsbestand gesetzt ist: die Null ist dann keine Aussage
+   mehr über das Jahr, sondern nur noch der Abstand zu einem Konto,
+   das nie leer war — sie schöbe alle zwölf Monate in die rechte
+   Hälfte.
+
+   **Ohne `force` bleibt die alte Regel** für den Verlauf ohne
+   Anfangsbestand: die Null gehört dazu, solange die Bewegungen
+   wenigstens die halbe Breite bekommen. */
 function spanScale(lo,hi,force){
   if(!isFinite(lo)){ lo=0; hi=0; }
   const move=hi-lo, full=Math.max(0,hi)-Math.min(0,lo);
@@ -356,15 +373,20 @@ function spanScale(lo,hi,force){
 function flowScale(flow){
   let lo=Infinity,hi=-Infinity;
   flow.forEach(f=>{
-    /* Die erste Zeile ist ein Stand, kein Übergang: ihr prev ist
-       die Null, an der ihr Balken anfängt, und kein Wert des
-       Monats. Sie zählte hier sonst die Null immer mit und die
-       Achse finge nie an zu schneiden. */
+    /* Die Monatseröffnung ist kein Abschnitt des Monats, sondern
+       der Stand, den er vorfindet — für die Achse zählt sie gar
+       nicht. Ihr Wert steht trotzdem darin: er ist der Anfang des
+       ersten Abschnitts (dessen prev), und der zählt mit. Was
+       darüber hinausgeht — die Strecke von der Null bis dorthin —
+       ist ihr Balken, und der ist ein Hinweis (siehe oben). */
+    if(f.key==='P') return;
     const top=f.prev+sumOf(f.up);
-    if(f.key!=='P'){ lo=Math.min(lo,f.prev,top); hi=Math.max(hi,f.prev,top); }
-    lo=Math.min(lo,f.run); hi=Math.max(hi,f.run);
+    lo=Math.min(lo,f.prev,top,f.run); hi=Math.max(hi,f.prev,top,f.run);
   });
-  return spanScale(lo,hi);
+  /* Immer über die Werte selbst: die Bewegungen bekommen die
+     Fläche, die Null nur einen Platz darin, wenn der Monat sie
+     berührt. */
+  return spanScale(lo,hi,true);
 }
 
 /* ── Der Verlauf über das Jahr ────────────────────────────────

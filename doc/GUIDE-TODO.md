@@ -20,6 +20,16 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- ⚠ **Der Zeitstrahl zoomt immer auf die Bewegungen des Monats** — die Achse spannt sich
+  ausnahmslos über das, was die vier Abschnitte bewegen; die Monatseröffnung zählt dafür
+  nicht mehr mit und ist nur noch ein Hinweis darin (Balken franst am Rand aus, Maßstab
+  unter der Grafik, sobald die Null außerhalb liegt). **Falsch geworden:** „Was FINA kann"
+  sagt zum Maßstab noch „Liegt dein Kontostand weit von der Null entfernt … wird der Maßstab
+  beschnitten" (EN wie DE) — als Bedingung stimmt das nicht mehr, beschnitten wird immer;
+  was der Satz beschreibt, ist nur noch der Fall, in dem die Null aus der Fläche fällt. *Im
+  Reiter „Was ist neu" erledigt (26.8.20); in Schritt für Schritt und Was FINA kann noch
+  offen.*
+
 - **Beim Filtern verschwinden leere Bereiche** — bleibt in einer Karte der Monatsansicht
   oder in einem Block der Jahresmatrix keine Zeile übrig, wird der ganze Bereich
   ausgeblendet, solange der Filter greift; ohne Filter bleibt er stehen. Fällt alles weg,

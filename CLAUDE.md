@@ -658,8 +658,10 @@ in vergangenen Monaten mit ihrer *Schriftfarbe* zurück und nicht mit der Deckkr
 
 * **Die Achsenregel** — `spanScale(lo,hi,force)` in `js/calc.js`. `flowScale()` (Monat) und
   `yearScale()` (Jahr) sammeln nur ihre Werte und geben sie dort hinein. Wer an der Grenze
-  für den Schnitt dreht, dreht an beiden Ansichten. `force` schneidet ohne zu fragen und
-  wird nur vom Jahr benutzt, wenn ein Anfangsbestand gesetzt ist (siehe unten).
+  für den Schnitt dreht, dreht an beiden Ansichten. `force` schneidet ohne zu fragen — die
+  Achse läuft dann über die Werte selbst und nimmt die Null nur mit, wenn sie zwischen ihnen
+  liegt. **Der Zeitstrahl tut das ausnahmslos**, das Jahr nur mit gesetztem Anfangsbestand
+  (siehe unten); die Grenze der halben Breite gilt damit nur noch dem Jahr ohne ihn.
 * **Die Anteile eines Balkens** — `flowParts()` und `FLOW_LABEL` in `js/ui.js`. Sie standen
   früher in `js/views/monat.js`; dort hinge die Prognose unsichtbar an der Monatsansicht.
 * **Der abgeschnittene erste Balken.** Im Monat ist es die Monatseröffnung, im Jahr der
@@ -669,7 +671,7 @@ in vergangenen Monaten mit ihrer *Schriftfarbe* zurück und nicht mit der Deckkr
 
 **Ohne Anfangsbestand** ist der Stand vor dem Januar die Null, an der sein Balken anfängt,
 und **kein Wert des Jahres** — `yearScale()` lässt ihn für den Maßstab dann weg (`f.m!==1`),
-genau wie `flowScale()` den Stand vor dem Monat. Zählte er mit, spannte die Achse immer von
+genau wie `flowScale()` die ganze Zeile „Monatseröffnung". Zählte er mit, spannte die Achse immer von
 der Null aus und schnitte nie: ein Januar mit 120.000 drückte die elf Monate danach zu
 Strichen zusammen. **Mit Anfangsbestand** ist derselbe Wert ein echter Kontostand und zählt
 mit (`f.m!==1||op`), sonst liefe der Januarbalken aus der Fläche.
@@ -904,22 +906,36 @@ Punkte, die er dabei berührt. Wo die Null liegt, teilt den roten vom grünen Be
 der Monat ganz im Plus, ist die ganze Fläche grün, und der Balken der Eröffnung steht mitten
 darin.
 
-**Die Null gehört nur dazu, solange die Bewegungen dabei lesbar bleiben.** Wer 110.000 auf
-dem Konto hat und im Monat 9.000 bewegt, sähe von den Bewegungen nichts mehr — sie
-schrumpften auf ein Zwanzigstel der Breite. **Die Grenze ist die Hälfte:** bekämen die
-Bewegungen des Monats nicht wenigstens die halbe Breite, wird die Achse **beschnitten**
-(`sc.cut`) und läuft nur über die Werte selbst, mit 8 % Luft an beiden Enden — die
-Bewegungen haben die Fläche dann für sich. Die Ansicht sagt das zweimal: der Balken der
-Monatseröffnung **franst zum Rand hin aus** (`.tsum.cutl` / `.cutr` in `css/layout.css`, ein
-Farbverlauf ins Durchsichtige), und der Maßstab steht am Ende der Farberklärung. Ohne beides
-läse man die Länge dieses Balkens als seinen ganzen Betrag. Ausgefranst wird an der Seite, an
-der die Null hinausfällt — bei einem Guthaben links, bei einem Minus rechts; welche es ist,
-entscheidet `flowTrack()` an `zero<0`. **Eine Marke an dieser Stelle wäre die falsche
-Aussage:** sie behauptet eine Kante, wo der Balken gerade keine hat, und sie musste den
-Balken abdunkeln, um selbst sichtbar zu bleiben. Der Verlauf sagt dasselbe, ohne etwas zu
-behaupten, und der Balken bleibt so kräftig wie jeder andere.
-Die Null der ersten Zeile zählt für den Maßstab **nicht** mit: sie ist der Anfang ihres
-Balkens, kein Wert des Monats — sonst schnitte die Achse nie.
+**Gespannt wird die Achse über die Bewegungen des Monats — immer** (`spanScale(…,true)`).
+Die vier Abschnitte sind, was der Monat tut; die Fläche gehört ihnen, mit 8 % Luft an beiden
+Enden. Für den Maßstab zählt deshalb die **ganze erste Zeile nicht** (`if(f.key==='P')
+return` in `flowScale()`): ihr Wert steht ohnehin darin, denn er ist der Anfang des ersten
+Abschnitts — nur die Strecke von der Null bis dorthin bleibt draußen.
+
+**Die Monatseröffnung ist damit ein Hinweis und kein Maß.** Ihr Balken wird in die gezoomte
+Fläche hineingezeichnet: liegt die Null darin, fängt er an ihr an; liegt sie außerhalb,
+reicht er bis an den Rand und **franst dort aus** (`.tsum.cutl` / `.cutr` in
+`css/layout.css`, ein Farbverlauf ins Durchsichtige), und der Maßstab steht am Ende der
+Farberklärung. Ohne beides läse man die Länge dieses Balkens als seinen ganzen Betrag.
+Ausgefranst wird an der Seite, an der die Null hinausfällt — bei einem Guthaben links, bei
+einem Minus rechts. **Eine Marke an dieser Stelle wäre die falsche Aussage:** sie behauptet
+eine Kante, wo der Balken gerade keine hat, und sie musste den Balken abdunkeln, um selbst
+sichtbar zu bleiben. Der Verlauf sagt dasselbe, ohne etwas zu behaupten, und der Balken
+bleibt so kräftig wie jeder andere.
+
+**Ob die Null im Bild ist, entscheidet der Monat und nicht die Grafik.** Berührt er sie,
+steht sie als kräftige Linie zwischen Rot und Grün; sonst ist die Fläche eine einzige Zone.
+Die Frage stellt `timeline()` einmal (`zout = zero<0 || zero>100`) und reicht die Antwort an
+**vier** Stellen weiter: die Nulllinie, das Raster (an der Null keine zweite Linie), das
+Ausfransen in `flowTrack()` und den Maßstab in der Farberklärung. Wer eine davon anders
+fragt, lässt sie etwas anderes behaupten als die Fläche daneben.
+
+Vorher entschied das eine **Grenze**: bekamen die Bewegungen nicht wenigstens die halbe
+Breite, wurde beschnitten, sonst reichte die Achse bis zur Null. Damit sprang der Maßstab —
+derselbe Monat las sich vor und nach einer Buchung nach zwei verschiedenen Achsen, je
+nachdem, auf welcher Seite der Hälfte er gerade lag. Die Regel gibt es weiterhin, aber nur
+noch für den Verlauf über das Jahr **ohne** Anfangsbestand (siehe „Die Spalte „Verlauf""
+und `force` in `spanScale()`).
 
 Jede Zeile beginnt beim Stand der Zeile darüber (`f.prev`) und endet bei ihrem eigenen
 (`f.run`). Dazwischen steht, was den Unterschied gemacht hat (`flowTrack()` in

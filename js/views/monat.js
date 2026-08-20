@@ -290,19 +290,22 @@ function mobileTop(m,sel,sums){
 
    Die erste Zeile ist keine Veränderung, sondern ein Stand: sie
    bekommt einen vollen Balken von der Null bis zu ihrem Wert. */
-function flowTrack(f,pos,zero,zones,cut){
+function flowTrack(f,pos,zero,zones,zout){
   const mark=`<span class="tmark" style="left:${pos(f.run)}%"></span>`;
   const up0=sumOf(f.up), down0=sumOf(f.down);
   const box=inner=>`<span class="ttrack${up0&&down0?' two':''}">${zones}${inner}</span>`;
   if(f.key==='P'){
-    /* Bei beschnittener Achse liegt die Null außerhalb — der Balken
-       reicht dann bis an den Rand der Fläche und franst dort aus
-       (.tsum.cutl / .cutr in css/layout.css). Ausgefranst wird an
-       der Seite, an der die Null hinausfällt: steht sie links davon
-       (Guthaben), kommt der Balken von links; steht sie rechts
-       (Minus), läuft er nach rechts hinaus. */
+    /* Die Monatseröffnung ist ein Hinweis: ihr Balken reicht von
+       der Null bis zum Stand, den der Monat vorfindet — die Achse
+       richtet sich nach ihm nicht (flowScale). Liegt die Null
+       außerhalb der Fläche, reicht der Balken bis an deren Rand und
+       franst dort aus (.tsum.cutl / .cutr in css/layout.css):
+       ausgefranst wird an der Seite, an der die Null hinausfällt —
+       steht sie links davon (Guthaben), kommt der Balken von links;
+       steht sie rechts (Minus), läuft er nach rechts hinaus. Liegt
+       sie **im** Bild, fängt er an ihr an und hat eine Kante. */
     const a=Math.max(0,Math.min(zero,pos(f.run))), b=Math.min(100,Math.max(zero,pos(f.run)));
-    const fade=cut?(zero<0?' cutl':' cutr'):'';
+    const fade=zout?(zero<0?' cutl':' cutr'):'';
     return box(`<span class="tsum solo${fade}" style="left:${a}%;width:${b-a}%"
       data-tip="${esc(eur(f.run))}"></span>${mark}`);
   }
@@ -547,6 +550,16 @@ function timeline(m,sel,selAny){
      (höchstens die Null), 100 % der höchste. */
   const pos=v=>(v-sc.lo)/sc.span*100;
   const zero=pos(0);
+  /* **Gezoomt wird auf die Bewegungen des Monats** (flowScale in
+     js/calc.js). Ob die Null dabei ins Bild kommt, entscheidet der
+     Monat und nicht die Grafik: berührt er sie, steht sie als Linie
+     zwischen Rot und Grün; sonst liegt sie außerhalb, die Fläche
+     ist eine einzige Zone, und der Balken der Monatseröffnung franst
+     zum Rand hin aus. Daran hängen vier Stellen — Linie, Raster,
+     Ausfransen und der Maßstab in der Farberklärung; sie müssen
+     dieselbe Frage stellen, sonst behauptet eine von ihnen etwas
+     anderes als die Fläche daneben. */
+  const zout=zero<0||zero>100;
   /* Links der Null der rote, rechts der grüne Bereich. Liegt der
      Monat ganz im Plus, steht die Null am linken Rand — dann ist
      die ganze Fläche grün, und genau das soll man sehen. */
@@ -562,11 +575,11 @@ function timeline(m,sel,selAny){
   const marks=[]; let gridw='';
   for(let v=Math.ceil(sc.lo/step)*step; v<=sc.hi; v+=step){
     marks.push({v,x:pos(v)});
-    if(sc.cut||Math.abs(v)>=step/2) gridw+=`<span class="tgrid" style="left:${pos(v)}%"></span>`;
+    if(zout||Math.abs(v)>=step/2) gridw+=`<span class="tgrid" style="left:${pos(v)}%"></span>`;
   }
   const zones=`<span class="tzone z-neg" style="width:${zc}%"></span
     ><span class="tzone z-pos" style="left:${zc}%;width:${100-zc}%"></span
-    >${sc.cut?'':`<span class="tzero" style="left:${zc}%"></span>`}${gridw}`;
+    >${zout?'':`<span class="tzero" style="left:${zc}%"></span>`}${gridw}`;
 
   const row=f=>{
     const name=tlLabel(f.key,last,today);
@@ -575,7 +588,7 @@ function timeline(m,sel,selAny){
     /* Keine Sprechblase an der Zeile: sie zeigte beim Überfahren
        der halben Leiste etwas an. Was ein Anteil ist, sagt seine
        eigene Blase, und was ein Klick tut, der graue Satz darüber. */
-    const track=flowTrack(f,pos,zero,zones,sc.cut);
+    const track=flowTrack(f,pos,zero,zones,zout);
     if(f.key==='P') return `<span class="trow tp-P">${name}${nums}${track}</span>`;
     return `<button class="trow tp-${f.key}" data-tpart="${f.key}"
       aria-pressed="${ui.dueFilter===f.key}"
@@ -587,13 +600,16 @@ function timeline(m,sel,selAny){
      Erklärung des Balkens als Sprechblase. */
   const chips=FLOW_KINDS.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('')
     +`<span class="lk"><i class="lmark"></i>${t('month.tlMark')}</span>`;
-  /* Bei beschnittener Achse gehört ihr Maßstab dazu — sonst läse
-     man die Länge des ersten Balkens als seinen ganzen Betrag. */
-  const scale=sc.cut?`<span class="lscale">${t('month.tlScale',eur(sc.lo),eur(sc.hi))}</span>`:'';
+  /* Liegt die Null außerhalb, gehört der Maßstab dazu — sonst läse
+     man die Länge des ersten Balkens als seinen ganzen Betrag.
+     Berührt der Monat die Null, steht sie in der Fläche und der
+     Satz sagte nur noch einmal, was die Achszeile darüber schon
+     Zahl für Zahl nennt. */
+  const scale=zout?`<span class="lscale">${t('month.tlScale',eur(sc.lo),eur(sc.hi))}</span>`:'';
   /* Zwei Balken hat hier die höchste Zeile (Zufluss über Abfluss);
      hoch ist die Zeile trotzdem wie überall — gleiche Höhen in
      beiden Fassungen, nichts springt beim Filtern. */
-  return `<div class="tline${sc.cut?' cut':''}" style="--nbars:${TL_MINBARS}">${tlAxis(marks)}${flow.map(row).join('')}
+  return `<div class="tline${zout?' cut':''}" style="--nbars:${TL_MINBARS}">${tlAxis(marks)}${flow.map(row).join('')}
     <div class="thint">${chips}${scale}</div></div>`;
 }
 
