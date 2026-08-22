@@ -1122,7 +1122,20 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.20 <span class="pill">latest</span></h4>
+<h4>26.8.22 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>Filter ${t('view.monat')} by area</b> — three buttons next to the search field show only
+      ${t('month.fSecIn')}, only ${t('month.fSecFlex')} or only ${t('month.fSecOut')}. The figures
+      above and the timeline count along, so you always read what is in front of you.</li>
+  <li><b>The filter row lights up</b> — as soon as a filter is on, the row turns orange. In
+      ${t('view.jahr')} the row with the search field does the same. It tells you at a glance
+      that something is hidden.</li>
+  <li><b>${t('month.kpiOpen')} counts your Flexible Payments too</b> — the figure now names
+      everything the month still costs, not only the regular items.</li>
+  <li>Bugfixing and cosmetic changes.</li>
+</ul>
+
+<h4>26.8.20</h4>
 <ul>
   <li><b>The timeline always zooms to the month</b> — the chart in ${t('month.ana')} now spans
       exactly what the month moves, so the bars fill the width. <b>${t('month.tlOpen')}</b> is
@@ -1311,7 +1324,20 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.20 <span class="pill">neu</span></h4>
+<h4>26.8.22 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>${t('view.monat')} nach Bereich filtern</b> — drei Knöpfe neben dem Suchfeld zeigen nur
+      ${t('month.fSecIn')}, nur ${t('month.fSecFlex')} oder nur ${t('month.fSecOut')}. Die Zahlen
+      darüber und der Zeitstrahl rechnen mit, du liest also immer das, was vor dir steht.</li>
+  <li><b>Die Filterzeile leuchtet</b> — sobald ein Filter greift, färbt sich die Zeile orange. In
+      ${t('view.jahr')} tut das die Zeile mit dem Suchfeld genauso. So siehst du auf einen Blick,
+      dass gerade etwas ausgeblendet ist.</li>
+  <li><b>${t('month.kpiOpen')} zählt die Flexible Payments mit</b> — die Zahl nennt jetzt alles,
+      was der Monat noch kostet, nicht mehr nur die regelmäßigen Posten.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.20</h4>
 <ul>
   <li><b>Der Zeitstrahl zoomt immer auf den Monat</b> — die Grafik in ${t('month.ana')} spannt
       sich jetzt genau über das, was der Monat bewegt; die Balken füllen damit die Breite.
