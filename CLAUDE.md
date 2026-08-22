@@ -1402,12 +1402,15 @@ Rollbalken der Matrix, und der filtert nichts. Die Zeile trägt immer denselben 
 (Polster und einen durchsichtigen Rand), gefärbt wird nur — sonst spränge alles um einen
 Pixel, sobald ein Filter greift; ein negatives Außenmaß hält den Inhalt genau dort, wo er
 ohne den Kasten stünde. Die Regeln stehen an einer Stelle
-(`.anabar .filterbar.on,.yearbar .ybrow.on` in `css/layout.css`): dort filtern das Suchfeld und die
-beiden Ausblenden-Knöpfe, und eine Leiste, die anders aussieht, sähe nach einem anderen
-Werkzeug aus. Dass zwei der drei in der **Datei** stehen, ändert daran nichts — wer die
-Matrix nach dem Öffnen unvollständig vorfindet, soll es an der Leiste sehen und nicht
-suchen müssen. Die Leiste bleibt dann allerdings orange, solange der Knopf gilt: sie ist
-dort auch eine Auskunft über den gespeicherten Zustand und nicht nur über einen Handgriff.
+(`.anabar .filterbar.on,.yearbar .ybrow.on` in `css/layout.css`) — eine Leiste, die anders
+aussieht, sähe nach einem anderen Werkzeug aus.
+
+**Gefärbt wird nur am Suchbegriff.** Im Monat leuchtet die Zeile an den Handgriffen der
+Sitzung; in der Jahresansicht ist der Suchbegriff der einzige davon. Die beiden
+Ausblenden-Knöpfe zählen **nicht** mit: sie stehen in der Datei und gelten, bis man sie
+wieder ausschaltet — eine Leiste, die deshalb bei jedem Öffnen leuchtet, leuchtet immer und
+sagt damit nichts mehr. Dass sie gerade gelten, sagen die Knöpfe selbst: dunkler Grund und
+die Zahl der versteckten Zeilen in Klammern.
 
 Weil die Zeile oben klebt, kostet jeder Umbruch dauerhaft Platz. Deshalb sitzt sie enger
 als sonst (`.anabar .filterbar` in `css/layout.css`), und ihr Suchfeld gibt nach

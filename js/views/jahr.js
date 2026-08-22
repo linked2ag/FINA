@@ -443,15 +443,19 @@ function viewJahr(){
      den dunklen Grund, ob sie gerade gelten — wie die Filter der
      Monatsansicht. Was die Zeichen ✓ und ? bedeuten, steht auf
      Höhe der Reiter (siehe renderChrome in js/app.js). */
-  /* Greift einer der drei Filter — Suchbegriff, „Erledigte Monate
-     ausblenden", „Abgeschlossene ausblenden" —, färbt sich die
-     ganze Leiste orange, genau wie die Filterzeile der
-     Monatsansicht (.filterbar.on). Sie sagt damit dasselbe: hier
-     wird gerade etwas ausgeblendet. Dass zwei der drei in der Datei
-     stehen, ändert daran nichts — sichtbar verborgen ist verborgen,
-     und wer die Matrix nach dem Öffnen unvollständig vorfindet,
-     soll es an der Leiste sehen und nicht suchen müssen. */
-  const filtered=!!(ui.q||'').trim()||!!state.hideDoneMonths||!!state.hideSettled;
+  /* ── Wann die Zeile orange wird ──────────────────────────────
+     **Nur beim Suchbegriff**, wie im Monat: dort färbt sich die
+     Filterzeile an den Handgriffen der Sitzung, und der Suchbegriff
+     ist hier der einzige davon.
+
+     Die beiden Ausblenden-Knöpfe zählen ausdrücklich **nicht** mit.
+     Sie stehen in der Datei (state.hideDoneMonths,
+     state.hideSettled) und gelten, bis man sie wieder ausschaltet —
+     eine Leiste, die deshalb bei jedem Öffnen leuchtet, leuchtet
+     immer und sagt damit nichts mehr. Dass sie gerade gelten, sagen
+     die Knöpfe selbst: dunkler Grund und die Zahl der versteckten
+     Zeilen in Klammern. */
+  const filtered=!!(ui.q||'').trim();
   /* **Gefärbt wird die Zeile, nicht die Leiste.** Unter den Knöpfen
      hängt in derselben Leiste der waagerechte Rollbalken der Matrix
      — der filtert nichts und soll die Farbe deshalb auch nicht
