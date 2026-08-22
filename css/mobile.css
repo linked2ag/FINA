@@ -20,7 +20,7 @@
 /* ── Grundgerüst ──────────────────────────────────────────────
    Schmalere Polster, und unten so viel Luft, dass die feste
    Reiterleiste die letzte Zeile nicht verdeckt. */
-.wrap{padding:0 12px calc(80px + env(safe-area-inset-bottom,0px))}
+.wrap{padding:0 var(--pagepad) calc(80px + env(safe-area-inset-bottom,0px));--pagepad:12px}
 
 /* ── Kopfzeile ────────────────────────────────────────────────
    Flach wie am Schreibtisch, nur enger: Wortzeichen und Jahr wie
@@ -28,39 +28,27 @@
    Die Werkzeuge rollen in einer Zeile seitlich, statt die
    Kopfzeile dreizeilig zu machen — jeder Knopf bleibt erreichbar,
    keiner nimmt der Tabelle dauerhaft Platz weg. */
-header{padding-top:6px}
-.masthead{gap:8px;padding-bottom:6px;flex-wrap:nowrap;align-items:center;position:relative}
+/* Der Header hebt am Schreibtisch die 24 px von .wrap auf; hier
+   sind es 12. */
+header{margin:0 -12px}
+.masthead{gap:8px;padding:6px 12px;flex-wrap:nowrap;align-items:center;position:relative}
 .brand{gap:8px;flex:1 1 auto;min-width:0}
-.brand h1{font-size:20px}
+.brand h1{font-size:18px}
 .brand .sub{font-size:9px}
 /* ── Alle Werkzeuge hinter einem Knopf ────────────────────────
-   Auf dem Telefon zeigt die Kopfzeile keine Knopfreihe: rechts
-   steht ein einziger Menüknopf (#btnMenu, Webclient.html), und
-   .tools wird zum aufklappbaren Menü darunter — Speichern,
-   Sicherung, Schließen, Einstellungen, Sprache, Anleitung, jeder
-   Eintrag in Fingerhöhe. Geöffnet und geschlossen wird in
-   js/app.js (Klick auf den Knopf, daneben oder auf ein Werkzeug).
-
-   Ungespeichertes bleibt sichtbar, obwohl der Dateiname im Menü
-   steckt: trägt er seine Warnung (.warnpath aus js/storage.js),
-   bekommt der Menüknopf die rote Marke — :has() kennt jeder
-   Browser, der auch FINA trägt; ohne fehlt nur die Marke. */
-.menubtn{display:grid;place-items:center;flex:0 0 auto;position:relative;
-  width:44px;height:44px;padding:0;border-radius:8px;font-size:17px;
-  background:var(--ink);color:var(--paper-2);border:1px solid var(--ink)}
-.masthead:has(.filepath.warnpath) .menubtn::after{content:"";position:absolute;
-  top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;
-  background:var(--seal);border:2px solid var(--paper)}
-.tools{display:none}
-.tools.open{display:flex;position:absolute;right:0;top:calc(100% + 6px);z-index:46;
-  flex-direction:column;align-items:stretch;gap:8px;
-  width:min(270px,calc(100vw - 24px));padding:12px;
-  background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:12px;
-  box-shadow:0 2px 6px rgba(27,35,32,.08),0 22px 48px rgba(27,35,32,.18)}
-.tools.open .btn{width:100%;padding:10px 14px;font-size:14px;text-align:center}
-.tools.open .btn:hover{transform:none}
-.tools.open .filepath{max-width:none;white-space:normal;overflow-wrap:anywhere;
-  padding:0 2px 4px;border-bottom:1px solid var(--rule)}
+   Dasselbe Hamburger-Menü wie am Schreibtisch (seit dem
+   Mac-Redesign gibt es dort auch eins) — nur der Knopf ist mit
+   44 px in Fingerhöhe, und die Einträge sind höher. Der rote
+   Punkt (#dirtyDot) funktioniert unverändert. */
+.burger{width:44px;height:44px;border-radius:8px}
+.burger .bars{gap:4px}
+.burger .bars i{width:16px;height:2px}
+.tools.open{width:min(270px,calc(100vw - 24px))}
+.tools .btn{padding:11px 14px;font-size:14px}
+.tools .menufile:not([hidden]){display:block;padding:9px 14px;
+  font-family:var(--font-data);font-size:11px;font-weight:600;color:var(--ink-2);
+  border-bottom:1px solid var(--hairline);white-space:normal;overflow-wrap:anywhere}
+.tools .menufile.warnpath{color:var(--seal)}
 /* Die Ansichtsreiter oben entfallen — dieselben Reiter stehen
    unten am Daumen (.mtabs). Das display setzt renderChrome()
    inline (dort steht die Weiche); die Regel hier ist der doppelte
@@ -70,10 +58,9 @@ header{padding-top:6px}
 /* ── Die Monatsleiste ─────────────────────────────────────────
    Dieselben Reiter mit Statuspunkt wie am Schreibtisch, nur mit
    Fingermaß: 52 px je Monat, seitlich rollbar, ohne Rollbalken. */
-.months{scrollbar-width:none}
+.months{scrollbar-width:none;padding-left:12px;padding-right:12px}
 .months::-webkit-scrollbar{display:none}
-.mtab{min-width:52px;padding:10px 8px 8px;font-size:11px}
-.mtab .dot{margin-top:4px}
+.mtab{min-width:52px;padding:8px 4px;font-size:11px}
 
 /* ── Die Reiterleiste unten ───────────────────────────────────
    MONAT · JAHR · PROGNOSE (und mit Import die Details), fest am
@@ -94,7 +81,9 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
    Filterknopf ist dunkel und trägt die Zahl der greifenden Filter
    als rote Marke; das Menü dahinter (.mfpanel) hält die gewohnten
    Filterknöpfe und den Weg ins Suchfelder-Fenster. */
-.msearch{padding:8px 0}
+/* Wie am Schreibtisch: die Suchzeile dockt oben an der Kopfzeile
+   an, ohne Abstand. */
+.msearch{padding:0 0 8px}
 .msrow{display:flex;gap:6px}
 .mfbtn{position:relative;flex:0 0 44px;width:44px;height:44px;cursor:pointer;
   border:1px solid var(--ink);background:var(--ink);color:var(--paper-2);
@@ -109,14 +98,16 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
   border:1px solid var(--rule-strong);background:var(--paper-2);
   border-radius:2px;font-size:13px;color:var(--ink-2);padding:0}
 .msclear:disabled{opacity:.45;cursor:not-allowed}
-/* Das Menü sieht aus wie die Filterzeile am Schreibtisch: grauer
-   Grund, dunkle Kante links — es ist derselbe Bereich. */
-.mfpanel{margin-top:8px;background:var(--shade);border:1px solid var(--rule);
-  border-left:5px solid var(--ink);padding:8px 10px;
-  display:flex;flex-direction:column;gap:8px}
-.mfpanel .fbgroup{margin-left:0;gap:6px}
-.mfpanel .fbgroup+.fbgroup{margin-left:0;border-top:1px solid var(--rule);padding-top:8px}
-.mfpanel .btn.small{min-height:36px;padding:6px 10px}
+/* Das Filtermenü sieht aus wie die Aufklappmenüs am Schreibtisch
+   (.dropmenu in css/layout.css): weiße Karte, Gruppen mit
+   Mono-Überschrift, der gewählte Wert auf Orange — nur stehen die
+   Einträge hier in Fingerhöhe und das Menü im Fluss statt als
+   Overlay: es klappt unter der Suchzeile auf und bleibt beim
+   Wählen offen (ui.mFilters). */
+.mfmenu{position:static;width:100%;margin-top:8px}
+.mfmenu .mi{padding:10px 14px;font-size:14px}
+.mfmenu .mi.mi-sep,.mfmenu .mi.mi-top{padding:10px 14px}
+.mfmenu .mghead{padding:8px 14px 2px}
 
 /* ── Die Kennzahl-Kacheln ─────────────────────────────────────
    Zwei Spalten mit 1px-Fugen auf --rule, darunter die SALDO-Zeile
@@ -148,11 +139,10 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
    die Fast-Budget-Details haben dieselben Kartenklassen und
    behalten ihr gewohntes Bild. */
 .view-monat .card.sec-in,.view-monat .card.sec-flex,.view-monat .card.sec-out{padding:0}
-/* Der Kopf als Raster: erste Zeile Pfeil, Bezeichnung, Summe —
-   die Bezeichnung wird bei Überlänge mit … beschnitten, die Summe
-   steht immer auf ihrer Höhe rechts. Die Anlege-Knöpfe (.secbtns,
-   gebaut in js/views/monat.js) stehen in der zweiten Zeile unter
-   der Bezeichnung. */
+/* Der Kopf als Raster: Pfeil, Bezeichnung, Summe — die
+   Bezeichnung wird bei Überlänge mit … beschnitten, die Summe
+   steht immer auf ihrer Höhe rechts. Angelegt wird über das
+   Hamburger-Menü der Kopfzeile. */
 .view-monat .card.sec-in>.sechead,.view-monat .card.sec-flex>.sechead,
 .view-monat .card.sec-out>.sechead{margin:0;padding:10px 12px 8px;
   display:grid;grid-template-columns:auto minmax(0,1fr) auto;
@@ -162,9 +152,6 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
 .view-monat .sechead h2{grid-column:2;grid-row:1;min-width:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .view-monat .sechead .tot{grid-column:3;grid-row:1;white-space:nowrap}
-.view-monat .sechead .secbtns{grid-column:2/-1;grid-row:2;
-  display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.view-monat .sechead .secbtns:empty{display:none}
 .sechead .tot{font-size:16px}
 .sechead .btn.small{padding:5px 9px;font-size:11.5px}
 

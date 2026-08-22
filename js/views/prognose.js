@@ -424,7 +424,7 @@ function viewPrognose(){
      beschnittener Achse kommt ihr Maßstab dazu — sonst läse man
      die Länge des Januarbalkens als seinen ganzen Betrag. */
   const chips=FLOW_KINDS.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('')
-    +`<span class="lk"><i class="lmark"></i>${t('month.tlMark')}</span>`
+    +`<span class="lk"><i class="lmark"></i>${t('prog.tlMark')}</span>`
     /* `nf.format` statt `eur`: der Maßstab ist eine Grenze und kein
        Betrag. Eine Achse, die bei null anfängt, schriebe mit `eur`
        einen Gedankenstrich dorthin — „Maßstab — bis 30.000,00". */
@@ -476,7 +476,7 @@ function viewPrognose(){
       <span class="mk msal"><span class="lab">${t('prog.kpiEnd')}</span
         ><span class="val ${cls(yearEnd)}">${eur(yearEnd)}</span></span>
     </div>
-    <div class="card"><h2>${t('prog.title',YEAR)}</h2>
+    <div class="card progcard"><h2>${t('prog.title',YEAR)}</h2>
       <div class="scroll progscroll" id="progScroll" style="border:0"><table class="ledger progtable mprog"
         style="--flowcells:${cells.toFixed(3)}">
         <tr>${mhead}<th class="flowcell axishead"
@@ -502,7 +502,7 @@ function viewPrognose(){
        Flexible Payments standen früher rechts daneben; sie stehen
        jetzt dort, wo sie gepflegt werden — im Fenster der
        Kategorie, mit dem Mittelwert über der Schnelleingabe. -->
-  <div class="card"><h2>${t('prog.title',YEAR)}</h2>
+  <div class="card progcard"><h2>${t('prog.title',YEAR)}</h2>
     <!-- Der waagerechte Rollbalken steht über der Tabelle, nicht in
          ihr: dort läge er quer über der letzten Zeile. Bei zu
          schmalem Fenster erscheint er von selbst (bindRails in

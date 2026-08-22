@@ -198,7 +198,7 @@ function editItem(item,group,copyOf,focusMonth){
         <input class="num signed" data-mi="${i}" ${lock?'disabled':''} value="${it.amounts[i]?nf.format(it.amounts[i]):''}" placeholder="0,00">
         <div class="cellnote">${esc(it.notes[i]||'')}</div></div>`;}).join('')}</div>
     </div></div>
-    <div class="row-end">${(isNew||isBal)?'':`<button class="linkish" id="fDel" style="margin-right:auto">${t('item.del')}</button>`}
+    <div class="row-end">${(isNew||isBal)?'':`<button class="dellink" id="fDel">${t('item.del')}</button>`}
       ${(isNew||isBal)?'':`<button class="btn" id="fDup" data-tip="${esc(t('item.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="fCancel">${t('g.cancel')}</button><button class="btn primary" id="fSave">${t('g.save')}</button></div>
   </div>`;

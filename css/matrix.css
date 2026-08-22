@@ -30,8 +30,13 @@
    weil die Kopfzeile je nach Ansicht unterschiedlich hoch ist. In
    der Jahresansicht rollt die Seite nicht mehr — die Leiste steht
    dort ohnehin fest —, das Maß bleibt aber richtig. */
+/* `gap:0` gegen die 9 px, die .sechead zwischen seine Kinder legt:
+   die Leiste hat nur zwei, die Filterzeile und den Rollbalken, und
+   deren Abstand steht am Balken selbst (css/layout.css). Sonst
+   käme er zu den 10 px dazu — und zwar nur, wenn es den Balken
+   überhaupt gibt, der Abstand spränge also mit der Fensterbreite. */
 .yearbar{position:sticky;top:0;z-index:30;background:var(--paper);
-  margin:0 0 0;padding:6px 0 10px;box-shadow:0 8px 10px -10px rgba(0,0,0,.4)}
+  margin:0 0 0;padding:0 0 10px;gap:0;box-shadow:0 8px 10px -10px rgba(0,0,0,.4)}
 .matrix{border-collapse:separate;border-spacing:0;table-layout:fixed;font-variant-numeric:tabular-nums;margin:0;
   width:calc(394px + var(--labw,250px) + 12 * (var(--monw,100px) + 46px))}
 
@@ -78,14 +83,14 @@
    Hintergründe deckend bleiben. */
 
 /* ── Zellen ───────────────────────────────────────────────── */
-.matrix th,.matrix td{padding:6px 8px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.matrix thead th{font-family:var(--font-data);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
-  text-align:right;font-weight:500;background:var(--paper-2);border-bottom:1px solid var(--rule-strong);
+.matrix th,.matrix td{padding:5px 8px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.matrix thead th{font-family:var(--font-data);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);
+  text-align:right;font-weight:500;background:#fff;border-bottom:1px solid var(--rule);
   position:sticky;top:0;z-index:6}
 .matrix thead th.ed,.matrix thead th.ln,.matrix thead th.lab{text-align:left}
 .matrix thead th.code{text-align:center}
 .matrix td.num{text-align:right;font-family:var(--font-data)}
-.matrix td.mk{text-align:center;padding:6px 2px;font-size:14px;font-weight:800;border-bottom:1px solid rgba(0,0,0,.10);vertical-align:middle}
+.matrix td.mk{text-align:center;padding:5px 2px;font-size:11px;font-weight:700;border-bottom:1px solid rgba(0,0,0,.10);vertical-align:middle}
 .matrix td.code{font-family:var(--font-data);font-size:11px;color:var(--ink-2);text-align:center;padding:6px 2px}
 
 /* ── Festgepinnte Spalten links ───────────────────────────────
@@ -126,7 +131,12 @@
 /* ── Schaltflächen in der Matrix ──────────────────────────── */
 .matrix .mhead{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer;text-transform:inherit;letter-spacing:inherit}
 .matrix .mhead:hover{text-decoration:underline}
-.matrix .mhead.done{text-decoration:line-through;text-decoration-thickness:2px;color:var(--ok)}
+.matrix .mhead.done{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--ok)}
+/* Der laufende Monat als rote Pille im Kopf — dieselbe Marke wie
+   in der Monatsleiste der Kopfzeile (.mtab.current .mp). */
+.matrix .mhead.now{background:var(--seal);color:#fff;border-radius:8px;
+  padding:1px 6px;font-weight:600;text-decoration:none}
+.matrix .mhead.now:hover{text-decoration:none}
 .matrix .codehead{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}
 .matrix .codehead:hover{color:var(--ink);text-decoration:underline}
 
@@ -136,40 +146,48 @@
    flach wie ohne ihn; die Farbe kommt aus dem Block (weiter unten,
    neben den Kanten). */
 .matrix .foldarrow{background:none;border:0;padding:0;cursor:pointer;
-  display:block;width:100%;font-size:15px;line-height:.8;letter-spacing:0;color:inherit}
+  display:block;width:100%;font-size:10px;line-height:1;letter-spacing:0;color:inherit}
 
 /* ── Zeilentypen ──────────────────────────────────────────────
    Drei Stufen, damit man ohne Suchen sieht, worin man liest:
    die Kopfzeile eines Blocks (.sec) am kräftigsten, die Kategorie
    darunter (.grp) eine Stufe heller, die Posten am hellsten. Die
-   Kante links am ersten Feld wiederholt die Farbe schmal und
-   kräftig — sie trägt auch dann, wenn die Zeile weit nach rechts
-   gescrollt ist. */
-.matrix tr.sec td{font-weight:700;font-family:var(--font-data);font-size:11.5px;
-  letter-spacing:.12em;text-transform:uppercase;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
-.matrix tr.grp td{font-weight:600;font-family:var(--font-data);font-size:10.5px;
-  letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--edge-out)}
-.matrix tr.spacer td{height:16px;background:var(--paper);border-bottom:0;padding:0}
-.matrix tr.r-in td{background:var(--bg-in)}
-.matrix tr.r-flex td{background:var(--bg-flex)}
-.matrix tr.r-out td{background:var(--bg-out)}
-.matrix tr.r-bal td{background:var(--bg-bal)}
-.matrix tr.grp.r-out td{background:var(--bg-out-2)}
+   3-px-Kante links tragen **nur die Kategoriezeilen** (siehe
+   unten) — an jeder Zeile war sie ein durchgehender Farbbalken. */
+/* Die Blockzeile nach 4a: Blockstufe -3 als Grund, unten eine
+   Linie in der Kantenfarbe statt der schwarzen Einfassung. */
+/* Das senkrechte Polster (8 px) hebt die Blockzeile auf die Höhe
+   des Kartenkopfs der Monatsansicht (~32 px): dieselbe Überschrift
+   in zwei Ansichten soll auch dieselbe Zeile sein. Wer hier dreht,
+   misst gegen .sechead der Monatsansicht nach. */
+.matrix tr.sec td{font-weight:600;font-family:var(--font-data);font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;border-top:0;border-bottom:1px solid var(--rule);
+  padding-top:8px;padding-bottom:8px}
+.matrix tr.grp td{font-weight:600;font-family:var(--font-data);font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--edge-out)}
+.matrix tr.spacer td{height:10px;background:var(--paper);border-bottom:0;padding:0}
+.matrix tr.r-in td{background:var(--bg-in);border-bottom-color:var(--bg-in-2)}
+.matrix tr.r-flex td{background:var(--bg-flex);border-bottom-color:var(--bg-flex-2)}
+.matrix tr.r-out td{background:var(--bg-out);border-bottom-color:var(--bg-out-2)}
+.matrix tr.r-bal td{background:var(--bg-bal);border-bottom-color:var(--bg-bal-2)}
+.matrix tr.grp.r-out td{background:var(--bg-out-2);border-bottom-color:var(--bg-out-3)}
 /* Seit es mehrere Einnahme-Kategorien geben kann, gliedert
    dieselbe Zeile auch den Einnahmenblock — in dessen Farbe. */
-.matrix tr.grp.r-in td{background:var(--bg-in-2)}
-.matrix tr.sec.r-in td{background:var(--bg-in-3)}
-.matrix tr.sec.r-flex td{background:var(--bg-flex-3)}
-.matrix tr.sec.r-out td{background:var(--bg-out-3)}
-.matrix tr.sec.r-bal td{background:var(--bg-bal-3)}
-.matrix tr.sec.r-sal td{background:var(--bg-sal-3)}
-.matrix tr.sec.r-in td.ed{box-shadow:inset 5px 0 0 var(--edge-in)}
-.matrix tr.sec.r-flex td.ed{box-shadow:inset 5px 0 0 var(--edge-flex)}
-.matrix tr.sec.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
-.matrix tr.sec.r-bal td.ed{box-shadow:inset 5px 0 0 var(--edge-bal)}
-.matrix tr.sec.r-sal td.ed{box-shadow:inset 5px 0 0 var(--edge-sal)}
-.matrix tr.grp.r-out td.ed{box-shadow:inset 5px 0 0 var(--edge-out)}
-.matrix tr.grp.r-in td.ed{box-shadow:inset 5px 0 0 var(--edge-in)}
+.matrix tr.grp.r-in td{background:var(--bg-in-2);border-bottom-color:var(--bg-in-3)}
+.matrix tr.sec.r-in td{background:var(--bg-in-3);border-bottom-color:var(--edge-in)}
+.matrix tr.sec.r-flex td{background:var(--bg-flex-3);border-bottom-color:var(--edge-flex)}
+.matrix tr.sec.r-out td{background:var(--bg-out-3);border-bottom-color:var(--edge-out)}
+.matrix tr.sec.r-bal td{background:var(--bg-bal-3);border-bottom-color:var(--edge-bal)}
+/* **Die 3-px-Kante tragen nur die Kategoriezeilen** (22.8.26).
+   Der Mock 4a gab sie jeder Zeile mit — an zweihundert Positionen
+   wurde daraus links ein durchgehender Farbbalken, der mehr Lärm
+   als Orientierung war. Was für eine Zeile spricht, sagen Grund-
+   stufe und Blockzeile; die Kategorie behält die Kante als das,
+   was sie gliedert — wie tr.group in der Monatsansicht (dort 5 px,
+   css/ledger.css). Am ersten, festgepinnten Feld, damit sie beim
+   seitlichen Rollen stehen bleibt. */
+.matrix tr.grp.r-out td.ed{box-shadow:inset 3px 0 0 var(--edge-out)}
+.matrix tr.grp.r-in td.ed{box-shadow:inset 3px 0 0 var(--edge-in)}
 /* Der Klapp-Pfeil trägt die Kantenfarbe seines Blocks — wie in der
    Monatsansicht der Pfeil im Kopf seiner Karte. */
 .matrix tr.sec.r-in .foldarrow{color:var(--edge-in)}
@@ -182,10 +200,11 @@
    Blockfarbe — deshalb steht die Regel hinter allen anderen. */
 .matrix tr.settled td{background:var(--settled)}
 /* Der Name bleibt schwarz: grau ist der Hintergrund, nicht die
-   Position. Nur die Notiz darunter tritt zurück — sie ist ein
-   Zusatz und soll den Namen nicht überstimmen. */
+   Position. Die Notiz darunter ebenso — sie trägt seit 22.8.26
+   dasselbe Bild wie die Monatsnotiz (Strich davor, .itemnote in
+   css/tokens.css), und das soll auf einer abgeschlossenen Zeile
+   nicht anders aussehen als auf jeder anderen. */
 .matrix tr.settled td.lab{color:var(--ink)}
-.matrix tr.settled td.lab .noteprev{color:var(--ink-2)}
 
 /* ── Die Gesamtzeile bleibt stehen ────────────────────────────
    Sie fasst alles zusammen, was darunter steht — beim Scrollen
@@ -195,7 +214,7 @@
    je Zeichnung in sizeMatrix() (js/app.js). Die links
    festgepinnten Zellen kleben zusätzlich nach links. */
 .matrix tr.balpin{position:sticky;top:var(--headH,0px);z-index:5}
-.matrix tr.balpin td{border-bottom:1px solid var(--edge-sal)}
+.matrix tr.balpin td{border-bottom:1px solid var(--edge-bal)}
 
 /* ── Die Blockzeilen bleiben stehen ───────────────────────────
    Einnahmen, Flexible Payments, Regelmäßige Kosten: dasselbe eine
@@ -213,9 +232,12 @@
 .matrix tr.secpin.r-flex{z-index:3}
 .matrix tr.secpin.r-out{z-index:4}
 
-/* ── Trennlinien ──────────────────────────────────────────── */
-.matrix td.mk,.matrix th.mkh{border-right:1px solid rgba(0,0,0,.16)}
-.matrix td.tot,.matrix th.toth{border-left:2px solid var(--ink);border-right:2px solid var(--ink)}
+/* ── Trennlinien ──────────────────────────────────────────────
+   Feine Spaltentrenner in rgba(0,0,0,.08), durchgehend über alle
+   Zeilen (4a); die Gesamtspalte behält eine etwas kräftigere
+   Fassung, aber keine schwarze mehr. */
+.matrix td.mk,.matrix th.mkh{border-right:1px solid rgba(0,0,0,.08)}
+.matrix td.tot,.matrix th.toth{border-left:1px solid var(--rule-strong);border-right:0}
 
 /* Laufender Monat: je eine rote Linie links und rechts.
    Beide werden als inset-Schatten gezeichnet, damit sie identisch
@@ -240,25 +262,121 @@
 .matrix tr:not(.itemrow) td.num.est{color:var(--ink)!important}
 /* Die Saldokorrektur wird wie eine Kategorie gesetzt, ihr
    Vorzeichen bleibt aber farbig — ob nach oben oder nach unten
-   korrigiert wird, ist die eigentliche Aussage der Zeile. */
-.matrix tr.r-bal td.num.pos{color:var(--ok)}
-.matrix tr.r-bal td.num.neg{color:var(--seal)}
-/* Aus demselben Grund „Gesamt je Monat" (.balpin): die Zeile ist
-   keine Überschrift über etwas, sondern das **Ergebnis** des
-   Monats — ob er ins Plus oder ins Minus läuft, ist ihre ganze
-   Aussage, und schwarz wäre sie die einzige Zahl der Tabelle, der
-   man das erst ansehen müsste. Die Gesamtspalte rechts zählt dazu:
-   sie ist dieselbe Aussage über das Jahr. */
-.matrix tr.balpin td.num.pos{color:var(--ok)}
-.matrix tr.balpin td.num.neg{color:var(--seal)}
+   korrigiert wird, ist die eigentliche Aussage der Zeile.
+   **Nicht aber „Saldo je Monat"**: die Zeile trägt seit dem
+   Mac-Redesign dieselbe r-bal-Klasse (sie ist die Blockzeile der
+   blauen Karte) und bliebe sonst doch farbig. */
+.matrix tr.r-bal:not(.balpin) td.num.pos{color:var(--ok)}
+.matrix tr.r-bal:not(.balpin) td.num.neg{color:var(--seal)}
+/* „Saldo je Monat" (.balpin) bleibt dagegen in Tinte: die Zeile
+   ist seit dem Mac-Redesign die Blockzeile der blauen Saldo-Karte
+   (4a), und Blockzeilen tragen keine Vorzeichenfarbe. Ob ein Monat
+   ins Plus oder ins Minus läuft, sagt das Minus vor der Zahl. */
 
 /* ── Haken, Fragezeichen, Notizlampe je Monatszelle ───────── */
 .mk-ok{color:var(--ok)}
 .mk-q{color:var(--amber)}
-.mkcell{display:grid;grid-template-columns:13px 20px;gap:3px;align-items:center;justify-items:center;
-  width:36px;margin:0 auto}
+.mkcell{display:grid;grid-template-columns:13px 16px;gap:3px;align-items:center;justify-items:center;
+  width:32px;margin:0 auto}
 .mkcell .mksym{width:13px;text-align:center;line-height:1}
 
 /* ── Breitenregler in der Kopfzeile der Jahresansicht ─────── */
 .widthctl{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2)}
 .widthctl input[type=number]{width:74px;padding:4px 6px;cursor:default;caret-color:transparent}
+
+/* ── Runde Ecken je Karte (Mock 4a) ───────────────────────────
+   Jeder Block liest sich als Karte mit Radius 8: der Spaltenkopf,
+   die blaue Saldo-Karte (Gesamtzeile + Saldokorrektur) und die
+   drei Blöcke. Oben rundet die erste Zeile nach einer Leerzeile
+   (bzw. die Gesamtzeile), unten die letzte Zeile ihres tbody.
+
+   **Eine Ecke wird nicht einfach beschnitten.** Kopf-, Gesamt- und
+   Blockzeilen kleben, und die Zeilen darunter ziehen beim Scrollen
+   unter ihnen durch — durch eine nur beschnittene Ecke schienen
+   sie neben der Rundung hindurch, und die Ecke sähe eckig aus.
+   Deshalb trägt die Eckzelle selbst Papier (eckig und deckend, es
+   füllt die Ecke) und ihre Farbe liegt als gerundetes ::before
+   darüber; die 3-px-Kante wandert auf diese Schicht mit. Der
+   Inhalt bleibt lesbar, weil Kinder mit z-index:-1 vor dem Inhalt
+   der Zelle gezeichnet werden — die Zelle muss dafür nur selbst
+   der Stapelrahmen sein (die linken kleben ohnehin, die rechten
+   bekommen position:relative + z-index:0). */
+.matrix thead tr:first-child{--cellbg:#fff}
+.matrix tr.r-in{--cellbg:var(--bg-in)}
+.matrix tr.r-flex{--cellbg:var(--bg-flex)}
+.matrix tr.r-out{--cellbg:var(--bg-out)}
+.matrix tr.r-bal{--cellbg:var(--bg-bal)}
+.matrix tr.grp.r-in{--cellbg:var(--bg-in-2)}
+.matrix tr.grp.r-out{--cellbg:var(--bg-out-2)}
+.matrix tr.sec.r-in{--cellbg:var(--bg-in-3)}
+.matrix tr.sec.r-flex{--cellbg:var(--bg-flex-3)}
+.matrix tr.sec.r-out{--cellbg:var(--bg-out-3)}
+.matrix tr.sec.r-bal{--cellbg:var(--bg-bal-3)}
+.matrix tr.settled{--cellbg:var(--settled)}
+/* Die Eckzellen bauen ihre Rundung aus **Hintergrund-Schichten**,
+   nicht aus border-radius: unten die Blockfarbe (--cellbg),
+   zuoberst je Ecke ein
+   8×8-Stück, das außerhalb des Viertelkreises Papier malt — die
+   Ecke ist damit „ausgestanzt". Ein Hintergrund hängt an der Zelle
+   selbst und wandert mit ihr, ob sie klebt oder scrollt; er kennt
+   keine Stapel- und Positionierungs-Sonderfälle von Tabellenzellen
+   (ein ::before mit position:absolute in einem klebenden td ist
+   genau so ein Sonderfall — Safari legt es an der falschen Fläche
+   an). Die vier Eckstücke stehen als Variablen am .matrix; das
+   Wort „3-px-Kante" weiter oben meint nur noch die
+   Kategoriezeilen. */
+.matrix{
+  --cTL:radial-gradient(circle 8px at 100% 100%,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) top left/8px 8px no-repeat;
+  --cTR:radial-gradient(circle 8px at 0 100%,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) top right/8px 8px no-repeat;
+  --cBL:radial-gradient(circle 8px at 100% 0,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) bottom left/8px 8px no-repeat;
+  --cBR:radial-gradient(circle 8px at 0 0,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) bottom right/8px 8px no-repeat}
+/* Welche Zelle welche Ecke stanzt: nur die Variablen. Ein
+   zugeklappter Block ist erste und letzte Zeile zugleich — dann
+   treffen sich beide Regeln und alle vier Ecken runden. `cbot`
+   trägt die Gesamtzeile, wenn keine Saldokorrektur unter ihr
+   steht (viewJahr): die blaue Karte ist dann nur diese Zeile. */
+.matrix thead tr:first-child th.ed{--eTL:var(--cTL);--eBL:var(--cBL);--cellbg:#fff}
+.matrix thead tr:first-child th.toth{--eTR:var(--cTR);--eBR:var(--cBR);--cellbg:#fff}
+.matrix tr.balpin td.ed{--eTL:var(--cTL)}
+.matrix tr.balpin td.tot{--eTR:var(--cTR)}
+.matrix tr.balpin.cbot td.ed{--eBL:var(--cBL)}
+.matrix tr.balpin.cbot td.tot{--eBR:var(--cBR)}
+.matrix tbody tr.spacer+tr td.ed{--eTL:var(--cTL)}
+.matrix tbody tr.spacer+tr td.tot{--eTR:var(--cTR)}
+.matrix tbody tr:last-child td.ed{--eBL:var(--cBL)}
+.matrix tbody tr:last-child td.tot{--eBR:var(--cBR)}
+/* Der Hintergrund-Stapel der Eckzellen: Eckstücke oben, zuunterst
+   die Blockfarbe. box-shadow:none braucht !important: die
+   Kantenregel der Kategoriezeilen (.matrix tr.grp.* td.ed) ist
+   spezifischer als jede Eckzellen-Auswahl, und ein inset-Schatten
+   läge über allen Hintergrundschichten — eine Kategoriezeile als
+   letzte Zeile eines Blocks verliert ihre Kante deshalb an dieser
+   einen Zelle, bevor sie quer durch die runde Ecke malte. */
+.matrix tr.balpin td.ed,.matrix tbody tr.spacer+tr td.ed,
+.matrix tbody tr:last-child td.ed{
+  background:var(--eTL,none),var(--eBL,none),var(--cellbg,var(--paper-2));
+  box-shadow:none!important}
+.matrix thead tr:first-child th.ed{
+  background:var(--eTL,none),var(--eBL,none),var(--cellbg,#fff)}
+.matrix thead tr:first-child th.toth,.matrix tr.balpin td.tot,
+.matrix tbody tr.spacer+tr td.tot,.matrix tbody tr:last-child td.tot{
+  background:var(--eTR,none),var(--eBR,none),var(--cellbg,var(--paper-2))}
+
+/* ── Unter der letzten Zeile einer Karte keine Trennlinie ─────
+   Dieselbe Regel wie in den Karten der Monatsansicht
+   (css/ledger.css): unter der letzten Zeile schließt die Karte
+   selbst ab, ein Strich quer über ihren unteren Rand sähe aus, als
+   käme noch etwas. Das trifft vor allem den **zugeklappten**
+   Block: seine Blockzeile ist zugleich die letzte Zeile, und die
+   Linie, die offen den Kopf von den Posten trennt, stünde
+   zugeklappt unter nichts. `cbot` ist die Gesamtzeile ohne
+   Saldokorrektur darunter — dieselbe Lage im Kopf der Tabelle. */
+.matrix tbody tr:last-child td{border-bottom:0}
+.matrix tr.balpin.cbot td{border-bottom:0}
+
+/* ── Die Saldokorrektur-Zeile (Mock 4a) ───────────────────────
+   Keine Blockzeile mehr (cls 'r-bal' ohne 'sec' in viewJahr):
+   heller blauer Grund, gewöhnliche Schrift wie eine Position —
+   die Blockzeile der blauen Karte ist „Saldo je Monat" darüber.
+   Nur der Stift trägt das Blau der Karte. */
+.matrix tbody tr.r-bal:not(.sec) .pencil{color:var(--ink-bal)}

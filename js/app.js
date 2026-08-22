@@ -80,7 +80,8 @@ function renderChrome(){
   /* Auch die Anleitung und das Jahr: die Begrüßung ist bewusst
      leer — die Anleitung gehört ins geladene Buch, und ein Jahr
      gibt es ohne Datei noch nicht. */
-  ['btnLoad','btnSave','btnBackup','btnUnlink','btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
+  ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewIn','mNewFlex','mNewOut',
+   'btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel||id==='btnLoad';
   });
@@ -109,26 +110,13 @@ function renderChrome(){
   document.body.classList.toggle('mobile',isMobile());
   document.body.classList.toggle('yearview',!wel&&ui.view==='jahr'&&!isMobile());
 
-  const mEl=document.getElementById('months');
-  mEl.setAttribute('aria-label',t('app.chooseMonth'));
-  mEl.style.display = (!wel&&ui.view==='monat') ? 'flex' : 'none';
-  mEl.innerHTML=MONTHS.map((name,i)=>{
-    const m=i+1, pt=monthParts(m);
-    const s=pt.total===0?'':(pt.done===pt.total?'done':(pt.done>0?'partial':''));
-    return `<button class="mtab${s==='done'?' alldone':''}${m===CUR?' current':''}" role="tab" aria-selected="${ui.month===m}" data-m="${m}"
-      title="${t('month.done',pt.done,pt.total)} · ${t('month.keyTip')}">${name}<span class="dot ${s}"></span></button>`;
-  }).join('');
-  /* Auch der Monatswechsel lässt den Fokus im Suchfeld: man hakt
-     einen Monat ab, springt in den nächsten und tippt weiter. */
-  mEl.querySelectorAll('.mtab').forEach(b=>b.onclick=()=>{ui.month=+b.dataset.m;ui.view='monat';keepQFocus();render();});
-  /* Auf dem Telefon zeigt die Leiste nur sieben, acht Monate —
-     der gewählte soll darin stehen, nicht rechts außerhalb.
-     Gesetzt wird scrollLeft direkt: scrollIntoView zöge die ganze
-     Seite mit. */
-  if(isMobile()){
-    const sel=mEl.querySelector('.mtab[aria-selected="true"]');
-    if(sel) mEl.scrollLeft=sel.offsetLeft-(mEl.clientWidth-sel.offsetWidth)/2;
-  }
+  /* Die Monatsleiste steht seit 22.8.26 nicht mehr in der
+     Kopfzeile, sondern unter der Filterzeile der Monatsansicht —
+     dort, wo die Jahresmatrix ihre Monate hat. Gebaut wird sie
+     mit der Ansicht (monthTabs in js/views/monat.js), verdrahtet
+     über data-mtab in wire(). Die Kopfzeile ist damit in jeder
+     Ansicht gleich hoch, und syncStickyTops() misst nur noch
+     einen Wert. */
 
   /* Die Anleitung steht neben der Seite und wechselt die Sprache
      mit, ohne dass man sie schließen muss. */
@@ -140,19 +128,22 @@ function renderChrome(){
      unten als .mtabs. Das Inline-display muss das wissen: es
      gewänne sonst gegen jede Regel in css/mobile.css. */
   vEl.style.display=(wel||isMobile())?'none':'flex';
-  /* Rechts auf Höhe der Reiter steht, was die Zeichen der
-     Jahresmatrix bedeuten — dort ist Platz, und in der Leiste der
-     Matrix stünde es zwischen lauter Knöpfen. Nur im Jahr: in den
-     anderen Ansichten gibt es diese Zeichen nicht. */
-  const key=ui.view==='jahr'?`<span class="viewkey" role="presentation">${t('year.legend')}</span>`:'';
+  /* Die ✓/?-Erklärung (.viewkey) stand bis 22.8.26 rechts neben
+     den Reitern — dort stritt sie sich mit dem Dateinamen um den
+     Platz und stand in drei Ansichten, in denen es die Zeichen gar
+     nicht gibt. Sie ist weg: die Siegel erklären sich über ihre
+     Sprechblasen, ausführlich sagt es die Anleitung. */
   /* An jedem Reiter steht sein Tastengriff — ein Griff, den niemand
      findet, gibt es nicht. Die Sprechblase ist die einzige Stelle,
      an der die vier Buchstaben stehen; eine eigene Zeile dafür wäre
      der Preis nicht wert. Woher der Buchstabe kommt: VIEW_KEYS
      unten in dieser Datei. */
   vEl.innerHTML=VIEWS.map(([k,l])=>`<button class="vtab" role="tab" aria-selected="${ui.view===k}"
-    data-v="${k}" data-tip="${esc(t('view.keyTip',viewKey(k)))}">${l}</button>`).join('')+key;
-  vEl.querySelectorAll('.vtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;render();});
+    data-v="${k}" data-tip="${esc(t('view.keyTip',viewKey(k)))}">${l}</button>`).join('');
+  /* Ein offenes Filtermenü gehört zur Monatsansicht und schließt
+     mit dem Wechsel — sonst stünde es beim Zurückkommen wieder
+     offen da, als hätte es niemand verlassen. */
+  vEl.querySelectorAll('.vtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;ui.fltMenu=null;render();});
 
   /* Auf dem Telefon stehen dieselben Reiter unten, am Daumen —
      dieselbe Liste (VIEWS), dieselbe Wirkung. Das Element gibt es
@@ -165,7 +156,7 @@ function renderChrome(){
     mt.setAttribute('aria-label',t('app.chooseView'));
     mt.innerHTML=VIEWS.map(([k,l])=>`<button class="mvtab" role="tab"
       aria-selected="${ui.view===k}" data-v="${k}">${l}</button>`).join('');
-    mt.querySelectorAll('.mvtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;render();});
+    mt.querySelectorAll('.mvtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;ui.fltMenu=null;render();});
   }
 }
 
@@ -180,6 +171,11 @@ function syncStickyTops(){
   const h=document.querySelector('header'); if(!h) return;
   const top=h.offsetHeight;
   document.querySelectorAll('.stickybar').forEach(el=>{ el.style.top=top+'px'; });
+  /* Dasselbe Maß ist zugleich die Höhe der Kopfzeile — und die
+     Filterzeile darunter soll genau so hoch sein. Sie bekommt es
+     als --barh; gemessen und nicht geraten, damit sie mitwächst,
+     wenn oben etwas dazukommt (css/layout.css). */
+  document.documentElement.style.setProperty('--barh',top+'px');
 
   /* Darunter die Köpfe der Karten: sie kleben unter der Leiste
      der Ansicht (Auswertung und Filterzeile im Monat, Bedienleiste
@@ -453,6 +449,17 @@ function wire(){
      Auswertung aufgeklappt ist — zugeklappt gibt es diese Knöpfe
      also gar nicht. */
   document.querySelectorAll('[data-tpart]').forEach(b=>b.onclick=()=>toggleFilter('dueFilter',b.dataset.tpart));
+  /* Die Aufklappmenüs der Filterzeile (fltDrop in js/views/monat.js):
+     der Knopf öffnet und schließt sein Menü, die Einträge darin sind
+     die gewohnten data-filter/-duefilter/-secfilter und oben schon
+     verdrahtet — sie lassen das Menü beim Wählen offen, denn
+     ui.fltMenu bleibt gesetzt und render() baut es offen wieder auf.
+     Zu geht es mit einem Klick daneben oder mit Escape (beides
+     unten bei den globalen Handlern). */
+  document.querySelectorAll('[data-fltmenu]').forEach(b=>b.onclick=()=>{
+    ui.fltMenu=ui.fltMenu===b.dataset.fltmenu?null:b.dataset.fltmenu;
+    render();
+  });
   /* Die Auswertung auf- und zuklappen. Sie steht in ui, nicht in
      der Datei: was gerade zu sehen ist, gehört zur Anzeige. */
   document.querySelectorAll('[data-ana]').forEach(b=>b.onclick=()=>{
@@ -523,6 +530,21 @@ function wire(){
      es dort auch, und es trägt dasselbe Wort — also bleibt der
      Fokus darin, sofern etwas darin steht. */
   document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{ui.month=+b.dataset.goto;ui.view='monat';keepQFocus();render();});
+  /* Die Monatsleiste unter der Filterzeile (monthTabs in
+     js/views/monat.js). Auch der Monatswechsel lässt den Fokus im
+     Suchfeld: man hakt einen Monat ab, springt in den nächsten und
+     tippt weiter. */
+  document.querySelectorAll('[data-mtab]').forEach(b=>b.onclick=()=>{
+    ui.month=+b.dataset.mtab; ui.view='monat'; keepQFocus(); render();});
+  /* Auf dem Telefon zeigt die Leiste nur sieben, acht Monate — der
+     gewählte soll darin stehen, nicht rechts außerhalb. Gesetzt
+     wird scrollLeft direkt: scrollIntoView zöge die ganze Seite
+     mit. */
+  if(isMobile()){
+    const mEl=document.querySelector('.months');
+    const sel=mEl&&mEl.querySelector('.mtab[aria-selected="true"]');
+    if(sel) mEl.scrollLeft=sel.offsetLeft-(mEl.clientWidth-sel.offsetWidth)/2;
+  }
 
   /* Kakeibo: Auswahl der rechten Spalte — eine Kategorie oder,
      ohne Auswahl, die größten Einzelposten. */
@@ -625,15 +647,25 @@ function wire(){
   document.querySelectorAll('[data-newkak]').forEach(b=>b.onclick=()=>newKakCat());
   bindNotes(document,()=>render());
 
-  /* Die beiden Filter der Jahresansicht. Sie stehen in der Datei,
-     nicht in ui — der Nutzer stellt sie einmal ein und findet sie
-     beim nächsten Öffnen wieder. Deshalb save() davor. Und wie in
-     der Monatsansicht: steht im Suchfeld etwas, geht der Fokus
-     danach dorthin zurück. */
+  /* Die beiden Ausblenden-Knöpfe der Jahresansicht — und sie sind
+     verschieden weit gültig:
+
+       „Abgeschlossene Monate ausblenden" nimmt **Spalten** weg und
+       versteckt damit nichts, was noch aussteht. Das ist eine
+       Gewohnheit beim Lesen: sie steht in der Datei (save() davor)
+       und gilt beim nächsten Öffnen wieder.
+
+       „Erledigte Posten ausblenden" nimmt **Zeilen** weg. Es gilt
+       nur für diese Sitzung (ui.hideSettled) — deshalb hier kein
+       save(): eine Datei, die beim Öffnen von selbst Zeilen
+       versteckt, sieht aus, als fehlte etwas.
+
+     Wie in der Monatsansicht: steht im Suchfeld etwas, geht der
+     Fokus danach dorthin zurück. */
   const fb=document.getElementById('btnFold');
   if(fb) fb.onclick=()=>{state.hideDoneMonths=!state.hideDoneMonths;keepQFocus();save();render();};
   const hs=document.getElementById('btnHideSettled');
-  if(hs) hs.onclick=()=>{state.hideSettled=!state.hideSettled;keepQFocus();save();render();};
+  if(hs) hs.onclick=()=>{ui.hideSettled=!ui.hideSettled;keepQFocus();render();};
 
   /* Die Prognose rechnet und zeigt; zu ändern gibt es dort zwei
      Zahlen, und beide hängen schon oben: die Saldokorrektur eines
@@ -726,7 +758,7 @@ addEventListener('keydown',ev=>{
   if(ui.welcome||document.querySelector('.modal')) return;
   ev.preventDefault();
   if(!VIEWS.some(([k])=>k===want)||ui.view===want) return;
-  ui.view=want; render();
+  ui.view=want; ui.fltMenu=null; render();
 });
 
 /* ── Strg/Cmd + ← / → blättert durch die Monate ──────────────
@@ -830,10 +862,27 @@ addEventListener('keydown',ev=>{
 addEventListener('keydown',ev=>{
   if(ev.key!=='Escape'||ev.defaultPrevented) return;
   if(ui.welcome||document.querySelector('.modal')) return;
+  /* Ein offenes Filtermenü geht zuerst zu — Escape heißt überall
+     „eine Schicht zurück", und das Menü ist die oberste. */
+  if(ui.fltMenu){ ev.preventDefault(); ui.fltMenu=null; render(); return; }
   if(!(ui.q||'').trim()&&ui.filter==='alle'&&ui.dueFilter==='alle'&&ui.secFilter==='alle') return;
   if(!document.querySelector('[data-q]')) return;
   ev.preventDefault();
   ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.secFilter='alle'; ui.qFocus='all'; render();
+});
+
+/* Ein Klick neben ein offenes Filtermenü schließt es — derselbe
+   Weg wie beim Hamburger-Menü der Kopfzeile. Die Einträge selbst
+   liegen in .fltdrop und schließen nicht: das Menü bleibt beim
+   Wählen offen. Trifft der Klick das Suchfeld, soll er nicht im
+   Neuzeichnen untergehen: der Fokus kommt dann gleich dorthin
+   zurück, wo er eben hinwollte. */
+document.addEventListener('click',ev=>{
+  if(ui.fltMenu&&!ev.target.closest('.fltdrop')){
+    ui.fltMenu=null;
+    if(ev.target.closest('.fltbox')) ui.qFocus='end';
+    render();
+  }
 });
 
 /* ── Ein Feld anklicken heißt: überschreiben ─────────────────
@@ -905,19 +954,29 @@ document.getElementById('btnSettings').onclick=()=>openSettings();
 /* Die Anleitung ist ein Bereich, kein Fenster: derselbe Knopf
    klappt sie auf und wieder zu. */
 document.getElementById('btnGuide').onclick=()=>toggleGuide();
-/* Beide Importe stehen im Einstellungsfenster, Bereich „Import" —
-   in der Kopfzeile ist kein Knopf mehr dafür. */
 document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();
+/* Der CSV-Import im Menü nimmt denselben Weg wie der Bereich
+   „Import" der Einstellungen: erst das Fenster, das sagt, was die
+   Datei braucht (openImportInfo), dann die Dateiauswahl. */
+document.getElementById('btnImportCsv').onclick=()=>openImportInfo();
+/* Die drei „Neu…"-Wege des Menüs — dieselben Fenster wie die
+   Knöpfe, die bis zum Mac-Redesign in den Karten standen. Die
+   Einnahme bekommt die erste Einnahme-Kategorie vorgewählt; gibt
+   es keine, heißt "1" ohne Vorauswahl, und #fSave sagt, dass
+   Kategorien in den Einstellungen entstehen (item.needBlock). */
+document.getElementById('mNewIn').onclick=()=>editItem(null,incomeGroups()[0]||'1');
+document.getElementById('mNewFlex').onclick=()=>newKakCat();
+document.getElementById('mNewOut').onclick=()=>editItem(null,'1');
 
 /* Rückfallweg, wenn der Browser die File System Access API nicht kennt. */
 document.getElementById('fileJson').onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=()=>{ try{ state=migrate(JSON.parse(r.result)); fileName=f.name; fileHandle=null; dirty=false;
-      afterLoad(); ui.welcome=false; render(); toast(t('store.loaded',f.name)); }
+      afterLoad(); ui.welcome=false; render(); toast(t('store.loaded',f.name)+oldNote()); }
     catch(err){ toast(t('store.readFail')); } };
   r.readAsText(f,'utf-8'); e.target.value='';
 };

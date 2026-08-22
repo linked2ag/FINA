@@ -1124,12 +1124,22 @@ news:{
 en:()=>`
 <h4>26.8.22 <span class="pill">latest</span></h4>
 <ul>
-  <li><b>Filter ${t('view.monat')} by area</b> — three buttons next to the search field show only
-      ${t('month.fSecIn')}, only ${t('month.fSecFlex')} or only ${t('month.fSecOut')}. The figures
-      above and the timeline count along, so you always read what is in front of you.</li>
-  <li><b>The filter row lights up</b> — as soon as a filter is on, the row turns orange. In
-      ${t('view.jahr')} the row with the search field does the same. It tells you at a glance
-      that something is hidden.</li>
+  <li><b>FINA wears a Mac coat</b> — the views sit as a segmented control in the middle of the
+      toolbar, every action lives behind the ☰ menu at the top right (a red dot on it means
+      unsaved changes), the months stand as a strip under the filter row — the same place
+      ${t('view.jahr')} has them —, the current one as a red pill, and all views show rounded
+      cards. The fourth tab is now called ${t('view.kakeibo')}.</li>
+  <li><b>Filters open as menus</b> — next to the search field sit “${t('flt.options')}” and three
+      drop-downs: ${t('month.fSec')}, ${t('flt.due')} and ${t('flt.state')}. A menu stays open
+      while you choose; the chosen value stands on orange. The figures above and the timeline
+      count along, so you always read what is in front of you.</li>
+  <li><b>The filter row runs across the page</b> — one flat band from edge to edge, right
+      under the tabs, in ${t('view.monat')} and ${t('view.jahr')} alike. As soon as a filter is on it turns
+      orange, so you see at a glance that something is hidden; a button that is on stays
+      dark either way.</li>
+  <li><b>Hiding what is done no longer locks the areas</b> — with
+      <b>${t('year.hideSettled')}</b> switched on you can still fold a block in
+      ${t('view.jahr')}.</li>
   <li><b>${t('month.kpiOpen')} counts your Flexible Payments too</b> — the figure now names
       everything the month still costs, not only the regular items.</li>
   <li>Bugfixing and cosmetic changes.</li>
@@ -1326,12 +1336,23 @@ en:()=>`
 de:()=>`
 <h4>26.8.22 <span class="pill">neu</span></h4>
 <ul>
-  <li><b>${t('view.monat')} nach Bereich filtern</b> — drei Knöpfe neben dem Suchfeld zeigen nur
-      ${t('month.fSecIn')}, nur ${t('month.fSecFlex')} oder nur ${t('month.fSecOut')}. Die Zahlen
-      darüber und der Zeitstrahl rechnen mit, du liest also immer das, was vor dir steht.</li>
-  <li><b>Die Filterzeile leuchtet</b> — sobald ein Filter greift, färbt sich die Zeile orange. In
-      ${t('view.jahr')} tut das die Zeile mit dem Suchfeld genauso. So siehst du auf einen Blick,
-      dass gerade etwas ausgeblendet ist.</li>
+  <li><b>FINA trägt ein Mac-Gewand</b> — die Ansichten stehen als Wechselschalter in der Mitte
+      der Kopfzeile, alle Aktionen stecken im ☰-Menü oben rechts (ein roter Punkt daran heißt:
+      ungespeichert), die Monate stehen als Leiste unter der Filterzeile — dort, wo
+      ${t('view.jahr')} seine Monate hat —, der laufende als rote Pille, und alle Ansichten
+      zeigen Karten mit runden Ecken. Der vierte Reiter heißt jetzt
+      ${t('view.kakeibo')}.</li>
+  <li><b>Filter öffnen sich als Menüs</b> — neben dem Suchfeld stehen „${t('flt.options')}" und
+      drei Aufklappmenüs: ${t('month.fSec')}, ${t('flt.due')} und ${t('flt.state')}. Ein Menü
+      bleibt beim Wählen offen; der gewählte Wert steht auf Orange. Die Zahlen darüber und der
+      Zeitstrahl rechnen mit, du liest also immer das, was vor dir steht.</li>
+  <li><b>Die Filterzeile läuft über die ganze Seite</b> — eine flache Bahn von Rand zu Rand,
+      direkt unter den Reitern, in ${t('view.monat')} wie in ${t('view.jahr')}. Sobald ein Filter greift, färbt sie sich
+      orange: du siehst auf einen Blick, dass gerade etwas ausgeblendet ist. Ein Knopf, der
+      gilt, bleibt so oder so dunkel.</li>
+  <li><b>Ausblenden sperrt das Zuklappen nicht mehr</b> — mit
+      <b>${t('year.hideSettled')}</b> lassen sich die Blöcke in ${t('view.jahr')} weiter
+      zuklappen.</li>
   <li><b>${t('month.kpiOpen')} zählt die Flexible Payments mit</b> — die Zahl nennt jetzt alles,
       was der Monat noch kostet, nicht mehr nur die regelmäßigen Posten.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>

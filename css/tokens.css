@@ -136,6 +136,22 @@
   --ink-sal:#6D30C4;
   /* Restlaufzeit in der Spalte „Ende": auslaufend → weit weg */
   --end-now:#B7DFC6; --end-soon:#BBD6EC; --end-mid:#EDDDA0; --end-far:#EFC7BF;
+  /* ── Mac-Chrome (Redesign 22.8.26) ──────────────────────────
+     Die zwei Neutraltöne über dem Papier: --chrome-hi ist das
+     hellste Grau der Toolbar, --chrome der Grund der Gruppenboxen
+     in den Fenstern. --hairline trennt Menüeinträge und
+     Tabellenzeilen — derselbe Wert wie --settled, aber eine Linie,
+     keine Fläche: wer eine der beiden ändert, meint nicht die
+     andere. */
+  --chrome-hi:#F7F8F3; --chrome:#ECEDE6; --hairline:#E5E7DE;
+  /* Verläufe und Schatten des Chrome — eine Stelle, vier Größen:
+     Knopf, Karte, aufgeklapptes Menü, Fenster. */
+  --grad-bar:linear-gradient(var(--chrome-hi),var(--chrome));
+  --grad-btn:linear-gradient(#fff,var(--paper-2));
+  --sh-btn:0 1px 1px rgba(0,0,0,.05);
+  --sh-card:0 1px 2px rgba(0,0,0,.04);
+  --sh-pop:0 8px 22px rgba(0,0,0,.18);
+  --sh-modal:0 18px 44px rgba(0,0,0,.25);
   --font-display:'Zilla Slab',Georgia,serif;
   --font-ui:'Archivo',system-ui,-apple-system,sans-serif;
   --font-data:'IBM Plex Mono',ui-monospace,Menlo,monospace;
@@ -143,8 +159,10 @@
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+/* Flaches Papier ohne die linierten Zeilen: das Mac-Chrome lebt
+   von ruhigen Flächen und feinen Kanten — ein liniertes Blatt
+   darunter machte jede Karte zum Fremdkörper. */
 body{background:var(--paper);
-  background-image:repeating-linear-gradient(to bottom,transparent 0 27px,rgba(0,0,0,.028) 27px 28px);
   color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
 /* ── Textzustände ─────────────────────────────────────────────
@@ -162,12 +180,23 @@ body{background:var(--paper);
 /* Die Monatsnotiz steht links unter der Zahlungszeile und reicht
    nach rechts so weit wie ihre Zelle — bis an den Rand des Blocks.
    Der senkrechte Strich davor bindet sie an die Position und wächst
-   mit ihr: bei mehreren Zeilen über alle. */
-.itemnote{display:block;font-size:11.5px;color:var(--ink);white-space:pre-wrap;text-align:left;
+   mit ihr: bei mehreren Zeilen über alle.
+
+   **Die Vorschau unter dem Namen sieht genauso aus.** Eine Notiz
+   ist eine Notiz — in der Monatsansicht, in der Jahresmatrix und
+   in den Fast Budget Details; sähe sie je Ansicht anders aus,
+   sähe sie nach etwas anderem aus. Deshalb steht das Bild hier an
+   **einer** Stelle, und .noteprev legt nur noch den Abbruch nach
+   zwei Zeilen darüber (siehe unten). */
+.itemnote,.noteprev{display:block;font-size:11.5px;color:var(--ink);white-space:pre-wrap;text-align:left;
   margin-top:4px;padding-left:9px;border-left:2px solid var(--rule-strong)}
 /* Vorschau der Notiz zur ganzen Position: zwei Zeilen unter dem
    Namen, danach Auslassungspunkte. Der volle Text steht in der
-   Sprechblase und im Notizfenster. */
-.noteprev{font-size:10.5px;line-height:1.35;color:var(--ink-2);margin-top:3px;
-  white-space:pre-wrap;overflow-wrap:anywhere;overflow:hidden;
+   Sprechblase und im Notizfenster.
+
+   Der Abbruch bleibt: eine Zeile der Jahresmatrix darf nicht mit
+   der Länge einer Notiz wachsen — zehn Zeilen Text schöben die
+   zwölf Monatsspalten daneben auseinander. In der Monatsansicht
+   steht die Notiz in einer eigenen Zeile und darf ausschreiben. */
+.noteprev{overflow-wrap:anywhere;overflow:hidden;
   display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}

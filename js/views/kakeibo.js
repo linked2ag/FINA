@@ -125,7 +125,10 @@ function viewKakeibo(){
   const barVals=[];
   order.forEach(k=>{ if(mainBar(k)) barVals.push(val[k]); else subOf(k).forEach(e=>barVals.push(e[1])); });
   const maxBar=Math.max(1,...barVals.map(v=>Math.abs(v)));
-  const bar=v=>`<td class="barcell"><div class="bar" style="width:${Math.abs(v)/maxBar*100}%;background:${v<0?'var(--seal)':'var(--ok)'}"></div></td>`;
+  /* Die Balkenfarbe folgt dem Mac-Redesign (4c): Terracotta für
+     Ausgaben, das Kantengrün für die seltene Einnahme — die
+     satten Signalfarben blieben dem Vorzeichen der Beträge. */
+  const bar=v=>`<td class="barcell"><div class="bar" style="width:${Math.abs(v)/maxBar*100}%;background:${v<0?'var(--edge-out)':'var(--edge-in)'}"></div></td>`;
 
   /* ── Woher der Wert kommt ───────────────────────────────────
      Importiert, korrigiert, abgehakt, fester Betrag oder noch
@@ -223,7 +226,10 @@ function viewKakeibo(){
   /* Die Leiste bleibt beim Scrollen stehen: Zeitraum, Gliederung
      und Import sind das, womit man diese Ansicht bedient — die
      Listen darunter werden lang. */
-  return `<div class="filterbar stickybar">
+  /* Die Werkzeugleiste als grauer Kasten (4c): Zeitraum,
+     Monatsschritte, das Gliederungs-Paar, rechts der Mono-Zähler.
+     Angelegt wird über das Hamburger-Menü der Kopfzeile. */
+  return `<div class="filterbar kbar stickybar">
       <select id="kMonth" aria-label="${t('kak.period')}">
         <option value="jahr"${scopeYear?' selected':''}>${t('g.wholeYear')}</option>
         ${MONTHS_LONG.map((n,i)=>`<option value="${i+1}"${!scopeYear&&ui.month===i+1?' selected':''}>${n}</option>`).join('')}
@@ -240,17 +246,16 @@ function viewKakeibo(){
         title="${t('kak.prevTip')}">${t('kak.prev')}</button>
       <button class="btn small" data-kmonth="next" ${!scopeYear&&ui.month>=12?'disabled':''}
         title="${t('kak.nextTip')}">${t('kak.next')}</button>
-      <button class="btn small${scopeYear?' primary':''}" data-kmonth="jahr" aria-pressed="${scopeYear}" title="${t('kak.yearTip')}">${t('g.wholeYear')}</button>
-      <span style="width:18px"></span>
+      <button class="btn small" data-kmonth="jahr" aria-pressed="${scopeYear}" title="${t('kak.yearTip')}">${t('g.wholeYear')}</button>
+      <span class="tbdivider" aria-hidden="true"></span>
       <button class="btn small" data-kd="0" aria-pressed="${!detail}">${t('kak.mainOnly')}</button>
       <button class="btn small" data-kd="1" aria-pressed="${detail}"
         ${canDetail?'':`disabled title="${esc(t('kak.subsNeedImport'))}"`}>${t('kak.withSubs')}</button>
       <span style="flex:1"></span>
-      <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
-      <!-- Der Import steht in der Kopfzeile: diesen Reiter gibt es
+      <!-- Der Import steht im Hamburger-Menü: diesen Reiter gibt es
            erst, wenn einmal importiert wurde — der Weg hinein darf
            nicht in ihm liegen. -->
-      <span class="note">${tx.length} ${t('g.transactions')}${orphan?t('kak.orphan',orphan):''}</span></div>
+      <span class="note txcount">${tx.length} ${t('g.transactions')}${orphan?t('kak.orphan',orphan):''}</span></div>
   <div class="grid">
     <div class="card sec-flex">
       <div class="sechead"><div class="headstack">

@@ -49,7 +49,7 @@ function matrixHead(extra){
     <th class="code cF" title="${t('year.dueTip')}">DD</th>
     <th class="code cE" title="${t('year.endTip')}">${t('year.end')}</th>
     ${visMonths().map(m=>{const done=monthDone(m);
-      return `<th class="${cmAmt(m).trim()}"><button class="mhead${done?' done':''}" data-goto="${m}"
+      return `<th class="${cmAmt(m).trim()}"><button class="mhead${done?' done':''}${m===CUR?' now':''}" data-goto="${m}"
         title="${done?t('year.monthDone'):''}${t('year.monthTip',MONTHS_LONG[m-1])}">${MONTHS[m-1]}</button></th>
       <th class="mkh${cmMark(m)}"></th>`;}).join('')}
     <th class="toth">${t('g.total')}</th></tr>${extra||''}</thead>`;
@@ -206,7 +206,7 @@ function viewJahrMobile(){
 
 function viewJahr(){
   if(isMobile()) return viewJahrMobile();
-  /* „Abgeschlossene ausblenden" versteckt nur Zeilen, in denen
+  /* „Erledigte Posten ausblenden" versteckt nur Zeilen, in denen
      nichts mehr aussteht. Die Summen bleiben davon unberührt.
 
      Dazu das Suchfeld: dasselbe wie in der Monatsansicht, nur über
@@ -230,7 +230,7 @@ function viewJahr(){
   const qOk=it=>!q||hayItem(it).includes(q);
   /* Der Haken „auch in den ausgeblendeten Positionen" (qAll() in
      js/state.js): mit ihm gewinnt der Suchbegriff gegen
-     „Abgeschlossene ausblenden". Ohne Suchbegriff ändert er
+     „Erledigte Posten ausblenden". Ohne Suchbegriff ändert er
      nichts. */
   const wide=!!q&&qAll();
   /* ── Auch die Posten ohne einen einzigen Betrag stehen hier ──
@@ -246,13 +246,13 @@ function viewJahr(){
      Die Monatsansicht bleibt davon unberührt: dort steht, was in
      **diesem** Monat fällig ist, und ein Posten ohne Betrag ist es
      nicht. */
-  const base=it=>wide||!(state.hideSettled&&yearSettled(it));
-  /* Die Zahl hinter „Abgeschlossene ausblenden" zählt nur, was
+  const base=it=>wide||!(ui.hideSettled&&yearSettled(it));
+  /* Die Zahl hinter „Erledigte Posten ausblenden" zählt nur, was
      dieser Knopf versteckt — nicht, was der Suchbegriff wegnimmt.
      Ein Posten ohne jeden Betrag ist nie abgeschlossen
      (yearSettled in js/calc.js) und wird hier also nicht mitgezählt. */
   let hiddenRows=0;
-  const countHidden=arr=>{hiddenRows+=arr.filter(it=>state.hideSettled&&yearSettled(it)).length;};
+  const countHidden=arr=>{hiddenRows+=arr.filter(it=>ui.hideSettled&&yearSettled(it)).length;};
 
   /* ── Wann ein Block zugeklappt ist ───────────────────────────
      Wie in der Monatsansicht: gewöhnlich sagt es die Datei
@@ -262,11 +262,20 @@ function viewJahr(){
      ebenso. Wer sucht, soll den Treffer sehen und nicht daran
      denken müssen, in welchem zugeklappten Block er steckt.
 
-     Gemeint sind die Filter, die Zeilen wegnehmen: das Suchfeld und
-     „Abgeschlossene ausblenden". „Erledigte Monate ausblenden"
-     nimmt Spalten weg — in einem Block verbirgt sich dadurch
-     nichts, dieser Knopf klappt also nichts auf. */
-  const filterOn=!!q||!!state.hideSettled;
+     Gemeint ist damit seit 22.8.26 **allein das Suchfeld**. Wer
+     sucht, hat ein Ziel und soll den Treffer sehen, gleich in
+     welchem Block er steckt — die beiden Ausblenden-Knöpfe rechts
+     haben keins: sie räumen ab, was fertig ist. Ein Buch, in dem
+     „Erledigte Posten ausblenden" gedrückt ist, verlor damit bis
+     dahin dauerhaft seine Pfeile, ohne dass jemand danach gefragt
+     hätte. „Abgeschlossene Monate ausblenden" nimmt ohnehin nur
+     Spalten weg — in einem Block verbirgt sich dadurch nichts.
+
+     `filterOn` bleibt davon unberührt: **welche Zeilen es gibt**,
+     entscheiden beide weiterhin (keepSec unten). Gesperrt ist nur
+     das Klappen. */
+  const filterOn=!!q||!!ui.hideSettled;
+  const foldLock=!!q;
   /* ── Beim Filtern verschwindet ein leerer Block ganz ──────────
      Bleibt in einem Block keine Zeile übrig, fällt auch seine
      Blockzeile weg — mitsamt der Leerzeile davor. Zwölf Nullen
@@ -278,11 +287,11 @@ function viewJahr(){
      **Ohne Filter bleibt der Block stehen**, auch leer: dort sagt
      er, dass es ihn gibt und dass noch nichts darin steht. */
   const keepSec=rows=>!!rows||!filterOn;
-  const foldOf=k=>filterOn?false:isFoldedYear(k);
+  const foldOf=k=>foldLock?false:isFoldedYear(k);
   const fIn=foldOf('in'), fFlex=foldOf('flex'), fOut=foldOf('out');
   /* Die Blockzeile bekommt ihren Pfeil nur, wenn geklappt werden
      darf; sonst steht ihre erste Spalte leer wie bisher. */
-  const foldOpt=(k,on)=>filterOn?{}:{fold:{key:k,on}};
+  const foldOpt=(k,on)=>foldLock?{}:{fold:{key:k,on}};
 
   /* Je Block ein Stück; die Leerzeilen kommen erst am Ende
      dazwischen — ein weggefilterter Block hinterlässt sonst eine
@@ -318,11 +327,14 @@ function viewJahr(){
      zufällig in ihrer Beschriftung vorkommen, damit sie bleibt. */
   /* Die Saldokorrektur steht über den Einnahmen: eine einzige
      Zeile, wie eine Kategorie gezeigt, aber über den Stift wie
-     jeder Posten zu pflegen. */
+     jeder Posten zu pflegen. **Keine Blockzeile** (Mock 4a): sie
+     ist die einzige Zeile der blauen Karte und liest sich wie ein
+     Posten — heller Grund (--bg-bal), gewöhnliche Schrift; die
+     Blockzeile der Karte ist „Saldo je Monat" darüber. */
   const balOn=qOk(state.balance)||hit(t('bal.row'));
   if(balOn)
     parts.push(mrow(`<span data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>`,
-      state.balance.amounts,{item:state.balance,asCat:true,cls:'sec r-bal',editTip:t('bal.editTip')}));
+      state.balance.amounts,{item:state.balance,asCat:true,cls:'r-bal',editTip:t('bal.editTip')}));
 
   const inc=state.fixed.filter(isIncome); countHidden(inc);
   const secIn=hit(t('g.income'));
@@ -399,7 +411,11 @@ function viewJahr(){
      unmittelbar an ihr, während alle übrigen Blöcke voneinander
      abgesetzt sind. Beim Scrollen verschwindet die Lücke unter der
      Gesamtzeile — die klebt, die Leerzeile nicht. */
-  const body=parts.map(p=>`<tbody>${spacer()}${p}</tbody>`).join('');
+  /* Die Saldokorrektur klebt ohne Lücke unter der Saldo-Zeile im
+     Kopf: beide bilden die blaue Karte des Mac-Redesigns (4a).
+     Erst ab dem zweiten Stück trennt die Leerzeile — und vor dem
+     ersten Block, wenn die Korrektur weggefiltert ist. */
+  const body=parts.map((p,i)=>`<tbody>${(i===0&&balOn)?'':spacer()}${p}</tbody>`).join('');
 
   /* ── Die oberste Zeile ist der Monat selbst ─────────────────
      Was er bringt und was er kostet, zusammengezählt — **nur
@@ -432,8 +448,14 @@ function viewJahr(){
     incVis.reduce((s,it)=>s+it.amounts[i],0)
     +outVis.reduce((s,it)=>s+it.amounts[i],0)
     +kakSums[i]+(balVals[i]||0));
+  /* „Saldo je Monat" trägt seit dem Mac-Redesign das Blau der
+     Saldokorrektur (r-bal): die Zeile ist die Blockzeile der
+     blauen Karte, deren einzige Position die Korrektur darunter
+     ist — das Violett ist an dieser Stelle Geschichte. */
+  /* `cbot`: ohne Saldokorrektur darunter ist die Gesamtzeile die
+     ganze blaue Karte — dann rundet sie auch unten (matrix.css). */
   const totRow=mrow(`<span data-tip="${esc(t('year.totalTip'))}">${t('year.totalRow')}</span>`,
-    totVals,{cls:'sec r-sal balpin'});
+    totVals,{cls:'sec r-bal balpin'+(balOn?'':' cbot')});
 
   const V=visMonths(), hidden=12-V.length;
   /* Die Leiste fängt links mit dem Filter an und führt gleich die
@@ -449,30 +471,40 @@ function viewJahr(){
      ist hier der einzige davon.
 
      Die beiden Ausblenden-Knöpfe zählen ausdrücklich **nicht** mit.
-     Sie stehen in der Datei (state.hideDoneMonths,
-     state.hideSettled) und gelten, bis man sie wieder ausschaltet —
-     eine Leiste, die deshalb bei jedem Öffnen leuchtet, leuchtet
-     immer und sagt damit nichts mehr. Dass sie gerade gelten, sagen
-     die Knöpfe selbst: dunkler Grund und die Zahl der versteckten
-     Zeilen in Klammern. */
+     Sie sind keine Filter: sie räumen ab, was fertig ist — der eine
+     Spalten (state.hideDoneMonths, in der Datei), der andere Zeilen
+     (ui.hideSettled, nur diese Sitzung). Deshalb stehen sie in der
+     Zeile auch abgesetzt am rechten Rand (.ybhide). Dass sie gerade
+     gelten, sagen sie selbst: dunkler Grund und die Zahl in
+     Klammern. */
   const filtered=!!(ui.q||'').trim();
   /* **Gefärbt wird die Zeile, nicht die Leiste.** Unter den Knöpfen
      hängt in derselben Leiste der waagerechte Rollbalken der Matrix
      — der filtert nichts und soll die Farbe deshalb auch nicht
      tragen. Er steht als eigenes Kind neben `.ybrow` und bleibt auf
      dem Papiergrund. */
+  /* Angelegt wird seit dem Mac-Redesign über das Hamburger-Menü
+     der Kopfzeile — die Leiste trägt nur noch, was filtert:
+     Suchfeld · ✕ · Filteroptionen · die beiden Ausblenden-Knöpfe.
+     Die Filteroptionen stehen direkt hinter dem ✕, wie in der
+     Filterzeile der Monatsansicht — beides gehört zum Suchfeld. */
   return `<div class="sechead yearbar stickybar" id="yearBar">
       <div class="ybrow${filtered?' on':''}">
       <span class="fbgroup">
         ${filterField('fltyear')}
+        ${fltOptionsBtn()}
+      </span>
+      <!-- Die beiden Ausblenden-Knöpfe stehen abgesetzt am rechten
+           Rand: sie filtern nicht, sie räumen ab, was fertig ist.
+           Zwischen ihnen und dem Suchfeld steht deshalb Luft und
+           keine Trennlinie — eine Linie machte aus ihnen die dritte
+           Filtergruppe. -->
+      <span class="ybhide">
         <button class="btn small" id="btnFold" aria-pressed="${!!state.hideDoneMonths}"
           data-tip="${esc(t('year.hideDoneTip'))}">${t('year.hideDone')}${hidden?` (${hidden})`:''}</button>
-        <button class="btn small" id="btnHideSettled" aria-pressed="${!!state.hideSettled}"
+        <button class="btn small" id="btnHideSettled" aria-pressed="${!!ui.hideSettled}"
           data-tip="${esc(t('year.hideSettledTip'))}">${t('year.hideSettled')}${hiddenRows?` (${hiddenRows})`:''}</button>
       </span>
-      <span class="fbgroup">
-        <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
-        <button class="btn small" data-newitem="1">${t('year.addItem')}</button></span>
       </div>
       <!-- Der waagerechte Rollbalken der Matrix, außerhalb der
            Tabelle: in ihr säße er quer über der letzten Zeile, und
@@ -494,5 +526,5 @@ function viewJahr(){
          (sizeMatrix in js/app.js). Gerollt wird dadurch weiter vom
          Browser selbst — nur den Balken sieht man nicht, den gibt
          es oben in der Leiste. -->
-    <div class="yearpane"><div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead(totRow)}${body}</table></div></div>`;
+    <div class="yearpane"><div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead(spacer()+totRow)}${body}</table></div></div>`;
 }

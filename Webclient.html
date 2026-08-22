@@ -54,46 +54,61 @@
          Web-Client selbst — dort legt renderChrome() den Link
          still (js/app.js, dritte FINA_NATIVE-Stelle). -->
     <div class="brand"><h1><a href="index.html">FINA Book</a></h1><span class="sub" id="yearLbl"></span></div>
-    <div class="tools" id="hdrTools">
-      <!-- Die Beschriftungen kommen aus js/i18n.js: data-t setzt den
-           Text, data-ttip den Tooltip (siehe renderChrome). -->
+    <!-- Die Ansichten als Segmented Control in der Mitte der
+         Toolbar; gefüllt von renderChrome(). -->
+    <nav class="views" id="views" role="tablist"></nav>
+    <div class="hdrright">
+      <!-- Verborgen (css/layout.css): der Dateiname steht nur noch
+           im Menü. renderStatus() schreibt das Element weiter. -->
       <span class="filepath" id="filePath"></span>
-      <button class="btn" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
-      <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
-      <!-- Eine Kopie mit Zeitstempel im Namen, neben der laufenden
-           Datei her. Es ist derselbe Weg, den „Daten speichern" in
-           Safari und Firefox ohnehin geht — hier auf Wunsch, in
-           jedem Browser (js/storage.js). -->
-      <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
-      <button class="btn" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
-      <!-- Beide Importe stehen im Einstellungsfenster im Bereich
-           „Import" (js/dialogs/settings.js). In der Kopfzeile
-           standen sie zwischen Laden und Speichern und sahen aus
-           wie ein dritter Weg, eine Datei zu öffnen — sie sind
-           aber keiner: sie ändern das Buch, das schon offen ist. -->
-      <button class="btn" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
-      <!-- Hier stand bis 18.8.26 eine Sprachwahl EN · DE. Sie ist
-           weg: sobald ein Buch offen ist, bestimmt **die Datei**
-           ihre Sprache (state.lang), und geändert wird sie dort,
-           wo alle Einstellungen der Datei stehen — im
-           Einstellungsfenster. Zwei Wege zu derselben Angabe, einer
-           davon neben den Dateiknöpfen, sahen nach zwei
-           verschiedenen Dingen aus. Die Begrüßungsseite behält ihre
-           Wahl: dort gibt es noch keine Datei, die entscheiden
-           könnte (js/views/willkommen.js). -->
-      <!-- Der einzige farbige Knopf: er klappt die Anleitung rechts
-           auf und wieder zu (aria-pressed sagt, ob sie offen ist). -->
-      <button class="btn guidebtn" id="btnGuide" aria-pressed="false" data-t="app.guide" data-ttip="app.guideTip"></button>
+      <!-- Der Hamburger: hinter ihm stecken **alle** Aktionsknöpfe,
+           auf jeder Breite (Mac-Redesign 22.8.26). Der rote Punkt
+           (#dirtyDot, js/storage.js) sagt „ungespeichert" auch
+           dann, wenn der Dateiname nicht mehr in der Zeile steht. -->
+      <button class="burger" id="btnMenu" aria-expanded="false"
+        aria-controls="hdrTools" hidden>
+        <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="dirtydot" id="dirtyDot" hidden></span>
+      </button>
+      <!-- Das Menü hinter dem Hamburger. Beschriftungen über data-t,
+           Tooltips über data-ttip (siehe renderChrome). Öffnen und
+           Schließen: js/app.js, unten bei den festen Schaltflächen.
+           Reihenfolge mit Trennern (.mi-sep schließt eine Gruppe ab):
+           Datei ‖ Neu anlegen ‖ Einstellungen ‖ Anleitung. -->
+      <div class="tools" id="hdrTools">
+        <!-- Der Dateiname steht als Menükopf immer zuoberst (css:
+             .menufile, gefüllt in renderStatus) — man sieht, an
+             welcher Datei die Knöpfe darunter arbeiten. -->
+        <span class="menufile" id="menuFile" hidden></span>
+        <button class="btn" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
+        <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
+        <!-- Eine Kopie mit Zeitstempel im Namen, neben der laufenden
+             Datei her (js/storage.js). -->
+        <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
+        <button class="btn" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
+        <!-- Derselbe Weg wie der Bereich „Import" der Einstellungen
+             (#impFast): erst das Fenster, das sagt, was die Datei
+             braucht, dann die Dateiauswahl. -->
+        <button class="btn mi-sep" id="btnImportCsv" data-t="menu.csv" data-ttip="menu.csvTip"></button>
+        <!-- Die drei Wege, etwas anzulegen — in der Farbe ihrer
+             Geldart (Regel 1: verdrahtet in js/app.js unten). -->
+        <button class="btn mi-in" id="mNewIn" data-t="menu.newIn"></button>
+        <button class="btn mi-flex" id="mNewFlex" data-t="menu.newFlex"></button>
+        <button class="btn mi-out mi-sep" id="mNewOut" data-t="menu.newOut"></button>
+        <button class="btn mi-sep" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
+        <!-- Der einzige farbige Eintrag: er klappt die Anleitung
+             rechts auf und wieder zu (aria-pressed sagt, ob sie
+             offen ist). -->
+        <button class="btn guidebtn" id="btnGuide" aria-pressed="false" data-t="app.guide" data-ttip="app.guideTip"></button>
+      </div>
     </div>
-    <!-- Auf dem Telefon stecken alle Werkzeuge hinter diesem einen
-         Knopf: .tools wird zum aufklappbaren Menü (css/mobile.css),
-         der Knopf öffnet und schließt es (js/app.js, unten bei den
-         festen Schaltflächen). Am Schreibtisch gibt es ihn nicht. -->
-    <button class="btn menubtn" id="btnMenu" aria-expanded="false"
-      aria-controls="hdrTools" hidden>&#9776;</button>
   </div>
-  <nav class="views" id="views" role="tablist"></nav>
-  <div class="months" id="months" role="tablist"></div>
+  <!-- Die Monatsleiste stand bis 22.8.26 hier. Sie steht jetzt
+       unter der Filterzeile der Monatsansicht, an derselben Stelle,
+       an der die Jahresmatrix ihre Monate hat — gebaut in
+       monthTabs() (js/views/monat.js), verdrahtet über data-mtab
+       in wire(). Die Kopfzeile ist damit in jeder Ansicht gleich
+       hoch. -->
 </header>
 
 <!-- Hier zeichnet js/app.js die gewählte Ansicht. -->

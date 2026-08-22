@@ -118,6 +118,15 @@ const STR={
 'app.import':{en:'Import Fast Budget Data',de:'Fast Budget Daten importieren'},
 'app.importTip':{en:'Read Flexible Payments from a Fast Budget CSV export — nothing is changed until you confirm',
   de:'Flexible Payments aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
+/* ── Das Hamburger-Menü (Mac-Redesign 22.8.26) ────────────────
+   Alle Aktionsknöpfe stecken im Menü hinter dem ☰-Knopf; die
+   drei „Neu…"-Wege tragen dort die Farbe ihrer Geldart. */
+'menu.csv':{en:'Import CSV',de:'CSV importieren'},
+'menu.csvTip':{en:'Read Flexible Payments from a Fast Budget CSV export — nothing is changed until you confirm',
+  de:'Flexible Payments aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
+'menu.newIn':{en:'New income',de:'Neue Einnahme'},
+'menu.newFlex':{en:'New flexible cost',de:'Neue flexible Kosten'},
+'menu.newOut':{en:'New regular cost',de:'Neue regelmäßige Kosten'},
 'app.settings':{en:'Settings',de:'Einstellungen'},
 'app.settingsTip':{en:'Language, year, column widths, banks, payment types and categories',
   de:'Sprache, Jahr, Spaltenbreiten, Banken, Zahlungsarten und Kategorien'},
@@ -172,7 +181,10 @@ const STR={
    Geldart gemeint ist (die drei Blöcke, eine Kategorie), steht
    g.flex. Der Name steht in beiden Sprachen gleich da, wie
    „Fast Budget" selbst. */
-'view.kakeibo':{en:'Fast Budget Details',de:'Fast Budget Details'},
+/* Seit dem Mac-Redesign heißt der Reiter „Transactions" — in
+   beiden Sprachen, wie „Fast Budget" zuvor. Die Schlüssel im
+   Zustand (kak, ui.view='kakeibo' …) behalten ihren alten Namen. */
+'view.kakeibo':{en:'Transactions',de:'Transactions'},
 'view.prognose':{en:'Forecast',de:'Prognose'},
 
 /* ── Allgemeine Wörter ────────────────────────────────────── */
@@ -215,6 +227,14 @@ const STR={
    Der Hamburger-Knopf vor jedem Suchfeld
    (js/dialogs/filter-fields.js). Die Wahl steht in der Datei. */
 'flt.title':{en:'What the filter searches',de:'Worin der Filter sucht'},
+/* ── Die Filterzeile im Mac-Chrome ────────────────────────────
+   Aufklappmenüs statt Knopfreihen: der Knopf nennt Gruppe und
+   gewählten Wert („Fälligkeit: Alle"), das Menü darunter die
+   Werte — es bleibt beim Wählen offen. */
+'flt.options':{en:'Filter options…',de:'Filteroptionen…'},
+'flt.all':{en:'All',de:'Alle'},
+'flt.due':{en:'Due date',de:'Fälligkeit'},
+'flt.state':{en:'Payment state',de:'Zahlungsstatus'},
 'flt.btnTip':{en:'Choose which parts of a row the filter searches',
   de:'Wählen, welche Teile einer Zeile der Filter durchsucht'},
 'flt.sub':{en:'The word you type is looked for only in the parts ticked here — in the month view as in the year view. The choice is kept in the JSON file.',
@@ -241,7 +261,7 @@ const STR={
    wo — deshalb steht er abgesetzt unter den fünf. */
 'flt.fHidden':{en:'Search hidden items too',de:'Auch in ausgeblendeten Positionen suchen'},
 'flt.fHiddenHint':{en:'A search term then beats the other filters: it also finds what the payment state, the due date, “Hide finished items” or a month without an amount would keep out of sight. Without a search term nothing changes.',
-  de:'Ein Suchbegriff schlägt dann die übrigen Filter: Er findet auch, was Zahlungsstand, Fälligkeit, „Abgeschlossene ausblenden" oder ein Monat ohne Betrag sonst verbergen. Ohne Suchbegriff ändert sich nichts.'},
+  de:'Ein Suchbegriff schlägt dann die übrigen Filter: Er findet auch, was Zahlungsstand, Fälligkeit, „Erledigte Posten ausblenden" oder ein Monat ohne Betrag sonst verbergen. Ohne Suchbegriff ändert sich nichts.'},
 
 /* ── Notizfenster ─────────────────────────────────────────── */
 'note.title':{en:'Note — {0}',de:'Notiz — {0}'},
@@ -272,6 +292,19 @@ const STR={
 'store.loaded':{en:'{0} loaded.',de:'{0} geladen.'},
 'store.saved':{en:'Saved to {0}.',de:'In {0} gespeichert.'},
 'store.downloaded':{en:'Downloaded as {0}.',de:'Als {0} heruntergeladen.'},
+/* ── Eine Datei aus einer älteren Fassung ────────────────────
+   Beim Laden nur ein Hinweis, beim Speichern die Meldung, dass es
+   geschehen ist. Beide hängen als Zusatz an der gewohnten
+   Meldung (siehe oldNote/upgradeNote in js/storage.js) — zwei
+   Kurzmeldungen übereinander läsen sich als zwei Vorgänge. */
+'store.oldNote':{en:' The file is in an older format ({0}); saving converts it to the current one ({1}).',
+  de:' Die Datei liegt in einem älteren Format vor ({0}); beim Speichern wird sie ins aktuelle ({1}) überführt.'},
+'store.upgraded':{en:' Converted from the older format ({0}) to {1}.',
+  de:' Vom älteren Format ({0}) nach {1} überführt.'},
+/* Beide Sätze nennen die Fassung in Klammern — mit Nummer, wenn
+   die Datei eine trägt, sonst als Feststellung. */
+'store.verOf':{en:'version {0}',de:'Fassung {0}'},
+'store.verNone':{en:'no version noted',de:'ohne Versionsangabe'},
 'store.backup':{en:'Backup saved as {0}. Your file still has unsaved changes.',de:'Sicherung als {0} gespeichert. Deine Datei hat weiter ungespeicherte Änderungen.'},
 'store.empty':{en:'The file is empty.',de:'Die Datei ist leer.'},
 'store.loadFail':{en:'Loading failed: {0}',de:'Laden fehlgeschlagen: {0}'},
@@ -286,7 +319,7 @@ const STR={
 /* ── Jahresansicht ────────────────────────────────────────── */
 'year.legend':{en:'<span class="mk-ok">&#10003;</span> paid &nbsp; <span class="mk-q">?</span> estimated &nbsp; empty = open',
   de:'<span class="mk-ok">&#10003;</span> bezahlt &nbsp; <span class="mk-q">?</span> geschätzt &nbsp; leer = offen'},
-'year.hideDone':{en:'Hide completed months',de:'Erledigte Monate ausblenden'},
+'year.hideDone':{en:'Hide completed months',de:'Abgeschlossene Monate ausblenden'},
 'year.hideDoneTip':{en:'Fold away every month in which nothing is left open. The total column still counts all twelve.',
   de:'Klappt jeden Monat weg, in dem nichts mehr offen ist. Die Gesamtspalte zählt weiter alle zwölf.'},
 /* Die drei Anlege-Knöpfe. Sie benennen, was entsteht, nicht die
@@ -295,7 +328,7 @@ const STR={
 'year.addItem':{en:'Add new regular cost',de:'Neue regelmäßige Kosten hinzufügen'},
 'year.addKak':{en:'Add new flexible cost',de:'Neue flexible Kosten hinzufügen'},
 'year.addIncome':{en:'Add new income',de:'Neue Einnahme hinzufügen'},
-'year.hideSettled':{en:'Hide finished items',de:'Abgeschlossene ausblenden'},
+'year.hideSettled':{en:'Hide finished items',de:'Erledigte Posten ausblenden'},
 'year.hideSettledTip':{en:'Hide every item that is fully paid for this year. The sums stay as they are.',
   de:'Blendet jede Position aus, die für dieses Jahr abbezahlt ist. Die Summen bleiben, wie sie sind.'},
 /* Block zuklappen — der Pfeil in der ersten Spalte einer
@@ -311,7 +344,8 @@ const STR={
    eine Tabelle hinein, in der jede andere Zahl genau einem Monat
    gehört. Wo das Konto am Monatsende steht, sagt die Prognose in
    der Spalte END. */
-'year.totalRow':{en:'Total per month',de:'Gesamt je Monat'},
+/* Seit dem Mac-Redesign die Blockzeile der blauen Saldo-Karte. */
+'year.totalRow':{en:'Balance per month',de:'Saldo je Monat'},
 /* Die violette Zeile der mobilen Jahresansicht: dieselbe Aussage
    wie year.totalRow, nur mit dem Jahr dahinter — auf dem Telefon
    gibt es keine Kopfzeile, die es nennt. Der Wert daneben ist die
@@ -364,9 +398,11 @@ const STR={
   de:'Ein leeres Buch. Jahr wählen, loslegen.'},
 
 /* ── Monatsansicht ────────────────────────────────────────── */
-'month.income':{en:'Income — {0}',de:'Einnahmen — {0}'},
-'month.kak':{en:'Flexible Payments — {0}',de:'Flexible Payments — {0}'},
-'month.fixed':{en:'Regular costs — {0}',de:'Regelmäßige Kosten — {0}'},
+/* Ohne Monatsnamen: welcher Monat gemeint ist, sagen die
+   Monatsleiste und die Reiter — im Kartenkopf stand er doppelt. */
+'month.income':{en:'Income',de:'Einnahmen'},
+'month.kak':{en:'Flexible Payments',de:'Flexible Payments'},
+'month.fixed':{en:'Regular costs',de:'Regelmäßige Kosten'},
 'month.kpiIncome':{en:'Income',de:'Einnahmen'},
 'month.kpiKak':{en:'Flexible {0}',de:'Flexible {0}'},
 'month.kpiActual':{en:'actual',de:'Ist'},
@@ -468,15 +504,29 @@ const STR={
 'month.anaClose':{en:'Click to close the timeline again',de:'Klick schließt den Zeitstrahl wieder'},
 'month.tlClose':{en:'Month close',de:'Monatsabschluss'},
 'month.tlOpen':{en:'Month open',de:'Monatseröffnung'},
+/* Die Sprechblasen der beiden Zeilen ohne Tage: die drei mittleren
+   nennen ihre Tage (month.tlDaysTip), diese beiden sagen, was sie
+   sind — die eine ein Stand, die andere der Sammelplatz für alles
+   ohne Zahltag. */
+'month.tlOpenTip':{en:'The balance the month starts with — the sum of all previous months in this file. Nothing falls due here.',
+  de:'Der Stand, mit dem der Monat beginnt — die Summe aller Monate davor in dieser Datei. Hier wird nichts fällig.'},
+'month.tlCloseTip':{en:'Everything without a payday lands here: Flexible Payments, the balance correction and items without a due day.',
+  de:'Alles ohne Zahltag landet hier: Flexible Payments, die Saldokorrektur und Posten ohne Fälligkeit.'},
 /* Der Balken jeder Zeile: links der Nulllinie der Abzug, rechts
    die Zufuhr, eingefärbt nach Geldart — dieselben Farben wie die
    Karten der Monatsansicht. */
 'month.tlMark':{en:'balance after the row',de:'Kontostand danach'},
+/* Dieselbe Marke im Verlauf der Prognose — dort ist die Zeile ein
+   Monat, deshalb der eigene Wortlaut (Mac-Redesign 4b). */
+'prog.tlMark':{en:'balance at the end of the month',de:'Kontostand am Ende des Monats'},
 /* Steht nur bei beschnittener Achse: dann fängt die Fläche nicht
    bei null an, und der erste Balken franst links aus. */
 'month.tlScale':{en:'scale {0} - {1}',de:'Maßstab {0} - {1}'},
 /* Die Tage einer Zeile: „1–10" · „1.–10." */
 'month.tlDays':{en:'{0}–{1}',de:'{0}.–{1}.'},
+/* Die Tage eines Abschnitts stehen seit dem Mac-Redesign nicht
+   mehr neben dem Namen, sondern in seiner Sprechblase. */
+'month.tlDaysTip':{en:'Days {0}–{1}',de:'Tage {0}.–{1}.'},
 /* Die Marke an der Zeile, in die der heutige Tag fällt. Sie sagt
    „jetzt" und nicht „heute": bezeichnet wird der Abschnitt des
    Monats, in dem man gerade steht, nicht ein einzelner Tag. */

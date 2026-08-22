@@ -35,6 +35,35 @@ function stateJson(){
   return JSON.stringify(state,null,2);
 }
 
+/* ── Wenn die geladene Datei aus einer älteren Fassung stammt ──
+   `migrate()` flickt sie beim Laden still zurecht (js/state.js),
+   und `stateJson()` schreibt das Ergebnis samt neuer Nummer
+   hinaus. Für den Nutzer ist das unsichtbar — bis eine Ansicht
+   plötzlich anders aussieht als bei einer frischen Datei, weil ein
+   Feld fehlte. Deshalb zwei Sätze, angehängt an die gewohnte
+   Meldung:
+
+     oldNote()     beim Laden — „so wird es beim Speichern sein"
+     upgradeNote() beim Speichern — „so ist es jetzt"
+
+   Beides als **Zusatz** und nicht als eigene Kurzmeldung: zwei
+   Meldungen übereinander läsen sich als zwei Vorgänge, und es ist
+   einer.
+
+   `upgradeNote()` setzt `fileVersion` zurück — danach ist die
+   Datei auf der Platte aktuell, und der Satz kommt nicht bei jedem
+   weiteren Speichern noch einmal. */
+const verName=()=>fileVersion?t('store.verOf',fileVersion):t('store.verNone');
+function oldNote(){
+  return fileOutdated()?t('store.oldNote',verName(),VERSION):'';
+}
+function upgradeNote(){
+  if(!fileOutdated()) return '';
+  const from=verName();
+  fileVersion=VERSION;
+  return t('store.upgraded',from,VERSION);
+}
+
 /* ── Der Name der heruntergeladenen Kopie ────────────────────
    Chrome und Edge schreiben in **dieselbe** Datei zurück; dort ist
    der Name keine Frage. Alle anderen Browser können das nicht und
@@ -98,7 +127,7 @@ async function loadData(){
       state=migrate(JSON.parse(txt));
       fileHandle=h; fileName=h.name; dirty=false;
       afterLoad(); ui.welcome=false;
-      render(); toast(t('store.loaded',fileName));
+      render(); toast(t('store.loaded',fileName)+oldNote());
     } else {
       document.getElementById('fileJson').click();
     }
@@ -126,19 +155,19 @@ function saveBackup(){
 async function saveData(){
   try{
     if(fileHandle){
-      if(await writeHandle()){ dirty=false; renderStatus(); toast(t('store.saved',fileName)); return; }
+      if(await writeHandle()){ dirty=false; renderStatus(); toast(t('store.saved',fileName)+upgradeNote()); return; }
     }
     if(canFS){
       const h=await window.showSaveFilePicker({suggestedName:fileName||`fina-${YEAR}.json`,
         types:[{description:t('store.fileKind'),accept:{'application/json':['.json']}}]});
       fileHandle=h; fileName=h.name;
-      if(await writeHandle()){ dirty=false; render(); toast(t('store.saved',fileName)); }
+      if(await writeHandle()){ dirty=false; render(); toast(t('store.saved',fileName)+upgradeNote()); }
     } else {
       /* Die Meldung nennt den Namen: er ist nicht der, unter dem die
          Datei geöffnet wurde, und man soll ihn im Download-Ordner
          wiederfinden. */
       const name=downloadJson();
-      dirty=false; renderStatus(); toast(t('store.downloaded',name));
+      dirty=false; renderStatus(); toast(t('store.downloaded',name)+upgradeNote());
     }
   }catch(e){ if(e.name!=='AbortError') toast(t('store.saveFail',e.message)); }
 }
@@ -177,6 +206,18 @@ function renderStatus(){
     fp.classList.toggle('warnpath',dirty);
     fp.title=fileName?t('store.pathTip'):t('store.noFileTip');
   }
+  /* Dasselbe noch einmal für das Hamburger-Menü: bei schmalem
+     Fenster steht der Name nicht mehr in der Zeile, sondern im
+     Menükopf (.menufile) — und der rote Punkt am Knopf selbst
+     (#dirtyDot) sagt „ungespeichert" auf jeder Breite. */
+  const mf=document.getElementById('menuFile');
+  if(mf){
+    mf.textContent=fileName?(fileName+(dirty?t('store.unsaved'):'')):t('store.none');
+    mf.classList.toggle('warnpath',dirty);
+    mf.hidden=!!ui.welcome;
+  }
+  const dd=document.getElementById('dirtyDot');
+  if(dd) dd.hidden=!dirty;
   /* Schließen geht immer, sobald ein Buch offen ist — auch bei
      einem frisch angefangenen, das noch keine Datei hat. Es ist
      der Weg zurück zur Begrüßungsseite, und der darf nicht davon

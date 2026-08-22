@@ -3,7 +3,7 @@
    Seitengerüst: Kopfzeile, Reiter, Karten, Kennzahlen, Fußstatus.
    ══════════════════════════════════════════════════════════════ */
 
-.wrap{max-width:none;margin:0;padding:0 24px 80px;--monw:100px}
+.wrap{max-width:none;margin:0;padding:0 var(--pagepad) 80px;--monw:100px;--pagepad:24px}
 
 /* ── Hinweis auf eine neue Fassung ────────────────────────────
    Es gibt sie nur in der Mac- und der Windows-App (checkUpdate in
@@ -21,96 +21,186 @@
 .updatebar span{font-weight:600}
 .updatebar .btn{padding:3px 10px;font-size:12px}
 
-/* ── Kopfzeile ────────────────────────────────────────────────
-   So flach wie möglich: sie klebt oben und nimmt damit auf jedem
-   Bildschirm dauerhaft Platz weg, den die Tabelle darunter
-   braucht. Deshalb kleine Polster, ein kleineres Wortzeichen und
-   flachere Reiter — nichts davon kostet Verständlichkeit, jedes
-   davon zwei bis vier Zeilen Tabelle. */
-/* Der Grund ist halbdurchlässig mit Weichzeichner — dasselbe
-   Milchglas wie die Kopfzeile der Verkaufsseiten (css/landing.css):
-   die Anwendung und die Seiten drumherum sollen aus einem Guss
-   aussehen. Der Rückfall ohne backdrop-filter ist das Papier. */
-header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper);
+/* ── Kopfzeile: die Mac-Toolbar ───────────────────────────────
+   Eine Titelleiste über die ganze Breite (die negativen
+   Außenmaße heben das Polster von .wrap auf): links das
+   Wortzeichen mit dem Jahr, in der Mitte die Ansichten als
+   Segmented Control, rechts Dateiname und Hamburger. Darunter,
+   nur in der Monatsansicht, die Monatsleiste. Die Höhe misst
+   syncStickyTops() — hier steht kein top-Maß. */
+header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(--paper);
   box-shadow:0 6px 12px -8px rgba(0,0,0,.35)}
-@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
-  header{background:rgba(233,234,227,.86);
-    -webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px)}
-}
-.masthead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  border-bottom:2px solid var(--ink);padding-bottom:7px}
-.brand{display:flex;align-items:baseline;gap:10px}
-.brand h1{font-family:var(--font-display);font-weight:700;font-size:23px;letter-spacing:.04em;margin:0;line-height:1.1}
+/* Damit die Mitte wirklich die Mitte ist, tragen beide Seiten
+   dieselbe Flexbasis: das Wortzeichen links, Dateiname und Knopf
+   rechts — die Segmented Control steht dazwischen. */
+.masthead{display:flex;align-items:center;gap:14px;padding:8px 24px;
+  background:var(--grad-bar);border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:baseline;gap:7px;flex:1 1 0;min-width:0}
+.brand h1{font-family:var(--font-display);font-weight:700;font-size:19px;letter-spacing:.02em;margin:0;line-height:1.1}
 /* Das Wortzeichen ist ein Link zur Startseite (im Browser; in der
    App nimmt renderChrome ihm das href) — aussehen soll es wie die
    Überschrift, die es ist. */
 .brand h1 a{color:inherit;text-decoration:none}
-.brand .sub{font-family:var(--font-data);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
-.tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-/* Die Knöpfe der Kopfzeile tragen die weichere Rundung der
-   Verkaufsseiten (--rs dort ist 12 px, hier reichen 8): sie sind
-   das Erste, was man sieht, und sollen zur Startseite passen. In
-   den Fenstern bleibt der Knopf eckig — dort ist er Werkzeug. */
-.tools .btn{padding:5px 10px;font-size:12.5px;border-radius:8px;
-  transition:background .15s,border-color .15s,transform .15s}
-.tools .btn:hover{transform:translateY(-1px)}
-/* Eine Sprachwahl steht in der Kopfzeile nicht: mit offenem Buch
-   entscheidet die Datei über ihre Sprache, und geändert wird sie
-   im Einstellungsfenster. Die Pillen (.wlangs weiter unten) gibt
-   es nur auf der Begrüßungsseite und auf den Verkaufsseiten. */
-/* Der Menüknopf der Kopfzeile gehört dem Telefon: dort sammelt er
-   alle Werkzeuge hinter sich (css/mobile.css). Am Schreibtisch
-   stehen die Werkzeuge selbst da — der Knopf nicht. [hidden]
-   braucht dabei seinen eigenen Riegel: die display-Regel des
-   Telefons schlüge das [hidden] des Browsers sonst unabhängig von
-   jeder Spezifität. */
-.menubtn{display:none}
-.menubtn[hidden]{display:none!important}
-.filepath{font-family:var(--font-data);font-size:11.5px;color:var(--ink-2);max-width:320px;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap;user-select:text;cursor:default;padding-right:4px}
+.brand .sub{font-family:var(--font-data);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+/* Rechts: Dateiname, dann der Hamburger mit dem Menü darunter. */
+.hdrright{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:9px;
+  flex:1 1 0;min-width:0}
+/* Der Dateiname steht seit 22.8.26 **nur noch im Menü** (.menufile
+   zuoberst): in der Zeile stritt er mit der Segmented Control um
+   den Platz, und der rote Punkt am Hamburger sagt „ungespeichert"
+   auch ohne ihn. Das Element bleibt im HTML — renderStatus()
+   schreibt es weiter —, sichtbar ist es nicht. */
+.filepath{display:none}
 .filepath.on{color:var(--ink)}
-/* Ungespeichert: der Dateiname trägt die Warnung, nicht die Knöpfe. */
-.filepath.warnpath{color:var(--seal);font-weight:700}
+/* Ungespeichert: der Dateiname trägt die Warnung — und der rote
+   Punkt am Hamburger (.dirtydot) sagt dasselbe, auch wenn der
+   Name bei schmalem Fenster im Menü steckt. */
+.filepath.warnpath{color:var(--seal)}
+/* ── Der Hamburger ────────────────────────────────────────────
+   28×26, drei Striche, der helle Knopfverlauf des Chrome. Hinter
+   ihm stecken alle Aktionsknöpfe — auf jeder Breite. */
+.burger{position:relative;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  width:28px;height:26px;padding:0;cursor:pointer;
+  background:var(--grad-btn);border:1px solid var(--rule);border-radius:6px;box-shadow:var(--sh-btn)}
+.burger:hover{border-color:var(--rule-strong)}
+.burger[aria-expanded="true"]{background:var(--shade)}
+.burger[hidden]{display:none!important}
+.burger .bars{display:flex;flex-direction:column;gap:2.5px}
+.burger .bars i{width:12px;height:1.5px;background:var(--ink);border-radius:1px}
+.dirtydot{position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;
+  background:var(--seal);border:1.5px solid var(--chrome-hi)}
+.dirtydot[hidden]{display:none}
+/* ── Das Menü hinter dem Hamburger ────────────────────────────
+   Ein Overlay unter dem Knopf: es legt sich über den Inhalt und
+   verschiebt nie Layout. Auf und zu schaltet js/app.js über die
+   Klasse .open — dieselbe Mechanik, die vorher nur das Telefon
+   hatte. Trenner (.mi-sep) schließen eine Gruppe ab, die drei
+   „Neu…"-Wege tragen die Farbe ihrer Geldart. */
+.tools{position:absolute;top:calc(100% + 8px);right:0;z-index:46;display:none;flex-direction:column;
+  width:230px;background:#fff;border:1px solid var(--rule);border-radius:8px;
+  box-shadow:var(--sh-pop);overflow:hidden;padding:0}
+.tools.open{display:flex}
+.tools .btn{background:none;border:0;border-radius:0;text-align:left;
+  padding:7px 12px;font-size:12px;color:var(--ink);transition:background .12s}
+.tools .btn:hover{background:var(--paper-2)}
+.tools .btn:disabled{opacity:.45}
+.tools .mi-sep{border-bottom:1px solid var(--hairline)}
+.tools #btnSave{font-weight:600}
+/* Die drei „Neu…"-Wege: vor der Beschriftung ein Plus im Kreis,
+   und **der Kreis** trägt die Farbe der Geldart — die Beschriftung
+   bleibt Tinte wie jeder andere Eintrag. Das Zeichen kommt als
+   ::before aus dem Stylesheet: renderChrome() schreibt die
+   Beschriftung über textContent, ein Kind-Element überlebte das
+   nicht. */
+.tools .mi-in,.tools .mi-flex,.tools .mi-out{display:flex;align-items:center;gap:8px;
+  font-weight:600;color:var(--ink)}
+.tools .mi-in::before,.tools .mi-flex::before,.tools .mi-out::before{content:'+';
+  flex:0 0 auto;width:15px;height:15px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;line-height:1;color:#fff}
+.tools .mi-in::before{background:var(--ok)}
+.tools .mi-flex::before{background:var(--amber)}
+.tools .mi-out::before{background:var(--seal)}
+/* Der Dateiname steht als Kopf **immer** oben im Menü — man soll
+   sehen, an welcher Datei die Knöpfe darunter arbeiten, auch wenn
+   der Name daneben in der Kopfzeile steht. */
+.menufile{display:none}
+.tools .menufile:not([hidden]){display:block;padding:8px 12px;
+  font-family:var(--font-data);font-size:10.5px;font-weight:600;color:var(--ink-2);
+  background:var(--paper-2);border-bottom:1px solid var(--hairline);
+  white-space:normal;overflow-wrap:anywhere}
+.tools .menufile.warnpath{color:var(--seal)}
 
-/* ── Monatsreiter ─────────────────────────────────────────── */
-.months{display:flex;border-bottom:1px solid var(--rule);overflow-x:auto;margin:0}
-.mtab{flex:1 0 auto;min-width:58px;background:transparent;border:0;border-bottom:3px solid transparent;padding:5px 4px 4px;
-  font-family:var(--font-data);font-size:11.5px;letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase}
-.mtab:hover{color:var(--ink)}
-.mtab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--seal);font-weight:600}
-.mtab.alldone{text-decoration:line-through;text-decoration-thickness:2px;color:var(--ok)}
-.mtab.current{color:var(--seal);font-weight:600}
-.mtab .dot{display:block;width:5px;height:5px;border-radius:50%;margin:3px auto 0;background:transparent;border:1px solid var(--rule-strong)}
-.mtab .dot.done{background:var(--ok);border-color:var(--ok)}
-.mtab .dot.partial{background:linear-gradient(90deg,var(--ok) 50%,transparent 50%);border-color:var(--ok)}
+/* ── Monatsleiste ─────────────────────────────────────────────
+   Zwölf Kürzel in einer Zeile: erledigte Monate grün und
+   durchgestrichen, der laufende als rote Pille, der gewählte mit
+   dunkler Einfassung.
 
-/* ── Ansichtsreiter ───────────────────────────────────────── */
-.views{display:flex;gap:20px;flex-wrap:wrap;margin:7px 0 6px}
-.vtab{background:none;border:0;padding:0 0 3px;font-size:13.5px;color:var(--ink-2);border-bottom:2px solid transparent}
-.vtab[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
-/* Rechts auf Höhe der Reiter: was die Zeichen der Jahresmatrix
-   bedeuten. Es gehört nicht zu den Reitern, deshalb schiebt es
-   der eigene Außenabstand ganz nach rechts. */
-.viewkey{margin-left:auto;font-size:11.5px;color:var(--ink-2);align-self:center}
+   **Sie steht seit 22.8.26 unter der Filterzeile**, nicht mehr an
+   der Kopfzeile — an derselben Stelle, an der die Jahresmatrix
+   ihre Monate hat, und im selben Bild: eine weiße Karte mit
+   Radius 8, feiner Kante und dem flachen Schatten der Karten
+   darunter. Damit steht in beiden Ansichten die Reihe der Monate
+   dort, wo die Bereiche anfangen, und trägt dieselbe Schrift wie
+   der Spaltenkopf der Matrix (9.5 px Mono-Versalien).
+
+   Gebaut wird sie in monthTabs() (js/views/monat.js) und steckt in
+   der .stickybar der Ansicht — sie klebt also mit der Auswertung
+   und der Filterzeile oben unter der Kopfzeile. Der Abstand nach
+   oben ist derselbe, den die Bereiche voneinander haben (10 px);
+   den nach unten trägt das Polster der Leiste. */
+.months{display:flex;align-items:center;margin:10px 0 0;padding:3px 8px;
+  background:#fff;border:1px solid var(--rule);border-radius:8px;box-shadow:var(--sh-card);
+  overflow-x:auto}
+.mtab{flex:1 0 auto;min-width:44px;background:transparent;border:0;padding:3px 2px;
+  font-family:var(--font-data);font-size:9.5px;font-weight:500;letter-spacing:.08em;
+  color:var(--ink-2);text-transform:uppercase;
+  text-align:center;cursor:pointer}
+.mtab .mp{display:inline-block;padding:2px 8px;border-radius:9px}
+.mtab:hover .mp{color:var(--ink)}
+.mtab[aria-selected="true"] .mp{box-shadow:inset 0 0 0 1px var(--ink);color:var(--ink);font-weight:600}
+.mtab.alldone{color:var(--ok);text-decoration:line-through;text-decoration-thickness:1.5px}
+.mtab.current{text-decoration:none}
+.mtab.current .mp{background:var(--seal);color:#fff;font-weight:600;box-shadow:none}
+
+/* ── Ansichtsreiter als Segmented Control ─────────────────────
+   Grauer Trog, das aktive Segment weiß und leicht erhaben — die
+   Mac-Bauform. Rechts daneben steht nichts mehr: die ✓/?-Erklärung
+   (.viewkey) stritt dort mit dem Dateinamen um den Platz und ist
+   seit 22.8.26 weg (siehe renderChrome in js/app.js). */
+.views{position:relative;display:flex;flex:0 0 auto;background:var(--shade);border-radius:7px;padding:2px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.07);margin:0}
+.vtab{background:none;border:0;border-radius:5px;padding:4px 14px;font-size:12px;color:var(--ink-2);
+  white-space:nowrap;cursor:pointer}
 .vtab:hover{color:var(--ink)}
+.vtab[aria-selected="true"]{background:#fff;color:var(--ink);font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.18)}
 
 /* ── Karten und Raster ────────────────────────────────────── */
 .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;align-items:start}
 @media(max-width:860px){.grid{grid-template-columns:1fr}}
-.card{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:12px 16px;margin-bottom:16px}
-.card h2{font-family:var(--font-data);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin:0 0 10px;font-weight:500}
-/* Jede Geldart trägt ihre Farbe an drei Stellen: als Kante links,
-   als Grund der Karte und als Linie unter der Überschrift. Erst
-   die Linie macht den Kopf der Karte zum Kopf. */
-.card.sec-in{border-left:5px solid var(--edge-in);background:var(--bg-in)}
-.card.sec-flex{border-left:5px solid var(--edge-flex);background:var(--bg-flex)}
-.card.sec-out{border-left:5px solid var(--edge-out);background:var(--bg-out)}
-.card.sec-in>.sechead{border-bottom:2px solid var(--edge-in);background:var(--bg-in)}
-.card.sec-flex>.sechead{border-bottom:2px solid var(--edge-flex);background:var(--bg-flex)}
-.card.sec-out>.sechead{border-bottom:2px solid var(--edge-out);background:var(--bg-out)}
+/* Die Mac-Karte: weiß, feine Kante, Radius 8, flacher Schatten.
+   **Kein overflow:hidden** — das machte die Karte zum
+   Bezugsrahmen ihres klebenden Kopfes (siehe css/mobile.css);
+   die Rundung unten übernimmt die letzte Zeile (css/ledger.css). */
+.card{background:#fff;border:1px solid var(--rule);border-radius:8px;padding:12px 16px;
+  margin-bottom:16px;box-shadow:var(--sh-card)}
+.card h2{font-family:var(--font-data);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:0 0 10px;font-weight:500}
+/* Die drei Bereiche der Monatsansicht: die Karte selbst ist weiß
+   und ohne Polster — die Farbe tragen der Kopf (Blockstufe -3 mit
+   der Kante als Linie darunter) und die Zeilen (Stufe -1, gesetzt
+   in css/ledger.css). 10 px Abstand zwischen den Karten. */
+.card.sec-in,.card.sec-flex,.card.sec-out{background:#fff;padding:0;margin-bottom:10px}
+/* ── Die Farbe des Kopfes liegt auf einer eigenen Schicht ─────
+   Der Kopf klebt beim Scrollen, und die Zeilen ziehen unter ihm
+   durch. Trüge er Farbe und Rundung selbst, schienen sie in den
+   Ecken **neben** der Rundung durch — die Ecke sähe eckig aus.
+   Deshalb trägt der Kopf selbst Papier (deckend und eckig, füllt
+   die Ecke zur Seite hin), und die Blockfarbe liegt als gerundetes
+   ::before darüber (z-index:-1 hält sie unter Pfeil, Überschrift
+   und Summe; position:sticky macht den Kopf zum Stapelrahmen).
+
+   **Das Papier trägt dieselbe Rundung wie die Farbschicht.** Die
+   Karte hat kein overflow:hidden (das nähme dem Kopf sein Kleben),
+   und ein klebender Kopf wird über die Kante der Karte gemalt: ein
+   eckiger Grund deckte deshalb die beiden oberen Ecken der Karte
+   zu — die Karte sah oben eckig aus und unten rund. Ein Rest der
+   Zeile, die darunter wegläuft, kann dabei nicht durchscheinen:
+   sobald der Kopf klebt, ist die Ecke der Karte längst
+   hinausgescrollt. */
+.card.sec-in>.sechead{border-bottom:1px solid var(--edge-in);--secbg:var(--bg-in-3)}
+.card.sec-flex>.sechead{border-bottom:1px solid var(--edge-flex);--secbg:var(--bg-flex-3)}
+.card.sec-out>.sechead{border-bottom:1px solid var(--edge-out);--secbg:var(--bg-out-3)}
+.card.sec-in>.sechead,.card.sec-flex>.sechead,.card.sec-out>.sechead{background:var(--paper);
+  border-radius:8px 8px 0 0}
+.card.sec-in>.sechead::before,.card.sec-flex>.sechead::before,.card.sec-out>.sechead::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:var(--secbg);border-radius:8px 8px 0 0}
 /* Zugeklappt trennt die Linie nichts mehr: unter der Überschrift
-   steht keine Zeile, der Bereich ist nur noch eine Farbe. */
-.card.folded>.sechead{border-bottom:0}
+   steht keine Zeile, der Bereich ist nur noch eine Farbe. Die
+   Rundung unten wandert dann an die Farbschicht. */
+.card.folded>.sechead{border-bottom:0;border-radius:8px}
+.card.folded>.sechead::before{border-radius:8px}
 /* ── Der Kopf einer Karte bleibt stehen ───────────────────────
    Wer sich durch die regelmäßigen Kosten scrollt, soll immer
    sehen, in welchem Block er liest und was er zusammen kostet.
@@ -128,25 +218,32 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Außenabstände ihn über das Polster der Karte hinaus, und sein
    eigenes Polster stellt den Abstand innen wieder her. */
 .card.sec-in>.sechead,.card.sec-flex>.sechead,.card.sec-out>.sechead{
-  position:sticky;z-index:20;margin:-12px -16px 10px;padding:12px 16px 8px}
-/* Die Saldokorrektur ist eine einzige Zeile — die Karte fällt
-   entsprechend flach aus und braucht keine Kopfzeile. */
-.card.sec-bal{border-left:5px solid var(--edge-bal);background:var(--bg-bal);padding:4px 18px}
+  position:sticky;z-index:20;margin:0;padding:6px 12px}
+/* Die Saldokorrektur ist eine einzige, freistehende blaue Zeile —
+   Rahmen in der dritten Blaustufe, Radius 7, kein Kopf. */
+.card.sec-bal{border:1px solid var(--bg-bal-3);background:var(--bg-bal);padding:1px 6px;
+  border-radius:7px;margin-bottom:10px}
 .card.sec-in h2,.card.sec-flex h2,.card.sec-out h2{color:var(--ink);font-weight:600}
-.sechead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.sechead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+/* Die Summe steht rechts außen; alles zwischen Überschrift und
+   Summe (der Weg in die Transactions-Auswertung) rückt zu ihr. */
+.sechead h2{flex:1 1 auto;min-width:0}
+.sechead .headlink{flex:0 0 auto}
 /* ── Der Klapp-Pfeil ──────────────────────────────────────────
    Ganz links in der Kopfzeile und so breit wie die Siegelspalte
    der Tabelle darunter (--markw aus css/ledger.css): dadurch steht
    er senkrecht über den Haken der Positionen. Das Polster rechts
    rückt seine Mitte auf die der Siegel. Seine Farbe ist die Kante
    des Bereichs — ein Wort braucht er nicht. */
-.sechead .foldarrow{flex:0 0 auto;width:var(--markw);padding:0 4px 0 0;
+/* Das Polster rechts (12 px) schiebt die Pfeilmitte auf die der
+   16-px-Siegel darunter: deren Spalte beginnt nach dem
+   12-px-Kartenpolster, der Pfeilkasten schon an der Kante. */
+.sechead .foldarrow{flex:0 0 auto;width:var(--markw);padding:0 12px 0 0;
   display:grid;place-items:center;background:none;border:0}
-/* So groß wie ein Siegel darunter (30px, siehe .seal in
-   css/components.css) — aber der Pfeil selbst, nicht ein Kreis um
-   ihn herum: dieselbe Spalte, dieselbe Größe, die Farbe des
-   Bereichs. */
-.sechead .foldarrow{font-size:23px;line-height:.8;color:inherit}
+/* Klein wie im Mock (▼ bei 10 px): der Pfeil selbst, kein Kreis um
+   ihn herum — dieselbe Spalte wie die Siegel darunter, die Farbe
+   des Bereichs. */
+.sechead .foldarrow{font-size:10px;line-height:1;color:inherit}
 .sechead .foldarrow:hover{color:var(--ink)}
 /* Bei offener Auswertung gibt es keinen Pfeil — der Platz bleibt
    trotzdem stehen, damit die Überschrift nicht springt. */
@@ -162,7 +259,7 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    nicht dazwischen. */
 .sechead .headstack{display:flex;flex-direction:column;gap:3px;min-width:0}
 .sechead .subhead{margin:0;font-size:12px;line-height:1.45;color:var(--ink-2);max-width:78ch}
-.sechead .tot{font-family:var(--font-data);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.sechead .tot{font-family:var(--font-data);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
 /* „(3 ausgeblendet)" steht in der Überschrift, trägt aber deren
    Versalien und Sperrung nicht mit. */
 .sechead h2 .note{margin-left:8px;text-transform:none;letter-spacing:0;font-weight:400}
@@ -179,35 +276,7 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 /* Der Abstand nach unten kommt aus dem Polster, nicht aus einem
    Rand: ein Rand ist durchsichtig, dort schiene der Inhalt
    durch, der darunter wegscrollt. */
-.stickybar .kpi,.stickybar.filterbar{margin-bottom:0}
-
-/* ── Kennzahlenleiste ─────────────────────────────────────────
-   Drei Zeilen: Beschriftung, Betrag, Hinweis. Damit sie über alle
-   Kästchen hinweg auf einer Linie liegen — auch wenn die eine
-   Beschriftung zweizeilig wird und dem Nachbarn ein Hinweis fehlt
-   —, teilen sich die Kästchen die Zeilen der äußeren Tabelle
-   (subgrid). Wo das nicht geht, sorgt der Rückfall darunter
-   wenigstens für einen festen Platz je Teil. */
-.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(124px,1fr));
-  grid-template-rows:auto auto auto;
-  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:16px}
-/* Kein eigenes gap am Kästchen: die 1px-Fugen der äußeren
-   Tabelle zeichnen die Trennlinien, den Abstand im Kästchen
-   machen die Ränder an .val und .note. */
-.kpi>div{background:var(--paper-2);padding:9px 12px;
-  display:grid;grid-row:span 3;grid-template-rows:subgrid}
-.kpi>div.t-in{background:var(--bg-in)}.kpi>div.t-out{background:var(--bg-out)}.kpi>div.t-flex{background:var(--bg-flex)}
-.kpi .lab{font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
-.kpi .val{font-family:var(--font-data);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;
-  margin-top:2px;align-self:end}
-.kpi .note{margin:3px 0 0;align-self:start}
-
-@supports not (grid-template-rows:subgrid){
-  .kpi>div{display:flex;flex-direction:column;grid-row:auto}
-  .kpi .lab{min-height:2.6em}
-  .kpi .val{margin-top:3px}
-  .kpi .note{margin-top:auto}
-}
+.stickybar.filterbar{margin-bottom:0}
 
 /* ── Die Auswertung der Monatsansicht ─────────────────────────
    Dieselben fünf Zahlen wie die Kennzahlenleiste, aber auf eine
@@ -222,30 +291,30 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    nicht als Kästchen in der Reihe: sie benennt die Leiste, sie ist
    keine Kennzahl. Einen Pfeil trägt sie nicht — ob die Auswertung
    offen ist, sagt der Zeitstrahl darunter. */
-.anahead{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left}
-.anahead .analab{display:block;font-family:var(--font-data);font-size:9px;line-height:1.25;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin:0 0 3px 1px}
-.anahead:hover .analab{color:var(--seal)}
-/* Die Zahlen teilen sich die Breite zu gleichen Teilen — wie viele
-   es sind, sagt die Zeile selbst (`auto-fit`) und nicht eine feste
-   Zahl im Stylesheet. Stand hier `repeat(5,…)` und die Zeile trug
-   nur vier, blieb rechts eine leere Spalte stehen. */
+.anahead{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+/* Sie ist das letzte Stück der Leiste — über den Karten, die sie
+   zusammenfasst. Der Abstand nach oben ist derselbe, den die
+   Bereiche voneinander haben. */
+.anabar .anahead{margin-top:10px}
+/* EIN eingefasster Kasten (Mac-Redesign): Radius 8, flacher
+   Schatten, die Kacheln durch 1-px-Linien getrennt — keine
+   Überschrift mehr darüber. Wie viele Kacheln es sind, sagt die
+   Zeile selbst (grid-auto-flow), nicht eine feste Zahl. */
 .anarow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:1px;
-  background:var(--rule);border:1px solid var(--rule)}
-.anarow .anak{background:var(--paper-2);min-width:0;padding:5px 10px;
+  background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;
+  box-shadow:var(--sh-card)}
+.anarow .anak{background:var(--paper-2);min-width:0;padding:5px 12px;
   display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 /* Die Filterzeile gehört zur Leiste, nicht in eine Karte: sie gilt
-   für alle drei Bereiche. Sie ist trotzdem ein eigener Bereich und
-   sieht auch so aus — grauer Grund und eine dunkle Kante links, wie
-   die Karten darunter ihre Farbe tragen. Nur ist ihre Farbe keine
-   Geldart: sie gehört zu allen dreien.
+   für alle drei Bereiche. Wie sie aussieht, steht ein Stück
+   weiter unten — sie und die Zeile der Jahresmatrix tragen
+   dieselbe Bahn.
 
    Weil sie oben klebt, kostet jede umgebrochene Zeile dauerhaft
    Platz — deshalb enger gesetzt als sonst und mit einem Suchfeld,
    das nachgibt. Zehn Knöpfe und das Feld passen so bis hinunter zu
    etwa 1000 px in eine Zeile. */
-.anabar .filterbar{margin:8px 0 0;gap:6px;background:var(--shade);
-  border:1px solid var(--rule);border-left:5px solid var(--ink);padding:7px 12px}
+.anabar .filterbar{margin:0 calc(-1 * var(--pagepad));gap:8px;padding:6px var(--pagepad)}
 /* Greift einer der drei Filter, färbt sich die ganze Leiste: sie
    sagt dann, dass hier gerade etwas ausgeblendet wird. Ohne Filter
    bleibt sie grau wie jeder andere Bereich — eine Farbe, die immer
@@ -260,41 +329,113 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    deshalb Papier unter sich, und der gedrückte bleibt dunkel: die
    Leiste sagt, *dass* gefiltert wird, der Knopf, *was*. Die Linien
    zwischen den Gruppen werden dunkler statt heller, sonst
-   verschwänden sie im hellen Orange. */
+   verschwänden sie im hellen Orange.
+
+   Ohne Filter bleibt sie hell — eine Farbe, die immer leuchtet,
+   sagt nichts. */
 /* ── Die Zeile der Jahresmatrix ──────────────────────────────
    Die Knöpfe und das Suchfeld stehen in einer eigenen Zeile
    (.ybrow, gebaut in viewJahr) — **nicht** die ganze Leiste: unter
    ihnen hängt der waagerechte Rollbalken der Matrix, und der
-   filtert nichts. Die Zeile trägt immer denselben Kasten (Polster
-   und einen durchsichtigen Rand); gefärbt wird nur, was darin
-   steht, sonst spränge alles um einen Pixel, sobald ein Filter
-   greift. Das negative Außenmaß hält den Inhalt genau dort, wo er
-   ohne den Kasten stünde. */
-.yearbar .ybrow{flex:1 1 100%;display:flex;justify-content:space-between;align-items:center;
-  gap:12px;flex-wrap:wrap;padding:6px 10px;margin:0 -10px;
-  border:1px solid transparent;border-radius:2px}
+   filtert nichts. Die Zeile trägt dieselbe Bahn wie die
+   Filterzeile des Monats — greift der Suchbegriff, färbt ihn .on
+   orange, ohne dass etwas springt: Kanten und Polster stehen schon
+   da. */
+.yearbar .ybrow{flex:1 1 100%;display:flex;justify-content:flex-start;align-items:center;
+  gap:8px;flex-wrap:wrap;padding:6px var(--pagepad);margin:0 calc(-1 * var(--pagepad))}
+/* ── Die Filterzeile ist eine Bahn über die ganze Seite ───────
+   Beide Ansichten tragen dasselbe Bild, und es ist das der
+   Monatsleiste: ein flacher Streifen von Rand zu Rand, heller als
+   das Papier, mit einer Haarlinie oben und unten — kein
+   eingefasster Kasten mehr (bis 22.8.26 grauer Grund, Radius 7,
+   Rahmen ringsum). Die negativen Außenmaße heben das Polster von
+   .wrap auf, genau wie in der Kopfzeile; --pagepad steht dort und
+   ist auf dem Telefon 12 px statt 24.
+
+   Eine Bahn kann keine Ecken haben: border-radius und die beiden
+   seitlichen Kanten entfallen, sonst endete die Zeile sichtbar
+   einen Pixel vor dem Fensterrand. */
+.anabar .filterbar,.yearbar .ybrow{background:var(--paper-2);border:0;border-radius:0;
+  border-bottom:1px solid var(--rule);min-height:var(--barh,43px)}
+/* **Sie ist genau so hoch wie die Kopfzeile darüber.** Das Maß
+   steht nicht hier: die Kopfzeile ist so hoch, wie ihr Inhalt sie
+   macht, und das misst syncStickyTops() ohnehin schon für das
+   `top` der klebenden Leisten — dasselbe Maß geht als --barh an
+   das Wurzelelement. Eine Zahl im Stylesheet liefe beim ersten
+   Umbau daneben. Bricht die Zeile um, wächst sie darüber hinaus:
+   min-height, keine Höhe. */
+/* **Sie dockt oben an der Kopfzeile an, ohne Abstand** — in beiden
+   Ansichten das erste, was unter den Reitern kommt. Deshalb hat
+   die Leiste, in der sie steckt, kein oberes Polster, und die Bahn
+   selbst keine obere Haarlinie: die Kopfzeile bringt ihre eigene
+   mit, zwei nebeneinander läsen sich als Doppelstrich. */
+.stickybar.anabar{padding-top:0}
+.yearbar .ybrow .btn.small{padding:4px 10px;font-size:11.5px}
+/* Die beiden Ausblenden-Knöpfe stehen abgesetzt am rechten Rand.
+   Sie filtern nicht: sie räumen ab, was fertig ist — der eine die
+   Spalten abgerechneter Monate, der andere die Zeilen bezahlter
+   Posten. Zwischen ihnen und dem Suchfeld liegt deshalb Luft
+   (margin-left:auto) und keine Trennlinie: eine Linie machte aus
+   ihnen die nächste Filtergruppe, und genau das sind sie nicht.
+   Wird die Zeile zu schmal, rutschen die beiden als Paar in die
+   zweite Reihe — dort wieder rechts. */
+.yearbar .ybrow .ybhide{margin-left:auto;display:flex;align-items:center;gap:8px}
 /* Dieselben Regeln wie im Monat: dort die Filterzeile, hier diese
    Zeile — eine Leiste, die anders aussieht, sähe nach einem
    anderen Werkzeug aus. */
 .anabar .filterbar.on,.yearbar .ybrow.on{background:var(--accent-soft);border-color:var(--accent)}
 .anabar .filterbar.on .btn,.yearbar .ybrow.on .btn{background:var(--paper-2)}
 .anabar .filterbar.on .btn:hover,.yearbar .ybrow.on .btn:hover{background:#fff}
-.anabar .filterbar.on .btn[aria-pressed="true"],
-.yearbar .ybrow.on .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
+/* ── Angewendet heißt dunkel, immer ─────────────────────────
+   Ein gedrückter Knopf trägt Tinte, gleich ob die Zeile gerade
+   orange leuchtet oder grau bleibt. Bis 22.8.26 hing das an `.on`:
+   die beiden Ausblenden-Knöpfe der Jahresansicht sagten damit nur
+   dann sichtbar, dass sie gelten, wenn zufällig auch ein
+   Suchbegriff im Feld stand — sie leuchten die Zeile ja
+   ausdrücklich nicht an (siehe viewJahr).
+
+   Der :hover-Zwilling ist kein Zierrat: `.on .btn:hover` weiter
+   oben ist um eine Klasse spezifischer, und ohne ihn würde ein
+   gedrückter Knopf unter der Maus wieder weiß. */
+.anabar .filterbar .btn[aria-pressed="true"],.yearbar .ybrow .btn[aria-pressed="true"],
+.anabar .filterbar .btn[aria-pressed="true"]:hover,
+.yearbar .ybrow .btn[aria-pressed="true"]:hover{background:var(--ink);color:var(--paper-2);
+  border-color:var(--ink)}
 .anabar .filterbar.on .fbgroup,.yearbar .ybrow.on .fbgroup{border-left-color:rgba(122,53,11,.38)}
-.anabar .filterbar .btn.small{padding:3px 7px;font-size:11.5px}
-/* Die Gruppen der Filterzeile stehen durch eine senkrechte Linie
-   getrennt: Suchfeld | Fälligkeit | Zahlungsstand. */
-.anabar .fbgroup{gap:6px;border-left:1px solid var(--rule-strong);padding-left:10px;margin-left:2px}
-.anabar .fbgroup+.fbgroup{margin-left:2px}
+.anabar .filterbar .btn.small{padding:4px 10px;font-size:11.5px}
 .fltbox.flttop{flex:0 1 230px;width:230px;min-width:140px}
+
+/* ── Die Aufklappmenüs der Filterzeile ────────────────────────
+   Der Knopf nennt Gruppe und gewählten Wert, das Menü darunter
+   liegt als Overlay über dem Inhalt und verschiebt nie Layout.
+   Der gewählte Eintrag steht auf Orange über die volle Zeile —
+   dieselbe Farbe, mit der die Leiste sagt, dass gefiltert wird. */
+.fltdrop{position:relative;display:inline-flex}
+.drophead{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.drophead .caret{font-size:8px;color:var(--ink-2)}
+.drophead[aria-pressed="true"] .caret{color:inherit}
+.dropmenu{position:absolute;top:calc(100% + 6px);left:0;z-index:35;display:flex;flex-direction:column;
+  min-width:190px;background:#fff;border:1px solid var(--rule);border-radius:8px;
+  box-shadow:var(--sh-pop);overflow:hidden;text-align:left}
+.dropmenu .mi{display:block;width:100%;background:none;border:0;border-radius:0;text-align:left;
+  padding:4px 12px;font-size:12px;color:var(--ink);cursor:pointer;box-shadow:none}
+.dropmenu .mi:hover{background:var(--paper-2)}
+.dropmenu .mi:disabled{opacity:.45;cursor:not-allowed}
+.dropmenu .mi.sel{background:var(--accent-soft);font-weight:600}
+.dropmenu .mi.mi-sep{border-bottom:1px solid var(--hairline);padding:6px 12px}
+.dropmenu .mi.mi-top{border-top:1px solid var(--hairline);padding:6px 12px}
+/* „Gilt gerade" heißt auch im Menü dunkel — der Weg zu den
+   Filteroptionen trägt sein aria-pressed wie jeder Filterknopf. */
+.dropmenu .mi[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
+.dropmenu .mghead{padding:5px 12px 2px;font-family:var(--font-data);font-size:8.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
 .anahead .anak.t-in{background:var(--bg-in)}
 .anahead .anak.t-out{background:var(--bg-out)}
 .anahead .anak.t-flex{background:var(--bg-flex)}
-.anahead .lab{font-family:var(--font-data);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+.anahead .lab{font-family:var(--font-data);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .anahead .lab b{font-weight:600;color:var(--ink)}
-.anahead .val{font-family:var(--font-data);font-size:14.5px;font-weight:600;font-variant-numeric:tabular-nums;
+.anahead .val{font-family:var(--font-data);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;
   white-space:nowrap}
 
 /* ── Der Zeitstrahl ───────────────────────────────────────────
@@ -319,12 +460,17 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    zwei Angaben. Er kostet je Zeile so wenig, wie er breit ist —
    deshalb 3 px und nicht mehr: der Zeitstrahl klebt beim Rollen
    oben, und jeder Pixel fehlt der Liste darunter fünfmal. */
-.tline{display:flex;flex-direction:column;gap:1px;background:var(--rule);
-  border:1px solid var(--rule);border-top:0;margin-top:4px;
-  --bh:5px;--bgap:3px;--bpad:2px;--nbars:3}
-.trow{display:grid;grid-template-columns:186px 100px 108px minmax(0,1fr);align-items:center;gap:8px;
-  background:var(--paper-2);border:0;padding:2px 10px;font:inherit;color:inherit;text-align:left}
-.trow:hover{background:var(--shade)}
+/* Der Zeitstrahl als weiße Karte (Mac-Redesign): Radius 8, flacher
+   Schatten, die Zeilen durch die Haarlinie getrennt (die 1-px-Fugen
+   des Stapels), Balken 4 px. overflow:hidden ist hier erlaubt —
+   in der Karte klebt nichts. */
+.tline{display:flex;flex-direction:column;gap:1px;background:var(--hairline);
+  border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-top:6px;
+  box-shadow:var(--sh-card);
+  --bh:4px;--bgap:3px;--bpad:2px;--nbars:3}
+.trow{display:grid;grid-template-columns:172px 84px 84px minmax(0,1fr);align-items:center;gap:8px;
+  background:#fff;border:0;padding:2px 10px;font:inherit;color:inherit;text-align:left}
+.trow:hover{background:var(--chrome-hi)}
 /* Alle Zeilen sind gleich hoch, auch die ohne Zahl: gefiltert trägt
    nur der gewählte Abschnitt seine Beträge, die übrigen stehen als
    blasse Balken da. Das Maß ist --nbars, die Höhe in Balken — und
@@ -358,22 +504,26 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    des Monats das ist, und steht deshalb in Schwarz wie die
    Bezeichnungen der Positionen. Nur die Tage daneben treten
    zurück. */
+/* Die Beschriftung im Mac-Ton: gewöhnliche Oberflächenschrift,
+   12 px, kein Versalsatz — die Tage stehen in ihrer Sprechblase
+   (tlLabel in js/views/monat.js). */
 .trow .tname{display:flex;align-items:baseline;gap:6px;min-width:0;
-  font-family:var(--font-data);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
-  font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden}
-.trow .tname small{font-size:9.5px;letter-spacing:.04em;color:var(--ink-2);
-  text-transform:none;font-weight:400}
+  font-family:var(--font-ui);font-size:12px;font-weight:400;color:var(--ink);
+  white-space:nowrap;overflow:hidden}
 /* Der heutige Tag liegt in dieser Zeile: eine Marke in der
    Hervorhebungsfarbe — nur Rahmen und Schrift, der Grund bleibt
    durchsichtig. Gefüllt und rot wäre sie eine Warnung. */
 .trow .tnow{font-size:8.5px;letter-spacing:.08em;color:var(--accent-2);
   border:1px solid var(--accent-2);background:none;padding:0 3px;font-weight:600}
 /* Die Veränderung ist ein Betrag wie jeder andere und wird auch so
-   gesetzt: dieselbe Größe wie in der Tabelle darunter. */
-.trow .tflow{font-family:var(--font-data);font-size:14px;font-variant-numeric:tabular-nums;
+   gesetzt: dieselbe Größe wie in der Tabelle darunter. Der Stand
+   danach steht immer in Tinte — sein Vorzeichen liest man an der
+   Veränderung und am Balken, nicht an einer zweiten Farbe. */
+.trow .tflow{font-family:var(--font-data);font-size:12px;font-variant-numeric:tabular-nums;
   text-align:right;white-space:nowrap}
-.trow .trun{font-family:var(--font-data);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;
+.trow .trun{font-family:var(--font-data);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;
   text-align:right;white-space:nowrap}
+.trow .trun.pos,.trow .trun.neg{color:var(--ink)}
 /* Was der Monat vorfindet, ist kein Zeitraum, sondern ein Stand.
    Die Zeile sieht aus wie jede andere — nur klicken lässt sie sich
    nicht: es gibt nichts, wonach sie filtern könnte. Deshalb auch
@@ -421,7 +571,7 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Zeilen. Wie hoch die Zeile ist, sagt --nbars (siehe oben), nicht
    die Fläche selbst. Die Achszeile (.taxis) behält ihre eigene
    Höhe. */
-.tline .ttrack{border-left:1px solid var(--rule-strong);
+.tline .ttrack{border-left:1px solid var(--rule);
   align-self:stretch;height:auto}
 /* Zwei Balken in einer Zeile brauchen die doppelte Höhe — beide
    sollen gleich hoch sein, keiner gequetscht. Die Klasse trägt nur
@@ -437,7 +587,9 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    grün wie eine Einnahme — dieselbe Aussage, dieselbe Farbe. */
 .z-neg{left:0;background:var(--bg-out)}
 .z-pos{background:var(--zone-in)}
-.tzero{width:1px;background:var(--rule-strong)}
+/* Die Null ist dunkler als das Raster (#7A827B, Mac-Redesign 4b) —
+   sie ist ein Wert, das Raster nur ein Maß. */
+.tzero{width:1px;background:#7A827B}
 /* Zufluss oben, Abfluss unten: in einer Zeile, in der erst eine
    Einnahme kommt und danach Kosten abgehen, überdecken sich die
    beiden Strecken auf der Achse. */
@@ -522,10 +674,10 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Kein Knopf und keine Sprechblase, nur die Beschriftung des
    Maßes; die Marken kommen mit ihrer Verschiebung aus dem Skript. */
 .trow.taxis{padding-top:0;padding-bottom:0;cursor:default}
-.trow.taxis:hover{background:var(--paper-2)}
-.taxis .ttrack{height:11px;overflow:visible}
-.taxis .tzlab{top:auto;bottom:1px;height:auto;font-family:var(--font-data);font-size:9px;
-  line-height:1;font-weight:600;color:var(--ink-2)}
+.trow.taxis:hover{background:#fff}
+.taxis .ttrack{height:20px;overflow:visible}
+.taxis .tzlab{top:auto;bottom:5px;height:auto;font-family:var(--font-data);font-size:8.5px;
+  line-height:1;font-weight:400;color:var(--ink-2)}
 /* Derselbe Balken im Verlauf der Prognose (.ytrack) besteht aus
    mehreren Farben — dort franst nicht ein Hintergrund aus, sondern
    der ganze Balken samt seiner Anteile. Deshalb eine Maske und
@@ -575,18 +727,18 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    neuen. Der Strich einer Zeile steht genau über der Linie der
    nächsten. */
 .tconn{width:1px;background:var(--ink);opacity:.22}
-.tmark{width:2px;background:var(--ink);margin-left:-1px}
+.tmark{width:1.5px;background:var(--ink);margin-left:-1px}
 
 /* Die Farberklärung unter den Zeilen — seit an einem Anteil nur
    noch sein Betrag steht, ist die Farbe das Einzige, was die
    Geldart nennt. Sie ist das Letzte unter der Fläche: der Satz
    darunter, wohin alles ohne Zahltag gerät, ist seit 19.8.26
    gestrichen — dasselbe sagt der Filterknopf „Monatsabschluss". */
-.thint{display:flex;flex-wrap:wrap;gap:4px 14px;background:var(--paper-2);padding:3px 10px;
-  font-size:10px;color:var(--ink-2);cursor:help}
-.thint .lk{display:flex;align-items:center;gap:5px;white-space:nowrap}
-.thint i{display:block;width:14px;height:8px}
-.thint i.lmark{width:2px;height:11px;background:var(--ink)}
+.thint{display:flex;flex-wrap:wrap;gap:4px 12px;background:#fff;padding:4px 10px;
+  font-size:9.5px;color:var(--ink-2);cursor:help}
+.thint .lk{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.thint i{display:block;width:8px;height:8px;border-radius:2px}
+.thint i.lmark{width:1.5px;height:10px;background:var(--ink);border-radius:0}
 /* Der Maßstab steht am Ende der Farberklärung — dort ist Platz,
    und er gehört zur Fläche, nicht zu einer Zeile. */
 .thint .lscale{margin-left:auto;font-family:var(--font-data);font-size:9.5px;white-space:nowrap}
@@ -624,8 +776,14 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
 .scrollrail::-webkit-scrollbar-thumb:hover{background:var(--ink-2)}
 /* In der Knopfleiste der Jahresmatrix steht sie auf einer eigenen
    Zeile, über die ganze Breite: sie gehört zur Tabelle darunter und
-   nicht zwischen die Knöpfe. */
-.yearbar .scrollrail{flex:0 0 100%;margin-top:2px}
+   nicht zwischen die Knöpfe — **deshalb sitzt sie an ihr**. Die
+   10 px Abstand liegen über der Leiste, das negative Maß darunter
+   hebt das Polster der Knopfleiste auf. So bleibt zwischen der
+   Filterzeile und dem Spaltenkopf der Matrix genau so viel Luft,
+   wie die Bereiche voneinander haben (10 px) — mit Rollbalken wie
+   ohne, denn ohne ihn (.off) trägt das Polster der Leiste dieselben
+   10 px allein. */
+.yearbar .scrollrail{flex:0 0 100%;margin:10px 0 -10px}
 /* In der Prognose steht sie in der Karte, direkt über der Tabelle. */
 .progscroll+.scrollrail,.scrollrail+.progscroll{margin-top:6px}
 /* Und die Tabellen selbst zeigen unten **keinen** waagerechten
@@ -640,6 +798,10 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    nur das rollt weich. */
 .progscroll{scrollbar-width:none}
 .progscroll::-webkit-scrollbar{height:0;display:none}
+/* Die Matrix liegt seit dem Mac-Redesign nicht mehr in einem
+   eigenen Rahmen: die Blöcke tragen ihre Karten selbst, und
+   zwischen ihnen scheint das Papier durch (tr.spacer). */
+.yearscroll{border:0;background:transparent}
 .yearscroll{scrollbar-width:thin}
 .yearscroll::-webkit-scrollbar{width:11px}
 .yearscroll::-webkit-scrollbar-track{background:var(--paper)}

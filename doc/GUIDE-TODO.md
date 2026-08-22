@@ -20,10 +20,73 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
-- **Neuer Filter nach Bereich** — in der Filterzeile der Monatsansicht stehen vor der
-  Fälligkeit vier Knöpfe: Bereich · Einnahmen · Flexible · Kosten. Sie lassen nur die
-  gewählte Karte stehen (die Saldokorrektur fällt mit weg), und wie bei jedem Filter rechnen
-  Kennzahlen und Zeitstrahl danach mit. Was ein Knopf meint, sagt seine Sprechblase.
+- **Die Monatsleiste steht unter der Filterzeile** — nicht mehr an der Kopfzeile. Sie sieht
+  jetzt aus wie der Spaltenkopf der Jahresmatrix (weiße Karte), und die Filterzeile läuft in
+  beiden Ansichten als flache Bahn über die ganze Seite. Kein Absatz ist dadurch falsch
+  geworden: „wähl oben den Monat" (Schritt 7) stimmt weiter, die Leiste steht nach wie vor
+  oben. Wer die Anleitung nachzieht, prüft nur die Bildschirmfotos — `month-out` und die
+  übrigen Abzüge der Monatsansicht zeigen noch das alte Bild.
+
+
+- **FINA sagt, wenn die Datei aus einer älteren Fassung stammt** — beim Laden steht in der
+  Kurzmeldung, dass die Datei in einem älteren Format vorliegt und beim Speichern ins
+  aktuelle überführt wird; beim Speichern meldet sie, dass es geschehen ist. Eine neuere
+  Datei (Web läuft den Apps voraus) meldet nichts, ein frisch angefangenes Buch auch nicht.
+  Gehört in „Was FINA kann", Abschnitt zum Speichern: die Zusage „deine Datei bleibt deine
+  Datei" wird damit genauer — FINA schreibt beim Speichern immer das aktuelle Format, und
+  seit 22.8.26 sagt sie es auch.
+
+- ⚠ **Die offene Auswertung klappt die Bereiche nicht mehr auf** — die Klapp-Pfeile der
+  Monatsansicht sind jetzt auch bei aufgeklapptem Analytics-Bereich da; nur ein **Filter**
+  klappt weiterhin alles auf und nimmt die Pfeile weg. **Falsch geworden:** wo die
+  Anleitung sagt, beim Aufklappen der Auswertung stünden alle Bereiche offen (bzw. es gebe
+  dann keine Pfeile), stimmt das nicht mehr.
+
+- **Nachschliff zum Mac-Redesign (22.8.26, zweiter Durchgang)** — die Blöcke der
+  Jahresmatrix runden jetzt wirklich als Karten (auch die klebenden Kopf- und Blockzeilen,
+  ohne dass beim Scrollen etwas durch die Ecken scheint); die Saldokorrektur-Zeile der
+  Matrix sieht aus wie eine Position (heller blauer Grund, gewöhnliche Schrift) statt wie
+  eine zweite Blockzeile; die Kartenköpfe der Monatsansicht heißen nur noch „Einnahmen" /
+  „Flexible Payments" / „Regelmäßige Kosten" — **ohne Monatsnamen**; in der Leiste der
+  Jahresansicht steht „Filteroptionen…" direkt hinter dem ✕; die ✓/?-Erklärung neben den
+  Ansichtsreitern ist weg; im ☰-Menü steht der Dateiname immer als Kopf zuoberst, und vor
+  den drei „Neu…"-Wegen sitzt ein Plus im farbigen Kreis (grün · gelb · rot), die
+  Beschriftungen bleiben schwarz; Monatseröffnung und Monatsabschluss im Zeitstrahl tragen
+  eine erklärende Sprechblase; die Prognose-Karte hat eine Titelzeile mit Linie und die
+  Farberklärung als Fußzeile. Dazu: Bank/Zahlungsart/Fälligkeit stehen in der
+  Monatsansicht auf Höhe des Positionsnamens und werden bei engem Fenster zu den Kürzeln
+  der Jahresmatrix; die Monatsnotiz läuft als eigene Zeile bis an den rechten Kartenrand;
+  die Marke der Flexible Payments (imported/estimated/corrected) steht am rechten Rand;
+  die Blockzeilen der Jahresmatrix sind so hoch wie die Kartenköpfe des Monats; unter der
+  letzten Zeile einer Karte (auch unter einem zugeklappten Block) steht keine Trennlinie
+  mehr; die farbige 3-px-Kante links tragen in der Jahresmatrix nur noch die
+  Kategoriezeilen, nicht mehr jede Zeile; ⚠ **auf dem Telefon gibt es die Metazeile (Bank · Zahlungsart · Fälligkeit) unter
+  dem Namen nicht mehr** — falls die Anleitung sie im Mobil-Absatz erwähnt, stimmt das
+  nicht mehr. Sonst alles Kosmetik bis auf die beiden Sprechblasen — falsch
+  geworden ist dadurch nichts, was nicht schon unter dem Punkt „Das Mac-Redesign" steht.
+
+- ⚠ **Das Mac-Redesign (22.8.26)** — die Oberfläche trägt das Mac-Gewand aus
+  `_BusinessCenter/260822 ReDesign FINA - Mac Style`: Ansichten als Segmented Control in
+  der Mitte der Kopfzeile, **alle Aktionsknöpfe im ☰-Menü oben rechts** (Speichern,
+  Sicherung, Trennen, CSV-Import, die drei „Neu…"-Wege, Einstellungen, Anleitung; roter
+  Punkt = ungespeichert), Monatsleiste mit roter Pille, Filter als Aufklappmenüs
+  („Filteroptionen…" + Bereich/Fälligkeit/Zahlungsstatus, gewählter Wert orange), Karten
+  mit runden Ecken in allen Ansichten, „Saldo je Monat" als blaue Karte mit der
+  Saldokorrektur darunter, der vierte Reiter heißt **Transactions**.
+  **Falsch geworden:** überall, wo die Anleitung (a) Knöpfe in der Kopfzeile beschreibt
+  („Daten speichern" neben dem Dateinamen, der orange Anleitungsknopf), (b) die
+  Filterzeile als Knopfreihe zeigt, (c) „Neue Einnahme"/„Neuer Posten"-Knöpfe in den
+  Karten oder rechts in der Jahresleiste nennt, (d) den Reiter „Fast Budget Details"
+  beim Namen nennt, (e) die Überschrift „Auswertung" über der Kennzahlenzeile erwähnt
+  oder (f) „Gesamt je Monat" sagt (heißt jetzt „Saldo je Monat", ohne
+  Vorzeichenfarbe). Die Bildschirmfotos in `doc/img/` zeigen durchweg das alte Bild.
+  *Im Reiter „Was ist neu" erledigt (26.8.22); in Schritt für Schritt und Was FINA kann
+  noch offen.*
+
+- **Neuer Filter nach Bereich** — in der Filterzeile der Monatsansicht steht neben
+  Fälligkeit und Zahlungsstatus das Aufklappmenü „Bereich": Einnahmen · Flexible ·
+  Kosten. Es lässt nur die gewählte Karte stehen (die Saldokorrektur fällt mit weg), und
+  wie bei jedem Filter rechnen Kennzahlen und Zeitstrahl danach mit.
 
 - ⚠ **„Noch offen" zählt jetzt auch die Flexible Payments** — die vierte Kennzahl der
   Auswertung nennt alles, was der Monat noch kostet: Posten ohne Haken **und** Kategorien
@@ -379,7 +442,12 @@ Am 4. August 2026 in beide Reiter und beide Sprachen übernommen:
   und mit Sofort-Hinweisen
 - die Fokusregel des Suchfelds — zurück nur, wenn etwas darin steht
 - Suchfeld und Doppelklick auf einen Betrag in der Jahresansicht
-- die beiden Jahresfilter: feste Beschriftung, dunkel wenn angewendet, in der Datei
-  gespeichert, Vorgabe aus
+- ⚠ die beiden Ausblenden-Knöpfe der Jahresansicht: feste Beschriftung, dunkel wenn
+  angewendet, Vorgabe aus — sie stehen seit 22.8.26 **rechts** in der Zeile, abgesetzt vom
+  Suchfeld, und nur „Abgeschlossene Monate ausblenden" bleibt in der Datei stehen.
+  „Erledigte Posten ausblenden" gilt nur für die laufende Sitzung.
+  **Falsch geworden:** „Was FINA kann" sagt in beiden Sprachen „beide stehen in deiner
+  Datei" bzw. „both are stored in your file, so the table comes back the way you left it".
+  Das gilt nur noch für „Abgeschlossene Monate ausblenden".
 - klebende Kartenköpfe (Monat) und Blockzeilen (Jahr)
 - die Marken der Flexible Payments am rechten Zeilenende

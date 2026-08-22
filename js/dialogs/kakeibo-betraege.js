@@ -132,7 +132,7 @@ function editKak(k,copy,focusMonth){
         <input class="num signed" data-mi="${i}" ${on?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
         <div class="cellnote">${esc(e.notes[i]||'')}</div></div>`;}).join('')}</div>
     </div></div>
-    <div class="row-end">${isNew?'':`<button class="linkish" id="kDel" style="margin-right:auto">${t('kdlg.del')}</button>`}
+    <div class="row-end">${isNew?'':`<button class="dellink" id="kDel">${t('kdlg.del')}</button>`}
       ${isNew?'':`<button class="btn" id="kDup" data-tip="${esc(t('kdlg.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="kCancel">${t('g.cancel')}</button><button class="btn primary" id="kSave">${t('g.save')}</button></div>
   </div>`;

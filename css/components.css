@@ -9,30 +9,41 @@
    sagt der Dateiname daneben, nicht die Farbe der Knöpfe. Rot
    trägt nur, was Daten überschreibt (.danger). */
 button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
-.btn{background:transparent;border:1px solid var(--rule-strong);color:var(--ink);padding:7px 13px;border-radius:2px;
+/* Der Mac-Knopf: heller Verlauf, feine Kante, Radius 6. Primär
+   (dunkel, weiß, 600) trägt die Entscheidung eines Fensters,
+   Rot nur, was Daten überschreibt (.danger). */
+.btn{background:var(--grad-btn);border:1px solid var(--rule);color:var(--ink);
+  padding:4px 11px;border-radius:6px;font-size:11.5px;font-weight:500;box-shadow:var(--sh-btn);
   transition:background .15s,border-color .15s}
-.btn:hover{background:var(--paper-2);border-color:var(--ink)}
+.btn:hover{background:var(--paper-2);border-color:var(--rule-strong)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn:focus-visible,.seal:focus-visible,.qmark:focus-visible,.mtab:focus-visible,.vtab:focus-visible,.namebtn:focus-visible,.mhead:focus-visible,a:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
-.btn.primary{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
-.btn.primary:hover{background:#2E3A35}
-.btn.danger{background:var(--seal);border-color:var(--seal);color:#FBF1EF}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600;box-shadow:none}
+.btn.primary:hover{background:#2E3A35;border-color:#2E3A35}
+.btn.danger{background:var(--seal);border-color:var(--seal);color:#FBF1EF;box-shadow:none}
 .btn.danger:hover{background:#93302A;border-color:#93302A}
-.btn.small{padding:4px 9px;font-size:12px}
-/* Die Anleitung ist der einzige farbige Knopf der Kopfzeile: sie
-   soll auffallen, solange man die Anwendung noch nicht kennt.
-   Offen zeigt er sich eingedrückt — der Bereich daneben bleibt ja
-   stehen, während man weiterarbeitet. */
-.btn.guidebtn{background:var(--accent);border-color:var(--accent);color:#FDF3EC;font-weight:600}
-.btn.guidebtn:hover{background:var(--accent-2);border-color:var(--accent-2)}
-.btn.guidebtn[aria-pressed="true"]{background:var(--accent-2);border-color:var(--ink);
-  box-shadow:inset 0 2px 4px -1px rgba(0,0,0,.45)}
+.btn.small{padding:3px 8px;font-size:11px}
+/* Die Anleitung ist der farbige Eintrag im Hamburger-Menü: orange
+   Schrift statt orangener Fläche — im Menü tragen Einträge Farbe
+   als Text (wie die drei „Neu…"-Wege). Offen zeigt der getönte
+   Grund, dass der Bereich daneben steht. */
+.btn.guidebtn{background:none;border-color:transparent;color:var(--accent-2);font-weight:600;box-shadow:none}
+.btn.guidebtn:hover{background:var(--paper-2);border-color:transparent;color:var(--accent)}
+.btn.guidebtn[aria-pressed="true"]{background:var(--chrome);box-shadow:none}
 /* Zugeklappt bleibt vom Bereich nur seine oberste Zeile — dann
-   braucht die Karte unter dem Kopf auch keinen Platz mehr. */
-.card.folded{padding-bottom:2px}
+   braucht die Karte unter dem Kopf auch keinen Platz mehr.
+   **Auch keine zwei Pixel**: die Karte ist weiß, der Kopf trägt
+   seine Blockfarbe — ein Rest Polster darunter stand als weiße
+   Kante quer unter dem zugeklappten Bereich (bis 22.8.26). */
+.card.folded{padding-bottom:0}
 .card.folded>.sechead{margin-bottom:0}
-.linkish{background:none;border:0;color:var(--ink-2);text-decoration:underline;padding:0;font-size:12px;cursor:pointer}
+.linkish{background:none;border:0;color:var(--ink-2);text-decoration:underline;padding:0;font-size:12px;cursor:pointer;box-shadow:none}
 .linkish:hover{color:var(--seal)}
+/* Ein Weg im Kopf einer Karte — orange wie die Anleitung im Menü:
+   er bietet etwas an, statt etwas zu tun. */
+.headlink{background:none;border:0;padding:0;font-size:11px;color:var(--accent-2);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.headlink:hover{color:var(--accent)}
 .namebtn{background:none;border:0;padding:0;font-family:var(--font-ui);font-size:15px;color:inherit;text-align:left;
   border-bottom:1px dotted var(--rule-strong);line-height:1.3}
 .namebtn:hover{border-bottom-color:var(--ink);color:var(--ink)}
@@ -71,20 +82,21 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 .grouppick option.og-in{color:var(--ok);font-style:normal;font-weight:400}
 .grouppick option.og-out{color:var(--seal);font-style:normal;font-weight:400}
 
-/* ── Bezahlt-Siegel ───────────────────────────────────────── */
+/* ── Bezahlt-Siegel ───────────────────────────────────────────
+   Die drei Zustände nach 3a: bezahlt = gefüllter grüner Kreis mit
+   weißem Haken, offen = gestrichelter leerer Kreis, geschätzt =
+   gelber Kreis in den Flex-Tönen. 16 px in der Zeile, 14 px in
+   den Monatskacheln der Fenster (.mini). */
 .marks{display:flex;gap:6px;align-items:center}
-.seal{width:30px;height:30px;border-radius:50%;border:1.5px dashed var(--rule-strong);background:transparent;
-  display:grid;place-items:center;padding:0;transition:transform .12s ease,border-color .15s;flex:0 0 auto}
+.seal{width:16px;height:16px;border-radius:50%;border:1.5px dashed var(--rule-strong);background:transparent;
+  display:grid;place-items:center;padding:0;transition:border-color .15s,background .15s;flex:0 0 auto}
 .seal:hover{border-color:var(--ink)}
-.seal svg{width:17px;height:17px;opacity:0;transform:scale(.5) rotate(-14deg);transition:opacity .12s,transform .12s;stroke:var(--ok)}
-.seal[aria-pressed="true"]{border:2px solid var(--ok);border-style:solid;background:rgba(46,106,76,.13);
-  box-shadow:0 0 0 2px rgba(46,106,76,.06);transform:rotate(-7deg)}
-.seal.est{border:2px solid var(--amber);background:#F6E3A8}
-.seal[aria-pressed="true"] svg{opacity:1;transform:none}
-.seal[aria-pressed="true"]:active{transform:rotate(-7deg) scale(.86)}
-.seal.mini{width:23px;height:23px;border-width:1.5px}
-.seal.mini svg{width:13px;height:13px}
-.seal.mini[aria-pressed="true"]{border-width:2px;box-shadow:none;transform:rotate(-6deg)}
+.seal svg{width:10px;height:10px;opacity:0;transition:opacity .12s;stroke:#fff}
+.seal[aria-pressed="true"]{border:0;background:var(--ok)}
+.seal.est{border:1.5px solid var(--edge-flex);background:var(--bg-flex-3)}
+.seal[aria-pressed="true"] svg{opacity:1}
+.seal.mini{width:14px;height:14px;border-width:1.5px}
+.seal.mini svg{width:9px;height:9px}
 .seal.mini:disabled{opacity:.55;cursor:not-allowed}
 .qmark{width:24px;height:24px;border-radius:50%;border:1.5px dotted var(--rule-strong);background:transparent;
   color:var(--rule-strong);font-family:var(--font-data);font-weight:600;font-size:13px;line-height:1;padding:0;flex:0 0 auto}
@@ -95,16 +107,18 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    Die drei Symbole stehen in jeder Ansicht nebeneinander und
    bekommen deshalb dasselbe 20px-Feld: nur dann sitzen sie in
    einer Flucht und ihre Abstände sind gleich. */
-.pencil{background:none;border:0;padding:0;width:20px;height:20px;cursor:pointer;color:var(--ink-2);
-  font-size:17px;font-weight:700;line-height:1;border-radius:2px;
+.pencil{background:none;border:0;padding:0;width:16px;height:16px;cursor:pointer;color:var(--ink-2);
+  font-size:13px;font-weight:700;line-height:1;border-radius:2px;
   display:inline-grid;place-items:center;vertical-align:middle}
 .pencil:hover{color:var(--seal);background:rgba(0,0,0,.05)}
-.lamp{background:none;border:0;padding:0;width:20px;height:20px;cursor:pointer;color:var(--rule-strong);
-  display:inline-grid;place-items:center;vertical-align:middle}
-.lamp svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lamp{background:none;border:0;padding:0;width:16px;height:16px;cursor:pointer;color:var(--rule)}
+.lamp{display:inline-grid;place-items:center;vertical-align:middle}
+.lamp svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .lamp:hover{color:var(--seal)}
-.lamp.on{color:#7A5B00}
-.lamp.on svg{fill:#F5CE4A}
+/* Die Lampe „an" trägt die Flex-Töne des Mocks: Kontur amber,
+   Füllung die dritte Gelbstufe. */
+.lamp.on{color:var(--amber)}
+.lamp.on svg{fill:var(--bg-flex-3)}
 /* Die Lampe zur ganzen Position steht links vor dem Namen —
    überall gleich: in den Ansichten, in der Prognose und in der
    Überschrift der Fenster. */
@@ -113,15 +127,15 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 /* Das Kettensymbol ist mal ein Link (ein einziger Eintrag), mal ein
    Knopf (mehrere — dann öffnet er die Auswahl). Beide sehen gleich
    aus: welcher es ist, geht den Leser nichts an. */
-.linkicon{display:inline-grid;place-items:center;width:20px;height:20px;color:var(--ink-2);text-decoration:none;
-  background:none;border:0;padding:0}
+.linkicon{display:inline-grid;place-items:center;width:16px;height:16px;color:var(--ink-2);text-decoration:none;
+  background:none;border:0;padding:0;box-shadow:none}
 .linkicon:hover{color:var(--seal)}
 /* Wo noch kein Link steht, steht ein Strich: eine leere Zelle sagt
    nur, dass hier nichts ist — der Strich sagt, dass hier etwas
    hinkönnte. Blass wie eine Vorgabe, nicht wie eine Angabe. */
-.linkicon.linkdash{color:var(--rule-strong);font-size:14px;line-height:1}
+.linkicon.linkdash{color:var(--rule);font-size:13px;line-height:1}
 .linkicon.linkdash:hover{color:var(--seal)}
-.linkicon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+.linkicon svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
 
 /* ── Marken, Plaketten, Legende ───────────────────────────── */
 .pill{display:inline-block;font-family:var(--font-data);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
@@ -156,9 +170,10 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 .legendbar .legend{margin-top:0;font-size:11px;font-family:var(--font-data);gap:18px}
 .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--ink-2);align-items:center}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-2px}
+/* Dieselben drei Zustände wie die Siegel selbst (siehe .seal). */
 .legend .l-open{border:1.5px dashed var(--rule-strong)}
-.legend .l-paid{border:2px solid var(--ok);background:rgba(46,106,76,.16)}
-.legend .l-unc{border:2px solid var(--amber);background:#F6E3A8}
+.legend .l-paid{border:0;background:var(--ok)}
+.legend .l-unc{border:1.5px solid var(--edge-flex);background:var(--bg-flex-3)}
 .meta{font-family:var(--font-data);font-size:10.5px;color:var(--ink-2);margin-top:3px;letter-spacing:.02em}
 .meta span+span::before{content:" · ";opacity:.6}
 .meta a{color:var(--ink-2)}
@@ -196,22 +211,27 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    seiner eigenen Schrift, und drei verschieden hohe Kästchen in
    einer Reihe lesen sich wie ein Fehler. Die Höhe gibt also das
    Feld vor; die Knöpfe zentrieren ihr Zeichen darin selbst. */
-.fltbox{display:flex;gap:6px;align-items:stretch;
+.fltbox{display:flex;gap:8px;align-items:stretch;
   flex:0 1 calc(var(--leadw) - 8px);width:calc(var(--leadw) - 8px);min-width:170px}
-.fltq{flex:1 1 auto;width:auto;min-width:0;padding:4px 9px;font-size:12.5px}
+/* Das eingedrückte Mac-Suchfeld: weißer Kasten mit der Lupe davor,
+   das Eingabefeld darin randlos — der Kasten trägt Rahmen, Radius
+   und den inneren Schatten. */
+.fltfield{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:6px;padding:0 9px;
+  background:#fff;border:1px solid var(--rule);border-radius:6px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.05)}
+.fltfield .lens{color:var(--rule-strong);font-size:12px;line-height:1}
+.fltfield:focus-within{outline:2px solid var(--ink);outline-offset:-1px}
+/* Randlos nur **im Kasten**: das mobile Suchfeld (.msq) steht
+   allein und behält Rand und Fokusring. */
+.fltfield .fltq{flex:1 1 auto;width:auto;min-width:0;padding:4px 0;font-size:11.5px;
+  background:none;border:0;border-radius:0;box-shadow:none}
+.fltfield .fltq:focus{outline:none;border:0}
 /* In der Jahresansicht steht das Feld neben der Überschrift und
    richtet sich nach keiner Spalte. */
 .fltbox.fltyear{flex:0 0 auto;width:264px}
-/* Der Hamburger: so hoch wie das Feld daneben, das Zeichen mittig.
-   Auf dunklem Grund steht er, sobald nicht mehr alles durchsucht
-   wird — die Regel dafür steht oben bei den Filterknöpfen. */
-.fltmenu{flex:0 0 auto;padding:0 8px;font-size:14px;line-height:1;
-  display:flex;align-items:center;justify-content:center}
-/* Rechts vom Feld der Knopf, der den Filter zurücknimmt — gebaut
-   wie der Hamburger links, damit das Feld zwischen zwei gleichen
-   Knöpfen steht. Etwas kleiner ist das Kreuz: es ist ein Zeichen
-   und keine Beschriftung. */
-.fltclear{flex:0 0 auto;padding:0 7px;font-size:12px;line-height:1;
+/* Rechts vom Feld der Knopf, der den Filter zurücknimmt. Etwas
+   kleiner ist das Kreuz: es ist ein Zeichen, keine Beschriftung. */
+.fltclear{flex:0 0 auto;padding:0 8px;font-size:11.5px;line-height:1;
   display:flex;align-items:center;justify-content:center}
 
 /* Eingabefeld mit Knopf daneben — der Beleglink lässt sich so
@@ -283,10 +303,13 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    zwölf Feldern sofort findet. */
 .mgrid .cell.askcell{box-shadow:inset 0 0 0 2px var(--amber)}
 
-/* ── Formularfelder ───────────────────────────────────────── */
-input,select,textarea{font-family:var(--font-ui);font-size:14px;background:var(--paper-2);color:var(--ink);
-  border:1px solid var(--rule-strong);border-radius:2px;padding:6px 8px}
-input.num{font-family:var(--font-data);text-align:right}
+/* ── Formularfelder ───────────────────────────────────────────
+   Weiße Boxen mit Radius 6 auf dem --chrome-Grund der Blöcke —
+   die Bauform der Selects und Felder aus 5a/5b. */
+input,select,textarea{font-family:var(--font-ui);font-size:12px;background:#fff;color:var(--ink);
+  border:1px solid var(--rule);border-radius:6px;padding:5px 10px}
+input.num{font-family:var(--font-data);font-size:11.5px;text-align:right}
+input[type="checkbox"]{accent-color:var(--ink)}
 /* Ein Feld, das noch etwas braucht: roter Rahmen, sonst nichts.
    Es ist keine Meldung — die steht darunter —, sondern der Zeiger
    auf die Stelle, an der sie zu beheben ist. Deshalb liegt der
@@ -307,9 +330,13 @@ input.bad,input.bad:focus{border-color:var(--seal);box-shadow:inset 0 0 0 1px va
 input.num.neg{color:var(--seal)}
 input.num.pos{color:var(--ok)}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
-input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;border-style:dashed}
+/* Gesperrt heißt im Mac-Chrome: kein weißer Grund mehr, nur der
+   gestrichelte Rand — die Kachel dahinter (--settled) sagt den
+   Rest. */
+input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
+  border-style:dashed;border-color:var(--rule-strong)}
 .field{margin-bottom:12px}
-.field label{display:block;font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
+.field label{display:block;font-family:var(--font-data);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-bottom:3px}
 .field input,.field select,.field textarea{width:100%}
 
 /* ── Felder nebeneinander ─────────────────────────────────────
@@ -365,13 +392,11 @@ input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;bor
 
 /* ── Fenster (Modal) ──────────────────────────────────────── */
 .modal{position:fixed;inset:0;background:rgba(27,35,32,.42);display:grid;place-items:center;padding:18px;z-index:50}
-/* Ein Fenster ist gesetzt wie die Knöpfe der Kopfzeile: dieselbe
-   feine Kante, dieselbe kleine Rundung (2 px), kein Verlauf und
-   keine Farbe, die es sonst nirgends gibt. Dazu ein weicher
-   Schatten — er hebt das Fenster von der Seite ab, ohne dass die
-   Kante dafür dicker werden müsste. */
-.modal .box{background:var(--paper-2);border:1px solid var(--ink);border-radius:2px;
-  box-shadow:0 18px 44px rgba(27,35,32,.30);
+/* Das Mac-Fenster (Vorlage 5a/5b): Papiergrund, Rand in
+   --rule-strong, Radius 10 und der tiefe Schatten des Chrome.
+   Die Blöcke darin (.dgrp) stehen auf --chrome mit Radius 8. */
+.modal .box{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:10px;
+  box-shadow:var(--sh-modal);
   max-width:1080px;width:100%;max-height:92vh;overflow:auto;padding:22px}
 /* ── Ein Formularfenster ist schmal ──────────────────────────
    Die Monate stehen zu dritt in einer Reihe — ein Quartal je Zeile
@@ -393,8 +418,8 @@ input:disabled{background:var(--shade);color:var(--ink-2);cursor:not-allowed;bor
    ein Fenster zumüllt. Der Abstand zwischen zwei Blöcken ist
    größer als der zwischen zwei Feldern; erst dadurch liest man
    sie als Gruppen. */
-.dgrp{background:var(--paper);border:1px solid var(--rule);border-radius:2px;
-  padding:12px 12px 2px;margin:0 0 12px}
+.dgrp{background:var(--chrome);border:1px solid var(--shade);border-radius:8px;
+  padding:10px 12px 2px;margin:0 0 10px}
 .dgrp>.cols:last-child,.dgrp>.field:last-child{margin-bottom:10px}
 .dgrp .listlinks{margin-top:0}
 /* ── Anleitung als Seitenbereich ──────────────────────────────
@@ -551,13 +576,21 @@ body.gresize{user-select:none;cursor:col-resize}
 .guide p,.guide li{font-size:14px;line-height:1.55;margin:0 0 8px}
 .guide ul,.guide ol{margin:0 0 8px;padding-left:20px}
 .guide li{margin-bottom:5px}
-.modal h3{font-family:var(--font-display);font-size:21px;margin:0 0 4px}
-.modal .subline{font-size:12.5px;color:var(--ink-2);margin:0 0 16px}
-.row-end{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.modal h3{font-family:var(--font-display);font-weight:700;font-size:19px;margin:0 0 4px}
+.modal .subline{font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
+.row-end{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:16px;flex-wrap:wrap}
 /* Die Knopfzeile eines Fensters steht hinter einer Haarlinie: was
    darüber steht, wird ausgefüllt, was darunter steht, entscheidet.
    Dieselbe Trennung wie zwischen den Blöcken, nur ohne Feld. */
-.modal .box>.row-end{border-top:1px solid var(--rule);padding-top:14px;margin-top:4px}
+.modal .box>.row-end{border-top:1px solid var(--rule);padding-top:12px;margin-top:4px}
+/* Löschen steht links in der Fußzeile, als orangefarbener Textlink
+   (5a): es ist der Weg, der aus dem Fenster hinausführt, und kein
+   Knopf neben „Speichern". margin-right:auto schiebt die
+   entscheidenden Knöpfe nach rechts. */
+.row-end .dellink{margin-right:auto;background:none;border:0;padding:0;
+  color:var(--accent-2);text-decoration:underline;text-underline-offset:2px;
+  font-size:12px;cursor:pointer}
+.row-end .dellink:hover{color:var(--seal)}
 
 /* ── Die Wege in die Einstellungen ────────────────────────────
    Eine dünne Zeile über der Reihe der Auswahllisten: die
@@ -569,8 +602,8 @@ body.gresize{user-select:none;cursor:col-resize}
 .listlinks .lsep{color:var(--rule-strong)}
 
 /* ── Schnelleingabe und Monatsraster im Fenster ───────────── */
-.quick{border:1px solid var(--rule);border-radius:2px;background:var(--paper);
-  padding:12px 12px 10px;margin:0 0 12px}
+.quick{border:1px solid var(--shade);border-radius:8px;background:var(--chrome);
+  padding:10px 12px;margin:0 0 10px}
 /* Überschrift links, Mittelwert rechts — in einer Zeile, damit die
    Angabe keine eigene Höhe kostet. Rechts steht sie über dem
    Betragsfeld, und genau dort wird die Annahme für die kommenden
@@ -616,14 +649,19 @@ body.gresize{user-select:none;cursor:col-resize}
    liest. Die Breite eines Kästchens bleibt dieselbe; das Fenster
    ist dafür schmal (siehe .box.form). */
 .mgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.mgrid .cell{border:1px solid var(--rule);border-radius:2px;padding:6px;background:var(--paper-2)}
-.mgrid .cell.lockedcell{background:var(--shade)}
-.mgrid .cell>label{font-family:var(--font-data);font-size:9.5px;letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase;
-  display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.mgrid input{width:100%;padding:4px 5px;font-size:12.5px}
-.mgrid .cell .cellhead{display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px}
-.mgrid .cell .mlab{font-family:var(--font-data);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
-.mgrid .cell .mlab.curm{color:var(--seal);font-weight:700}
+/* Die Monatskachel nach 5a: offen auf Papier, geschlossen auf dem
+   Grau der abgerechneten Zeilen (--settled), beide mit Radius 7.
+   Das Betragsfeld eines geschlossenen Monats verliert seinen
+   weißen Grund und behält den gestrichelten Rand (siehe
+   input:disabled oben). */
+.mgrid .cell{border:1px solid var(--rule);border-radius:7px;padding:6px 8px;background:var(--paper-2)}
+.mgrid .cell.lockedcell{background:var(--settled)}
+.mgrid .cell>label{font-family:var(--font-data);font-size:9px;letter-spacing:.08em;color:var(--ink-2);text-transform:uppercase;
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.mgrid input{width:100%;padding:3px 8px;font-size:11px;border-radius:5px}
+.mgrid .cell .cellhead{display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:4px}
+.mgrid .cell .mlab{font-family:var(--font-data);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.mgrid .cell .mlab.curm{color:var(--seal);font-weight:600}
 .mgrid .cell .ctools{display:flex;align-items:center;gap:3px}
 .mgrid .cell .cellnote{font-size:10.5px;line-height:1.35;color:var(--ink-2);margin-top:4px;white-space:pre-wrap;
   display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
@@ -651,23 +689,23 @@ body.gresize{user-select:none;cursor:col-resize}
 /* ── Einstellungen: Menü links, Bereich rechts ────────────────
    Alle Bereiche stehen im Fenster, sichtbar ist einer. Deshalb
    reicht [hidden] zum Umschalten. */
-.setlayout{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start;margin-bottom:4px}
-.setnav{display:flex;flex-direction:column;gap:1px;border-right:1px solid var(--rule);padding-right:14px}
-.setnav button{font-family:var(--font-data);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
-  text-align:left;background:none;border:0;border-left:2px solid transparent;color:var(--ink-2);
-  padding:9px 10px;cursor:pointer;line-height:1.4}
-.setnav button{border-radius:2px}
+.setlayout{display:grid;grid-template-columns:210px 1fr;gap:20px;align-items:start;margin-bottom:4px}
+/* Das Menü nach 5b: Mono-Versalien 10px, der gewählte Eintrag auf
+   --shade mit roter 3-px-Kante links und rechts gerundet; die
+   inaktiven halten die Einrückung über einen durchsichtigen Rand. */
+.setnav{display:flex;flex-direction:column;gap:1px;padding-right:0}
+.setnav button{font-family:var(--font-data);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  text-align:left;background:none;border:0;border-left:3px solid transparent;color:var(--ink-2);
+  padding:8px 10px;cursor:pointer;line-height:1.4;border-radius:0 6px 6px 0}
 .setnav button:hover{color:var(--ink);background:rgba(0,0,0,.04)}
 .setnav button[aria-pressed="true"]{color:var(--ink);border-left-color:var(--seal);
-  background:rgba(0,0,0,.05);font-weight:600}
+  background:var(--shade);font-weight:600}
 .setnav button:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
-/* Der gewählte Bereich steht in einem eigenen Feld — dieselbe
-   Kante und dieselbe kleine Rundung wie ein Knopf und wie die
-   Blöcke der Positionsfenster (.dgrp). Vorher lag er auf dem Grund
-   des Fensters, und zwischen Menü und Inhalt stand nur eine Linie:
-   man sah nicht, wo das eine aufhört. */
+/* Der gewählte Bereich steht als Gruppenbox (5b): --chrome-Grund,
+   Radius 8 — dieselbe Bauform wie die Blöcke der
+   Positionsfenster (.dgrp). */
 .setpanes{min-width:0}
-.setpane{background:var(--paper);border:1px solid var(--rule);border-radius:2px;padding:14px 16px 4px}
+.setpane{background:var(--chrome);border:1px solid var(--shade);border-radius:8px;padding:12px 14px 4px}
 .setpane>.note:first-of-type{margin-top:-2px}
 .setpane[hidden]{display:none}
 .setpane h4{font-family:var(--font-display);font-size:17px;margin:0 0 6px}
@@ -728,9 +766,9 @@ body.gresize{user-select:none;cursor:col-resize}
    soll — vor allem an der Notizlampe. Wird von js/ui.js
    positioniert, deshalb hier nur das Aussehen. */
 .tip{position:fixed;z-index:80;max-width:300px;pointer-events:none;
-  background:var(--ink);color:var(--paper-2);padding:7px 10px;border-radius:2px;
-  font-size:12.5px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;
-  box-shadow:0 4px 14px -6px rgba(0,0,0,.55)}
+  background:var(--ink);color:#fff;padding:4px 9px;border-radius:5px;
+  font-size:10.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;
+  box-shadow:0 3px 8px rgba(0,0,0,.25)}
 .tip[hidden]{display:none}
 
 @media(prefers-reduced-motion:reduce){.seal,.seal svg{transition:none}}

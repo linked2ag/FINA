@@ -105,59 +105,46 @@ function fitRails(){ document.querySelectorAll('.scrollrail[data-rail]').forEach
 
 /* ── Filterzeile ──────────────────────────────────────────────
    Zwei Bausteine, die Monats- und Jahresansicht sich teilen.
-
-   Ein Filterknopf trägt seinen Wert im data-Attribut, das ihn in
-   wire() verdrahtet: `data-filter`, `data-duefilter`. Er zeigt am
-   dunklen Grund, dass er angewendet ist, und ein zweiter Klick
-   nimmt ihn wieder zurück (siehe wire()). Die Erklärung steht als
-   data-tip daran und erscheint ohne Verzögerung.
+   Die einzelnen Filterwerte stehen seit dem Mac-Redesign in
+   Aufklappmenüs (fltDrop in js/views/monat.js), nicht mehr als
+   Knopfreihe.
 
    Das Suchfeld bekommt seine Sprechblase **nur von der Maus**
    (data-tiphover, siehe showTip weiter unten): der Fokus kehrt
    immer wieder dorthin zurück, und mit ihm stünde die Blase die
    ganze Zeit neben dem Feld, in das man gerade tippt. Beim
-   Überfahren erklärt sie einmal, was das Feld tut — und mit
-   welcher Taste man es von überall erreicht. */
-function fbtn(kind,val,label,tip,cur){
-  return `<button class="btn small" data-${kind}="${esc(val)}" aria-pressed="${cur===val}"
-    data-tip="${esc(tip)}">${label}</button>`;
-}
+   Überfahren erklärt sie einmal, was das Feld tut. */
 
-/* Vor dem Feld steht der Hamburger-Knopf: er öffnet das Fenster,
-   in dem gewählt wird, worin der Suchbegriff überhaupt sucht
-   (js/dialogs/filter-fields.js). Ist nicht mehr alles gewählt,
-   steht er auf dunklem Grund — wie ein angewendeter Filter, denn
-   genau das ist er.
+/* Das Suchfeld im Mac-Chrome: ein weißer, leicht eingedrückter
+   Kasten mit der Lupe davor, rechts daneben das Kreuz, das den
+   Filter zurücknimmt — Suchbegriff, Bereich, Fälligkeit und
+   Zahlungsstand auf einmal. Es ist gesperrt, solange gar nichts
+   gefiltert wird; die beiden Knöpfe der Jahresansicht rührt es
+   nicht an (die stehen in der Datei).
 
-   Knopf und Feld stecken zusammen in .fltbox, und die ist so
-   breit, wie das Feld allein es war (--leadw): die Filterknöpfe
-   dahinter fangen dadurch weiter genau über der
-   Bezeichnungsspalte an. */
+   Der Weg zu den Filterfeldern (data-qfields) steht nicht mehr als
+   ☰ vor dem Feld, sondern als beschrifteter Knopf dahinter —
+   fltOptionsBtn(), von Monats- wie Jahresansicht gesetzt. */
 function filterField(extra){
-  /* Dunkel steht der Hamburger, sobald die Suche anders eingestellt
-     ist als von Haus aus — weniger Teile einer Zeile **oder** dazu
-     die ausgeblendeten Positionen. */
-  const custom=QFIELDS.some(k=>!qField(k))||qAll();
-  /* Und dahinter der Knopf, der den Filter zurücknimmt: Suchbegriff,
-     Zahlungsstand und Fälligkeit auf einmal. Er steht rechts vom
-     Feld, weil er das Gegenstück zum Tippen ist, und ist gesperrt,
-     solange gar nichts gefiltert wird — ein Knopf, der nichts tut,
-     soll auch nicht so aussehen. Die beiden Knöpfe der
-     Jahresansicht rührt er nicht an: sie stehen in der Datei und
-     sind eine Einstellung, kein Handgriff. */
-  /* Der Bereichsfilter zählt mit: das Kreuz nimmt alle vier
-     Handgriffe der Zeile zurück, also muss es auch angehen,
-     wenn nur er gesetzt ist. In der Jahresansicht gibt es ihn
-     nicht — dort steht secFilter auf 'alle' und ändert nichts. */
   const on=!!(ui.q||'').trim()||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle';
   return `<span class="fltbox${extra?' '+extra:''}">
-    <button class="btn small fltmenu" data-qfields="1" aria-pressed="${custom}"
-      aria-label="${esc(t('flt.title'))}" data-tip="${esc(t('flt.btnTip'))}">&#9776;</button>
-    <input class="fltq" data-q type="search" value="${esc(ui.q||'')}"
+    <span class="fltfield"><span class="lens" aria-hidden="true">&#8981;</span
+      ><input class="fltq" data-q type="search" value="${esc(ui.q||'')}"
       placeholder="${t('g.filter')}" aria-label="${t('g.filter')}"
-      data-tip="${esc(t('g.filterTip'))}" data-tiphover="1">
+      data-tip="${esc(t('g.filterTip'))}" data-tiphover="1"></span>
     <button class="btn small fltclear" data-qclear="1"${on?'':' disabled'}
       aria-label="${esc(t('g.clearFilter'))}" data-tip="${esc(t('g.clearFilterTip'))}">&#10005;</button></span>`;
+}
+
+/* „Filteroptionen…" öffnet das Fenster, in dem gewählt wird, worin
+   der Suchbegriff überhaupt sucht (js/dialogs/filter-fields.js).
+   Dunkel steht der Knopf, sobald die Suche anders eingestellt ist
+   als von Haus aus — weniger Teile einer Zeile **oder** dazu die
+   ausgeblendeten Positionen. */
+function fltOptionsBtn(){
+  const custom=QFIELDS.some(k=>!qField(k))||qAll();
+  return `<button class="btn small fltopts" data-qfields="1" aria-pressed="${custom}"
+    data-tip="${esc(t('flt.btnTip'))}">${t('flt.options')}</button>`;
 }
 
 /* ── Die Anteile eines Balkens ────────────────────────────────

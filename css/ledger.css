@@ -5,23 +5,63 @@
    ══════════════════════════════════════════════════════════════ */
 
 /* Die drei Spalten vor der Bezeichnung — Siegel, Betrag,
-   Werkzeuge — haben feste Breiten. Ihre Summe steht als --leadw
-   bereit: das Suchfeld der Filterzeile ist genau so breit, und die
-   Knöpfe dahinter fangen damit auf der Höhe der Bezeichnungsspalte
-   an. Wer eine der drei Breiten ändert, ändert sie hier. */
-:root{--markw:46px;--penw:96px;--leadw:calc(var(--markw) + var(--monw,100px) + 30px + var(--penw))}
+   Werkzeuge — haben feste Breiten (Mac-Raster: 16-px-Siegel,
+   84-px-Betrag, drei 16-px-Werkzeuge). Ihre Summe steht als
+   --leadw bereit: das Suchfeld der Filterzeile ist genau so breit.
+   Wer eine der drei Breiten ändert, ändert sie hier. */
+:root{--markw:28px;--penw:76px;--leadw:calc(var(--markw) + 96px + var(--penw))}
 
 .ledger{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.ledger td,.ledger th{border-bottom:1px solid rgba(0,0,0,.10);padding:7px 6px;text-align:left;font-weight:400;vertical-align:top}
+.ledger td,.ledger th{border-bottom:1px solid rgba(0,0,0,.10);padding:6px;text-align:left;font-weight:400;vertical-align:top}
 .ledger th{font-family:var(--font-data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
-.ledger .num{text-align:right;font-family:var(--font-data);font-size:14px;white-space:nowrap;vertical-align:middle}
+.ledger .num{text-align:right;font-family:var(--font-data);font-size:12px;white-space:nowrap;vertical-align:middle}
+/* Die Zeilen einer Bereichskarte reichen bis an deren Rand: außen
+   je 12 px, wie es das Mac-Raster vorgibt. **Die Verlaufsspalte der
+   Prognose bleibt außen vor**: .flowcell darf auf keiner Seite ein
+   Polster tragen, sonst rechnen Raster (Padding-Box der Zelle) und
+   Balken (Content-Box der Fläche) in zwei verschiedenen Breiten und
+   der Kontostand-Strich landet neben seiner Rasterlinie. */
+.card .ledger td:first-child{padding-left:12px}
+.card .ledger td:last-child:not(.flowcell){padding-right:12px}
 /* Name links, Marke rechts am Rand der Zeile. Die Marke sagt
    etwas über die Zahl, nicht über den Namen — direkt hinter dem
    Namen las sie sich wie ein Teil davon. */
 .ledger .rowline{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .ledger .rowline .pill{margin-left:0;flex:0 0 auto}
-.ledger td.amt{vertical-align:top;padding-top:9px!important;width:calc(var(--monw,100px) + 30px)}
+.ledger td.amt{vertical-align:top;padding-top:8px!important;width:84px}
 .ledger td.num.est{color:var(--amber)!important;font-weight:400}
+/* ── Bank, Zahlungsart, Fälligkeit als eigene Spalten ─────────
+   Das unsichtbare Raster des Mac-Redesigns: 96 · 76 · 46 px rechts
+   vom Namen, in der gedämpften Schrift der Metazeile. Nur am
+   Schreibtisch — das Telefon behält die Metazeile unter dem Namen
+   (metaCells in js/views/monat.js). */
+/* **Auf Höhe des Namens**, nicht mittig: eine Zeile mit Notiz
+   wird höher, und mittig rutschten die drei Angaben dann unter
+   die Zeile des Namens. Das Polster oben gleicht die kleinere
+   Schrift aus (Name 12,5 px ab 6 px, hier 10,5 px ab 8 px). */
+.ledger td.mcol{font-size:10.5px;color:var(--ink-2);vertical-align:top;padding-top:8px;white-space:nowrap}
+.ledger td.mbank{width:96px}
+.ledger td.mpay{width:76px}
+.ledger td.mdue{width:46px;text-align:right}
+/* Wird das Fenster eng, stehen statt der vollen Namen die Kürzel
+   der Jahresmatrix (B · PT · DD); der volle Name wandert in die
+   Sprechblase des Kürzels (title, gesetzt in metaCells()). */
+.mcol .mabbr{display:none}
+@media(max-width:1280px){
+  .ledger td.mcol .mfull{display:none}
+  .ledger td.mcol .mabbr{display:inline}
+  .ledger td.mbank{width:44px}
+  .ledger td.mpay{width:40px}
+}
+/* ── Die Monatsnotiz als eigene Zeile ─────────────────────────
+   Sie spannt von der Namensspalte bis an den rechten Rand der
+   Karte (colspan über die Meta-Spalten, siehe noteRow() in
+   js/views/monat.js). Die Trennlinie sitzt unter der Notiz —
+   zwischen Position und ihrer Notiz gibt es keine: beides ist
+   eine Zeile, nur technisch sind es zwei. */
+.ledger tr:has(+tr.noterow) td{border-bottom:0}
+.ledger tr.noterow td{padding-top:0}
+.ledger td.notecell .itemnote{margin-top:0}
 
 /* ── Zeilentypen ──────────────────────────────────────────── */
 .ledger tr.group td{background:rgba(0,0,0,.05);font-family:var(--font-data);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
@@ -40,7 +80,7 @@
 .card.sec-in .ledger tr.group td{background:var(--bg-in-2);font-weight:600;
   border-bottom:1px solid var(--edge-in);border-top:1px solid var(--edge-in)}
 .card.sec-in .ledger tr.group td:first-child{box-shadow:inset 5px 0 0 var(--edge-in)}
-.ledger tr.sum td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0;vertical-align:middle}
+.ledger tr.sum td{font-weight:600;border-top:1px solid var(--rule-strong);border-bottom:0;vertical-align:middle}
 /* ── Unter der letzten Zeile keine Trennlinie ────────────────
    Die dünne Linie trennt zwei Posten voneinander. Unter dem
    letzten steht keiner mehr — dort schließt die Karte selbst ab,
@@ -51,12 +91,37 @@
 .card.sec-in .ledger tr:last-child td,
 .card.sec-flex .ledger tr:last-child td,
 .card.sec-out .ledger tr:last-child td{border-bottom:0}
+/* ── Die Zeilen tragen die Farbe ihres Bereichs ───────────────
+   Die Karte selbst ist weiß (css/layout.css); die hellste
+   Blockstufe liegt als Grund an der Tabelle, damit Kategorie-
+   (Stufe -2) und abbezahlte Zeilen (--settled) sie an der Zelle
+   überschreiben können. Die Trennlinien nehmen die zweite Stufe. */
+.card.sec-in .ledger{background:var(--bg-in)}
+.card.sec-flex .ledger{background:var(--bg-flex)}
+.card.sec-out .ledger{background:var(--bg-out)}
+.card.sec-in .ledger td{border-bottom-color:var(--bg-in-2)}
+.card.sec-flex .ledger td{border-bottom-color:var(--bg-flex-2)}
+.card.sec-out .ledger td{border-bottom-color:var(--bg-out-2)}
+/* Die Rundung der Karte unten übernimmt die letzte Zeile — die
+   Karte darf kein overflow:hidden tragen (klebender Kopf). */
+.card.sec-in .ledger tr:last-child td:first-child,
+.card.sec-flex .ledger tr:last-child td:first-child,
+.card.sec-out .ledger tr:last-child td:first-child{border-bottom-left-radius:8px}
+.card.sec-in .ledger tr:last-child td:last-child,
+.card.sec-flex .ledger tr:last-child td:last-child,
+.card.sec-out .ledger tr:last-child td:last-child{border-bottom-right-radius:8px}
+.card.sec-in .ledger,.card.sec-flex .ledger,.card.sec-out .ledger{border-radius:0 0 8px 8px}
 /* Saldokorrektur: wie eine Kategoriezeile gesetzt, aber ohne
    deren graue Hinterlegung — die Karte darunter ist schon blau. */
 .ledger tr.balrow td{background:transparent;border-bottom:0;vertical-align:middle;padding:6px}
 .ledger tr.balrow td.amt,.ledger tr.balrow td.pencell{padding-top:6px!important}
-.ledger tr.balrow .balname{font-family:var(--font-data);font-size:10.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--ink);cursor:help}
+/* Beschriftung in Mono-Versalien und dem Blau der Saldokorrektur —
+   die freistehende Zeile nach 3a/3b. Werkzeuge und Kettensymbol
+   dämpft die dritte Blaustufe, solange dort nichts hinterlegt ist. */
+.ledger tr.balrow .balname{font-family:var(--font-data);font-size:11px;letter-spacing:.08em;
+  font-weight:600;text-transform:uppercase;color:var(--ink-bal);cursor:help}
+.card.sec-bal .pencil{color:var(--ink-bal)}
+.card.sec-bal .lamp,.card.sec-bal .linkicon.linkdash{color:var(--bg-bal-3)}
 
 /* Die Spalte „Balance corr." der Prognose steht wie jede andere
    Spalte da — die Zeile in Monats- und Jahresansicht behält ihre
@@ -104,10 +169,10 @@
    Der Stift ist so groß wie das Symbol der Lampe (15 px): sie
    stehen nebeneinander und sind gleich wichtig. */
 .pencell{width:var(--penw);vertical-align:top;padding-top:7px!important;white-space:nowrap}
-.pencell .ptools{display:flex;align-items:center;gap:12px}
-.pencell .pencil{font-size:15px}
+.pencell .ptools{display:flex;align-items:center;gap:8px}
+.pencell .pencil{font-size:13px}
 .iname{line-height:1.3}
-.ledger .iname{font-family:var(--font-ui);font-weight:400;font-size:15px;letter-spacing:0;text-transform:none;line-height:1.3}
+.ledger .iname{font-family:var(--font-ui);font-weight:400;font-size:12.5px;letter-spacing:0;text-transform:none;line-height:1.3}
 
 /* ── Kakeibo-Auswertung ───────────────────────────────────────
    Links der Pfeil, der rechts die Buchungen der Zeile zeigt;
@@ -115,18 +180,43 @@
 /* Der Pfeil ist ein Knopf wie „Größte Einzelposten" darüber und
    schließt rechts mit ihm ab — deshalb kein Innenabstand rechts. */
 .ledger td.arrowcell{width:44px;text-align:right;vertical-align:middle;padding-left:0;padding-right:0}
-.btn.small.rowarrow{padding:2px 8px;font-family:var(--font-data);line-height:1.5}
+.btn.small.rowarrow{padding:1px 6px;font-family:var(--font-data);font-size:10px;line-height:1.5;border-radius:4px}
 .btn.rowarrow[aria-pressed="true"],.btn.ktop[aria-pressed="true"]{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
 .ledger td.tdate{font-family:var(--font-data);font-size:11.5px;color:var(--ink-2);white-space:nowrap;
   width:58px;padding-top:9px}
 
-.ledger tr.kmain td{font-weight:700;font-family:var(--font-data);font-size:11.5px;letter-spacing:.08em;
-  text-transform:uppercase;border-bottom:2px solid rgba(0,0,0,.45);padding-top:14px}
+/* Die Hauptkategorie-Zeile nach 4c: Grund in der hellsten
+   Flex-Stufe, Trennlinie eine Stufe kräftiger, gewöhnliche
+   Oberflächenschrift statt Versalien-Mono. */
+.ledger tr.kmain td{font-weight:600;font-family:var(--font-ui);font-size:12px;letter-spacing:0;
+  text-transform:none;background:var(--bg-flex);border-bottom:1px solid var(--bg-flex-2);padding-top:6px}
 .ledger tr.kmain:first-child td{padding-top:6px}
-.ledger tr.ksub td{padding-left:14px}
+.ledger tr.ksub td{padding-left:14px;border-bottom-color:var(--hairline)}
 /* Der Balken teilt sich die Breite mit der neuen Spalte „Art" —
    34 % ließen dem Namen daneben zu wenig. */
 .barcell{width:26%;padding-right:0!important}
+/* ── Die Werkzeugleiste der Transactions-Ansicht (4c) ─────────
+   Ein grauer Kasten wie die Filterzeile des Monats; der Trenner
+   steht als eigene Linie zwischen Zeitraum und Gliederung, der
+   Zähler rechts in Mono. */
+.filterbar.kbar{background:var(--shade);border:1px solid var(--rule);border-radius:7px;
+  padding:6px 10px;gap:8px}
+.kbar .tbdivider{width:1px;height:18px;background:var(--rule-strong)}
+.kbar .txcount{font-family:var(--font-data);font-size:10.5px}
+/* Die linke Karte trägt die Flex-Geldart als 4-px-Kante; ihr Kopf
+   bleibt weiß mit der goldenen Linie darunter, die Zeilen weiß —
+   nur die Hauptkategorien sind getönt (tr.kmain oben). */
+.view-kakeibo .card.sec-flex{border-left:4px solid var(--edge-flex)}
+.view-kakeibo .card.sec-flex>.sechead{background:#fff;border-bottom:1px solid var(--bg-flex-3);
+  padding:9px 14px 7px}
+.view-kakeibo .card.sec-flex .ledger{background:#fff}
+/* Die Trennlinien der weißen Zeilen bleiben neutral hell (4c) —
+   nur die Hauptkategorie-Zeilen behalten ihre Flex-Stufe. Beide
+   Regeln stehen hier, weil die Bereichsfassung oben
+   (.card.sec-flex .ledger td) sie sonst golden färbte. */
+.view-kakeibo .card.sec-flex .ledger td{border-bottom-color:var(--hairline)}
+.view-kakeibo .card.sec-flex .ledger tr.kmain td{border-bottom-color:var(--bg-flex-2)}
+.view-kakeibo .card.sec-flex .foldarrow,.view-kakeibo .card.sec-flex .foldpad{display:none}
 
 /* ── Woher der Wert kommt ─────────────────────────────────────
    Steht in Klammern hinter dem Namen der Hauptkategorie, nicht in
@@ -148,7 +238,7 @@
 .kk.k-done{color:var(--ink)}
 .kk.k-est{color:var(--amber)}
 .ksep{color:var(--rule-strong)}
-.bar{height:7px;opacity:.72}
+.bar{height:4px;border-radius:2px;opacity:1}
 /* ── Die Spalte „Verlauf" der Prognose ────────────────────────
    Sie trägt die Grafik, die sonst der Zeitstrahl der Monatsansicht
    zeigt — gebaut in yearTrack() in js/views/prognose.js, gezeichnet
@@ -391,3 +481,14 @@
 .progtable tr.openrow td.num{color:var(--ink-sal);opacity:.42}
 .progtable tr.openrow td.num.endcol{opacity:1;
   color:color-mix(in srgb,var(--ink-sal) 45%,var(--paper-2))}
+
+/* ── Die Prognose-Karte nach Mock 4b ──────────────────────────
+   Die Überschrift ist eine Titelzeile der Karte: über die volle
+   Breite, mit Haarlinie darunter — die negativen Außenmaße heben
+   das Kartenpolster auf, das eigene Polster stellt es innen
+   wieder her. Die Farberklärung schließt die Karte unten mit
+   derselben Linie ab. */
+.progcard>h2{margin:-12px -16px 10px;padding:8px 16px 7px;
+  border-bottom:1px solid var(--hairline)}
+.progcard .thint{margin:0 -16px -12px;padding:6px 16px 8px;
+  border-top:1px solid var(--hairline);background:transparent}

@@ -22,7 +22,7 @@ let state=null;
    Knopf vor dem Suchfeld): offen oder zu — Anzeige wie ana, nicht
    in der Datei. Auf dem Schreibtisch wird es nie gelesen. */
 let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',secFilter:'alle',scope:'monat',kakPick:null,
-  q:'',qFocus:false,ana:false,mFilters:false,welcome:true};
+  q:'',qFocus:false,ana:false,mFilters:false,welcome:true,hideSettled:false};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────
    Der Nutzer stellt im Fenster hinter dem Hamburger-Knopf ein,
@@ -44,7 +44,7 @@ const allQFields=()=>{const o={};QFIELDS.forEach(k=>o[k]=true);return o;};
    Kästchen sagen, **worin** gesucht wird, dieser sagt, **wo**.
 
    Steht er, überstimmt ein Suchbegriff die übrigen Filter — den
-   Zahlungsstand, die Fälligkeit, „Abgeschlossene ausblenden" — und
+   Zahlungsstand, die Fälligkeit, „Erledigte Posten ausblenden" — und
    findet auch, was der Monat gar nicht führt: eine Position ohne
    Betrag in diesem Monat. Wer etwas sucht, das er nicht sieht, hat
    sonst keinen Weg dorthin.
@@ -177,6 +177,11 @@ const isFoldedYear=k=>!!(state&&state.foldedYear&&state.foldedYear[k]);
 function emptyState(){
   const o={},src={};
   for(let m=1;m<=12;m++){o[m]={};src[m]=null;}
+  /* Ein frisch angefangenes Buch ist immer im aktuellen Format —
+     es gibt keine ältere Datei, über die zu berichten wäre. Das
+     steht hier und nicht bei den Aufrufern: „neu anfangen" und
+     „Datei schließen" gehen beide durch diese Funktion. */
+  fileVersion=null;
   return {
     year:(state&&state.year)||new Date().getFullYear(),
     lang:(state&&state.lang)||'en',
@@ -189,11 +194,17 @@ function emptyState(){
     fixed:[], balance:blankBalance(),
     flexActual:o, flexSource:src, tx:[], plan:{},
     kakCats:[], kak:{}, labWidth:250, monWidth:100, topMin:50, lastImport:null,
-    /* Die beiden Filter der Jahresansicht. Sie gehören in die
-       Datei, nicht in ui: der Nutzer stellt sie einmal ein und
-       will sie beim nächsten Öffnen wiederfinden. Vorgabe: kein
-       Filter aktiv, es ist alles zu sehen. */
-    hideDoneMonths:false, hideSettled:false,
+    /* „Abgeschlossene Monate ausblenden". Der Knopf nimmt **Spalten**
+       weg und keine Zeile — er versteckt nichts, was noch aussteht,
+       sondern räumt ab, was abgerechnet ist. Das ist eine Gewohnheit
+       beim Lesen und gehört deshalb in die Datei: einmal eingestellt,
+       beim nächsten Öffnen wieder da. Vorgabe: alle zwölf Monate.
+
+       Sein Nachbar „Erledigte Posten ausblenden" steht ausdrücklich
+       **nicht** hier: der nimmt Zeilen weg (siehe ui.hideSettled
+       oben). Was Zeilen versteckt, soll eine geöffnete Datei nicht
+       stillschweigend mitbringen. */
+    hideDoneMonths:false,
     /* Zugeklappte Bereiche, je Geldart einer — einmal für die
        Monatsansicht, einmal für die Jahresmatrix. Auch das ist eine
        Einstellung und keine Anzeige: sie gilt für alle zwölf Monate
@@ -268,8 +279,10 @@ function afterLoad(){
   ui.month=CUR;
   /* Eine frisch geöffnete Datei wird nicht gefiltert: der
      Suchbegriff der letzten stünde sonst noch im Feld und
-     versteckte die halbe Datei. */
-  ui.q=''; ui.qFocus=false;
+     versteckte die halbe Datei. Dasselbe gilt „Erledigte Posten
+     ausblenden": der Knopf gehört seit 22.8.26 der Sitzung, und
+     eine neue Datei fängt mit allen Zeilen an. */
+  ui.q=''; ui.qFocus=false; ui.hideSettled=false;
   /* Womit die Auswertung der Monatsansicht aufgeht, sagt die Datei:
      state.anaOpen, gepflegt in den Einstellungen unter
      „Darstellung". Von Haus aus ist sie zu — sie klebt beim Scrollen
@@ -286,8 +299,49 @@ function afterLoad(){
   ui.mFilters=false;
 }
 
+/* ── In welcher Fassung die geladene Datei geschrieben wurde ──
+   `stateJson()` legt beim Speichern `state.v` in die Datei (siehe
+   js/storage.js). Beim Laden merkt sich `migrate()` den
+   vorgefundenen Wert hier — **nicht im Zustand**: er beschreibt,
+   was auf der Platte lag, und dürfte niemals mitgespeichert
+   werden.
+
+   Wozu: `migrate()` flickt eine ältere Datei still zurecht, und
+   das Ergebnis geht beim nächsten Speichern hinaus. Wer eine alte
+   Datei öffnet, soll das erfahren — sonst wundert er sich, warum
+   die Anwendung mit dieser Datei anders aussieht als mit einer
+   frischen (die zugeklappten Bereiche etwa gibt es erst, seit
+   `state.folded` in der Datei steht).
+
+   `null` heißt „kein geladenes Buch": ein neues Buch (emptyState)
+   ist immer aktuell, und es gibt nichts zu melden. */
+let fileVersion=null;
+/* Dreiteilig, `Jahr.Monat.Tag` — ältere Dateien tragen eine vierte
+   Stelle (26.8.13.1), ganz alte gar keine. Verglichen wird Stelle
+   für Stelle als Zahl; was fehlt, zählt als 0. */
+const verParts=v=>String(v||'').split('.').map(n=>parseInt(n,10)||0);
+function verOlder(a,b){
+  const A=verParts(a), B=verParts(b);
+  for(let i=0;i<Math.max(A.length,B.length);i++){
+    const x=A[i]||0, y=B[i]||0;
+    if(x!==y) return x<y;
+  }
+  return false;
+}
+/* Wahr, solange die geladene Datei älter ist als diese Fassung.
+   Eine **neuere** Datei meldet nichts: Web und Apps laufen
+   auseinander (siehe „Die drei Fassungen" in CLAUDE.md), und wer
+   in der älteren App speichert, verliert dank migrate() nichts. */
+function fileOutdated(){
+  return fileVersion!==null && (fileVersion===''||verOlder(fileVersion,VERSION));
+}
+
 /* Bringt eine geladene Datei auf den aktuellen Aufbau. */
 function migrate(s){
+  /* Was in der Datei stand, bevor hier geflickt wird (siehe oben).
+     Ein leerer Text heißt „ohne Versionsangabe" — auch das ist
+     eine ältere Fassung, nur eine ohne Vermerk. */
+  fileVersion=(typeof s.v==='string'&&s.v)?s.v:'';
   /* Einstellungen: fehlen sie, gilt das Jahr der Datei und
      Englisch — so verhalten sich ältere Dateien wie ein
      frischer Start. */
@@ -369,10 +423,19 @@ function migrate(s){
   if(!s.monWidth) s.monWidth=100;
   if(typeof s.topMin!=='number'||!(s.topMin>=0)) s.topMin=50;
   if(!s.tx) s.tx=[];
-  /* Ältere Dateien kennen die beiden Jahresfilter nicht — dann
-     gilt die Vorgabe: nichts ausgeblendet. */
+  /* Ältere Dateien kennen den Knopf nicht — dann gilt die Vorgabe:
+     alle zwölf Monate sind zu sehen. */
   s.hideDoneMonths=!!s.hideDoneMonths;
-  s.hideSettled=!!s.hideSettled;
+  /* „Erledigte Posten ausblenden" stand bis 22.8.26 ebenfalls in der
+     Datei. Es gehört nicht dorthin: der Knopf versteckt Zeilen, und
+     eine geöffnete Datei soll nichts verstecken, ohne dass jemand in
+     dieser Sitzung darum gebeten hat. Der alte Wert wird deshalb
+     **gelöscht** und nicht bloß übergangen — stateJson() schriebe ihn
+     sonst bei jedem Speichern wieder hinaus, und er stünde für immer
+     in der Datei des Nutzers. Das ist keine Positivliste (siehe
+     „Die drei Fassungen" in CLAUDE.md): entfernt wird genau dieses
+     eine Feld, das FINA selbst einmal angelegt hat. */
+  delete s.hideSettled;
   /* Ältere Dateien kennen den Schalter für die Auswertung nicht —
      dann fängt sie zugeklappt an, genau wie bisher. */
   s.anaOpen=!!s.anaOpen;

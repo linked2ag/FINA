@@ -56,6 +56,147 @@ ganze Projekt zu lesen.
 | Welche Fassung die Apps als aktuell melden | `version.json` |
 | Das Symbol — Reiter der Seite **und** App-Icon | `desktop/build/icon.html` → `icon.png` |
 
+## Das Mac-Chrome (Redesign 22.8.26)
+
+Die Oberfläche trägt seit dem 22.8.26 das Mac-Gewand aus
+`_BusinessCenter/260822 ReDesign FINA - Mac Style` (Referenz `FINA Mac Redesign.dc.html`,
+maßgeblich die Turns 5a/5b · 4a/4b/4c · 3a/3b/3c · 2c; das dortige README ist der
+Auftrag). Farbpalette und Schriften sind unverändert — neu sind nur die Chrome-Töne
+`--chrome-hi` · `--chrome` · `--hairline` und die Verläufe/Schatten `--grad-bar` ·
+`--grad-btn` · `--sh-btn/-card/-pop/-modal` in `css/tokens.css`. **Wo ein älterer Absatz
+dieser Datei noch das alte Chrome beschreibt** — Knopfreihe in der Kopfzeile, Filter als
+Knopfreihen, Anlege-Knöpfe in den Ansichten, violettes „Gesamt je Monat" —, **gilt dieser
+Abschnitt.**
+
+* **Die Kopfzeile ist eine Toolbar:** links das Wortzeichen mit dem Jahr, in der Mitte die
+  Ansichten als Segmented Control (`#views`, weiterhin von `renderChrome()` gefüllt),
+  rechts nur der ☰-Knopf (`#btnMenu`, Klasse `.burger`) — der Dateiname steht seit
+  22.8.26 **nur noch im Menü** (`#menuFile` zuoberst; `.filepath` bleibt im HTML, ist
+  aber per CSS verborgen). **Alle Aktionsknöpfe
+  stecken im Menü dahinter** (`#hdrTools`, jetzt auf jeder Breite): Speichern · Sicherung ·
+  Trennen · CSV-Import (`#btnImportCsv` → `openImportInfo()`) ‖ Neue Einnahme / Neue
+  flexible Kosten / Neue regelmäßige Kosten (`#mNewIn/#mNewFlex/#mNewOut`, verdrahtet bei
+  den festen Schaltflächen in `js/app.js`) ‖ Einstellungen ‖ Anleitung (oranger Texteintrag,
+  kein gefüllter Knopf mehr). Die drei „Neu…"-Einträge tragen ein Plus im Kreis in der
+  Farbe ihrer Geldart (CSS-`::before` — `renderChrome()` schreibt die Beschriftung über
+  `textContent`, ein Kind-Element überlebte das nicht); die Beschriftung selbst bleibt
+  Tinte. Öffnen/Schließen läuft über die alte Mobil-Mechanik
+  (Klasse `open`); der rote Punkt `#dirtyDot` und der Menükopf-Dateiname `#menuFile`
+  (**immer** zuoberst im Menü, seit 22.8.26 auch bei breitem Fenster) werden in
+  `renderStatus()` (`js/storage.js`) nachgeführt.
+* **Die Monatsleiste steht unter der Filterzeile** (seit 22.8.26), nicht mehr an der
+  Kopfzeile: dort, wo die Jahresmatrix ihre Monate hat, und im selben Bild — weiße Karte
+  mit Radius 8 und derselben Schrift wie der Spaltenkopf der Matrix (9.5 px
+  Mono-Versalien). Sie zeigt erledigte Monate grün durchgestrichen und den laufenden als
+  rote Pille (`.mtab .mp`); die Statuspunkte sind weg, die Zählung steht in der
+  Sprechblase. Dasselbe Bild trägt der Monatskopf der Jahresmatrix (`.mhead.now`).
+  Gebaut wird sie in `monthTabs()` (`js/views/monat.js`) und steckt in der `.stickybar`
+  der Ansicht — am Schreibtisch in `anaBar()`, auf dem Telefon in `mobileTop()`; sie klebt
+  also mit Auswertung und Filterzeile oben mit. Verdrahtet ist sie über `data-mtab`
+  (Regel 1) — **nicht** `data-m`, das gehört den Monatszellen der Jahresmatrix
+  (`dblMonth`). `renderChrome()` rührt sie nicht mehr an, `#months` ist aus
+  `Webclient.html` verschwunden; die Kopfzeile ist damit in jeder Ansicht gleich hoch.
+* **Die Filterzeile ist eine Bahn über die ganze Seite** — in **beiden** Ansichten
+  dasselbe Bild: ein flacher Streifen von Rand zu Rand auf `--paper-2` mit einer Haarlinie
+  darunter, kein eingefasster Kasten mehr (bis 22.8.26 grauer Grund, Radius 7, Rahmen
+  ringsum). **Sie dockt oben an der Kopfzeile an, ohne Abstand** — sie ist in beiden
+  Ansichten das erste, was unter den Reitern kommt (`.stickybar.anabar{padding-top:0}`,
+  `.yearbar{padding:0 0 10px}`). Eine obere Haarlinie trägt sie deshalb nicht: die
+  Kopfzeile bringt ihre eigene mit. **Und sie ist genau so hoch wie diese Kopfzeile** —
+  `min-height:var(--barh)`. Das Maß steht in keinem Stylesheet: `syncStickyTops()` misst
+  die Kopfzeile ohnehin für das `top` der klebenden Leisten und schreibt dasselbe Maß als
+  `--barh` ans Wurzelelement. `min-height` und keine Höhe: bricht die Zeile im schmalen
+  Fenster um, wächst sie darüber hinaus. Die negativen Außenmaße heben das Polster von `.wrap` auf,
+  wie in der Kopfzeile; wie breit das Polster ist, steht als `--pagepad` an `.wrap`
+  (24 px, auf dem Telefon 12 px) und **nur dort**. Die Regeln stehen an einer Stelle
+  (`.anabar .filterbar,.yearbar .ybrow` in `css/layout.css`).
+* **Ein gedrückter Knopf trägt Tinte, immer.** Bis 22.8.26 hing der dunkle Grund an `.on`,
+  also daran, dass die Zeile ohnehin orange leuchtet — die beiden Ausblenden-Knöpfe der
+  Jahresansicht leuchten sie aber ausdrücklich nicht an und sagten damit nur zufällig,
+  dass sie gelten. Der `:hover`-Zwilling der Regel ist kein Zierrat: `.on .btn:hover` ist
+  um eine Klasse spezifischer.
+* **Die Filterzeile der Monatsansicht:** Suchfeld (weißer Kasten mit Lupe, `filterField()`
+  ohne ☰) · ✕ · „Filteroptionen…" (`fltOptionsBtn()` in `js/ui.js`, öffnet weiterhin
+  `openFilterFields()`) · drei Aufklappmenüs Bereich/Fälligkeit/Zahlungsstatus
+  (`fltDrop()` in `js/views/monat.js`). Ob ein Menü offen ist, sagt `ui.fltMenu`
+  (Sitzung, nie Datei); **es bleibt beim Wählen offen** — die Einträge tragen die
+  gewohnten `data-filter`/`data-duefilter`/`data-secfilter`, nur der Knopf trägt
+  `data-fltmenu` (verdrahtet in `wire()`). Zu geht es am Knopf, mit Escape (vor dem
+  Filter-Zurücksetzen) oder mit einem Klick daneben (globaler Handler in `js/app.js`).
+  Das mobile Filtermenü (`.mfmenu`) benutzt dieselben Listen `FLT_DUE`/`FLT_PAY`.
+* **Angelegt wird nur noch über das Menü.** Die Karten der Monatsansicht und die Leiste
+  der Jahresansicht tragen keine „Neu…"-Knöpfe mehr; am Kopf der Flexible-Payments-Karte
+  bleibt allein der Sprung in die Transactions-Auswertung (`.headlink`, `data-kview`).
+* **Die Bereiche sind weiße Karten** (Radius 8, `--sh-card`): der Kopf trägt Blockstufe -3
+  mit der Kante als Linie darunter, die Zeilen tragen Stufe -1 (Grund an der Tabelle,
+  `css/ledger.css`). Die Überschrift nennt **keinen Monatsnamen** mehr — welcher Monat
+  gemeint ist, sagen Monatsleiste und Reiter. Bank, Zahlungsart und Fälligkeit stehen am
+  Schreibtisch als eigene
+  Spalten rechts (`metaCells()`, 96 · 76 · 46 px; unter ~1280 px als Kürzel mit dem vollen
+  Namen in der Sprechblase); **auf dem Telefon entfallen sie ganz** — die frühere
+  Metazeile unter dem Namen ist seit 22.8.26 gestrichen, wer die Angaben braucht, öffnet
+  die Position. **Kein `overflow:hidden` an einer Karte** (klebender Kopf, siehe Mobile) —
+  die Rundung unten übernimmt die letzte Zeile. **Die Farbe des klebenden Kopfes liegt auf
+  einer `::before`-Schicht** (Radius 8 oben), der Kopf selbst trägt Papier: er klebt, die
+  Zeilen ziehen unter ihm durch, und durch eine nur beschnittene Ecke schienen sie neben
+  der Rundung hindurch. **Beide Schichten tragen dieselbe Rundung** — ein eckiges Papier
+  malte über die beiden oberen Ecken der Karte hinaus (ein klebender Kopf liegt über der
+  Kante seines Elternteils, und Abschneiden verbietet sich), die Karte war oben eckig und
+  unten rund. Durchscheinen kann dabei nichts: sobald der Kopf klebt, ist die Ecke der
+  Karte längst hinausgescrollt. Dasselbe Muster tragen die Eckzellen der Jahresmatrix (siehe
+  unten).
+* **Jahresmatrix:** Architektur unverändert (eine Tabelle, Sticky-Leiter, abgeschnittener
+  Rollbalken) — nur die Optik: Trennlinien in Stufe -2, Blockzeilen ohne
+  schwarze Einfassung, Leerzeilen als 10-px-Lücken zwischen den „Karten". **Die
+  3-px-Kante links tragen seit 22.8.26 nur noch die Kategoriezeilen** (`tr.grp`) — der
+  Mock gab sie jeder Zeile mit, an zweihundert Positionen wurde daraus ein durchgehender
+  Farbbalken. Die Blockzeilen sind so hoch wie die Kartenköpfe der Monatsansicht
+  (Polster 8 px), und **unter der letzten Zeile einer Karte steht keine Trennlinie** —
+  auch nicht unter einem zugeklappten Block, dessen Blockzeile ja die letzte ist.
+  **Die „Karten"
+  runden wirklich** (22.8.26, Ende von `css/matrix.css`): oben die erste Zeile nach einer
+  Leerzeile, unten die letzte Zeile ihres `tbody`, dazu der Spaltenkopf als eigene Karte.
+  Weil Kopf-, Gesamt- und Blockzeilen kleben, wird die Ecke nicht einfach beschnitten:
+  die Eckzelle baut ihre Rundung aus **Hintergrund-Schichten** — unten die Blockfarbe
+  (`--cellbg`), zuoberst je Ecke ein 8×8-Stück, das
+  außerhalb des Viertelkreises Papier malt (`--cTL` … `--cBR` am `.matrix`). Kein
+  `border-radius` und kein `::before`: ein absolut gesetztes Pseudo-Element in einer
+  klebenden Tabellenzelle ist ein Positionierungs-Sonderfall, den nicht jeder Browser
+  gleich beantwortet — ein Hintergrund hängt an der Zelle und wandert mit ihr, ob sie
+  klebt oder scrollt. Das `box-shadow:none!important` an den Eckzellen ist Absicht: die
+  Kantenregeln der Zeilen sind spezifischer, und ein inset-Schatten läge über allen
+  Hintergrundschichten. Wer dort
+  eine Zeile umbaut, prüft die Ecken im gescrollten Zustand. **„Saldo je
+  Monat"** (vorher „Gesamt je Monat") ist jetzt die Blockzeile der **blauen** Karte
+  (`sec r-bal balpin`; ohne Saldokorrektur darunter zusätzlich `cbot` — dann rundet sie
+  auch unten): die Saldokorrektur klebt ohne Leerzeile direkt darunter, die
+  Zahlen der Zeile tragen keine Vorzeichenfarbe mehr. **Die Saldokorrektur-Zeile ist
+  keine Blockzeile** (Mock 4a): `cls:'r-bal'` ohne `sec` — heller Grund, gewöhnliche
+  Schrift wie eine Position, nur der Stift im Blau der Karte. Vor ihr sitzt eine Leerzeile im
+  `<thead>` (`matrixHead(spacer()+totRow)`). Die beiden Ausblenden-Knöpfe heißen auf
+  Deutsch jetzt **„Abgeschlossene Monate ausblenden"** (`year.hideDone`,
+  `state.hideDoneMonths`) und **„Erledigte Posten ausblenden"** (`year.hideSettled`,
+  `ui.hideSettled`) — wer einen der Knöpfe in Text oder Sprechblase zitiert, nimmt
+  diese Namen. In der Leiste steht „Filteroptionen…" direkt hinter dem ✕ — wie in der
+  Filterzeile des Monats, beides gehört zum Suchfeld.
+* **Der vierte Reiter heißt „Transactions"** — nur `view.kakeibo` in `js/i18n.js`; alle
+  Schlüssel (`kak`, `ui.view='kakeibo'`, Dateinamen) bleiben. Der Tastengriff bleibt
+  ausdrücklich **D**: Strg/Cmd+Umschalt+T ist im Browser für „Reiter wiederherstellen"
+  reserviert und käme nie an.
+* **Fenster** nach 5a/5b: `.box` mit Radius 10 und `--sh-modal`, Blöcke (`.dgrp`, `.quick`,
+  `.setpane`) auf `--chrome` mit Radius 8, weiße Felder mit Radius 6, Mono-Versalien 8.5 px
+  als Feldbeschriftung, Monatskacheln mit Radius 7 (geschlossen auf `--settled`),
+  Einstellungsmenü mit roter 3-px-Kante, Löschen als oranger Textlink links in der
+  Fußzeile (`.dellink`).
+* **Bewusste Abweichungen vom Mock** (Funktion vor Standbild): die Zähler „(n)" an den
+  Filterknöpfen bleiben, die LP-Ampel behält ihre vier Farben, die Kartensummen des Monats
+  ihre Vorzeichenfarbe, „Sicherung speichern" steht mit im Menü, alle zwölf Monatsspalten
+  bleiben sichtbar (der Mock hat Sep–Dez nur aus Platzgründen weggelassen), und der
+  Bereichsfilter — im Mock vergessen — steht als drittes Aufklappmenü in derselben
+  Bauform. Die ✓/?-Erklärung (`.viewkey`) neben der Segmented Control ist seit 22.8.26
+  **weg**: sie stritt dort mit dem Dateinamen um den Platz; die Siegel erklären ihre
+  Sprechblasen und die Anleitung.
+
 ## Die vier Regeln
 
 **1. Views erzeugen `data-*`, `app.js` verdrahtet.**
@@ -71,7 +212,7 @@ zuklappen) · `yfold` `dblyfold` (einen Block der Jahresmatrix zuklappen) · `qc
 zurücknehmen) ·
 `wload` `wnew` (Begrüßungsseite) · `opening` (Anfangsbestand in den Einstellungen öffnen) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
-(Sprünge in eine andere Ansicht) ·
+(Sprünge in eine andere Ansicht) · `mtab` (Monatsleiste unter der Filterzeile) ·
 `edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) ·
 `links` (Auswahl der zugehörigen Links).
 
@@ -308,6 +449,19 @@ dieselbe Datei später in der älteren App öffnet und speichert, verliert nicht
 `migrate()` als „neues Objekt aus den bekannten Feldern zusammensetzen" umschreibt — was
 sauberer aussieht —, zerstört das lautlos, und der Datenverlust fällt erst Wochen später
 auf.
+
+**Und der Nutzer erfährt, wenn seine Datei älter ist.** `migrate()` merkt sich den
+vorgefundenen `s.v` in der Modulvariablen `fileVersion` (`js/state.js`) — **nicht im
+Zustand**, sonst stünde die alte Nummer wieder in der Datei. `fileOutdated()` vergleicht
+Stelle für Stelle (`verOlder()`); daraus bauen `oldNote()` und `upgradeNote()` in
+`js/storage.js` je einen Satz, der an die gewohnte Kurzmeldung **angehängt** wird: beim
+Laden „liegt in einem älteren Format vor", beim Speichern „ins aktuelle Format überführt".
+`upgradeNote()` setzt `fileVersion` dabei zurück — der Satz kommt einmal und nicht bei
+jedem weiteren Speichern. Eine **neuere** Datei meldet nichts (das ist der Kanal oben, kein
+Fehler), ein frisch angefangenes Buch auch nicht (`emptyState()` setzt `fileVersion=null`).
+Der Grund für das Ganze: `migrate()` flickt still, und ein fehlendes Feld — `state.folded`
+etwa — ließ dieselbe Anwendung mit zwei Dateien verschieden aussehen, ohne dass jemand
+sagen konnte, warum.
 
 **In `desktop/main.js` steht kein Verhalten der Anwendung.** Was dort steht, gilt nur
 dafür, dass FINA außerhalb eines Browsers läuft: wohin fremde Links gehen
@@ -853,11 +1007,11 @@ keine — der Weg bleibt, weil er die Stelle ist, an der eine Zeile aus Ständen
 
 ## Die Leiste der Jahresansicht
 
-Links das Suchfeld, gleich dahinter die beiden Knöpfe, die ebenfalls filtern („Erledigte
-Monate ausblenden", „Abgeschlossene ausblenden"); rechts steht nur, was etwas anlegt. Was
-die Zeichen ✓ und ? bedeuten, steht nicht mehr in dieser Leiste, sondern rechts auf Höhe
-der Ansichtsreiter (`.viewkey`, gesetzt in `renderChrome()`) — dort ist Platz, und
-zwischen lauter Knöpfen las es sich wie eine Beschriftung.
+Links das Suchfeld mit dem ✕, direkt dahinter „Filteroptionen…", dann die beiden Knöpfe,
+die ebenfalls filtern („Abgeschlossene Monate ausblenden", „Erledigte Posten ausblenden").
+Was die Zeichen ✓ und ? bedeuten, steht **nirgends mehr als Zeile**: die `.viewkey` neben
+den Ansichtsreitern ist seit 22.8.26 weg (sie stritt dort mit dem Dateinamen um den
+Platz) — die Siegel erklären ihre Sprechblasen und die Anleitung.
 
 **Unter der Tabelle steht nichts.** Der lange `.note`-Absatz, der dort stand — Stift und
 Doppelklick, die Kürzel B · PT · DD · LP, die Ampel der Restlaufzeit, der graue Grund, der
@@ -871,13 +1025,40 @@ sagen über den dunklen Grund (`aria-pressed`), ob sie gerade gelten; ein zweite
 schaltet sie ab. In Klammern steht, wie viel sie gerade verstecken. Genau wie die Filter
 der Monatsansicht.
 
-**Ihr Zustand steht in der Datei**, nicht in `ui`: `state.hideDoneMonths` und
-`state.hideSettled` (siehe `emptyState()` und `migrate()` in `js/state.js`). Der Nutzer
-stellt sie einmal ein und findet sie beim nächsten Öffnen wieder — deshalb rufen ihre
-Klicks `save()`. **Vorgabe ist beides `false`:** eine frisch geöffnete Datei zeigt alles.
-Neben ihnen stehen nur noch die zugeklappten Bereiche in der Datei — `state.folded` und
-`state.foldedYear` (siehe unten); alles andere (Monatsfilter, Suchfeld, gewählter Monat,
-aufgeklappte Auswertung) bleibt in `ui` und damit ungespeichert.
+**Die beiden sind verschieden weit gültig, und der Unterschied ist Absicht** (22.8.26).
+Sie sind keine Filter — sie räumen ab, was fertig ist —, aber nur einer von beiden nimmt
+dabei **Zeilen** weg:
+
+| Knopf | nimmt weg | steht in | Klick ruft |
+|---|---|---|---|
+| „Abgeschlossene Monate ausblenden" | Spalten (abgerechnete Monate) | der **Datei** (`state.hideDoneMonths`) | `save()` + `render()` |
+| „Erledigte Posten ausblenden" | Zeilen (bezahlte Posten) | der **Sitzung** (`ui.hideSettled`) | nur `render()` |
+
+Spalten wegzunehmen versteckt nichts, was noch aussteht — das ist eine Gewohnheit beim
+Lesen und darf die Datei überleben. Zeilen wegzunehmen schon: eine geöffnete Datei soll
+nicht von selbst Posten verbergen, um die in dieser Sitzung niemand gebeten hat — das sieht
+aus, als fehlte etwas. Deshalb setzt `afterLoad()` `ui.hideSettled` beim Öffnen zurück, wie
+den Suchbegriff. Bis 22.8.26 stand auch dieser Knopf in der Datei; `migrate()` **löscht**
+das alte Feld (`delete s.hideSettled`), sonst schriebe `stateJson()` es bei jedem Speichern
+wieder hinaus.
+
+**Vorgabe ist beides `false`:** eine frisch geöffnete Datei zeigt alles. Neben
+`hideDoneMonths` stehen nur noch die zugeklappten Bereiche in der Datei — `state.folded`
+und `state.foldedYear` (siehe unten); alles andere (Monatsfilter, Suchfeld, gewählter
+Monat, aufgeklappte Auswertung) bleibt in `ui` und damit ungespeichert.
+
+**In der Leiste stehen sie abgesetzt am rechten Rand** (`.ybhide`, `margin-left:auto` in
+`css/layout.css`): Suchfeld und „Filteroptionen…" links, die beiden rechts. Zwischen ihnen
+liegt Luft und **keine** Trennlinie — eine Linie machte aus ihnen die nächste
+Filtergruppe, und filtern tun sie gerade nicht.
+
+**Gedrückt tragen sie Tinte, gleich ob die Zeile leuchtet.** Der dunkle Grund hing bis
+22.8.26 an `.on`, also am Suchbegriff — und weil diese beiden die Zeile ausdrücklich nicht
+anleuchten, sagten sie nur zufällig, dass sie gelten (siehe „Das Mac-Chrome").
+
+**Und sie sperren das Zuklappen nicht.** Wer einen von beiden drückt, hat kein Ziel, das
+in einem zugeklappten Block stecken könnte — er räumt ab, was fertig ist. Gesperrt wird
+allein am Suchbegriff (`foldLock` in `viewJahr()`, siehe „Was das Klappen überschreibt").
 
 ## Die Auswertung über der Monatsansicht
 
@@ -901,8 +1082,11 @@ erscheint der Zeitstrahl. **Einen Pfeil trägt sie nicht:** ob sie offen ist, sa
 selbst; für Tastatur und Vorlesehilfe steht es in `aria-expanded`. Gebaut wird sie in
 `anaBar()` / `timeline()` in `js/views/monat.js`.
 
-Darunter, in derselben `.stickybar`, steht die Filterzeile (siehe unten). Alles zusammen
-bleibt beim Scrollen unter der Kopfzeile stehen.
+**Die Leiste hat drei Stücke, und die Auswertung ist das letzte:** Filterzeile ·
+Monatsleiste · Auswertung (`anaBar()`). Die Filterzeile dockt oben an der Kopfzeile an, die
+Auswertung steht direkt über den Karten, die sie zusammenfasst. Alles zusammen steckt in
+einer `.stickybar` und bleibt beim Scrollen unter der Kopfzeile stehen; zwischen den drei
+Stücken liegen je 10 px — so viel, wie die Bereiche voneinander haben.
 
 **Womit sie aufgeht, sagt die Datei** — `state.anaOpen`, ein Haken im Einstellungsfenster
 unter „Darstellung" (`#sAna`, `set.ana`). Von Haus aus ist er aus: die Leiste nimmt oben
@@ -1277,22 +1461,33 @@ den Namen der Liste als erstes Argument.
 ### Was das Klappen überschreibt
 
 `foldOf(k)` entscheidet in beiden Ansichten, was **zu sehen** ist — die Datei bleibt dabei
-unberührt. Zwei Dinge klappen alles auf, und gegen sie lässt sich **gar nicht** klappen:
+unberührt. **Ein Filter** klappt alles auf, und gegen ihn lässt sich **gar nicht** klappen:
+Wer sucht, soll den Treffer sehen und nicht daran denken müssen, in
+welchem zugeklappten Bereich er steckt. Im Monat sind das Suchfeld, Bereich, Fälligkeit
+und Zahlungsstand (`filterOn`); **in der Jahresansicht allein das Suchfeld** (`foldLock`).
 
-1. **Ein Filter.** Wer sucht, soll den Treffer sehen und nicht daran denken müssen, in
-   welchem zugeklappten Bereich er steckt. Im Monat sind das Suchfeld, Bereich, Fälligkeit
-   und Zahlungsstand (`filterOn`); in der Jahresansicht das Suchfeld und „Abgeschlossene
-   ausblenden" — **„Erledigte Monate ausblenden" nicht**: es nimmt Spalten weg, in einem
-   Block verbirgt sich dadurch nichts.
-2. **Die offene Auswertung** der Monatsansicht: der Zeitstrahl daneben soll sich in der
-   Liste wiederfinden lassen.
+**Die beiden Ausblenden-Knöpfe zählen seit 22.8.26 nicht mehr dazu.** „Erledigte Posten
+ausblenden" tat es bis dahin, weil es Zeilen wegnimmt — nur hat, wer ihn drückt, kein
+Ziel, das sich verstecken könnte: er räumt ab, was fertig ist. Ein Buch, in dem der Knopf
+gedrückt steht, verlor damit dauerhaft seine Klapp-Pfeile, ohne dass jemand danach gefragt
+hätte. „Abgeschlossene Monate ausblenden" nimmt ohnehin nur Spalten weg — in einem Block
+verbirgt sich dadurch nichts. **Welche Zeilen es überhaupt gibt, entscheiden beide
+weiterhin**: dafür steht `filterOn` neben `foldLock` (`keepSec()` nimmt einen leer
+gefilterten Block weg).
 
-**Solange eins von beidem gilt, gibt es keinen Pfeil und keinen Doppelklick.** `foldBtn()`
+**Die offene Auswertung zählt seit 22.8.26 nicht mehr dazu.** Sie tat es bis dahin (der
+Zeitstrahl sollte sich in der Liste wiederfinden lassen) — nur steht sie in jedem Buch mit
+`state.anaOpen` von Haus aus offen, und dann fehlten die Pfeile dauerhaft und ohne
+erkennbaren Grund: **dieselbe Anwendung sah in zwei Dateien verschieden aus**, und das
+sieht wie ein Fehler aus, nicht wie eine Regel. Der Zeitstrahl bleibt auch über einer
+zugeklappten Karte lesbar. Wer die Regel zurückbauen will, weiß jetzt, warum sie weg ist.
+
+**Solange der Filter gilt, gibt es keinen Pfeil und keinen Doppelklick.** `foldBtn()`
 liefert im Monat ein leeres `.foldpad` derselben Breite — sonst spränge die Überschrift —,
 in der Matrix bleibt die Stiftspalte einfach leer; `data-dblfold` / `data-dblyfold` bleiben
 weg. Ein Pfeil, der gegen eine Überschreibung anklappen wollte, hielte nicht, was er
-verspricht, und ein Wert, den niemand sieht, soll auch nicht heimlich kippen. Fällt beides
-weg, gilt wieder die Datei — unverändert.
+verspricht, und ein Wert, den niemand sieht, soll auch nicht heimlich kippen. Fällt der
+Filter weg, gilt wieder die Datei — unverändert.
 
 Daraus folgt: `(n ausgeblendet)` neben einer Überschrift steht beim Filtern **immer**,
 denn dann ist nichts zugeklappt.
@@ -1304,7 +1499,8 @@ Was der Pfeil tut, sagt sein `title` und sein `aria-label` (`month.minAreaTip` /
 
 ## Die Filterzeile der Monatsansicht
 
-Sie steht **oben in der Leiste**, unter der Auswertung, und **gilt für alle drei Bereiche** —
+Sie steht **ganz oben in der Leiste** — ohne Abstand an der Kopfzeile angedockt, wie in der
+Jahresansicht; beide Ansichten fangen mit derselben Bahn an. Sie **gilt für alle drei Bereiche** —
 Einnahmen, Flexible Payments, regelmäßige Kosten und die Saldokorrektur gleich mit. In
 einer der Karten stünde sie an der falschen Stelle: sie filtert nicht diese Karte, sondern
 den ganzen Monat. In der Reihenfolge, in der man filtert — vom Groben ins Feine: das Suchfeld (`data-q`),
@@ -1357,8 +1553,8 @@ die ganze Zeit daneben, denn der Fokus kehrt immer wieder dorthin zurück (siehe
 
 **Rechts vom Feld steht `data-qclear`**, das Gegenstück zum Tippen: es setzt `ui.q`,
 `ui.secFilter`, `ui.filter` und `ui.dueFilter` in einem Zug zurück und ist gesperrt, solange
-keiner davon gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — die stehen in der Datei
-und sind eine Einstellung, kein Handgriff. **Escape tut dasselbe** (Handler in `js/app.js`),
+keiner davon gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — sie stehen
+rechts und außerhalb der Filtergruppe, und sie filtern auch nicht. **Escape tut dasselbe** (Handler in `js/app.js`),
 aber nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.js`).
 
 **Ein Druck, eine Wirkung.** Der Handler des Fensters hängt am *Dokument*, der des Filters am
@@ -1382,13 +1578,17 @@ Einen eigenen Tastengriff ins Suchfeld gibt es **nicht mehr**: seit ein einzelne
 dort von selbst landet, war Strg/Cmd+Umschalt+F der umständlichere von zwei Wegen. Die
 Tastenkombination gehört jetzt dem vierten Reiter (siehe unten).
 
-Sie ist ein eigener Bereich und sieht auch so aus: **grauer Grund und eine dunkle Kante
-links**, wie die Karten darunter ihre Farbe tragen — nur ist ihre Farbe keine Geldart, sie
-gehört zu allen dreien.
+**Sie ist eine Bahn über die ganze Seite** (seit 22.8.26): ein flacher Streifen von Rand
+zu Rand auf `--paper-2`, mit einer Haarlinie oben und unten — dasselbe Bild, das vorher
+die Monatsleiste an der Kopfzeile trug. Ein eingefasster Kasten war sie bis dahin (grauer
+Grund, Radius 7, Rahmen ringsum); als Bahn sagt sie, dass sie für die ganze Seite gilt und
+nicht für die Karte darunter. Wie weit sie über das Polster von `.wrap` hinausgreift,
+steht als `--pagepad` an `.wrap` — eine Bahn hat keine Ecken, `border-radius` und die
+seitlichen Kanten entfallen.
 
 **Greift einer der drei Filter, färbt sich die ganze Leiste orange** (`.filterbar.on`,
 gesetzt in `anaBar()`): sie sagt dann, dass hier gerade etwas ausgeblendet wird. Ohne
-Filter bleibt sie grau — eine Farbe, die immer leuchtet, sagt nichts. **Leuchtend** und
+Filter bleibt sie hell — eine Farbe, die immer leuchtet, sagt nichts. **Leuchtend** und
 nicht als blasse Tönung: die Leiste klebt oben unter der Kopfzeile und soll auch dann
 auffallen, wenn man von der Liste darunter kommt. Genommen wird dafür `--accent-soft` und
 **nicht** `--accent`: das satte Orange ist als Knopffarbe gedacht und wird über eine ganze
@@ -1398,19 +1598,22 @@ zwischen den Gruppen werden dunkler statt heller. So sagt die Leiste, *dass* gef
 wird, und der gedrückte Knopf, *was*. **Die Knopfleiste der Jahresmatrix färbt sich
 genauso** — genauer: **ihre Zeile**. Suchfeld und Knöpfe stehen dafür in einem eigenen
 `.ybrow` (gebaut in `viewJahr()`), denn in derselben Leiste hängt darunter der waagerechte
-Rollbalken der Matrix, und der filtert nichts. Die Zeile trägt immer denselben Kasten
-(Polster und einen durchsichtigen Rand), gefärbt wird nur — sonst spränge alles um einen
-Pixel, sobald ein Filter greift; ein negatives Außenmaß hält den Inhalt genau dort, wo er
-ohne den Kasten stünde. Die Regeln stehen an einer Stelle
-(`.anabar .filterbar.on,.yearbar .ybrow.on` in `css/layout.css`) — eine Leiste, die anders
-aussieht, sähe nach einem anderen Werkzeug aus.
+Rollbalken der Matrix, und der filtert nichts. Die Zeile trägt immer dieselbe Bahn
+(Polster und Haarlinien), gefärbt wird nur — sonst spränge alles um einen Pixel, sobald
+ein Filter greift. Die Regeln stehen an einer Stelle
+(`.anabar .filterbar,.yearbar .ybrow` in `css/layout.css`, samt der `.on`-Zwillinge
+darunter) — eine Leiste, die anders aussieht, sähe nach einem anderen Werkzeug aus.
+
+**Der Rollbalken sitzt an der Tabelle, nicht an der Zeile** (`.yearbar .scrollrail`,
+`margin:10px 0 -10px`): zwischen der Filterzeile und dem Spaltenkopf der Matrix liegt
+damit genau so viel Luft, wie die Bereiche voneinander haben — mit Balken wie ohne, denn
+ohne ihn (`.off`) trägt das Polster der Leiste dieselben 10 px allein.
 
 **Gefärbt wird nur am Suchbegriff.** Im Monat leuchtet die Zeile an den Handgriffen der
 Sitzung; in der Jahresansicht ist der Suchbegriff der einzige davon. Die beiden
-Ausblenden-Knöpfe zählen **nicht** mit: sie stehen in der Datei und gelten, bis man sie
-wieder ausschaltet — eine Leiste, die deshalb bei jedem Öffnen leuchtet, leuchtet immer und
-sagt damit nichts mehr. Dass sie gerade gelten, sagen die Knöpfe selbst: dunkler Grund und
-die Zahl der versteckten Zeilen in Klammern.
+Ausblenden-Knöpfe zählen **nicht** mit: sie filtern nicht, sie räumen ab, was fertig ist —
+und stehen dafür abgesetzt am rechten Rand. Dass sie gerade gelten, sagen sie selbst:
+dunkler Grund und die Zahl der versteckten Zeilen in Klammern.
 
 Weil die Zeile oben klebt, kostet jeder Umbruch dauerhaft Platz. Deshalb sitzt sie enger
 als sonst (`.anabar .filterbar` in `css/layout.css`), und ihr Suchfeld gibt nach
@@ -1507,7 +1710,7 @@ Die fünf Schlüssel und was zu ihnen zählt, steht in `hayItem()` / `hayKak()` 
 | `note` | Notiz zur Position und die zwölf Monatsnotizen |
 | `amount` | die Monatsbeträge, in beiden Schreibweisen |
 | `total` | die Jahressumme — auch in der Monatsansicht, es ist dieselbe Zeile |
-| `meta` | Kategorie, Bank, Zahlungsart, Fälligkeit — **und** `hit()` in `js/views/jahr.js`, also die Namen der Blöcke und Kategorien |
+| `meta` | Kategorie, Bank, Zahlungsart, Fälligkeit — **und** die Namen der Blöcke: `hit()` in `js/views/jahr.js`, `secHit()` in `js/views/monat.js` |
 
 Wer einen Teil hinzufügt, braucht vier Stellen: den Schlüssel in `QFIELDS`, den Zweig in
 beiden `hay…`-Funktionen, die Zeile in `QFIELD_ROWS()` und zwei Texte in `js/i18n.js`
@@ -1543,7 +1746,14 @@ ohnehin nur zufällig — er musste in ihrer Beschriftung vorkommen, damit sie b
 Trifft der Begriff einen Namen, unter dem etwas hängt (einen Block wie
 „Regelmäßige Kosten", eine Kategorie wie „WOHNEN"), gilt der Treffer für alles darunter:
 man sucht eine Kategorie, um sie ganz zu sehen. Die Kategorie eines Posten steckt schon in
-seinem Vergleichsstoff; die Blocknamen kommen in `viewJahr()` dazu (`hit()`). Gebaut wird
+seinem Vergleichsstoff; die Blocknamen kommen in `viewJahr()` dazu (`hit()`).
+
+**Der Blockname gilt in beiden Ansichten.** Die Monatsansicht kann dasselbe seit 22.8.26
+(`secHit()` in `js/views/monat.js`, verglichen mit den Beschriftungen der drei Kartenköpfe
+`month.income` · `month.kak` · `month.fixed` und mit `bal.row`) — vorher fand „Einnahmen"
+dort nichts, während dieselbe Eingabe in der Jahresmatrix den ganzen Block zeigte. Wer eine
+weitere Ansicht mit Suchfeld baut, nimmt die Blocknamen mit auf: der Nutzer tippt den Namen,
+den er auf dem Schirm liest, und erwartet in jeder Ansicht dieselbe Antwort. Gebaut wird
 der Rumpf deshalb blockweise in `parts` und erst am Ende mit `spacer()` verbunden — ein
 weggefilterter Block hinterließe sonst eine doppelte Lücke.
 
@@ -1778,10 +1988,20 @@ eine Tabellenzeile ohne Nachbarn.
 ## Notizen behalten ihre Zeilen
 
 Eine Notiz wird an vier Stellen gezeigt: in der Sprechblase (`.tip`), als Vorschau unter dem
-Namen (`.noteprev`), als Monatsnotiz in der Monatsansicht (`.itemnote`, aufrecht und
-linksbündig — kursiv las sie sich wie ein Einschub; ein senkrechter Strich davor bindet sie
-an ihre Position und wächst über alle ihre Zeilen mit) und in der Monatszelle
-des Bearbeitungsfensters (`.cellnote`). Alle vier stehen auf `white-space:pre-wrap` — ein
+Namen (`.noteprev` — Jahresmatrix und Fast Budget Details), als Monatsnotiz in der
+Monatsansicht (`.itemnote`, aufrecht und linksbündig — kursiv las sie sich wie ein
+Einschub; ein senkrechter Strich davor bindet sie an ihre Position und wächst über alle
+ihre Zeilen mit) und in der Monatszelle des Bearbeitungsfensters (`.cellnote`).
+
+**Vorschau und Monatsnotiz sehen seit 22.8.26 gleich aus** — dasselbe Maß, dieselbe Farbe,
+derselbe Strich davor. Beide stehen deshalb in **einer** Regel (`.itemnote,.noteprev` in
+`css/tokens.css`); `.noteprev` legt allein den Abbruch nach zwei Zeilen darüber. Der
+Abbruch bleibt der Unterschied und ist keiner des Aussehens: eine Zeile der Jahresmatrix
+darf nicht mit der Länge einer Notiz wachsen, in der Monatsansicht steht die Notiz in einer
+eigenen Zeile und darf ausschreiben. Wer das Bild ändert, ändert es damit an beiden
+Stellen — eine Notiz, die je Ansicht anders aussähe, sähe nach etwas anderem aus. Auf einer
+abgeschlossenen Zeile gilt dasselbe: die frühere Ausnahme in `css/matrix.css`, die die
+Vorschau dort grau zurücktreten ließ, ist mit weg. Alle vier stehen auf `white-space:pre-wrap` — ein
 Zeilenumbruch im Notizfeld ist gewollt, eine Aufzählung bliebe sonst ein langer Satz. Wer eine
 fünfte Stelle baut, setzt es dort ebenso. Umbrüche im Quelltext der View gehören deshalb
 **nicht** in diese Elemente: bei `pre-wrap` steht jedes Leerzeichen davon auf dem Schirm.
@@ -2355,10 +2575,12 @@ sonst fällt es aus der Regel heraus.
 Die Kopfzeile klebt oben (`header{position:sticky}`), alles mit der Klasse `.stickybar`
 klebt darunter: die Knopfleiste der Jahresmatrix (`#yearBar`), die Bedienleiste der
 Flexible Payments, die Auswertung samt Filterzeile im Monat und die Kennzahlenleiste der
-Prognose. Das `top` dieser Leisten steht **nicht**
-im Stylesheet — die Kopfzeile ist je nach Ansicht unterschiedlich hoch, weil es die
-Monatsreiter nur im Monat gibt. `syncStickyTops()` in `js/app.js` misst sie und setzt das
-Maß; die Funktion läuft am Ende von `wire()` und bei jedem Größenwechsel.
+Prognose — und in der Monatsansicht steckt die Monatsleiste mit in derselben `.stickybar`.
+Das `top` dieser Leisten steht **nicht** im Stylesheet: `syncStickyTops()` in `js/app.js`
+misst die Kopfzeile und setzt das Maß; die Funktion läuft am Ende von `wire()` und bei
+jedem Größenwechsel. Seit die Monatsleiste unter der Filterzeile steht, ist die Kopfzeile
+in jeder Ansicht gleich hoch — gemessen wird trotzdem, denn geraten wäre es beim ersten
+Umbau wieder falsch.
 Eine neue mitlaufende Leiste braucht deshalb nur die Klasse. Weil gemessen und nicht
 geraten wird, rücken die Kartenköpfe darunter von selbst nach, wenn die Auswertung
 aufgeklappt wird.
