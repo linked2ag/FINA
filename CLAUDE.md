@@ -729,6 +729,16 @@ Mittel wie beim beschnittenen Balken der Monatsansicht: ein Farbverlauf ins Durc
 keine Kante. Ausgefranst wird an der Seite, aus der er kommt: bei einem Guthaben links, bei
 einem Minus rechts.
 
+**Der farbige Grund ragt nicht über die Zeilentrennung, die Linien schon.** Eine Rasterlinie
+muss durchgehen, sonst hat sie alle 38 px eine Lücke (`bottom:-1px` an `.tgrid` / `.tzero`).
+Die Zonen dürfen das **nicht**: sie sind so breit wie die Spalte, und die liegt beim Rollen
+zum Teil unter der klebenden END-Spalte — ein Pixel Überstand malte dort quer über deren
+Trennlinie, sichtbar als Rest der Spalte, die gerade darunter wegscrollt. Über die
+Stapelfolge ist das nicht zu lösen: der Grund einer Tabellenzelle wird früh gezeichnet, ein
+absolut gesetztes Kind einer anderen Zelle später — auch ein eigener Überzug mit `z-index`
+ändert daran nichts (geprüft). Dadurch trägt die Grafik zwischen zwei Monaten dieselbe feine
+Linie wie jede andere Spalte.
+
 **Raster und Balken rechnen in derselben Breite.** Die Rasterlinien liegen in der *Zelle*,
 der Balken samt seinem kräftigen Strich in einer Fläche darin — hat die Zelle einen
 Innenabstand, sind das zwei verschiedene Maßstäbe, und der Strich landet ein bis zwei Pixel

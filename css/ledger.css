@@ -289,9 +289,19 @@
 .progtable td.endcol,.progtable th.endcol{background:var(--paper-2)}
 /* Die Rasterlinie überquert die Zeilentrennung, sonst hätte sie
    alle 38 px eine Lücke und wäre zwölfmal unterbrochen statt
-   durchgehend. */
-.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero,
-.progtable td.flowcell>.tzone{bottom:-1px}
+   durchgehend.
+
+   **Der farbige Grund tut das nicht.** Er ist so breit wie die
+   ganze Spalte, und die liegt beim Rollen zum Teil **unter** der
+   klebenden END-Spalte; ein Pixel Überstand malte dort quer über
+   deren Trennlinie — als Rest der Spalte, die gerade darunter
+   wegscrollt. Über die Stapelfolge ist das nicht zu lösen: der
+   Grund einer Tabellenzelle wird früh gezeichnet, ein absolut
+   gesetztes Kind einer anderen Zelle später — auch ein eigener
+   Überzug mit z-index ändert daran nichts (geprüft). Ohne den
+   Überstand trägt die Grafik dieselbe feine Trennlinie zwischen
+   zwei Monaten wie jede andere Spalte der Tabelle. */
+.progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{bottom:-1px}
 .ledger td.flowcell{vertical-align:middle}
 /* Vergangene Monate treten zurück — aber nur mit ihren Zahlen.
    Der Verlauf behält seine Farbe: er ist eine Kurve über das ganze
