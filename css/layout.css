@@ -261,11 +261,16 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Leiste sagt, *dass* gefiltert wird, der Knopf, *was*. Die Linien
    zwischen den Gruppen werden dunkler statt heller, sonst
    verschwänden sie im hellen Orange. */
-.anabar .filterbar.on{background:var(--accent-soft);border-color:var(--accent)}
-.anabar .filterbar.on .btn{background:var(--paper-2)}
-.anabar .filterbar.on .btn:hover{background:#fff}
-.anabar .filterbar.on .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
-.anabar .filterbar.on .fbgroup{border-left-color:rgba(122,53,11,.38)}
+/* Dieselben Regeln gelten der Knopfleiste der Jahresmatrix
+   (.yearbar.on, gesetzt in viewJahr): dort filtern das Suchfeld und
+   die beiden Ausblenden-Knöpfe, und eine Leiste, die anders
+   aussieht, sähe nach einem anderen Werkzeug aus. */
+.anabar .filterbar.on,.yearbar.on{background:var(--accent-soft);border-color:var(--accent)}
+.anabar .filterbar.on .btn,.yearbar.on .btn{background:var(--paper-2)}
+.anabar .filterbar.on .btn:hover,.yearbar.on .btn:hover{background:#fff}
+.anabar .filterbar.on .btn[aria-pressed="true"],
+.yearbar.on .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
+.anabar .filterbar.on .fbgroup,.yearbar.on .fbgroup{border-left-color:rgba(122,53,11,.38)}
 .anabar .filterbar .btn.small{padding:3px 7px;font-size:11.5px}
 /* Die Gruppen der Filterzeile stehen durch eine senkrechte Linie
    getrennt: Suchfeld | Fälligkeit | Zahlungsstand. */

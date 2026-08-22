@@ -443,7 +443,16 @@ function viewJahr(){
      den dunklen Grund, ob sie gerade gelten — wie die Filter der
      Monatsansicht. Was die Zeichen ✓ und ? bedeuten, steht auf
      Höhe der Reiter (siehe renderChrome in js/app.js). */
-  return `<div class="sechead yearbar stickybar" id="yearBar">
+  /* Greift einer der drei Filter — Suchbegriff, „Erledigte Monate
+     ausblenden", „Abgeschlossene ausblenden" —, färbt sich die
+     ganze Leiste orange, genau wie die Filterzeile der
+     Monatsansicht (.filterbar.on). Sie sagt damit dasselbe: hier
+     wird gerade etwas ausgeblendet. Dass zwei der drei in der Datei
+     stehen, ändert daran nichts — sichtbar verborgen ist verborgen,
+     und wer die Matrix nach dem Öffnen unvollständig vorfindet,
+     soll es an der Leiste sehen und nicht suchen müssen. */
+  const filtered=!!(ui.q||'').trim()||!!state.hideDoneMonths||!!state.hideSettled;
+  return `<div class="sechead yearbar stickybar${filtered?' on':''}" id="yearBar">
       <span class="fbgroup">
         ${filterField('fltyear')}
         <button class="btn small" id="btnFold" aria-pressed="${!!state.hideDoneMonths}"

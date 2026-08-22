@@ -211,7 +211,16 @@
    **deckender** Grund (--bg-sal, ihre eigene Farbe) und eine
    Stufe unter der Monatsspalte (z-index 1 gegen 2), damit die
    beiden sich nicht streiten. */
-.progtable td.endcol,.progtable th.endcol{position:sticky;left:var(--progleadw);z-index:1}
+/* **Ein Pixel Überlappung, keine Fuge.** `left` ist rechnerisch
+   genau die Breite der Monatsspalte — der Browser rundet beim
+   Rollen aber die Lage der klebenden Zelle und die der Tabelle
+   darunter verschieden, und bei manchen Rollständen klafft dann
+   eine 1-px-Fuge, durch die die Balken der Grafik hindurchziehen
+   (nachgemessen bei 617,4 und 700,6). Deshalb setzt sich END ein
+   Pixel **unter** die Monatsspalte: die liegt eine Stufe höher
+   (z-index 2 gegen 1) und deckt es zu. */
+.progtable td.endcol,.progtable th.endcol{position:sticky;
+  left:calc(var(--progleadw) - 1px);z-index:1}
 /* Senkrechte Linien durch die **ganze** Tabelle, nicht nur in der
    Grafik: das Raster der letzten Spalte wäre sonst ein Fremdkörper
    zwischen Zahlenspalten ohne Trennung. Die letzte Spalte bekommt

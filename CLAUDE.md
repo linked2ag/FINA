@@ -573,12 +573,17 @@ Grund aus demselben Grund.
 
 **Zwei Spalten bleiben beim seitlichen Rollen stehen.** Die Monatsspalte klebt am linken
 Rand (`td:first-child`, `left:0`) — eine Zahl ohne ihren Monat ist keine Zeile mehr. Und
-**END klebt daneben**, sobald es dort ankommt (`left:var(--progleadw)`, also genau die Breite
-der Monatsspalte): der Stand zum Monatsende ist die Zahl, gegen die man den Balken daneben
+**END klebt daneben**, sobald es dort ankommt (`left:calc(var(--progleadw) - 1px)`, also die
+Breite der Monatsspalte **minus ein Pixel**): der Stand zum Monatsende ist die Zahl, gegen die man den Balken daneben
 liest, und beim Rollen nach rechts wanderte sie als erste aus dem Bild. Weil `position:sticky`
 erst greift, wenn die Zelle diese Stelle erreicht, **löst sie sich beim Zurückrollen von
 selbst wieder ab** und steht wieder in ihrer Reihe. Dafür braucht sie einen deckenden Grund
-(`--bg-sal`, ihre eigene Farbe) und eine Stufe unter der Monatsspalte (`z-index` 1 gegen 2).
+(`--paper-2`) und eine Stufe unter der Monatsspalte (`z-index` 1 gegen 2). **Das eine Pixel
+Überlappung ist Absicht:** rechnerisch stoßen die beiden Spalten genau aneinander, der
+Browser rundet beim Rollen aber die Lage der klebenden Zelle und die der Tabelle darunter
+verschieden — bei manchen Rollständen klafft dann eine 1-px-Fuge, durch die die Balken der
+Grafik hindurchziehen (nachgemessen bei `scrollLeft` 617,4 und 700,6). END setzt sich
+deshalb ein Pixel unter die Monatsspalte, die es zudeckt.
 
 **Der laufende Monat ist auch in der Balkenspalte eingefasst.** Die beiden roten Linien sind
 sonst ein `inset`-Schatten an der Zelle (`tr.now td`); in `.flowcell` liegen Zonen, Raster
@@ -1390,8 +1395,14 @@ auffallen, wenn man von der Liste darunter kommt. Genommen wird dafür `--accent
 Leiste hinweg hart. Ihre Knöpfe sind von Haus aus durchsichtig und bekommen auf dem
 farbigen Grund deshalb Papier unter sich; der gedrückte bleibt **dunkel**, und die Linien
 zwischen den Gruppen werden dunkler statt heller. So sagt die Leiste, *dass* gefiltert
-wird, und der gedrückte Knopf, *was*. Die Knopfleiste der Jahresmatrix bleibt davon
-unberührt — dort stehen die Filter in der Datei und sind eine Einstellung, kein Handgriff.
+wird, und der gedrückte Knopf, *was*. **Die Knopfleiste der Jahresmatrix färbt sich
+genauso** (`.yearbar.on`, gesetzt in `viewJahr()`; die Regeln stehen an einer Stelle, siehe
+`.anabar .filterbar.on,.yearbar.on` in `css/layout.css`): dort filtern das Suchfeld und die
+beiden Ausblenden-Knöpfe, und eine Leiste, die anders aussieht, sähe nach einem anderen
+Werkzeug aus. Dass zwei der drei in der **Datei** stehen, ändert daran nichts — wer die
+Matrix nach dem Öffnen unvollständig vorfindet, soll es an der Leiste sehen und nicht
+suchen müssen. Die Leiste bleibt dann allerdings orange, solange der Knopf gilt: sie ist
+dort auch eine Auskunft über den gespeicherten Zustand und nicht nur über einen Handgriff.
 
 Weil die Zeile oben klebt, kostet jeder Umbruch dauerhaft Platz. Deshalb sitzt sie enger
 als sonst (`.anabar .filterbar` in `css/layout.css`), und ihr Suchfeld gibt nach
