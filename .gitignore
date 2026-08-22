@@ -28,15 +28,9 @@
 # bleiben sie liegen), und Arbeitsunterlagen zum Projekt wie
 # /_Planung und Research/ (Marktanalyse, Entwürfe, Kostenrechnungen) —
 # das sind Arbeitsunterlagen, nicht Teil der Anwendung, und im
-# Repository stünden sie öffentlich.
+# Repository stünden sie öffentlich. Dazu gehört auch
+# /_BusinessCenter/ — Marktanalyse, Preise, Entwürfe.
 _*
-
-# Dieselbe Sorte, nur ohne Unterstrich: in BusinessCenter/ steht die
-# Geschäftsdokumentation — Marktanalyse, Preise, Entwürfe. Das
-# Repository ist öffentlich, und keine dieser Unterlagen ist für die
-# Öffentlichkeit gedacht. Wer dort etwas ablegt, muss hier nichts
-# nachtragen: der Ordner ist mitsamt allem darin ausgeschlossen.
-BusinessCenter/
 
 # Der Ordner desktop/ baut die Mac- und die Windows-Fassung. Drei
 # Dinge darin gehören nicht ins Repository:
