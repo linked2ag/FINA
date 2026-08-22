@@ -6,6 +6,14 @@
 # macOS legt das in jedem Ordner an, den der Finder einmal geöffnet hat.
 .DS_Store
 
+# Claude Code legt hier seine örtlichen Einstellungen und eine
+# Sperrdatei ab. Beides gehört diesem einen Rechner und niemandem
+# sonst. Die Einstellungen schließt schon eine Liste außerhalb des
+# Projekts aus; damit das nicht der einzige Halt bleibt, steht der
+# ganze Ordner hier. Der Bauplan der Anwendung steht in CLAUDE.md,
+# und die Datei liegt im Repository, wo sie hingehört.
+.claude/
+
 # Alles, dessen Name mit einem Unterstrich beginnt, bleibt hier —
 # Dateien wie Ordner, gleich in welcher Tiefe; bei einem Ordner auch
 # sein ganzer Inhalt, egal welche Endung darin steht. Daran erkennt
@@ -22,6 +30,13 @@
 # das sind Arbeitsunterlagen, nicht Teil der Anwendung, und im
 # Repository stünden sie öffentlich.
 _*
+
+# Dieselbe Sorte, nur ohne Unterstrich: in BusinessCenter/ steht die
+# Geschäftsdokumentation — Marktanalyse, Preise, Entwürfe. Das
+# Repository ist öffentlich, und keine dieser Unterlagen ist für die
+# Öffentlichkeit gedacht. Wer dort etwas ablegt, muss hier nichts
+# nachtragen: der Ordner ist mitsamt allem darin ausgeschlossen.
+BusinessCenter/
 
 # Der Ordner desktop/ baut die Mac- und die Windows-Fassung. Drei
 # Dinge darin gehören nicht ins Repository:
