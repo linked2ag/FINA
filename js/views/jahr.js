@@ -452,7 +452,13 @@ function viewJahr(){
      und wer die Matrix nach dem Öffnen unvollständig vorfindet,
      soll es an der Leiste sehen und nicht suchen müssen. */
   const filtered=!!(ui.q||'').trim()||!!state.hideDoneMonths||!!state.hideSettled;
-  return `<div class="sechead yearbar stickybar${filtered?' on':''}" id="yearBar">
+  /* **Gefärbt wird die Zeile, nicht die Leiste.** Unter den Knöpfen
+     hängt in derselben Leiste der waagerechte Rollbalken der Matrix
+     — der filtert nichts und soll die Farbe deshalb auch nicht
+     tragen. Er steht als eigenes Kind neben `.ybrow` und bleibt auf
+     dem Papiergrund. */
+  return `<div class="sechead yearbar stickybar" id="yearBar">
+      <div class="ybrow${filtered?' on':''}">
       <span class="fbgroup">
         ${filterField('fltyear')}
         <button class="btn small" id="btnFold" aria-pressed="${!!state.hideDoneMonths}"
@@ -463,6 +469,7 @@ function viewJahr(){
       <span class="fbgroup">
         <button class="btn small" data-newkak="1">${t('year.addKak')}</button>
         <button class="btn small" data-newitem="1">${t('year.addItem')}</button></span>
+      </div>
       <!-- Der waagerechte Rollbalken der Matrix, außerhalb der
            Tabelle: in ihr säße er quer über der letzten Zeile, und
            die steht bei zweihundert Positionen weit unterhalb des

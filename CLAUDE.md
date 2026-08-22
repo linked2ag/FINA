@@ -1396,8 +1396,13 @@ Leiste hinweg hart. Ihre Knöpfe sind von Haus aus durchsichtig und bekommen auf
 farbigen Grund deshalb Papier unter sich; der gedrückte bleibt **dunkel**, und die Linien
 zwischen den Gruppen werden dunkler statt heller. So sagt die Leiste, *dass* gefiltert
 wird, und der gedrückte Knopf, *was*. **Die Knopfleiste der Jahresmatrix färbt sich
-genauso** (`.yearbar.on`, gesetzt in `viewJahr()`; die Regeln stehen an einer Stelle, siehe
-`.anabar .filterbar.on,.yearbar.on` in `css/layout.css`): dort filtern das Suchfeld und die
+genauso** — genauer: **ihre Zeile**. Suchfeld und Knöpfe stehen dafür in einem eigenen
+`.ybrow` (gebaut in `viewJahr()`), denn in derselben Leiste hängt darunter der waagerechte
+Rollbalken der Matrix, und der filtert nichts. Die Zeile trägt immer denselben Kasten
+(Polster und einen durchsichtigen Rand), gefärbt wird nur — sonst spränge alles um einen
+Pixel, sobald ein Filter greift; ein negatives Außenmaß hält den Inhalt genau dort, wo er
+ohne den Kasten stünde. Die Regeln stehen an einer Stelle
+(`.anabar .filterbar.on,.yearbar .ybrow.on` in `css/layout.css`): dort filtern das Suchfeld und die
 beiden Ausblenden-Knöpfe, und eine Leiste, die anders aussieht, sähe nach einem anderen
 Werkzeug aus. Dass zwei der drei in der **Datei** stehen, ändert daran nichts — wer die
 Matrix nach dem Öffnen unvollständig vorfindet, soll es an der Leiste sehen und nicht
