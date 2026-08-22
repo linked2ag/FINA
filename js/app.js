@@ -446,6 +446,7 @@ function wire(){
     keepQFocus(); render(); };
   document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>toggleFilter('filter',b.dataset.filter));
   document.querySelectorAll('[data-duefilter]').forEach(b=>b.onclick=()=>toggleFilter('dueFilter',b.dataset.duefilter));
+  document.querySelectorAll('[data-secfilter]').forEach(b=>b.onclick=()=>toggleFilter('secFilter',b.dataset.secfilter));
   /* Der Zeitstrahl filtert wie die Knöpfe darunter: ein Abschnitt
      ist eine Fälligkeit (A · M · E, Z = ohne Zahltag), ein zweiter
      Klick nimmt ihn zurück. Den Zeitstrahl gibt es nur, solange die
@@ -499,7 +500,7 @@ function wire(){
      zurücknimmt, sucht meistens gleich etwas anderes. */
   document.querySelectorAll('[data-qclear]').forEach(b=>b.onclick=()=>{
     if(b.disabled) return;
-    ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.qFocus='all'; render();
+    ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.secFilter='alle'; ui.qFocus='all'; render();
   });
   /* Der Hamburger-Knopf davor: worin der Suchbegriff überhaupt
      sucht (js/dialogs/filter-fields.js). Die Wahl steht in der
@@ -829,10 +830,10 @@ addEventListener('keydown',ev=>{
 addEventListener('keydown',ev=>{
   if(ev.key!=='Escape'||ev.defaultPrevented) return;
   if(ui.welcome||document.querySelector('.modal')) return;
-  if(!(ui.q||'').trim()&&ui.filter==='alle'&&ui.dueFilter==='alle') return;
+  if(!(ui.q||'').trim()&&ui.filter==='alle'&&ui.dueFilter==='alle'&&ui.secFilter==='alle') return;
   if(!document.querySelector('[data-q]')) return;
   ev.preventDefault();
-  ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.qFocus='all'; render();
+  ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.secFilter='alle'; ui.qFocus='all'; render();
 });
 
 /* ── Ein Feld anklicken heißt: überschreiben ─────────────────

@@ -21,7 +21,7 @@ let state=null;
 /* mFilters ist das Filtermenü der mobilen Monatsansicht (der
    Knopf vor dem Suchfeld): offen oder zu — Anzeige wie ana, nicht
    in der Datei. Auf dem Schreibtisch wird es nie gelesen. */
-let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',scope:'monat',kakPick:null,
+let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',secFilter:'alle',scope:'monat',kakPick:null,
   q:'',qFocus:false,ana:false,mFilters:false,welcome:true};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────

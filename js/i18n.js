@@ -405,6 +405,23 @@ const STR={
   de:'Nur Posten, deren Betrag als geschätzt gekennzeichnet ist'},
 'month.fPaid':{en:'Settled',de:'Bezahlt'},
 'month.fPaidTip':{en:'Only what is already ticked off',de:'Nur was schon abgehakt ist'},
+/* ── Der Bereichsfilter ───────────────────────────────────────
+   Gemeint sind die drei Karten der Monatsansicht — Einnahmen,
+   Flexible Payments, regelmäßige Kosten —, nicht die Kategorien
+   darin. Weil auf dem Knopf nur ein kurzes Wort Platz hat, sagt
+   die Sprechblase, welcher Bereich gemeint ist. */
+'month.fSec':{en:'Area',de:'Bereich'},
+'month.fSecAllTip':{en:'All three areas: income, Flexible Payments and regular costs',
+  de:'Alle drei Bereiche: Einnahmen, Flexible Payments und regelmäßige Kosten'},
+'month.fSecIn':{en:'Income',de:'Einnahmen'},
+'month.fSecInTip':{en:'Only the income area — the other areas and the balance correction are hidden',
+  de:'Nur der Bereich Einnahmen — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
+'month.fSecFlex':{en:'Flexible',de:'Flexible'},
+'month.fSecFlexTip':{en:'Only the Flexible Payments area — the other areas and the balance correction are hidden',
+  de:'Nur der Bereich Flexible Payments — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
+'month.fSecOut':{en:'Costs',de:'Kosten'},
+'month.fSecOutTip':{en:'Only the regular costs area — the other areas and the balance correction are hidden',
+  de:'Nur der Bereich regelmäßige Kosten — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
 'month.fDueAll':{en:'All due dates',de:'Alle Fälligkeiten'},
 'month.fDueAllTip':{en:'Every due date — start, middle and end of the month',
   de:'Jede Fälligkeit — Anfang, Mitte und Ende des Monats'},

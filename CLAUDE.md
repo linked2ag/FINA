@@ -65,7 +65,7 @@ braucht also immer zwei Stellen: das Attribut in der View und eine Zeile in `wir
 Ausnahme: `data-note` und `data-tip` gehören `js/ui.js` und funktionieren überall von
 selbst.
 
-Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `tpart` `q` `qfields` `kd` (Filter) ·
+Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `secfilter` `tpart` `q` `qfields` `kd` (Filter) ·
 `ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich der Monatsansicht
 zuklappen) · `yfold` `dblyfold` (einen Block der Jahresmatrix zuklappen) · `qclear` (Filter
 zurücknehmen) ·
@@ -1060,7 +1060,8 @@ Balken, die lesbar bleiben müssen. Sie bekommt deshalb nur ihre orangen Trennli
 Wasserfall — den es gefiltert nur bei weiter Suche gibt — bleibt es beim Rahmen nach innen.
 
 **Sobald irgendein Filter greift, gibt es keinen Wasserfall mehr** (`partLine()` in
-`js/views/monat.js`) — Suchbegriff, Zahlungsstand und Fälligkeit gleichermaßen. Das Maß
+`js/views/monat.js`) — Suchbegriff, Bereich, Zahlungsstand und Fälligkeit gleichermaßen. Ein
+Kontostand aus lauter Einnahmen ist keiner. Das Maß
 des Wasserfalls ist der **Kontostand**, und der entsteht aus allem, was der Monat bewegt;
 mit weggefilterten Zeilen ist er kein Kontostand mehr, sondern eine Summe von Resten, die
 auf keinem Konto steht. Gezeigt wird stattdessen, was man gefiltert hat: je Abschnitt
@@ -1274,8 +1275,8 @@ den Namen der Liste als erstes Argument.
 unberührt. Zwei Dinge klappen alles auf, und gegen sie lässt sich **gar nicht** klappen:
 
 1. **Ein Filter.** Wer sucht, soll den Treffer sehen und nicht daran denken müssen, in
-   welchem zugeklappten Bereich er steckt. Im Monat sind das Suchfeld, Fälligkeit und
-   Zahlungsstand (`filterOn`); in der Jahresansicht das Suchfeld und „Abgeschlossene
+   welchem zugeklappten Bereich er steckt. Im Monat sind das Suchfeld, Bereich, Fälligkeit
+   und Zahlungsstand (`filterOn`); in der Jahresansicht das Suchfeld und „Abgeschlossene
    ausblenden" — **„Erledigte Monate ausblenden" nicht**: es nimmt Spalten weg, in einem
    Block verbirgt sich dadurch nichts.
 2. **Die offene Auswertung** der Monatsansicht: der Zeitstrahl daneben soll sich in der
@@ -1301,17 +1302,27 @@ Was der Pfeil tut, sagt sein `title` und sein `aria-label` (`month.minAreaTip` /
 Sie steht **oben in der Leiste**, unter der Auswertung, und **gilt für alle drei Bereiche** —
 Einnahmen, Flexible Payments, regelmäßige Kosten und die Saldokorrektur gleich mit. In
 einer der Karten stünde sie an der falschen Stelle: sie filtert nicht diese Karte, sondern
-den ganzen Monat. In der Reihenfolge, in der man filtert: das Suchfeld (`data-q`), dann die
+den ganzen Monat. In der Reihenfolge, in der man filtert — vom Groben ins Feine: das Suchfeld (`data-q`),
+dann der **Bereich** (`data-secfilter`: `alle` · `in` · `flex` · `out`), dann die
 Fälligkeit (`data-duefilter`: `alle` · `A` · `M` · `E` · `Z`), dann der Zahlungsstand
 (`data-filter`: `alle` · `offen` · `unklar` · `bezahlt`).
 
+**Der Bereichsfilter meint die drei Karten**, nicht die Kategorien darin: Einnahmen ·
+Flexible Payments · regelmäßige Kosten. Auf dem Knopf steht ein kurzes Wort, welcher Bereich
+gemeint ist, sagt seine Sprechblase (`month.fSecInTip` …) — vier Knöpfe mit „Regelmäßige
+Kosten" ausgeschrieben sprengten die Zeile, die oben klebt. **Die Saldokorrektur fällt
+mit weg**, sobald ein Bereich gewählt ist: sie gehört keinem der drei an. Er greift wie die
+übrigen Filter **an der Auswahl** (`secOk()` in `show`, `showKak`, `balOn` und ihren
+`…Any`-Zwillingen) und nicht erst an den Karten — nur so rechnen Kennzahlen und Zeitstrahl
+mit dem, was zu sehen ist. Die weite Suche (sechster Haken) übergeht ihn wie alles andere.
+
 Wie die drei Bereiche gefiltert werden, steht in `viewMonat()`:
 
-| | Zahlungsstand | Fälligkeit | Suchbegriff |
-|---|---|---|---|
-| Posten (Einnahmen, Kosten) | `paidAt` / `estOf` | `dueGroup(it.dueDay)` | `hayItem` |
-| Flexible Payments | `kakDone` / `e.estimated` | immer `Z` — sie haben keinen Zahltag | `hayKak` |
-| Saldokorrektur | — sie wird nicht abgehakt | immer `Z` | `hayItem` |
+| | Bereich | Zahlungsstand | Fälligkeit | Suchbegriff |
+|---|---|---|---|---|
+| Posten (Einnahmen, Kosten) | `in` bzw. `out` über `isIncome` | `paidAt` / `estOf` | `dueGroup(it.dueDay)` | `hayItem` |
+| Flexible Payments | immer `flex` | `kakDone` / `e.estimated` | immer `Z` — sie haben keinen Zahltag | `hayKak` |
+| Saldokorrektur | gehört keinem — fällt bei jeder Wahl weg | — sie wird nicht abgehakt | immer `Z` | `hayItem` |
 
 Was eine Karte dabei verliert, steht als `(n ausgeblendet)` neben ihrer Überschrift.
 **Und solange gefiltert wird, steht jede Karte offen** — auch eine, die in der Datei
@@ -1340,8 +1351,8 @@ auf `alle`). Die Erklärung hängt als `data-tip` daran; das Suchfeld trägt zus
 die ganze Zeit daneben, denn der Fokus kehrt immer wieder dorthin zurück (siehe unten).
 
 **Rechts vom Feld steht `data-qclear`**, das Gegenstück zum Tippen: es setzt `ui.q`,
-`ui.filter` und `ui.dueFilter` in einem Zug zurück und ist gesperrt, solange keiner davon
-gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — die stehen in der Datei
+`ui.secFilter`, `ui.filter` und `ui.dueFilter` in einem Zug zurück und ist gesperrt, solange
+keiner davon gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — die stehen in der Datei
 und sind eine Einstellung, kein Handgriff. **Escape tut dasselbe** (Handler in `js/app.js`),
 aber nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.js`).
 

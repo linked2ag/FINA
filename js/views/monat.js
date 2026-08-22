@@ -157,8 +157,18 @@ function anaBar(m,sel,selAny){
          Greift einer der drei, färbt sich die ganze Leiste orange
          (.on) — sie sagt dann, dass hier gerade etwas ausgeblendet
          wird; sonst ist sie grau wie jeder andere Bereich. -->
-    <div class="filterbar fbrow${(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle')?' on':''}">
+    <div class="filterbar fbrow${(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle')?' on':''}">
       ${filterField('flttop')}
+      <!-- Der Bereichsfilter steht zuerst, weil er am gröbsten
+           greift: erst welcher Bereich, dann wann fällig, dann
+           welcher Zahlungsstand. Auf dem Knopf steht ein kurzes
+           Wort, welcher Bereich gemeint ist, sagt die Sprechblase. -->
+      <span class="fbgroup">
+        ${fbtn('secfilter','alle',t('month.fSec'),t('month.fSecAllTip'),ui.secFilter)}
+        ${fbtn('secfilter','in',t('month.fSecIn'),t('month.fSecInTip'),ui.secFilter)}
+        ${fbtn('secfilter','flex',t('month.fSecFlex'),t('month.fSecFlexTip'),ui.secFilter)}
+        ${fbtn('secfilter','out',t('month.fSecOut'),t('month.fSecOutTip'),ui.secFilter)}
+      </span>
       <span class="fbgroup">
         ${fbtn('duefilter','alle',t('month.fDueAll'),t('month.fDueAllTip'),ui.dueFilter)}
         ${fbtn('duefilter','A',t('month.fDueA'),t('month.fDueATip'),ui.dueFilter)}
@@ -567,9 +577,11 @@ function timeline(m,sel,selAny){
      kein Kontostand mehr, sondern eine Summe von Resten, die auf
      keinem Konto steht. Gezeigt wird dann, was man tatsächlich
      gefiltert hat: je Abschnitt seine Beträge als Balken
-     (partLine). Das gilt für alle drei Filter der Leiste, nicht
-     nur für den Fälligkeitsfilter. */
-  if(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle') return partLine(m,sel,selAny);
+     (partLine). Das gilt für **jeden** Filter der Leiste — auch für
+     den Bereichsfilter: ein Kontostand aus lauter Einnahmen ist
+     keiner. */
+  if(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle')
+    return partLine(m,sel,selAny);
   const flow=monthFlow(m,sel), sc=flowScale(flow), last=daysInMonth(m);
   const today=tlToday(m);
   /* Von der Achse zur Fläche: 0 % ist der tiefste Stand des Monats
@@ -686,22 +698,33 @@ function viewMonat(){
      Betrag haben und deshalb gar nicht in seiner Liste stehen
      (dueIn in js/calc.js). Ohne Suchbegriff ändert er nichts. */
   const wide=!!q&&qAll();
+  /* ── Der Bereichsfilter ──────────────────────────────────────
+     Er wählt eine der drei Karten — Einnahmen, Flexible Payments,
+     regelmäßige Kosten — und nimmt die beiden anderen weg, samt
+     der Saldokorrektur: die gehört keinem der drei Bereiche an.
+     Er greift **an derselben Stelle wie die übrigen Filter**, also
+     an der Auswahl und nicht erst an den Karten; nur so rechnen
+     Kennzahlen und Zeitstrahl mit dem, was zu sehen ist (siehe
+     „Was ein Filter mit den Summen macht" in CLAUDE.md).
+     Die weite Suche übergeht ihn wie die anderen. */
+  const secOk=s=> wide||ui.secFilter==='alle'||ui.secFilter===s;
   const dueOk=v=> ui.dueFilter==='alle'||dueGroup(v)===ui.dueFilter;
   const stateOk=it=> ui.filter==='alle'
     || (ui.filter==='offen'&&!paidAt(it,m))
     || (ui.filter==='unklar'&&estOf(it))
     || (ui.filter==='bezahlt'&&paidAt(it,m));
-  const show=it=> (!q||hayItem(it,m).includes(q))&&(wide||(stateOk(it)&&dueOk(it.dueDay)));
+  const show=it=> secOk(isIncome(it)?'in':'out')&&(!q||hayItem(it,m).includes(q))&&(wide||(stateOk(it)&&dueOk(it.dueDay)));
   const showKak=k=>{
     const e=state.kak[k]; if(!e) return false;
     const done=kakDone(k,m);
+    if(!secOk('flex')) return false;
     if(q&&!hayKak(k,m).includes(q)) return false;
     if(wide) return true;
     return (ui.filter==='alle'||(ui.filter==='offen'&&!done)
       ||(ui.filter==='unklar'&&!!e.estimated)||(ui.filter==='bezahlt'&&done))
       && dueOk('');
   };
-  const balOn=(!q||hayItem(state.balance,m).includes(q))&&(wide||dueOk(''));
+  const balOn=secOk('bal')&&(!q||hayItem(state.balance,m).includes(q))&&(wide||dueOk(''));
 
   /* ── Dieselbe Auswahl ohne den Fälligkeitsfilter ─────────────
      Der gefilterte Zeitstrahl lässt die nicht gewählten Abschnitte
@@ -713,16 +736,17 @@ function viewMonat(){
      den Strom und daneben den ganzen Monat.
      Genommen wird nur, was auch in einer Karte stünde (dieselbe
      Gruppierung), damit beide Zahlen aus derselben Quelle kommen. */
-  const showAny=it=> (!q||hayItem(it,m).includes(q))&&(wide||stateOk(it));
+  const showAny=it=> secOk(isIncome(it)?'in':'out')&&(!q||hayItem(it,m).includes(q))&&(wide||stateOk(it));
   const showKakAny=k=>{
     const e=state.kak[k]; if(!e) return false;
     const done=kakDone(k,m);
+    if(!secOk('flex')) return false;
     if(q&&!hayKak(k,m).includes(q)) return false;
     if(wide) return true;
     return ui.filter==='alle'||(ui.filter==='offen'&&!done)
       ||(ui.filter==='unklar'&&!!e.estimated)||(ui.filter==='bezahlt'&&done);
   };
-  const balAny=!q||hayItem(state.balance,m).includes(q);
+  const balAny=secOk('bal')&&(!q||hayItem(state.balance,m).includes(q));
 
   /* Womit die Liste anfängt: gewöhnlich die Posten dieses Monats,
      bei weiter Suche alle. */
@@ -794,7 +818,7 @@ function viewMonat(){
      (foldBtn) und keinen Doppelklick — geklappt wird erst wieder,
      wenn der Filter zurückgenommen ist. Dann gilt wieder, was in
      der Datei steht. */
-  const filterOn=!!q||ui.filter!=='alle'||ui.dueFilter!=='alle';
+  const filterOn=!!q||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle';
   /* Auf dem Telefon zählt ui.ana nicht: die Auswertung gibt es
      dort nicht (mobileTop statt anaBar), und ein am Schreibtisch
      aufgeklappter Zustand fröre sonst nach dem Verkleinern die

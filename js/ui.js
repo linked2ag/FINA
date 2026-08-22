@@ -145,7 +145,11 @@ function filterField(extra){
      soll auch nicht so aussehen. Die beiden Knöpfe der
      Jahresansicht rührt er nicht an: sie stehen in der Datei und
      sind eine Einstellung, kein Handgriff. */
-  const on=!!(ui.q||'').trim()||ui.filter!=='alle'||ui.dueFilter!=='alle';
+  /* Der Bereichsfilter zählt mit: das Kreuz nimmt alle vier
+     Handgriffe der Zeile zurück, also muss es auch angehen,
+     wenn nur er gesetzt ist. In der Jahresansicht gibt es ihn
+     nicht — dort steht secFilter auf 'alle' und ändert nichts. */
+  const on=!!(ui.q||'').trim()||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle';
   return `<span class="fltbox${extra?' '+extra:''}">
     <button class="btn small fltmenu" data-qfields="1" aria-pressed="${custom}"
       aria-label="${esc(t('flt.title'))}" data-tip="${esc(t('flt.btnTip'))}">&#9776;</button>

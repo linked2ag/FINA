@@ -20,6 +20,11 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- **Neuer Filter nach Bereich** — in der Filterzeile der Monatsansicht stehen vor der
+  Fälligkeit vier Knöpfe: Bereich · Einnahmen · Flexible · Kosten. Sie lassen nur die
+  gewählte Karte stehen (die Saldokorrektur fällt mit weg), und wie bei jedem Filter rechnen
+  Kennzahlen und Zeitstrahl danach mit. Was ein Knopf meint, sagt seine Sprechblase.
+
 - ⚠ **„Noch offen" zählt jetzt auch die Flexible Payments** — die vierte Kennzahl der
   Auswertung nennt alles, was der Monat noch kostet: Posten ohne Haken **und** Kategorien
   ohne Haken. **Falsch geworden:** „Was FINA kann" sagt dort noch „what the bills cost, and
