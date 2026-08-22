@@ -278,7 +278,15 @@
 .progtable td.outcol,.progtable th.outcol{background:var(--bg-out)}
 .progtable td.flexcol,.progtable th.flexcol{background:var(--bg-flex)}
 .progtable td.balcol,.progtable th.balcol{background:var(--bg-bal)}
-.progtable td.endcol,.progtable th.endcol{background:var(--bg-sal)}
+/* **END trägt den Grund der Tabelle, wie START.** Beides sind
+   Stände und keine Bewegungen — der eine, mit dem der Monat
+   anfängt, der andere, mit dem er schließt; zwei Spalten, die
+   dasselbe sagen, sollen auch gleich aussehen. Der Grund ist
+   trotzdem gesetzt und nicht weggelassen: die Spalte bleibt beim
+   seitlichen Rollen stehen (siehe oben), und eine durchsichtige
+   Zelle ließe die Spalten darunter hindurchziehen. --paper-2 ist
+   genau das, was unter einer ungefärbten Zelle steht. */
+.progtable td.endcol,.progtable th.endcol{background:var(--paper-2)}
 /* Die Rasterlinie überquert die Zeilentrennung, sonst hätte sie
    alle 38 px eine Lücke und wäre zwölfmal unterbrochen statt
    durchgehend. */
@@ -305,8 +313,8 @@
    Kennt der Browser `color-mix` nicht, greift die Zeile darüber:
    dann ist die Zahl grau wie der Monatsname daneben. */
 .progtable tr.past td.endcol{opacity:1;color:var(--ink-2)}
-.progtable tr.past td.endcol.pos{color:color-mix(in srgb,var(--ok) 55%,var(--bg-sal))}
-.progtable tr.past td.endcol.neg{color:color-mix(in srgb,var(--seal) 55%,var(--bg-sal))}
+.progtable tr.past td.endcol.pos{color:color-mix(in srgb,var(--ok) 55%,var(--paper-2))}
+.progtable tr.past td.endcol.neg{color:color-mix(in srgb,var(--seal) 55%,var(--paper-2))}
 /* ── Der laufende Monat ───────────────────────────────────────
    Dieselbe Marke wie in der Jahresmatrix, nur um 90° gedreht: dort
    fassen zwei feine rote Linien die Spalte des laufenden Monats
@@ -363,4 +371,4 @@
    END-Zelle des Anfangsbestands trägt ihre Blässe in der Farbe. */
 .progtable tr.openrow td.num{color:var(--ink-sal);opacity:.42}
 .progtable tr.openrow td.num.endcol{opacity:1;
-  color:color-mix(in srgb,var(--ink-sal) 45%,var(--bg-sal))}
+  color:color-mix(in srgb,var(--ink-sal) 45%,var(--paper-2))}

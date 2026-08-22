@@ -20,6 +20,21 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- ⚠ **„Noch offen" zählt jetzt auch die Flexible Payments** — die vierte Kennzahl der
+  Auswertung nennt alles, was der Monat noch kostet: Posten ohne Haken **und** Kategorien
+  ohne Haken. **Falsch geworden:** „Was FINA kann" sagt dort noch „what the bills cost, and
+  what of that is still open" / „und was davon noch offen ist" — das „davon" meint die
+  Rechnungen und stimmt so nicht mehr.
+
+- **Die Prognose bleibt beim Rollen lesbar** — Monatsspalte und die Spalte mit dem
+  Kontostand zum Monatsende bleiben links stehen, letztere löst sich beim Zurückrollen
+  wieder. *Im Reiter „Was ist neu" erledigt (26.8.20); in Schritt für Schritt und Was FINA
+  kann noch offen.*
+
+- **Die Fenster für Posten und Kategorien stehen in Blöcken** — Zuordnung, Links,
+  Schnelleingabe mit dem Schalter „geschätzt", Monate quartalsweise zu dritt. *Im Reiter
+  „Was ist neu" erledigt (26.8.20); in Schritt für Schritt und Was FINA kann noch offen.*
+
 - ⚠ **Der Zeitstrahl zoomt immer auf die Bewegungen des Monats** — die Achse spannt sich
   ausnahmslos über das, was die vier Abschnitte bewegen; die Monatseröffnung zählt dafür
   nicht mehr mit und ist nur noch ein Hinweis darin (Balken franst am Rand aus, Maßstab

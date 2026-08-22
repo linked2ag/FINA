@@ -107,6 +107,15 @@
      Jahresmatrix auf einen Blick sieht, worin man gerade liest.
      --edge-* ist die dazugehörige Kante. */
   --bg-in:#EDF4EE; --bg-in-2:#D2E7D9; --bg-in-3:#B4D7C0; --edge-in:#6FA07F;
+  /* Der grüne Bereich **in den Grafiken** — Zeitstrahl, gefilterte
+     Fassung, Verlauf der Prognose (.z-pos). Eine Spur kräftiger als
+     --bg-in: über eine große Fläche verliert sich das Grün der
+     Zeilen, und die Null wäre dann die einzige Stelle, an der man
+     Plus von Minus unterscheidet. Nur eine Spur — es ist ein Grund,
+     auf dem Balken liegen, keine Marke. Die Zeilen der Einträge
+     behalten --bg-in: dort steht die Farbe auf 30 px Höhe und
+     braucht keine Hilfe. */
+  --zone-in:#E4EFE7;
   --bg-flex:#FAF5E4; --bg-flex-2:#EFE3BE; --bg-flex-3:#E2D096; --edge-flex:#B79A45;
   --bg-out:#FBF0EE; --bg-out-2:#F2D9D3; --bg-out-3:#E9BFB5; --edge-out:#BE7C6E;
   /* Saldokorrektur: ein ganz helles Blau, das sich von Grün,

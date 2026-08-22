@@ -119,10 +119,24 @@ function anaBar(m,sel,selAny){
   const open=!!ui.ana;
   const inc=sel.items.filter(isIncome);
   const due=sel.items.filter(it=>!isIncome(it));
-  const openN=due.filter(it=>!paidAt(it,m)).length;
-  const uncN=due.filter(it=>estOf(it)&&!paidAt(it,m)).length;
+  /* ── „Noch offen" meint alles, was der Monat noch kostet ─────
+     Nicht nur die regelmäßigen Posten: eine Flexible-Payments-
+     Kategorie ohne Haken ist genauso offen, und sie steht in
+     derselben Leiste eine Kachel weiter links. Zählte sie hier
+     nicht mit, nennte die Zeile einen Betrag, der kleiner ist als
+     das, was noch aussteht — und man sähe es nicht.
+
+     Offen heißt hier wie überall das Gegenteil von `kakDone()`
+     (Korrektur · Import · Haken · fester Betrag). Wer die Rangfolge
+     dort ändert, ändert sie hier mit. */
+  const openItems=due.filter(it=>!paidAt(it,m));
+  const openFlex=sel.kaks.filter(k=>!kakDone(k,m));
+  const openN=openItems.length+openFlex.length;
+  const uncN=due.filter(it=>estOf(it)&&!paidAt(it,m)).length
+    +openFlex.filter(k=>state.kak[k]&&state.kak[k].estimated).length;
   const sum=arr=>arr.reduce((s,it)=>s+it.amounts[m-1],0);
-  const openTip=t('month.kpiOpenN',openN,due.length,uncN?t('month.kpiUnclear',uncN):'');
+  const openSum=sum(openItems)+openFlex.reduce((s,k)=>s+kakVal(k,m),0);
+  const openTip=t('month.kpiOpenN',openN,due.length+sel.kaks.length,uncN?t('month.kpiUnclear',uncN):'');
   const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
       ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
   return `<div class="stickybar anabar">
@@ -133,7 +147,7 @@ function anaBar(m,sel,selAny){
         ${cell('t-in',t('month.kpiIncome'),sum(inc),'pos')}
         ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sel.kaks.reduce((s,k)=>s+kakVal(k,m),0),'neg')}
         ${cell('t-out',t('month.kpiFixed'),sum(due),'neg')}
-        ${cell('t-out',t('month.kpiOpen'),sum(due.filter(it=>!paidAt(it,m))),openN?'neg':'',openTip)}
+        ${cell('t-out',t('month.kpiOpen'),openSum,openN?'neg':'',openTip)}
       </span>
     </button>
     ${open?timeline(m,sel,selAny):''}

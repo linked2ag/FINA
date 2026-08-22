@@ -562,11 +562,14 @@ gerade liest. Die Klassen stehen in `PROG_COLS` (Kopf) **und** an den Zellen der
 wird die ganze Spalte, Kopfzelle eingeschlossen, sonst liest sie sich als zwölf getönte
 Zellen statt als ein Streifen.
 
-**`START` bleibt ungefärbt** — es ist keine Bewegung, sondern ein Stand, derselbe, der eine
-Zeile höher unter `END` steht. **`END` trägt `--bg-sal`**, das Violett von „alles zusammen"
-(Anfangsbestand, Saldozeile), in der hellsten Stufe: es ist ein Grund und keine Marke. Die
-Monatsspalte links bleibt frei — sie klebt beim seitlichen Rollen und braucht ihren
-deckenden Grund für sich.
+**`START` und `END` bleiben ungefärbt** — beides sind Stände und keine Bewegungen: der eine,
+mit dem der Monat anfängt, der andere, mit dem er schließt, und derselbe Wert steht eine
+Zeile tiefer wieder unter `START`. Zwei Spalten, die dasselbe sagen, sollen auch gleich
+aussehen; `END` trug bis 22.8.26 das Violett `--bg-sal` und las sich damit wie eine eigene
+Geldart. **Gesetzt ist sein Grund trotzdem** (`--paper-2`, genau das, was unter einer
+ungefärbten Zelle steht): die Spalte klebt beim seitlichen Rollen, und eine durchsichtige
+Zelle ließe die Spalten darunter hindurchziehen. Die Monatsspalte trägt ihren deckenden
+Grund aus demselben Grund.
 
 **Zwei Spalten bleiben beim seitlichen Rollen stehen.** Die Monatsspalte klebt am linken
 Rand (`td:first-child`, `left:0`) — eine Zahl ohne ihren Monat ist keine Zeile mehr. Und
@@ -864,7 +867,14 @@ aufgeklappte Auswertung) bleibt in `ui` und damit ungespeichert.
 ## Die Auswertung über der Monatsansicht
 
 Über den Karten steht eine einzige dünne Zeile mit den vier Zahlen des Monats — Einnahmen,
-Flexible Payments, regelmäßige Kosten, noch offen. **Es sind die Zahlen der Zeilen, die
+Flexible Payments, regelmäßige Kosten, noch offen.
+
+**„Noch offen" meint alles, was der Monat noch kostet**, also die regelmäßigen Posten ohne
+Haken **und** die Flexible-Payments-Kategorien ohne Haken (`openItems` + `openFlex` in
+`anaBar()`). Offen heißt dabei das Gegenteil von `kakDone()` — Korrektur · Import · Haken ·
+fester Betrag; wer die Rangfolge dort ändert, ändert sie hier mit. Bis 22.8.26 zählten nur
+die Posten, und die Kachel nannte einen kleineren Betrag als den, der wirklich aussteht —
+neben einer Kachel „Flexible Payments", die eine Spalte weiter links stand. **Es sind die Zahlen der Zeilen, die
 darunter stehen**, nicht die des ganzen Monats: wird gefiltert, rechnet die Leiste mit
 (siehe „Was ein Filter mit den Summen macht"). Und klein **darüber** die Überschrift
 „Auswertung" (`.analab`). **Ein Kontostand steht dort nicht:** den zeigt die Jahresansicht,
@@ -1118,7 +1128,7 @@ die Farberklärung nennt im gefilterten Zustand alle Geldarten, die in der Fläc
 auch die blassen.
 
 **Die Zonen tragen die Farben der Einträge:** links der Null `--bg-out` wie ein Posten der
-regelmäßigen Kosten, rechts `--bg-in` wie eine Einnahme (`.z-neg` / `.z-pos` in
+regelmäßigen Kosten, rechts `--zone-in` wie eine Einnahme (`.z-neg` / `.z-pos` in
 `css/layout.css`) — dieselbe Aussage, dieselbe Farbe. **In allen drei Fassungen**: der
 Wasserfall setzt sie in `timeline()`, die gefilterte Fläche in `partLine()`, der Verlauf
 über das Jahr in `viewPrognose()` (`rails`, siehe „Die Spalte „Verlauf""). Nur wenn der
@@ -1418,6 +1428,7 @@ Zwei Nebenwirkungen, die man kennen muss:
 * **Die Sprechblase an „noch offen"** zählt „x von y" ebenfalls über die gezeigten Posten —
   sonst stünde dort „3 von 20", während darunter drei Zeilen sind. Dafür ist
   `unclearCount()` aus `js/calc.js` verschwunden: die Zahl steht nicht mehr im Zustand.
+  Gezählt werden dabei **Posten und Flexible-Payments-Kategorien zusammen** (siehe unten).
 * **Der Zeitstrahl ist zugleich der Fälligkeitsfilter** (`data-tpart`). Wer eine Zeile
   anklickt, sieht danach nur noch ihre Zahlen — die übrigen Zeilen bleiben mit Namen und
   blassen Balken stehen, orange Trennlinien fassen die gewählte ein, und statt des

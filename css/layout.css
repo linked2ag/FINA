@@ -420,7 +420,7 @@ header{padding:10px 0 0;position:sticky;top:0;z-index:40;background:var(--paper)
    Bereiche darunter: rot wie ein Posten der regelmäßigen Kosten,
    grün wie eine Einnahme — dieselbe Aussage, dieselbe Farbe. */
 .z-neg{left:0;background:var(--bg-out)}
-.z-pos{background:var(--bg-in)}
+.z-pos{background:var(--zone-in)}
 .tzero{width:1px;background:var(--rule-strong)}
 /* Zufluss oben, Abfluss unten: in einer Zeile, in der erst eine
    Einnahme kommt und danach Kosten abgehen, überdecken sich die
