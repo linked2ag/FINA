@@ -551,8 +551,13 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 /* Der heutige Tag liegt in dieser Zeile: eine Marke in der
    Hervorhebungsfarbe — nur Rahmen und Schrift, der Grund bleibt
    durchsichtig. Gefüllt und rot wäre sie eine Warnung. */
+/* Die Marke steht MITTIG in der Zeile (align-self:center, seit
+   23.8.26): die .tname richtet ihre Teile an der Schriftlinie
+   aus, und dort hing der kleine Rahmen neben der größeren
+   Beschriftung sichtbar zu hoch. */
 .trow .tnow{font-size:8.5px;letter-spacing:.08em;color:var(--accent-2);
-  border:1px solid var(--accent-2);background:none;padding:0 3px;font-weight:600}
+  border:1px solid var(--accent-2);background:none;padding:0 3px;font-weight:600;
+  align-self:center}
 /* Die Veränderung ist ein Betrag wie jeder andere und wird auch so
    gesetzt: dieselbe Größe wie in der Tabelle darunter. Der Stand
    danach steht immer in Tinte — sein Vorzeichen liest man an der
