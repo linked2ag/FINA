@@ -159,3 +159,17 @@ function ymd(d){
   const x=d||new Date(), p=n=>String(n).padStart(2,'0');
   return `${String(x.getFullYear()).slice(-2)}${p(x.getMonth()+1)}${p(x.getDate())}`;
 }
+
+/* Wie viele Tage seit einem Datum der Form 2026-08-23 vergangen
+   sind. Gerechnet wird über den Tag, nicht über die Stunde: die
+   Frist der Umfrage läuft in Tagen, und eine Antwort um 23 Uhr
+   soll nicht anders zählen als eine um 8 Uhr. Was kein Datum ist,
+   liefert 0 — dann fängt die Frist eben heute an. */
+function daysSince(iso){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
+  if(!m) return 0;
+  const then=Date.UTC(+m[1],+m[2]-1,+m[3]);
+  const n=new Date();
+  const now=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
+  return Math.max(0,Math.round((now-then)/86400000));
+}

@@ -51,6 +51,18 @@ function viewWelcome(){
           <span class="wt">${t('wel.new')}</span>
           <span class="wd">${t('wel.newHint')}</span></button>
       </div>
+
+      <!-- Erreichbar sein muss die Datenschutzerklärung von
+           überall, also auch von hier: es ist die einzige Seite
+           der Anwendung, die jeder sieht, bevor er ein Buch hat.
+           Ein neuer Reiter, damit ein halb ausgefülltes Buch —
+           beim Trennen steht die Begrüßung ja wieder da — nicht
+           unter dem Text verschwindet. Die Adresse ist absolut
+           (PRIVACY_URL in js/config.js): in der Mac- und der
+           Windows-App liegt neben dem Web-Client keine zweite
+           Seite. -->
+      <p class="wlegal"><a href="${PRIVACY_URL}" target="_blank"
+        rel="noopener">${t('wel.privacy')}</a></p>
     </div>
   </div>`;
 }

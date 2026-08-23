@@ -87,8 +87,12 @@ html.js .reveal.in{opacity:1;transform:none}
 
 /* ── Der Kopf ─────────────────────────────────────────────────*/
 .hero{padding-top:84px;text-align:center}
+/* Die kleine Zeile über einer Überschrift ist ein Etikett und
+   trägt seit 23.8.26 Grau statt Orange: die Akzentfarbe gehört
+   den Handlungs-Elementen — Knöpfe, Weiterlese-Links, Sprungmenü —,
+   nicht dem, was nur beschriftet. */
 .eyebrow{font:600 11px/1.2 var(--font-data);letter-spacing:.15em;
-  color:var(--accent-2);margin:0 0 20px}
+  color:var(--ink-2);margin:0 0 20px}
 /* Der erste Satz sagt, WAS das hier ist — nicht, wogegen es sich
    abgrenzt. Er steht über der Schlagzeile und ist zu lesen, nicht
    zu entziffern: Überschriftenschrift, gut über 20 px, in der
@@ -109,6 +113,16 @@ html.js .hero h1 em::after{transform:scaleX(0);animation:draw 1.4s cubic-bezier(
 .hero-sub{font-size:20px;line-height:1.6;max-width:34em;margin:28px auto 0;color:var(--ink-2)}
 .hero-sub b{color:var(--ink);font-weight:600}
 .hero-model{font:600 17px var(--font-ui);margin:16px auto 0}
+/* Die Pilotphase steht im Kopf als Marke, nicht als Satz: an
+   dieser Stelle stand bis 23.8.26 das Kaufmodell („Einmal
+   kaufen"), und was dort steht, liest jeder als den Preis. Der
+   Preis ist gerade keiner — dann soll es auch so aussehen.
+   Und sie ist RUHIG statt orange (seit 23.8.26): direkt darunter
+   steht der orange Knopf, und zwei orange Flächen übereinander
+   nehmen einander die Aufmerksamkeit — die Akzentfarbe gehört
+   dem Element, das etwas tut. */
+.hero-model.pilot{display:inline-block;padding:9px 20px;border-radius:999px;
+  background:var(--paper-2);border:1px solid var(--rule-strong);font-size:15.5px}
 .hero-actions{display:flex;justify-content:center;align-items:center;
   gap:16px;flex-wrap:wrap;margin:34px 0 0}
 .button{display:inline-block;padding:16px 26px;font-size:15.5px;font-weight:600;
@@ -133,11 +147,13 @@ html.js .hero h1 em::after{transform:scaleX(0);animation:draw 1.4s cubic-bezier(
   display:grid;place-items:center}
 
 /* ── Die Jahresmatrix im Kopf ─────────────────────────────────
-   Nachgebaut, nicht fotografiert — die Farben kommen aus
-   tokens.css. Laufender Monat März; Januar und Februar sind
-   abgerechnet: Kopf durchgestrichen, Haken RECHTS am Betrag.
-   Einnahmen grün mit Plus, Kosten rot mit Minus, Schätzungen
-   orange. Wer Zahlen ändert, rechnet die Summen nach. */
+   **Seit 23.8.26 steckt im Rahmen das echte Bildschirmfoto**
+   (doc/img/year.png in .zoomcrop, wie auf der Guide-Seite) —
+   die nachgebaute Tabelle .mx benutzt keine Seite mehr: sie
+   zeigte das Chrome von vor dem Mac-Redesign und veraltete mit
+   jedem Umbau. Ihre Regeln bleiben stehen wie die des Laufbands
+   (.ticker). Der Rahmen selbst (.shot, .shot-bar, .shot-foot)
+   wird weiter gebraucht. */
 .shot{margin:58px 0 0;border-radius:var(--r);overflow:hidden;
   border:1px solid var(--rule-strong);background:var(--paper-2);
   box-shadow:var(--sh-2);text-align:left}
@@ -335,17 +351,24 @@ html.js .ticker .track{animation:tick 56s linear infinite}
   gap:14px;flex-wrap:wrap;margin:32px 0 0}
 
 /* ── Monat und Prognose ───────────────────────────────────────
-   Zwei nachgebaute Ansichten nebeneinander, so nah an der
-   Anwendung, wie eine Verkaufsseite es erlaubt. Der Monat:
-   Auswertungszeile (.mana, wie die .anabar der App), darunter die
-   drei farbigen Karten mit linker Kante und der Spaltenfolge der
-   App — Siegel · Betrag · Bezeichnung. Die Prognose: der
-   Kontoauszug M · START · IN · REG · FLEX · END mit den gefärbten
-   Bewegungsspalten und dem Verlauf als Wasserfall (Zufluss oben,
-   Abfluss darunter, schwarzer Strich = Kontostand). Die Zahlen
-   stehen im HTML; wer sie ändert, rechnet die Prozentwerte der
-   Balken nach (Kopfkommentar in index.html). */
+   **Seit 23.8.26 zwei ECHTE Bilder** (doc/img/month-slim.png und
+   doc/img/forecast.png) in den .mini-Fenstern — klein
+   nebeneinander wie die früheren Mockups: links der Monat als
+   schmale Spalte (so sieht die Ansicht auch auf dem Telefon
+   aus), rechts die Prognose. Die Bilder sind bewusst klein — die
+   Startseite zeigt die Form; lesen kann man sie per Klick aufs
+   Bild oder in der Anleitung. Das Innenleben der alten Mockups
+   (.mana/.marow/.mcard/.mrow/.seal und die Prognose-Tabelle .px)
+   benutzt keine Seite mehr; die Regeln bleiben stehen wie die
+   des Laufbands (.ticker). */
 .showcase{padding-top:104px}
+.mini img{display:block;width:100%}
+/* Der Monat ist hochkant und streckte die Reihe: unten
+   beschnitten und ausgeblendet (.fadecut) bleibt seine Karte
+   ungefähr so niedrig wie die Prognose daneben. */
+.showduo .fadecut{max-height:300px;overflow:hidden}
+/* Der Weiterlese-Link unter den beiden Karten steht mittig. */
+.showcase .morelink{text-align:center}
 /* Ein Viertel und drei Viertel, mit Absicht: die Prognose lebt von
    der Breite ihrer Verlaufsspalte — dort steht die Aussage der
    ganzen Ansicht —, der Monat ist eine Liste und kommt mit einem
@@ -498,7 +521,12 @@ html.js .mini.in .seal.ok{opacity:1;transform:none;
 .morelink a{font-weight:600;color:var(--accent-2);text-decoration:none}
 .morelink a:hover{text-decoration:underline;text-underline-offset:4px}
 
-/* ── Preise ───────────────────────────────────────────────────*/
+/* ── Preise ───────────────────────────────────────────────────
+   **Seit 23.8.26 ohne die Plan-Karten**: #pilot ist Überschrift
+   plus EIN .rules-Kasten, ohne einen einzigen Knopf — drei
+   Karten mit drei Knöpfen sahen aus wie eine Preistabelle.
+   .plans/.plan bleiben stehen für den Tag, an dem wirklich
+   Preise angekündigt werden. */
 .pricing{padding-top:104px}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:50px 0 0;
   align-items:stretch}
@@ -512,6 +540,10 @@ html.js .mini.in .seal.ok{opacity:1;transform:none;
 .plan.pick .flag{color:#fff;background:var(--accent);display:inline-block;
   align-self:flex-start;padding:5px 12px;border-radius:999px}
 .plan h3{font:600 26px/1 var(--font-display);margin:8px 0 4px}
+/* `nop` — eine Karte ohne Preiszeile. Preis und Zeiteinheit
+   bringen zusammen die Luft zwischen Überschrift und Liste mit;
+   fallen sie weg, klebt die Liste an der Überschrift. */
+.plan.nop h3{margin-bottom:24px}
 .plan .price{font:600 42px/1.05 var(--font-data);margin:16px 0 2px;letter-spacing:-.02em}
 .plan .per{font:12px var(--font-data);color:var(--ink-2);margin:0 0 18px}
 .plan ul{list-style:none;margin:0 0 26px;padding:0;font-size:14.5px;line-height:1.6}
@@ -535,7 +567,14 @@ html.js .mini.in .seal.ok{opacity:1;transform:none;
 
 /* ── FINA Sync: bewusst auffällig ─────────────────────────────
    Violett wie „alles zusammen" in der Anwendung, kräftiger Rand,
-   pulsierender Knopf: der Punkt soll nicht übersehen werden. */
+   pulsierender Knopf: der Punkt soll nicht übersehen werden.
+
+   **Seit 23.8.26 benutzt keine Seite diesen Baustein mehr.** Der
+   Kasten kündigte „FINA Sync ~39 €/Jahr" an; solange die Stufen
+   nicht beschlossen sind, steht auf der Seite kein Preis (siehe
+   CLAUDE.md, „Die Pilotphase ist die Aussage der Seite"). Die
+   Regeln bleiben stehen, wie die des Laufbands (.ticker) — für
+   den Tag, an dem wieder etwas angekündigt wird. */
 .later{margin:18px 0 0;border:2px solid var(--edge-sal);border-radius:var(--r);
   background:var(--bg-sal);padding:32px 36px;display:flex;align-items:center;
   gap:28px;flex-wrap:wrap;box-shadow:var(--sh-1)}
@@ -555,7 +594,18 @@ html.js .button-sync{animation:syncpulse 3.8s ease-out infinite}
   100%{box-shadow:0 0 0 0 rgba(109,48,196,0)}
 }
 
-/* ── Downloads ────────────────────────────────────────────────*/
+/* ── Downloads ────────────────────────────────────────────────
+   **Die Kachelgruppen benutzt seit 23.8.26 keine Seite mehr**
+   (.dlpanel, .dltile, .dlsteps, .dlhelp, .dlextra): Downloads
+   gibt es zur Zeit keine, die Apps sind in Arbeit. Was bleibt,
+   sind .gcards mit ihrer dritten, gestrichelten Karte (.gcard
+   .soon) und .facts. Wer die Apps veröffentlicht, baut die
+   Gruppen aus der Historie zurück — die Regeln stehen hier
+   weiter, und Block 4 in js/landing.js wartet auf sie.
+   **Seit 23.8.26 benutzt index.html auch die .gcards nicht
+   mehr**: der Abschnitt #apps ist ein Satz mit einem Knopf und
+   den beiden .fact-Zeilen — zur Zeit läuft nur der Browser, und
+   drei gleich schwere Karten sagten das nicht klar genug. */
 .getit{padding-top:104px}
 .gcards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:50px 0 0}
 .gcard{display:flex;flex-direction:column;gap:8px;padding:30px 28px;text-decoration:none;
@@ -627,8 +677,33 @@ html.js .button-sync{animation:syncpulse 3.8s ease-out infinite}
 .fact{background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
   padding:18px 22px}
 .fact b{display:block;font:600 11px var(--font-data);letter-spacing:.12em;
-  color:var(--accent-2);margin:0 0 7px}
+  color:var(--ink-2);margin:0 0 7px}
 .fact p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2)}
+/* Die beiden Tatsachen standen bis 23.8.26 in .dlextra und
+   erschienen erst mit einer geöffneten Kachelgruppe. Ohne
+   Downloads stehen sie einfach da. */
+.getit .facts{margin:22px 0 0}
+
+/* Telefon und Bildschirm sind gezeichnet, nicht getippt: das
+   Apfel-Zeichen kommt aus dem Privatbereich der Schrift — auf
+   einem Windows-Rechner steht dort ein leeres Kästchen. */
+.gcard .ic .phone{display:block;width:21px;height:33px;position:relative;
+  border:2px solid var(--ink);border-radius:5px}
+.gcard .ic .phone::after{content:"";position:absolute;left:50%;bottom:3px;
+  width:8px;height:2px;border-radius:2px;background:var(--ink);transform:translateX(-50%)}
+.gcard .ic .desk{display:block;width:37px;height:26px;position:relative;
+  border:2px solid var(--ink);border-radius:3px}
+.gcard .ic .desk::after{content:"";position:absolute;left:50%;bottom:-7px;
+  width:15px;height:3px;border-radius:2px;background:var(--ink);transform:translateX(-50%)}
+
+/* Die Karte, die es noch nicht gibt: gestrichelt statt gefüllt,
+   und sie hebt beim Überfahren nicht ab. Sie ist kein <a> — ein
+   Knopf, der nichts tut, ist schlimmer als kein Knopf. */
+.gcard.soon{border-style:dashed;background:transparent;cursor:default}
+.gcard.soon:hover{transform:none;box-shadow:none;border-color:var(--rule)}
+.gcard.soon .ic{opacity:.45}
+.gcard.soon .go{color:var(--ink-2)}
+.gcard.soon:hover .go{transform:none}
 
 /* ── Guide-Seite ──────────────────────────────────────────────
    Dieselben Bausteine, eine schmalere Lesespalte. */
@@ -706,6 +781,11 @@ html.js .button-sync{animation:syncpulse 3.8s ease-out infinite}
   transition:background .18s ease}
 .zopen:hover{background:var(--accent)}
 .gnote{font-size:13.5px;color:var(--ink-2)}
+/* Ein Wort aus dem Code mitten im Satz — der Eintrag im Browser,
+   der die Sprachwahl merkt. Bis 23.8.26 gab es dafür nur die
+   Regel im Download-Hinweis (.dlhelp code). */
+.gsec code{font:600 13px var(--font-data);background:var(--paper-2);
+  border:1px solid var(--rule);border-radius:5px;padding:1px 6px}
 
 /* ── Das Sprungmenü unten links ───────────────────────────────
    Die Kopfzeile trägt die Links zwischen den Seiten; dieses Menü
@@ -816,9 +896,13 @@ html.js .button-sync{animation:syncpulse 3.8s ease-out infinite}
   color:var(--edge-bal);font-weight:600}
 .honest b{font-weight:600}
 
-/* ── Fuß ──────────────────────────────────────────────────────*/
+/* ── Fuß ──────────────────────────────────────────────────────
+   Wortzeichen, Spruch und Links stehen auf EINER Schriftlinie
+   (align-items:baseline, seit 23.8.26): mittig ausgerichtet hing
+   der kleine Spruch neben dem großen „FINA Buch" sichtbar zu
+   hoch. */
 footer{margin-top:104px;border-top:1px solid var(--rule)}
-footer .wrap{padding:32px 32px 46px;display:flex;align-items:center;
+footer .wrap{padding:32px 32px 46px;display:flex;align-items:baseline;
   gap:22px;flex-wrap:wrap}
 footer .wordmark{font-size:21px}
 footer p{font-size:13px;color:var(--ink-2);margin:0}
@@ -838,6 +922,9 @@ footer nav a:hover{text-decoration:underline;text-underline-offset:4px}
   .ccard{padding:36px 30px}
   .plans{grid-template-columns:1fr;gap:14px}
   .gcards,.gcards3,.showduo{grid-template-columns:1fr}
+  /* Untereinander gestapelt bleibt der Monat eine schmale Spalte —
+     in voller Breite wäre er das größte Bild der Seite. */
+  .showduo .mini.narrow{width:100%;max-width:420px;margin:0 auto}
 }
 /* Aus jeder Zeile des Vergleichs wird eine Karte: oben die Frage,
    darunter die beiden Antworten als eigene, voll breite Kästen in

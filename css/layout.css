@@ -74,33 +74,48 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    Ein Overlay unter dem Knopf: es legt sich über den Inhalt und
    verschiebt nie Layout. Auf und zu schaltet js/app.js über die
    Klasse .open — dieselbe Mechanik, die vorher nur das Telefon
-   hatte. Trenner (.mi-sep) schließen eine Gruppe ab, die drei
-   „Neu…"-Wege tragen die Farbe ihrer Geldart. */
+   hatte. Trenner (.mi-sep) schließen eine Gruppe ab; jeder
+   Eintrag trägt vorn sein Zeichen (siehe unten). */
 .tools{position:absolute;top:calc(100% + 8px);right:0;z-index:46;display:none;flex-direction:column;
   width:230px;background:#fff;border:1px solid var(--rule);border-radius:8px;
   box-shadow:var(--sh-pop);overflow:hidden;padding:0}
 .tools.open{display:flex}
-.tools .btn{background:none;border:0;border-radius:0;text-align:left;
+.tools .btn{display:flex;align-items:center;gap:9px;
+  background:none;border:0;border-radius:0;text-align:left;
   padding:7px 12px;font-size:12px;color:var(--ink);transition:background .12s}
 .tools .btn:hover{background:var(--paper-2)}
 .tools .btn:disabled{opacity:.45}
 .tools .mi-sep{border-bottom:1px solid var(--hairline)}
 .tools #btnSave{font-weight:600}
-/* Die drei „Neu…"-Wege: vor der Beschriftung ein Plus im Kreis,
-   und **der Kreis** trägt die Farbe der Geldart — die Beschriftung
-   bleibt Tinte wie jeder andere Eintrag. Das Zeichen kommt als
-   ::before aus dem Stylesheet: renderChrome() schreibt die
-   Beschriftung über textContent, ein Kind-Element überlebte das
-   nicht. */
-.tools .mi-in,.tools .mi-flex,.tools .mi-out{display:flex;align-items:center;gap:8px;
-  font-weight:600;color:var(--ink)}
-.tools .mi-in::before,.tools .mi-flex::before,.tools .mi-out::before{content:'+';
-  flex:0 0 auto;width:15px;height:15px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:600;line-height:1;color:#fff}
-.tools .mi-in::before{background:var(--ok)}
-.tools .mi-flex::before{background:var(--amber)}
-.tools .mi-out::before{background:var(--seal)}
+/* Jeder Eintrag trägt vorn sein Zeichen. Es kommt als **Maske**
+   aus diesem Stylesheet und nicht als Kind-Element: renderChrome()
+   schreibt die Beschriftung über textContent, ein Kind überlebte
+   das nicht. Die Maske nimmt die Schriftfarbe der Zeile an —
+   Tinte, bei der Anleitung ihr Orange. Farbige Zeichen gibt es
+   nicht: die Farbe einer Geldart sagt in einer Liste aus zehn
+   Wegen nichts, sie macht das Menü nur bunt. */
+.tools .btn::before{content:'';flex:0 0 auto;width:15px;height:15px;
+  background:currentColor;opacity:.85;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:15px 15px;mask-size:15px 15px}
+.tools .mi-new{font-weight:600}
+/* Pfeil nach oben aus der Ablage: eine Datei kommt herein */
+.tools #btnLoad::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 15V4'/%3E%3Cpath d='M8 8l4-4 4 4'/%3E%3Cpath d='M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 15V4'/%3E%3Cpath d='M8 8l4-4 4 4'/%3E%3Cpath d='M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3'/%3E%3C/svg%3E")}
+/* Diskette: der Stand geht in die Datei zurueck */
+.tools #btnSave::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h10l4 4v12H5z'/%3E%3Cpath d='M9 4v5h6'/%3E%3Cpath d='M8 20v-6h8v6'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h10l4 4v12H5z'/%3E%3Cpath d='M9 4v5h6'/%3E%3Cpath d='M8 20v-6h8v6'/%3E%3C/svg%3E")}
+/* Zwei Blaetter: eine Kopie neben der laufenden Datei */
+.tools #btnBackup::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='11' height='11' rx='2'/%3E%3Cpath d='M5 15V6a2 2 0 0 1 2-2h9'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='11' height='11' rx='2'/%3E%3Cpath d='M5 15V6a2 2 0 0 1 2-2h9'/%3E%3C/svg%3E")}
+/* Kreuz im Kreis: die Datei wird losgelassen */
+.tools #btnUnlink::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M9.2 9.2l5.6 5.6'/%3E%3Cpath d='M14.8 9.2l-5.6 5.6'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M9.2 9.2l5.6 5.6'/%3E%3Cpath d='M14.8 9.2l-5.6 5.6'/%3E%3C/svg%3E")}
+/* Blatt mit Pfeil hinein: Zahlen von aussen */
+.tools #btnImportCsv::before,.tools #btnImportCsv2::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M12 11v6'/%3E%3Cpath d='M9.5 14.5L12 17l2.5-2.5'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M12 11v6'/%3E%3Cpath d='M9.5 14.5L12 17l2.5-2.5'/%3E%3C/svg%3E")}
+/* Plus im Kreis, ohne Farbe: hier entsteht etwas Neues */
+.tools .mi-new::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 8.2v7.6'/%3E%3Cpath d='M8.2 12h7.6'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 8.2v7.6'/%3E%3Cpath d='M8.2 12h7.6'/%3E%3C/svg%3E")}
+/* Schieberegler: die Angaben der Datei einstellen */
+.tools #btnSettings::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h9'/%3E%3Cpath d='M17 7h3'/%3E%3Cpath d='M4 17h3'/%3E%3Cpath d='M11 17h9'/%3E%3Ccircle cx='15' cy='7' r='2'/%3E%3Ccircle cx='9' cy='17' r='2'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h9'/%3E%3Cpath d='M17 7h3'/%3E%3Cpath d='M4 17h3'/%3E%3Cpath d='M11 17h9'/%3E%3Ccircle cx='15' cy='7' r='2'/%3E%3Ccircle cx='9' cy='17' r='2'/%3E%3C/svg%3E")}
+/* Aufgeschlagenes Buch: die Anleitung */
+.tools #btnGuide::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 7c-1.6-1.5-3.7-2-6-2H4v13h2c2.3 0 4.4.5 6 2'/%3E%3Cpath d='M12 7c1.6-1.5 3.7-2 6-2h2v13h-2c-2.3 0-4.4.5-6 2'/%3E%3Cpath d='M12 7v13'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 7c-1.6-1.5-3.7-2-6-2H4v13h2c2.3 0 4.4.5 6 2'/%3E%3Cpath d='M12 7c1.6-1.5 3.7-2 6-2h2v13h-2c-2.3 0-4.4.5-6 2'/%3E%3Cpath d='M12 7v13'/%3E%3C/svg%3E")}
 /* Der Dateiname steht als Kopf **immer** oben im Menü — man soll
    sehen, an welcher Datei die Knöpfe darunter arbeiten, auch wenn
    der Name daneben in der Kopfzeile steht. */
@@ -924,6 +939,11 @@ body.monthview .wrap{padding-bottom:14px}
 .wcard.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .wcard.primary:hover{background:var(--accent-2);border-color:var(--accent-2)}
 .wcard.primary .wd{color:rgba(255,255,255,.85)}
+/* Der Weg zur Datenschutzerklärung, klein und unter den beiden
+   Karten: Pflicht, aber nicht das, weswegen jemand hier ist. */
+.wlegal{margin:18px 0 0;text-align:center;font-size:12.5px}
+.wlegal a{color:var(--ink-2);text-decoration:none}
+.wlegal a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .wfoot{font-size:11.5px;line-height:1.55;color:var(--ink-2);margin:8px 0 0}
 /* Der Satz, der zur Anleitung schickt, trägt deren Farbe — in der
    Kopfzeile ist der Anleitungsknopf der einzige orange, und hier

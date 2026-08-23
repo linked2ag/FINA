@@ -40,19 +40,29 @@ ein Browser bei `file://` blockieren würde. Auch die drei Schriften liegen bei
 ### Ohne Browser: die Apps für Mac und Windows
 
 Dieselben Dateien laufen auch in einem eigenen Fenster — Electron, also dieselbe
-Chromium-Maschine, an der FINA ohnehin gemessen ist. Die Pakete stehen auf der
-[Downloadseite](https://linked2ag.github.io/FINA/download/); gebaut werden sie aus
-`desktop/`, beschrieben in [`desktop/README.md`](desktop/README.md).
+Chromium-Maschine, an der FINA ohnehin gemessen ist. Gebaut werden sie aus `desktop/`,
+beschrieben in [`desktop/README.md`](desktop/README.md).
+
+**Zum Herunterladen gibt es sie zur Zeit nicht** (Stand 23.8.26): die Startseite kündigt
+sie als „in Arbeit" an, weil die zuletzt veröffentlichte Fassung noch vor dem
+Mac-Redesign entstand und nicht mehr aussieht wie die Bilder daneben. `download/` leitet
+auf den Abschnitt `#apps` der Startseite.
 
 Zu wissen ist dreierlei:
 
-- **Sie sind noch nicht signiert.** Beim ersten Start warnt das System; die Downloadseite
-  führt Schritt für Schritt daran vorbei.
+- **Sie sind noch nicht signiert.** Beim ersten Start warnt das System; die Startseite
+  führt Schritt für Schritt daran vorbei, sobald es wieder etwas zu laden gibt.
 - **Die Datendatei liegt außerhalb.** Die App auszutauschen rührt sie nicht an.
 - **Web und Apps laufen auseinander.** Die Webseite bekommt jeden Push, die Apps nur eine
   gesetzte Marke — das ist ein Kanal und kein Rückstand. Die App fragt beim Start einmal
   `version.json` ab und meldet, wenn es etwas Neueres gibt; abschaltbar unter
-  **Settings → General**. Es ist die einzige Netzverbindung, die FINA aufbaut.
+  **Settings → General**.
+
+**Netzverbindungen baut FINA genau zwei auf**, und nur diese beiden: die Frage nach einer
+neueren Fassung (oben, **nur** in den Apps) und die Frage, ob gerade eine Umfrage läuft
+(`checkSurvey()`, im Browser **und** in den Apps). Beide dürfen scheitern. Was dabei
+hinausgeht, steht in `datenschutz.html`; wer eine dritte baut, schreibt sie dort hinein,
+bevor er sie baut.
 
 ## Die vier Ansichten
 
@@ -108,11 +118,12 @@ css/
   components.css        Schaltflächen, Siegel, Lampen, Formulare, Fenster, Listen
   ledger.css            die einspaltigen Tabellen (Monat, Prognose, Flexible Payments)
   matrix.css            die Jahresmatrix
-  download.css          nur für die Downloadseite
+  mobile.css            die Fassung unter 700 px — auf dem Telefon zum Nachsehen
+  landing.css           die fünf Seiten außerhalb der Anwendung
   fonts/                die drei Schriften als .woff2, dazu ihre Lizenz
 
 download/
-  index.html            die Seite, von der die Apps geladen werden
+  index.html            Stub: leitet auf index.html#apps
 
 desktop/                der Electron-Rahmen für Mac und Windows (siehe dortige README)
 

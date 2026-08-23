@@ -230,20 +230,13 @@ function emptyState(){
        über Geld: sie überlebt das Trennen der Datei. */
     updateCheck:(state&&state.updateCheck===false)?false:true,
     /* ── Umfrage (Pilot) ──────────────────────────────────────
-       `created` ist der Tag, an dem dieses Buch angefangen wurde
-       (2026-08-23). Daran hängt die Frist: gefragt wird erst zwei
-       Wochen später, wer FINA gerade erst geöffnet hat, hat noch
-       nichts zu sagen. Ein **neues** Buch weiß den Tag; eine
-       Datei, die es schon gibt, bekommt ihn beim ersten Öffnen
-       (migrate) — die Frist läuft ab dann und nicht rückwirkend.
-
        `surveys` sammelt je Anfrage drei Angaben und sonst nichts:
-       die Nummer als Schlüssel (`260823`, zugleich der Name der
-       Umfrage-Datei), `status` 0/1 und den Tag der Antwort. **Die
-       Antworten selbst stehen nicht darin** — die liegen bei
-       Formbricks, ohne Kennung des Nutzers. Geschrieben wird der
-       Eintrag erst, wenn der Server bestätigt hat. */
-    created:isoToday(),
+       die Kennung der Umfrage als Schlüssel, `status` (0 kennt sie
+       und wartet, 1 erledigt), den Tag, an dem FINA sie zum ersten
+       Mal gesehen hat, und den Tag der Antwort. **Die Antworten
+       selbst stehen nicht darin** — die liegen beim Absender, ohne
+       Kennung des Nutzers. Geschrieben wird der Vermerk erst, wenn
+       der Server bestätigt hat (js/dialogs/umfrage.js). */
     surveys:{}
   };
 }
@@ -485,18 +478,16 @@ function migrate(s){
     s.filterFields=QFIELDS.some(k=>o[k])?o:allQFields();
   }
   /* ── Umfrage (Pilot) ────────────────────────────────────────
-     In einer Datei, die es schon gibt, steht kein Anlegedatum:
-     Sie bekommt hier das heutige gestempelt — die Zwei-Wochen-Frist
-     läuft **ab dem ersten Öffnen** und nicht rückwirkend. Sonst
-     stünde jemand, der FINA seit Monaten benutzt, beim nächsten
-     Start sofort vor der Frage.
-
-     Der Stempel macht die Datei nicht schmutzig; er wandert beim
-     nächsten Speichern von selbst hinein (siehe „Nach jeder
-     Änderung neu zeichnen"). Bis dahin gilt eben wieder heute —
-     das verschiebt die Frist nach hinten und fragt niemanden zu
-     früh. */
-  if(typeof s.created!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s.created)) s.created=isoToday();
+     Ältere Dateien kennen die Liste nicht — dann steht noch keine
+     Umfrage darin, und das ist die richtige Antwort. */
   if(!s.surveys||typeof s.surveys!=='object') s.surveys={};
+  /* `created` gab es einen Tag lang: der Tag, an dem ein Buch
+     angefangen wurde, gedacht als Frist für neue Nutzer. Die Frist
+     hängt jetzt am ersten **Speichern** und braucht kein Datum
+     mehr (srvSaved() in js/dialogs/umfrage.js). Ein Feld, das
+     niemand liest, bleibt nicht in der Datei des Nutzers stehen —
+     sonst schriebe `stateJson()` es bei jedem Speichern wieder
+     hinaus. */
+  delete s.created;
   return s;
 }

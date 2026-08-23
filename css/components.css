@@ -858,25 +858,75 @@ body.gresize{user-select:none;cursor:col-resize}
 @media(prefers-reduced-motion:reduce){.seal,.seal svg{transition:none}}
 
 /* ── Die Umfrage ───────────────────────────────────────────────
-   Ein Block wie jeder andere im Fenster (.dgrp), darin je Frage
-   eine Zeile: Frage, Antwort. Die Antwortmöglichkeiten stehen
-   untereinander — nebeneinander liest man bei sechs Auswahlen
-   nichts mehr. Die Zahlen einer Bewertung stehen dagegen in einer
-   Reihe: sie sind eine Skala. */
-.srvfield{display:flex;flex-direction:column;gap:5px}
-.srvfield+.srvfield{margin-top:14px;padding-top:14px;border-top:1px solid var(--hairline)}
-.srvfield .subline{margin:0}
-label.srvq{font-weight:600;font-size:12.5px;line-height:1.35;color:var(--ink);text-transform:none;letter-spacing:0}
-.srvopts{display:flex;flex-direction:column;gap:4px}
-label.srvopt{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;line-height:1.35;
-  color:var(--ink);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer}
-label.srvopt input{margin:2px 0 0;flex:0 0 auto}
-.srvnums{display:flex;flex-wrap:wrap;gap:5px}
-/* Gewählt trägt der Knopf Tinte — dieselbe Sprache wie ein
-   gedrückter Filterknopf (siehe „Ein gedrückter Knopf trägt
-   Tinte" in CLAUDE.md). */
-.btn.srvnum{min-width:30px;justify-content:center}
-.btn.srvnum.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:none}
-/* Die beiden Enden einer Bewertungsskala stehen unter ihren
-   äußeren Zahlen — links „Nicht gut", rechts „Sehr gut". */
-.srvends{display:flex;justify-content:space-between;gap:12px;margin:0}
+   **Der Knopf in der Kopfzeile ist orange gefüllt** — dieselbe
+   Farbe, die die Anleitung bis zum Mac-Redesign trug. Eine offene
+   Umfrage soll auffallen, ohne im Weg zu stehen: sie ist das
+   einzige Gefüllte in einer Zeile aus hellen Knöpfen und dem
+   Hamburger. `--accent` und nicht `--accent-2`: das satte Orange
+   ist als Knopffarbe gedacht.
+
+   Die Fragen tragen dagegen die Sprache der übrigen Fenster:
+   jede in ihrem eigenen Block (.dgrp), gewählt trägt Tinte. Ein
+   Ankreuzkästchen des Browsers gibt es in FINA nirgends — es sähe
+   auch hier nach einer fremden Seite aus. */
+.btn.srvbtn{background:var(--accent);border-color:var(--accent);color:#fff;
+  font-weight:600;box-shadow:none;padding:5px 11px}
+.btn.srvbtn:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.btn.srvbtn[hidden]{display:none!important}
+
+/* Ein Block je Frage. Der Abstand nach unten kommt von .dgrp, das
+   Polster unten hier: .dgrp rechnet mit Feldern, die ihren
+   eigenen Abstand mitbringen. */
+.dgrp.srvq{padding-bottom:12px}
+.srvhead{display:flex;gap:8px;align-items:baseline;font-size:13px;line-height:1.4;
+  font-weight:600;color:var(--ink);margin:0 0 8px}
+/* Die Nummer steht als Ziffer daneben, in der Datenschrift wie
+   jede andere Zählung in FINA — nicht als Kreis oder Kachel. */
+.srvnr{flex:0 0 auto;font-family:var(--font-data);font-size:10px;color:var(--ink-2);
+  letter-spacing:.06em;padding-top:1px}
+.dgrp.srvq .subline{margin:-4px 0 8px;padding-left:18px}
+textarea.srvtext{width:100%;display:block}
+
+/* Die Antwortmöglichkeiten stehen untereinander und über die
+   ganze Breite: die Texte einer echten Umfrage sind Sätze, keine
+   Wörter — nebeneinander bräche jeder zweite um. */
+.srvopts{display:flex;flex-direction:column;gap:5px}
+.btn.srvpick{justify-content:flex-start;text-align:left;padding:6px 10px;
+  font-size:12.5px;line-height:1.35;white-space:normal}
+.btn.srvpick.on{background:var(--ink);color:#fff;border-color:var(--ink);
+  font-weight:600;box-shadow:none}
+.btn.srvpick.on:hover{background:#2E3A35;border-color:#2E3A35}
+
+/* Die Skala ist so breit wie ihre Zahlen, und die Enden stehen
+   darunter — nicht über die ganze Fensterbreite gespannt, sonst
+   stünde „Sehr gut" weit rechts von der 5, für die es gilt. */
+.srvscale{display:inline-flex;flex-direction:column;gap:4px}
+.srvnums{display:flex;gap:5px}
+.btn.srvpick.srvnum{min-width:34px;justify-content:center;font-variant-numeric:tabular-nums}
+.srvends{display:flex;justify-content:space-between;gap:16px;
+  font-family:var(--font-data);font-size:8.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-2)}
+
+/* Unter den Fragen zwei Aussagen, und sie sind verschieden viel
+   wert. Was **noch zu tun ist**, steht als eigene schwebende Bahn
+   in der Farbe des Umfrage-Knopfes — dieselbe Bauform wie ein
+   Block (.dgrp): Radius 8, derselbe Schatten. Man sieht es also
+   als Zusammengehöriges und erkennt am Orange, wozu es gehört.
+   Was danach **in der Datei stehen wird**, ist eine Auskunft und
+   steht darunter in Ruhe. */
+/* Im Umfrage-Fenster rollt der Rumpf **samt Überschrift** — sie
+   ist ein Gruß und keine Auskunft, die man beim Ausfüllen braucht.
+   Stehen bleibt, was noch zu tun ist. Deshalb hier oben kein
+   zusätzliches Polster: die Überschrift bringt ihren Abstand
+   selbst mit. */
+.modal .box.srvbox>.dbody{padding-top:0}
+.modal .box.srvbox>.dbody>h3{margin-top:0}
+/* Die drei Zeilen unten gehören zusammen und stehen als ein Stück
+   fest: orange Bahn, Auskunft, Knöpfe. Getrennt vom Rumpf sind sie
+   durch den Abstand, nicht durch einen Strich — über der Knopfzeile
+   steht seit 23.8.26 keine Haarlinie mehr. */
+.modal .box.srvbox>.srvsave{margin-top:14px}
+.modal .box.srvbox>.srvnote{margin-bottom:0}
+.srvsave{background:var(--accent);color:#fff;border-radius:8px;box-shadow:var(--sh-grp);
+  padding:9px 12px;margin:0 0 8px;font-size:12.5px;font-weight:600;line-height:1.45}
+.modal .subline.srvnote{margin:0 0 14px}

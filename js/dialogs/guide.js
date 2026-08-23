@@ -1124,6 +1124,9 @@ news:{
 en:()=>`
 <h4>26.8.23 <span class="pill">latest</span></h4>
 <ul>
+  <li><b>FINA is free while we pilot</b> — everything is unlocked, nothing is locked away,
+      and instead of a price we ask what you think: the orange button in the header waits
+      until you have a minute. The welcome page now also links to the privacy policy.</li>
   <li><b>The filter options live in ${t('app.settings')}</b> — the new section
       <b>${t('set.navFilter')}</b> holds what the search field looks through and whether hidden
       items count; “${t('flt.options')}” next to the search fields takes you straight there.
@@ -1142,6 +1145,10 @@ en:()=>`
       the bottom always stay in sight; the groups in between float on shadows.</li>
   <li><b>“All” closes a filter menu</b> — it means “done, filter nothing”; any other value
       keeps the menu open for the next choice.</li>
+  <li><b>Two ways to create instead of three</b> — the menu offers
+      “${t('menu.newFlex')}” and “${t('menu.newOut')}”; whether something is income is
+      decided by the category you pick in the window. And every entry of the menu now
+      carries its own sign.</li>
   <li>Bugfixing and cosmetic changes.</li>
 </ul>
 
@@ -1331,6 +1338,10 @@ en:()=>`
 de:()=>`
 <h4>26.8.23 <span class="pill">neu</span></h4>
 <ul>
+  <li><b>FINA ist in der Pilotphase kostenlos</b> — alles ist freigeschaltet, nichts ist
+      weggesperrt, und statt eines Preises fragen wir nach deiner Meinung: der orange Knopf
+      in der Kopfzeile wartet, bis du Zeit hast. Von der Begrüßungsseite führt jetzt
+      außerdem ein Weg zur Datenschutzerklärung.</li>
   <li><b>Die Filteroptionen stehen in ${t('app.settings')}</b> — der neue Bereich
       <b>${t('set.navFilter')}</b> sagt, worin das Suchfeld sucht und ob ausgeblendete Posten
       mitzählen; „${t('flt.options')}" neben den Suchfeldern führt direkt hin. Die Wahl steht
@@ -1351,6 +1362,10 @@ de:()=>`
       bleiben immer im Bild; die Gruppen dazwischen schweben auf Schatten.</li>
   <li><b>„Alle" schließt ein Filtermenü</b> — es heißt „fertig, nichts filtern"; jeder
       andere Wert lässt das Menü für die nächste Wahl offen.</li>
+  <li><b>Zwei Wege zum Anlegen statt drei</b> — im Menü stehen „${t('menu.newFlex')}"
+      und „${t('menu.newOut')}"; ob etwas eine Einnahme ist, entscheidet die Kategorie,
+      die man im Fenster wählt. Und jeder Eintrag des Menüs trägt jetzt sein eigenes
+      Zeichen.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>
 

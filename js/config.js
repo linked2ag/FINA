@@ -36,9 +36,23 @@ const VERSION='26.8.23';
    nativen Fassung (window.FINA_NATIVE) und höchstens einmal am Tag
    — es ist die einzige Netzverbindung, die FINA je aufbaut. */
 const VERSION_URL='https://linked2ag.github.io/FINA/version.json';
-/* Die Downloads wohnen auf der Startseite; download/ leitet als
-   Stub dorthin weiter und fängt die Links älterer App-Fassungen. */
-const DOWNLOAD_URL='https://linked2ag.github.io/FINA/#downloads';
+/* ── Die Adresse der Webseite ─────────────────────────────────
+   Seit 23.8.26 steht die Seite auf der eigenen Domain;
+   `linked2ag.github.io/FINA` leitet dorthin weiter. `VERSION_URL`
+   oben bleibt trotzdem auf der alten Adresse: danach fragen die
+   schon installierten Apps, und eine Weiterleitung beantwortet
+   das ohne Zutun.
+
+   Zwei Wege hängen daran: der Hinweis auf eine neuere Fassung
+   führt zu den Apps (den Abschnitt hieß bis 23.8.26 `#downloads`
+   — Downloads gibt es dort gerade keine, die Apps sind in
+   Arbeit), und die Begrüßungsseite führt zur
+   Datenschutzerklärung. **Absolut und nicht relativ**: in der
+   Mac- und der Windows-App liegt neben dem Web-Client keine
+   zweite Seite, dort ginge ein relativer Weg ins Leere. */
+const SITE_URL='https://fina-app.de/';
+const DOWNLOAD_URL=SITE_URL+'#apps';
+const PRIVACY_URL=SITE_URL+'datenschutz.html';
 
 /* ── Die Umfrage (Pilot) ──────────────────────────────────────
    FINA fragt seine Nutzer selbst — im eigenen Fenster, nicht auf

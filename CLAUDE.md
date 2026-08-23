@@ -41,17 +41,19 @@ ganze Projekt zu lesen.
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
 | Begrüßungsseite (ohne Datei) | `js/views/willkommen.js` |
 | Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·sheet-import.js` |
+| Die Umfrage — Knopf, Fenster, Absenden | `js/dialogs/umfrage.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
 | Was der Anleitung noch fehlt (Merkzettel) | `doc/GUIDE-TODO.md` |
 | Was beim Klick passiert; Start der Anwendung | `js/app.js` |
 | Fenster, Menü, fremde Links der Mac-/Windows-App | `desktop/main.js` |
 | Wie die Apps gebaut und veröffentlicht werden | `desktop/README.md` |
-| Die Startseite — Verkauf, Preise, Downloads, Sprachweiche | `index.html`, `css/landing.css` |
+| Die Startseite — Verkauf, Pilotphase, Apps, Sprachweiche | `index.html`, `css/landing.css` |
 | Die Guide-Seite (Kurzübersicht fürs Netz) | `guide.html` |
 | Alle Funktionen im Einzelnen (Verkaufsseite) | `features.html` |
 | Der Vergleich mit dem, was es sonst gibt | `compare.html` |
-| Sprache, Sprungmenü, Ausschnitt, Downloads, Bewegung **dieser vier Seiten** | `js/landing.js` |
+| Die Datenschutzerklärung | `datenschutz.html` |
+| Sprache, Sprungmenü, Ausschnitt, Bewegung **dieser fünf Seiten** | `js/landing.js` |
 | Der Web-Client — die Anwendung selbst | `Webclient.html` (lädt `js/` und `css/`) |
 | Welche Fassung die Apps als aktuell melden | `version.json` |
 | Das Symbol — Reiter der Seite **und** App-Icon | `desktop/build/icon.html` → `icon.png` |
@@ -74,13 +76,22 @@ Abschnitt.**
   22.8.26 **nur noch im Menü** (`#menuFile` zuoberst; `.filepath` bleibt im HTML, ist
   aber per CSS verborgen). **Alle Aktionsknöpfe
   stecken im Menü dahinter** (`#hdrTools`, jetzt auf jeder Breite): Speichern · Sicherung ·
-  Trennen · CSV-Import (`#btnImportCsv` → `openImportInfo()`) ‖ Neue Einnahme / Neue
-  flexible Kosten / Neue regelmäßige Kosten (`#mNewIn/#mNewFlex/#mNewOut`, verdrahtet bei
+  Trennen · CSV-Import (`#btnImportCsv` → `openImportInfo()`) ‖ Neuer flexibler Eintrag /
+  Neuer regulärer Eintrag (`#mNewFlex/#mNewOut`, verdrahtet bei
   den festen Schaltflächen in `js/app.js`) ‖ Einstellungen ‖ Anleitung (oranger Texteintrag,
-  kein gefüllter Knopf mehr). Die drei „Neu…"-Einträge tragen ein Plus im Kreis in der
-  Farbe ihrer Geldart (CSS-`::before` — `renderChrome()` schreibt die Beschriftung über
-  `textContent`, ein Kind-Element überlebte das nicht); die Beschriftung selbst bleibt
-  Tinte. Öffnen/Schließen läuft über die alte Mobil-Mechanik
+  kein gefüllter Knopf mehr).
+  **Zum Anlegen gibt es zwei Wege und nicht drei** (seit 23.8.26): eine eigene Zeile für die
+  Einnahme entfiel, weil der reguläre Eintrag ohnehin ohne Vorauswahl aufgeht
+  (`editItem(null,'1')`) und dort Einnahmen und Kosten in **einer** Auswahlliste stehen
+  (`groupOpts()` in `js/dialogs/item.js`) — die Kategorie entscheidet über die Geldart, nicht
+  der Weg ins Fenster.
+  **Jeder Eintrag trägt vorn sein Zeichen**, und zwar als **Maske** aus `css/layout.css`
+  (`.tools .btn::before`, `mask-image` mit einem SVG als Daten-URI): `renderChrome()`
+  schreibt die Beschriftung über `textContent`, ein Kind-Element überlebte das nicht. Die
+  Maske nimmt `currentColor` an — Tinte, bei der Anleitung ihr Orange. **Farbige Zeichen
+  gibt es nicht mehr**: die beiden „Neu…"-Einträge trugen bis 23.8.26 ein gefülltes Plus in
+  der Farbe ihrer Geldart, und in einer Liste aus neun Wegen sagte diese Farbe nichts — sie
+  machte das Menü nur bunt. Öffnen/Schließen läuft über die alte Mobil-Mechanik
   (Klasse `open`); der rote Punkt `#dirtyDot` und der Menükopf-Dateiname `#menuFile`
   (**immer** zuoberst im Menü, seit 22.8.26 auch bei breitem Fenster) werden in
   `renderStatus()` (`js/storage.js`) nachgeführt.
@@ -430,7 +441,16 @@ im Browser ist es undefiniert. Daran hängen drei Stellen und sonst nichts:
   und `title`.
 Die Begrüßungsseite braucht `FINA_NATIVE` nicht mehr: sie nennt keine Downloads — das
 erledigt die Startseite (`index.html`), und `download/` leitet als Stub dorthin weiter
-(ältere App-Fassungen öffnen diese Adresse beim Update-Hinweis).
+(ältere App-Fassungen öffnen diese Adresse beim Update-Hinweis). **Ihr Weg zur
+Datenschutzerklärung ist aus demselben Grund absolut** (`PRIVACY_URL`, siehe unten): in
+der App liegt neben dem Web-Client keine zweite Seite.
+
+**Die Adresse der Webseite steht an einer Stelle:** `SITE_URL` in `js/config.js`
+(`https://fina-app.de/`, seit 23.8.26 die eigene Domain; `linked2ag.github.io/FINA`
+leitet dorthin weiter). Daraus leiten sich `DOWNLOAD_URL` (der Hinweis auf eine neuere
+Fassung führt zu `#apps`) und `PRIVACY_URL` ab. **`VERSION_URL` bleibt auf der alten
+Adresse** — danach fragen die schon installierten Apps, und die Weiterleitung beantwortet
+das ohne Zutun.
 
 **Der Web-Client heißt in der Auslieferung der App weiter `index.html`:** `desktop/sync.mjs`
 kopiert `Webclient.html` nach `desktop/app/index.html` — so bleibt `desktop/main.js`
@@ -508,18 +528,94 @@ ganzseitige Anleitung — als eigenes Fenster erlaubt bleibt, das Menü (ohne `e
 es auf dem Mac kein Cmd+C) und die Einzelinstanz. Wer an FINA etwas ändert, ändert es in
 `js/` und `css/`.
 
-## Die vier Seiten außerhalb der Anwendung
+## Die fünf Seiten außerhalb der Anwendung
 
-`index.html` (Verkauf), `features.html` (alle Funktionen), `compare.html` (der Vergleich)
-und `guide.html` (Kurzübersicht) sind **keine** Anwendung: sie laden nichts aus `js/`
-außer `js/landing.js` und wissen von `state`, `render()` und `t()` nichts. Gemeinsam sind
-ihnen `css/tokens.css`, `css/landing.css` und `js/landing.js` — Kopfzeile, Fußzeile,
-Sprachschalter, Sprungmenü, Bewegung. **Wer eins davon ändert, ändert es auf allen vier.**
+`index.html` (Verkauf), `features.html` (alle Funktionen), `compare.html` (der Vergleich),
+`guide.html` (Kurzübersicht) und `datenschutz.html` (die Rechtstexte) sind **keine**
+Anwendung: sie laden nichts aus `js/` außer `js/landing.js` und wissen von `state`,
+`render()` und `t()` nichts. Gemeinsam sind ihnen `css/tokens.css`, `css/landing.css` und
+`js/landing.js` — Kopfzeile, Fußzeile, Sprachschalter, Sprungmenü, Bewegung. **Wer eins
+davon ändert, ändert es auf allen fünf.**
 
-**Jede Seite beantwortet genau eine Frage.** `index.html`: „was ist das und was kostet
-es". `features.html`: „was kann das". `compare.html`: „wie steht es neben dem, was es
-sonst gibt". `guide.html`: „wie sieht das aus". Wer beides mischt, beantwortet keins von
-beiden — deshalb sind Funktionen und Vergleich zwei Seiten und nicht zwei Abschnitte.
+**Jede Seite beantwortet genau eine Frage.** `index.html`: „was ist das, und was kostet
+es gerade". `features.html`: „was kann das". `compare.html`: „wie steht es neben dem, was
+es sonst gibt". `guide.html`: „wie sieht das aus". `datenschutz.html`: „was passiert mit
+meinen Daten". Wer zwei davon mischt, beantwortet keine — deshalb sind Funktionen und
+Vergleich zwei Seiten und nicht zwei Abschnitte.
+
+### Die Pilotphase ist die Aussage der Seite (seit 23.8.26)
+
+**Es steht kein Preis auf der Seite.** Bis 23.8.26 hatte `index.html` einen Abschnitt
+`#preis` mit drei Karten (49 € · 79 €) und einer Ankündigung „FINA Sync ~39 €/Jahr". Der
+ist heraus: FINA ist in der Pilotphase **vollständig freigeschaltet und kostenlos**, und
+die Stufen sind noch nicht beschlossen (`_BusinessCenter/Marketing und Preise.md`). Eine
+Zahl an dieser Stelle wäre eine Zusage, die niemand halten muss — und sie ließe sich
+später nur nach unten korrigieren, ohne dass es schlecht aussieht. **Wer wieder eine
+einbaut, tut es erst, wenn die Stufen stehen.**
+
+An seiner Stelle steht `#pilot`, seit dem Abend des 23.8.26 als **ein** Kasten:
+Überschrift, drei Sätze, darunter `.rules` mit den drei Zusagen — vollständig · Preise
+kommen später · es wird noch gebaut. **Kein einziger Knopf**: die drei Plan-Karten mit
+drei Knöpfen (`.plans`, `.plan.nop`) sahen aus wie eine Preistabelle und sind heraus;
+ihre Regeln bleiben in `css/landing.css` für den Tag, an dem wirklich Preise
+angekündigt werden. Der Weg für die Rückmeldung ist **die Umfrage im Programm**
+(`js/dialogs/umfrage.js`), kein Formular auf der Seite: es gibt keine E-Mail-Liste, und
+die Seite verspricht auch keine.
+
+**Downloads gibt es zur Zeit keine.** Aus `#downloads` wurde `#apps`: die Überschrift
+sagt **„Zur Zeit: im Browser."**, darunter drei Kacheln — Browser (führt in die
+Anwendung), Telefon (dieselbe Adresse, eigenes Layout, **zum Nachsehen**) und
+Mac/Windows als `.gcard.soon`, ein `<div>` und **kein** `<a>`, denn ein Knopf, der
+nichts tut, ist schlimmer als kein Knopf.
+Der Anker `#apps` bleibt: `download/` leitet als Stub darauf, und der Update-Hinweis
+älterer App-Fassungen öffnet diese Adresse. Wer die Apps veröffentlicht, baut die
+Kachelgruppen `#mac` / `#win` aus der Historie zurück — die Regeln stehen weiter in
+`css/landing.css` (`.dlpanel`, `.dltile`), und Block 4 in
+`js/landing.js` steigt von selbst aus, solange es keine `[data-dl]`-Karte gibt.
+
+**Auf dem Telefon ist FINA zum Nachsehen da**, und die Seite sagt es in der zweiten
+Kachel von `#apps`. Der Grund steht in `css/mobile.css`:
+unter 700 px baut die Anwendung ein eigenes Layout, aber „Daten speichern" gibt es dort
+nicht — ohne File System Access schriebe jedes Speichern eine neue Datei in den
+Download-Ordner.
+
+**Die Startseite ist bewusst leicht** (seit 23.8.26): ein Satz, was FINA ist; je Ansicht
+ein **echtes** Bildschirmfoto aus `doc/img/` — die Jahresmatrix groß und schiebbar im
+Kopf, **Monat und Prognose klein nebeneinander** in den `.mini`-Karten (der Monat als
+schmale Spalte, unten ausgeblendet; große Bilder waren der Seite zu schwer, lesen kann
+man sie per Klick oder in der Anleitung). Die nachgebauten
+Ansichten (`.mx`, `.px`, das Innenleben der `.mini`-Karten) sind heraus, sie zeigten das
+Chrome von vor dem Mac-Redesign. Die Abschnitte „Drei Zeiten" und „Der Unterschied" sind
+gestrichen; ihre Aussage steckt in der Schlagzeile. Und die Akzentfarbe tragen nur die
+Handlungs-Elemente — Knöpfe, Weiterlese-Links, Sprungmenü; `.eyebrow` und die
+Pilot-Marke im Kopf sind seither grau bzw. ruhig (`css/landing.css`). Alle
+Einzelheiten wohnen auf den anderen Seiten. Die Überschrift von `#pilot` bindet die
+Zusage an die Pilotphase („In der Pilotphase: alles offen und kostenlos") — ein
+uneingeschränktes „kostenlos" wäre ein Versprechen über die Pilotphase hinaus.
+
+### `datenschutz.html`
+
+Der einzige Text auf diesen Seiten, der **rechtlich** stimmen muss. Deshalb gilt dort
+zusätzlich:
+
+* **Jeder Satz ist aus dem Code gelesen**, nicht abgeschrieben. Der Kopfkommentar der
+  Datei nennt zu jedem Absatz die Stelle, an der die Tatsache steht.
+* **Es gibt genau zwei Netzverbindungen**, und beide stehen drin: die Frage nach einer
+  laufenden Umfrage (`checkSurvey()`, im Browser **und** in den Apps) und die Frage nach
+  einer neueren Fassung (`checkUpdate()`, nur in den Apps). **Kommt eine dritte dazu,
+  kommt dort ein Absatz dazu — vorher.**
+* **Maßgeblich ist die deutsche Fassung**; das steht auch im Text. Die englische ist eine
+  Übersetzung.
+* **Noch offen: das Impressum.** Es braucht eine ladungsfähige Anschrift; die steht noch
+  nicht fest und fehlt deshalb auch im Abschnitt „Wer verantwortlich ist". Sobald sie da
+  ist: dort eintragen und `impressum.html` anlegen — Fußzeile aller fünf Seiten **und**
+  der Begrüßungsseite.
+
+Erreichbar ist sie von überall: Fußzeile und Sprungmenü jeder Seite, dazu ein kleiner
+Textlink unter den beiden Karten der Begrüßungsseite (`.wlegal`, `wel.privacy`). Der
+zeigt auf `PRIVACY_URL` aus `js/config.js` und damit **absolut** auf `fina-app.de`: in der
+Mac- und der Windows-App liegt neben dem Web-Client keine zweite Seite, dort ginge ein
+relativer Weg ins Leere.
 
 **Der erste Satz der Startseite sagt, WAS FINA ist** (`.hero-what`), erst danach kommt,
 wogegen es sich abgrenzt („Andere zeigen dir, was war"). Dort stand bis August 2026 eine
@@ -543,6 +639,10 @@ Kopfzeile führt zwischen den Seiten, dieses Menü innerhalb einer Seite; auf de
 entfällt die Navigation der Kopfzeile ganz (`@media (max-width:640px)`), und dort war
 Scrollen bisher der einzige Weg an eine bestimmte Stelle.
 
+**Der Knopf parkt über der Fußzeile** (seit 23.8.26): sobald sie ins Fenster kommt, hebt
+`js/landing.js` ihn um ihre sichtbare Höhe an — ganz unten stünde er sonst genau auf dem
+Wortzeichen, und die letzte Zeile der Seite bliebe verdeckt.
+
 **Die Liste steht im HTML jeder Seite**, nicht im Skript: nur die Seite weiß, welche
 Überschriften sie hat, und beide Sprachen müssen dabei sein. `js/landing.js` schaltet auf
 und zu (Klick daneben und Escape schließen) und hebt über einen `IntersectionObserver`
@@ -551,10 +651,12 @@ Kennung am `<section>` und den Eintrag im Menü.
 
 ### Den Ausschnitt schieben
 
-Zwei Stellen zeigen etwas, das breiter ist als sein Rahmen: die nachgebaute Jahrestabelle
-im Kopf von `index.html` und das Bildschirmfoto der Matrix in `guide.html`. Beide stehen
-in **Lesegröße** und sind beschnitten; rechts unten liegt die ganze Fläche als Karte mit
-einem Rahmen um das, was man sieht. Ziehen verschiebt — auf der Karte wie im Ausschnitt.
+Zwei Stellen zeigen etwas, das breiter ist als sein Rahmen: das Bildschirmfoto der
+Jahresmatrix im Kopf von `index.html` (seit 23.8.26 dasselbe echte Bild wie im Guide —
+die nachgebaute Jahrestabelle `.mx` ist heraus) und dasselbe Foto in `guide.html`. Beide
+stehen in **Originalgröße** und sind beschnitten; rechts unten liegt die ganze Fläche als
+Karte mit einem Rahmen um das, was man sieht. Ziehen verschiebt — auf der Karte wie im
+Ausschnitt.
 
 Verkleinern wäre die einfache Antwort und die falsche: eine Matrix mit zwölf
 Monatsspalten, die ins Fenster passt, hat 4-px-Zahlen. Man sieht dann, dass es viel ist,
@@ -1382,6 +1484,119 @@ Rot von Grün; liegt sie draußen, ist die Fläche eine einzige Zone. Gefragt wi
 beschnitten ist: eine beschnittene Achse kann die Null durchaus enthalten — im Jahr etwa mit
 gesetztem Anfangsbestand und einem Monat im Minus —, und dann fehlte die Linie genau dort,
 wo die Farbe wechselt.
+
+## Die Umfrage
+
+FINA fragt in der Pilotphase selbst nach der Meinung seiner Nutzer — **in FINA, nicht auf
+einer fremden Seite**. Alles dazu steht in `js/dialogs/umfrage.js`; die beiden Adressen des
+Absenders (Formbricks) in `js/config.js` (`SURVEY_HOST`, `SURVEY_WS`).
+
+**Nichts springt von selbst auf.** Eine offene Umfrage meldet sich als **oranger Knopf in
+der Kopfzeile** (`#btnSurvey`, links vom Hamburger, `.btn.srvbtn` — dieselbe gefüllte Farbe,
+die die Anleitung bis zum Mac-Redesign trug) und wartet dort. Ein Fenster, das beim Öffnen
+eines Buches von selbst aufginge, stünde vor der Arbeit, wegen der man das Buch geöffnet
+hat. Gezeigt wird der Knopf in `renderChrome()` über `surveyOpen()`.
+
+**Gefragt wird erst, wenn einmal gespeichert wurde** (`srvSaved()`). Wer FINA zum ersten
+Mal öffnet, hat noch gar keine Datei — ihn zu fragen, wie ihm FINA gefällt, wäre eine Frage
+an jemanden, der noch nichts gesehen hat, und der Vermerk der Antwort hätte kein Zuhause.
+Erkannt wird es an `fileName` **oder** `state.v`: der Name steht nur, wo die Dateiauswahl
+des Browsers gilt — sonst landet ein Speichern im Download-Ordner und lässt ihn leer,
+und dann sagt die Versionsnummer, dass `stateJson()` schon einmal gelaufen ist.
+
+**Auf dem Telefon gibt es sie nicht.** Dort ist „Daten speichern" ausgeblendet
+(`.tools #btnSave` in css/mobile.css) — der Vermerk käme also nie in die Datei, die Umfrage
+stünde beim nächsten Öffnen wieder da, und die Bitte ums Speichern unter den Fragen wäre
+eine Aufforderung zu etwas, das es dort nicht gibt. `openSurveyNow()` **und**
+`checkSurvey()` halten deshalb an `isMobile()`; wird das Fenster breit gezogen, zeichnet
+`MOBILE_MQ` neu und beides läuft nach.
+
+**Nachgesehen wird einmal je Sitzung und erst mit offenem Buch** (`checkSurvey()`, aufgerufen
+in `render()` neben `checkUpdate()`) — dieselbe Regel und derselbe Grund: ein Kassenbuch steht
+stundenlang offen, und ohne Buch gibt es nichts, worin ein „schon beantwortet" stehen
+könnte. Die Abfrage darf scheitern; dann bleibt der Knopf weg.
+
+**Das ist die zweite Netzverbindung, die FINA aufbaut — und die erste, die es auch im
+Browser tut.** `checkUpdate()` läuft nur in den Apps; diese läuft überall. Wer den Satz
+„FINA baut genau eine Verbindung auf" irgendwo zitiert, zitiert ihn falsch. Geschickt wird
+dabei nichts außer der Anfrage selbst; erst beim Absenden gehen die Antworten hinaus.
+
+**Die Fragen kommen vom Absender.** Gelesen wird die offene Client-Schnittstelle: Fragen,
+Reihenfolge und Antwortmöglichkeiten stehen dort, es gibt also nichts abzutippen. Drei
+Dinge, die man dabei wissen muss:
+
+* **Die Fragen stehen in Blöcken** (`blocks[].elements[]`), die alte flache Liste
+  `questions[]` ist leer. `srvQuestions()` liest die Blöcke und behält die Liste als
+  Rückfall.
+* **Jeder Text kommt als HTML** (`<p class="fb-editor-paragraph">…`). `srvText()` nimmt
+  davon nur den nackten Text — FINA hat seine eigene Schrift, und fremdes Markup gehört
+  nicht ungeprüft auf den Schirm.
+* **Den Namen der Umfrage gibt die Schnittstelle nicht heraus** („omitted from public
+  API"). Die Überschrift des Fensters kommt deshalb aus der **Willkommenskarte** — aber nur,
+  wenn sie eingeschaltet ist: abgeschaltet steht dort der Vorgabetext „Willkommen!", und
+  der ist kein Titel. Sonst sagt FINA `srv.title`.
+
+**Die Kennung, unter der eine Umfrage als erledigt gilt, ist ihre eigene** — nicht das
+Datum. Ein Datum als Schlüssel wechselt mit dem Tag, an dem gefragt wird, und dieselbe
+Umfrage käme am nächsten Morgen wieder.
+
+**Höchstens eine am Tag, und immer nur eine auf einmal** (`openSurveyNow()`). Laufen
+mehrere, kommen sie nacheinander: die erste noch unbeantwortete, die nächste frühestens am
+folgenden Tag. Keine geht verloren, sie warten. Genau dafür steht das Antwortdatum in der
+Datei — es ist die einzige Angabe, aus der sich „heute schon gefragt" ablesen lässt, ohne
+daneben Buch zu führen.
+
+**Drei Angaben je Umfrage, und jede hat ihren Grund.** `state.surveys[<kennung>]` trägt
+`status` (`0` kennt sie und wartet, `1` erledigt und nie wieder gezeigt), `seen` (der Tag,
+an dem FINA sie bei diesem Buch zum ersten Mal gesehen hat) und `answered` (der Tag der
+Antwort). **Wann die Umfrage beim Absender gestartet wurde, gibt die Schnittstelle nicht
+her** — deshalb `seen`, und für den Nutzer ist das ohnehin der richtige Tag: vorher konnte
+er sie nicht beantworten. Gestempelt wird in `srvStamp()` **ohne `save()`**, genau wie
+`created` in `migrate()`: ein Buch, das allein vom Öffnen schmutzig wird, fragt beim
+Schließen nach Änderungen, die niemand gemacht hat.
+
+**Nach drei Tagen fragt sie selbst** (`srvNudge()`, `SRV_DAYS`/`SRV_DELAY`). Der Knopf
+lässt sich übersehen; steht eine Umfrage drei Tage unbeantwortet, geht das Fenster
+**einmal je Sitzung** von selbst auf — nicht sofort, sondern eine Minute nach dem Öffnen:
+wer ein Buch aufmacht, will zuerst hineinsehen. Ist gerade ein anderes Fenster offen,
+wartet es weiter; über einem halb ausgefüllten Posten aufzuspringen wäre schlimmer, als
+gar nicht zu fragen. **Drei Tage und nicht zehn**, weil `seen` erst mit dem Speichern in
+der Datei landet: wer selten speichert, fängt die Frist jedes Mal von vorn an, und bei
+zehn Tagen käme das Fenster bei ihm nie.
+
+**Vermerkt wird erst nach der Bestätigung des Servers.** `status` springt auf 1, `answered`
+bekommt den Tag, dann `save()` und `render()` — damit verschwindet der Knopf. Schlägt das Absenden fehl, wird **nichts** geschrieben: eine rote Zeile sagt es, die
+Umfrage bleibt offen und kommt wieder. Es kann also nicht passieren, dass eine Antwort als
+erledigt gilt, ohne angekommen zu sein.
+
+**Was in der Datei steht, sagt das Fenster selbst** — zwei Aussagen unter den Fragen, und
+sie sind verschieden viel wert. Was **noch zu tun ist** (`srv.save`, „bitte danach deine
+Datei speichern") steht als eigene schwebende Bahn in der Farbe des Umfrage-Knopfes, weiß
+auf Orange, in der Bauform eines Blocks — man erkennt an der Farbe, wozu es gehört. Was
+danach **in der Datei stehen wird** (`srv.note`) ist eine Auskunft und steht darunter in
+Ruhe. Beides grob und ohne Feldnamen: wie die Datei innen aussieht, geht den Leser nichts
+an. Und der Vorspann (`srv.sub`) sagt, dass **nur das Ausgefüllte** hinausgeht und nichts
+sonst aus dem Buch.
+
+**Der Rumpf rollt, die Fußzeile steht** — dieselbe Bauform wie die drei großen Fenster
+(`.split` / `.dbody`, siehe „Ein Fenster steht in Blöcken"), nur mit einem anderen Schnitt:
+die **Überschrift rollt hier mit**. Sie ist ein Gruß und keine Auskunft, die man beim
+Ausfüllen braucht; gebraucht wird unten, was noch zu tun ist — die Bitte ums Speichern, was
+in der Datei landet, und die beiden Knöpfe. Wer bei Frage sieben steht, soll „Absenden"
+sehen und nicht dorthin scrollen müssen. Die drei Zeilen unten sind ein Stück und stehen
+zusammen; getrennt sind sie vom Rumpf durch Abstand, nicht durch einen Strich.
+
+**Ein Ankreuzkästchen des Browsers gibt es nicht.** Auswahl und Bewertung sind Knöpfe, und
+**gewählt tragen sie Tinte** — dieselbe Sprache wie ein gedrückter Filterknopf. Jede Frage
+steht in einem eigenen `.dgrp`, wie die Blöcke des Posten-Fensters.
+
+**`state.created` gab es einen Tag lang** — den Tag, an dem ein Buch angefangen wurde,
+gedacht als Frist für neue Nutzer. Die Frist hängt jetzt am ersten Speichern und braucht
+kein Datum; `migrate()` **löscht** das Feld deshalb, sonst schriebe `stateJson()` es bei
+jedem Speichern wieder hinaus (dieselbe Behandlung wie `hideSettled` und `flexCollapsed`).
+
+**Noch offen:** die eigenen Umfrage-Dateien auf `fina-app.de` und ein Absatz in der
+Datenschutzerklärung.
 
 ## Die Begrüßungsseite
 
@@ -2514,7 +2729,23 @@ Ein neuer `<h4>`-Block entsteht dabei nur zu einem tatsächlichen Versionswechse
 erkennen wäre. Die Bilder entstehen mit `doc/make-shots.py` (baut aus `index.html` eine
 Wegwerfseite, lädt eine Beispieldatei hinein, fotografiert mit Chrome ohne Fenster).
 
-**Das Skript wird nicht mehr von selbst aufgerufen.** Bildschirmfotos macht nur, wer
+**Drei Dinge muss wissen, wer das Skript anfasst** (alle drei am 23.8.26 nachgezogen, als
+die Bilder das erste Mal nach dem Mac-Redesign entstanden):
+
+* **Der Ausschnitt (`only=…`) klebt nicht.** Klebende Teile werden auf `position:relative`
+  gestellt und verlieren dabei `top`/`left`/`right`/`bottom` — **beides ist nötig**. Auf
+  `static` verliert die `::before`-Schicht des Kartenkopfes ihren Bezug und färbt die
+  ganze Seite in der Farbe des letzten Blocks; behielte sie ihre Maße, schöbe `top` die
+  Filterleiste quer über die erste Karte und `left` die klebenden Spalten (END in der
+  Prognose) um ihre Klebestelle nach rechts.
+* **Die Rollflächen geben ihre Höhe frei.** `#monthScroll` und `.yearscroll` rechnen sie
+  aus der Fenstergröße; im Ausschnitt gibt es kein Fenster, an dem sich das messen ließe.
+* **`all=1` heißt „nichts ausgeblendet"** — es setzt `state.hideDoneMonths=false` und
+  `ui.hideSettled=false`. Die Beispieldatei kann beides gesetzt haben, und ein Abzug, der
+  zwölf Monate zeigen soll, zeigte sonst fünf. (Bis 23.8.26 setzte der Schalter
+  `ui.showAll`, das es nicht mehr gibt.)
+
+**Das Skript wird nicht von selbst aufgerufen.** Bildschirmfotos macht nur, wer
 ausdrücklich darum gebeten wird — die Bilder in `doc/img/` altern also gegenüber der
 Oberfläche, und das ist so gewollt. Prüfen lässt sich eine Änderung auch ohne Bild: Maße
 und berechnete Stile aus dem DOM lesen (`--dump-dom`) sagt genauer, ob etwas an der
@@ -2522,7 +2753,15 @@ richtigen Stelle steht, als ein Blick auf ein Standbild.
 
 Die Zeichenerklärung der Monatsansicht (`.legendbar`) gibt es seit 23.8.26 nicht mehr
 (siehe „Erklärender Text steht in der Sprechblase"): die Siegel erklären ihre
-Sprechblasen und die Anleitung.
+Sprechblasen und die Anleitung. Der Abzug `legend` ist deshalb aus `SHOTS` heraus — sein
+Bild wäre leer; `legend.png` liegt noch in `doc/img/` und wird von der Anleitung noch
+gezeigt (ein Punkt in `doc/GUIDE-TODO.md`).
+
+**Wo ein Bild in einem nachgebauten App-Fenster steht** (`.shotwin` auf `guide.html`),
+darf es die **echte** Kopfzeile nicht mitbringen — sonst stehen zwei übereinander.
+Deshalb fotografiert `forecast` seit 23.8.26 nur `#view`, wie `month-slim`; die
+Jahresmatrix kommt ohne aus, weil ihr Ausschnitt unterhalb der Kopfzeile aufsetzt
+(`data-pan-y="8"`).
 
 ## Die Kürzelspalten der Jahresmatrix
 

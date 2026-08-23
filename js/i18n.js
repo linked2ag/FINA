@@ -124,9 +124,14 @@ const STR={
 'menu.csv':{en:'Import CSV',de:'CSV importieren'},
 'menu.csvTip':{en:'Read Flexible Payments from a Fast Budget CSV export — nothing is changed until you confirm',
   de:'Flexible Payments aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
-'menu.newIn':{en:'New income',de:'Neue Einnahme'},
-'menu.newFlex':{en:'New flexible cost',de:'Neue flexible Kosten'},
-'menu.newOut':{en:'New regular cost',de:'Neue regelmäßige Kosten'},
+/* Der Prototyp des generischen Imports — sichtbar nur per file://
+   ohne App (renderChrome in js/app.js), Name in beiden Sprachen
+   gleich. */
+'menu.csv2':{en:'CSV Import 2.0',de:'CSV Import 2.0'},
+'menu.csv2Tip':{en:'The new generic CSV import (prototype) — opens in its own tab, this book stays untouched',
+  de:'Der neue generische CSV-Import (Prototyp) — öffnet in einem eigenen Reiter, dieses Buch bleibt unberührt'},
+'menu.newFlex':{en:'New flexible entry',de:'Neuer flexibler Eintrag'},
+'menu.newOut':{en:'New regular entry',de:'Neuer regulärer Eintrag'},
 'app.settings':{en:'Settings',de:'Einstellungen'},
 'app.settingsTip':{en:'Language, year, column widths, banks, payment types and categories',
   de:'Sprache, Jahr, Spaltenbreiten, Banken, Zahlungsarten und Kategorien'},
@@ -398,6 +403,7 @@ const STR={
 'wel.openHint':{en:'Pick your saved FINA file and carry on.',
   de:'Deine gespeicherte FINA-Datei wählen und weitermachen.'},
 'wel.new':{en:'Start from scratch',de:'Neu anfangen'},
+'wel.privacy':{en:'Privacy',de:'Datenschutz'},
 'wel.newHint':{en:'An empty book. Pick the year, off you go.',
   de:'Ein leeres Buch. Jahr wählen, loslegen.'},
 
@@ -1083,24 +1089,26 @@ const STR={
    Gefragt wird in FINA selbst — kein fremdes Formular, keine
    fremde Seite. Der Hinweissatz sagt vor dem Absenden, was in der
    eigenen Datei landet: Nummer, Status, Datum — sonst nichts. */
-'srv.test':{en:'Survey (test)',de:'Umfrage (Test)'},
-'srv.testTip':{en:'Temporary: opens the test survey and sends it to Formbricks',
-  de:'Vorl\u00e4ufig: \u00f6ffnet die Testumfrage und schickt sie an Formbricks'},
+'srv.open':{en:'Survey',de:'Umfrage'},
+'srv.openTip':{en:'A few short questions \u2014 one minute, and this button is gone',
+  de:'Ein paar kurze Fragen \u2014 eine Minute, und dieser Knopf ist weg'},
 'srv.title':{en:'A few questions',de:'Ein paar Fragen'},
-'srv.sub':{en:'Your answers help to build FINA further. They go without a name and without any identifier.',
-  de:'Deine Antworten helfen dabei, FINA weiterzubauen. Sie gehen ohne Namen und ohne Kennung ab.'},
-'srv.note':{en:'Only three things are written into your own file: the number of this request, that it is answered, and today\u2019s date. Not the answers themselves.',
-  de:'In deine eigene Datei kommen nur drei Angaben: die Nummer dieser Anfrage, dass sie beantwortet ist, und das heutige Datum. Die Antworten selbst nicht.'},
-'srv.load':{en:'Loading the questions\u2026',de:'Die Fragen werden geholt\u2026'},
+'srv.sub':{en:'Your answers help to build FINA further. Only what you fill in here is sent \u2014 nothing else from your book.',
+  de:'Deine Antworten helfen dabei, FINA weiterzubauen. Abgeschickt wird nur, was du hier ausf\u00fcllst \u2014 sonst nichts aus deinem Buch.'},
+/* Die beiden Zeilen unter den Fragen. Die erste ist rot, weil sie
+   das Einzige nennt, was danach noch zu tun ist; die zweite ist
+   eine Auskunft und keine Aufforderung. Beide sagen grob, was
+   passiert — nicht, wie es in der Datei aussieht. */
+'srv.save':{en:'So this question does not come back: please save your file afterwards.',
+  de:'Damit diese Frage nicht wiederkommt: bitte danach deine Datei speichern.'},
+'srv.note':{en:'Your FINA file then only notes that you answered this survey. What you answered is not stored in it.',
+  de:'In deiner FINA-Datei steht danach nur, dass du diese Umfrage beantwortet hast. Der Inhalt der Umfrage wird darin nicht gespeichert.'},
 'srv.send':{en:'Send',de:'Absenden'},
 'srv.later':{en:'Later',de:'Sp\u00e4ter'},
 'srv.sending':{en:'Sending\u2026',de:'Wird abgeschickt\u2026'},
-'srv.ok':{en:'Thank you. Request {0} is noted as answered in your file.',
-  de:'Danke. Anfrage {0} steht in deiner Datei als beantwortet.'},
-'srv.failNet':{en:'Sending failed — no answer from the server. The request stays open and comes back next time.',
-  de:'Das Absenden hat nicht geklappt — der Server hat nicht geantwortet. Die Anfrage bleibt offen und kommt beim n\u00e4chsten Mal wieder.'},
-'srv.failNone':{en:'No published survey found in this workspace.',
-  de:'In diesem Arbeitsbereich steht keine ver\u00f6ffentlichte Umfrage.'},
-'srv.needOne':{en:'Please answer at least one question.',de:'Bitte beantworte wenigstens eine Frage.'},
-'srv.choose':{en:'\u2014 please choose \u2014',de:'\u2014 bitte w\u00e4hlen \u2014'}
+'srv.ok':{en:'Thank you! Your answers arrived. Remember to save your file.',
+  de:'Danke! Deine Antworten sind angekommen. Denk ans Speichern.'},
+'srv.failNet':{en:'Sending failed \u2014 the server did not answer. Nothing was noted; the survey stays open and comes back later.',
+  de:'Das Absenden hat nicht geklappt \u2014 der Server hat nicht geantwortet. Vermerkt wurde nichts; die Umfrage bleibt offen und kommt sp\u00e4ter wieder.'},
+'srv.needOne':{en:'Please answer at least one question.',de:'Bitte beantworte wenigstens eine Frage.'}
 };

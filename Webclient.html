@@ -65,13 +65,13 @@
            auf jeder Breite (Mac-Redesign 22.8.26). Der rote Punkt
            (#dirtyDot, js/storage.js) sagt „ungespeichert" auch
            dann, wenn der Dateiname nicht mehr in der Zeile steht. -->
-      <!-- VORLÄUFIG (Probelauf Umfrage, 23.8.26): öffnet die
-           Umfrage von Hand. Sobald die Zeitregel steht — zwei
-           Wochen nach dem Anlegen der Datei —, fliegt dieser Knopf
-           wieder heraus; das Fenster geht dann von selbst auf.
-           Siehe js/dialogs/umfrage.js. -->
-      <button class="btn small" id="btnSurveyTest"
-        data-t="srv.test" data-ttip="srv.testTip" hidden></button>
+      <!-- Eine offene Umfrage wartet hier: orange, links vom
+           Hamburger, auf derselben Höhe. Von selbst springt nichts
+           auf — wer antwortet und absendet, wird den Knopf los
+           (surveyOpen() in js/dialogs/umfrage.js, gezeigt in
+           renderChrome). -->
+      <button class="btn srvbtn" id="btnSurvey"
+        data-t="srv.open" data-ttip="srv.openTip" hidden></button>
       <button class="burger" id="btnMenu" aria-expanded="false"
         aria-controls="hdrTools" hidden>
         <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -97,11 +97,18 @@
              (#impFast): erst das Fenster, das sagt, was die Datei
              braucht, dann die Dateiauswahl. -->
         <button class="btn mi-sep" id="btnImportCsv" data-t="menu.csv" data-ttip="menu.csvTip"></button>
-        <!-- Die drei Wege, etwas anzulegen — in der Farbe ihrer
-             Geldart (Regel 1: verdrahtet in js/app.js unten). -->
-        <button class="btn mi-in" id="mNewIn" data-t="menu.newIn"></button>
-        <button class="btn mi-flex" id="mNewFlex" data-t="menu.newFlex"></button>
-        <button class="btn mi-out mi-sep" id="mNewOut" data-t="menu.newOut"></button>
+        <!-- CSV Import 2.0 — der Prototyp des generischen Imports.
+             Er liegt in _BusinessCenter/ und damit außerhalb des
+             Repositories; den Eintrag zeigt renderChrome (js/app.js)
+             nur per file:// ohne App. -->
+        <button class="btn mi-sep" id="btnImportCsv2" data-t="menu.csv2" data-ttip="menu.csv2Tip" hidden></button>
+        <!-- Die beiden Wege, etwas anzulegen (Regel 1: verdrahtet
+             in js/app.js unten). Eine eigene Zeile für die Einnahme
+             gibt es nicht mehr: der reguläre Eintrag geht ohne
+             Vorauswahl auf, und dort stehen Einnahmen und Kosten in
+             derselben Auswahlliste. -->
+        <button class="btn mi-new" id="mNewFlex" data-t="menu.newFlex"></button>
+        <button class="btn mi-new mi-sep" id="mNewOut" data-t="menu.newOut"></button>
         <button class="btn mi-sep" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
         <!-- Der einzige farbige Eintrag: er klappt die Anleitung
              rechts auf und wieder zu (aria-pressed sagt, ob sie

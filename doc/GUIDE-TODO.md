@@ -20,6 +20,18 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- **Von der Begrüßungsseite führt ein Weg zur Datenschutzerklärung (23.8.26)** — kleiner
+  Textlink unter den beiden Karten (`.wlegal`, `wel.privacy`), er öffnet
+  `PRIVACY_URL` in einem neuen Reiter. Kein Absatz falsch geworden; erwähnenswert nur
+  dort, wo die Anleitung die Begrüßungsseite beschreibt.
+
+- ⚠ **Die Anleitung darf keinen Preis mehr nennen (23.8.26)** — FINA ist in der
+  Pilotphase kostenlos und vollständig; die Verkaufsseiten nennen deshalb keinen Preis
+  mehr, und der Abschnitt „Preis"/„Downloads" der Startseite heißt jetzt „Pilotphase"
+  (`#pilot`) und „Apps" (`#apps`). **Zu prüfen:** ob „Was FINA kann" irgendwo Kauf,
+  Lizenz oder Download erwähnt — die Mac- und die Windows-App gibt es zur Zeit nicht
+  zum Herunterladen, sie sind in Arbeit.
+
 - ⚠ **Die Filteroptionen stehen in den Einstellungen (23.8.26)** — der neue Bereich
   „Filter" hält die fünf Kästchen und den sechsten Haken; „Filteroptionen…" neben den
   Suchfeldern öffnet die Einstellungen dort, ein eigenes Fenster gibt es nicht mehr.
@@ -524,3 +536,29 @@ Am 4. August 2026 in beide Reiter und beide Sprachen übernommen:
   Das gilt nur noch für „Abgeschlossene Monate ausblenden".
 - klebende Kartenköpfe (Monat) und Blockzeilen (Jahr)
 - die Marken der Flexible Payments am rechten Zeilenende
+
+## Die Umfrage (23.8.26)
+
+Neu und noch nicht in der Anleitung: FINA fragt in der Pilotphase selbst nach der Meinung
+seiner Nutzer. Läuft eine Umfrage, steht oben rechts ein oranger Knopf „Umfrage" neben dem
+Menü; ein Klick öffnet ein Fenster mit ein paar Fragen. Abgeschickt wird aus FINA heraus,
+in der eigenen Datei wird nur vermerkt, **dass** die Umfrage beantwortet wurde — nicht, was
+geantwortet wurde. Damit der Knopf wegbleibt, muss die Datei danach gespeichert werden.
+
+Gehört in „Was FINA kann"; für „Schritt für Schritt" ist es nichts (es gehört nicht zum
+Anfangen). ⚠ Der Absatz über die Datenschutz-Zusage („FINA baut nur eine einzige
+Netzverbindung auf, und die nur in der App") stimmt damit nicht mehr: die Abfrage nach
+einer laufenden Umfrage läuft auch im Browser.
+
+## Das Menü hinter dem ☰ (23.8.26)
+
+- ⚠ **Zum Anlegen gibt es zwei Wege statt drei** — im Menü stehen nur noch „Neuer
+  flexibler Eintrag" und „Neuer regulärer Eintrag". Eine eigene Zeile für die Einnahme
+  gibt es nicht mehr: der reguläre Eintrag geht ohne Vorauswahl auf, und ob es eine
+  Einnahme ist, sagt die Kategorie, die man im Fenster wählt.
+  **Falsch geworden:** überall, wo die Anleitung „Neue Einnahme" als eigenen Weg im Menü
+  nennt.
+- **Jeder Eintrag des Menüs trägt sein eigenes Zeichen** — Pfeil hinein (hochladen),
+  Diskette (speichern), zwei Blätter (Sicherung), Kreuz im Kreis (schließen), Blatt mit
+  Pfeil (CSV), Plus im Kreis (die beiden Neu-Wege), Schieberegler (Einstellungen), Buch
+  (Anleitung). Farbige Zeichen gibt es nicht mehr.

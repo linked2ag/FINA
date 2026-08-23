@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!--
+  FINA Book — Datenschutzerklärung (datenschutz.html)
+  Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
+
+  DIE FÜNFTE SEITE. Dieselben Bausteine wie die anderen vier:
+  Kopfzeile, Fußzeile, Sprachschalter, Sprungmenü,
+  css/landing.css, js/landing.js. Gelesen wird sie in der schmalen
+  Spalte der Guide-Seite (.gwrap · .ghead · .gsec) — es ist ein
+  Text und keine Verkaufsfläche.
+
+  ZWEI SPRACHEN, EINE PFLICHT: Wie überall steht jeder Satz
+  zweimal da (data-l), Englisch ist der Grundzustand. Rechtlich
+  maßgeblich ist die DEUTSCHE Fassung — das steht auch im Text.
+  Wer einen Absatz ändert, ändert beide.
+
+  JEDER SATZ IST AUS DEM CODE GELESEN, nicht abgeschrieben. Wer
+  hier etwas ändert, prüft es an der Anwendung — und wer an der
+  Anwendung etwas ändert, das nach außen geht, ändert es hier:
+
+    · Hosting              .github/workflows/pages.yml
+    · keine Cookies        (es gibt keine — nichts zu belegen)
+    · Schriften lokal      css/fonts/, @font-face in tokens.css
+    · Sprachwahl           finaLang, js/i18n.js + js/landing.js
+    · Buchdatei bleibt lokal   js/storage.js
+    · Umfrage              js/dialogs/umfrage.js, SURVEY_* in js/config.js
+    · Update-Frage der Apps    checkUpdate() in js/app.js
+
+  ES GIBT ZWEI NETZVERBINDUNGEN, und beide stehen hier: die Frage
+  nach einer laufenden Umfrage (im Browser wie in den Apps) und
+  die Frage nach einer neueren Fassung (nur in den Apps). Kommt
+  eine dritte dazu, kommt hier ein Absatz dazu — vorher.
+
+  NOCH OFFEN: das Impressum. Es braucht eine ladungsfähige
+  Anschrift; die steht noch nicht fest und fehlt deshalb auch im
+  Abschnitt „Wer verantwortlich ist" unten. Sobald sie da ist:
+  hier eintragen und impressum.html anlegen (Fußzeile aller fünf
+  Seiten und der Begrüßungsseite).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
+<meta name="description" content="Privacy at FINA Book: no cookies, no analytics, no ads. Your household book stays a file on your own computer. What happens anyway, said plainly.">
+<title data-en="FINA Book — Privacy" data-de="FINA Buch — Datenschutz">FINA Book — Privacy</title>
+<link rel="icon" href="icon.png" sizes="any">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body id="top">
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="index.html" aria-label="FINA"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
+    <nav aria-label="Hauptnavigation">
+      <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+      <a href="index.html#pilot"><span data-l="de" hidden>Pilotphase</span><span data-l="en">Pilot</span></a>
+    </nav>
+    <div class="langsw" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+    <a class="header-cta" href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span> <span aria-hidden="true">→</span></a>
+  </div>
+</header>
+
+<main class="gwrap">
+
+  <div class="ghead">
+    <p class="eyebrow reveal"><span data-l="de" hidden>DATENSCHUTZ</span><span data-l="en">PRIVACY</span></p>
+    <h1 class="reveal" style="--d:.1s"><span data-l="de" hidden>Datenschutzerklärung</span><span data-l="en">Privacy policy</span></h1>
+    <p class="reveal" style="--d:.2s"><span data-l="de" hidden>FINA sammelt nichts über dich. Diese Seite sagt trotzdem genau, was passiert, wenn du sie aufrufst und wenn du mit FINA arbeitest.</span><span data-l="en">FINA collects nothing about you. This page still says exactly what happens when you open it and when you work with FINA.</span></p>
+  </div>
+
+  <!-- ══ Kurz gesagt ════════════════════════════════════════
+       Drei Sätze für alle, die den Rest nicht lesen. Sie
+       versprechen nichts, was weiter unten nicht steht. -->
+  <div class="rules reveal" style="margin-top:44px">
+    <h3><span data-l="de" hidden>Kurz gesagt</span><span data-l="en">The short version</span></h3>
+    <ul>
+      <li><span data-l="de" hidden><b>Keine Cookies.</b> Keine Zählwerkzeuge, keine Werbung, nichts von Fremden eingebettet.</span><span data-l="en"><b>No cookies.</b> No analytics, no ads, nothing embedded from anyone else.</span></li>
+      <li><span data-l="de" hidden><b>Dein Buch bleibt bei dir.</b> Es ist eine Datei auf deinem Rechner. Hochgeladen wird sie nie.</span><span data-l="en"><b>Your book stays with you.</b> It is a file on your own computer. It is never uploaded.</span></li>
+      <li><span data-l="de" hidden><b>Kein Konto, keine Listen.</b> Es gibt keine Anmeldung, und wir führen keine Besucherlisten.</span><span data-l="en"><b>No account, no lists.</b> There is no sign-up, and we keep no visitor logs.</span></li>
+    </ul>
+  </div>
+
+  <!-- ══ Verantwortlicher ═══════════════════════════════════
+       ACHTUNG: Die ladungsfähige Anschrift fehlt noch — sie ist
+       Pflicht, sobald es ein Impressum gibt, und gehört auch
+       hierher. Sie steht noch nicht fest (Privatadresse oder
+       Adress-Dienst), deshalb bleibt die Zeile vorerst weg. -->
+  <section class="gsec reveal" id="wer">
+    <h2><span data-l="de" hidden>1. Wer verantwortlich ist</span><span data-l="en">1. Who is responsible</span></h2>
+    <p><span data-l="de" hidden>Verantwortlich für die Verarbeitung personenbezogener Daten im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:</span><span data-l="en">The controller for the processing of personal data under the General Data Protection Regulation (GDPR) is:</span></p>
+    <p><b>Alexander Geurkov</b><br>
+      <span data-l="de" hidden>E-Mail:</span><span data-l="en">Email:</span> <a href="mailto:info@fina-app.de">info@fina-app.de</a></p>
+    <p class="gnote"><span data-l="de" hidden>Einen Datenschutzbeauftragten gibt es nicht; für ein Vorhaben dieser Größe ist keiner vorgeschrieben.</span><span data-l="en">There is no data protection officer; a project of this size is not required to appoint one.</span></p>
+  </section>
+
+  <!-- ══ Hosting ════════════════════════════════════════════ -->
+  <section class="gsec reveal" id="hosting">
+    <h2><span data-l="de" hidden>2. Wo diese Seite liegt</span><span data-l="en">2. Where this site is hosted</span></h2>
+    <p><span data-l="de" hidden>Die Seiten von FINA liegen bei <b>GitHub Pages</b>, einem Dienst der GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA — einem Unternehmen von Microsoft. GitHub ist der größte Anbieter dieser Art weltweit: über 180 Millionen Entwickler legen ihre Projekte dort ab, und ein großer Teil der Software, die du täglich benutzt, wird dort gebaut.</span><span data-l="en">The FINA pages are hosted on <b>GitHub Pages</b>, a service of GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA — a Microsoft company. GitHub is the largest provider of its kind worldwide: more than 180 million developers keep their projects there, and much of the software you use every day is built on it.</span></p>
+    <p><span data-l="de" hidden>Wer eine Seite aufruft, schickt dabei zwangsläufig Angaben an diesen Server: die IP-Adresse des Internetanschlusses, den Zeitpunkt, die angeforderte Datei und die üblichen Angaben des Browsers. Ohne sie käme die Seite gar nicht bei dir an, und bei jedem anderen Hoster wäre es genauso. GitHub verarbeitet diese Angaben in eigener Verantwortung und kann sie für Betrieb und Sicherheit kurzzeitig protokollieren. <b>Wir bekommen davon nichts zu sehen</b> und führen selbst keine Zugriffslisten.</span><span data-l="en">Opening a page inevitably sends some details to that server: the IP address of your internet connection, the time, the file requested and the usual details about your browser. Without them the page could not reach you at all, and it would be the same with any other host. GitHub processes these details on its own responsibility and may log them briefly for operation and security. <b>We never get to see any of it</b> and keep no access logs of our own.</span></p>
+    <p><span data-l="de" hidden>Rechtsgrundlage ist unser berechtigtes Interesse daran, die Seite sicher und zuverlässig auszuliefern (Art. 6 Abs. 1 lit. f DSGVO).</span><span data-l="en">The legal basis is our legitimate interest in delivering the site securely and reliably (Art. 6(1)(f) GDPR).</span></p>
+    <p><span data-l="de" hidden>Der Anbieter sitzt in den USA, es kann also zu einer Übermittlung dorthin kommen. Dorthin gehen aber nur die technischen Angaben des Seitenaufrufs — <b>dein Haushaltsbuch liegt nie auf diesem Server</b> (Abschnitt 6). Microsoft ist unter dem EU-US Data Privacy Framework zertifiziert; für Übermittlungen an zertifizierte Unternehmen hat die Europäische Kommission ein angemessenes Schutzniveau festgestellt. Was GitHub im Einzelnen tut, steht in der <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a>.</span><span data-l="en">The provider is based in the USA, so data may be transferred there. What goes there, though, is only the technical details of the page request — <b>your household book never sits on that server</b> (section 6). Microsoft is certified under the EU-US Data Privacy Framework; for transfers to certified companies the European Commission has found an adequate level of protection. What GitHub does in detail is set out in the <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub privacy statement</a>.</span></p>
+  </section>
+
+  <!-- ══ Keine Cookies ══════════════════════════════════════ -->
+  <section class="gsec reveal" id="cookies">
+    <h2><span data-l="de" hidden>3. Keine Cookies, keine Zählwerkzeuge</span><span data-l="en">3. No cookies, no analytics</span></h2>
+    <p><span data-l="de" hidden>Diese Seiten setzen keine Cookies. Es gibt keine Reichweitenmessung, kein Analysewerkzeug, keine Werbung, keine Schaltflächen sozialer Netzwerke und nichts, was von einem fremden Server nachgeladen würde.</span><span data-l="en">These pages set no cookies. There is no traffic measurement, no analytics tool, no advertising, no social media buttons and nothing that would be fetched from someone else’s server.</span></p>
+    <p><span data-l="de" hidden>Deshalb fragt hier auch kein Banner um Erlaubnis: <b>es gibt nichts, wofür eine Einwilligung nötig wäre.</b></span><span data-l="en">That is also why no banner asks you for permission here: <b>there is nothing consent would be needed for.</b></span></p>
+  </section>
+
+  <!-- ══ Schriften ══════════════════════════════════════════ -->
+  <section class="gsec reveal" id="schriften">
+    <h2><span data-l="de" hidden>4. Die Schriften liegen bei</span><span data-l="en">4. The fonts come with the site</span></h2>
+    <p><span data-l="de" hidden>Die drei Schriften, in denen FINA gesetzt ist, werden mit der Seite ausgeliefert. Sie werden <b>nicht</b> bei Google oder einem anderen fremden Anbieter nachgeladen — deine IP-Adresse geht dabei also an niemanden.</span><span data-l="en">The three typefaces FINA is set in are delivered with the site itself. They are <b>not</b> fetched from Google or any other outside provider — so your IP address goes to no one along the way.</span></p>
+  </section>
+
+  <!-- ══ Sprachwahl ═════════════════════════════════════════ -->
+  <section class="gsec reveal" id="sprache">
+    <h2><span data-l="de" hidden>5. Die Sprachwahl bleibt im Browser</span><span data-l="en">5. Your language choice stays in your browser</span></h2>
+    <p><span data-l="de" hidden>Wenn du oben zwischen EN und DE umschaltest, merkt sich dein Browser die Wahl — auf deinem Gerät, damit die nächste Seite gleich in deiner Sprache steht. Das ist <b>kein Cookie</b>: die Wahl wird an keinen Server geschickt und verlässt deinen Rechner nie. Löschen kannst du sie wie alle Websitedaten in den Einstellungen deines Browsers.</span><span data-l="en">When you switch between EN and DE at the top, your browser remembers the choice — on your device, so the next page comes up in your language. This is <b>not a cookie</b>: the choice is never sent to a server and never leaves your computer. You can delete it like any other site data in your browser settings.</span></p>
+  </section>
+
+  <!-- ══ Das Buch ═══════════════════════════════════════════ -->
+  <section class="gsec reveal" id="buch">
+    <h2><span data-l="de" hidden>6. Dein Haushaltsbuch bleibt bei dir</span><span data-l="en">6. Your household book stays with you</span></h2>
+    <p><span data-l="de" hidden>FINA rechnet vollständig in deinem Browser. Die Datei mit deinem Buch öffnest du von deinem Rechner, und gespeichert wird sie dorthin zurück. <b>Sie wird nicht hochgeladen</b> und liegt auf keinem Server von uns.</span><span data-l="en">FINA does all its work inside your browser. You open your book from your own computer, and it is saved straight back there. <b>It is never uploaded</b> and sits on no server of ours.</span></p>
+    <p><span data-l="de" hidden>Wir haben keinen Zugriff darauf und wissen nicht, ob du überhaupt ein Buch führst, was darin steht oder wie viel Geld darin vorkommt. Es gibt kein Nutzerkonto, keine Anmeldung und keine Verbindung zu einer Bank.</span><span data-l="en">We have no access to it and no idea whether you keep a book at all, what is in it or how much money it mentions. There is no user account, no sign-up and no connection to a bank.</span></p>
+  </section>
+
+  <!-- ══ Umfrage ════════════════════════════════════════════
+       Die eine Stelle, an der überhaupt etwas hinausgeht — und
+       zwar in zwei Schritten, die getrennt gehören: nachsehen
+       (ohne Inhalt) und absenden (mit Antworten). -->
+  <section class="gsec reveal" id="umfrage">
+    <h2><span data-l="de" hidden>7. Die Umfrage im Programm</span><span data-l="en">7. The survey inside the program</span></h2>
+    <p><span data-l="de" hidden>In der Pilotphase fragt FINA nach deiner Meinung — in einem Fenster im Programm, nicht auf einer fremden Seite. Dabei geschehen zwei Dinge über das Netz:</span><span data-l="en">While we pilot, FINA asks what you think — in a window inside the program, not on someone else’s page. Two things happen over the network:</span></p>
+    <ul class="gsteps">
+      <li><span data-l="de" hidden><b>Nachsehen, ob etwas läuft.</b> Höchstens einmal je Sitzung fragt FINA beim Umfrage-Dienst nach, ob es gerade eine Umfrage gibt. Dabei sieht der Dienst — wie bei jedem Seitenaufruf — die IP-Adresse und die üblichen Angaben des Browsers. <b>Aus deinem Buch wird nichts übertragen.</b></span><span data-l="en"><b>Checking whether there is one.</b> At most once per session FINA asks the survey service whether a survey is currently running. The service sees — as with any page request — the IP address and the usual browser details. <b>Nothing from your book is transmitted.</b></span></li>
+      <li><span data-l="de" hidden><b>Absenden.</b> Erst wenn du auf „Absenden" klickst, gehen deine Antworten hinaus, dazu nur die Nummer der Umfrage und die Fassung von FINA. Kein Name, keine Kennung, nichts aus deinem Buch — deshalb können wir eine Antwort auch keiner Person zuordnen.</span><span data-l="en"><b>Sending.</b> Only when you press “Send” do your answers go out, together with just the number of the survey and the version of FINA. No name, no identifier, nothing from your book — which is why we cannot trace an answer back to any person.</span></li>
+    </ul>
+    <p><span data-l="de" hidden>Die Antworten nimmt in unserem Auftrag die <b>Formbricks GmbH</b>, Kuhnkestr. 6, 24118 Kiel, entgegen und speichert sie auf Servern in Frankfurt am Main. Mit ihr besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.</span><span data-l="en">The answers are received on our behalf by <b>Formbricks GmbH</b>, Kuhnkestr. 6, 24118 Kiel, Germany, and stored on servers in Frankfurt am Main. A data processing agreement under Art. 28 GDPR is in place with them.</span></p>
+    <p><span data-l="de" hidden>Rechtsgrundlage für das Absenden ist deine Einwilligung, die du mit dem Klick erteilst (Art. 6 Abs. 1 lit. a DSGVO); antworten musst du nicht, das Fenster lässt sich schließen, und der Knopf lässt sich übergehen. Rechtsgrundlage für das bloße Nachsehen ist unser berechtigtes Interesse, in der Pilotphase überhaupt Rückmeldung einholen zu können (Art. 6 Abs. 1 lit. f DSGVO). Die Antworten werden gelöscht, sobald die Auswertung der Pilotphase abgeschlossen ist.</span><span data-l="en">The legal basis for sending is your consent, given with that click (Art. 6(1)(a) GDPR); you do not have to answer, the window can be closed and the button can be ignored. The legal basis for merely checking is our legitimate interest in being able to gather any feedback at all during the pilot (Art. 6(1)(f) GDPR). The answers are deleted once the pilot has been evaluated.</span></p>
+    <p><span data-l="de" hidden>Damit du nicht zweimal gefragt wirst, vermerkt FINA <b>in deiner eigenen Datei</b>, dass du geantwortet hast. Der Vermerk bleibt bei dir; was du geantwortet hast, steht dort nicht.</span><span data-l="en">So that you are not asked twice, FINA notes <b>in your own file</b> that you have answered. That note stays with you; what you answered is not in it.</span></p>
+  </section>
+
+  <!-- ══ Die Apps ═══════════════════════════════════════════ -->
+  <section class="gsec reveal" id="apps">
+    <h2><span data-l="de" hidden>8. Die Apps für Mac und Windows</span><span data-l="en">8. The Mac and Windows apps</span></h2>
+    <p><span data-l="de" hidden>Die Apps für den Schreibtisch sind in Arbeit. Auch sie rechnen vollständig auf deinem Rechner, und auch bei ihnen bleibt die Buchdatei dort liegen. Eine Verbindung bauen sie von sich aus auf: höchstens einmal je Sitzung fragen sie bei GitHub nach, ob es eine neuere Fassung gibt. Dabei sieht GitHub die IP-Adresse — mehr geht nicht hinaus, und in den Einstellungen lässt sich die Frage abschalten. Rechtsgrundlage ist unser berechtigtes Interesse daran, dass Nutzer von Verbesserungen und behobenen Fehlern erfahren (Art. 6 Abs. 1 lit. f DSGVO).</span><span data-l="en">The desktop apps are in the works. They too do all their work on your own computer, and your book file stays there as well. They open one connection of their own: at most once per session they ask GitHub whether a newer version exists. GitHub sees the IP address in doing so — nothing else goes out, and the check can be switched off in the settings. The legal basis is our legitimate interest in users learning about improvements and fixed bugs (Art. 6(1)(f) GDPR).</span></p>
+  </section>
+
+  <!-- ══ Fremde Links ═══════════════════════════════════════ -->
+  <section class="gsec reveal" id="links">
+    <h2><span data-l="de" hidden>9. Links zu fremden Seiten</span><span data-l="en">9. Links to other sites</span></h2>
+    <p><span data-l="de" hidden>Zu jeder Position in deinem Buch kannst du eigene Links hinterlegen — Vertrag, Rechnung, Kundenkonto. Diese Links stehen in deiner Datei und werden von uns nirgends gesehen. Ein Klick darauf öffnet die fremde Seite; ab dort gilt deren Datenschutzerklärung, und wir haben darauf keinen Einfluss. Dasselbe gilt für die wenigen Links von diesen Seiten nach außen.</span><span data-l="en">You can attach your own links to any item in your book — a contract, an invoice, an account page. Those links live in your file and are never seen by us. Clicking one opens that other site; from there its own privacy policy applies, and we have no influence over it. The same goes for the few outbound links on these pages.</span></p>
+  </section>
+
+  <!-- ══ Rechte ═════════════════════════════════════════════ -->
+  <section class="gsec reveal" id="rechte">
+    <h2><span data-l="de" hidden>10. Deine Rechte</span><span data-l="en">10. Your rights</span></h2>
+    <p><span data-l="de" hidden>Dir stehen die Rechte der DSGVO zu: Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen eine Verarbeitung, die auf einem berechtigten Interesse beruht (Art. 21). Eine erteilte Einwilligung kannst du jederzeit für die Zukunft widerrufen (Art. 7 Abs. 3). Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77).</span><span data-l="en">You have the rights granted by the GDPR: access (Art. 15), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18), data portability (Art. 20) and objection to processing based on a legitimate interest (Art. 21). Any consent you have given can be withdrawn at any time with effect for the future (Art. 7(3)). You may also lodge a complaint with a data protection supervisory authority (Art. 77).</span></p>
+    <p><span data-l="de" hidden>In der Sache ist das schnell erzählt: Wir speichern zu dir nichts, was sich herausgeben oder löschen ließe — außer den Antworten aus einer Umfrage, und die tragen keine Kennung, mit der sich eine Person wiederfinden ließe. Frag trotzdem, wenn du etwas wissen willst: <a href="mailto:info@fina-app.de">info@fina-app.de</a>.</span><span data-l="en">In practice this is quickly told: we store nothing about you that could be handed over or deleted — apart from the answers to a survey, and those carry no identifier that could lead back to a person. Do ask anyway if you want to know something: <a href="mailto:info@fina-app.de">info@fina-app.de</a>.</span></p>
+  </section>
+
+  <!-- ══ Nichts weiter ══════════════════════════════════════ -->
+  <section class="gsec reveal" id="nichts">
+    <h2><span data-l="de" hidden>11. Was es hier nicht gibt</span><span data-l="en">11. What does not happen here</span></h2>
+    <p><span data-l="de" hidden>Kein Profiling, keine automatisierte Entscheidungsfindung, kein Verkauf und keine Weitergabe von Daten an Dritte zu Werbezwecken. Über die genannten Stellen hinaus wird nichts an jemanden weitergegeben.</span><span data-l="en">No profiling, no automated decision-making, no selling of data and no passing it on to third parties for advertising. Beyond the places named above, nothing is passed on to anyone.</span></p>
+  </section>
+
+  <!-- ══ Stand ══════════════════════════════════════════════ -->
+  <section class="gsec reveal" id="stand">
+    <h2><span data-l="de" hidden>12. Stand dieser Erklärung</span><span data-l="en">12. Status of this policy</span></h2>
+    <p><span data-l="de" hidden>Diese Erklärung gilt ab dem <b>23. August 2026</b>. Sobald FINA etwas Neues tut, bei dem Daten hinausgehen — etwa Bezahlen oder eine Ablage im Netz —, steht es hier, bevor es losgeht.</span><span data-l="en">This policy applies from <b>23 August 2026</b>. As soon as FINA does anything new that sends data out — a payment, say, or storage on the net — it will be described here before it starts.</span></p>
+    <p class="gnote"><span data-l="de" hidden>Maßgeblich ist die deutsche Fassung; die englische ist eine Übersetzung zur Bequemlichkeit.</span><span data-l="en">The German version is the authoritative one; the English is a translation for convenience.</span></p>
+  </section>
+
+  <div class="gcta reveal">
+    <a class="button button-primary" href="Webclient.html"><span data-l="de" hidden>Direkt im Browser öffnen</span><span data-l="en">Open right in the browser</span> <span aria-hidden="true">→</span></a>
+    <a class="button button-quiet" href="index.html"><span data-l="de" hidden>Zurück zur Startseite</span><span data-l="en">Back to the home page</span></a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span data-l="de" hidden>FINA Buch</span><span data-l="en">FINA Book</span></a>
+    <p><span data-l="de" hidden>Dein Geld. Dein Plan. Dein Jahr.</span><span data-l="en">Your money. Your plan. Your year.</span></p>
+    <nav aria-label="Fußzeile">
+      <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+      <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
+      <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
+      <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+      <a href="index.html#pilot"><span data-l="de" hidden>Pilotphase</span><span data-l="en">Pilot</span></a>
+      <a href="index.html#apps">Apps</a>
+      <a href="datenschutz.html"><span data-l="de" hidden>Datenschutz</span><span data-l="en">Privacy</span></a>
+    </nav>
+  </div>
+</footer>
+
+<!-- Das Sprungmenü unten links: die Abschnitte dieser Seite und
+     die Wege zu den anderen. Aufbau wie in index.html. -->
+<div class="jump" data-jump>
+  <nav class="jumpmenu" id="jumpmenu" aria-label="Abschnitte">
+    <p class="jumphd"><span data-l="de" hidden>Auf dieser Seite</span><span data-l="en">On this page</span></p>
+    <a href="#top"><span data-l="de" hidden>Anfang</span><span data-l="en">Top</span></a>
+    <a href="#wer"><span data-l="de" hidden>Wer verantwortlich ist</span><span data-l="en">Who is responsible</span></a>
+    <a href="#hosting"><span data-l="de" hidden>Wo die Seite liegt</span><span data-l="en">Where the site is hosted</span></a>
+    <a href="#cookies"><span data-l="de" hidden>Keine Cookies</span><span data-l="en">No cookies</span></a>
+    <a href="#sprache"><span data-l="de" hidden>Die Sprachwahl</span><span data-l="en">Your language choice</span></a>
+    <a href="#buch"><span data-l="de" hidden>Dein Haushaltsbuch</span><span data-l="en">Your household book</span></a>
+    <a href="#umfrage"><span data-l="de" hidden>Die Umfrage</span><span data-l="en">The survey</span></a>
+    <a href="#apps"><span data-l="de" hidden>Die Apps</span><span data-l="en">The apps</span></a>
+    <a href="#rechte"><span data-l="de" hidden>Deine Rechte</span><span data-l="en">Your rights</span></a>
+    <a href="#stand"><span data-l="de" hidden>Stand</span><span data-l="en">Status</span></a>
+    <div class="jumpsep" aria-hidden="true"></div>
+    <p class="jumphd"><span data-l="de" hidden>Mehr</span><span data-l="en">More</span></p>
+    <a href="index.html"><span data-l="de" hidden>Startseite</span><span data-l="en">Home</span></a>
+    <a href="features.html"><span data-l="de" hidden>Alle Funktionen</span><span data-l="en">All features</span></a>
+    <a href="compare.html"><span data-l="de" hidden>Der Vergleich</span><span data-l="en">The comparison</span></a>
+    <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
+    <a href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
+  </nav>
+  <button class="jumpbtn" type="button" aria-expanded="false" aria-controls="jumpmenu"
+          aria-label="Abschnitte / Sections">
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+</div>
+
+<script src="js/landing.js"></script>
+</body>
+</html>

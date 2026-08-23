@@ -43,7 +43,12 @@ if(p.get('lang')) state.lang=p.get('lang');
 ui.view=p.get('v')||'jahr';
 if(p.get('m')) ui.month=+p.get('m');
 if(p.get('scope')) ui.scope=p.get('scope');
-if(p.get('all')) ui.showAll=true;
+/* `all=1` heißt: nichts ausgeblendet. Die Beispieldatei kann die
+   abgerechneten Monate versteckt haben — auf einem Abzug, der
+   zwölf Monate nebeneinander zeigen soll, wäre das der falsche
+   Zustand. (Bis 23.8.26 stand hier `ui.showAll`, das es nicht
+   mehr gibt.) */
+if(p.get('all')){ state.hideDoneMonths=false; ui.hideSettled=false; }
 /* Die Auswertung der Monatsansicht steht eingeklappt — für den
    Abzug des Zeitstrahls wird sie aufgeklappt. Ebenso lässt sich
    je Bereich sagen, ob er zugeklappt ist (fold=in,out). */
@@ -83,10 +88,29 @@ if(only){
     el.style.margin='0';
     /* Im Abzug klebt nichts: die klebenden Teile (Kartenkopf,
        Filterzeile) tragen ein top-Maß, das zur ganzen Seite passt
-       und im Ausschnitt mitten in die Liste rutschen würde. */
-    if(getComputedStyle(el).position==='sticky') el.style.position='static';
+       und im Ausschnitt mitten in die Liste rutschen würde.
+       **relative, nicht static**: die Farbe des Kartenkopfes liegt
+       seit dem Mac-Redesign auf einer absolut gesetzten
+       ::before-Schicht. Auf `static` verliert die ihren Bezug und
+       färbt die ganze Seite in der Farbe des letzten Blocks. Das
+       Alle vier Maße müssen dabei weg: relativ gesetzt verschöbe
+       `top` die Leiste um genau dieses Maß nach unten, quer über
+       die erste Karte — und `left` schöbe die klebenden Spalten
+       (END in der Prognose, die Bezeichnung in der Jahresmatrix)
+       um ihre Klebestelle nach rechts. */
+    const unstick=x=>{ x.style.position='relative';
+      x.style.top=x.style.left=x.style.right=x.style.bottom='auto'; };
+    if(getComputedStyle(el).position==='sticky') unstick(el);
     el.querySelectorAll('*').forEach(x=>{
-      if(getComputedStyle(x).position==='sticky') x.style.position='static';
+      if(getComputedStyle(x).position==='sticky') unstick(x);
+    });
+    /* Jahresmatrix und Monatsliste rollen seit 23.8.26 in einer
+       eigenen Fläche mit gerechneter Höhe. Im Ausschnitt gibt es
+       kein Fenster, an dem sich das messen ließe — die Fläche gibt
+       ihre Höhe deshalb frei, und der Abzug ist so hoch wie sein
+       Inhalt. */
+    frame.querySelectorAll('#monthScroll,.yearscroll').forEach(x=>{
+      x.style.height='auto'; x.style.maxHeight='none'; x.style.overflow='visible';
     });
   }
 }
@@ -101,7 +125,7 @@ document.body.setAttribute('data-h',Math.ceil(h));
 # würden, ohne mehr zu zeigen.
 SHOTS = [
     # ── die vier Ansichten, für die README ────────────────────────
-    ('year',        'v=jahr&all=1',                       2480, 1560),
+    ('year',        'v=jahr&all=1',                       2480, 1290),
     ('month',       'v=monat&m=8&fold=',                  1500, 1500),
     # Der schmale Monat für die Guide-Seite: nur der Inhalt (#view,
     # als %23 — ein rohes „#" wäre die Sprungmarke), schmal
@@ -109,11 +133,17 @@ SHOTS = [
     # Breite zu laufen. Die Auswertung ist AUFGEKLAPPT (ana=1): die
     # Guide-Seite zeigt Zahlenzeile und Zeitstrahl in diesem einen
     # Bild und braucht kein zweites daneben.
-    ('month-slim',  'v=monat&m=8&ana=1&fold=&only=%23view', 880, 1500),
+    ('month-slim',  'v=monat&m=8&ana=1&fold=&only=%23view', 880),
     ('flexible',    'v=kakeibo&scope=jahr',               1500, 1180),
-    ('forecast',    'v=prognose',                         1500),
+    # Nur der Inhalt (#view, als %23 — ein rohes „#" wäre die
+    # Sprungmarke): auf der Guide-Seite steckt das Bild in einem
+    # nachgebauten App-Fenster (.shotwin), und die echte Kopfzeile
+    # darin stünde als zweite darunter.
+    ('forecast',    'v=prognose&only=%23view',            1900),
     ('guide',       'v=monat&m=8&guide=1',                1700, 1250),
     # ── Ausschnitte, für die Anleitung im Seitenbereich ───────────
+    # Die Zeichenerklärung (.legendbar) stand bis 23.8.26 unter der
+    # Monatsansicht; sie ist weg, ihr Abzug wäre leer.
     ('ui-header',   'v=monat&m=8&only=header',            1200),
     ('ui-kpi',      'v=monat&m=8&only=.stickybar',        1200),
     # Die Auswertung, aufgeklappt: Zahlenzeile, Zeitstrahl, Filter.
@@ -131,9 +161,8 @@ SHOTS = [
     ('month-flex',  'v=monat&m=8&fold=&only=.card.sec-flex',    1200),
     ('month-out',   'v=monat&m=8&fold=&only=.card.sec-out',     1200, 920),
     ('month-bal',   'v=monat&m=8&only=.card.sec-bal',     1200),
-    ('legend',      'v=monat&m=8&only=.legendbar',        1200),
     # Kein „#" in der Adresse — das wäre die Sprungmarke, nicht der Wert.
-    ('year-left',   'v=jahr&only=.yearscroll',             980, 1150),
+    ('year-left',   'v=jahr&all=1&only=.yearscroll',       980, 1150),
     ('flex-view',   'v=kakeibo&scope=jahr&only=.card.sec-flex', 1200, 900),
 ]
 

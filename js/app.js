@@ -80,11 +80,29 @@ function renderChrome(){
   /* Auch die Anleitung und das Jahr: die Begrüßung ist bewusst
      leer — die Anleitung gehört ins geladene Buch, und ein Jahr
      gibt es ohne Datei noch nicht. */
-  ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewIn','mNewFlex','mNewOut',
-   'btnSettings','filePath','btnGuide','yearLbl','btnSurveyTest'].forEach(id=>{
+  ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewFlex','mNewOut',
+   'btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel||id==='btnLoad';
   });
+
+  /* CSV Import 2.0 — der Prototyp des generischen Imports. Sein
+     Ordner (_BusinessCenter/) steht nicht im Repository: den
+     Eintrag gibt es nur, wo FINA per file:// läuft — also auf dem
+     Rechner, auf dem der Ordner daneben liegt. Die Apps laufen
+     auch über file://, tragen den Ordner aber nicht mit —
+     FINA_NATIVE schließt sie aus. Auf der Webseite fehlt der
+     Eintrag damit von selbst. */
+  const csv2=document.getElementById('btnImportCsv2');
+  if(csv2) csv2.hidden=wel||location.protocol!=='file:'||!!window.FINA_NATIVE;
+
+  /* Der Umfrage-Knopf hängt nicht am geladenen Buch allein: es
+     muss auch eine Umfrage geben, die noch offen ist. Beides fragt
+     surveyOpen() (js/dialogs/umfrage.js) — die Antwort kann
+     nachträglich eintreffen, deshalb ruft checkSurvey() diese
+     Funktion noch einmal auf. */
+  const sb=document.getElementById('btnSurvey');
+  if(sb) sb.hidden=!surveyOpen();
 
   /* Eine Sprachwahl steht hier nicht mehr: mit offenem Buch
      entscheidet die Datei (state.lang), und geändert wird das im
@@ -337,6 +355,9 @@ function render(){
      die Köpfe der Matrix hält der Browser selbst. */
   fitRails();
   checkUpdate();
+  /* Läuft eine Umfrage? Einmal je Sitzung und erst mit offenem
+     Buch — dieselbe Regel wie oben, aus denselben Gründen. */
+  checkSurvey();
 
   /* Die mobile Jahresansicht fängt beim laufenden Monat an: die
      abgerechneten Karten liegen darüber und sind per Scroll nach
@@ -1056,20 +1077,24 @@ document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();
-/* VORLÄUFIG (Probelauf Umfrage): der Knopf links vom Hamburger
-   öffnet die Umfrage von Hand. Er verschwindet wieder, sobald die
-   Zeitregel steht — siehe js/dialogs/umfrage.js. */
-document.getElementById('btnSurveyTest').onclick=()=>openSurveyTest();
+document.getElementById('btnSurvey').onclick=()=>openSurvey();
 /* Der CSV-Import im Menü nimmt denselben Weg wie der Bereich
    „Import" der Einstellungen: erst das Fenster, das sagt, was die
    Datei braucht (openImportInfo), dann die Dateiauswahl. */
 document.getElementById('btnImportCsv').onclick=()=>openImportInfo();
-/* Die drei „Neu…"-Wege des Menüs — dieselben Fenster wie die
-   Knöpfe, die bis zum Mac-Redesign in den Karten standen. Die
-   Einnahme bekommt die erste Einnahme-Kategorie vorgewählt; gibt
-   es keine, heißt "1" ohne Vorauswahl, und #fSave sagt, dass
-   Kategorien in den Einstellungen entstehen (item.needBlock). */
-document.getElementById('mNewIn').onclick=()=>editItem(null,incomeGroups()[0]||'1');
+/* CSV Import 2.0 öffnet als eigener Reiter neben FINA — der
+   Prototyp arbeitet mit Kopien und fasst dieses Buch nicht an
+   (sichtbar nur per file://, siehe renderChrome). */
+document.getElementById('btnImportCsv2').onclick=
+  ()=>window.open('_BusinessCenter/FRAMEWORK%20CSV%20Import/index.html','_blank');
+/* Die beiden „Neu…"-Wege des Menüs — dieselben Fenster wie die
+   Knöpfe, die bis zum Mac-Redesign in den Karten standen. Eine
+   eigene Zeile für die Einnahme gibt es nicht: der reguläre
+   Eintrag geht mit "1" ohne Vorauswahl auf, und dort stehen
+   Einnahmen und Kosten in **einer** Auswahlliste (groupOpts() in
+   js/dialogs/item.js). #fSave sagt, wenn noch keine Kategorie da
+   ist, dass Kategorien in den Einstellungen entstehen
+   (item.needBlock). */
 document.getElementById('mNewFlex').onclick=()=>newKakCat();
 document.getElementById('mNewOut').onclick=()=>editItem(null,'1');
 

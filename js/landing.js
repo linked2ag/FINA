@@ -1,8 +1,9 @@
 /* ══════════════════════════════════════════════════════════════
-   FINA — das Skript der vier Verkaufsseiten
-   index.html · features.html · compare.html · guide.html
+   FINA — das Skript der fünf Seiten außerhalb der Anwendung
+   index.html · features.html · compare.html · guide.html ·
+   datenschutz.html
 
-   EINE Datei für alle vier. Bis August 2026 stand jeder Block
+   EINE Datei für alle fünf. Bis August 2026 stand jeder Block
    inline in jeder Seite; bei zwei Seiten ging das noch, bei vier
    liefen die Kopien auseinander.
 
@@ -119,6 +120,24 @@ if(jump){
     addEventListener('resize',spy);
     if(jbtn) jbtn.addEventListener('click',spy);
     spy();
+  }
+
+  /* ── Der Knopf parkt über der Fußzeile ───────────────────────
+     Ganz unten stünde er sonst genau auf dem Wortzeichen — die
+     letzte Zeile der Seite bliebe verdeckt. Sobald die Fußzeile
+     ins Fenster kommt, hebt ihre sichtbare Höhe den Knopf an;
+     vorher bleibt er, wo er ist. Kein Übergang: er soll dem
+     Scrollen folgen, nicht ihm hinterherlaufen. Das transform
+     sitzt am Container und nimmt das aufgeklappte Menü mit. */
+  var foot=document.querySelector('footer');
+  if(foot){
+    var lift=function(){
+      var o=innerHeight-foot.getBoundingClientRect().top;
+      jump.style.transform=o>0?'translateY(-'+Math.round(o)+'px)':'';
+    };
+    addEventListener('scroll',lift,{passive:true});
+    addEventListener('resize',lift);
+    lift();
   }
 }
 

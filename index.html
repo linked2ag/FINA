@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  FINA Book — Startseite (Verkauf, Downloads, Wege zu den anderen Seiten)
+  FINA Book — Startseite (Verkauf, Pilotphase, Wege zu den anderen Seiten)
   Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.
 
   ══════════════════════════════════════════════════════════════
@@ -11,11 +11,22 @@
   Fachwörter: die Seite ist für Anfänger, nicht für Leute, die
   schon wissen, worum es geht.
 
-  VIER SEITEN, EIN BAUKASTEN: index.html (hier), features.html
-  (alle Funktionen), compare.html (der Vergleich) und guide.html.
-  Kopfzeile, Fußzeile, Sprachschalter, Sprungmenü und das Skript
-  js/landing.js sind auf allen vier gleich; wer eins davon ändert,
-  ändert es überall.
+  DIE SEITE IST BEWUSST LEICHT (seit 23.8.26): ein Satz, was
+  FINA ist; ein echtes Bild je Ansicht; die Pilotphase als EIN
+  Kasten ohne Knöpfe; „Wo es FINA gibt" sagt klar, dass zur Zeit
+  NUR DER BROWSER läuft. Alle Einzelheiten wohnen auf
+  features.html, compare.html und guide.html — wer hier einen
+  Absatz ergänzen will, prüft zuerst, ob er nicht dorthin
+  gehört. Die Akzentfarbe (Orange) tragen nur die
+  Handlungs-Elemente: die „Im Browser öffnen"-Knöpfe, die
+  Weiterlese-Links und das Sprungmenü — nicht Überschriften,
+  nicht Kästen, nicht Marken.
+
+  FÜNF SEITEN, EIN BAUKASTEN: index.html (hier), features.html
+  (alle Funktionen), compare.html (der Vergleich), guide.html
+  und datenschutz.html. Kopfzeile, Fußzeile, Sprachschalter,
+  Sprungmenü und das Skript js/landing.js sind auf allen fünf
+  gleich; wer eins davon ändert, ändert es überall.
 
   ZWEI SPRACHEN, EINE SEITE: Jeder Text steht zweimal da —
   data-l="en" sichtbar (der Grundzustand, auch ohne JavaScript),
@@ -27,44 +38,50 @@
   BEIDE Fassungen. „Guide" heißt auf Deutsch „Anleitung" — wie
   der Knopf in der Anwendung.
 
-  ALLE DREI ANSICHTEN sind nachgebaut, nicht fotografiert: sie
-  erben ihre Farben aus tokens.css und können nicht veralten.
-  Die Jahresmatrix steht dabei in LESEGRÖSSE und ist breiter als
-  ihr Rahmen: rechts unten liegt die ganze Tabelle als Karte, und
-  ziehen verschiebt den Ausschnitt (data-pan, siehe
-  js/landing.js). Die Karte ist eine Kopie der Tabelle daneben —
-  gepflegt wird nichts doppelt.
-  Laufender Monat ist MÄRZ; Januar und Februar sind abgerechnet
-  (Kopf durchgestrichen, Haken RECHTS am Betrag). Die LP-Ampel
-  stimmt mit den Zeilen überein: Streaming (LP 1) endet im März,
-  Autokredit (LP 3) im Mai, Versicherungen (LP 5) im Juli — und
-  das Monatsergebnis oben steigt sichtbar von 811 auf 1.800.
-  Monat und Prognose (#ansichten) spiegeln die Anwendung:
-  Auswertungszeile, drei farbige Karten mit Siegeln in der
-  Spaltenfolge der App (Siegel · Betrag · Bezeichnung); die
-  Prognose als Kontoauszug M · START · IN · REG · FLEX · END
-  samt Verlaufsspalte (Wasserfall auf Achse 0–18.000,
-  Rasterlinien alle 6.000, Prozentwerte = Betrag/180). Die
-  Zahlen sind überall DIESELBEN wie in der Matrix: END ist die
-  aufsummierte Gesamtzeile (811,10 · 1.622,20 · … · 14.965,30).
-  Wer Zahlen ändert, rechnet alle Summen und Balkenpositionen
-  nach.
+  DIE BILDER SIND ECHT (seit 23.8.26): dieselben Bildschirmfotos
+  aus doc/img/ wie auf der Guide-Seite, jedes in einem
+  App-Fenster (.shotwin). Die nachgebauten Ansichten (.mx, .px,
+  das Innenleben der .mini-Karten) sind heraus — sie zeigten das
+  Chrome von vor dem Mac-Redesign und veralteten mit jedem
+  Umbau; ihre Regeln stehen noch in css/landing.css, benutzt
+  werden sie nicht. Die Jahresmatrix steht in ORIGINALGRÖSSE und
+  ist beschnitten: rechts unten liegt das ganze Bild als Karte,
+  ziehen verschiebt den Ausschnitt (data-pan; data-pan-y="8"
+  überspringt die Kopfzeile der App — sonst stünden unter der
+  dunklen Fensterleiste zwei Kopfzeilen übereinander). Monat und
+  Prognose stehen KLEIN nebeneinander in den .mini-Fenstern —
+  der Monat als schmale Spalte, wie die Ansicht auch auf dem
+  Telefon aussieht, unten ausgeblendet: Bilder in Lesegröße
+  wären der Startseite zu schwer; lesen kann man sie per Klick
+  aufs Bild oder in der Anleitung. Neue
+  Bilder entstehen NUR auf ausdrückliche Bitte
+  (doc/make-shots.py).
 
-  DOWNLOADS wohnen hier (Abschnitt #downloads): die Plattform-
-  Karten öffnen ihre Kachelgruppe #mac / #win (Block 4 in
-  js/landing.js; ein zweiter Klick schließt sie wieder); ohne
-  JavaScript springt :target als Rückfallweg ein. Der Erststart-
-  Hinweis steht je Plattform in der Gruppe. BEIM VERÖFFENTLICHEN
-  einer neuen App-Fassung ändern sich die Versionsnummern, Größen
-  und Daten in den dlmeta-Zeilen (Deutsch UND Englisch) sowie
-  version.json — erst, wenn die Dateien an der Release hängen
-  (desktop/README.md). Die Links releases/latest/download/…
-  zeigen immer auf die neueste Release.
+  DIE PILOTPHASE ist seit dem 23.8.26 die Aussage der Seite
+  (#pilot, früher #preis): FINA ist vollständig freigeschaltet
+  und kostet nichts, dafür bittet es um Rückmeldung. DESHALB
+  STEHT HIER KEIN PREIS — keine Karte, keine Zahl, kein „ab".
+  Wer eine einbaut, bevor die Stufen beschlossen sind, macht
+  eine Zusage, die niemand halten muss. Seit demselben Tag ist
+  der Abschnitt EIN Kasten (.rules) ohne einen einzigen Knopf:
+  die drei Plan-Karten mit drei Knöpfen sahen aus wie eine
+  Preistabelle, und genau das soll es nicht sein. Der Weg für
+  die Rückmeldung ist die Umfrage IM PROGRAMM
+  (js/dialogs/umfrage.js), nicht ein Formular auf dieser Seite.
 
-  PREISE stehen an genau einer weiteren Stelle: im Plan
-  (_TMP/…Einmalkauf…). Solange es keinen Checkout gibt, führen
-  die Kaufknöpfe auf die Vormerkliste (mailto,
-  KONTAKTADRESSE EINTRAGEN).
+  DOWNLOADS GIBT ES NOCH KEINE (#apps, früher #downloads): zur
+  Zeit läuft FINA nur im Browser, und der Abschnitt sagt genau
+  das — die Überschrift heißt „Zur Zeit: im Browser.", darunter
+  drei Kacheln: Browser (führt in die Anwendung), Telefon (zum
+  Nachsehen, siehe css/mobile.css) und Mac/Windows als
+  .gcard.soon, ein <div> und KEIN <a>, denn ein Knopf, der
+  nichts tut, ist schlimmer als kein Knopf.
+  Der Anker #apps bleibt: der Stub in download/
+  und der Update-Hinweis älterer App-Fassungen zeigen darauf.
+  Wer die Apps veröffentlicht, baut die Kachelgruppen #mac /
+  #win samt Block 4 in js/landing.js aus der Historie zurück —
+  der Block steigt von selbst aus, solange es keine
+  [data-dl]-Karte gibt — und setzt version.json hoch, erst dann.
 
   DER WEB-CLIENT heißt Webclient.html — diese Seite hier ist
   index.html, damit die Adresse der Seite die Verkaufsseite ist.
@@ -75,7 +92,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
-<meta name="description" content="FINA Book — your whole household year in advance. Every rent, every subscription, every loan — plus everyday spending. Ticked off when paid. Buy once, don't rent.">
+<meta name="description" content="FINA Book — your whole household year in advance. Every rent, every subscription, every loan — plus everyday spending. Ticked off when paid. Free while we pilot: everything unlocked, no sign-up.">
 <title data-en="FINA Book — your year ahead" data-de="FINA Buch — dein Jahr im Voraus">FINA Book — your year ahead</title>
 <link rel="icon" href="icon.png" sizes="any">
 <link rel="stylesheet" href="css/tokens.css">
@@ -92,8 +109,8 @@
       <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
       <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
       <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
-      <a href="#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
-      <a href="#downloads">Downloads</a>
+      <a href="#pilot"><span data-l="de" hidden>Pilotphase</span><span data-l="en">Pilot</span></a>
+      <a href="#apps">Apps</a>
     </nav>
     <!-- Der Sprachschalter: Englisch ist der Grundzustand, die
          Wahl wird gemerkt (finaLang) und gilt auf jeder Seite. -->
@@ -116,134 +133,39 @@
     <p class="hero-what reveal"><span data-l="de" hidden>FINA ist ein <b>Haushaltsbuch für ein ganzes Jahr</b>: alle Einnahmen, alle Kosten, Monat für Monat im Voraus geplant.</span><span data-l="en">FINA is a <b>household book for a whole year</b>: all your income, all your costs, planned ahead month by month.</span></p>
     <h1 id="hero-title" class="reveal" style="--d:.1s"><span data-l="de" hidden>Andere zeigen dir, was war.<br><em>FINA zeigt dir, was kommt.</em></span><span data-l="en">Others show you what was.<br><em>FINA shows you what comes.</em></span></h1>
     <p class="hero-sub reveal" style="--d:.2s"><span data-l="de" hidden>Jede Miete. Jedes Abo. Jede Rate. Und der Alltag dazu.<br><b>Das ganze Jahr im Blick — abgehakt, was bezahlt ist.</b></span><span data-l="en">Every rent. Every subscription. Every loan. Plus everyday spending.<br><b>The whole year at a glance — ticked off when paid.</b></span></p>
-    <p class="hero-model reveal" style="--d:.3s"><span data-l="de" hidden>Einmal kaufen. Nicht mieten.</span><span data-l="en">Buy once. Don’t rent.</span></p>
+    <p class="hero-model pilot reveal" style="--d:.3s"><span data-l="de" hidden>Pilotphase: gerade vollständig und kostenlos.</span><span data-l="en">Pilot phase: complete and free right now.</span></p>
 
     <div class="hero-actions reveal" style="--d:.4s">
       <a class="button button-primary" href="Webclient.html"><span data-l="de" hidden>Direkt im Browser öffnen</span><span data-l="en">Open right in the browser</span> <span aria-hidden="true">→</span></a>
-      <a class="button button-quiet" href="#downloads"><span data-l="de" hidden>Downloads für Mac &amp; Windows</span><span data-l="en">Downloads for Mac &amp; Windows</span></a>
+      <a class="button button-quiet" href="#pilot"><span data-l="de" hidden>Was die Pilotphase heißt</span><span data-l="en">What the pilot means</span></a>
     </div>
 
     <!-- Die Vertrauensfrage fällt am Knopf — die Antworten stehen
          direkt darunter, lesbar, nicht im Kleingedruckten. -->
     <ul class="trust reveal" style="--d:.5s">
       <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Keine Anmeldung</span><span data-l="en">No sign-up</span></li>
-      <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Testen ohne Kreditkarte</span><span data-l="en">Try it without a credit card</span></li>
+      <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>In der Pilotphase kostenlos</span><span data-l="en">Free while we pilot</span></li>
       <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Keine Bankverbindung</span><span data-l="en">No bank connection</span></li>
       <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Deine Daten bleiben auf deinem Rechner</span><span data-l="en">Your data stays on your computer</span></li>
     </ul>
 
-    <!-- Die Jahresmatrix: das Verkaufsargument als Bild.
-         März läuft; Jan/Feb abgerechnet (durchgestrichen, Haken
-         rechts); die Ampel stimmt mit den Zeilen überein. -->
-    <div class="shot reveal" style="--d:.34s" role="img" aria-label="Die Jahresmatrix von FINA: zwölf Monatsspalten. Januar und Februar sind abgerechnet und durchgestrichen, bezahlte Beträge tragen rechts einen grünen Haken, Kosten stehen rot mit Minuszeichen, Schätzungen orange, der März ist rot eingefasst.">
+    <!-- Die Jahresansicht: das Verkaufsargument als Bild — ein
+         ECHTES Bildschirmfoto in Originalgröße, beschnitten und
+         schiebbar. Dieselbe Mechanik wie auf der Guide-Seite:
+         rechts unten das ganze Bild als Karte, data-pan-y="8"
+         setzt den Ausschnitt unter der Kopfzeile der App auf. -->
+    <div class="shot reveal" style="--d:.34s">
       <div class="shot-bar">
         <span class="dot r" aria-hidden="true"></span><span class="dot y" aria-hidden="true"></span><span class="dot g" aria-hidden="true"></span>
-        <span class="ttl"><span data-l="de" hidden>FINA Buch · 2026</span><span data-l="en">FINA Book · 2026</span></span>
+        <span class="ttl"><span data-l="de" hidden>FINA Buch · Jahresansicht</span><span data-l="en">FINA Book · Year view</span></span>
         <span class="tab"><span data-l="de" hidden>Monat · <b>Jahr</b> · Prognose</span><span data-l="en">Month · <b>Year</b> · Forecast</span></span>
       </div>
-      <!-- Die Tabelle steht in Lesegröße und ist breiter als ihr
-           Rahmen. Rechts unten baut js/landing.js aus ihr selbst
-           eine Übersichtskarte mit dem Rahmen um den sichtbaren
-           Ausschnitt; ziehen verschiebt — auf der Karte wie auf der
-           Tabelle. Passt alles ins Fenster, verschwindet die Karte
-           von selbst. -->
-      <div class="panbox" data-pan>
-        <div class="panview">
-          <table class="mx">
-            <thead>
-              <tr>
-                <th class="lab">&nbsp;</th><th class="lp">LP</th>
-                <th class="past">JAN</th><th class="past">FEB</th>
-                <th class="now"><span data-l="de" hidden>MRZ</span><span data-l="en">MAR</span></th>
-                <th>APR</th><th><span data-l="de" hidden>MAI</span><span data-l="en">MAY</span></th><th>JUN</th>
-                <th>JUL</th><th>AUG</th><th>SEP</th>
-                <th><span data-l="de" hidden>OKT</span><span data-l="en">OCT</span></th><th>NOV</th>
-                <th><span data-l="de" hidden>DEZ</span><span data-l="en">DEC</span></th>
-                <th class="tot"><span data-l="de" hidden>GESAMT</span><span data-l="en">TOTAL</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="pin">
-                <td class="lab"><span data-l="de" hidden>Gesamt je Monat</span><span data-l="en">Total per month</span></td><td class="lp"></td>
-                <td class="p">811,10</td><td class="p">811,10</td><td class="p now">1.261,10</td>
-                <td class="p">851,00</td><td class="p">851,00</td><td class="p">1.590,00</td>
-                <td class="p">1.140,00</td><td class="p">1.350,00</td><td class="p">1.800,00</td>
-                <td class="p">1.350,00</td><td class="p">1.350,00</td><td class="p">1.800,00</td>
-                <td class="tot p">14.965,30</td>
-              </tr>
-
-              <tr class="sec in"><td class="lab"><span data-l="de" hidden>Einnahmen</span><span data-l="en">Income</span></td><td class="lp"></td>
-                <td>3.400,00</td><td>3.400,00</td><td class="now">3.850,00</td>
-                <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
-                <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
-                <td>3.400,00</td><td>3.400,00</td><td>3.850,00</td>
-                <td class="tot">42.600,00</td></tr>
-              <tr class="in"><td class="lab"><span data-l="de" hidden>Gehalt</span><span data-l="en">Salary</span></td><td class="lp"></td>
-                <td class="p dn">+3.400,00</td><td class="p dn">+3.400,00</td><td class="p now">+3.400,00</td>
-                <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
-                <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
-                <td class="p">+3.400,00</td><td class="p">+3.400,00</td><td class="p">+3.400,00</td>
-                <td class="tot p">+40.800,00</td></tr>
-              <tr class="in"><td class="lab"><span data-l="de" hidden>Nebentätigkeit</span><span data-l="en">Side job</span></td><td class="lp"></td>
-                <td class="mute">—</td><td class="mute">—</td><td class="p now">+450,00</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="es">+450,00</td>
-                <td class="tot p">+1.800,00</td></tr>
-
-              <tr class="sec flex"><td class="lab">Flexible Payments</td><td class="lp"></td>
-                <td>800,00</td><td>800,00</td><td class="now">800,00</td>
-                <td>800,00</td><td>800,00</td><td>800,00</td>
-                <td>800,00</td><td>800,00</td><td>800,00</td>
-                <td>800,00</td><td>800,00</td><td>800,00</td>
-                <td class="tot">9.600,00</td></tr>
-              <tr class="flex"><td class="lab"><span data-l="de" hidden>Haushalt</span><span data-l="en">Household</span></td><td class="lp"></td>
-                <td class="n dn">−620,00</td><td class="n dn">−620,00</td><td class="n now">−620,00</td>
-                <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
-                <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
-                <td class="es">−620,00</td><td class="es">−620,00</td><td class="es">−620,00</td>
-                <td class="tot n">−7.440,00</td></tr>
-              <tr class="flex"><td class="lab"><span data-l="de" hidden>Freizeit</span><span data-l="en">Leisure</span></td><td class="lp"></td>
-                <td class="n dn">−180,00</td><td class="n dn">−180,00</td><td class="n now">−180,00</td>
-                <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
-                <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
-                <td class="es">−180,00</td><td class="es">−180,00</td><td class="es">−180,00</td>
-                <td class="tot n">−2.160,00</td></tr>
-
-              <tr class="sec out"><td class="lab"><span data-l="de" hidden>Regelmäßige Kosten</span><span data-l="en">Regular costs</span></td><td class="lp"></td>
-                <td>1.788,90</td><td>1.788,90</td><td class="now">1.788,90</td>
-                <td>1.749,00</td><td>1.749,00</td><td>1.460,00</td>
-                <td>1.460,00</td><td>1.250,00</td><td>1.250,00</td>
-                <td>1.250,00</td><td>1.250,00</td><td>1.250,00</td>
-                <td class="tot">18.034,70</td></tr>
-              <tr class="out"><td class="lab"><span data-l="de" hidden>Miete</span><span data-l="en">Rent</span></td><td class="lp"><i class="lp-far">12+</i></td>
-                <td class="n dn">−1.250,00</td><td class="n dn">−1.250,00</td><td class="n now">−1.250,00</td>
-                <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
-                <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
-                <td class="n">−1.250,00</td><td class="n">−1.250,00</td><td class="n">−1.250,00</td>
-                <td class="tot n">−15.000,00</td></tr>
-              <tr class="out"><td class="lab"><span data-l="de" hidden>Versicherungen</span><span data-l="en">Insurance</span></td><td class="lp"><i class="lp-mid">5</i></td>
-                <td class="n dn">−210,00</td><td class="n dn">−210,00</td><td class="n now">−210,00</td>
-                <td class="n">−210,00</td><td class="n">−210,00</td><td class="n">−210,00</td>
-                <td class="n">−210,00</td><td class="mute">—</td><td class="mute">—</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-                <td class="tot n">−1.470,00</td></tr>
-              <tr class="out"><td class="lab"><span data-l="de" hidden>Autokredit</span><span data-l="en">Car loan</span></td><td class="lp"><i class="lp-soon">3</i></td>
-                <td class="n dn">−289,00</td><td class="n dn">−289,00</td><td class="n now">−289,00</td>
-                <td class="n">−289,00</td><td class="n">−289,00</td><td class="mute">—</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-                <td class="tot n">−1.445,00</td></tr>
-              <tr class="out"><td class="lab"><span data-l="de" hidden>Streaming-Abo</span><span data-l="en">Streaming</span></td><td class="lp"><i class="lp-now">1</i></td>
-                <td class="n dn">−39,90</td><td class="n dn">−39,90</td><td class="n now">−39,90</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-                <td class="mute">—</td><td class="mute">—</td><td class="mute">—</td>
-                <td class="tot n">−119,70</td></tr>
-            </tbody>
-          </table>
+      <div class="zoomcrop panbox" data-pan data-pan-y="8">
+        <div class="zview panview">
+          <img class="zbig" src="doc/img/year.png" alt="FINA year view: the matrix with twelve month columns — income, flexible payments and regular costs, paid amounts ticked off">
         </div>
         <div class="panmap"><span class="maphd"><span data-l="de" hidden>Ausschnitt ziehen</span><span data-l="en">Drag the frame</span></span></div>
+        <a class="zopen" href="doc/img/year.png" target="_blank" rel="noopener"><span data-l="de" hidden>Ganzes Bild</span><span data-l="en">Full image</span> ↗</a>
       </div>
       <div class="shot-foot">
         <span><b class="ckx">✓</b> <span data-l="de" hidden>= bezahlt und abgehakt</span><span data-l="en">= paid and ticked off</span></span>
@@ -252,172 +174,42 @@
         <span><b>LP</b> <span data-l="de" hidden>= läuft noch so viele Monate — grün: bald geschafft</span><span data-l="en">= months left to pay — green: almost done</span></span>
       </div>
     </div>
-    <p class="shotnote reveal"><span data-l="de" hidden>Die Jahresansicht mit Beispielzahlen — in Originalgröße, wie in der Anwendung. Zieh die Tabelle nach links: das Monatsergebnis oben steigt, sobald Kredit und Abos auslaufen.</span><span data-l="en">The year view with sample figures — at full size, just like the app. Drag the table to the left: the monthly result at the top grows as the loan and subscriptions run out.</span></p>
-  </section>
-
-  <!-- ══ Laufband ═══════════════════════════════════════════ -->
-  <!-- Hier lief bis 18.8.26 ein Laufband mit sechs Zusagen („Kein
-       Abo nötig ✦ Keine Bankverbindung ✦ …"). Es ist raus: die vier
-       Chips über dem Kopf sagen dasselbe im Stehen, und was sich
-       bewegt, liest man nicht — man wartet darauf. Die Regeln dazu
-       stehen weiter in css/landing.css (.ticker), falls je wieder
-       etwas laufen soll. -->
-
-  <!-- ══ Drei Zeiten ════════════════════════════════════════
-       Der Kern des Angebots in einem Dreiklang — und zugleich die
-       drei Ansichten des Programms: Jahr, Monat, Prognose. Drei
-       kurze Sätze statt eines langen: „Wir kombinieren Rückblick,
-       operatives Monatsgeschäft und Vorausplanung" sagt dasselbe
-       und wird nicht gelesen.
-
-       Die Farben tragen die Aussage mit: was war, tritt zurück
-       (--ink-2, wie die abgerechneten Monate in der Anwendung),
-       was läuft, steht kräftig da, was kommt, ist orange — die
-       Farbe, die hier überall etwas anbietet. -->
-  <section class="triad wrap" id="dreizeiten">
-    <p class="eyebrow reveal"><span data-l="de" hidden>RÜCKBLICK · LAUFENDER MONAT · PLAN BIS DEZEMBER</span><span data-l="en">LOOK BACK · THIS MONTH · PLAN THROUGH DECEMBER</span></p>
-    <h2 class="reveal" style="--d:.1s"><span data-l="de" hidden><span class="t1">Was war.</span> <span class="t2">Was läuft.</span> <span class="t3">Was kommt.</span></span><span data-l="en"><span class="t1">What was.</span> <span class="t2">What’s running.</span> <span class="t3">What’s ahead.</span></span></h2>
-    <p class="lead reveal" style="--d:.2s"><span data-l="de" hidden>Alle drei in einem Buch: die Monate, die schon abgerechnet sind. Der Monat, in dem du gerade abhakst. Der Plan bis Dezember.<br><b>Dein ganzes Jahr an einer Stelle — übersichtlich und planbar.</b></span><span data-l="en">All three in one book: the months you have already settled. The month you are ticking off right now. The plan through December.<br><b>Your whole year in one place — clear and plannable.</b></span></p>
-  </section>
-
-  <!-- ══ Der Unterschied ════════════════════════════════════ -->
-  <section class="contrast wrap" id="unterschied">
-    <div class="duo">
-      <div class="ccard was reveal">
-        <span class="num"><span data-l="de" hidden>DIE ÜBLICHE ART</span><span data-l="en">THE USUAL WAY</span></span>
-        <h2><span data-l="de" hidden>Sie sammeln, was schon weg ist.</span><span data-l="en">They collect what’s already gone.</span></h2>
-        <p><span data-l="de" hidden>Umsätze rein. Kategorien drauf. Ein Diagramm über gestern.<br><em>Und ob es bis Dezember reicht?</em> Keine Antwort.</span><span data-l="en">Transactions in. Categories on top. A chart about yesterday.<br><em>Will it last until December?</em> No answer.</span></p>
-      </div>
-      <div class="ccard us reveal" style="--d:.2s">
-        <span class="num">FINA</span>
-        <h2><span data-l="de" hidden>Wir zeigen, was noch kommt.</span><span data-l="en">We show what’s still ahead.</span></h2>
-        <p><span data-l="de" hidden>Dein Jahr, im Voraus geplant.<br>Bezahlt? <b>Abgehakt.</b> Geschätzt? <b>Orange.</b><br>Kontostand bis Dezember? <b>Steht drin.</b></span><span data-l="en">Your year, planned ahead.<br>Paid? <b>Ticked.</b> Estimated? <b>Orange.</b><br>Balance through December? <b>Right there.</b></span></p>
-      </div>
-    </div>
-    <!-- Hier steht die Behauptung, dort der Beleg: zwei Seiten,
-         zwei Fragen — was kann es, und wie steht es neben dem, was
-         es sonst gibt. -->
-    <div class="duo-cta reveal">
-      <a class="button button-dark" href="compare.html"><span data-l="de" hidden>Der Vergleich im Einzelnen</span><span data-l="en">The comparison in detail</span> <span aria-hidden="true">→</span></a>
-      <a class="button button-quiet" href="features.html"><span data-l="de" hidden>Alle Funktionen ansehen</span><span data-l="en">See all features</span></a>
-    </div>
+    <p class="shotnote reveal"><span data-l="de" hidden>Die Jahresansicht, wie sie im Browser läuft — in Originalgröße, nicht verkleinert. Zieh im Bild oder auf der kleinen Karte: der Rahmen zeigt, wo du bist.</span><span data-l="en">The year view as it runs in the browser — at full size, not shrunk. Drag the image or the small map: the frame shows where you are.</span></p>
   </section>
 
   <!-- ══ Monat und Prognose ═════════════════════════════════
-       Der Monat ist die Arbeit, die Prognose die Belohnung: man
-       sieht die Jahresbilanz wachsen. Beide spiegeln die Anwendung
-       (siehe Kopfkommentar): Auswertungszeile, Karten und Siegel
-       im Monat; Kontoauszug-Spalten und Verlaufs-Wasserfall in der
-       Prognose. Die Zahlen sind DIESELBEN wie in der Matrix:
-       END = aufsummierte Gesamtzeile (811,10 · … · 14.965,30). -->
+       Zwei echte Bilder, KLEIN nebeneinander — wie die früheren
+       Mockups: links der Monat als schmale Spalte (so sieht die
+       Ansicht auch auf dem Telefon aus), unten ausgeblendet
+       (.fadecut), rechts die Prognose. Die Bilder sind bewusst
+       klein — die Startseite zeigt die Form; lesen kann man sie
+       per Klick aufs Bild oder in der Anleitung. -->
   <section class="showcase wrap" id="ansichten">
     <div class="section-heading reveal">
       <p class="eyebrow"><span data-l="de" hidden>ABHAKEN. VORAUSSCHAUEN.</span><span data-l="en">TICK OFF. LOOK AHEAD.</span></p>
       <h2><span data-l="de" hidden>Im Monat arbeitest du.<br>Die Prognose belohnt dich.</span><span data-l="en">The month is where you work.<br>The forecast is your reward.</span></h2>
-      <p><span data-l="de" hidden>Jeder Haken hebt die Jahresbilanz. Zusehen motiviert.</span><span data-l="en">Every tick lifts the year’s balance. Watching it grow keeps you going.</span></p>
+      <p><span data-l="de" hidden>Was bezahlt ist, hakst du ab — und jeder Haken hebt die Jahresbilanz. Geschätzte Beträge stehen orange, bis die echte Zahl da ist.</span><span data-l="en">When something is paid, you tick it off — and every tick lifts the year’s balance. Estimates stay orange until the real number arrives.</span></p>
     </div>
     <div class="showduo">
-
-      <!-- Der Monat bekommt ein Viertel der Breite (.narrow): er ist
-           auch in der Anwendung die schmale Ansicht — eine Liste,
-           kein Raster. Die Karten nennen deshalb nur ihre Geldart;
-           welcher Monat es ist, steht in der Fensterleiste. -->
       <div class="mini narrow reveal">
         <div class="shot-bar">
           <span class="dot r" aria-hidden="true"></span><span class="dot y" aria-hidden="true"></span><span class="dot g" aria-hidden="true"></span>
-          <span class="ttl"><span data-l="de" hidden>Monat · MÄRZ</span><span data-l="en">Month · MARCH</span></span>
-          <span class="tab"><span data-l="de" hidden><b>Monat</b> · Jahr · Prognose</span><span data-l="en"><b>Month</b> · Year · Forecast</span></span>
+          <span class="ttl"><span data-l="de" hidden>Monatsansicht</span><span data-l="en">Month view</span></span>
         </div>
-        <div class="mbody">
-          <div class="mana">
-            <span class="malab"><span data-l="de" hidden>AUSWERTUNG</span><span data-l="en">ANALYTICS</span></span>
-            <span class="marow">
-              <span class="mk t-in"><i><span data-l="de" hidden>Einnahmen</span><span data-l="en">Income</span></i><b class="p">3.850,00</b></span>
-              <span class="mk t-flex"><i>Flexible</i><b class="n">800,00</b></span>
-              <span class="mk t-out"><i><span data-l="de" hidden>Regelm. Kosten</span><span data-l="en">Regular costs</span></i><b class="n">1.788,90</b></span>
-              <span class="mk"><i><span data-l="de" hidden>Noch offen</span><span data-l="en">Still open</span></i><b class="n">328,90</b></span>
-            </span>
-          </div>
-          <div class="mcard cin">
-            <div class="mhead"><span data-l="de" hidden>Einnahmen</span><span data-l="en">Income</span><b class="p">3.850,00</b></div>
-            <div class="mrow" style="--rd:.08s"><span class="seal ok" style="--sd:.3s" aria-hidden="true">✓</span><b class="amt p">+3.400,00</b><span class="mlab"><span data-l="de" hidden>Gehalt</span><span data-l="en">Salary</span></span></div>
-            <div class="mrow" style="--rd:.16s"><span class="seal ok" style="--sd:.6s" aria-hidden="true">✓</span><b class="amt p">+450,00</b><span class="mlab"><span data-l="de" hidden>Nebentätigkeit</span><span data-l="en">Side job</span></span></div>
-          </div>
-          <div class="mcard cflex">
-            <div class="mhead">Flexible Payments<b class="n">800,00</b></div>
-            <div class="mrow" style="--rd:.24s"><span class="seal open" aria-hidden="true"></span><b class="amt n">−620,00</b><span class="mlab"><span data-l="de" hidden>Haushalt</span><span data-l="en">Household</span></span></div>
-            <div class="mrow" style="--rd:.32s"><span class="seal open" aria-hidden="true"></span><b class="amt n">−180,00</b><span class="mlab"><span data-l="de" hidden>Freizeit</span><span data-l="en">Leisure</span></span></div>
-          </div>
-          <div class="mcard cout">
-            <div class="mhead"><span data-l="de" hidden>Regelmäßige Kosten</span><span data-l="en">Regular costs</span><b class="n">1.788,90</b></div>
-            <div class="mrow" style="--rd:.4s"><span class="seal ok" style="--sd:.9s" aria-hidden="true">✓</span><b class="amt n">−1.250,00</b><span class="mlab"><span data-l="de" hidden>Miete</span><span data-l="en">Rent</span></span></div>
-            <div class="mrow" style="--rd:.48s"><span class="seal ok" style="--sd:1.2s" aria-hidden="true">✓</span><b class="amt n">−210,00</b><span class="mlab"><span data-l="de" hidden>Versicherungen</span><span data-l="en">Insurance</span></span></div>
-            <div class="mrow" style="--rd:.56s"><span class="seal open" aria-hidden="true"></span><b class="amt n">−289,00</b><span class="mlab"><span data-l="de" hidden>Autokredit</span><span data-l="en">Car loan</span></span></div>
-            <div class="mrow" style="--rd:.64s"><span class="seal open" aria-hidden="true"></span><b class="amt n">−39,90</b><span class="mlab"><span data-l="de" hidden>Streaming-Abo</span><span data-l="en">Streaming</span></span></div>
-          </div>
-        </div>
+        <a class="fadecut" href="doc/img/month-slim.png" target="_blank" rel="noopener"><img src="doc/img/month-slim.png" alt="FINA month view: cards for income, flexible payments and regular costs with seals for paid items" loading="lazy"></a>
         <p class="minicap"><span data-l="de" hidden>Abhaken heißt: erledigt, gezählt, sichtbar.</span><span data-l="en">Ticking off means: done, counted, visible.</span></p>
       </div>
-
       <div class="mini reveal" style="--d:.2s">
         <div class="shot-bar">
           <span class="dot r" aria-hidden="true"></span><span class="dot y" aria-hidden="true"></span><span class="dot g" aria-hidden="true"></span>
-          <span class="ttl"><span data-l="de" hidden>Prognose · 2026</span><span data-l="en">Forecast · 2026</span></span>
+          <span class="ttl"><span data-l="de" hidden>Prognose</span><span data-l="en">Forecast</span></span>
           <span class="tab"><span data-l="de" hidden>Monat · Jahr · <b>Prognose</b></span><span data-l="en">Month · Year · <b>Forecast</b></span></span>
         </div>
-        <div class="pbody">
-          <div class="mana">
-            <span class="malab"><span data-l="de" hidden>PROGNOSE 2026</span><span data-l="en">FORECAST 2026</span></span>
-            <span class="marow">
-              <span class="mk t-in"><i><span data-l="de" hidden>Einnahmen ab MRZ</span><span data-l="en">Income from MAR</span></i><b class="p">35.800,00</b></span>
-              <span class="mk t-out"><i><span data-l="de" hidden>Kosten ab MRZ</span><span data-l="en">Costs from MAR</span></i><b class="n">14.456,90</b></span>
-              <span class="mk t-flex"><i><span data-l="de" hidden>Flexible ab MRZ</span><span data-l="en">Flexible from MAR</span></i><b class="n">8.000,00</b></span>
-              <span class="mk"><i><span data-l="de" hidden>Saldo Jahresende</span><span data-l="en">Year-end balance</span></i><b class="p">14.965,30</b></span>
-            </span>
-          </div>
-          <div class="pscroll">
-            <table class="px">
-              <thead><tr><th class="m">M</th><th>START</th><th class="ci">IN</th><th class="co">REG</th><th class="cf">FLEX</th><th class="ce">END</th>
-                <th class="track"><i class="tax" style="left:0">0</i><i class="tax mid" style="left:33.33%">6.000</i><i class="tax mid" style="left:66.67%">12.000</i><i class="tax end">18.000</i></th></tr></thead>
-              <tbody>
-                <tr class="past"><td class="m">JAN</td><td class="num">—</td><td class="num ci">3.400,00</td><td class="num co">1.788,90</td><td class="num cf">800,00</td><td class="num ce">811,10</td>
-                  <td class="track"><i class="tup" style="left:0%;width:18.89%"></i><i class="tdn" style="left:4.51%;width:14.38%"><b class="sf" style="width:30.9%"></b><b class="sr"></b></i><i class="tc" style="left:0%"></i><i class="tm" style="left:4.51%"></i></td></tr>
-                <tr class="past"><td class="m">FEB</td><td class="num">811,10</td><td class="num ci">3.400,00</td><td class="num co">1.788,90</td><td class="num cf">800,00</td><td class="num ce">1.622,20</td>
-                  <td class="track"><i class="tup" style="left:4.51%;width:18.89%"></i><i class="tdn" style="left:9.01%;width:14.38%"><b class="sf" style="width:30.9%"></b><b class="sr"></b></i><i class="tc" style="left:4.51%"></i><i class="tm" style="left:9.01%"></i></td></tr>
-                <tr class="now"><td class="m"><span data-l="de" hidden>MRZ</span><span data-l="en">MAR</span></td><td class="num">1.622,20</td><td class="num ci">3.850,00</td><td class="num co">1.788,90</td><td class="num cf">800,00</td><td class="num ce">2.883,30</td>
-                  <td class="track"><i class="tup" style="left:9.01%;width:21.39%"></i><i class="tdn" style="left:16.02%;width:14.38%"><b class="sf" style="width:30.9%"></b><b class="sr"></b></i><i class="tc" style="left:9.01%"></i><i class="tm" style="left:16.02%"></i></td></tr>
-                <tr><td class="m">APR</td><td class="num">2.883,30</td><td class="num ci">3.400,00</td><td class="num co">1.749,00</td><td class="num cf">800,00</td><td class="num ce">3.734,30</td>
-                  <td class="track"><i class="tup" style="left:16.02%;width:18.89%"></i><i class="tdn" style="left:20.75%;width:14.16%"><b class="sf" style="width:31.4%"></b><b class="sr"></b></i><i class="tc" style="left:16.02%"></i><i class="tm" style="left:20.75%"></i></td></tr>
-                <tr><td class="m"><span data-l="de" hidden>MAI</span><span data-l="en">MAY</span></td><td class="num">3.734,30</td><td class="num ci">3.400,00</td><td class="num co">1.749,00</td><td class="num cf">800,00</td><td class="num ce">4.585,30</td>
-                  <td class="track"><i class="tup" style="left:20.75%;width:18.89%"></i><i class="tdn" style="left:25.47%;width:14.16%"><b class="sf" style="width:31.4%"></b><b class="sr"></b></i><i class="tc" style="left:20.75%"></i><i class="tm" style="left:25.47%"></i></td></tr>
-                <tr><td class="m">JUN</td><td class="num">4.585,30</td><td class="num ci">3.850,00</td><td class="num co">1.460,00</td><td class="num cf">800,00</td><td class="num ce">6.175,30</td>
-                  <td class="track"><i class="tup" style="left:25.47%;width:21.39%"></i><i class="tdn" style="left:34.31%;width:12.56%"><b class="sf" style="width:35.4%"></b><b class="sr"></b></i><i class="tc" style="left:25.47%"></i><i class="tm" style="left:34.31%"></i></td></tr>
-                <tr><td class="m">JUL</td><td class="num">6.175,30</td><td class="num ci">3.400,00</td><td class="num co">1.460,00</td><td class="num cf">800,00</td><td class="num ce">7.315,30</td>
-                  <td class="track"><i class="tup" style="left:34.31%;width:18.89%"></i><i class="tdn" style="left:40.64%;width:12.56%"><b class="sf" style="width:35.4%"></b><b class="sr"></b></i><i class="tc" style="left:34.31%"></i><i class="tm" style="left:40.64%"></i></td></tr>
-                <tr><td class="m">AUG</td><td class="num">7.315,30</td><td class="num ci">3.400,00</td><td class="num co">1.250,00</td><td class="num cf">800,00</td><td class="num ce">8.665,30</td>
-                  <td class="track"><i class="tup" style="left:40.64%;width:18.89%"></i><i class="tdn" style="left:48.14%;width:11.39%"><b class="sf" style="width:39%"></b><b class="sr"></b></i><i class="tc" style="left:40.64%"></i><i class="tm" style="left:48.14%"></i></td></tr>
-                <tr><td class="m">SEP</td><td class="num">8.665,30</td><td class="num ci">3.850,00</td><td class="num co">1.250,00</td><td class="num cf">800,00</td><td class="num ce">10.465,30</td>
-                  <td class="track"><i class="tup" style="left:48.14%;width:21.39%"></i><i class="tdn" style="left:58.14%;width:11.39%"><b class="sf" style="width:39%"></b><b class="sr"></b></i><i class="tc" style="left:48.14%"></i><i class="tm" style="left:58.14%"></i></td></tr>
-                <tr><td class="m"><span data-l="de" hidden>OKT</span><span data-l="en">OCT</span></td><td class="num">10.465,30</td><td class="num ci">3.400,00</td><td class="num co">1.250,00</td><td class="num cf">800,00</td><td class="num ce">11.815,30</td>
-                  <td class="track"><i class="tup" style="left:58.14%;width:18.89%"></i><i class="tdn" style="left:65.64%;width:11.39%"><b class="sf" style="width:39%"></b><b class="sr"></b></i><i class="tc" style="left:58.14%"></i><i class="tm" style="left:65.64%"></i></td></tr>
-                <tr><td class="m">NOV</td><td class="num">11.815,30</td><td class="num ci">3.400,00</td><td class="num co">1.250,00</td><td class="num cf">800,00</td><td class="num ce">13.165,30</td>
-                  <td class="track"><i class="tup" style="left:65.64%;width:18.89%"></i><i class="tdn" style="left:73.14%;width:11.39%"><b class="sf" style="width:39%"></b><b class="sr"></b></i><i class="tc" style="left:65.64%"></i><i class="tm" style="left:73.14%"></i></td></tr>
-                <tr><td class="m"><span data-l="de" hidden>DEZ</span><span data-l="en">DEC</span></td><td class="num">13.165,30</td><td class="num ci">3.850,00</td><td class="num co">1.250,00</td><td class="num cf">800,00</td><td class="num ce">14.965,30</td>
-                  <td class="track"><i class="tup" style="left:73.14%;width:21.39%"></i><i class="tdn" style="left:83.14%;width:11.39%"><b class="sf" style="width:39%"></b><b class="sr"></b></i><i class="tc" style="left:73.14%"></i><i class="tm" style="left:83.14%"></i></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="plegend">
-            <span><i style="background:var(--edge-in)"></i><span data-l="de" hidden>Einnahmen</span><span data-l="en">Income</span></span>
-            <span><i style="background:var(--bg-flex-3)"></i>Flexible</span>
-            <span><i style="background:var(--edge-out)"></i><span data-l="de" hidden>Kosten</span><span data-l="en">Costs</span></span>
-            <span><i class="lm"></i><span data-l="de" hidden>Kontostand</span><span data-l="en">Balance</span></span>
-          </div>
-        </div>
+        <a href="doc/img/forecast.png" target="_blank" rel="noopener"><img src="doc/img/forecast.png" alt="FINA forecast: every month a row like a bank statement, next to it the balance track across the year" loading="lazy"></a>
         <p class="minicap"><span data-l="de" hidden>Kredit und Abos laufen aus — und die Treppe zieht an. Genau das zeigt dir die Prognose.</span><span data-l="en">The loan and subscriptions run out — and the staircase picks up. That’s what the forecast shows you.</span></p>
       </div>
-
     </div>
+    <p class="morelink reveal"><a href="guide.html"><span data-l="de" hidden>Alle Ansichten mit Bildern — die Anleitung</span><span data-l="en">Every view with pictures — the guide</span> →</a></p>
   </section>
 
   <!-- ══ Was du siehst ══════════════════════════════════════ -->
@@ -448,176 +240,62 @@
         <p><span data-l="de" hidden>Bezahlt: Haken. Geschätzt: orange. Offen: sichtbar.</span><span data-l="en">Paid: tick. Estimated: orange. Open: visible.</span></p>
       </article>
     </div>
-    <p class="morelink reveal"><a href="features.html"><span data-l="de" hidden>Alle Funktionen im Einzelnen</span><span data-l="en">Every feature in detail</span> →</a></p>
+    <p class="morelink reveal"><a href="features.html"><span data-l="de" hidden>Alle Funktionen im Einzelnen</span><span data-l="en">Every feature in detail</span> →</a><span aria-hidden="true"> · </span><a href="compare.html"><span data-l="de" hidden>Der Vergleich mit anderen</span><span data-l="en">The comparison with the rest</span> →</a></p>
   </section>
 
-  <!-- ══ Preis ══════════════════════════════════════════════ -->
-  <section class="pricing wrap" id="preis">
+  <!-- ══ Die Pilotphase ═════════════════════════════════════
+       EIN Kasten, kein Knopf, kein Preis (siehe Kopfkommentar).
+       Die drei Plan-Karten von früher stehen in der Historie;
+       ihre Regeln (.plans, .plan) bleiben in css/landing.css. -->
+  <section class="pricing wrap" id="pilot">
     <div class="section-heading reveal">
-      <p class="eyebrow"><span data-l="de" hidden>DAS PREISMODELL IST TEIL DES PRODUKTS</span><span data-l="en">THE PRICING IS PART OF THE PRODUCT</span></p>
-      <h2><span data-l="de" hidden>Einmal kaufen.<br>Nicht mieten.</span><span data-l="en">Buy once.<br>Don’t rent.</span></h2>
-      <p><span data-l="de" hidden>Ein Kauf statt zwölf Abbuchungen.</span><span data-l="en">One purchase instead of twelve charges.</span></p>
-    </div>
-
-    <div class="plans">
-      <article class="plan reveal">
-        <p class="flag"><span data-l="de" hidden>ZUM ANSEHEN</span><span data-l="en">HAVE A LOOK</span></p>
-        <h3><span data-l="de" hidden>Ausprobieren</span><span data-l="en">Try it</span></h3>
-        <p class="price">0 €</p>
-        <p class="per"><span data-l="de" hidden>ohne Zeitlimit</span><span data-l="en">no time limit</span></p>
-        <ul>
-          <li><span data-l="de" hidden>Alles ansehen, alles eintragen</span><span data-l="en">See everything, enter everything</span></li>
-          <li><span data-l="de" hidden>Ohne Anmeldung</span><span data-l="en">No sign-up</span></li>
-          <li><span data-l="de" hidden>Nur das Speichern braucht die Lizenz</span><span data-l="en">Only saving needs the licence</span></li>
-        </ul>
-        <a class="button button-quiet" href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
-      </article>
-
-      <article class="plan pick reveal" style="--d:.14s">
-        <p class="flag"><span data-l="de" hidden>FÜR DICH</span><span data-l="en">FOR YOU</span></p>
-        <h3>FINA Personal</h3>
-        <p class="price">49 €</p>
-        <p class="per"><span data-l="de" hidden>einmalig · kein Abo</span><span data-l="en">one-time · no subscription</span></p>
-        <ul>
-          <li><span data-l="de" hidden>Web, Mac und Windows — alles dabei</span><span data-l="en">Web, Mac and Windows — all included</span></li>
-          <li><span data-l="de" hidden><b>12 Monate</b> neue Versionen inklusive</span><span data-l="en"><b>12 months</b> of new versions included</span></li>
-          <li><span data-l="de" hidden>Deine Version bleibt für immer deine</span><span data-l="en">Your version stays yours forever</span></li>
-          <li><span data-l="de" hidden>Läuft auch ohne Internet</span><span data-l="en">Works without the internet</span></li>
-        </ul>
-        <!-- Solange es keinen Checkout gibt: Vormerkliste. KONTAKTADRESSE EINTRAGEN. -->
-        <a class="button button-primary" href="mailto:hallo@example.com?subject=FINA%20Personal%20%E2%80%93%20Vormerkung%20/%20reservation&body=Bitte%20benachrichtigt%20mich%2C%20sobald%20FINA%20Personal%20%2849%20%E2%82%AC%2C%20Einmalkauf%29%20verf%C3%BCgbar%20ist.%0A%0APlease%20notify%20me%20when%20FINA%20Personal%20%28%E2%82%AC49%2C%20one-time%20purchase%29%20is%20available.%0A%0AName%3A%20"><span data-l="de" hidden>Vormerken</span><span data-l="en">Reserve</span></a>
-      </article>
-
-      <article class="plan reveal" style="--d:.28s">
-        <p class="flag"><span data-l="de" hidden>FÜR ALLE ZU HAUSE</span><span data-l="en">FOR EVERYONE AT HOME</span></p>
-        <h3>FINA Haushalt</h3>
-        <p class="price">79 €</p>
-        <p class="per"><span data-l="de" hidden>einmalig · kein Abo</span><span data-l="en">one-time · no subscription</span></p>
-        <ul>
-          <li><span data-l="de" hidden>Alles aus Personal</span><span data-l="en">Everything in Personal</span></li>
-          <li><span data-l="de" hidden>Für alle, die bei dir wohnen</span><span data-l="en">For everyone living with you</span></li>
-          <li><span data-l="de" hidden>Auf allen euren Geräten</span><span data-l="en">On all your devices</span></li>
-          <li><span data-l="de" hidden>Günstiger als zwei Lizenzen</span><span data-l="en">Cheaper than two licences</span></li>
-        </ul>
-        <a class="button button-quiet" href="mailto:hallo@example.com?subject=FINA%20Haushalt%20%E2%80%93%20Vormerkung%20/%20reservation&body=Bitte%20benachrichtigt%20mich%2C%20sobald%20FINA%20Haushalt%20%2879%20%E2%82%AC%2C%20eine%20Lizenz%20f%C3%BCr%20alle%20im%20Haushalt%29%20verf%C3%BCgbar%20ist.%0A%0APlease%20notify%20me%20when%20FINA%20Household%20%28%E2%82%AC79%2C%20one%20licence%20for%20everyone%20at%20home%29%20is%20available.%0A%0AName%3A%20"><span data-l="de" hidden>Vormerken</span><span data-l="en">Reserve</span></a>
-      </article>
+      <p class="eyebrow"><span data-l="de" hidden>WIR FANGEN GERADE ERST AN</span><span data-l="en">WE ARE ONLY JUST STARTING</span></p>
+      <h2><span data-l="de" hidden>In der Pilotphase:<br>alles offen und kostenlos.</span><span data-l="en">While we pilot:<br>everything open and free.</span></h2>
+      <p><span data-l="de" hidden>FINA ist in der Pilotphase: alles ist freigeschaltet, und nichts davon kostet etwas. Dafür wünschen wir uns deine Rückmeldung — FINA fragt dich selbst, mit ein paar kurzen Fragen im Programm.</span><span data-l="en">FINA is in its pilot phase: everything is unlocked, and none of it costs anything. In return we ask for your feedback — FINA asks you itself, with a few short questions inside the program.</span></p>
     </div>
 
     <div class="rules reveal">
-      <h3><span data-l="de" hidden>Was „einmal kaufen" wirklich heißt</span><span data-l="en">What “buy once” really means</span></h3>
+      <h3><span data-l="de" hidden>Was die Pilotphase heißt</span><span data-l="en">What the pilot means</span></h3>
       <ul>
-        <li><span data-l="de" hidden><b>Deine Version läuft für immer.</b> Ohne Konto. Ohne Sperre.</span><span data-l="en"><b>Your version runs forever.</b> No account. No lock.</span></li>
-        <li><span data-l="de" hidden><b>12 Monate neue Versionen inklusive.</b></span><span data-l="en"><b>12 months of new versions included.</b></span></li>
-        <li><span data-l="de" hidden><b>Verlängern? Freiwillig.</b> 19 € für 6 weitere Monate. Wer nicht verlängert, verliert nichts.</span><span data-l="en"><b>Extending? Voluntary.</b> €19 for 6 more months. If you don’t, you lose nothing.</span></li>
+        <li><span data-l="de" hidden><b>Vollständig, nicht beschnitten.</b> Keine gesperrte Funktion, keine Testfrist, keine Anmeldung.</span><span data-l="en"><b>Complete, not cut down.</b> No locked features, no trial running out, no sign-up.</span></li>
+        <li><span data-l="de" hidden><b>Preise kommen später — wir sagen es vorher.</b> Deine Datei bleibt deine: dein Ordner, dein Format, kein Konto, das jemand sperren könnte.</span><span data-l="en"><b>Prices come later — and you will hear it first.</b> Your file stays yours: your folder, your format, no account anyone could ever lock.</span></li>
+        <li><span data-l="de" hidden><b>Es wird noch gebaut.</b> Leg zwischendurch eine Sicherung ab — der Knopf dafür steht im Menü.</span><span data-l="en"><b>It is still being built.</b> Put a backup aside now and then — the button sits in the menu.</span></li>
       </ul>
-    </div>
-
-    <!-- Sync: bewusst auffällig — der Punkt soll nicht übersehen
-         werden. Violett wie „alles zusammen" in der Anwendung. -->
-    <div class="later reveal">
-      <div>
-        <p class="soon"><span data-l="de" hidden>BALD</span><span data-l="en">SOON</span></p>
-        <h3>FINA Sync</h3>
-        <p><span data-l="de" hidden>Deine Zahlen auf allen Geräten. Unterwegs erfassen.<br><b>~39 €/Jahr.</b> Wer zuerst auf der Liste steht, erfährt es zuerst.</span><span data-l="en">Your numbers on every device. Capture on the go.<br><b>~€39/year.</b> First on the list, first to know.</span></p>
-      </div>
-      <a class="button button-sync" href="mailto:hallo@example.com?subject=FINA%20Sync%20%E2%80%93%20Vormerkung%20/%20waiting%20list&body=Bitte%20setzt%20mich%20auf%20die%20Liste%20f%C3%BCr%20FINA%20Sync%20%28~39%20%E2%82%AC/Jahr%29%20und%20informiert%20mich%20zum%20Start.%0A%0APlease%20put%20me%20on%20the%20FINA%20Sync%20list%20%28~%E2%82%AC39/year%29%20and%20let%20me%20know%20when%20it%20launches.%0A%0AName%3A%20"><span data-l="de" hidden>Jetzt vormerken</span><span data-l="en">Get on the list</span></a>
     </div>
   </section>
 
-  <!-- ══ Downloads ══════════════════════════════════════════ -->
-  <section class="getit wrap" id="downloads">
+  <!-- ══ Wo es FINA gibt ════════════════════════════════════
+       Die Überschrift sagt es klar: zur Zeit läuft FINA NUR IM
+       BROWSER. Darunter drei Kacheln — nur zwei führen irgendwohin:
+       Browser und Telefon gibt es, die Schreibtisch-Apps werden
+       gebaut. Die dritte ist deshalb kein <a>, sondern ein <div>
+       (.gcard.soon) — ein Knopf, der nichts tut, ist schlimmer
+       als kein Knopf. Der Anker #apps bleibt (der Stub in
+       download/ und ältere App-Fassungen zeigen darauf). -->
+  <section class="getit wrap" id="apps">
     <div class="section-heading reveal">
-      <p class="eyebrow"><span data-l="de" hidden>SOFORT ODER ALS APP</span><span data-l="en">RIGHT NOW OR AS AN APP</span></p>
-      <h2><span data-l="de" hidden>Jetzt anfangen.</span><span data-l="en">Start now.</span></h2>
-      <p><span data-l="de" hidden>Im Browser sofort. Oder als App für den Schreibtisch — gleicher Inhalt, gleiche Bedienung.</span><span data-l="en">In the browser right away. Or as a desktop app — same content, same feel.</span></p>
+      <p class="eyebrow"><span data-l="de" hidden>WO ES FINA GIBT</span><span data-l="en">WHERE TO FIND FINA</span></p>
+      <h2><span data-l="de" hidden>Zur Zeit: im Browser.</span><span data-l="en">Right now: in the browser.</span></h2>
+      <p><span data-l="de" hidden>FINA läuft zur Zeit im Browser — vollständig, direkt unter dieser Adresse.</span><span data-l="en">Right now FINA runs in the browser — complete, right at this address.</span></p>
     </div>
     <div class="gcards">
       <a class="gcard first reveal" href="Webclient.html">
         <span class="ic" aria-hidden="true">▶</span>
         <h3><span data-l="de" hidden>Im Browser</span><span data-l="en">In the browser</span></h3>
-        <p><span data-l="de" hidden>Nichts installieren. Sofort loslegen.</span><span data-l="en">Nothing to install. Start right away.</span></p>
+        <p><span data-l="de" hidden>Nichts installieren, nichts anmelden. Hier wird gearbeitet.</span><span data-l="en">Nothing to install, nothing to sign up for. This is where you work.</span></p>
         <span class="go"><span data-l="de" hidden>Direkt öffnen</span><span data-l="en">Open now</span> →</span>
       </a>
-      <a class="gcard reveal" style="--d:.14s" href="#mac" data-dl="mac" role="button" aria-expanded="false">
-        <span class="ic" aria-hidden="true"></span>
-        <h3><span data-l="de" hidden>Für Mac</span><span data-l="en">For Mac</span></h3>
-        <p><span data-l="de" hidden>macOS 12 oder neuer.</span><span data-l="en">macOS 12 or newer.</span></p>
-        <span class="go"><span class="golabel gshow"><span data-l="de" hidden>Downloads zeigen</span><span data-l="en">Show downloads</span> ↓</span><span class="golabel ghide"><span data-l="de" hidden>Wieder einklappen</span><span data-l="en">Hide downloads</span> ↑</span></span>
+      <a class="gcard reveal" style="--d:.14s" href="Webclient.html">
+        <span class="ic" aria-hidden="true"><span class="phone"></span></span>
+        <h3><span data-l="de" hidden>Auf dem Telefon</span><span data-l="en">On your phone</span></h3>
+        <p><span data-l="de" hidden>Dieselbe Adresse, eigenes Layout — zum Nachsehen. Die eigentliche Arbeit gehört an den Rechner.</span><span data-l="en">Same address, its own layout — for looking things up. The real work belongs at the computer.</span></p>
+        <span class="go"><span data-l="de" hidden>Ansehen</span><span data-l="en">Take a look</span> →</span>
       </a>
-      <a class="gcard reveal" style="--d:.28s" href="#win" data-dl="win" role="button" aria-expanded="false">
-        <span class="ic" aria-hidden="true"><span class="win"><i></i><i></i><i></i><i></i></span></span>
-        <h3><span data-l="de" hidden>Für Windows</span><span data-l="en">For Windows</span></h3>
-        <p><span data-l="de" hidden>Windows 10 oder neuer, 64 Bit.</span><span data-l="en">Windows 10 or newer, 64-bit.</span></p>
-        <span class="go"><span class="golabel gshow"><span data-l="de" hidden>Downloads zeigen</span><span data-l="en">Show downloads</span> ↓</span><span class="golabel ghide"><span data-l="de" hidden>Wieder einklappen</span><span data-l="en">Hide downloads</span> ↑</span></span>
-      </a>
-    </div>
-
-    <!-- Die Kachelgruppen: die Karte öffnet ihre Gruppe, ein
-         zweiter Klick schließt sie (Skript unten). Ohne JavaScript
-         bleibt :target als Rückfallweg — dann öffnet der Klick wie
-         ein Anker. Der Erststart-Hinweis steht je Plattform in der
-         Gruppe; der seltene macOS-Sonderfall wohnt zugeklappt in
-         einem details-Element, damit er niemanden erschreckt. -->
-    <div id="mac" class="dlpanel">
-      <div class="dlbox">
-        <div class="dltiles">
-          <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-arm64.dmg">
-            <b>Apple Silicon</b>
-            <span class="dlfor"><span data-l="de" hidden>M1 und neuer</span><span data-l="en">M1 and newer</span></span>
-            <span class="dlmeta">26.8.15 · 116 MB</span>
-          </a>
-          <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-x64.dmg">
-            <b>Intel</b>
-            <span class="dlfor"><span data-l="de" hidden>ältere Macs</span><span data-l="en">older Macs</span></span>
-            <span class="dlmeta">26.8.15 · 118 MB</span>
-          </a>
-        </div>
-        <div class="dlstart">
-          <p class="dlh"><span data-l="de" hidden>Der erste Start — einmal, danach nie wieder:</span><span data-l="en">The first launch — once, then never again:</span></p>
-          <ol class="dlsteps">
-            <li><span data-l="de" hidden>FINA aus dem geöffneten Abbild nach „Programme" ziehen und öffnen.</span><span data-l="en">Drag FINA from the opened image into Applications and open it.</span></li>
-            <li><span data-l="de" hidden>macOS fragt einmal nach: Systemeinstellungen → Datenschutz &amp; Sicherheit → „Trotzdem öffnen".</span><span data-l="en">macOS asks once: System Settings → Privacy &amp; Security → “Open Anyway”.</span></li>
-            <li><span data-l="de" hidden>Ab dann reicht der ganz normale Doppelklick.</span><span data-l="en">From then on, a normal double-click is all it takes.</span></li>
-          </ol>
-          <details class="dlhelp">
-            <summary><span data-l="de" hidden>macOS lässt die App trotzdem nicht öffnen?</span><span data-l="en">macOS still won’t open the app?</span></summary>
-            <p><span data-l="de" hidden>Dann steht nur die Sicherheitsnachfrage von macOS im Weg — mit dem Download ist alles in Ordnung. Terminal öffnen, diese Zeile einfügen, Enter drücken: <code>xattr -cr "/Applications/FINA Book.app"</code> — danach startet FINA ganz normal.</span><span data-l="en">That’s just macOS being cautious — the download itself is fine. Open Terminal, paste this line, press Enter: <code>xattr -cr "/Applications/FINA Book.app"</code> — FINA starts normally right after.</span></p>
-          </details>
-        </div>
-      </div>
-    </div>
-    <div id="win" class="dlpanel">
-      <div class="dlbox">
-        <div class="dltiles">
-          <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-setup.exe">
-            <b>Installer</b>
-            <span class="dlfor"><span data-l="de" hidden>mit Startmenü-Eintrag; neue Version einfach darüberinstallieren</span><span data-l="en">start menu entry; install new versions right over it</span></span>
-            <span class="dlmeta">26.8.15 · 64 Bit</span>
-          </a>
-          <a class="dltile" href="https://github.com/linked2ag/FINA/releases/latest/download/FINA-Book-26.8.15-portable.exe">
-            <b>Portabel</b>
-            <span class="dlfor"><span data-l="de" hidden>eine Datei, läuft auch vom USB-Stick</span><span data-l="en">one file, runs from a USB stick too</span></span>
-            <span class="dlmeta">26.8.15 · 64 Bit</span>
-          </a>
-        </div>
-        <div class="dlstart">
-          <p class="dlh"><span data-l="de" hidden>Der erste Start — einmal, danach nie wieder:</span><span data-l="en">The first launch — once, then never again:</span></p>
-          <ol class="dlsteps">
-            <li><span data-l="de" hidden>Heruntergeladene Datei starten — Setup oder portable, beide führen zur selben App.</span><span data-l="en">Run the downloaded file — setup or portable, both lead to the same app.</span></li>
-            <li><span data-l="de" hidden>Windows fragt einmal nach: „Weitere Informationen" → „Trotzdem ausführen".</span><span data-l="en">Windows asks once: “More info” → “Run anyway”.</span></li>
-            <li><span data-l="de" hidden>Ab dann reicht der ganz normale Doppelklick.</span><span data-l="en">From then on, a normal double-click is all it takes.</span></li>
-          </ol>
-        </div>
-      </div>
-    </div>
-
-    <!-- Die beiden Fakten erscheinen mit der gewählten Gruppe -->
-    <div class="dlextra">
-      <div class="facts">
-        <div class="fact"><b><span data-l="de" hidden>DEINE ZAHLEN</span><span data-l="en">YOUR NUMBERS</span></b>
-          <p><span data-l="de" hidden>Eine Datei, die bei dir bleibt. Die App zu tauschen ändert daran nichts.</span><span data-l="en">One file that stays with you. Swapping the app doesn’t touch it.</span></p></div>
-        <div class="fact"><b>UPDATES</b>
-          <p><span data-l="de" hidden>Die App sagt Bescheid, wenn es eine neue Version gibt — installiert wird sie mit einem Klick auf den Download, einfach über die alte. Mehr Internet braucht FINA nicht.</span><span data-l="en">The app tells you when a new version is out — you install it with one click on the download, right over the old one. That’s all the internet FINA needs.</span></p></div>
+      <div class="gcard soon reveal" style="--d:.28s">
+        <span class="ic" aria-hidden="true"><span class="desk"></span></span>
+        <h3><span data-l="de" hidden>Mac und Windows</span><span data-l="en">Mac and Windows</span></h3>
+        <p><span data-l="de" hidden>Die Apps für den Schreibtisch sind in Arbeit: gleiche Bedienung, dieselbe Datei. Sobald es sie gibt, stehen sie hier.</span><span data-l="en">The desktop apps are in the works: same feel, the very same file. As soon as they exist, they will be here.</span></p>
+        <span class="go"><span data-l="de" hidden>In Arbeit</span><span data-l="en">In the works</span></span>
       </div>
     </div>
   </section>
@@ -633,8 +311,9 @@
       <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
       <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
       <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
-      <a href="#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
-      <a href="#downloads">Downloads</a>
+      <a href="#pilot"><span data-l="de" hidden>Pilotphase</span><span data-l="en">Pilot</span></a>
+      <a href="#apps">Apps</a>
+      <a href="datenschutz.html"><span data-l="de" hidden>Datenschutz</span><span data-l="en">Privacy</span></a>
     </nav>
   </div>
 </footer>
@@ -650,12 +329,10 @@
   <nav class="jumpmenu" id="jumpmenu" aria-label="Abschnitte">
     <p class="jumphd"><span data-l="de" hidden>Auf dieser Seite</span><span data-l="en">On this page</span></p>
     <a href="#start"><span data-l="de" hidden>Anfang</span><span data-l="en">Top</span></a>
-    <a href="#dreizeiten"><span data-l="de" hidden>Was war, was läuft, was kommt</span><span data-l="en">Was, running, ahead</span></a>
-    <a href="#unterschied"><span data-l="de" hidden>Der Unterschied</span><span data-l="en">The difference</span></a>
     <a href="#ansichten"><span data-l="de" hidden>Monat und Prognose</span><span data-l="en">Month and forecast</span></a>
     <a href="#kann"><span data-l="de" hidden>Was du siehst</span><span data-l="en">What you see</span></a>
-    <a href="#preis"><span data-l="de" hidden>Preis</span><span data-l="en">Pricing</span></a>
-    <a href="#downloads">Downloads</a>
+    <a href="#pilot"><span data-l="de" hidden>Die Pilotphase</span><span data-l="en">The pilot</span></a>
+    <a href="#apps"><span data-l="de" hidden>Wo es FINA gibt</span><span data-l="en">Where to find it</span></a>
     <div class="jumpsep" aria-hidden="true"></div>
     <p class="jumphd"><span data-l="de" hidden>Mehr</span><span data-l="en">More</span></p>
     <!-- Auf der Startseite selbst ist „Startseite" ein Anker: ein
@@ -666,6 +343,7 @@
     <a href="compare.html"><span data-l="de" hidden>Der Vergleich</span><span data-l="en">The comparison</span></a>
     <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
     <a href="Webclient.html"><span data-l="de" hidden>Im Browser öffnen</span><span data-l="en">Open in browser</span></a>
+    <a href="datenschutz.html"><span data-l="de" hidden>Datenschutz</span><span data-l="en">Privacy</span></a>
   </nav>
   <button class="jumpbtn" type="button" aria-expanded="false" aria-controls="jumpmenu"
           aria-label="Abschnitte / Sections">
@@ -673,8 +351,8 @@
   </button>
 </div>
 
-<!-- Sprache, Sprungmenü, Ausschnitt, Downloads und Bewegung stehen
-     in js/landing.js — dieselbe Datei auf allen vier Seiten. Ganz
+<!-- Sprache, Sprungmenü, Ausschnitt und Bewegung stehen in
+     js/landing.js — dieselbe Datei auf allen fünf Seiten. Ganz
      unten und ohne defer: die Startlagen der Bewegung sollen
      stehen, bevor gezeichnet wird. -->
 <script src="js/landing.js"></script>
