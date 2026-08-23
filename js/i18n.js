@@ -124,12 +124,6 @@ const STR={
 'menu.csv':{en:'Import CSV',de:'CSV importieren'},
 'menu.csvTip':{en:'Read Flexible Payments from a Fast Budget CSV export — nothing is changed until you confirm',
   de:'Flexible Payments aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
-/* Der Prototyp des generischen Imports — sichtbar nur per file://
-   ohne App (renderChrome in js/app.js), Name in beiden Sprachen
-   gleich. */
-'menu.csv2':{en:'CSV Import 2.0',de:'CSV Import 2.0'},
-'menu.csv2Tip':{en:'The new generic CSV import (prototype) — opens in its own tab, this book stays untouched',
-  de:'Der neue generische CSV-Import (Prototyp) — öffnet in einem eigenen Reiter, dieses Buch bleibt unberührt'},
 'menu.newFlex':{en:'New flexible entry',de:'Neuer flexibler Eintrag'},
 'menu.newOut':{en:'New regular entry',de:'Neuer regulärer Eintrag'},
 'app.settings':{en:'Settings',de:'Einstellungen'},

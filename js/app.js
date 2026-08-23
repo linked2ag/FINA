@@ -86,16 +86,6 @@ function renderChrome(){
     if(el) el.hidden=wel||id==='btnLoad';
   });
 
-  /* CSV Import 2.0 — der Prototyp des generischen Imports. Sein
-     Ordner (_BusinessCenter/) steht nicht im Repository: den
-     Eintrag gibt es nur, wo FINA per file:// läuft — also auf dem
-     Rechner, auf dem der Ordner daneben liegt. Die Apps laufen
-     auch über file://, tragen den Ordner aber nicht mit —
-     FINA_NATIVE schließt sie aus. Auf der Webseite fehlt der
-     Eintrag damit von selbst. */
-  const csv2=document.getElementById('btnImportCsv2');
-  if(csv2) csv2.hidden=wel||location.protocol!=='file:'||!!window.FINA_NATIVE;
-
   /* Der Umfrage-Knopf hängt nicht am geladenen Buch allein: es
      muss auch eine Umfrage geben, die noch offen ist. Beides fragt
      surveyOpen() (js/dialogs/umfrage.js) — die Antwort kann
@@ -1082,11 +1072,6 @@ document.getElementById('btnSurvey').onclick=()=>openSurvey();
    „Import" der Einstellungen: erst das Fenster, das sagt, was die
    Datei braucht (openImportInfo), dann die Dateiauswahl. */
 document.getElementById('btnImportCsv').onclick=()=>openImportInfo();
-/* CSV Import 2.0 öffnet als eigener Reiter neben FINA — der
-   Prototyp arbeitet mit Kopien und fasst dieses Buch nicht an
-   (sichtbar nur per file://, siehe renderChrome). */
-document.getElementById('btnImportCsv2').onclick=
-  ()=>window.open('_BusinessCenter/FRAMEWORK%20CSV%20Import/index.html','_blank');
 /* Die beiden „Neu…"-Wege des Menüs — dieselben Fenster wie die
    Knöpfe, die bis zum Mac-Redesign in den Karten standen. Eine
    eigene Zeile für die Einnahme gibt es nicht: der reguläre
