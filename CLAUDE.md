@@ -40,7 +40,7 @@ ganze Projekt zu lesen.
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
 | Begrüßungsseite (ohne Datei) | `js/views/willkommen.js` |
-| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·sheet-import·filter-fields.js` |
+| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·sheet-import.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
 | Was der Anleitung noch fehlt (Merkzettel) | `doc/GUIDE-TODO.md` |
@@ -87,9 +87,15 @@ Abschnitt.**
 * **Die Monatsleiste steht unter der Filterzeile** (seit 22.8.26), nicht mehr an der
   Kopfzeile: dort, wo die Jahresmatrix ihre Monate hat, und im selben Bild — weiße Karte
   mit Radius 8 und derselben Schrift wie der Spaltenkopf der Matrix (9.5 px
-  Mono-Versalien). Sie zeigt erledigte Monate grün durchgestrichen und den laufenden als
-  rote Pille (`.mtab .mp`); die Statuspunkte sind weg, die Zählung steht in der
-  Sprechblase. Dasselbe Bild trägt der Monatskopf der Jahresmatrix (`.mhead.now`).
+  Mono-Versalien). Sie zeigt erledigte Monate grün durchgestrichen und den gewählten als
+  **schwarze** Pille (`.mtab .mp`; seit 23.8.26 — vorher nur eine dunkle Einfassung).
+  **Der laufende Monat trägt immer einen roten Ring** (seit 23.8.26; vorher eine gefüllte
+  rote Pille, die auch gefüllt blieb, wenn ein anderer Monat gewählt war): ungewählt
+  bleibt er ungefüllt auf dem Grund der Leiste — nur der ovale Rahmen ist rot statt
+  schwarz —, gewählt füllt er sich **orange** (`--accent`), und der Ring bleibt rot. Die
+  Statuspunkte sind weg, die Zählung steht
+  in der Sprechblase. Der Monatskopf der Jahresmatrix (`.mhead.now`) behält seine
+  gefüllte rote Pille — dort gibt es keine Auswahl, die dem Rot widersprechen könnte.
   Gebaut wird sie in `monthTabs()` (`js/views/monat.js`) und steckt in der `.stickybar`
   der Ansicht — am Schreibtisch in `anaBar()`, auf dem Telefon in `mobileTop()`; sie klebt
   also mit Auswertung und Filterzeile oben mit. Verdrahtet ist sie über `data-mtab`
@@ -116,14 +122,29 @@ Abschnitt.**
   dass sie gelten. Der `:hover`-Zwilling der Regel ist kein Zierrat: `.on .btn:hover` ist
   um eine Klasse spezifischer.
 * **Die Filterzeile der Monatsansicht:** Suchfeld (weißer Kasten mit Lupe, `filterField()`
-  ohne ☰) · ✕ · „Filteroptionen…" (`fltOptionsBtn()` in `js/ui.js`, öffnet weiterhin
-  `openFilterFields()`) · drei Aufklappmenüs Bereich/Fälligkeit/Zahlungsstatus
+  ohne ☰) · ✕ · „Filteroptionen…" (`fltOptionsBtn()` in `js/ui.js`, öffnet seit 23.8.26
+  die **Einstellungen im Bereich „Filter"** — `openSettings('filter')` in `wire()`; das
+  eigene Fenster `js/dialogs/filter-fields.js` ist weg) · drei Aufklappmenüs
+  Bereich/Fälligkeit/Zahlungsstatus
   (`fltDrop()` in `js/views/monat.js`). Ob ein Menü offen ist, sagt `ui.fltMenu`
-  (Sitzung, nie Datei); **es bleibt beim Wählen offen** — die Einträge tragen die
+  (Sitzung, nie Datei); **es bleibt nur bei spezifischen Werten offen** — „Alle" schließt
+  es (seit 23.8.26, `mShut()` in `wire()`; vorher blieb es bei jeder Wahl offen): „Alle"
+  heißt „fertig, nichts filtern", danach gibt es dort nichts mehr einzustellen. **Der
+  gewählte „Alle"-Eintrag trägt Tinte statt Orange** (`.mi.sel[data-…="alle"]` in
+  `css/layout.css`, gilt auch im mobilen Menü): Orange heißt „hier wird ausgeblendet",
+  und genau das tut „Alle" nicht. Die Einträge tragen die
   gewohnten `data-filter`/`data-duefilter`/`data-secfilter`, nur der Knopf trägt
-  `data-fltmenu` (verdrahtet in `wire()`). Zu geht es am Knopf, mit Escape (vor dem
+  `data-fltmenu` (verdrahtet in `wire()`). Zu geht es auch am Knopf, mit Escape (vor dem
   Filter-Zurücksetzen) oder mit einem Klick daneben (globaler Handler in `js/app.js`).
-  Das mobile Filtermenü (`.mfmenu`) benutzt dieselben Listen `FLT_DUE`/`FLT_PAY`.
+  **Das mobile Filtermenü (`.mfmenu`) benutzt dieselben Listen** `FLT_DUE`/`FLT_PAY` und
+  ist seit 23.8.26 dasselbe Bild wie die Aufklappmenüs — eine weiße Karte als Overlay
+  unter der Suchzeile (`css/mobile.css`); **nur die Überschriften** von Fälligkeit und
+  Zahlungsstand stehen rechtsbündig, die Werte links wie jeder Eintrag. **Es bleibt nur bei diesen Werten offen**: „Alle", „Filter zurücknehmen"
+  und „Filteroptionen…" schließen es, ebenso Escape und der Klick daneben (`wire()` und
+  die globalen Handler in `js/app.js`). Ein eigenes ✕ hat die mobile Suchzeile nicht
+  mehr — das Zurücknehmen steckt im Menü —, und der ☰-Knopf **leuchtet orange, sobald
+  irgendein Filter greift** (`.mfbtn.on`): er ist auf dem Telefon das, was am
+  Schreibtisch die orange Filterzeile ist.
 * **Angelegt wird nur noch über das Menü.** Die Karten der Monatsansicht und die Leiste
   der Jahresansicht tragen keine „Neu…"-Knöpfe mehr; am Kopf der Flexible-Payments-Karte
   bleibt allein der Sprung in die Transactions-Auswertung (`.headlink`, `data-kview`).
@@ -179,15 +200,30 @@ Abschnitt.**
   `ui.hideSettled`) — wer einen der Knöpfe in Text oder Sprechblase zitiert, nimmt
   diese Namen. In der Leiste steht „Filteroptionen…" direkt hinter dem ✕ — wie in der
   Filterzeile des Monats, beides gehört zum Suchfeld.
-* **Der vierte Reiter heißt „Transactions"** — nur `view.kakeibo` in `js/i18n.js`; alle
-  Schlüssel (`kak`, `ui.view='kakeibo'`, Dateinamen) bleiben. Der Tastengriff bleibt
-  ausdrücklich **D**: Strg/Cmd+Umschalt+T ist im Browser für „Reiter wiederherstellen"
-  reserviert und käme nie an.
-* **Fenster** nach 5a/5b: `.box` mit Radius 10 und `--sh-modal`, Blöcke (`.dgrp`, `.quick`,
-  `.setpane`) auf `--chrome` mit Radius 8, weiße Felder mit Radius 6, Mono-Versalien 8.5 px
+* **Der vierte Reiter heißt „Import Details"** (seit 23.8.26; davor „Transactions") —
+  nur `view.kakeibo` in `js/i18n.js`; alle
+  Schlüssel (`kak`, `ui.view='kakeibo'`, Dateinamen) bleiben. Der Tastengriff ist seit
+  23.8.26 **I** (davor T, davor D) — auf ausdrücklichen Wunsch, obwohl der Browser
+  Strg/Cmd+Umschalt+I meist selbst für die Entwicklerwerkzeuge nimmt: dort kommt der
+  Griff dann nicht an, in der Mac- und der Windows-App schon.
+* **Fenster** nach 5a/5b, seit 23.8.26 nach der Vorlage
+  `_BusinessCenter/DESIGN/260823 ReDEsign FINA - Settings and Paymentdetails.html`:
+  `.box` mit Radius 10 und `--sh-modal`; die Blöcke (`.dgrp`,
+  `.quick`, `.setpane`) stehen auf dem **Grund des Fensters** und heben sich
+  über den zweischichtigen Schatten `--sh-grp` ab (vorher grau auf `--chrome`) — Radius 8
+  und die Haarlinie bleiben. **Der Monatsblock trägt dabei den hellen Grund seiner
+  Geldart** (`.dgrp.t-in/t-flex/t-out/t-bal` → `--bg-in` …; die zweite Stufe stand hier
+  für einen Tag und war zu viel Farbe für einen ganzen Block): im
+  Posten-Fenster folgt er der
+  Block-Auswahl (`mtint`/`updateTint` in `js/dialogs/item.js`, ohne Block neutral), im
+  Beträge-Fenster ist er immer gelb. Weiße Felder mit Radius 6, Mono-Versalien 8.5 px
   als Feldbeschriftung, Monatskacheln mit Radius 7 (geschlossen auf `--settled`),
   Einstellungsmenü mit roter 3-px-Kante, Löschen als oranger Textlink links in der
-  Fußzeile (`.dellink`).
+  Fußzeile (`.dellink`). Im schmalen Einstellungsfenster steht die Zeile
+  ‹ · Aufklappliste · › **direkt unter der Überschrift, vor dem Beschreibungssatz** —
+  so bleibt sie beim Bereichswechsel an derselben Stelle; sie trägt seit 23.8.26
+  **dieselbe Bauform wie die Ansichtswahl unten am Telefon** (`.mvsel`/`.mvnav`):
+  Mac-Knopfbild, Mono-Versalien zentriert, kein Browser-Pfeil (`appearance:none`).
 * **Bewusste Abweichungen vom Mock** (Funktion vor Standbild): die Zähler „(n)" an den
   Filterknöpfen bleiben, die LP-Ampel behält ihre vier Farben, die Kartensummen des Monats
   ihre Vorzeichenfarbe, „Sicherung speichern" steht mit im Menü, alle zwölf Monatsspalten
@@ -206,12 +242,14 @@ braucht also immer zwei Stellen: das Attribut in der View und eine Zeile in `wir
 Ausnahme: `data-note` und `data-tip` gehören `js/ui.js` und funktionieren überall von
 selbst.
 
-Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `secfilter` `tpart` `q` `qfields` `kd` (Filter) ·
+Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `secfilter` `tpart` `q` `qfields` `kd` `mfilters` (Filter;
+`qfields` öffnet die Einstellungen im Bereich „Filter", `mfilters` das mobile Filtermenü) ·
 `ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich der Monatsansicht
 zuklappen) · `yfold` `dblyfold` (einen Block der Jahresmatrix zuklappen) · `qclear` (Filter
 zurücknehmen) ·
 `wload` `wnew` (Begrüßungsseite) · `opening` (Anfangsbestand in den Einstellungen öffnen) ·
-`kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `goto` `kview`
+`kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `txlist` (die
+Buchungen als Fenster, mobile Transactions-Ansicht) · `goto` `kview`
 (Sprünge in eine andere Ansicht) · `mtab` (Monatsleiste unter der Filterzeile) ·
 `edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) ·
 `links` (Auswahl der zugehörigen Links).
@@ -609,12 +647,15 @@ Zustand: **„Fast Budget Details" erscheint nur, wenn einmal importiert wurde**
 leere Gliederung. Er steht als **letzter**, nach der Prognose.
 
 **Jeder Reiter hat einen Tastengriff**, `VIEW_KEYS` unten in `js/app.js`:
-Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **F** Prognose · **D** Fast Budget
-Details. Die Buchstaben folgen den **englischen** Namen und wechseln deshalb nicht mit der
+Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **F** Prognose · **I** Import Details
+(seit 23.8.26; davor T, davor D). Die Buchstaben folgen den **englischen** Namen und
+wechseln deshalb nicht mit der
 Sprache — wie B · PT · DD · LP in der Jahresmatrix. Y statt J, weil „Year"; F für
-„Forecast"; D für „Details" — F und B sind schon vergeben. Wer einen Reiter hinzufügt,
+„Forecast"; I für „Import Details" — auf ausdrücklichen Wunsch, obwohl der Browser
+Strg/Cmd+Umschalt+I meist selbst für die Entwicklerwerkzeuge nimmt und der Griff dann nur
+in den beiden Apps ankommt. Wer einen Reiter hinzufügt,
 trägt ihn dort ein. **Gesprungen wird nur in Reiter, die es gerade gibt** — der Griff prüft
-`VIEWS`, sonst führte D ohne Import in eine Ansicht ohne Reiter.
+`VIEWS`, sonst führte I ohne Import in eine Ansicht ohne Reiter.
 
 **Und die Monate haben ihren eigenen Griff**, gleich darunter in `js/app.js`: Strg/Cmd +
 **←** / **→** geht in der Monatsansicht einen Monat zurück oder weiter. **Nur dort** — in den
@@ -1694,11 +1735,14 @@ nicht aus `state`.
 
 ## Worin das Suchfeld sucht
 
-Vor jedem Suchfeld steht ein Hamburger-Knopf (`data-qfields`), der
-`openFilterFields()` aus `js/dialogs/filter-fields.js` öffnet: fünf Kästchen, „Speichern"
-und „Abbrechen". Die Wahl steht in **der Datei** (`state.filterFields`, siehe `QFIELDS` und
+Hinter jedem Suchfeld steht „Filteroptionen…" (`data-qfields`, gebaut von
+`fltOptionsBtn()` in `js/ui.js`) und öffnet seit 23.8.26 die **Einstellungen im Bereich
+„Filter"** (`openSettings('filter')`; das eigene Fenster `js/dialogs/filter-fields.js`
+ist weg): fünf Kästchen, darunter abgesetzt der sechste Haken. Die Wahl steht in **der
+Datei** (`state.filterFields`, siehe `QFIELDS` und
 `allQFields()` in `js/state.js`) — sie ist eine Einstellung wie die beiden Jahresfilter,
-kein Anzeigezustand. Vorgabe ist alles gewählt; eine Datei ohne die Angabe bekommt in
+kein Anzeigezustand, und deshalb gehört sie ins Einstellungsfenster, wo die Angaben der
+Datei beisammenstehen. Vorgabe ist alles gewählt; eine Datei ohne die Angabe bekommt in
 `migrate()` alles.
 
 Die fünf Schlüssel und was zu ihnen zählt, steht in `hayItem()` / `hayKak()` in
@@ -1713,16 +1757,20 @@ Die fünf Schlüssel und was zu ihnen zählt, steht in `hayItem()` / `hayKak()` 
 | `meta` | Kategorie, Bank, Zahlungsart, Fälligkeit — **und** die Namen der Blöcke: `hit()` in `js/views/jahr.js`, `secHit()` in `js/views/monat.js` |
 
 Wer einen Teil hinzufügt, braucht vier Stellen: den Schlüssel in `QFIELDS`, den Zweig in
-beiden `hay…`-Funktionen, die Zeile in `QFIELD_ROWS()` und zwei Texte in `js/i18n.js`
+beiden `hay…`-Funktionen, die Zeile in `qfRows` im Bereich „Filter"
+(`js/dialogs/settings.js`) und zwei Texte in `js/i18n.js`
 (`flt.f…` und `flt.f…Hint`).
 
 **Mindestens ein Kästchen bleibt stehen.** Ein Suchbegriff, der nirgends sucht, fände nie
-etwas und sähe aus wie ein Fehler. Durchgesetzt wird das im Fenster — `#ffSave` weist die
-leere Wahl zurück und zeigt `.errline` in Rot — und beim Laden in `migrate()`. Der Knopf
+etwas und sähe aus wie ein Fehler. Durchgesetzt wird das dreifach: `#lSave` der
+Einstellungen weist die leere Wahl zurück (der Bereich „Filter" klappt auf und `.errline`
+sagt in Rot, warum), `applyGeneral()` übernimmt sie auf keinem anderen Weg — „+",
+Sortieren und Sprachwechsel behalten dann die letzte gültige Wahl —, und `migrate()`
+flickt sie beim Laden. Der Knopf
 selbst steht auf dunklem Grund (`aria-pressed`), sobald die Suche anders eingestellt ist als
 von Haus aus: wie bei den Filterknöpfen heißt dunkel „gilt gerade".
 
-**Der sechste Haken beantwortet eine andere Frage.** `#ffHidden` → `state.qHidden`, gelesen
+**Der sechste Haken beantwortet eine andere Frage.** `#sQHidden` → `state.qHidden`, gelesen
 über `qAll()` (`js/state.js`), steht abgesetzt unter den fünf (`.wherelist`) und zählt bei
 „mindestens eins" **nicht** mit — die fünf sagen, *worin* gesucht wird, dieser sagt, *wo*.
 Steht er, überstimmt ein Suchbegriff die übrigen Filter: beide Ansichten rechnen dafür ein
@@ -2196,10 +2244,20 @@ gequetscht oder mit einer leeren Spalte daneben. Im schmalen Fenster stehen die
 Auswahllisten zu zweit (`.box.form .c4`): vier nebeneinander wären 120 px je Liste, und
 darin ist von einer Kategorie nichts mehr zu lesen.
 
+**Kopf und Knopfzeile stehen fest, gescrollt wird nur der Rumpf** (seit 23.8.26): die
+drei großen Fenster — Posten, Beträge, Einstellungen — tragen `.box.split`, und alles
+zwischen Überschrift und `.row-end` steckt in einer `.dbody` (`css/components.css`):
+Name und „Speichern" bleiben immer im Bild, gleich wie weit man in den Monaten steht.
+Wer dort einen Block ergänzt, baut ihn **in** die `.dbody`; ein neues Fenster, das
+scrollen kann, nimmt dieselben zwei Klassen.
+
 Dieselbe Sprache gilt dem **Einstellungsfenster**: der gewählte Bereich (`.setpane`) steht
-in einem Feld wie ein `.dgrp`, das Menü daneben. Und jede Knopfzeile eines Fensters
-(`.row-end`) steht hinter einer Haarlinie — was darüber steht, wird ausgefüllt, was darunter
-steht, entscheidet.
+in einem Feld wie ein `.dgrp`, das Menü daneben. Die Haarlinie über der Knopfzeile
+(`.row-end`) ist seit 23.8.26 weg: die Blöcke schweben über ihren Schatten (`--sh-grp`),
+und das trennt Ausfüllen und Entscheiden deutlicher, als ein Strich es tat. **Die graue
+Schrift ist in den Fenstern eine Stufe dunkler** (`--ink-2` wird an `.modal .box`
+überschrieben, `css/components.css`): die Sätze unter Feldern und Knöpfen sind dort zum
+Lesen da, nicht nur zur Orientierung.
 
 ## Das Einstellungsfenster
 
@@ -2312,9 +2370,12 @@ der Jahresmatrix und der Erklärsatz über dem Zeitstrahl.
 **Was bleiben darf**, ist kein erklärender Text, sondern Auskunft:
 
 * **Zeichenerklärungen** — die Farbmarken unter dem Zeitstrahl und unter dem Verlauf
-  (`.thint`), die Siegelerklärung der Monatsansicht (`.legendbar`) und `year.legend` neben
+  (`.thint`) und `year.legend` neben
   den Reitern. Sie benennen, was allein die Farbe oder ein Zeichen sagt; eine Sprechblase
-  erreichte nur, wer schon weiß, worauf er zeigen muss.
+  erreichte nur, wer schon weiß, worauf er zeigen muss. **Die Siegelerklärung der
+  Monatsansicht (`.legendbar`) ist seit 23.8.26 weg** — die Siegel erklären ihre
+  Sprechblasen und die Anleitung; die Schlüssel (`month.legTitle` …) bleiben in
+  `js/i18n.js`.
 * **Leere Bereiche** — „Keine Einnahmen hinterlegt", „Keine Posten für diesen Filter".
   Dort ist der Satz der Inhalt und verdrängt nichts.
 * **Zahlen über Zahlen** — „(4 ausgeblendet)", „35 Buchungen ab 50,00", der Maßstab einer
@@ -2459,10 +2520,9 @@ Oberfläche, und das ist so gewollt. Prüfen lässt sich eine Änderung auch ohn
 und berechnete Stile aus dem DOM lesen (`--dump-dom`) sagt genauer, ob etwas an der
 richtigen Stelle steht, als ein Blick auf ein Standbild.
 
-Die Zeichenerklärung der Monatsansicht (`.legendbar`) steht aus demselben Grund außerhalb
-der Karten: dieselben Siegel gibt es in allen drei Blöcken. Gesetzt ist sie wie die
-Statuszeile ganz unten — dünne Linie darüber, kleine Schreibmaschinenschrift, kein Kasten:
-sie erklärt etwas, sie meldet nichts.
+Die Zeichenerklärung der Monatsansicht (`.legendbar`) gibt es seit 23.8.26 nicht mehr
+(siehe „Erklärender Text steht in der Sprechblase"): die Siegel erklären ihre
+Sprechblasen und die Anleitung.
 
 ## Die Kürzelspalten der Jahresmatrix
 
@@ -2592,6 +2652,17 @@ ihre eigene Hintergrundfarbe für die 1px-Trennlinien und kann den Papiergrund n
 zugleich tragen.
 
 ## Die Jahresmatrix ist eine eigene Fläche
+
+**Und die Monatsansicht seit 23.8.26 genauso** (am Schreibtisch): die Kartenliste rollt in
+`#monthScroll` (`viewMonat()` baut die Fläche, `sizeMonth()` in `js/app.js` setzt ihre
+Höhe wie `sizeMatrix()`, `body.monthview` nimmt der Seite das Polster). Filterzeile,
+Monatsleiste und Auswertung stehen darüber und rollen nicht mit — der Rollbalken fängt
+wie im Jahr erst unter der Leiste an, und beim Ansichtswechsel springt nichts. Die
+klebenden Kartenköpfe richten sich damit an dieser Fläche aus: `syncStickyTops()` setzt
+ihr `top` auf 0, sobald sie in `#monthScroll` stehen. `render()` erhält die
+Scrollstellung der Fläche wie die der Matrix — jedes Tippen im Suchfeld zeichnet neu.
+**Auf dem Telefon rollt weiter die Seite** (der `mob`-Zweig baut die Fläche nicht);
+Prognose und Transactions rollen wie bisher als Seite.
 
 **Sie rollt in beiden Richtungen selbst, und die Seite rollt in dieser Ansicht gar nicht.**
 `.yearscroll` trägt `overflow:auto` und eine Höhe, die `sizeMatrix()` in `js/app.js` einmal

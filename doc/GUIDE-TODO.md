@@ -20,6 +20,79 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen
 
+- ⚠ **Die Filteroptionen stehen in den Einstellungen (23.8.26)** — der neue Bereich
+  „Filter" hält die fünf Kästchen und den sechsten Haken; „Filteroptionen…" neben den
+  Suchfeldern öffnet die Einstellungen dort, ein eigenes Fenster gibt es nicht mehr.
+  **Falsch geworden:** der Produktreiter beschreibt im Abschnitt „Etwas wiederfinden" ein
+  eigenes Fenster mit Speichern und Abbrechen — jetzt ist es ein Bereich der
+  Einstellungen, übernommen wird mit deren „Speichern".
+
+- ⚠ **Der vierte Reiter heißt „Import Details", sein Tastengriff ist I (23.8.26)** —
+  vorher „Transactions" mit T, davor D; im Browser fängt der Browser
+  Strg/Cmd+Umschalt+I meist selbst ab (Entwicklerwerkzeuge), in den Apps kommt der
+  Griff an. **Falsch geworden:** der Produktreiter nennt in beiden Sprachen
+  „M · Y · F · D", und wo die Anleitung den Reiter „Transactions" (oder „Fast Budget
+  Details") nennt, heißt er jetzt „Import Details".
+
+- **Die Siegelerklärung unter der Monatsansicht ist weg (23.8.26)** — die Zeile „The
+  marks — in every section" stand unter den Karten; was die Siegel bedeuten, sagen ihre
+  Sprechblasen und die Anleitung. Kein Absatz falsch geworden.
+
+- **Die mobile Fassung, zweiter Durchgang (23.8.26)** — die Ansicht wird unten über eine
+  Aufklappliste mit ‹ › gewählt (statt der Reiterzeile); das Filtermenü ist eine weiße
+  Overlay-Karte wie am Schreibtisch — nur die Überschriften von Fälligkeit und
+  Zahlungsstand stehen rechtsbündig, die Werte links —, es bleibt nur bei
+  Fälligkeit und Zahlungsstand offen, und der ☰-Knopf leuchtet orange, sobald ein Filter
+  greift (das eigene ✕ neben dem Suchfeld ist weg — Zurücknehmen steht im Menü); die
+  Suchzeile hat oben dieselbe Luft wie unten — der Filterknopf steht rechts vom
+  Suchfeld, in Maß (44 × 44) und Flucht genau unter dem ☰ der Kopfzeile, sein Menü
+  klappt rechtsbündig auf; die
+  Kennzahl-Kacheln stehen in neuer Reihenfolge (Einnahmen · Noch offen / Flexible ·
+  Regelmäßige Kosten); die mobile Jahresansicht zeigt je Monat vier farbige Kästchen
+  (IN · REG · FLEX · COR) in **einer** Zeile über die ganze Kartenbreite statt einer
+  Textzeile (der ›-Pfeil rechts ist weg — die ganze Karte ist der Knopf), und beim
+  Sprung zum laufenden Monat bleibt sein roter Rahmen samt kleinem Abstand zur
+  Gesamtzeile vollständig sichtbar; die Abhak-Siegel der
+  Monatsansicht sind 22 px statt 44; die Transactions-Ansicht öffnet ihre
+  Buchungen per Knopf oder Zeilenpfeil als eigenes Fenster — der Knopf heißt wie am
+  Schreibtisch „Größte Einzelposten"; „Daten speichern" und „CSV-Import" stehen auf dem
+  Telefon nicht im Menü, **„Sicherung speichern" bleibt** — die datierte Kopie im
+  Download-Ordner ist dort
+  der einzige Weg, einen Stand mitzunehmen. Der Mobil-Absatz der Anleitung ist zu
+  prüfen, sobald er nachgezogen wird.
+
+- **Ein Posten öffnet sich ohne Tastatur (23.8.26)** — das Fenster selbst bekommt beim
+  Öffnen den Fokus; nur der Weg über einen Betrag (Siegel, Doppelklick) setzt die
+  Schreibmarke in dessen Monat, und ohne Bezeichnung geht der Fokus auf die Überschrift.
+  Kein Absatz falsch geworden.
+
+- **Der gewählte Monat trägt eine schwarze Pille (23.8.26)** — in der Monatsleiste. Der
+  laufende Monat trägt immer einen roten Ring: ungewählt bleibt er ungefüllt, gewählt
+  füllt er sich orange, der Ring bleibt rot (vorher eine dauerhaft gefüllte rote Pille).
+  Kein Absatz falsch geworden.
+
+- **Die Fenster-Blöcke schweben (23.8.26)** — die Gruppen in Posten-, Beträge- und
+  Einstellungsfenster stehen auf dem Grund des Fensters und heben sich über einen
+  zweischichtigen Schatten ab statt über graue Füllung (Vorlage
+  `_BusinessCenter/DESIGN/260823 ReDEsign FINA - Settings and Paymentdetails.html`);
+  der Monatsblock trägt dabei den hellen Grund
+  seiner Geldart (grün · gelb · rot · blau), die graue Schrift ist in den Fenstern eine
+  Stufe dunkler, die Haarlinie über der Knopfzeile ist weg — die Schatten trennen —,
+  und in den drei großen Fenstern stehen Name und Knopfzeile fest: gescrollt werden nur
+  die Blöcke dazwischen. Im schmalen Einstellungsfenster steht die
+  Bereichs-Aufklappliste direkt unter der Überschrift, der Beschreibungssatz darunter.
+  Kein Absatz falsch geworden.
+
+- **Die Monatsansicht rollt in ihrer eigenen Fläche (23.8.26)** — am Schreibtisch wie
+  die Jahresmatrix: Filterzeile, Monatsleiste und Auswertung stehen fest, nur die
+  Kartenliste rollt, der Rollbalken fängt darunter an; beim Ansichtswechsel springt
+  nichts mehr. Kein Absatz falsch geworden.
+
+- **„Alle" schließt das Aufklappmenü und trägt Tinte (23.8.26)** — in den drei
+  Filtermenüs des Schreibtischs wie im mobilen Menü: ein spezifischer Wert (orange)
+  lässt das Menü offen, „Alle" (schwarz hinterlegt, weil es nichts ausblendet) schließt
+  es. Kein Absatz falsch geworden.
+
 - **Die Monatsleiste steht unter der Filterzeile** — nicht mehr an der Kopfzeile. Sie sieht
   jetzt aus wie der Spaltenkopf der Jahresmatrix (weiße Karte), und die Filterzeile läuft in
   beiden Ansichten als flache Bahn über die ganze Seite. Kein Absatz ist dadurch falsch

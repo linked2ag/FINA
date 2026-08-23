@@ -150,6 +150,15 @@
   --grad-btn:linear-gradient(#fff,var(--paper-2));
   --sh-btn:0 1px 1px rgba(0,0,0,.05);
   --sh-card:0 1px 2px rgba(0,0,0,.04);
+  /* Die Gruppenboxen der Fenster (.dgrp, .setpane): sie stehen
+     seit 23.8.26 auf dem Grund des Fensters und heben sich allein
+     über diesen Schatten ab. Zwei Schichten wie in der Vorlage
+     (_BusinessCenter/DESIGN/260823 ReDEsign FINA — Settings and
+     Paymentdetails.html): eine enge Kante und ein weiter, weicher
+     Wurf — erst der macht das Schweben auf gleichem Grund
+     sichtbar. Seit 23.8.26 eine Spur kräftiger als in der Vorlage:
+     das Schweben soll auch auf hellen Bildschirmen zu sehen sein. */
+  --sh-grp:0 2px 5px rgba(27,35,32,.16),0 10px 22px rgba(27,35,32,.19);
   --sh-pop:0 8px 22px rgba(0,0,0,.18);
   --sh-modal:0 18px 44px rgba(0,0,0,.25);
   --font-display:'Zilla Slab',Georgia,serif;

@@ -163,8 +163,14 @@ const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(8)}${visMonths().map((
    mehr: zwölf Monatsspalten auf 390 px sind 4-px-Zahlen. Statt sie
    zu verkleinern, wird das Jahr eine Liste aus zwölf Karten — je
    Monat der Name, sein Saldo und darunter die vier Bewegungen als
-   Kürzel (IN · REG · FLEX · COR, sprachunabhängig wie B · PT · DD ·
-   LP). COR steht nur da, wo eine Korrektur eingetragen ist.
+   **farbige Kästchen** (seit 23.8.26; vorher eine Zeile aus
+   Kürzeln): alle vier in EINER Zeile über die ganze Kartenbreite,
+   jedes auf dem hellen Grund seiner Geldart
+   (--bg-in · --bg-out · --bg-flex · --bg-bal), wie die Kacheln
+   der Monatsansicht. Die Kürzel IN · REG · FLEX · COR bleiben
+   sprachunabhängig wie B · PT · DD · LP. **Alle vier stehen
+   immer da**, auch ein leeres COR: die vier sind das Raster der
+   Karte, und ein Loch darin läse sich wie ein Fehler.
 
    Oben klebt die violette Gesamtzeile — dieselbe Aussage wie
    year.totalRow der Matrix, mit der Jahressumme daneben. Angelegt
@@ -180,6 +186,8 @@ const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(8)}${visMonths().map((
    gewöhnlich. */
 function viewJahrMobile(){
   const yearSum=MONTHS.reduce((s,_,i)=>s+saldo(i+1),0);
+  const kbox=(cls2,lab,v)=>`<span class="yk ${cls2}"><span class="lab">${lab}</span
+    ><span class="val ${cls(v)}">${eur(v)}</span></span>`;
   const cards=MONTHS.map((name,i)=>{
     const m=i+1, s=saldo(m);
     /* Beide Zustände können zusammen gelten — ein komplett
@@ -187,16 +195,15 @@ function viewJahrMobile(){
        Monatsreitern der Kopfzeile (mtab alldone current): sonst
        verlöre er die rote Einfassung und den Sprung zum Jetzt. */
     const st=(monthDone(m)?' done':'')+(m===CUR?' now':'');
-    const cor=balanceFix(m);
+    /* Kein ›-Pfeil mehr (seit 23.8.26): die ganze Karte ist der
+       Knopf, das sagt sie selbst — und die volle Breite gehört den
+       vier Kästchen. */
     return `<button class="ymcard${st}" data-goto="${m}"
       title="${esc(t('year.monthTip',MONTHS_LONG[i]))}">
       <span class="ymmain"><span class="ymname">${MONTHS_LONG[i]}</span
         ><span class="ymsum ${cls(s)}">${eur(s)}</span></span>
-      <span class="ymsub"><span class="yk yk-in">IN ${eur(income(m))}</span
-        ><span class="yk yk-out">REG ${eur(fixedCost(m))}</span
-        ><span class="yk yk-flex">FLEX ${eur(kakeiboFor(m))}</span
-        >${cor?`<span class="yk yk-bal">COR ${eur(cor)}</span>`:''}</span>
-      <span class="ymgo" aria-hidden="true">&rsaquo;</span></button>`;
+      <span class="ymk">${kbox('yk-in','IN',income(m))}${kbox('yk-out','REG',fixedCost(m))
+        }${kbox('yk-flex','FLEX',kakeiboFor(m))}${kbox('yk-bal','COR',balanceFix(m))}</span></button>`;
   }).join('');
   return `<div class="stickybar ymbar"><span class="ymtot"
       ><span class="lab">${t('year.mTotal',YEAR)}</span

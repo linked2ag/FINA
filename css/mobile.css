@@ -49,6 +49,22 @@ header{margin:0 -12px}
   font-family:var(--font-data);font-size:11px;font-weight:600;color:var(--ink-2);
   border-bottom:1px solid var(--hairline);white-space:normal;overflow-wrap:anywhere}
 .tools .menufile.warnpath{color:var(--seal)}
+/* „Daten speichern" und „CSV-Import" gibt es auf dem Telefon
+   nicht: ohne File System Access schriebe jedes Speichern eine
+   neue Datei in den Download-Ordner, und importiert wird am
+   Schreibtisch — die Ansicht dazu (Import Details) ist auf dem
+   Telefon ohnehin nur zum Lesen da. **„Sicherung speichern"
+   bleibt** (seit
+   23.8.26): eine datierte Kopie im Download-Ordner ist genau, was
+   der Knopf verspricht — auf dem Telefon ist er der einzige Weg,
+   einen Stand mitzunehmen. Der rote Punkt am ☰ bleibt — er sagt
+   weiter, dass es Ungespeichertes gibt; gespeichert wird am
+   Schreibtisch. */
+.tools #btnSave,.tools #btnImportCsv{display:none}
+/* Der CSV-Import trug den Trenner, der die Dateigruppe abschließt
+   (.mi-sep in css/layout.css) — ohne ihn übernimmt „Daten
+   schließen" als letzter sichtbarer Eintrag der Gruppe. */
+.tools #btnUnlink{border-bottom:1px solid var(--hairline)}
 /* Die Ansichtsreiter oben entfallen — dieselben Reiter stehen
    unten am Daumen (.mtabs). Das display setzt renderChrome()
    inline (dort steht die Weiche); die Regel hier ist der doppelte
@@ -62,52 +78,88 @@ header{margin:0 -12px}
 .months::-webkit-scrollbar{display:none}
 .mtab{min-width:52px;padding:8px 4px;font-size:11px}
 
-/* ── Die Reiterleiste unten ───────────────────────────────────
-   MONAT · JAHR · PROGNOSE (und mit Import die Details), fest am
-   unteren Rand, über dem Home-Indicator. Der aktive Reiter trägt
-   die rote Kante oben — dasselbe Zeichen wie der gewählte Monat
-   in der Leiste darüber. */
+/* ── Die Ansichtswahl unten ───────────────────────────────────
+   Fest am unteren Rand, über dem Home-Indicator: ‹ · Aufklappliste
+   · › (seit 23.8.26; vorher eine Reiterzeile). Die Liste nennt die
+   Ansicht, in der man steht, und klappt alle auf; die beiden
+   Knöpfe gehen eine zurück oder weiter — am Rand ist Schluss.
+   Alle drei tragen das Mac-Knopfbild der Kopfzeile (--grad-btn,
+   --sh-btn); die Liste verliert dafür ihr Browserkleid
+   (appearance:none) und zentriert ihre Beschriftung. */
 body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;
+  gap:8px;align-items:center;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));
   border-top:2px solid var(--ink);background:var(--paper-2)}
 .mtabs[hidden]{display:none!important}
-.mvtab{flex:1 1 0;min-width:0;background:none;border:0;border-top:3px solid transparent;
-  padding:13px 4px calc(12px + env(safe-area-inset-bottom,0px));cursor:pointer;
-  font-family:var(--font-data);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mvtab[aria-selected="true"]{border-top-color:var(--seal);color:var(--ink);font-weight:600}
+.mvnav{flex:0 0 44px;width:44px;height:38px;cursor:pointer;padding:0;
+  font-size:20px;line-height:1;color:var(--ink);
+  background:var(--grad-btn);border:1px solid var(--rule);border-radius:6px;box-shadow:var(--sh-btn)}
+.mvnav:disabled{opacity:.35;cursor:default}
+.mvsel{flex:1 1 auto;min-width:0;height:38px;cursor:pointer;
+  appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;
+  font-family:var(--font-data);font-size:12px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink);
+  background:var(--grad-btn);border:1px solid var(--rule);border-radius:6px;box-shadow:var(--sh-btn)}
 
 /* ── Die Suchzeile der Monatsansicht ──────────────────────────
-   Filterknopf, Suchfeld, Leeren — alle exakt 44 px hoch. Der
-   Filterknopf ist dunkel und trägt die Zahl der greifenden Filter
-   als rote Marke; das Menü dahinter (.mfpanel) hält die gewohnten
-   Filterknöpfe und den Weg ins Suchfelder-Fenster. */
-/* Wie am Schreibtisch: die Suchzeile dockt oben an der Kopfzeile
-   an, ohne Abstand. */
-.msearch{padding:0 0 8px}
-.msrow{display:flex;gap:6px}
+   Suchfeld links, Filterknopf RECHTS (seit 23.8.26; vorher
+   umgekehrt): der Knopf steht damit genau unter dem ☰ der
+   Kopfzeile und trägt dessen Maß — 44 × 44, Radius 8, dieselbe
+   Flucht am rechten Rand. Ein eigenes ✕
+   gibt es seit 23.8.26 nicht mehr, das Zurücknehmen steckt im
+   Menü. Der Filterknopf trägt das Mac-Knopfbild der Kopfzeile und
+   die Zahl der greifenden Menü-Filter als rote Marke; **greift
+   irgendein Filter, leuchtet er orange** (.on, gesetzt in
+   mobileTop): er ist auf dem Telefon das, was am Schreibtisch die
+   orange Filterzeile ist — darum das satte --accent, das dort als
+   Knopffarbe gedacht ist. */
+/* Die Elemente haben nach oben dieselbe Luft wie nach unten —
+   gleiches Polster auf beiden Seiten. */
+.msearch{padding:8px 0}
+.msrow{display:flex;gap:6px;align-items:center}
 .mfbtn{position:relative;flex:0 0 44px;width:44px;height:44px;cursor:pointer;
-  border:1px solid var(--ink);background:var(--ink);color:var(--paper-2);
-  border-radius:2px;font-size:16px;padding:0}
+  background:var(--grad-btn);border:1px solid var(--rule);color:var(--ink);
+  border-radius:8px;box-shadow:var(--sh-btn);font-size:16px;padding:0}
+.mfbtn[aria-expanded="true"]{background:var(--shade)}
+.mfbtn.on{background:var(--accent);border-color:var(--accent-2);color:#fff}
 .mfbadge{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:8px;
   background:var(--seal);color:var(--paper-2);font-family:var(--font-data);font-size:9.5px;
   font-weight:600;line-height:16px;padding:0 3px}
-.msq{flex:1 1 auto;min-width:0;height:44px;font-family:var(--font-ui);font-size:14px;
+.msq{flex:1 1 auto;min-width:0;height:40px;font-family:var(--font-ui);font-size:14px;
   background:var(--paper-2);color:var(--ink);border:1px solid var(--rule-strong);
   border-radius:2px;padding:0 10px}
-.msclear{flex:0 0 44px;width:44px;height:44px;cursor:pointer;
-  border:1px solid var(--rule-strong);background:var(--paper-2);
-  border-radius:2px;font-size:13px;color:var(--ink-2);padding:0}
-.msclear:disabled{opacity:.45;cursor:not-allowed}
-/* Das Filtermenü sieht aus wie die Aufklappmenüs am Schreibtisch
-   (.dropmenu in css/layout.css): weiße Karte, Gruppen mit
-   Mono-Überschrift, der gewählte Wert auf Orange — nur stehen die
-   Einträge hier in Fingerhöhe und das Menü im Fluss statt als
-   Overlay: es klappt unter der Suchzeile auf und bleibt beim
-   Wählen offen (ui.mFilters). */
-.mfmenu{position:static;width:100%;margin-top:8px}
+/* Das Filtermenü ist dasselbe Bild wie die Aufklappmenüs am
+   Schreibtisch (.dropmenu in css/layout.css): eine weiße Karte
+   als **Overlay** unter der Suchzeile — Radius 8, Schatten,
+   Gruppen mit Mono-Überschrift, der gewählte Wert auf Orange —,
+   nur die Einträge in Fingerhöhe. Verankert an der klebenden
+   Leiste (.msearch ist position:sticky und damit der
+   Bezugsrahmen); zu geht es mit „Alle", Zurücknehmen, den
+   Optionen, Escape oder einem Klick daneben (wire und die
+   globalen Handler in js/app.js).
+
+   **Nur die Überschriften der beiden Gruppen (Fälligkeit,
+   Zahlungsstand) stehen rechtsbündig** — die Werte darunter stehen
+   links wie jeder Eintrag (bis 23.8.26 standen auch sie rechts):
+   gelesen wird von links, die Überschrift rechts genügt als
+   Absatzmarke.
+
+   Es klappt RECHTSBÜNDIG auf, unter dem Knopf, zu dem es gehört —
+   der steht seit 23.8.26 rechts. */
+.mfmenu{top:58px;left:auto;right:0;width:min(300px,100%);margin:0;z-index:36}
 .mfmenu .mi{padding:10px 14px;font-size:14px}
 .mfmenu .mi.mi-sep,.mfmenu .mi.mi-top{padding:10px 14px}
-.mfmenu .mghead{padding:8px 14px 2px}
+/* Die Gruppen trennen sich über die Zeile ihrer Überschrift: vor
+   „Fälligkeit" und vor „Zahlungsstand" läuft eine Trennlinie in
+   deutlichem Grau (--rule-strong statt der blassen Haarlinie —
+   die war zwischen den weißen Einträgen kaum zu sehen). Der
+   Trenner unter „Filter zurücknehmen" entfällt dafür: die Linie
+   der ersten Überschrift übernimmt, zwei Striche übereinander
+   wären ein Doppelstrich. Dieselbe kräftige Linie trägt der
+   Trenner vor „Filteroptionen…" (mi-top, css/layout.css). */
+.mfmenu .mi.mi-sep{border-bottom:0}
+.mfmenu .mghead{padding:10px 14px 2px;text-align:right;border-top:1px solid var(--rule-strong)}
+.mfmenu .mi.mi-top{border-top-color:var(--rule-strong)}
 
 /* ── Die Kennzahl-Kacheln ─────────────────────────────────────
    Zwei Spalten mit 1px-Fugen auf --rule, darunter die SALDO-Zeile
@@ -165,7 +217,7 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
    render() in js/app.js): die Tabellen der Fast-Budget-Details und
    der Prognose haben andere Zellen und blieben sonst nicht heil. */
 .view-monat .card .ledger,.view-monat .card .ledger tbody{display:block}
-.view-monat .card .ledger tr{display:grid;grid-template-columns:52px minmax(0,1fr) auto;
+.view-monat .card .ledger tr{display:grid;grid-template-columns:32px minmax(0,1fr) auto;
   grid-template-rows:auto auto;align-items:center;column-gap:10px;
   padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.10)}
 .view-monat .card .ledger tr:last-child{border-bottom:0}
@@ -179,9 +231,12 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
 /* Der Satz einer leeren Karte läuft über die ganze Breite. */
 .view-monat .card .ledger td.note{grid-column:1/-1;padding:4px 2px}
 
-/* Die Siegel mit Fingermaß: 44 px rund, der Haken 20 px. */
-.seal{width:44px;height:44px}
-.seal svg{width:20px;height:20px}
+/* Die Siegel: 22 px rund, der Haken 10 px — halb so groß wie bis
+   23.8.26 (44/20, das Fingermaß): sie füllten die Zeile, statt sie
+   zu markieren. Die Spalte davor schrumpft mit, sonst stünde das
+   kleine Siegel allein in einer 52-px-Spalte. */
+.seal{width:22px;height:22px}
+.seal svg{width:10px;height:10px}
 
 /* Kategoriezeilen als getönte Zwischenzeilen: Name links, Summe
    rechts, die Kante des Bereichs läuft als inset weiter. Die
@@ -228,21 +283,42 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
 .ymtot .val{font-family:var(--font-data);font-size:15px;font-weight:600;
   font-variant-numeric:tabular-nums;color:var(--ink-sal)}
 .ymlist{display:flex;flex-direction:column;gap:8px;padding:2px 0 8px}
-.ymcard{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
-  column-gap:10px;text-align:left;font:inherit;color:inherit;cursor:pointer;
+/* Eine Spalte über die ganze Breite — der ›-Pfeil rechts ist seit
+   23.8.26 weg (die ganze Karte ist der Knopf, das braucht kein
+   Zeichen), und die vier Kästchen bekommen seine Spalte dazu.
+   scroll-margin-top: so viel, wie Kopfzeile (~58) und klebende
+   Gesamtzeile (~54) zusammen hoch sind, plus 10 px Luft — beim
+   Sprung zum laufenden Monat (render in js/app.js) bleibt sein
+   roter Rahmen damit VOLLSTÄNDIG sichtbar, samt Abstand zur
+   Leiste; vorher (112) verschwand die obere Kante genau darunter. */
+.ymcard{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;
+  text-align:left;font:inherit;color:inherit;cursor:pointer;
   background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;
-  padding:10px 12px;min-height:60px;scroll-margin-top:112px}
+  padding:10px 12px;min-height:60px;scroll-margin-top:124px}
 .ymcard .ymmain{grid-column:1;grid-row:1;display:flex;align-items:baseline;
   justify-content:space-between;gap:10px}
 .ymname{font-family:var(--font-display);font-weight:600;font-size:15px}
 .ymsum{font-family:var(--font-data);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
-.ymcard .ymsub{grid-column:1;grid-row:2;display:flex;gap:10px;flex-wrap:wrap;margin-top:3px;
-  font-family:var(--font-data);font-size:10px;white-space:nowrap}
-.ymcard .ymgo{grid-column:2;grid-row:1/span 2;font-size:17px;color:var(--rule-strong)}
-.yk-in{color:var(--ok)}
-.yk-out{color:var(--seal)}
-.yk-flex{color:var(--amber)}
-.yk-bal{color:var(--ink-bal)}
+/* Die vier Bewegungen als farbige Kästchen in EINER Zeile (seit
+   23.8.26; davor 2 × 2, davor eine Zeile aus Kürzeln in
+   Textfarbe): jedes auf dem
+   hellen Grund seiner Geldart, wie die Kacheln der Monatsansicht
+   (.mkpi). Beschriftung klein in Mono-Versalien, der Betrag
+   darunter in der Vorzeichenfarbe — Schrift und Polster sind so
+   bemessen, dass vier nebeneinander auf 390 px hineinpassen. */
+.ymcard .ymk{grid-column:1;grid-row:2;display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:4px;margin-top:8px}
+.ymk .yk{display:block;min-width:0;border:1px solid var(--rule);border-radius:6px;
+  padding:5px 6px}
+.ymk .yk .lab{display:block;font-family:var(--font-data);font-size:8.5px;
+  letter-spacing:.14em;color:var(--ink-2)}
+.ymk .yk .val{display:block;font-family:var(--font-data);font-size:10.5px;font-weight:600;
+  font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:1px}
+.ymk .yk-in{background:var(--bg-in)}
+.ymk .yk-out{background:var(--bg-out)}
+.ymk .yk-flex{background:var(--bg-flex)}
+.ymk .yk-bal{background:var(--bg-bal)}
 /* Abgerechnet grau und grün durchgestrichen, der laufende rot
    eingefasst — je 1 px weniger Polster, damit die Karten trotz
    dickerem Rahmen gleich groß bleiben. */
@@ -294,6 +370,6 @@ body.mobile .progtable{--progleadw:78px}
    Dieselben Fenster, nur bis an den Rand: auf 390 px ist jedes
    Polster außen verlorener Platz. */
 .modal{padding:8px}
-.modal .box{padding:14px 12px;max-height:94vh}
+.modal .box{padding:14px 12px;max-height:94vh;--boxpad:12px}
 
 }

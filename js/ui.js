@@ -136,8 +136,11 @@ function filterField(extra){
       aria-label="${esc(t('g.clearFilter'))}" data-tip="${esc(t('g.clearFilterTip'))}">&#10005;</button></span>`;
 }
 
-/* „Filteroptionen…" öffnet das Fenster, in dem gewählt wird, worin
-   der Suchbegriff überhaupt sucht (js/dialogs/filter-fields.js).
+/* „Filteroptionen…" öffnet die Einstellungen im Bereich „Filter" —
+   dort wird gewählt, worin der Suchbegriff überhaupt sucht
+   (js/dialogs/settings.js; bis 23.8.26 war das ein eigenes
+   Fenster). Die Wahl steht in der Datei, und im Einstellungsfenster
+   stehen die Angaben der Datei beisammen.
    Dunkel steht der Knopf, sobald die Suche anders eingestellt ist
    als von Haus aus — weniger Teile einer Zeile **oder** dazu die
    ausgeblendeten Positionen. */

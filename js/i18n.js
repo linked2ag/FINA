@@ -150,6 +150,10 @@ const STR={
 'guide.fullBlocked':{en:'The browser blocked the new tab.',
   de:'Der Browser hat den neuen Reiter verhindert.'},
 'app.chooseView':{en:'Choose view',de:'Ansicht wählen'},
+/* Die beiden Schrittknöpfe der mobilen Ansichtswahl unten —
+   ‹ eine Ansicht zurück, › eine weiter (renderChrome). */
+'app.prevView':{en:'Previous view',de:'Vorige Ansicht'},
+'app.nextView':{en:'Next view',de:'Nächste Ansicht'},
 'app.chooseMonth':{en:'Choose month',de:'Monat wählen'},
 
 /* ── Die Hinweisleiste auf eine neue Fassung ────────────────
@@ -184,7 +188,7 @@ const STR={
 /* Seit dem Mac-Redesign heißt der Reiter „Transactions" — in
    beiden Sprachen, wie „Fast Budget" zuvor. Die Schlüssel im
    Zustand (kak, ui.view='kakeibo' …) behalten ihren alten Namen. */
-'view.kakeibo':{en:'Transactions',de:'Transactions'},
+'view.kakeibo':{en:'Import Details',de:'Import Details'},
 'view.prognose':{en:'Forecast',de:'Prognose'},
 
 /* ── Allgemeine Wörter ────────────────────────────────────── */
@@ -580,6 +584,11 @@ const STR={
 'kak.kindTip':{en:'Where the figure comes from: imported from Fast Budget · corrected — an imported month you overwrote by hand · closed — no import, but you ticked the month off · fixed — an amount you typed that is not marked as an estimate · estimated — still open and expected to change. Over a whole year the mark counts the months per kind; months without an amount are not counted.',
   de:'Woher der Betrag kommt: importiert aus Fast Budget · korrigiert — ein importierter Monat, den du von Hand überschrieben hast · abgeschlossen — kein Import, aber der Monat ist abgehakt · fest — ein eingetippter Betrag, der nicht als Schätzung markiert ist · geschätzt — noch offen und voraussichtlich veränderlich. Über ein ganzes Jahr zählt die Marke die Monate je Art; Monate ohne Betrag zählen nicht mit.'},
 'kak.top':{en:'Largest single items',de:'Größte Einzelposten'},
+/* Nur auf dem Telefon: dort hat die Ansicht keine rechte Karte —
+   der Knopf öffnet die Buchungen als Fenster (openKakTx). */
+'kak.showTx':{en:'Show transactions',de:'Transaktionen anzeigen'},
+'kak.showTxTip':{en:'Opens the bookings of this period in a window of their own — the row arrows do the same for one category',
+  de:'Öffnet die Buchungen dieses Zeitraums in einem eigenen Fenster — die Zeilenpfeile tun dasselbe für eine Kategorie'},
 'kak.topSub':{en:'{0} · {1} bookings from {2}',de:'{0} · {1} Buchungen ab {2}'},
 'kak.topNone':{en:'No booking reaches {0} in this period.',de:'Keine Buchung erreicht in diesem Zeitraum {0}.'},
 'kak.arrowTip':{en:'Show the bookings of “{0}” on the right',de:'Buchungen von „{0}" rechts zeigen'},
@@ -815,8 +824,16 @@ const STR={
    der gewählte Bereich. Die Menüpunkte sind zugleich seine
    Überschrift. */
 'set.navLabel':{en:'Settings sections',de:'Bereiche der Einstellungen'},
+/* Die beiden Schrittknöpfe neben der Aufklappliste, die im
+   schmalen Fenster das Menü links ersetzt (.setnavdrop). */
+'set.prevPane':{en:'Previous section',de:'Voriger Bereich'},
+'set.nextPane':{en:'Next section',de:'Nächster Bereich'},
 'set.navGeneral':{en:'General',de:'Allgemein'},
 'set.navView':{en:'Appearance',de:'Darstellung'},
+/* Der Bereich „Filter": worin der Suchbegriff sucht — bis 23.8.26
+   ein eigenes Fenster, jetzt hier. Überschrift und Sätze des
+   Bereichs sind die flt.*-Schlüssel weiter oben. */
+'set.navFilter':{en:'Filter',de:'Filter'},
 'set.navBanks':{en:'Banks & payment types',de:'Banken & Zahlungsarten'},
 'set.navImport':{en:'Import',de:'Import'},
 'set.generalSub':{en:'Language of the interface, the year this household book is kept for, and the balance it starts from. All three travel in the file — when you load it, the app follows the file.',
@@ -1060,5 +1077,30 @@ const STR={
 'end.past':{en:'last payment {0} — already finished',de:'letzte Zahlung {0} — bereits gelaufen'},
 'end.now':{en:'last payment {0} — ends this month',de:'letzte Zahlung {0} — läuft diesen Monat aus'},
 'end.in':{en:'last payment {0} — {1} months left, this one included',de:'letzte Zahlung {0} — noch {1} Monate, diesen mitgezählt'},
-'end.tip':{en:'last payment {0}',de:'letzte Zahlung {0}'}
+'end.tip':{en:'last payment {0}',de:'letzte Zahlung {0}'},
+
+/* ── Die Umfrage (Pilot) ──────────────────────────────────────
+   Gefragt wird in FINA selbst — kein fremdes Formular, keine
+   fremde Seite. Der Hinweissatz sagt vor dem Absenden, was in der
+   eigenen Datei landet: Nummer, Status, Datum — sonst nichts. */
+'srv.test':{en:'Survey (test)',de:'Umfrage (Test)'},
+'srv.testTip':{en:'Temporary: opens the test survey and sends it to Formbricks',
+  de:'Vorl\u00e4ufig: \u00f6ffnet die Testumfrage und schickt sie an Formbricks'},
+'srv.title':{en:'A few questions',de:'Ein paar Fragen'},
+'srv.sub':{en:'Your answers help to build FINA further. They go without a name and without any identifier.',
+  de:'Deine Antworten helfen dabei, FINA weiterzubauen. Sie gehen ohne Namen und ohne Kennung ab.'},
+'srv.note':{en:'Only three things are written into your own file: the number of this request, that it is answered, and today\u2019s date. Not the answers themselves.',
+  de:'In deine eigene Datei kommen nur drei Angaben: die Nummer dieser Anfrage, dass sie beantwortet ist, und das heutige Datum. Die Antworten selbst nicht.'},
+'srv.load':{en:'Loading the questions\u2026',de:'Die Fragen werden geholt\u2026'},
+'srv.send':{en:'Send',de:'Absenden'},
+'srv.later':{en:'Later',de:'Sp\u00e4ter'},
+'srv.sending':{en:'Sending\u2026',de:'Wird abgeschickt\u2026'},
+'srv.ok':{en:'Thank you. Request {0} is noted as answered in your file.',
+  de:'Danke. Anfrage {0} steht in deiner Datei als beantwortet.'},
+'srv.failNet':{en:'Sending failed — no answer from the server. The request stays open and comes back next time.',
+  de:'Das Absenden hat nicht geklappt — der Server hat nicht geantwortet. Die Anfrage bleibt offen und kommt beim n\u00e4chsten Mal wieder.'},
+'srv.failNone':{en:'No published survey found in this workspace.',
+  de:'In diesem Arbeitsbereich steht keine ver\u00f6ffentlichte Umfrage.'},
+'srv.needOne':{en:'Please answer at least one question.',de:'Bitte beantworte wenigstens eine Frage.'},
+'srv.choose':{en:'\u2014 please choose \u2014',de:'\u2014 bitte w\u00e4hlen \u2014'}
 };

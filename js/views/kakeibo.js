@@ -55,6 +55,60 @@ function txByMain(list,order){
   return out;
 }
 
+/* ── Der rechte Bereich, als Rechnung ─────────────────────────
+   Die Buchungen zur gewählten Zeile (ui.kakPick) oder, ohne
+   Auswahl, die größten Einzelposten des Zeitraums. Am Schreibtisch
+   füllt das die rechte Karte (viewKakeibo), auf dem Telefon das
+   Fenster (openKakTx) — dieselbe Rechnung, zwei Orte; zwei
+   Fassungen liefen auseinander. */
+function kakSideData(){
+  const cats=kakCats(), known=new Set(cats), order=cats.slice();
+  const scopeYear=ui.scope==='jahr';
+  const zeitraum=scopeYear?`${YEAR}`:MONTHS_LONG[ui.month-1];
+  const tx=state.tx.filter(x=>(scopeYear||x.m===ui.month)&&known.has(x.main||'(ohne Hauptkategorie)'));
+  const pick=ui.kakPick||null;
+  if(pick){
+    const list=tx.filter(x=>(x.main||'(ohne Hauptkategorie)')===pick.main
+      &&(!pick.sub||(x.cat||'(ohne Kategorie)')===pick.sub));
+    const sum=list.reduce((s,x)=>s+x.v,0);
+    return {title:keyLabel(pick.sub||pick.main),
+      sub:t('kak.pickSub',pick.sub?esc(keyLabel(pick.main))+' · ':'',zeitraum,list.length,eur(sum)),
+      rows:list.length
+        ?(scopeYear?txByMonth(list):list.sort(byDate).map(txRow).join(''))
+        :`<tr><td class="note">${t('kak.pickNone')}</td></tr>`};
+  }
+  /* Alles ab der eingestellten Grenze, nach Hauptkategorie. Die
+     Grenze wird immer als Zahl geschrieben — eur() würde aus einer
+     0 einen Gedankenstrich machen. */
+  const grenze=topMin(), gl=nf.format(grenze);
+  const top=tx.filter(x=>Math.abs(x.v)>=grenze);
+  return {title:t('kak.top'),
+    sub:t('kak.topSub',zeitraum,top.length,gl),
+    rows:top.length?txByMain(top,order):`<tr><td class="note">${t('kak.topNone',gl)}</td></tr>`};
+}
+
+/* ── Die Buchungen als Fenster (Telefon) ──────────────────────
+   Unter 700 px hat die Ansicht keine rechte Karte: auf 390 px
+   stünden zwei Tabellen übereinander, und die zweite fände
+   niemand. Stattdessen öffnet der Knopf im Kartenkopf — und jeder
+   Zeilenpfeil (wire in js/app.js) — die Buchungen als Fenster:
+   derselbe Inhalt aus kakSideData(), nur ein anderer Ort. Lang
+   darf die Liste sein, das Fenster rollt (.modal .box). */
+function openKakTx(){
+  const side=kakSideData();
+  const box=document.createElement('div');
+  box.className='modal';
+  box.innerHTML=`<div class="box narrow">
+    <h3>${esc(side.title)}</h3>
+    <p class="subline">${side.sub}</p>
+    <table class="ledger">${side.rows}</table>
+    <div class="row-end"><button class="btn" id="ktxClose">${t('g.close')}</button></div>
+  </div>`;
+  document.body.appendChild(box); tabThroughFields(box);
+  box.querySelector('#ktxClose').onclick=()=>closeModal(box);
+  box.onclick=ev=>{ if(ev.target===box) closeModal(box); };
+}
+
 function viewKakeibo(){
   const cats=kakCats();
   /* Weder Kategorien noch Buchungen — dann steht hier nur der Weg
@@ -201,27 +255,13 @@ function viewKakeibo(){
 
   const total=Math.round(order.reduce((s,k)=>s+val[k],0)*100)/100;
 
-  /* Rechter Bereich: entweder die Auswahl oder die größten Posten. */
-  let sideTitle, sideSub, sideRows;
-  if(pick){
-    const list=tx.filter(x=>(x.main||'(ohne Hauptkategorie)')===pick.main
-      &&(!pick.sub||(x.cat||'(ohne Kategorie)')===pick.sub));
-    const sum=list.reduce((s,x)=>s+x.v,0);
-    sideTitle=keyLabel(pick.sub||pick.main);
-    sideSub=t('kak.pickSub',pick.sub?esc(keyLabel(pick.main))+' · ':'',zeitraum,list.length,eur(sum));
-    sideRows=list.length
-      ?(scopeYear?txByMonth(list):list.sort(byDate).map(txRow).join(''))
-      :`<tr><td class="note">${t('kak.pickNone')}</td></tr>`;
-  }else{
-    /* Alles ab der eingestellten Grenze, nach Hauptkategorie.
-       Die Grenze wird immer als Zahl geschrieben — eur() würde
-       aus einer 0 einen Gedankenstrich machen. */
-    const grenze=topMin(), gl=nf.format(grenze);
-    const top=tx.filter(x=>Math.abs(x.v)>=grenze);
-    sideTitle=t('kak.top');
-    sideSub=t('kak.topSub',zeitraum,top.length,gl);
-    sideRows=top.length?txByMain(top,order):`<tr><td class="note">${t('kak.topNone',gl)}</td></tr>`;
-  }
+  /* Rechter Bereich: entweder die Auswahl oder die größten Posten —
+     gerechnet in kakSideData() (oben), damit das Fenster der
+     mobilen Fassung denselben Inhalt zeigt. Auf dem Telefon
+     entfällt die Karte; der Knopf im Kopf (data-txlist) und jeder
+     Zeilenpfeil öffnen sie als Fenster. */
+  const mob=isMobile();
+  const side=kakSideData();
 
   /* Die Leiste bleibt beim Scrollen stehen: Zeitraum, Gliederung
      und Import sind das, womit man diese Ansicht bedient — die
@@ -261,7 +301,15 @@ function viewKakeibo(){
       <div class="sechead"><div class="headstack">
           <h2 style="margin:0">${t('kak.byCat',esc(zeitraum))}</h2>
           <p class="subhead impline">${impLine}</p></div>
-        <button class="btn small ktop" data-ktop="1" aria-pressed="${!pick}">${t('kak.top')}</button></div>
+        <!-- Beide Fassungen tragen dieselbe Beschriftung
+             (kak.top, seit 23.8.26): auf dem Telefon öffnet der
+             Knopf dieselben größten Einzelposten nur als Fenster
+             statt als Karte daneben — ein anderer Text („Show
+             transactions") las sich wie eine andere Funktion. Was
+             er tut, sagt die Sprechblase. -->
+        ${mob?`<button class="btn small" data-txlist="1"
+          title="${esc(t('kak.showTxTip'))}">${t('kak.top')}</button>`
+        :`<button class="btn small ktop" data-ktop="1" aria-pressed="${!pick}">${t('kak.top')}</button>`}</div>
       <table class="ledger">
         <tr><th>${t('g.category')}</th><th></th>
           <th class="num">${t('g.amount')}</th><th></th></tr>
@@ -269,8 +317,8 @@ function viewKakeibo(){
         <tr class="sum"><td>${t('g.total')}</td><td></td><td class="num ${cls(total)}">${eur(total)}</td>
           <td></td></tr></table>
       </div>
-    <div class="card"><h2 style="margin-bottom:2px">${esc(sideTitle)}</h2>
-      <p class="note" style="margin:0 0 10px">${sideSub}</p>
-      <table class="ledger">${sideRows}</table></div>
+    ${mob?'':`<div class="card"><h2 style="margin-bottom:2px">${esc(side.title)}</h2>
+      <p class="note" style="margin:0 0 10px">${side.sub}</p>
+      <table class="ledger">${side.rows}</table></div>`}
   </div>`;
 }

@@ -87,9 +87,12 @@ function editKak(k,copy,focusMonth){
      und unter der Bezeichnung steht nichts mehr. Zwei
      Geschwisterfenster, die verschieden aussehen, wären zwei
      Bedienungen für dieselbe Sache. */
-  box.innerHTML=`<div class="box form">
+  box.innerHTML=`<div class="box form split" tabindex="-1">
     <h3>${lampPos('kak',isNew?'':k)}<button type="button" class="titlebtn" id="kTitle"
       title="${esc(t('kdlg.nameBtnTip'))}"></button></h3>
+    <!-- Kopf und Knopfzeile stehen fest, gescrollt wird nur der
+         Rumpf mit den Blöcken (.dbody, css/components.css). -->
+    <div class="dbody">
     <!-- Der Weg zu den Kategorien — hier zu **diesen**: die
          Flexible Payments haben ihre eigene Liste, und der Weg
          führt in ihren Bereich und nicht in den der regelmäßigen
@@ -118,7 +121,11 @@ function editKak(k,copy,focusMonth){
         <button class="btn primary small" id="kApply">${t('item.apply')}</button>
       </div>
     </div>
-    <div class="dgrp"><div class="field mfield"><label>${t('kdlg.perMonth')}</label>
+    <!-- Der Monatsblock auf dem hellen Gelb der Flexible Payments
+         (--bg-flex) — dieselbe Stufe wie ihre Posten in den
+         Ansichten; im Posten-Fenster hängt dieselbe Farbe am
+         gewählten Block (js/dialogs/item.js). -->
+    <div class="dgrp t-flex"><div class="field mfield"><label>${t('kdlg.perMonth')}</label>
       <div style="display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap">
         ${last?`<button class="btn small" id="kLock" title="${esc(t('kdlg.lockTillTip',MONTHS_LONG[last-1]))}">${t('kdlg.lockTill',MONTHS_LONG[last-1])}</button>`:''}
         <button class="btn small" id="kUnlock" title="${esc(t('kdlg.unlockAllTip'))}">${t('item.unlockAll')}</button></div>
@@ -131,7 +138,9 @@ function editKak(k,copy,focusMonth){
               title="${on?t('kdlg.lockedTip'):t('month.markDone')}">${CHECK_SVG}</button></span></div>
         <input class="num signed" data-mi="${i}" ${on?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
         <div class="cellnote">${esc(e.notes[i]||'')}</div></div>`;}).join('')}</div>
-    </div></div>
+    </div></div></div>
+    <!-- Das dritte schließende div oben ist das Ende der .dbody:
+         sie scrollt, die Knopfzeile darunter nicht. -->
     <div class="row-end">${isNew?'':`<button class="dellink" id="kDel">${t('kdlg.del')}</button>`}
       ${isNew?'':`<button class="btn" id="kDup" data-tip="${esc(t('kdlg.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="kCancel">${t('g.cancel')}</button><button class="btn primary" id="kSave">${t('g.save')}</button></div>
@@ -355,8 +364,15 @@ function editKak(k,copy,focusMonth){
     }
     save(); box.remove(); render();
   };
-  /* Ohne Bezeichnung steht der erste Schritt im Kopf — dorthin der
-     Fokus. Sonst ins Feld der Schnelleingabe: dort wird gearbeitet. */
+  /* ── Wohin der Fokus beim Öffnen geht ────────────────────────
+     Wie im Posten-Fenster: nur der Weg über einen bestimmten Monat
+     setzt die Schreibmarke in dessen Feld. **Sonst bekommt das
+     Fenster selbst den Fokus** (tabindex="-1" am .box, seit
+     23.8.26; vorher das Feld der Schnelleingabe): ein fokussiertes
+     Feld öffnete auf dem Telefon ungefragt die Tastatur. Ohne
+     Bezeichnung geht der Fokus auf die Überschrift — sie ist der
+     erste Schritt und ein Knopf, keine Tastatur. */
+  const fall=()=>{ if(name) box.querySelector('.box').focus({preventScroll:true}); else title.focus(); };
   const mCell=focusMonth?box.querySelector(`[data-mi="${focusMonth-1}"]`):null;
   if(mCell){
     /* **Der Rahmen kommt immer**: er sagt, auf welchen Monat
@@ -367,9 +383,9 @@ function editKak(k,copy,focusMonth){
        gibt. */
     mCell.closest('.cell').classList.add('askcell');
     if(!mCell.disabled){ mCell.focus(); mCell.select(); }
-    else (name?box.querySelector('#kVal'):title).focus();
+    else fall();
   }
-  else (name?box.querySelector('#kVal'):title).focus();
+  else fall();
 }
 
 /* Alte Fundstelle: data-newkak öffnet dasselbe Fenster, nur leer. */

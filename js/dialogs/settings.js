@@ -31,7 +31,7 @@ let setPane='general';
    die Namen, die `openSettings()` von außen annimmt. Ein neuer
    Bereich braucht deshalb einen Eintrag hier, einen `pane(…)`-Aufruf
    unten und die Texte in js/i18n.js. */
-const SET_PANE_LABEL={general:'set.navGeneral',view:'set.navView',
+const SET_PANE_LABEL={general:'set.navGeneral',view:'set.navView',filter:'set.navFilter',
   banks:'set.navBanks',groups:'set.groups',kak:'set.kak',import:'set.navImport'};
 
 /* ── Wohin das Fenster aufgeht ────────────────────────────────
@@ -114,12 +114,52 @@ function openSettings(where,done){
   const pane=(key,title,hint,inner)=>`<section class="setpane" data-pane="${key}"${key===setPane?'':' hidden'}>
     <h4>${title}</h4>${hint?`<p class="note" style="margin:-2px 0 14px">${hint}</p>`:''}${inner}</section>`;
 
-  const NAV=Object.keys(SET_PANE_LABEL).map(k=>[k,t(SET_PANE_LABEL[k])]);
+  /* ── Der Bereich „Filter" ─────────────────────────────────────
+     Worin der Suchbegriff sucht — bis 23.8.26 ein eigenes Fenster
+     (js/dialogs/filter-fields.js), jetzt ein Bereich hier: die Wahl
+     steht in der Datei (state.filterFields, state.qHidden), und
+     hier stehen die Angaben der Datei beisammen. Der Knopf
+     „Filteroptionen…" neben den Suchfeldern führt her
+     (data-qfields → openSettings('filter') in wire()).
+     Reihenfolge der Kästchen: erst, was an der Zeile steht, dann
+     die Zahlen, zuletzt die Kürzel. */
+  const qfRows=[
+    ['name',  t('flt.fName'),  t('flt.fNameHint')],
+    ['note',  t('flt.fNote'),  t('flt.fNoteHint')],
+    ['amount',t('flt.fAmount'),t('flt.fAmountHint')],
+    ['total', t('flt.fTotal'), t('flt.fTotalHint')],
+    ['meta',  t('flt.fMeta'),  t('flt.fMetaHint')]
+  ].map(([k,lab,hint])=>`<label class="checkrow"><input type="checkbox" data-qf="${k}" ${qField(k)?'checked':''}>
+      <span class="clab">${lab}</span><span class="chint">${hint}</span></label>`).join('');
 
-  box.innerHTML=`<div class="box">
+  const NAV=Object.keys(SET_PANE_LABEL).map(k=>[k,t(SET_PANE_LABEL[k])]);
+  const navIdx=NAV.findIndex(([k])=>k===setPane);
+
+  box.innerHTML=`<div class="box split">
     <h3>${t('set.title')}</h3>
+    <!-- Wird das Fenster schmaler, als das Menü links braucht,
+         tritt an die Stelle des Menüs diese Zeile: ‹ · Aufklapp-
+         liste · › (css/components.css, unter 760 px). Dieselben
+         Bereiche, dieselbe Reihenfolge — nur als Liste zum
+         Aufklappen, mit zwei Schrittknöpfen daneben. Am
+         Schreibtisch ist sie display:none.
+
+         Sie steht VOR dem Beschreibungssatz, direkt unter der
+         Überschrift: so sitzt sie beim Wechsel von Bereich zu
+         Bereich immer an derselben Stelle, statt mit der Höhe des
+         Textes darüber zu wandern. -->
+    <div class="setnavdrop">
+      <button type="button" class="btn small" id="setPrev" aria-label="${esc(t('set.prevPane'))}"${navIdx<=0?' disabled':''}>&lsaquo;</button>
+      <select id="setSel" aria-label="${t('set.navLabel')}">${NAV.map(([k,l])=>
+        `<option value="${k}"${k===setPane?' selected':''}>${l}</option>`).join('')}</select>
+      <button type="button" class="btn small" id="setNext" aria-label="${esc(t('set.nextPane'))}"${navIdx>=NAV.length-1?' disabled':''}>&rsaquo;</button>
+    </div>
     <p class="subline">${t('set.sub')}</p>
 
+    <!-- Überschrift, Aufklappliste und Satz stehen fest, ebenso die
+         Knopfzeile unten — gescrollt wird nur dieser Rumpf
+         (.dbody, css/components.css). -->
+    <div class="dbody">
     <div class="setlayout">
       <nav class="setnav" aria-label="${t('set.navLabel')}">${NAV.map(([k,l])=>
         `<button type="button" data-sect="${k}" aria-pressed="${k===setPane}">${l}</button>`).join('')}</nav>
@@ -169,6 +209,17 @@ function openSettings(where,done){
             <input type="checkbox" id="sAna" ${state.anaOpen?'checked':''}>
             <span class="clab">${t('set.ana')}</span><span class="chint">${t('set.anaHint')}</span></label></div>`)}
 
+        ${pane('filter',t('flt.title'),t('flt.sub'),`
+          <div class="checklist">${qfRows}</div>
+          <!-- Der sechste Haken beantwortet eine andere Frage als
+               die fünf darüber: nicht worin gesucht wird, sondern
+               wo. Er steht deshalb abgesetzt und zählt bei
+               „mindestens eins" nicht mit — kein data-qf. -->
+          <div class="checklist wherelist"><label class="checkrow">
+            <input type="checkbox" id="sQHidden" ${qAll()?'checked':''}>
+            <span class="clab">${t('flt.fHidden')}</span><span class="chint">${t('flt.fHiddenHint')}</span></label></div>
+          <p class="errline" id="sFltErr" hidden>${t('flt.needOne')}</p>`)}
+
         ${pane('banks',t('set.navBanks'),t('set.banksSub'),`
           <div class="cols c2 liststack">
             <div class="field">${listHead(t('set.banks'),'banks',t('set.addBank'))}<div>${pairRows(state.banks,'banks')}</div></div>
@@ -208,6 +259,8 @@ function openSettings(where,done){
             <p class="note">${t('set.impSheetHint')}</p></div>`)}
       </div>
     </div>
+    </div>
+    <!-- Ende der .dbody — die Knopfzeile darunter scrollt nicht. -->
 
     <div class="row-end"><button class="btn" id="lCancel">${t('g.cancel')}</button><button class="btn primary" id="lSave">${t('g.save')}</button></div>
   </div>`;
@@ -233,11 +286,30 @@ function openSettings(where,done){
 
   /* Bereich wechseln — nur Sichtbarkeit, nichts wird neu gebaut.
      Getipptes bleibt dadurch stehen, auch in den Bereichen, die
-     gerade nicht zu sehen sind. */
-  box.querySelectorAll('[data-sect]').forEach(b=>b.onclick=()=>{
-    setPane=b.dataset.sect;
-    box.querySelectorAll('[data-sect]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sect===setPane));
-    box.querySelectorAll('.setpane').forEach(p=>{ p.hidden=p.dataset.pane!==setPane; });
+     gerade nicht zu sehen sind. Das Menü links und die
+     Aufklappliste im schmalen Fenster führen beide hierher, dazu
+     die beiden Schrittknöpfe ‹ › — am Rand der Liste ist Schluss,
+     wie bei den Monaten. */
+  const showPane=k=>{
+    setPane=k;
+    box.querySelectorAll('[data-sect]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sect===k));
+    box.querySelectorAll('.setpane').forEach(p=>{ p.hidden=p.dataset.pane!==k; });
+    const i=NAV.findIndex(([n])=>n===k);
+    box.querySelector('#setSel').value=k;
+    box.querySelector('#setPrev').disabled=i<=0;
+    box.querySelector('#setNext').disabled=i>=NAV.length-1;
+  };
+  box.querySelectorAll('[data-sect]').forEach(b=>b.onclick=()=>showPane(b.dataset.sect));
+  box.querySelector('#setSel').onchange=e=>showPane(e.target.value);
+  box.querySelector('#setPrev').onclick=()=>{ const i=NAV.findIndex(([n])=>n===setPane); if(i>0) showPane(NAV[i-1][0]); };
+  box.querySelector('#setNext').onclick=()=>{ const i=NAV.findIndex(([n])=>n===setPane); if(i<NAV.length-1) showPane(NAV[i+1][0]); };
+
+  /* Die Meldung „mindestens eins" verschwindet, sobald wieder ein
+     Kästchen angekreuzt ist — sie soll nicht neben einer Wahl
+     stehen, die inzwischen gilt. */
+  const qfBoxes=()=>[...box.querySelectorAll('[data-qf]')];
+  qfBoxes().forEach(cb=>cb.onchange=()=>{
+    if(qfBoxes().some(c=>c.checked)) box.querySelector('#sFltErr').hidden=true;
   });
 
   /* Liest den aktuellen Stand aller vier Listen aus dem Fenster. */
@@ -287,6 +359,16 @@ function openSettings(where,done){
     const ana=box.querySelector('#sAna').checked;
     if(ana!==!!state.anaOpen) ui.ana=ana;
     state.anaOpen=ana;
+    /* ── Worin der Suchbegriff sucht (Bereich „Filter") ─────────
+       Eine leere Wahl wird nicht übernommen: ein Suchbegriff, der
+       nirgends sucht, fände nie etwas. Das Speichern weist sie
+       unten eigens zurück (#lSave); jeder andere Weg hierher —
+       „+", Sortieren, Sprachwechsel — behält dann die letzte
+       gültige Wahl. */
+    const qf={}; let anyQf=false;
+    box.querySelectorAll('[data-qf]').forEach(cb=>{ qf[cb.dataset.qf]=cb.checked; anyQf=anyQf||cb.checked; });
+    if(anyQf) state.filterFields=qf;
+    state.qHidden=box.querySelector('#sQHidden').checked;
   };
 
   /* ── Geänderte Kürzel ─────────────────────────────────────────
@@ -487,6 +569,15 @@ function openSettings(where,done){
   box.onclick=e=>{if(e.target===box)closeSettings();};
 
   box.querySelector('#lSave').onclick=()=>{
+    /* Mindestens ein Kästchen der Suche bleibt stehen (siehe
+       js/state.js): die leere Wahl wird nicht gespeichert, sondern
+       gezeigt — der Bereich klappt auf und sagt in Rot, warum. */
+    if(![...box.querySelectorAll('[data-qf]')].some(cb=>cb.checked)){
+      showPane('filter');
+      box.querySelector('#sFltErr').hidden=false;
+      box.querySelector('[data-qf]').focus();
+      return;
+    }
     /* Womit die Einnahmen hereinkamen — gebraucht wird das erst
        unten, gelesen werden muss es hier: applyEdits() schreibt die
        Liste im nächsten Schritt um. */

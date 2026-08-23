@@ -394,10 +394,45 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
 .modal{position:fixed;inset:0;background:rgba(27,35,32,.42);display:grid;place-items:center;padding:18px;z-index:50}
 /* Das Mac-Fenster (Vorlage 5a/5b): Papiergrund, Rand in
    --rule-strong, Radius 10 und der tiefe Schatten des Chrome.
-   Die Blöcke darin (.dgrp) stehen auf --chrome mit Radius 8. */
+   Die Blöcke darin (.dgrp) stehen seit 23.8.26 auf demselben
+   Grund wie das Fenster und schweben über --sh-grp — nicht mehr
+   grau auf --chrome. */
 .modal .box{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:10px;
   box-shadow:var(--sh-modal);
-  max-width:1080px;width:100%;max-height:92vh;overflow:auto;padding:22px}
+  max-width:1080px;width:100%;max-height:92vh;overflow:auto;padding:22px;
+  /* Die graue Schrift ist in den Fenstern eine Stufe dunkler als
+     draußen (23.8.26): die Sätze unter Feldern und Knöpfen sind
+     hier zum Lesen da, nicht nur zur Orientierung — --ink-2 wird
+     für alles im Fenster überschrieben, nicht je Element. */
+  --ink-2:#454C47;--boxpad:22px}
+/* ── Kopf fest, Rumpf scrollt, Knöpfe fest ───────────────────
+   Die drei großen Fenster (Posten, Beträge, Einstellungen) tragen
+   .split: die Überschrift oben und die Knopfzeile unten stehen
+   immer da, gescrollt wird nur der Rumpf mit den Blöcken (.dbody).
+   Vorher scrollte das ganze Fenster, und wer unten in den Monaten
+   stand, hatte weder den Namen noch „Speichern" im Bild.
+
+   Die .dbody greift seitlich über das Polster des Fensters hinaus
+   (--boxpad, auf dem Telefon 12 statt 22 — css/mobile.css), damit
+   ihr Rollbalken an der Fensterkante liegt und die Schatten der
+   Blöcke seitlich nicht beschnitten werden; ihr eigenes Polster
+   stellt den Abstand wieder her. min-height:0 ist Pflicht: ohne
+   das gibt ein Flex-Kind seine Mindesthöhe nie her und das Fenster
+   wächst über 92vh hinaus, statt zu scrollen. */
+.modal .box.split{display:flex;flex-direction:column;overflow:hidden}
+/* Oben und unten trägt die .dbody eigenes Polster: der Schatten
+   des ersten und des letzten Blocks braucht Platz, sonst schneidet
+   die Scrollkante ihn ab, sobald der Rumpf an einem Ende steht.
+   Unten mehr als oben — der Schatten fällt nach unten. */
+.modal .box.split>.dbody{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;
+  margin:0 calc(-1*var(--boxpad));padding:12px var(--boxpad) 26px}
+/* Das Posten- und das Kategorie-Fenster fokussieren beim Öffnen
+   sich selbst statt eines Feldes (tabindex="-1", siehe
+   js/dialogs/item.js): auf dem Telefon öffnete ein fokussiertes
+   Feld ungefragt die Tastatur. Ein Fokusring gehört dabei nicht
+   aufs Fenster — er sagt „hier wird getippt", und genau das
+   passiert nicht. */
+.modal .box:focus{outline:none}
 /* ── Ein Formularfenster ist schmal ──────────────────────────
    Die Monate stehen zu dritt in einer Reihe — ein Quartal je Zeile
    (siehe .mgrid). Ein Kästchen bleibt dabei so breit wie zuvor,
@@ -412,16 +447,36 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
 .modal .box.form .c4,.modal .box.form .c3{grid-template-columns:1fr 1fr}
 /* ── Die Blöcke eines Fensters ───────────────────────────────
    Zuordnung · Links · Schnelleingabe · Monate: jeder in einem
-   eigenen Feld auf hellerem Grund, mit derselben Kante wie ein
-   Knopf. Überschriften tragen sie nicht — die Felder darin sind
+   eigenen Feld auf dem Grund des Fensters, abgehoben durch den
+   Gruppen-Schatten (--sh-grp) und eine Haarlinie — nicht mehr
+   durch eine eigene Farbe (bis 23.8.26 --chrome). Überschriften
+   tragen sie nicht — die Felder darin sind
    beschriftet, und ein Wort über jedem Block wäre der Text, der
    ein Fenster zumüllt. Der Abstand zwischen zwei Blöcken ist
    größer als der zwischen zwei Feldern; erst dadurch liest man
    sie als Gruppen. */
-.dgrp{background:var(--chrome);border:1px solid var(--shade);border-radius:8px;
+.dgrp{background:var(--paper-2);border:1px solid var(--hairline);border-radius:8px;
+  box-shadow:var(--sh-grp);
   padding:10px 12px 2px;margin:0 0 10px}
 .dgrp>.cols:last-child,.dgrp>.field:last-child{margin-bottom:10px}
 .dgrp .listlinks{margin-top:0}
+/* ── Der Monatsblock trägt die Farbe seiner Geldart ───────────
+   Nur der Block mit den zwölf Kacheln (und den Sammelknöpfen), und
+   nur sein Grund: dieselbe helle Stufe, die die Posten in Monats-
+   und Jahresansicht tragen — hellgrün Einnahmen, hellgelb Flexible
+   Payments, hellrot regelmäßige Kosten, hellblau die
+   Saldokorrektur. (Die zweite Stufe stand hier für einen Tag und
+   war zu viel Farbe für einen ganzen Block.) Gesetzt wird die
+   Klasse in js/dialogs/item.js
+   (nach dem gewählten Block, sie wechselt mit der Auswahl) und in
+   js/dialogs/kakeibo-betraege.js (immer t-flex); ohne gewählten
+   Block bleibt der Grund neutral. Die Kästchen selbst bleiben
+   weiß bzw. --settled — die Farbe sagt die Geldart, nicht den
+   Stand eines Monats. */
+.dgrp.t-in{background:var(--bg-in)}
+.dgrp.t-flex{background:var(--bg-flex)}
+.dgrp.t-out{background:var(--bg-out)}
+.dgrp.t-bal{background:var(--bg-bal)}
 /* ── Anleitung als Seitenbereich ──────────────────────────────
    Die Anleitung ist kein Fenster: sie bleibt offen, während man
    in der Tabelle weiterarbeitet. Deshalb liegt sie fest am
@@ -582,7 +637,10 @@ body.gresize{user-select:none;cursor:col-resize}
 /* Die Knopfzeile eines Fensters steht hinter einer Haarlinie: was
    darüber steht, wird ausgefüllt, was darunter steht, entscheidet.
    Dieselbe Trennung wie zwischen den Blöcken, nur ohne Feld. */
-.modal .box>.row-end{border-top:1px solid var(--rule);padding-top:12px;margin-top:4px}
+/* Keine Haarlinie mehr über der Knopfzeile (23.8.26): die Blöcke
+   darüber schweben über ihren Schatten, das trennt Ausfüllen und
+   Entscheiden deutlicher, als ein Strich es tat. */
+.modal .box>.row-end{margin-top:14px}
 /* Löschen steht links in der Fußzeile, als orangefarbener Textlink
    (5a): es ist der Weg, der aus dem Fenster hinausführt, und kein
    Knopf neben „Speichern". margin-right:auto schiebt die
@@ -602,8 +660,8 @@ body.gresize{user-select:none;cursor:col-resize}
 .listlinks .lsep{color:var(--rule-strong)}
 
 /* ── Schnelleingabe und Monatsraster im Fenster ───────────── */
-.quick{border:1px solid var(--shade);border-radius:8px;background:var(--chrome);
-  padding:10px 12px;margin:0 0 10px}
+.quick{border:1px solid var(--hairline);border-radius:8px;background:var(--paper-2);
+  box-shadow:var(--sh-grp);padding:10px 12px;margin:0 0 10px}
 /* Überschrift links, Mittelwert rechts — in einer Zeile, damit die
    Angabe keine eigene Höhe kostet. Rechts steht sie über dem
    Betragsfeld, und genau dort wird die Annahme für die kommenden
@@ -694,6 +752,12 @@ body.gresize{user-select:none;cursor:col-resize}
    --shade mit roter 3-px-Kante links und rechts gerundet; die
    inaktiven halten die Einrückung über einen durchsichtigen Rand. */
 .setnav{display:flex;flex-direction:column;gap:1px;padding-right:0}
+/* Die Zeile ‹ · Aufklappliste · › gibt es nur im schmalen Fenster —
+   am Schreibtisch führt das Menü links (Media-Abfrage unten). Sie
+   steht seit 23.8.26 direkt unter der Überschrift, VOR dem
+   Beschreibungssatz (js/dialogs/settings.js): so sitzt sie beim
+   Bereichswechsel immer an derselben Stelle. */
+.setnavdrop{display:none}
 .setnav button{font-family:var(--font-data);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   text-align:left;background:none;border:0;border-left:3px solid transparent;color:var(--ink-2);
   padding:8px 10px;cursor:pointer;line-height:1.4;border-radius:0 6px 6px 0}
@@ -701,11 +765,13 @@ body.gresize{user-select:none;cursor:col-resize}
 .setnav button[aria-pressed="true"]{color:var(--ink);border-left-color:var(--seal);
   background:var(--shade);font-weight:600}
 .setnav button:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
-/* Der gewählte Bereich steht als Gruppenbox (5b): --chrome-Grund,
-   Radius 8 — dieselbe Bauform wie die Blöcke der
-   Positionsfenster (.dgrp). */
+/* Der gewählte Bereich steht als Gruppenbox: Fenstergrund, Radius
+   8 und der Gruppen-Schatten — dieselbe Bauform wie die Blöcke der
+   Positionsfenster (.dgrp; bis 23.8.26 grau auf --chrome, seither
+   hebt der Schatten die Box ab, nicht die Farbe). */
 .setpanes{min-width:0}
-.setpane{background:var(--chrome);border:1px solid var(--shade);border-radius:8px;padding:12px 14px 4px}
+.setpane{background:var(--paper-2);border:1px solid var(--hairline);border-radius:8px;
+  box-shadow:var(--sh-grp);padding:12px 14px 4px}
 .setpane>.note:first-of-type{margin-top:-2px}
 .setpane[hidden]{display:none}
 .setpane h4{font-family:var(--font-display);font-size:17px;margin:0 0 6px}
@@ -718,9 +784,27 @@ body.gresize{user-select:none;cursor:col-resize}
 .impway .note{margin:7px 0 0;max-width:64ch;line-height:1.5}
 @media(max-width:760px){
   .setlayout{grid-template-columns:1fr;gap:14px}
-  .setnav{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--rule);padding:0 0 8px}
-  .setnav button{border-left:0;border-bottom:2px solid transparent;padding:7px 8px}
-  .setnav button[aria-pressed="true"]{border-left-color:transparent;border-bottom-color:var(--seal)}
+  /* Reicht die Breite nicht für das Menü links, tritt oben die
+     Zeile ‹ · Aufklappliste · › an seine Stelle (.setnavdrop,
+     gebaut in js/dialogs/settings.js): dieselben Bereiche in
+     derselben Reihenfolge, die beiden Knöpfe gehen einen Bereich
+     zurück oder weiter. Ein umbrechendes Knopfband (so stand es
+     bis 23.8.26 hier) fraß auf dem Telefon drei Zeilen Fenster. */
+  .setnav{display:none}
+  .setnavdrop{display:flex;align-items:center;gap:6px;margin:0 0 12px}
+  /* Dieselbe Bauform wie die Ansichtswahl unten am Telefon
+     (.mvsel/.mvnav in css/mobile.css): die Liste verliert ihr
+     Browserkleid samt Pfeil (appearance:none), zentriert ihre
+     Beschriftung in Mono-Versalien und trägt das Mac-Knopfbild;
+     die beiden Schrittknöpfe daneben das Maß von ‹ › unten. */
+  .setnavdrop select{flex:1 1 auto;min-width:0;height:38px;cursor:pointer;
+    appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;
+    font-family:var(--font-data);font-size:12px;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink);
+    background:var(--grad-btn);border:1px solid var(--rule);border-radius:6px;
+    box-shadow:var(--sh-btn)}
+  .setnavdrop .btn{flex:0 0 44px;width:44px;height:38px;padding:0;
+    font-size:20px;line-height:1;border-radius:6px}
 }
 
 /* Zwei Listen nebeneinander (Banken und Zahlungsarten). Beide
@@ -772,3 +856,27 @@ body.gresize{user-select:none;cursor:col-resize}
 .tip[hidden]{display:none}
 
 @media(prefers-reduced-motion:reduce){.seal,.seal svg{transition:none}}
+
+/* ── Die Umfrage ───────────────────────────────────────────────
+   Ein Block wie jeder andere im Fenster (.dgrp), darin je Frage
+   eine Zeile: Frage, Antwort. Die Antwortmöglichkeiten stehen
+   untereinander — nebeneinander liest man bei sechs Auswahlen
+   nichts mehr. Die Zahlen einer Bewertung stehen dagegen in einer
+   Reihe: sie sind eine Skala. */
+.srvfield{display:flex;flex-direction:column;gap:5px}
+.srvfield+.srvfield{margin-top:14px;padding-top:14px;border-top:1px solid var(--hairline)}
+.srvfield .subline{margin:0}
+label.srvq{font-weight:600;font-size:12.5px;line-height:1.35;color:var(--ink);text-transform:none;letter-spacing:0}
+.srvopts{display:flex;flex-direction:column;gap:4px}
+label.srvopt{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;line-height:1.35;
+  color:var(--ink);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer}
+label.srvopt input{margin:2px 0 0;flex:0 0 auto}
+.srvnums{display:flex;flex-wrap:wrap;gap:5px}
+/* Gewählt trägt der Knopf Tinte — dieselbe Sprache wie ein
+   gedrückter Filterknopf (siehe „Ein gedrückter Knopf trägt
+   Tinte" in CLAUDE.md). */
+.btn.srvnum{min-width:30px;justify-content:center}
+.btn.srvnum.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:none}
+/* Die beiden Enden einer Bewertungsskala stehen unter ihren
+   äußeren Zahlen — links „Nicht gut", rechts „Sehr gut". */
+.srvends{display:flex;justify-content:space-between;gap:12px;margin:0}

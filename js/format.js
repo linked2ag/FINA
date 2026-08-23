@@ -143,3 +143,19 @@ function siteName(u){
     .map(w=>w.length<=3?w.toUpperCase():w.charAt(0).toUpperCase()+w.slice(1))
     .join('-');
 }
+
+/* ── Zwei Datumsformen für die Umfrage ────────────────────────
+   `isoToday()` ist das Datum, wie es in der Datei steht
+   (2026-08-23) — sortierbar, in jeder Sprache dasselbe und ohne
+   Uhrzeit: die Frist läuft in Tagen, die Stunde geht niemanden
+   etwas an. `ymd()` ist dasselbe Datum als **Anfragennummer**
+   (260823) — zugleich der Name der Umfrage-Datei (siehe
+   js/dialogs/umfrage.js). */
+function isoToday(d){
+  const x=d||new Date(), p=n=>String(n).padStart(2,'0');
+  return `${x.getFullYear()}-${p(x.getMonth()+1)}-${p(x.getDate())}`;
+}
+function ymd(d){
+  const x=d||new Date(), p=n=>String(n).padStart(2,'0');
+  return `${String(x.getFullYear()).slice(-2)}${p(x.getMonth()+1)}${p(x.getDate())}`;
+}

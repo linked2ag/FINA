@@ -113,8 +113,8 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 
 /* ── Monatsleiste ─────────────────────────────────────────────
    Zwölf Kürzel in einer Zeile: erledigte Monate grün und
-   durchgestrichen, der laufende als rote Pille, der gewählte mit
-   dunkler Einfassung.
+   durchgestrichen, der laufende mit rotem Ring (gewählt orange
+   gefüllt), der gewählte als schwarze Pille.
 
    **Sie steht seit 22.8.26 unter der Filterzeile**, nicht mehr an
    der Kopfzeile — an derselben Stelle, an der die Jahresmatrix
@@ -138,10 +138,26 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   text-align:center;cursor:pointer}
 .mtab .mp{display:inline-block;padding:2px 8px;border-radius:9px}
 .mtab:hover .mp{color:var(--ink)}
-.mtab[aria-selected="true"] .mp{box-shadow:inset 0 0 0 1px var(--ink);color:var(--ink);font-weight:600}
+/* Der gewählte Monat als schwarze Pille (seit 23.8.26; vorher nur
+   eine dunkle Einfassung): Tinte heißt überall „gilt gerade". */
+.mtab[aria-selected="true"] .mp{background:var(--ink);color:var(--paper-2);font-weight:600}
 .mtab.alldone{color:var(--ok);text-decoration:line-through;text-decoration-thickness:1.5px}
 .mtab.current{text-decoration:none}
-.mtab.current .mp{background:var(--seal);color:#fff;font-weight:600;box-shadow:none}
+/* Der laufende Monat trägt seinen roten Ring immer — gefüllt wird
+   er nur, wenn er auch gewählt ist (seit 23.8.26; vorher blieb die
+   rote Pille auch dann gefüllt, wenn ein anderer Monat gewählt
+   war). Ungewählt: der Grund der Leiste, nur der ovale Rahmen rot
+   statt schwarz. Gewählt: orange gefüllt (--accent), der Rahmen
+   bleibt rot. Der Ring ist ein inset-Schatten und kein border —
+   ein Rahmen machte die Zeile einen Pixel höher und ließe die
+   Pillen springen. Die Regel steht nach der schwarzen Pille und
+   gewinnt bei gleicher Spezifität; die gefüllte Fassung darunter
+   ist um eine Klasse spezifischer. */
+.mtab.current .mp{background:transparent;color:var(--seal);font-weight:600;
+  box-shadow:inset 0 0 0 1.5px var(--seal)}
+.mtab.current:hover .mp{color:var(--seal)}
+.mtab.current[aria-selected="true"] .mp{background:var(--accent);color:#fff;
+  box-shadow:inset 0 0 0 1.5px var(--seal)}
 
 /* ── Ansichtsreiter als Segmented Control ─────────────────────
    Grauer Trog, das aktive Segment weiß und leicht erhaben — die
@@ -422,6 +438,13 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .dropmenu .mi:hover{background:var(--paper-2)}
 .dropmenu .mi:disabled{opacity:.45;cursor:not-allowed}
 .dropmenu .mi.sel{background:var(--accent-soft);font-weight:600}
+/* Der gewählte Wert ist orange — außer „Alle": Orange heißt in der
+   Filterzeile „hier wird gerade etwas ausgeblendet", und genau das
+   tut „Alle" nicht. Es trägt stattdessen Tinte, wie ein gedrückter
+   Knopf: gewählt ja, Filter nein. Gilt am Schreibtisch (fltDrop)
+   und im mobilen Menü (.mfmenu) gleichermaßen. */
+.dropmenu .mi.sel[data-filter="alle"],.dropmenu .mi.sel[data-duefilter="alle"],
+.dropmenu .mi.sel[data-secfilter="alle"]{background:var(--ink);color:var(--paper-2)}
 .dropmenu .mi.mi-sep{border-bottom:1px solid var(--hairline);padding:6px 12px}
 .dropmenu .mi.mi-top{border-top:1px solid var(--hairline);padding:6px 12px}
 /* „Gilt gerade" heißt auch im Menü dunkel — der Weg zu den
@@ -802,11 +825,13 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    eigenen Rahmen: die Blöcke tragen ihre Karten selbst, und
    zwischen ihnen scheint das Papier durch (tr.spacer). */
 .yearscroll{border:0;background:transparent}
-.yearscroll{scrollbar-width:thin}
-.yearscroll::-webkit-scrollbar{width:11px}
-.yearscroll::-webkit-scrollbar-track{background:var(--paper)}
-.yearscroll::-webkit-scrollbar-thumb{background:var(--rule-strong);border:2px solid var(--paper)}
-.yearscroll::-webkit-scrollbar-thumb:hover{background:var(--ink-2)}
+.yearscroll,.monthscroll{scrollbar-width:thin}
+.yearscroll::-webkit-scrollbar,.monthscroll::-webkit-scrollbar{width:11px}
+.yearscroll::-webkit-scrollbar-track,.monthscroll::-webkit-scrollbar-track{background:var(--paper)}
+.yearscroll::-webkit-scrollbar-thumb,.monthscroll::-webkit-scrollbar-thumb{
+  background:var(--rule-strong);border:2px solid var(--paper)}
+.yearscroll::-webkit-scrollbar-thumb:hover,.monthscroll::-webkit-scrollbar-thumb:hover{
+  background:var(--ink-2)}
 
 /* ── Die Jahresansicht füllt den Bildschirm ───────────────────
    Die Matrix rollt senkrecht selbst; die Seite darunter soll es
@@ -815,6 +840,18 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    Seitenende, das sonst Luft nach unten lässt, wäre hier nur ein
    Grund zum Rollen. */
 body.yearview .wrap{padding-bottom:14px}
+/* ── Und die Monatsansicht genauso (23.8.26) ──────────────────
+   Am Schreibtisch rollt die Kartenliste in ihrer eigenen Fläche
+   (#monthScroll, Höhe aus sizeMonth in js/app.js): Filterzeile,
+   Monatsleiste und Auswertung stehen darüber und rollen nicht
+   mit, der Rollbalken fängt erst unter ihnen an — wie in der
+   Jahresansicht, damit beim Ansichtswechsel nichts springt. Die
+   klebenden Kartenköpfe richten sich damit an dieser Fläche aus:
+   ihr top ist 0, gesetzt in syncStickyTops(). Auf dem Telefon
+   rollt weiter die Seite (der Zweig in viewMonat baut die Fläche
+   dort gar nicht). */
+body.monthview .wrap{padding-bottom:14px}
+.monthscroll{overflow-y:auto}
 
 /* ── Restliches Gerüst ────────────────────────────────────── */
 .scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--paper-2)}

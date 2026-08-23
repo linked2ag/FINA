@@ -184,9 +184,13 @@ function fltDrop(id,kind,label,cur,opts){
 }
 
 /* ── Die Monatsleiste ─────────────────────────────────────────
-   Zwölf Kürzel: erledigt = grün und durchgestrichen, der laufende
-   Monat als rote Pille (.mp trägt sie), der gewählte mit dunkler
-   Einfassung. Wie viel schon abgehakt ist, sagt die Sprechblase.
+   Zwölf Kürzel: erledigt = grün und durchgestrichen, der gewählte
+   als **schwarze** Pille (seit 23.8.26; vorher eine dunkle
+   Einfassung). Der laufende Monat trägt immer seinen roten Ring
+   (.mp, css/layout.css): ungewählt bleibt er ungefüllt — nur der
+   Rahmen sagt „jetzt" —, gewählt füllt er sich orange, und der
+   Ring bleibt rot. Wie viel schon abgehakt ist, sagt die
+   Sprechblase.
 
    **Sie steht seit 22.8.26 unter der Filterzeile**, nicht mehr in
    der Kopfzeile: dort, wo die Jahresmatrix ihre Monate hat, und im
@@ -274,22 +278,35 @@ function anaBar(m,sel,selAny){
 
 /* ── Der Kopf der mobilen Monatsansicht ───────────────────────
    Unter 700 px (isMobile in js/app.js) ersetzt er die Auswertung:
-   oben klebt die Suchzeile — Filterknopf, Suchfeld, Leeren, alle
+   oben klebt die Suchzeile — Filterknopf und Suchfeld, beide
    gleich hoch —, darunter scrollen die Kennzahlen als Kacheln mit
    (2 Spalten, die SALDO-Zeile über beide). Der Zeitstrahl entfällt:
    auf 390 px ist er kein Maß mehr, an dem sich etwas ablesen ließe.
 
    **Alle Filter wohnen hinter dem einen Knopf** (data-mfilters,
    verdrahtet in wire): Fälligkeit und Zahlungsstand als dieselben
-   Knöpfe wie auf dem Schreibtisch (data-duefilter, data-filter),
-   dazu der Weg ins Fenster „Worin der Filter sucht" (data-qfields).
-   Wie viele gerade greifen, sagt die rote Marke am Knopf.
+   Einträge wie in den Aufklappmenüs des Schreibtischs
+   (data-duefilter, data-filter), dazu „Filter zurücknehmen" und der
+   Weg in die Filteroptionen der Einstellungen (data-qfields). Das
+   Menü ist seit 23.8.26 dasselbe Bild wie am Schreibtisch — eine
+   weiße Karte als Overlay (css/mobile.css) —, und es bleibt nur bei
+   den Werten von Fälligkeit und Zahlungsstand offen; „Alle",
+   Zurücknehmen und die Optionen schließen es (wire in js/app.js).
+
+   **Ein eigenes ✕ neben dem Suchfeld gibt es nicht mehr**: das
+   Zurücknehmen steckt im Menü, und ein zweiter Knopf für dasselbe
+   nähme der Suchzeile nur Breite weg. Wie viele Menü-Filter gerade
+   greifen, sagt die rote Marke am Knopf — und **greift irgendein
+   Filter, leuchtet der Knopf orange**: er ist auf dem Telefon das,
+   was am Schreibtisch die orange Filterzeile ist.
 
    Gerechnet wird wie in anaBar über `sel` — die Kacheln nennen,
    was nach dem Filtern zu sehen ist, dieselben Zahlen wie die
-   Karten darunter. Die SALDO-Zeile ist deren Summe samt
-   Saldokorrektur: das Ergebnis dieses Monats, wie es die oberste
-   Zeile der Jahresmatrix nennt. */
+   Karten darunter. **Ihre Reihenfolge (seit 23.8.26): oben
+   Einnahmen und Noch offen, darunter Flexible und regelmäßige
+   Kosten** — zuerst, was hereinkommt und was noch aussteht. Die
+   SALDO-Zeile ist die Summe samt Saldokorrektur: das Ergebnis
+   dieses Monats, wie es die oberste Zeile der Jahresmatrix nennt. */
 function mobileTop(m,sel,sums){
   const due=sel.items.filter(it=>!isIncome(it));
   const openSum=due.filter(it=>!paidAt(it,m)).reduce((s,it)=>s+it.amounts[m-1],0);
@@ -297,21 +314,27 @@ function mobileTop(m,sel,sums){
   const nFlt=(ui.dueFilter!=='alle'?1:0)+(ui.filter!=='alle'?1:0);
   const open=!!ui.mFilters;
   const custom=QFIELDS.some(k=>!qField(k))||qAll();
-  const clearOn=!!(ui.q||'').trim()||nFlt>0;
+  /* Orange am Knopf heißt dasselbe wie die orange Zeile am
+     Schreibtisch: irgendein Filter blendet gerade etwas aus — auch
+     ein Bereichsfilter, der nur dort gesetzt worden sein kann. */
+  const anyOn=!!(ui.q||'').trim()||nFlt>0||ui.secFilter!=='alle';
   const tile=(c,lab,val,vc)=>`<span class="mk${c?' '+c:''}"><span class="lab">${lab}</span
     ><span class="val ${vc}">${eur(val)}</span></span>`;
   return `<div class="stickybar msearch">
+    <!-- Der Filterknopf steht RECHTS vom Suchfeld (seit 23.8.26;
+         vorher links): er steht damit genau unter dem ☰ der
+         Kopfzeile und trägt dessen Maß — zwei Hamburger, eine
+         Flucht. Das Menü klappt darum rechtsbündig auf
+         (css/mobile.css). -->
     <div class="msrow">
-      <button class="mfbtn" data-mfilters="1" aria-expanded="${open}" aria-pressed="${nFlt>0}"
-        aria-label="${esc(t('month.mFilters'))}" title="${esc(t('month.mFiltersTip'))}"
-        >&#9776;${nFlt?`<span class="mfbadge">${nFlt}</span>`:''}</button>
       <input class="fltq msq" data-q type="search" value="${esc(ui.q||'')}"
         placeholder="${t('g.filter')}" aria-label="${t('g.filter')}">
-      <button class="msclear" data-qclear="1"${clearOn?'':' disabled'}
-        aria-label="${esc(t('g.clearFilter'))}" title="${esc(t('g.clearFilterTip'))}">&#10005;</button>
+      <button class="mfbtn${anyOn?' on':''}" data-mfilters="1" aria-expanded="${open}" aria-pressed="${nFlt>0}"
+        aria-label="${esc(t('month.mFilters'))}" title="${esc(t('month.mFiltersTip'))}"
+        >&#9776;${nFlt?`<span class="mfbadge">${nFlt}</span>`:''}</button>
     </div>
     ${open?`<div class="dropmenu mfmenu" role="menu">
-      <button class="mi mi-sep" data-qclear="1"${clearOn?'':' disabled'}>${t('g.clearFilter')}</button>
+      <button class="mi mi-sep" data-qclear="1"${anyOn?'':' disabled'}>${t('g.clearFilter')}</button>
       <span class="mghead">${t('flt.due')}</span>
       ${FLT_DUE().map(([v,l])=>`<button class="mi${ui.dueFilter===v?' sel':''}" role="menuitemradio"
         aria-checked="${ui.dueFilter===v}" data-duefilter="${esc(v)}">${v==='alle'?t('flt.all'):l}</button>`).join('')}
@@ -324,9 +347,9 @@ function mobileTop(m,sel,sums){
   </div>
   <div class="mkpi">
     ${tile('t-in',t('month.kpiIncome'),sums.inc,'pos')}
+    ${tile('',t('month.kpiOpen'),openSum,openSum?'neg':'')}
     ${tile('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sums.flex,'neg')}
     ${tile('t-out',t('month.kpiFixed'),sums.out,'neg')}
-    ${tile('',t('month.kpiOpen'),openSum,openSum?'neg':'')}
     <span class="mk msal"><span class="lab">${t('month.kpiSaldo')}</span
       ><span class="val ${cls(sal)}">${eur(sal)}</span></span>
   </div>`;
@@ -1028,20 +1051,24 @@ function viewMonat(){
   const leerLine=(cardIn||cardFlex||cardOut||balOn)?''
     :`<div class="card"><p class="note" style="margin:0">${t('month.noItems')}</p></div>`;
 
-  return `
-  ${mob?mobileTop(m,sel,{inc:incSum,flex:flexSum,out:outSum}):anaBar(m,sel,selAny)}
-
-  ${balOn?balanceRow(m):''}
+  /* Am Schreibtisch rollt die Liste in ihrer eigenen Fläche
+     (#monthScroll), wie die Jahresmatrix: Filterzeile, Monatsleiste
+     und Auswertung stehen darüber und rollen nicht mit, und der
+     Rollbalken fängt erst unter ihnen an — dieselbe Antwort wie in
+     der Jahresansicht, damit beim Ansichtswechsel nichts springt
+     (body.monthview, sizeMonth in js/app.js). Auf dem Telefon
+     bleibt es beim Rollen der Seite mit klebender Leiste. */
+  /* Die Zeichenerklärung der Siegel (.legendbar) stand bis 23.8.26
+     unter den Karten — sie ist weg: was die Siegel bedeuten, sagen
+     ihre Sprechblasen und die Anleitung. Die Schlüssel
+     (month.legTitle …) bleiben in js/i18n.js — sie gehören zur
+     Anleitung. */
+  const inner=`${balOn?balanceRow(m):''}
   ${leerLine}
   ${cardIn}
   ${cardFlex}
-  ${cardOut}
-
-  <div class="legendbar">
-    <span class="legtitle">${t('month.legTitle')}</span>
-    <div class="legend">
-      <span><i class="l-open"></i>${t('month.legOpen')}</span><span><i class="l-paid"></i>${t('month.legPaid')}</span>
-      <span><i class="l-unc"></i>${t('month.legEst')}</span>
-    </div>
-  </div>`;
+  ${cardOut}`;
+  return `
+  ${mob?mobileTop(m,sel,{inc:incSum,flex:flexSum,out:outSum}):anaBar(m,sel,selAny)}
+  ${mob?inner:`<div class="monthscroll" id="monthScroll">${inner}</div>`}`;
 }

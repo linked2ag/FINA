@@ -105,6 +105,13 @@ function editItem(item,group,copyOf,focusMonth){
   const listLinks=setLinks([isBal?null:['groups',t('set.groups')],
     ['banks',t('set.banks')],['banks',t('set.pays')]]);
 
+  /* Die Farbe des Monatsblocks: Saldokorrektur blau, Einnahmen
+     grün, Kosten rot — entschieden an der Kategorieliste, wie
+     isIncome() (js/calc.js). Kein gewählter Block heißt keine
+     Farbe: eine geratene wäre eine Aussage, die niemand gemacht
+     hat. */
+  const mtint=g=>isBal?' t-bal':(g?(incomeGroups().includes(g)?' t-in':' t-out'):'');
+
   const box=document.createElement('div');
   box.className='modal';
   /* ── Das Fenster in vier Blöcken ─────────────────────────────
@@ -121,9 +128,12 @@ function editItem(item,group,copyOf,focusMonth){
      das sagen die gesperrten Monatsfelder weiter unten von selbst,
      und über dem Fenster stand damit eine Zeile, die man bei jedem
      Öffnen mitliest. */
-  box.innerHTML=`<div class="box form">
+  box.innerHTML=`<div class="box form split" tabindex="-1">
     <h3>${lampPos('item',it.id)}<button type="button" class="titlebtn" id="fTitle"
       title="${esc(t('item.nameBtnTip'))}"></button></h3>
+    <!-- Kopf und Knopfzeile stehen fest, gescrollt wird nur der
+         Rumpf mit den Blöcken (.dbody, css/components.css). -->
+    <div class="dbody">
     <!-- ── Woher die Auswahllisten kommen ──────────────────────
          Ein Weg je Liste, und zwar **über** der Reihe, in der die
          Listen stehen: dort stellt sich die Frage („diese Kategorie
@@ -185,7 +195,12 @@ function editItem(item,group,copyOf,focusMonth){
         <button class="btn primary small" id="qApply" data-tip="${esc(t('item.quickHint'))}">${t('item.apply')}</button>
       </div>
     </div>
-    <div class="dgrp"><div class="field mfield"><label>${t('item.perMonth')}</label>
+    <!-- Der Monatsblock trägt den hellen Grund seiner Geldart —
+         dieselbe Stufe wie die Posten der Ansichten (--bg-in/-out/
+         -bal, css/components.css). Er wechselt mit der Block-
+         Auswahl (updateTint unten); ohne gewählten Block bleibt er
+         neutral. -->
+    <div class="dgrp mgrp${mtint(it.group)}"><div class="field mfield"><label>${t('item.perMonth')}</label>
       ${isBal?'':`<div style="display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap">
         ${last?`<button class="btn small" id="qLock" title="${esc(t('item.lockTillTip',MONTHS_LONG[last-1]))}">${t('item.lockTill',MONTHS_LONG[last-1])}</button>`:''}
         <button class="btn small" id="qUnlock" title="${esc(t('item.unlockAllTip'))}">${t('item.unlockAll')}</button></div>`}
@@ -197,7 +212,9 @@ function editItem(item,group,copyOf,focusMonth){
               title="${lock?t('item.lockedTip'):t('month.markPaid')}">${CHECK_SVG}</button>`}</span></div>
         <input class="num signed" data-mi="${i}" ${lock?'disabled':''} value="${it.amounts[i]?nf.format(it.amounts[i]):''}" placeholder="0,00">
         <div class="cellnote">${esc(it.notes[i]||'')}</div></div>`;}).join('')}</div>
-    </div></div>
+    </div></div></div>
+    <!-- Das dritte schließende div oben ist das Ende der .dbody:
+         sie scrollt, die Knopfzeile darunter nicht. -->
     <div class="row-end">${(isNew||isBal)?'':`<button class="dellink" id="fDel">${t('item.del')}</button>`}
       ${(isNew||isBal)?'':`<button class="btn" id="fDup" data-tip="${esc(t('item.dupTip'))}">${t('item.dup')}</button>`}
       <button class="btn" id="fCancel">${t('g.cancel')}</button><button class="btn primary" id="fSave">${t('g.save')}</button></div>
@@ -330,7 +347,17 @@ function editItem(item,group,copyOf,focusMonth){
     };
     codes(box.querySelector('#fBank'),state.banks,it.bank);
     codes(box.querySelector('#fPay'),state.pays,it.pay);
+    updateTint();
   };
+  /* Der Grund des Monatsblocks folgt der Block-Auswahl — sofort,
+     nicht erst beim Speichern: die Farbe sagt, als was der Posten
+     gerade angelegt wird. Nach den Einstellungen (relist) wird sie
+     mitgeprüft: die Kategorie kann die Liste gewechselt haben. */
+  const updateTint=()=>{
+    const gEl=box.querySelector('#fGroup'), grp=box.querySelector('.dgrp.mgrp');
+    if(grp) grp.className='dgrp mgrp'+mtint(gEl?gEl.value:it.group);
+  };
+  { const gEl=box.querySelector('#fGroup'); if(gEl) gEl.onchange=updateTint; }
   bindSetLinks(box,relist);
   box.querySelector('#fCancel').onclick=()=>closeModal(box);
   box.onclick=e=>{if(e.target===box)closeModal(box);};
@@ -406,14 +433,22 @@ function editItem(item,group,copyOf,focusMonth){
     if(isNew) state.fixed.push(it);
     save(); box.remove(); render();
   };
-  /* Ohne Bezeichnung steht der erste Schritt im Kopf — dorthin
-     der Fokus. Sonst ins erste Feld, wie bisher. */
-  /* Kommt das Fenster vom Siegel eines geschätzten Betrags
-     (js/app.js), steht die Schreibmarke im Betrag genau dieses
-     Monats — fertig markiert, damit die Zahl mit dem ersten
-     Zeichen richtiggestellt ist. Das ist der ganze Zweck des
-     Umwegs, deshalb geht der Fokus dorthin und nicht ins erste
-     Feld. */
+  /* ── Wohin der Fokus beim Öffnen geht ────────────────────────
+     Kommt das Fenster vom Siegel eines geschätzten Betrags oder
+     vom Doppelklick auf einen Betrag (js/app.js), steht die
+     Schreibmarke im Betrag genau dieses Monats — fertig markiert,
+     damit die Zahl mit dem ersten Zeichen richtiggestellt ist.
+     Das ist der ganze Zweck des Umwegs.
+
+     **Sonst bekommt kein Feld den Fokus, sondern das Fenster
+     selbst** (tabindex="-1" am .box, seit 23.8.26; vorher die
+     erste Auswahlliste): ein fokussiertes Feld öffnete auf dem
+     Telefon ungefragt die Tastatur, kaum dass man die Position
+     nur ansehen wollte — Stift und Doppelklick auf den Namen
+     heißen „zeigen", nicht „tippen". Nur ohne Bezeichnung geht
+     der Fokus auf die Überschrift: sie ist der erste Schritt und
+     ein Knopf, keine Tastatur. */
+  const fall=()=>{ if(name) box.querySelector('.box').focus({preventScroll:true}); else title.focus(); };
   const mCell=focusMonth?box.querySelector(`[data-mi="${focusMonth-1}"]`):null;
   if(mCell){
     /* **Der Rahmen kommt immer**: er sagt, auf welchen Monat
@@ -424,7 +459,7 @@ function editItem(item,group,copyOf,focusMonth){
        gibt. */
     mCell.closest('.cell').classList.add('askcell');
     if(!mCell.disabled){ mCell.focus(); mCell.select(); }
-    else (name?(box.querySelector('#fGroup')||box.querySelector('#fBank')):title).focus();
+    else fall();
   }
-  else (name?(box.querySelector('#fGroup')||box.querySelector('#fBank')):title).focus();
+  else fall();
 }

@@ -81,7 +81,7 @@ function renderChrome(){
      leer — die Anleitung gehört ins geladene Buch, und ein Jahr
      gibt es ohne Datei noch nicht. */
   ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewIn','mNewFlex','mNewOut',
-   'btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
+   'btnSettings','filePath','btnGuide','yearLbl','btnSurveyTest'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel||id==='btnLoad';
   });
@@ -109,6 +109,12 @@ function renderChrome(){
      und rollt wie jede andere Seite. */
   document.body.classList.toggle('mobile',isMobile());
   document.body.classList.toggle('yearview',!wel&&ui.view==='jahr'&&!isMobile());
+  /* Die Monatsansicht rollt am Schreibtisch genauso in ihrer
+     eigenen Fläche (#monthScroll, sizeMonth unten): die Seite
+     selbst rollt nicht, und der Rollbalken fängt wie im Jahr erst
+     unter der Filterzeile an — beim Ansichtswechsel springt so
+     nichts. */
+  document.body.classList.toggle('monthview',!wel&&ui.view==='monat'&&!isMobile());
 
   /* Die Monatsleiste steht seit 22.8.26 nicht mehr in der
      Kopfzeile, sondern unter der Filterzeile der Monatsansicht —
@@ -145,18 +151,28 @@ function renderChrome(){
      offen da, als hätte es niemand verlassen. */
   vEl.querySelectorAll('.vtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;ui.fltMenu=null;render();});
 
-  /* Auf dem Telefon stehen dieselben Reiter unten, am Daumen —
-     dieselbe Liste (VIEWS), dieselbe Wirkung. Das Element gibt es
-     immer (Webclient.html), sichtbar macht es erst css/mobile.css
-     unter 700 px; auf der Begrüßungsseite bleibt es weg wie die
-     Reiter oben. */
+  /* Auf dem Telefon wird die Ansicht unten gewählt — seit 23.8.26
+     nicht mehr als Reiterzeile, sondern als Aufklappliste mit zwei
+     Schrittknöpfen daneben: ‹ eine Ansicht zurück, › eine weiter,
+     die Liste dazwischen nennt die aktuelle und klappt alle auf.
+     Dieselbe Liste (VIEWS), dieselbe Wirkung wie die Segmented
+     Control oben; am Rand ist Schluss, wie bei den Monaten. Das
+     Element gibt es immer (Webclient.html), sichtbar macht es erst
+     css/mobile.css unter 700 px; auf der Begrüßungsseite bleibt es
+     weg wie die Reiter oben. */
   const mt=document.getElementById('mtabs');
   if(mt){
     mt.hidden=wel;
     mt.setAttribute('aria-label',t('app.chooseView'));
-    mt.innerHTML=VIEWS.map(([k,l])=>`<button class="mvtab" role="tab"
-      aria-selected="${ui.view===k}" data-v="${k}">${l}</button>`).join('');
-    mt.querySelectorAll('.mvtab').forEach(b=>b.onclick=()=>{ui.view=b.dataset.v;ui.fltMenu=null;render();});
+    const vi=VIEWS.findIndex(([k])=>k===ui.view);
+    mt.innerHTML=`<button class="mvnav" id="mvPrev" aria-label="${esc(t('app.prevView'))}"${vi<=0?' disabled':''}>&lsaquo;</button>
+      <select class="mvsel" id="mvSel" aria-label="${esc(t('app.chooseView'))}">${VIEWS.map(([k,l])=>
+        `<option value="${k}"${ui.view===k?' selected':''}>${l}</option>`).join('')}</select>
+      <button class="mvnav" id="mvNext" aria-label="${esc(t('app.nextView'))}"${vi>=VIEWS.length-1?' disabled':''}>&rsaquo;</button>`;
+    const go=k=>{ ui.view=k; ui.fltMenu=null; render(); };
+    mt.querySelector('#mvSel').onchange=e=>go(e.target.value);
+    mt.querySelector('#mvPrev').onclick=()=>{ if(vi>0) go(VIEWS[vi-1][0]); };
+    mt.querySelector('#mvNext').onclick=()=>{ if(vi<VIEWS.length-1) go(VIEWS[vi+1][0]); };
   }
 }
 
@@ -183,7 +199,28 @@ function syncStickyTops(){
      verschieden — gemessen statt geraten, wie oben. */
   const bar=document.querySelector('#view > .stickybar');
   const base=top+(bar?bar.offsetHeight:0);
-  document.querySelectorAll('.card > .sechead').forEach(sh=>{ sh.style.top=base+'px'; });
+  /* Rollt die Monatsansicht in ihrer eigenen Fläche (#monthScroll),
+     richtet sich sticky an DIESER Fläche aus, nicht am Fenster —
+     die Köpfe kleben dann an ihrer Oberkante, also top 0. */
+  document.querySelectorAll('.card > .sechead').forEach(sh=>{
+    sh.style.top=sh.closest('#monthScroll')?'0px':base+'px'; });
+}
+
+/* ── Die Monatsansicht rollt in ihrer eigenen Fläche ──────────
+   Dasselbe Prinzip wie die Jahresmatrix (sizeMatrix unten), nur
+   ohne den Kniff mit dem waagerechten Balken — die Karten sind nie
+   breiter als die Seite. Die Fläche bekommt, was unter der Leiste
+   bis zum Fensterrand bleibt; was darunter noch steht (Statuszeile,
+   Polster), wird gemessen und abgezogen, damit die Seite selbst
+   nichts zu rollen hat. */
+function sizeMonth(){
+  const box=document.getElementById('monthScroll'); if(!box) return;
+  box.style.height='';
+  const top=box.getBoundingClientRect().top+window.scrollY;
+  let h=Math.max(240,window.innerHeight-top);
+  box.style.height=h+'px';
+  const over=document.documentElement.scrollHeight-window.innerHeight;
+  if(over>0){ h=Math.max(240,h-over); box.style.height=h+'px'; }
 }
 
 /* ── Die Jahresmatrix ist eine eigene Fläche ──────────────────
@@ -248,6 +285,7 @@ function sizeMatrix(){
 function syncMatrixHead(){
   syncStickyTops();
   sizeMatrix();
+  sizeMonth();
 }
 
 /* Beim Scrollen ist nichts zu tun: beide Tabellen rollen frei wie
@@ -272,6 +310,11 @@ function render(){
   const sx=window.scrollX, sy=window.scrollY;
   const ysOld=document.getElementById('yearScroll');
   const yTop=ysOld?ysOld.scrollTop:null, yLeft=ysOld?ysOld.scrollLeft:null;
+  /* Auch die Rollfläche des Monats behält ihre Stellung — jedes
+     Tippen im Suchfeld zeichnet neu, und die Liste soll dabei
+     nicht nach oben springen. */
+  const msOld=document.getElementById('monthScroll');
+  const mTop=msOld?msOld.scrollTop:null;
 
   renderChrome();
   const vbox=document.getElementById('view');
@@ -286,6 +329,8 @@ function render(){
   window.scrollTo(sx,sy);
   const ysNew=document.getElementById('yearScroll');
   if(ysNew&&yTop!=null){ ysNew.scrollTop=yTop; ysNew.scrollLeft=yLeft; }
+  const msNew=document.getElementById('monthScroll');
+  if(msNew&&mTop!=null) msNew.scrollTop=mTop;
   /* Die Rollleiste hat ihre Tabelle beim Verdrahten gemessen — da
      stand die noch am Anfang. Jetzt steht sie wieder dort, wo sie
      vorher stand, und der Griff gehört an dieselbe Stelle. Ebenso
@@ -440,9 +485,28 @@ function wire(){
      und der helle Grund sagt: gilt gerade nicht. */
   const toggleFilter=(key,val)=>{ ui[key]=(ui[key]===val&&val!=='alle')?'alle':val;
     keepQFocus(); render(); };
-  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>toggleFilter('filter',b.dataset.filter));
-  document.querySelectorAll('[data-duefilter]').forEach(b=>b.onclick=()=>toggleFilter('dueFilter',b.dataset.duefilter));
-  document.querySelectorAll('[data-secfilter]').forEach(b=>b.onclick=()=>toggleFilter('secFilter',b.dataset.secfilter));
+  /* „Alle" schließt das Menü — im mobilen Filtermenü **und** in
+     den Aufklappmenüs des Schreibtischs (seit 23.8.26; vorher
+     blieben die fltDrop-Menüs bei jeder Wahl offen): „Alle" ist die
+     Antwort „fertig, nichts filtern", danach gibt es dort nichts
+     mehr einzustellen. Ein spezifischer Wert lässt das Menü offen —
+     wer filtert, stellt meist mehr als eins ein. */
+  const mShut=b=>{
+    if(b.closest('.mfmenu')) ui.mFilters=false;
+    if(b.closest('.fltdrop')) ui.fltMenu=null;
+  };
+  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{
+    if(b.dataset.filter==='alle') mShut(b);
+    toggleFilter('filter',b.dataset.filter);
+  });
+  document.querySelectorAll('[data-duefilter]').forEach(b=>b.onclick=()=>{
+    if(b.dataset.duefilter==='alle') mShut(b);
+    toggleFilter('dueFilter',b.dataset.duefilter);
+  });
+  document.querySelectorAll('[data-secfilter]').forEach(b=>b.onclick=()=>{
+    if(b.dataset.secfilter==='alle') mShut(b);
+    toggleFilter('secFilter',b.dataset.secfilter);
+  });
   /* Der Zeitstrahl filtert wie die Knöpfe darunter: ein Abschnitt
      ist eine Fälligkeit (A · M · E, Z = ohne Zahltag), ein zweiter
      Klick nimmt ihn zurück. Den Zeitstrahl gibt es nur, solange die
@@ -507,12 +571,24 @@ function wire(){
      zurücknimmt, sucht meistens gleich etwas anderes. */
   document.querySelectorAll('[data-qclear]').forEach(b=>b.onclick=()=>{
     if(b.disabled) return;
+    /* Der Eintrag im mobilen Filtermenü nimmt das Menü mit zu:
+       zurücknehmen heißt fertig sein. Er ist dort der einzige Weg —
+       das ✕ neben dem Suchfeld gibt es auf dem Telefon nicht mehr,
+       seine Aufgabe steckt im Menü. */
+    if(b.closest('.mfmenu')) ui.mFilters=false;
     ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.secFilter='alle'; ui.qFocus='all'; render();
   });
-  /* Der Hamburger-Knopf davor: worin der Suchbegriff überhaupt
-     sucht (js/dialogs/filter-fields.js). Die Wahl steht in der
-     Datei, geändert wird sie erst mit „Speichern" im Fenster. */
-  document.querySelectorAll('[data-qfields]').forEach(b=>b.onclick=()=>openFilterFields());
+  /* „Filteroptionen…": worin der Suchbegriff überhaupt sucht. Die
+     fünf Kästchen stehen seit 23.8.26 im Einstellungsfenster,
+     Bereich „Filter" (js/dialogs/settings.js) — die Wahl gilt der
+     Datei, und dort stehen die Angaben der Datei beisammen. Aus dem
+     mobilen Filtermenü heraus schließt das Menü vorher: das Fenster
+     legte sich sonst über ein Menü, das beim Zurückkommen niemand
+     mehr braucht. */
+  document.querySelectorAll('[data-qfields]').forEach(b=>b.onclick=()=>{
+    if(b.closest('.mfmenu')){ ui.mFilters=false; render(); }
+    openSettings('filter');
+  });
   /* Das Filtermenü der mobilen Monatsansicht: derselbe Knopf
      öffnet und schließt es. Darin stehen die gewohnten
      Filterknöpfe (data-filter, data-duefilter) — die sind oben
@@ -553,8 +629,16 @@ function wire(){
     ui.kakPick=(ui.kakPick&&ui.kakPick.main===main&&(ui.kakPick.sub||'')===(sub||''))
       ?null:{main,sub:sub||''};
     render();
+    /* Auf dem Telefon gibt es die rechte Karte nicht — die Wahl
+       öffnet ihre Buchungen als Fenster (openKakTx in
+       js/views/kakeibo.js). Das Abwählen nicht: es heißt zumachen. */
+    if(isMobile()&&ui.kakPick) openKakTx();
   });
   document.querySelectorAll('[data-ktop]').forEach(b=>b.onclick=()=>{ui.kakPick=null;render();});
+  /* Die Buchungsliste als Fenster — der Knopf der mobilen
+     Transactions-Ansicht (viewKakeibo baut dort keine rechte
+     Karte). */
+  document.querySelectorAll('[data-txlist]').forEach(b=>b.onclick=()=>openKakTx());
   document.querySelectorAll('[data-kmonth]').forEach(b=>b.onclick=()=>{
     if(b.disabled) return;
     const d=b.dataset.kmonth;
@@ -724,13 +808,16 @@ function wire(){
 /* ── Strg/Cmd + Umschalt + Buchstabe: die Ansicht wechseln ───
    Ein Griff je Reiter, in der Reihenfolge der Reiter:
 
-     M  Monat · Y  Jahr · F  Prognose · D  Fast Budget Details
+     M  Monat · Y  Jahr · F  Prognose · I  Import Details
 
    Die Buchstaben stehen für den **englischen** Namen und wechseln
    deshalb nicht mit der Sprache — wie B · PT · DD · LP in der
    Jahresmatrix und wie die Kürzel der Prognose. Y statt J, weil
-   „Year"; F für „Forecast"; D für „Details" — F und B sind schon
-   vergeben.
+   „Year"; F für „Forecast"; I für „Import Details" (seit 23.8.26;
+   davor T für „Transactions", davor D — I ist gewollt, obwohl der
+   Browser Strg/Cmd+Umschalt+I meist selbst für die
+   Entwicklerwerkzeuge nimmt und der Griff dann nur in der Mac-
+   und der Windows-App ankommt).
 
    Ins Suchfeld führte diese Taste einmal (Strg/Cmd+Umschalt+F).
    Den Weg gibt es nicht mehr: seit ein einzelner Buchstabe im
@@ -746,7 +833,7 @@ function wire(){
    keine Reiter) und ein offenes Fenster — dort wird gerade
    getippt, und die Ansicht darunter zu wechseln nähme dem Fenster
    den Boden. */
-const VIEW_KEYS={m:'monat',y:'jahr',f:'prognose',d:'kakeibo'};
+const VIEW_KEYS={m:'monat',y:'jahr',f:'prognose',i:'kakeibo'};
 /* Der Buchstabe zu einer Ansicht — für die Sprechblase am Reiter
    (renderChrome). Groß geschrieben, wie man ihn auf der Taste
    sieht. */
@@ -863,8 +950,10 @@ addEventListener('keydown',ev=>{
   if(ev.key!=='Escape'||ev.defaultPrevented) return;
   if(ui.welcome||document.querySelector('.modal')) return;
   /* Ein offenes Filtermenü geht zuerst zu — Escape heißt überall
-     „eine Schicht zurück", und das Menü ist die oberste. */
+     „eine Schicht zurück", und das Menü ist die oberste. Auf dem
+     Telefon gilt dasselbe für das Filtermenü hinter dem ☰. */
   if(ui.fltMenu){ ev.preventDefault(); ui.fltMenu=null; render(); return; }
+  if(ui.mFilters){ ev.preventDefault(); ui.mFilters=false; render(); return; }
   if(!(ui.q||'').trim()&&ui.filter==='alle'&&ui.dueFilter==='alle'&&ui.secFilter==='alle') return;
   if(!document.querySelector('[data-q]')) return;
   ev.preventDefault();
@@ -881,6 +970,15 @@ document.addEventListener('click',ev=>{
   if(ui.fltMenu&&!ev.target.closest('.fltdrop')){
     ui.fltMenu=null;
     if(ev.target.closest('.fltbox')) ui.qFocus='end';
+    render();
+  }
+  /* Dasselbe für das mobile Filtermenü: ein Klick daneben schließt
+     es. Der ☰-Knopf zählt nicht als daneben — er schaltet selbst —,
+     und die Einträge im Menü entscheiden oben in wire(), ob sie es
+     offen lassen. */
+  if(ui.mFilters&&!ev.target.closest('.mfmenu,[data-mfilters]')){
+    ui.mFilters=false;
+    if(ev.target.closest('.msq')) ui.qFocus='end';
     render();
   }
 });
@@ -958,6 +1056,10 @@ document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();
+/* VORLÄUFIG (Probelauf Umfrage): der Knopf links vom Hamburger
+   öffnet die Umfrage von Hand. Er verschwindet wieder, sobald die
+   Zeitregel steht — siehe js/dialogs/umfrage.js. */
+document.getElementById('btnSurveyTest').onclick=()=>openSurveyTest();
 /* Der CSV-Import im Menü nimmt denselben Weg wie der Bereich
    „Import" der Einstellungen: erst das Fenster, das sagt, was die
    Datei braucht (openImportInfo), dann die Dateiauswahl. */
