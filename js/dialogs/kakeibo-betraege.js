@@ -30,7 +30,7 @@
 function editKak(k,copy,focusMonth){
   const isNew=!k;
   const e=isNew?(copy?copy.entry:blankKak(0)):state.kak[k];
-  if(!e){ toast(t('kdlg.gone')); return; }
+  if(!e){ warn(t('kdlg.gone')); return; }
   /* Arbeitskopie wie im Posten-Fenster: geändert wird hier,
      übernommen erst beim Speichern. */
   const links=(e.links||[]).map(x=>({name:x.name,url:x.url}));
@@ -39,9 +39,17 @@ function editKak(k,copy,focusMonth){
      das kleine Fenster ändert sie. */
   let name=isNew?(copy?copy.name:''):k;
 
-  const imported=i=>!isNew&&hasActual(i+1);
+  const imported=i=>!isNew&&flexImp(k,i+1);
   const lockN=MONTHS.filter((_,i)=>imported(i)).length;
   const last=completedMonths();        /* ohne den laufenden Monat */
+  /* Wie im Posten-Fenster: was dieser Importlauf der Kategorie noch
+     bringt, steht hellgelb — „kommt neu herein" und nicht „fertig".
+     Außerhalb des Wizards ist die Liste leer. */
+  const pend=impPendingMonths('kak',isNew?null:k);
+  /* Die Importkriterien dieser Kategorie, als Arbeitskopie — wie
+     im Posten-Fenster (impCritLoad in js/dialogs/csv2-wizard.js);
+     geschrieben mit #kSave. Eine neue Kategorie hat keine. */
+  const crit=isNew?[]:impCritLoad('k:'+k);
   const box=document.createElement('div');
   box.className='modal';
 
@@ -66,6 +74,10 @@ function editKak(k,copy,focusMonth){
      gespeicherte Stand. */
   const round2=v=>Math.round(v*100)/100;
   const tag=i=>{
+    /* Ein schwebender Monat trägt dieselbe Marke wie ein
+       importierter — er wird gleich einer. Dass er noch nicht in
+       der Datei steht, sagt der hellgelbe Grund seines Kästchens. */
+    if(pend[i+1]) return '<span class="lock imp">IMPORTED</span>';
     if(!imported(i)) return '';
     const orig=round2(state.flexActual[i+1][k]||0);
     const cell=box.querySelector(`[data-mi="${i}"]`);
@@ -129,23 +141,81 @@ function editKak(k,copy,focusMonth){
       <div style="display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap">
         ${last?`<button class="btn small" id="kLock" title="${esc(t('kdlg.lockTillTip',MONTHS_LONG[last-1]))}">${t('kdlg.lockTill',MONTHS_LONG[last-1])}</button>`:''}
         <button class="btn small" id="kUnlock" title="${esc(t('kdlg.unlockAllTip'))}">${t('item.unlockAll')}</button></div>
-      <div class="mgrid">${MONTHS.map((m,i)=>{const imp=imported(i), on=imp||e.paid[i];
-        const val=imp?(e.override[i]!=null?e.override[i]:(state.flexActual[i+1][k]||0)):e.plan[i];
-        return `<div class="cell${on?' lockedcell':''}" data-cell="${i}">
+      <div class="mgrid">${MONTHS.map((m,i)=>{
+        /* **Ein schwebender Monat steht schon so da, wie er wird**
+           (30.8.26): mit dem Betrag, den „Anwenden" hineinlegt,
+           geschlossen und als IMPORTED gemarkt — nur auf hellgelbem
+           Grund. Gespeichert wird er nicht, #kSave lässt ihn
+           stehen. */
+        const nw=pend[i+1];
+        const imp=imported(i), on=imp||e.paid[i]||!!nw;
+        const val=nw?nw.v:(imp?(e.override[i]!=null?e.override[i]:(state.flexActual[i+1][k]||0)):e.plan[i]);
+        return `<div class="cell${on?' lockedcell':''}${nw?' newimp':''}" data-cell="${i}">
         <div class="cellhead"><span class="mlab ${i+1===CUR?'curm':''}">${m} <span class="tagslot" data-tag="${i}">${tag(i)}</span></span>
           <span class="ctools">${lampHtml('kak',isNew?'':k,i+1)}
-            <button type="button" class="seal mini" data-pi="${i}" aria-pressed="${on}"
-              title="${on?t('kdlg.lockedTip'):t('month.markDone')}">${CHECK_SVG}</button></span></div>
+            <button type="button" class="seal mini" data-pi="${i}" aria-pressed="${on}"${nw?' disabled':''}
+              title="${nw?t('c2.sealNewTip'):(on?t('kdlg.lockedTip'):t('month.markDone'))}">${CHECK_SVG}</button></span></div>
         <input class="num signed" data-mi="${i}" ${on?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
         <div class="cellnote">${esc(e.notes[i]||'')}</div></div>`;}).join('')}</div>
-    </div></div></div>
-    <!-- Das dritte schließende div oben ist das Ende der .dbody:
+    </div></div>
+    <!-- Unter den Monaten die Importkriterien, wenn es welche gibt
+         (impCritHtml in js/dialogs/csv2-wizard.js). -->
+    ${impCritHtml(crit)}</div>
+    <!-- Das letzte schließende div oben ist das Ende der .dbody:
          sie scrollt, die Knopfzeile darunter nicht. -->
     <div class="row-end">${isNew?'':`<button class="dellink" id="kDel">${t('kdlg.del')}</button>`}
+      <button class="btn delbtn" id="impDel" hidden>${t('impv.del')}</button>
       ${isNew?'':`<button class="btn" id="kDup" data-tip="${esc(t('kdlg.dupTip'))}">${t('item.dup')}</button>`}
-      <button class="btn" id="kCancel">${t('g.cancel')}</button><button class="btn primary" id="kSave">${t('g.save')}</button></div>
+      <button class="btn" id="kCancel">${t('g.cancel')}</button><button class="btn primary" id="kSave">${t('g.save')}</button>
+      <!-- **„Importdaten einblenden" steht hinter „Speichern"**
+           (30.8.26): er entscheidet nichts am Posten, er räumt die
+           Liste daneben auf oder holt sie herein — zwischen
+           „Löschen" und „Duplizieren" stand er mitten unter den
+           Wegen, die das Buch ändern. Hinter der Entscheidung ist
+           er das, was er ist: ein Griff an der Ansicht.
+           „Importdaten löschen" ist nicht dabei — den nimmt
+           impSideWire() in die Fußzeile der Liste (js/ui.js). -->
+      <button class="btn" id="impBtn" hidden></button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box);
+  /* Der Import-Bereich rechts (js/ui.js) — hier sind es die
+     einzelnen Buchungen aus state.tx, je Monat gruppiert. Bei
+     einer neuen oder duplizierten Kategorie gibt es keine, und
+     die beiden Knöpfe verschwinden von selbst. */
+  impSideWire(box,'kak',isNew?null:k,focusMonth);
+  impCritWire(box,crit,()=>name||k);
+
+  /* „Importdaten löschen" — dieselbe Wirkung wie der Eintrag im
+     Zielmenü des CSV-Imports (js/dialogs/csv2-wizard.js): die
+     Monate, die ein Import geschrieben hat, werden wieder **leer
+     und offen**, und ihre Buchungen fallen aus state.tx.
+
+     **Danach ist der Monat für diese Kategorie kein importierter
+     mehr** (30.8.26): der Wert wird `null` statt 0 — die Marke,
+     an der flexImp() das erkennt (js/calc.js) —, eine Korrektur
+     darüber fällt mit (ohne den Import beschreibt sie nichts mehr,
+     und kakVal() zeigte sie sonst weiter an) und der Haken geht
+     ab, genau wie beim Posten. Bis 30.8.26 wurde nur die Summe
+     auf 0 gesetzt: die Kacheln blieben danach gesperrt und trugen
+     weiter „IMPORTED", obwohl nichts mehr da war.
+
+     **Die Quelle des Monats bleibt stehen** (flexSource) — sie
+     gehört dem Monat, und die übrigen Kategorien stehen weiter
+     darin. Geschrieben wird sofort, danach öffnet sich dasselbe
+     Fenster frisch mit dem neuen Stand. */
+  const impDel=box.querySelector('#impDel');
+  if(impDel) impDel.onclick=()=>{
+    /* Gefragt wird flexImp() und nicht flexKind()==='imp': ein
+       korrigierter Monat heißt dort 'corr' und trüge seine
+       Importdaten sonst unbemerkt weiter. */
+    const months=MONTHS.map((_,i)=>flexImp(k,i+1)?i+1:0).filter(Boolean);
+    if(!months.length) return;
+    if(!confirm(t('c2.mnWipeAsk',keyLabel(k),months.length))) return;
+    months.forEach(m=>wipeFlexImport(k,m));
+    save(); box.remove(); render();
+    editKak(k);
+    toast(t('c2.mnWiped',keyLabel(k),months.length));
+  };
 
   /* Die Überschrift zeigt die Bezeichnung und öffnet das Fenster,
      das sie ändert. Steht noch keine da, ist sie eine Aufforderung
@@ -175,7 +245,7 @@ function editKak(k,copy,focusMonth){
   const relist=()=>{
     if(isNew||state.kak[k]===e) return;
     const now=Object.keys(state.kak).find(n=>state.kak[n]===e);
-    if(!now){ closeModal(box); toast(t('kdlg.gone')); return; }
+    if(!now){ closeModal(box); warn(t('kdlg.gone')); return; }
     if(name===k) name=now;
     k=now; showName();
   };
@@ -220,7 +290,7 @@ function editKak(k,copy,focusMonth){
     let n=0;
     seals().forEach(cb=>{
       const i=+cb.dataset.pi;
-      if(i+1>last||imported(i)||isOn(cb)) return;
+      if(cb.disabled||i+1>last||imported(i)||isOn(cb)) return;
       setSeal(cb,true); n++;
     });
     showAvg();
@@ -230,7 +300,7 @@ function editKak(k,copy,focusMonth){
     let n=0;
     seals().forEach(cb=>{
       const i=+cb.dataset.pi;
-      if(imported(i)||!isOn(cb)) return;
+      if(cb.disabled||imported(i)||!isOn(cb)) return;
       setSeal(cb,false); n++;
     });
     showAvg();
@@ -340,19 +410,32 @@ function editKak(k,copy,focusMonth){
        auf dieselben Daten zeigen lassen. Geprüft wird hier noch
        einmal: zwischen dem Eintippen und dem Speichern kann in
        einem anderen Fenster eine Kategorie dazugekommen sein. */
-    if(taken(name)){ toast(t('set.taken',name)); return; }
+    if(taken(name)){ warn(t('set.taken',name)); return; }
+    /* Eine Importbedingung ohne Wert hält das Speichern auf — wie
+       im Posten-Fenster. Geschrieben werden die Kriterien **vor**
+       dem Umbenennen: renameKakCat() zieht ihr Ziel dann mit. */
+    if(!impCritCheck(box,crit)) return;
+    impCritCommit(crit);
 
     e.estimated=box.querySelector('#kEst').checked;
     e.links=links.map(x=>({name:x.name,url:x.url}));
     cells().forEach(c=>{
       const i=+c.dataset.mi, v=parseGermanNumber(c.value);
+      /* **Ein schwebender Monat wird nicht gespeichert**: in seinem
+         Feld steht die Vorschau auf das, was „Anwenden" im Wizard
+         hineinlegt — dort wird es geschrieben und nur dort. Als
+         Planwert übernommen sähe der Import aus, als hätte ihn
+         jemand von Hand eingetippt. */
+      if(pend[i+1]) return;
       if(imported(i)){
         /* Nur abweichende Werte werden als Korrektur gemerkt. */
         const orig=Math.round((state.flexActual[i+1][k]||0)*100)/100;
         e.override[i]=(Math.round(v*100)/100===orig)?null:v;
       } else e.plan[i]=v;
     });
-    box.querySelectorAll('[data-pi]').forEach(cb=>{ e.paid[+cb.dataset.pi]=cb.getAttribute('aria-pressed')==='true'; });
+    box.querySelectorAll('[data-pi]').forEach(cb=>{ const i=+cb.dataset.pi;
+      if(pend[i+1]) return;               /* wie beim Betrag: Vorschau, keine Aussage */
+      e.paid[i]=cb.getAttribute('aria-pressed')==='true'; });
 
     if(isNew){
       state.kakCats.push(name);

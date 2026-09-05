@@ -11,6 +11,75 @@ nachzieht, arbeitet die Punkte ab und streicht sie hier. Die Bildschirmfotos in 
 bleiben dabei liegen: neue werden nur gemacht, wenn ausdrücklich darum gebeten wird.
 
 ---
+- ⚠ **CSV-Import ist jetzt generisch** (26.8.24): „CSV importieren" öffnet den neuen
+  Wizard (`js/dialogs/csv2-wizard.js`) — jede CSV, drei Schritte (Datei & Art · Spalten &
+  Felder · Zuordnen), „Anwenden" schreibt ins Buch. Absätze der Anleitung, die den
+  Fast-Budget-Import beschreiben (Spalten „Hauptkategorie" usw.), sind damit **falsch**.
+  Neu zu beschreiben: blaues Import-Siegel (Pfeil nach unten) auf importierten Monaten,
+  gemerkte Zuordnung je Datei-Art (`state.csvMaps`), Regeln/Filter, „Je Kategorie
+  automatisch". Dazu seit 26.8.30: die Spaltenköpfe in Schritt 2 sind Knöpfe, und es
+  gibt dort vier FINA-Felder (Datum · Betrag · Kategorie · Beschreibung — Kategorie auch
+  für reguläre Posten); in Schritt 3 stehen die zugeordneten Spalten vorn (Datum, Betrag,
+  Kategorie, Beschreibung, dann der Rest), die Spaltenbreiten kommen fest aus Schritt 2,
+  über der CSV filtert ein Schnellfilter über alle Spalten, jedes Filterfeld hat ein
+  ☰-Menü mit der Vergleichsart (enthält · nur · fängt mit · endet mit), Enter heftet den
+  Eintrag als Chip mit ✕ **in seiner Spalte** unter der Filterzeile an — zweizeilig,
+  Vergleichsart über Wert — und leert dabei den Schnellfilter (dessen Chips stehen bei
+  seinem Feld); ein Klick auf eine CSV-Zelle stellt ihren Wert markiert ins Filterfeld
+  und setzt den Fokus dorthin (anpassen, Enter — angeheftet), Lostippen ohne Fokus geht
+  in den Schnellfilter; der Knopf heißt „Alle nicht zugeordneten CSV-Import-Daten
+  anzeigen" (vorher „Filter leeren"); zugeordnete Zeilen fliegen sichtbar unter ihr
+  Ziel, wo sie weiß in den Spaltenbreiten der CSV aufgelistet bleiben (Klick öffnet die
+  Regel, Maus darüber markiert die Ziel-Zeile mit den roten Linien); eine eigene
+  Chip-Zeile für die Regeln gibt es nicht mehr — die Zuordnungen stehen im Zielbereich.
+  Die Knöpfe durch den Wizard (Zurück · Weiter · Anwenden) stehen in **jedem** Schritt
+  oben neben den Schritten; erledigte Schritte sind rot, der laufende orange gefüllt.
+  Im dritten Schritt landet ein Buchstabe von selbst im Schnellfilter (wie in Monat und
+  Jahr), nach der Wahl einer Filteroption steht die Schreibmarke im Feld daneben, und
+  „+ Neu…" geht auch ohne Kategorien auf — mit dem Weg in die Einstellungen darüber, die
+  sich als Fenster darüberlegen und zurückführen.
+
+- **Gemerkte CSV-Zuordnungen lassen sich verwalten (26.8.30)** — Einstellungen, Bereich
+  „Import": je gemerkter Datei-Art eine Zeile mit Name (änderbar), Art, Zahl der Regeln
+  und Datum, dazu ein **Stift** für die Filterkriterien und ein ✕ zum Vergessen. Der
+  Stift öffnet ein Fenster darüber: je Regel steht dort, wohin sie zuordnet, und darunter
+  ihre Bedingungen (Spalte · Vergleichsart · Wert) zum Ändern, Ergänzen und Löschen.
+  Gehört in „Was FINA kann" zum CSV-Import-Absatz: bisher gab es keinen Weg an eine
+  einmal gemerkte Zuordnung heran.
+
+- ⚠ **Der CSV-Import, dritter Schritt, neu geordnet (26.8.30)** — der Zielbereich hat
+  zwei Drittel des Fensters, die CSV eines. Die zugeordneten Zeilen stehen nicht mehr
+  offen unter ihrem Ziel: ein Pfeil links (blau, wenn etwas hängt, sonst grau) klappt sie
+  auf. Die Monatsspalten zeigen die Beträge wie in der Jahresansicht — mit dem Zeichen
+  des Monats (Haken oder Import-Pfeil) und nichts, wo nichts ist —, und ein Doppelklick
+  auf ein Ziel öffnet seinen Posten. Die gewählte Zeile ist blau. Escape schließt das
+  Fenster **nicht** mehr, es nimmt nur den Filter zurück; geschlossen wird über ✕. In
+  Schritt 2 lässt sich außerdem die **Beschriftungszeile** wählen (Kreise links in der
+  Vorschau) — wichtig, weil ihre Namen in den gemerkten Filterkriterien stehen.
+  Links an einer Ziel-Zeile steht statt des ✕ ein **☰** mit drei Wegen: die Zuordnung
+  dieser Datei ändern, sie zurücksetzen, oder alle aus früheren Importen stammenden
+  Monate löschen. Aufgeklappt stehen unter dem Posten beide Herkünfte: frühere Importe
+  grau (stehen schon im Buch), die Zeilen dieser Datei gelb.
+
+- ⚠ **Gelb heißt „gefiltert", überall (26.8.30)** — die Filterleisten von Monat und Jahr
+  und der Filterknopf des Telefons leuchten neongelb (#FFFA00) statt orange, ebenso die Filterfelder
+  des CSV-Imports. **Zu prüfen:** wo die Anleitung sagt, die Filterzeile färbe sich
+  orange, stimmt das nicht mehr.
+
+- ⚠ **Der Stand eines Postens sieht überall gleich aus (26.8.30)** — ein Kreis wie das
+  Siegel der Monatsansicht: grün mit Haken (abgehakt), **cyan mit Pfeil nach unten**
+  (aus einer CSV importiert), eingefasst mit ? (geschätzt), nichts wo nichts ist. Das
+  gilt jetzt auch in der **Jahresmatrix** und im Zielbereich des CSV-Imports; nimmt man
+  den Haken ab, ist es wieder ein gewöhnlicher Monat. **Falsch geworden:** die Anleitung
+  sagt in beiden Sprachen „✓ heißt bezahlt, ? heißt geschätzt" und zeigt die nackten
+  Zeichen — in den Tabellen stehen jetzt Kreise, und den Import-Pfeil kennt sie gar
+  nicht.
+
+- **Die Marke „Jetzt" im Zeitstrahl rückt weiter (26.8.30)** — steht man in den letzten
+  Tagen des Monats und am Monatsende ist kein Eintrag mehr offen, trägt der
+  Monatsabschluss die Marke, nicht mehr das Monatsende. Betrifft den Absatz zum
+  Zeitstrahl in „Was FINA kann", falls er die Marke an die Tage bindet.
+
 
 **Der Reiter „Was ist neu" läuft nicht mehr über diese Liste.** Eine neue Version bekommt
 ihren Eintrag automatisch, sobald ein Stand fertig ist — nicht erst auf Zuruf (siehe
@@ -562,3 +631,94 @@ einer laufenden Umfrage läuft auch im Browser.
   Diskette (speichern), zwei Blätter (Sicherung), Kreuz im Kreis (schließen), Blatt mit
   Pfeil (CSV), Plus im Kreis (die beiden Neu-Wege), Schieberegler (Einstellungen), Buch
   (Anleitung). Farbige Zeichen gibt es nicht mehr.
+
+- ⚠ **Die vierte Kachel der Auswertung ist der Saldo** (26.8.30), nicht mehr „Noch offen".
+  Falsch geworden sind damit zwei Absätze in „Was FINA kann": „The analytics area" /
+  „Der Auswertungsbereich" nennen als vierte Zahl „still open" / „noch offen" **und**
+  sagen ausdrücklich, es stehe kein Kontostand dabei — der Saldo steht jetzt dort. Neu zu
+  beschreiben: es ist dieselbe Zahl wie „Saldo je Monat" in der Jahresmatrix, sie rechnet
+  über das, was der Filter übrig lässt, und auf dem Telefon steht „Noch offen" weiter
+  daneben.
+- ⚠ **Die beiden Ausblenden-Knöpfe der Jahresansicht stehen nicht mehr in der Datei**
+  (26.8.30). Der Absatz über die Filter in „Was FINA kann" sagt von ihnen: „Unlike the
+  others these two are kept in your file" / „Anders als die übrigen stehen diese beiden in
+  deiner Datei" — das gilt für keinen von beiden mehr. In der Datei steht nur noch, womit
+  die Ansicht **aufgeht**, und das wird in den Einstellungen unter „Darstellung"
+  eingestellt (zwei Haken: Auswertung im Monat, abgeschlossene Monate im Jahr).
+- **Die Prognose hat eine Spalte mehr** (26.8.30): `SUM` zwischen COR und dem Kontostand —
+  wie der Monat abgeschlossen hat. Der Kontostand heißt in beiden Sprachen jetzt `PROG`
+  (vorher END); wo die Anleitung die Spalten der Prognose aufzählt, gehören beide hinein.
+- **Speichern und Umfrage stehen neben dem ☰** (26.8.30), sobald Platz ist: „Daten
+  speichern" mit rotem Rahmen, sobald es etwas zu speichern gibt, die Umfrage links davon
+  mit leuchtendem Ring. Bei engem Fenster gehen beide ins Menü, und der rote Punkt am ☰
+  sagt, dass dort etwas wartet. Wo die Anleitung das Speichern beschreibt („in the top
+  bar"), stimmt das jetzt wieder wörtlich — der Weg über das Menü bleibt daneben.
+- **„Daten hochladen" steht wieder im Menü** (26.8.30), zuoberst zusammen mit dem
+  CSV-Import. Man kann damit eine andere Datei öffnen, ohne vorher zu schließen; bei
+  ungespeicherter Arbeit fragt FINA. Die Anleitung schickt zum Öffnen bisher auf die
+  Begrüßungsseite.
+- **Die Erklärungen im ☰-Menü stehen seitlich** (26.8.30) statt über dem Eintrag — nur
+  Kosmetik, aber wenn ein Bildschirmfoto des Menüs entsteht, sieht es anders aus.
+- **Die importierten Daten stehen als Liste im Fenster selbst** (26.8.30): „Importdaten
+  zeigen" macht das Posten- bzw. Beträge-Fenster breiter und zeigt rechts, über die volle
+  Fensterhöhe, jede Buchung mit Datum, Betrag und Verwendungszweck — sortiert nach Datum,
+  dann nach Verwendungszweck. Auch der regelmäßige Posten zeigt seine einzelnen Buchungen
+  (nur bei Importen ab dem 30.8.26 — ältere haben die Quellzeilen nicht). Daneben steht
+  „Importdaten löschen": nimmt alle importierten Einträge dieser Position aus dem Buch,
+  mit Rückfrage — dieselbe Wirkung wie der Eintrag im Zielmenü des CSV-Imports.
+- **CSV-Import: das ☰-Menü links in der Leiste hat neue Einträge** (26.8.30): „Filter
+  zurücknehmen und alle nicht zugeordneten CSV-Daten zeigen" (vorher ein eigener Knopf
+  rechts) und „Alle gemerkten Zuordnungskriterien zeigen" — öffnet das Fenster mit den
+  gemerkten Kriterien dieser Datei-Art, je Ziel eine Gruppe (dasselbe wie der Stift in den
+  Einstellungen). Die Zuordnen-Einträge sind aus dem Menü heraus; die beiden Knöpfe
+  daneben bleiben. „Zuordnen und merken" bzw. „Einmalig zuordnen" leuchtet orange, sobald
+  Ziel und Zeilen beisammen sind.
+- **Das Importdaten-Fenster ist umgebaut** (26.8.30, zweiter Schnitt): das Detailfenster
+  wird nicht mehr höher, die Liste rollt in sich; jeder Monat ist ein schwebender Block
+  wie die Gruppen des Fensters, die Buchungen sind mit Linien getrennt.
+- **Importdaten-Liste im Wizard-Kontext** (26.8.30): wird ein Posten oder eine Kategorie
+  aus dem CSV-Import heraus geöffnet, zeigt die Liste auch, was diese Datei dem Ziel schon
+  zugeordnet hat, aber noch nicht angewendet ist — hellgelb hinterlegt, dieselbe
+  Farbsprache wie der Zielbereich (Gelb heißt „kommt neu herein"). Ein Monat, den erst
+  diese Datei bringt, steht als eigene Gruppe ohne Import-Marke.
+- **CSV-Import: nur noch fünf Felder** (5.9.26): Datum, Betrag, Referenz 1, 2 und 3 —
+  für reguläre und flexible Posten dieselben; Beschreibung, Hauptkategorie und
+  Unterkategorie gibt es als Felder nicht mehr, „Je Hauptkategorie automatisch" ist weg.
+  Zugeordnet wird für beide Arten allein über Filterkriterien. Die Referenzen sind eine
+  Rangfolge wie Überschrift 1 · 2 · 3; in der Importdaten-Liste des Posten- und des
+  Beträge-Fensters steht je Referenz eine Zeile („Ref 1 …“), im Reiter „Import Details"
+  steht Referenz 1 an der Stelle der früheren Unterkategorie. ⚠ Jeder Absatz der
+  Anleitung, der Beschreibung/Kategorie als Importfeld nennt, ist damit falsch.
+- **CSV-Import, Schritt 1** (5.9.26): der Kasten bei bekannter Datei-Art spricht von der
+  „CSV-Struktur", nicht mehr von Zuordnung/Mapping. „Automatisch CSV-Datenstruktur
+  vorbereiten" führt nach Schritt 2 mit fertigen Spalten (Art gesperrt, dort „Weiter"
+  ohne Namensfrage); „CSV-Datenstruktur neu anordnen" fängt leer an („Spalten speichern
+  und weiter"). Der Modus-Knopf „Einmalige Zuordnung" steht in Schritt 3 zwischen ☰ und
+  „Zuordnen", weiß, gedrückt schwarz. Die Weiter-Knöpfe sind schwarz statt orange.
+- **CSV-Import: Struktur und Kriterien getrennt** (5.9.26 abends): die gemerkte
+  CSV-Struktur (Einstellungen → Import) ist nur noch die Verknüpfung Spalte → FINA-Feld
+  (Datum, Betrag, Referenz 1 bis **4**) und gilt für reguläre wie flexible Importe — die
+  Art wählt man jedes Mal. Die Importkriterien wohnen am Posten bzw. an der flexiblen
+  Kategorie (Block „Importkriterien" im Fenster, gesammelt im ☰-Menü des Imports) und
+  nennen Felder („Referenz 1 enthält Miete"), keine Spalten. Von Schritt 2 nach 3 kommen
+  nur verknüpfte Spalten mit; der Stift „Filterkriterien ändern" in den Einstellungen ist
+  weg. Die Anleitung neben dem Wizard ist neu geschrieben (Aufbau der Bereiche → Zweck →
+  Schritte) und kann als Vorlage für die große Anleitung dienen.
+- **CSV-Import, Schritt 1 — die Art gehört zur Struktur** (5.9.26 spät, Struktur
+  v260905-4): „Automatisch CSV-Datenstruktur vorbereiten" bringt die Art (reguläre oder
+  flexible Posten) mit, sperrt die beiden Art-Knöpfe und springt gleich nach Schritt 2;
+  die Zeile „Die CSV-Struktur ist vorbereitet …" ist weg. Der Knopf heißt „Flexible
+  entries" / „Flexible Posten" (nicht mehr „Flexible Payments"). Die Anleitung neben dem
+  Wizard beginnt in Schritt 2 und 3 mit „Layout" und sagt grob, was im Fenster steht.
+  Die Einstellungen nennen je Struktur darunter die Art. Die Anwendung heißt im Netz
+  `fina-online.html` (vorher `Webclient.html`, das jetzt nur noch weiterleitet).
+  ⚠ Der Punkt vom Nachmittag („die Art wählt man jedes Mal") gilt nicht mehr.
+- **Einstellungen → Import, nur das Nötigste** (5.9.26 spät): ein Satz unter der
+  Überschrift, die Knöpfe in einer Reihe („CSV-Daten importieren" · „Importkriterien…" ·
+  „FINA-Tabelle einlesen (CSV)"), was jeder tut in seiner Sprechblase; „Alle importierten Daten
+  löschen" in eigener Reihe. Je gemerkter CSV-Struktur nur Name · Stift · ✕ und darunter
+  die Art. **Der Stift öffnet das Fenster „CSV-Struktur"**: links die FINA-Felder (Datum,
+  Betrag, Referenz 1–4) und darüber die Art, rechts je ein Auswahlmenü mit den Spalten der
+  Datei; ein Feld wohnt in einer Spalte, ohne Datum und Betrag kein Speichern.
+  **„Importkriterien…"** zeigt die Kriterien aller Posten — Einnahmen · Regelmäßige Kosten
+  (je Kategorie) · Flexible Payments —, Bedingungen auf FINA-Felder bezogen, dort änderbar.

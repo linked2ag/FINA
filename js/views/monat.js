@@ -57,8 +57,8 @@ function itemRow(it,m){
   const p=paidAt(it,m), e=estOf(it), note=it.notes[m-1], mob=isMobile();
   const cls2=(p?'paid':'')+(yearSettled(it)?' settled':'');
   return `<tr class="${cls2.trim()}"${dblItem(it.id)}>
-    <td class="markcell"><button class="seal${!p&&e?' est':''}" aria-pressed="${p}" data-paid="${it.id}"
-      title="${p?t('month.markOpen'):t('month.markPaid')}">${CHECK_SVG}</button></td>
+    <td class="markcell"><button class="seal${!p&&e?' est':''}${p&&it.imp&&it.imp[m-1]?' imp':''}${p&&impOnceAt(it,m)?' once':''}" aria-pressed="${p}" data-paid="${it.id}"
+      title="${p?(it.imp&&it.imp[m-1]?t(impOnceAt(it,m)?'c2.sealOnceTip':'c2.sealTip'):t('month.markOpen')):t('month.markPaid')}">${p&&it.imp&&it.imp[m-1]?IMPORT_SVG:((!p&&e)?EST_SVG:CHECK_SVG)}</button></td>
     <td class="num amt ${e&&!p?'est':cls(it.amounts[m-1])}">${eur(it.amounts[m-1])}</td>
     <td class="pencell"><div class="ptools"><button class="pencil" data-edit="${it.id}" title="${t('year.editTip')}">&#9998;</button>${linkIcon(it.links,'item',it.id)}${lampHtml('item',it.id,m)}</div></td>
     <td class="nm"><span class="iname">${esc(it.name)}</span>${isLastRate(it,m)?`<span class="pill last">${t('month.lastRate')}</span>`:''}
@@ -97,11 +97,21 @@ function balanceRow(m){
    der Zeile. */
 function kakRow(k,m){
   const e=state.kak[k]; if(!e) return '';
-  const v=kakVal(k,m), done=kakDone(k,m), imported=hasActual(m);
+  /* Importiert heißt hier **für diese Kategorie** (flexImp in
+     js/calc.js) und nicht „der Monat kam aus einer Datei": wem die
+     Importdaten weggenommen wurden, der trägt weder die Marke noch
+     ein gesperrtes Siegel. */
+  const v=kakVal(k,m), done=kakDone(k,m), imported=flexImp(k,m);
   const est=e.estimated&&!done, mob=isMobile(), note=e.notes[m-1];
+  /* Steht der Wert unverändert aus einer Datei da, trägt das Siegel
+     den Download-Pfeil auf elektrischem Blau — dasselbe Zeichen wie
+     bei einem importierten Monat eines Postens. Eine Korrektur
+     zählt nicht dazu: die hat jemand von Hand gesetzt, und das sagt
+     die orange Marke in der Zeile. */
+  const kimp=done&&flexKind(k,m)==='imp',konce=kimp&&flexImpOnce(k,m);
   return `<tr class="${done?'paid':''}"${dblKak(k)}>
-    <td class="markcell"><button class="seal${!done&&e.estimated?' est':''}" aria-pressed="${done}" data-kpaid="${esc(k)}"
-      ${imported?`disabled title="${t('month.imported')}"`:`title="${done?t('month.markOpen'):t('month.markDone')}"`}>${CHECK_SVG}</button></td>
+    <td class="markcell"><button class="seal${!done&&e.estimated?' est':''}${kimp?' imp':''}${konce?' once':''}" aria-pressed="${done}" data-kpaid="${esc(k)}"
+      ${imported?`disabled title="${t('month.imported')}"`:`title="${done?t('month.markOpen'):t('month.markDone')}"`}>${kimp?IMPORT_SVG:(est?EST_SVG:CHECK_SVG)}</button></td>
     <td class="num amt ${est?'est':cls(v)}">${eur(v)}</td>
     <td class="pencell"><div class="ptools"><button class="pencil" data-kedit="${esc(k)}" title="${t('month.editKak')}">&#9998;</button>${linkIcon(e.links,'kak',k)}${lampHtml('kak',k,m)}</div></td>
     <td class="nm"${mob?'':' colspan="4"'}><div class="rowline">
@@ -216,24 +226,25 @@ function anaBar(m,sel,selAny){
   const open=!!ui.ana;
   const inc=sel.items.filter(isIncome);
   const due=sel.items.filter(it=>!isIncome(it));
-  /* ── „Noch offen" meint alles, was der Monat noch kostet ─────
-     Nicht nur die regelmäßigen Posten: eine Flexible-Payments-
-     Kategorie ohne Haken ist genauso offen, und sie steht in
-     derselben Leiste eine Kachel weiter links. Zählte sie hier
-     nicht mit, nennte die Zeile einen Betrag, der kleiner ist als
-     das, was noch aussteht — und man sähe es nicht.
-
-     Offen heißt hier wie überall das Gegenteil von `kakDone()`
-     (Korrektur · Import · Haken · fester Betrag). Wer die Rangfolge
-     dort ändert, ändert sie hier mit. */
-  const openItems=due.filter(it=>!paidAt(it,m));
-  const openFlex=sel.kaks.filter(k=>!kakDone(k,m));
-  const openN=openItems.length+openFlex.length;
-  const uncN=due.filter(it=>estOf(it)&&!paidAt(it,m)).length
-    +openFlex.filter(k=>state.kak[k]&&state.kak[k].estimated).length;
   const sum=arr=>arr.reduce((s,it)=>s+it.amounts[m-1],0);
-  const openSum=sum(openItems)+openFlex.reduce((s,k)=>s+kakVal(k,m),0);
-  const openTip=t('month.kpiOpenN',openN,due.length+sel.kaks.length,uncN?t('month.kpiUnclear',uncN):'');
+  /* ── Die vierte Kachel ist der Saldo des Monats ──────────────
+     Alles, was der Monat bringt, und alles, was er kostet —
+     Einnahmen, Flexible Payments, regelmäßige Kosten und die
+     Saldokorrektur. Also **dieselbe Zahl**, die die oberste Zeile
+     der Jahresmatrix nennt (`year.totalRow`) und die auf dem
+     Telefon als SALDO-Kachel steht; deshalb auch derselbe Name
+     und dieselbe Farbe wie dort (--bg-sal, „alles zusammen").
+
+     Bis 30.8.26 stand hier „Noch offen": die Summe dessen, was
+     noch nicht abgehakt ist. Das war eine Zahl über den Fortschritt
+     der Arbeit, während die drei Kacheln daneben von Geld handeln —
+     und ob der Monat ins Plus oder ins Minus läuft, sagte keine
+     von ihnen.
+
+     Gerechnet wird über `sel`, wie alles in dieser Leiste: gefiltert
+     nennt die Kachel den Saldo der Zeilen, die zu sehen sind. */
+  const flexSum=sel.kaks.reduce((s,k)=>s+kakVal(k,m),0);
+  const sal=sum(inc)+flexSum+sum(due)+(sel.bal?balanceFix(m):0);
   const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
       ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
   /* Die Zahlenzeile trägt keine Überschrift mehr („Auswertung" —
@@ -268,9 +279,9 @@ function anaBar(m,sel,selAny){
       data-tip="${esc(open?t('month.anaClose'):t('month.anaOpen'))}">
       <span class="anarow">
         ${cell('t-in',t('month.kpiIncome'),sum(inc),'pos')}
-        ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sel.kaks.reduce((s,k)=>s+kakVal(k,m),0),'neg')}
+        ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),flexSum,'neg')}
         ${cell('t-out',t('month.kpiFixed'),sum(due),'neg')}
-        ${cell('t-out',t('month.kpiOpen'),openSum,openN?'neg':'',openTip)}
+        ${cell('t-sal',t('month.kpiSaldo'),sal,sal<0?'neg':(sal>0?'pos':''),t('month.kpiSaldoTip'))}
       </span>
     </button>
     ${open?timeline(m,sel,selAny):''}</div>`;
@@ -452,8 +463,23 @@ const tlName=k=>({P:t('month.tlOpen'),A:t('month.fDueA'),M:t('month.fDueM'),
   E:t('month.fDueE'),Z:t('month.tlClose')})[k];
 const tlDays=(k,last)=>({A:[1,10],M:[11,20],E:[21,last]})[k];
 const tlToday=m=>(new Date().getFullYear()===YEAR&&m===CUR)?new Date().getDate():0;
-function tlLabel(k,last,today){
-  const d=tlDays(k,last), now=d&&today>=d[0]&&today<=d[1];
+/* Welche Zeile die Marke „Jetzt" trägt. Grundlage sind die Tage —
+   1.–10., 11.–20., ab dem 21. Eine Ausnahme: steht man in den
+   letzten Tagen (Monatsende) und dort ist kein Eintrag mehr offen,
+   ist man in Wirklichkeit schon beim Monatsabschluss — die Marke
+   rückt dann dorthin. Offen heißt wie überall: kein Haken; gefragt
+   wird der ganze Monat (dueIn), nicht die gefilterte Auswahl —
+   ein Filter soll die Marke nicht verschieben. */
+function tlNowKey(m){
+  const today=tlToday(m);
+  if(!today)return '';
+  const key=today<=10?'A':today<=20?'M':'E';
+  if(key==='E'&&!dueIn(m).some(it=>dueGroup(it.dueDay)==='E'&&!paidAt(it,m)))
+    return 'Z';
+  return key;
+}
+function tlLabel(k,last,nowKey){
+  const d=tlDays(k,last), now=k===nowKey;
   /* Die Tage stehen seit dem Mac-Redesign nicht mehr neben dem
      Namen, sondern in seiner Sprechblase — die Zeile bleibt eine
      ruhige Beschriftung, und wer wissen will, welche Tage gemeint
@@ -554,7 +580,7 @@ function partLine(m,sel,selAny){
      gewählten Abschnitt gibt es keine Umgebung — dann ist es
      dieselbe Rechnung. */
   const full=one?monthFlow(m,selAny):flow;
-  const last=daysInMonth(m), today=tlToday(m);
+  const last=daysInMonth(m), nowKey=tlNowKey(m);
   /* Je Geldart ihr Ergebnis in einem Abschnitt: Zufuhr minus
      Abzug — für die gewählte Zeile dieselben Zahlen wie in den
      Karten darunter. */
@@ -663,14 +689,14 @@ function partLine(m,sel,selAny){
      dort nichts ist, sagt schon der fehlende Balken. */
   const sum=f=>f.sum?`<span class="trun ${cls(f.sum)}">${(f.sum>0?'+':'')+eur(f.sum)}</span>`:'';
   const rows=flow.map(x=>{
-    if(x.key==='P') return `<span class="trow tp-P">${tlLabel('P',last,today)
+    if(x.key==='P') return `<span class="trow tp-P">${tlLabel('P',last,nowKey)
       }<span class="ttrack tflat">${grid}</span></span>`;
     /* Mit gewähltem Abschnitt trägt nur er seine Summe und volle
        Farbe; ohne einen ist keine Zeile ausgezeichnet, also
        bekommt jede beides. */
     const on=x.key===key;
     return `<button class="trow tp-${x.key}" data-tpart="${x.key}" aria-pressed="${on}"
-      aria-label="${esc(tlName(x.key))}">${tlLabel(x.key,last,today)}${
+      aria-label="${esc(tlName(x.key))}">${tlLabel(x.key,last,nowKey)}${
         one&&!on?'':sum(x)}${track(ctx[x.key],one&&!on)}</button>`;
   }).join('');
   /* Die Farberklärung nennt alles, was in der Fläche vorkommt —
@@ -694,7 +720,7 @@ function timeline(m,sel,selAny){
   if(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle')
     return partLine(m,sel,selAny);
   const flow=monthFlow(m,sel), sc=flowScale(flow), last=daysInMonth(m);
-  const today=tlToday(m);
+  const nowKey=tlNowKey(m);
   /* Von der Achse zur Fläche: 0 % ist der tiefste Stand des Monats
      (höchstens die Null), 100 % der höchste. */
   const pos=v=>(v-sc.lo)/sc.span*100;
@@ -731,7 +757,7 @@ function timeline(m,sel,selAny){
     >${zout?'':`<span class="tzero" style="left:${zc}%"></span>`}${gridw}`;
 
   const row=f=>{
-    const name=tlLabel(f.key,last,today);
+    const name=tlLabel(f.key,last,nowKey);
     const nums=`<span class="tflow ${cls(f.sum)}">${f.key==='P'||!f.sum?'':(f.sum>0?'+':'')+eur(f.sum)}</span
       ><span class="trun ${cls(f.run)}">${eur(f.run)}</span>`;
     /* Keine Sprechblase an der Zeile: sie zeigte beim Überfahren
@@ -1011,7 +1037,7 @@ function viewMonat(){
      Karten. Bezahlt und Noch offen stehen nicht mehr darunter —
      beides sagt schon die Auswertung. */
   /* Die Anlege-Knöpfe stehen seit dem Mac-Redesign im
-     Hamburger-Menü der Kopfzeile (Webclient.html) — der Kopf einer
+     Hamburger-Menü der Kopfzeile (fina-online.html) — der Kopf einer
      Karte trägt nur noch Pfeil, Beschriftung und Summe; nur der
      Sprung in die Transactions-Auswertung bleibt am Flex-Kopf, denn
      er führt zu genau diesem Monat. */

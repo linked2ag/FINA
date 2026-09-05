@@ -10,13 +10,16 @@
    Auswahlliste oben und steuert beide Seiten.
    ══════════════════════════════════════════════════════════════ */
 
-/* Eine Buchungszeile des rechten Bereichs: Datum · Beschreibung
-   mit Notiz darunter · Betrag. */
+/* Eine Buchungszeile des rechten Bereichs: Datum · die Ebene unter
+   der Kategorie (Referenz 1, bei alten Buchungen die
+   Unterkategorie) mit den weiteren Referenzen als Notiz darunter ·
+   Betrag. txSub/txNote stehen in js/calc.js. */
 function txRow(x){
+  const note=txNote(x);
   return `<tr>
     <td class="tdate">${String(x.d).padStart(2,'0')}.${String(x.m).padStart(2,'0')}.</td>
-    <td><span class="iname">${esc(keyLabel(x.cat||'(ohne Kategorie)'))}</span>
-      ${x.note?`<div class="note">${esc(x.note)}</div>`:''}</td>
+    <td><span class="iname">${esc(keyLabel(txSub(x)||'(ohne Kategorie)'))}</span>
+      ${note?`<div class="note">${esc(note)}</div>`:''}</td>
     <td class="num ${cls(x.v)}">${eur(x.v)}</td></tr>`;
 }
 
@@ -69,7 +72,7 @@ function kakSideData(){
   const pick=ui.kakPick||null;
   if(pick){
     const list=tx.filter(x=>(x.main||'(ohne Hauptkategorie)')===pick.main
-      &&(!pick.sub||(x.cat||'(ohne Kategorie)')===pick.sub));
+      &&(!pick.sub||(txSub(x)||'(ohne Kategorie)')===pick.sub));
     const sum=list.reduce((s,x)=>s+x.v,0);
     return {title:keyLabel(pick.sub||pick.main),
       sub:t('kak.pickSub',pick.sub?esc(keyLabel(pick.main))+' · ':'',zeitraum,list.length,eur(sum)),
@@ -147,10 +150,12 @@ function viewKakeibo(){
   const val={};
   cats.forEach(k=>{val[k]=Math.round(months.reduce((s,m)=>s+kakVal(k,m),0)*100)/100;});
 
-  /* Unterkategorien kennt nur der Import. */
+  /* Unterkategorien kennt nur der Import — seit 5.9.26 ist es die
+     Referenz 1 der Buchung, bei älteren Buchungen die
+     Unterkategorie aus Fast Budget (txSub in js/calc.js). */
   const subs={};
   tx.forEach(x=>{
-    const mk=x.main||'(ohne Hauptkategorie)', sk=x.cat||'(ohne Kategorie)';
+    const mk=x.main||'(ohne Hauptkategorie)', sk=txSub(x)||'(ohne Kategorie)';
     subs[mk]=subs[mk]||{};
     subs[mk][sk]=Math.round(((subs[mk][sk]||0)+x.v)*100)/100;
   });
@@ -225,7 +230,7 @@ function viewKakeibo(){
 
   let rows='';
   order.forEach(mk=>{
-    rows+=`<tr class="kmain"${state.kak[mk]?dblKak(mk):''}><td class="nm">${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kindTag(mk)}${kLink(mk)}${state.kak[mk]?notePreview('kak',mk):''}</td>
+    rows+=`<tr class="kmain"${state.kak[mk]?dblKak(mk):''}><td class="nm">${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kindTag(mk)}${kLink(mk)}</td>
       ${mainBar(mk)?bar(val[mk]):'<td></td>'}
       <td class="num ${cls(val[mk])}">${eur(val[mk])}</td>${arrow(mk)}</tr>`;
     if(!detail) return;

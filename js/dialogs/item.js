@@ -89,6 +89,19 @@ function editItem(item,group,copyOf,focusMonth){
      nicht löschen — sonst wird sie wie jeder andere Posten
      gepflegt (siehe js/state.js). */
   const isBal=isBalanceItem(it);
+  /* Aus dem CSV-Import heraus geöffnet: welche Monate dieser Lauf
+     dem Posten noch bringen wird (impPendingMonths in js/ui.js).
+     Ihre Kästchen stehen hellgelb — dieselbe Farbsprache wie die
+     Zeilen der Liste rechts und wie der Zielbereich des Wizards.
+     Grau hieße dort „abgeschlossen", und genau das sind sie
+     nicht: sie warten noch auf „Anwenden". Außerhalb des Wizards
+     ist die Liste leer und kein Kästchen färbt sich. */
+  const pend=impPendingMonths('item',it);
+  /* Die Importkriterien dieses Postens — je gemerkter Datei-Art
+     ihre Regeln, als Arbeitskopie (impCritLoad in
+     js/dialogs/csv2-wizard.js). Ein neuer Posten und die
+     Saldokorrektur haben keine. Geschrieben wird sie mit #fSave. */
+  const crit=(isNew||isBalanceItem(it))?[]:impCritLoad('i:'+it.id);
   /* Die Bezeichnung steht nicht mehr in einem Feld zwischen den
      Stammdaten, sondern in der Überschrift — sie benennt den
      Posten, sie beschreibt ihn nicht. Bis zum Speichern lebt sie
@@ -204,22 +217,78 @@ function editItem(item,group,copyOf,focusMonth){
       ${isBal?'':`<div style="display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap">
         ${last?`<button class="btn small" id="qLock" title="${esc(t('item.lockTillTip',MONTHS_LONG[last-1]))}">${t('item.lockTill',MONTHS_LONG[last-1])}</button>`:''}
         <button class="btn small" id="qUnlock" title="${esc(t('item.unlockAllTip'))}">${t('item.unlockAll')}</button></div>`}
-      <div class="mgrid">${MONTHS.map((m,i)=>{const lock=!isBal&&it.paid[i];
-        return `<div class="cell${lock?' lockedcell':''}" data-cell="${i}">
+      <div class="mgrid">${MONTHS.map((m,i)=>{
+        /* **Ein schwebender Monat steht schon so da, wie er wird**
+           (30.8.26): Betrag, Importzeichen und geschlossen — nur
+           auf hellgelbem Grund, denn geschrieben ist er noch
+           nicht. Vorher war er bloß gelb und sonst leer, und man
+           sah im Fenster nicht, was der Import gleich hineinlegt.
+           Gespeichert wird er hier nicht: #fSave lässt diese
+           Monate stehen (siehe unten). */
+        const nw=pend[i+1];
+        const lock=!isBal&&(it.paid[i]||!!nw);
+        /* Ein importierter Monat trägt auch hier den Download-Pfeil
+           auf elektrischem Blau statt des Hakens — dasselbe Bild wie
+           in Monats- und Jahresansicht. Wer den Haken abnimmt, macht
+           den Monat wieder zu einem gewöhnlichen: setSeal() tauscht
+           das Zeichen zurück, und beim Speichern fällt die Marke
+           (siehe unten). */
+        const imp=nw||(lock&&it.imp&&it.imp[i]),impOne=nw?nw.once:(lock&&impOnceAt(it,i+1));
+        const val=nw?nw.v:it.amounts[i];
+        return `<div class="cell${lock?' lockedcell':''}${nw?' newimp':''}" data-cell="${i}">
         <div class="cellhead"><span class="mlab ${i+1===CUR?'curm':''}">${m}</span>
           <span class="ctools">${lampHtml('item',it.id,i+1)}
-            ${isBal?'':`<button type="button" class="seal mini" data-pi="${i}" aria-pressed="${lock}"
-              title="${lock?t('item.lockedTip'):t('month.markPaid')}">${CHECK_SVG}</button>`}</span></div>
-        <input class="num signed" data-mi="${i}" ${lock?'disabled':''} value="${it.amounts[i]?nf.format(it.amounts[i]):''}" placeholder="0,00">
+            ${isBal?'':`<button type="button" class="seal mini${imp?' imp':''}${impOne?' once':''}" data-pi="${i}" aria-pressed="${lock}"${nw?' disabled':''}
+              title="${nw?t('c2.sealNewTip'):(imp?t(impOne?'c2.sealOnceTip':'c2.sealTip'):(lock?t('item.lockedTip'):t('month.markPaid')))}">${imp?IMPORT_SVG:CHECK_SVG}</button>`}</span></div>
+        <input class="num signed" data-mi="${i}" ${lock?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
         <div class="cellnote">${esc(it.notes[i]||'')}</div></div>`;}).join('')}</div>
-    </div></div></div>
-    <!-- Das dritte schließende div oben ist das Ende der .dbody:
+    </div></div>
+    <!-- Unter den Monaten die Importkriterien (nur, wenn es welche
+         gibt): dieselbe Bauform wie das Fenster „Filterkriterien",
+         siehe impCritHtml in js/dialogs/csv2-wizard.js. -->
+    ${impCritHtml(crit)}</div>
+    <!-- Das letzte schließende div oben ist das Ende der .dbody:
          sie scrollt, die Knopfzeile darunter nicht. -->
     <div class="row-end">${(isNew||isBal)?'':`<button class="dellink" id="fDel">${t('item.del')}</button>`}
+      <button class="btn delbtn" id="impDel" hidden>${t('impv.del')}</button>
       ${(isNew||isBal)?'':`<button class="btn" id="fDup" data-tip="${esc(t('item.dupTip'))}">${t('item.dup')}</button>`}
-      <button class="btn" id="fCancel">${t('g.cancel')}</button><button class="btn primary" id="fSave">${t('g.save')}</button></div>
+      <button class="btn" id="fCancel">${t('g.cancel')}</button><button class="btn primary" id="fSave">${t('g.save')}</button>
+      <!-- **„Importdaten einblenden" steht hinter „Speichern"**
+           (30.8.26): er entscheidet nichts am Posten, er räumt die
+           Liste daneben auf oder holt sie herein — zwischen
+           „Löschen" und „Duplizieren" stand er mitten unter den
+           Wegen, die das Buch ändern. Hinter der Entscheidung ist
+           er das, was er ist: ein Griff an der Ansicht.
+           „Importdaten löschen" ist nicht dabei — den nimmt
+           impSideWire() in die Fußzeile der Liste (js/ui.js). -->
+      <button class="btn" id="impBtn" hidden></button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box);
+  /* Der Import-Bereich rechts (js/ui.js): der Knopf in der
+     Fußzeile bekommt Beschriftung und Wirkung; ohne importierte
+     Monate nimmt impSideWire ihn wieder heraus — den Löschknopf
+     daneben gleich mit. */
+  impSideWire(box,'item',it,focusMonth);
+  impCritWire(box,crit,()=>name||it.name);
+
+  /* „Importdaten löschen" — dieselbe Wirkung wie der Eintrag im
+     Zielmenü des CSV-Imports (js/dialogs/csv2-wizard.js): die
+     Monate, die ein Import geschrieben hat, werden wieder leer
+     und offen, die gemerkten Quellzeilen fallen mit. Geschrieben
+     wird sofort — die Buchungen gehören dem Buch, nicht dem
+     Fenster —, danach öffnet sich dasselbe Fenster frisch mit dem
+     neuen Stand. */
+  const impDel=box.querySelector('#impDel');
+  if(impDel) impDel.onclick=()=>{
+    const months=it.imp?it.imp.map((v,i)=>v?i+1:0).filter(Boolean):[];
+    if(!months.length) return;
+    if(!confirm(t('c2.mnWipeAsk',it.name,months.length))) return;
+    months.forEach(m=>{it.amounts[m-1]=0;it.paid[m-1]=false;it.imp[m-1]=false;
+      if(it.impRows)delete it.impRows[m];});
+    save(); box.remove(); render();
+    editItem(it);
+    toast(t('c2.mnWiped',it.name,months.length));
+  };
 
   /* Ein Posten, den es noch nicht gibt, ist für findItem() nicht
      zu finden. Damit die Notizlampen trotzdem schon arbeiten,
@@ -245,10 +314,22 @@ function editItem(item,group,copyOf,focusMonth){
     cell.querySelector('.cellnote').textContent=n;
   });
 
-  /* Haken setzen sperrt das Betragsfeld. */
+  /* Haken setzen sperrt das Betragsfeld.
+
+     **Der Haken abgenommen heißt: kein Import mehr.** Ein
+     importierter Monat sagt „so stand es in der Datei"; wer ihn
+     aufmacht, um die Zahl anzufassen, hat diese Aussage
+     zurückgenommen. Deshalb tauscht das Siegel hier sein Zeichen
+     zurück auf den Haken — und beim Speichern fällt `imp` (siehe
+     `#fSave`). Bliebe die Marke stehen, behauptete ein von Hand
+     gesetzter Haken später einen Import, den es nie gab. */
   const setSeal=(cb,on)=>{
     cb.setAttribute('aria-pressed',on);
-    cb.title=on?t('item.lockedTip'):t('month.markPaid');
+    if(!on&&cb.classList.contains('imp')){
+      cb.classList.remove('imp');cb.classList.remove('once');
+      cb.innerHTML=CHECK_SVG;
+    }
+    cb.title=on?(cb.classList.contains('imp')?t('c2.sealTip'):t('item.lockedTip')):t('month.markPaid');
     const inp=box.querySelector(`[data-mi="${cb.dataset.pi}"]`);
     inp.disabled=on;
     cb.closest('.cell').classList.toggle('lockedcell',on);
@@ -256,7 +337,12 @@ function editItem(item,group,copyOf,focusMonth){
   };
   const seals=()=>[...box.querySelectorAll('[data-pi]')];
   const isOn=cb=>cb.getAttribute('aria-pressed')==='true';
+  /* Das Siegel eines schwebenden Monats ist gesperrt: was der
+     Import bringt, wird im Wizard mit „Anwenden" geschrieben —
+     hier aufzumachen versprächte eine Änderung, die „Speichern"
+     gar nicht mitnimmt. */
   box.querySelectorAll('[data-pi]').forEach(cb=>cb.onclick=()=>{
+    if(cb.disabled) return;
     const on=!isOn(cb), inp=setSeal(cb,on);
     if(!on){inp.focus();inp.select();}
   });
@@ -270,7 +356,7 @@ function editItem(item,group,copyOf,focusMonth){
     let n=0;
     seals().forEach(cb=>{
       const i=+cb.dataset.pi;
-      if(i+1>last||isOn(cb)) return;
+      if(cb.disabled||i+1>last||isOn(cb)) return;
       if(parseGermanNumber(box.querySelector(`[data-mi="${i}"]`).value)===0) return;
       setSeal(cb,true); n++;
     });
@@ -279,7 +365,7 @@ function editItem(item,group,copyOf,focusMonth){
   const unlock=box.querySelector('#qUnlock');
   if(unlock) unlock.onclick=()=>{
     let n=0;
-    seals().forEach(cb=>{ if(isOn(cb)){ setSeal(cb,false); n++; } });
+    seals().forEach(cb=>{ if(!cb.disabled&&isOn(cb)){ setSeal(cb,false); n++; } });
     toast(t('item.unlockedNow',n));
   };
 
@@ -395,7 +481,15 @@ function editItem(item,group,copyOf,focusMonth){
     o.estimated=estEl?estEl.checked:false;
     const em=+box.querySelector('#fEndM').value, ey=+box.querySelector('#fEndY').value;
     o.end=(em&&ey)?{y:ey,m:em}:null;
-    cells().forEach(c=>{o.amounts[+c.dataset.mi]=parseGermanNumber(c.value);});
+    /* **Ein schwebender Monat wird nicht gespeichert.** In seinem
+       Feld steht die Vorschau auf das, was „Anwenden" im Wizard
+       hineinlegen wird — geschrieben wird sie dort und nur dort,
+       mitsamt Importzeichen und Quellzeilen. Käme sie über
+       „Speichern" ins Buch, stünde der Betrag als von Hand
+       abgehakt da, und ein Import, den niemand angewendet hat,
+       wäre trotzdem passiert. */
+    cells().forEach(c=>{const i=+c.dataset.mi;
+      if(!pend[i+1]) o.amounts[i]=parseGermanNumber(c.value);});
   };
 
   /* ── Duplizieren ────────────────────────────────────────────
@@ -427,9 +521,25 @@ function editItem(item,group,copyOf,focusMonth){
        Jahresmatrix. Deshalb hier die Grenze — nicht erst beim
        Zeichnen. */
     const gEl=box.querySelector('#fGroup');
-    if(gEl&&!gEl.value){ gEl.focus(); toast(t('item.needBlock')); return; }
+    if(gEl&&!gEl.value){ gEl.focus(); warn(t('item.needBlock')); return; }
+    /* Eine Importbedingung ohne Wert träfe jede Zeile — sie hält
+       das Speichern auf, wie im Fenster „Filterkriterien". */
+    if(!impCritCheck(box,crit)) return;
     collect(it);
-    box.querySelectorAll('[data-pi]').forEach(cb=>{it.paid[+cb.dataset.pi]=cb.getAttribute('aria-pressed')==='true';});
+    impCritCommit(crit);
+    box.querySelectorAll('[data-pi]').forEach(cb=>{
+      const i=+cb.dataset.pi, on=cb.getAttribute('aria-pressed')==='true';
+      /* Wie beim Betrag: der Haken eines schwebenden Monats ist
+         Vorschau und keine Aussage über die Datei. */
+      if(pend[i+1]) return;
+      it.paid[i]=on;
+      /* Ein aufgemachter Monat ist kein importierter mehr — sonst
+         trüge ein später von Hand gesetzter Haken den Pfeil. Die
+         gemerkten Quellzeilen (impRows, csv2-wizard) fallen mit:
+         sie beschreiben einen Import, den es nicht mehr gibt. */
+      if(!on&&it.imp) it.imp[i]=false;
+      if(!on&&it.impRows) delete it.impRows[i+1];
+    });
     if(isNew) state.fixed.push(it);
     save(); box.remove(); render();
   };

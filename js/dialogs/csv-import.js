@@ -55,7 +55,7 @@ function openImportInfo(){
 function openImport(rows,fileName){
   const scan=scanImport(rows);
   if(!scan.mine.length){
-    toast(t('imp.noYear',YEAR,scan.skipped?t('imp.otherYears',scan.skipped):''));
+    warn(t('imp.noYear',YEAR,scan.skipped?t('imp.otherYears',scan.skipped):''));
     return;
   }
 

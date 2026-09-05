@@ -33,7 +33,7 @@ Die Seite öffnen und auf **Load data** klicken. Bearbeiten, dann **Save data**.
   der Tabelle auf. Sie bleibt beim Weiterarbeiten offen; ihre Breite lässt sich an der
   linken Kante ziehen.
 
-Lokal genügt ein Doppelklick auf `index.html` — es wird nichts nachgeladen, was
+Lokal genügt ein Doppelklick auf `fina-online.html` — es wird nichts nachgeladen, was
 ein Browser bei `file://` blockieren würde. Auch die drei Schriften liegen bei
 (`css/fonts/`); FINA ruft keinen fremden Server auf.
 
@@ -109,7 +109,9 @@ Struktur, Gestaltung und Logik liegen getrennt. Wer etwas ändern will, findet d
 über den Dateinamen.
 
 ```
-index.html              Gerüst der Seite und die Ladereihenfolge
+fina-online.html        Gerüst der Anwendung und die Ladereihenfolge
+index.html              die Startseite (Verkauf), keine Anwendung
+Webclient.html          Stub: leitet alte Lesezeichen auf fina-online.html weiter
 version.json            welche Fassung die Apps als aktuell melden
 
 css/
@@ -150,7 +152,7 @@ doc/
 Die `<script>`-Dateien sind klassische Skripte in fester Reihenfolge, keine ES-Module.
 Das ist Absicht: Module würden über `file://` an der CORS-Regel scheitern und die Datei
 ließe sich nicht mehr per Doppelklick öffnen. Neue Dateien deshalb in
-`index.html` an der passenden Stelle eintragen — Werkzeuge vor Ansichten,
+`fina-online.html` an der passenden Stelle eintragen — Werkzeuge vor Ansichten,
 `app.js` bleibt die letzte.
 
 ## Einstellungen und Listen
@@ -193,7 +195,7 @@ python3 doc/make-shots.py            # alle Bilder
 python3 doc/make-shots.py set-lists  # nur eines
 ```
 
-Das Skript baut aus `index.html` eine Wegwerfseite, lädt eine Beispieldatei hinein,
+Das Skript baut aus `fina-online.html` eine Wegwerfseite, lädt eine Beispieldatei hinein,
 fotografiert die gewünschten Ausschnitte mit Chrome ohne Fenster und räumt danach auf.
 Welche Bilder es gibt, steht in der Liste `SHOTS` am Anfang des Skripts; der Pfad zur
 Beispieldatei ebenfalls.

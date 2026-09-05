@@ -48,6 +48,17 @@ const SET_PANE_LABEL={general:'set.navGeneral',view:'set.navView',filter:'set.na
    ansteuerbar macht, trägt es hier ein. */
 const SET_FIELD_PANE={sOpen:'general'};
 
+/* ── „+" setzt die Schreibmarke in den neuen Eintrag ──────────
+   (5.9.26) Das Fenster baut sich nach „+" komplett neu auf
+   (reopen), und dabei ginge der Fokus an das Fenster selbst — man
+   müsste die leere Zeile erst suchen und anklicken, obwohl man sie
+   gerade angelegt hat, um hineinzutippen. Deshalb merkt der
+   Add-Handler hier, welche Zeile neu ist, und openSettings() stellt
+   die Schreibmarke nach dem Aufbau dorthin. Eine Modulvariable wie
+   setPane: sie überlebt den Neuaufbau und wird gleich danach
+   geleert. */
+let setFocusNew=null;
+
 /* Überschrift einer Liste. Das Pluszeichen steht direkt hinter
    der Beschriftung, nicht unter der Liste — so bleibt es auch bei
    langen Listen in Sichtweite. */
@@ -98,6 +109,34 @@ function openSettings(where,done){
       <span class="grip" title="${t('set.dragTip')}">⋮⋮</span>
       <input data-k="${key}" data-i="${i}" data-f="name" value="${esc(name)}" placeholder="${t('item.name')}">
       <button class="linkish" data-rm="${key}" data-ri="${i}" title="${hint||t('g.remove')}">&#10005;</button></div>`;
+  }).join('');
+
+  /* ── Die gemerkten CSV-Strukturen ────────────────────────────
+     `state.csvMaps` hält je Datei-Art (Fingerabdruck der
+     Spaltenköpfe) eine Struktur; der CSV-Import bietet sie beim
+     nächsten Hochladen von selbst an. Hier stehen sie zum
+     Umbenennen, zum Ändern und zum Vergessen — sonst gäbe es keinen
+     Weg mehr an sie heran, sobald eine Struktur einmal falsch
+     gemerkt ist. Umbenannt wird nur die **Beschriftung**; erkannt
+     wird eine Datei am Fingerabdruck.
+
+     **Je Zeile nur das Nötigste** (5.9.26 spät): Name, Stift, ✕ —
+     und darunter allein die Art. Bis dahin stand hier die ganze
+     Feldverknüpfung als Zeile („Datum ← Buchungstag · …"), dazu der
+     Tag des Merkens und ein langer Absatz; das war zu viel
+     Beschriftung für einen Blick. Was die Struktur ist, zeigt der
+     Stift (openCsvStructure in js/dialogs/csv2-wizard.js): links
+     die FINA-Felder, rechts je ein Auswahlmenü mit den Spalten der
+     Datei. Regeln stehen nicht hier: die Importkriterien wohnen an
+     den Posten — gesammelt zeigt sie der Knopf oben (#impCrit). */
+  const mapRows=Object.keys(state.csvMaps||{}).map(fp=>{
+    const m=state.csvMaps[fp]||{};
+    const kind=(m.kind==='reg'||m.kind==='flex')?t(m.kind==='reg'?'c2.kindReg':'c2.kindFlex'):'—';
+    return `<div class="listrow onecol maprow">
+      <input data-cm="${esc(fp)}" value="${esc(m.file||'')}" placeholder="${t('set.csvMapName')}">
+      <button class="pencil" data-cmed="${esc(fp)}" title="${esc(t('set.csvMapEdit'))}">&#9998;</button>
+      <button class="linkish" data-cmrm="${esc(fp)}" title="${esc(t('set.csvMapDel'))}">&#10005;</button>
+      <p class="note">${esc(kind)}</p></div>`;
   }).join('');
 
   const useHint=g=>{ const n=groupUseCount(g); return n?t('set.inUse',n):''; };
@@ -200,14 +239,24 @@ function openSettings(where,done){
               <input type="number" id="sTopMin" class="num" min="0" max="100000" step="5" value="${state.topMin}"></div>
           </div>
           <p class="note">${t('set.widthHint')} ${t('set.topminHint')}</p>
-          <!-- Womit die Auswertung der Monatsansicht aufgeht. Es ist
-               eine Vorgabe, kein Schalter: gelesen wird sie beim
-               Öffnen der Datei (afterLoad in js/state.js), danach
-               entscheidet der Klick auf die Leiste — für diese
-               Sitzung. Genau das sagt der Satz daneben. -->
-          <div class="checklist wherelist"><label class="checkrow">
-            <input type="checkbox" id="sAna" ${state.anaOpen?'checked':''}>
-            <span class="clab">${t('set.ana')}</span><span class="chint">${t('set.anaHint')}</span></label></div>`)}
+          <!-- Zwei Vorgaben fürs Öffnen, keine Schalter: gelesen
+               werden sie beim Öffnen der Datei (afterLoad in
+               js/state.js), danach entscheidet der Klick in der
+               Ansicht — für diese Sitzung. Genau das sagen die
+               beiden Sätze daneben.
+
+               Sie stehen zusammen, weil sie dasselbe tun: die eine
+               für die Auswertung der Monatsansicht (ui.ana), die
+               andere für die abgeschlossenen Monate der
+               Jahresansicht (ui.hideDone). -->
+          <div class="checklist wherelist">
+            <label class="checkrow">
+              <input type="checkbox" id="sAna" ${state.anaOpen?'checked':''}>
+              <span class="clab">${t('set.ana')}</span><span class="chint">${t('set.anaHint')}</span></label>
+            <label class="checkrow">
+              <input type="checkbox" id="sHideDone" ${state.hideDoneMonths?'checked':''}>
+              <span class="clab">${t('set.hideDone')}</span><span class="chint">${t('set.hideDoneHint')}</span></label>
+          </div>`)}
 
         ${pane('filter',t('flt.title'),t('flt.sub'),`
           <div class="checklist">${qfRows}</div>
@@ -243,20 +292,42 @@ function openSettings(where,done){
           <div class="field">${listHead(t('set.kak'),'kakCats',t('set.addKak'))}<div>${kakRows}</div></div>`)}
 
         <!-- Beide Wege holen Zahlen von außen herein und ändern die
-             Datei; deshalb stehen sie beieinander. Je ein Knopf und
-             ein Satz darunter, der sagt, was er anrichtet — der
-             eine ergänzt einzelne Monate, der andere ersetzt das
-             ganze Buch. Das Fenster schließt sich vorher: der
-             Import legt selbst Kategorien an, und eine Liste, die
-             noch im Fenster steht, überschriebe sie beim
-             Speichern. -->
+             Datei; deshalb stehen sie beieinander — der eine ergänzt
+             einzelne Monate, der andere ersetzt das ganze Buch. Das
+             Fenster schließt sich vorher: der Import legt selbst
+             Kategorien an, und eine Liste, die noch im Fenster
+             steht, überschriebe sie beim Speichern.
+             **Nur das Nötigste** (5.9.26 spät): die Knöpfe in einer
+             Reihe, was jeder tut in seiner Sprechblase — die Sätze
+             darunter machten aus vier Handgriffen eine Seite Text.
+             Dazwischen der Knopf für die Importkriterien aller
+             Posten (openImpRules('all')): sie wohnen an den Posten,
+             und dies ist die eine Stelle, an der man sie beisammen
+             sieht, ohne den Import zu öffnen. -->
         ${pane('import',t('set.navImport'),t('set.importSub'),`
-          <div class="field impway">
-            <button class="btn" id="impFast">${t('app.import')}</button>
-            <p class="note">${t('set.impFastHint')}</p></div>
-          <div class="field impway">
-            <button class="btn" id="impSheet">${t('shInfo.title')}</button>
-            <p class="note">${t('set.impSheetHint')}</p></div>`)}
+          <div class="field impways">
+            <button class="btn" id="impFast" data-tip="${esc(t('set.impFastHint'))}">${t('app.import')}</button>
+            <button class="btn" id="impCrit" data-tip="${esc(t('c2.mnCritTip'))}">${t('set.impCrit')}</button>
+            <button class="btn" id="impSheet" data-tip="${esc(t('set.impSheetHint'))}">${t('shInfo.title')}</button></div>
+          <!-- Der Weg zurück aus allen Importen auf einmal (5.9.26):
+               jeder importierte Monat eines Postens wird leer und
+               offen, die Buchungen der flexiblen Kosten fallen weg.
+               Die gemerkten Strukturen darunter bleiben — sie sind
+               keine Daten. Ohne Import ist der Knopf grau: was nicht
+               da ist, lässt sich nicht löschen. Er steht in einer
+               eigenen Reihe: ein roter Knopf zwischen den Importwegen
+               läse sich wie einer davon. -->
+          <div class="field impways">
+            <button class="btn delbtn" id="impWipe"${importCount().any?'':' disabled'} data-tip="${esc(t('set.impWipeHint'))}">${t('set.impWipe')}</button></div>
+          <!-- Die gemerkten Strukturen: je Datei-Art eine Zeile
+               (mapRows oben). Der Name ist nur die Beschriftung —
+               wiedererkannt wird eine Datei am Fingerabdruck ihrer
+               Spaltenköpfe —, der Stift ändert die Struktur, das ✕
+               vergisst sie: der nächste Import dieser Art fängt
+               wieder bei den Spalten an. -->
+          <div class="field impmaps">
+            <label>${t('set.csvMaps')}</label>
+            ${mapRows||`<p class="note">${t('set.csvMapsNone')}</p>`}</div>`)}
       </div>
     </div>
     </div>
@@ -265,6 +336,24 @@ function openSettings(where,done){
     <div class="row-end"><button class="btn" id="lCancel">${t('g.cancel')}</button><button class="btn primary" id="lSave">${t('g.save')}</button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box); bindSign(box);
+
+  /* ── Getipptes darf nicht stillschweigend verlorengehen ───────
+     Der Weg in den Import schließt dieses Fenster (leaveTo unten):
+     ein Import legt selbst Kategorien an, und ein Fenster, das
+     daneben stehen bliebe, schriebe seine alten Listen beim
+     Speichern zurück. Vorher übernahm `leaveTo` alles stumm — auch
+     eine halb getippte Zeile. Jetzt wird **gefragt**, aber nur,
+     wenn wirklich etwas anders steht als beim Öffnen.
+
+     Verglichen wird der Stand aller Felder als eine Zeichenkette.
+     Das ist grob und genau richtig: es geht nicht darum, *was*
+     anders ist, sondern *ob*. Nach „+", Entfernen und Sortieren
+     baut sich das Fenster neu auf (reopen) — die Marke wird dabei
+     neu gesetzt, denn diese Wege haben ihre Änderung schon
+     übernommen. */
+  const formSig=()=>[...box.querySelectorAll('input,select,textarea')]
+    .map(el=>el.type==='checkbox'?(el.checked?'1':'0'):el.value).join('\u0001');
+  const sig0=formSig();
 
   /* Kommt das Fenster wegen eines bestimmten Feldes, steht die
      Schreibmarke darin und der Wert markiert da: tippen ersetzt ihn,
@@ -276,6 +365,14 @@ function openSettings(where,done){
      ändern will. */
   const want=focus?box.querySelector('#'+focus):null;
   if(want){ want.focus(); want.select(); }
+  /* Nach „+": die Schreibmarke steht im ersten Feld der neuen Zeile
+     (siehe setFocusNew oben), und die Zeile ist ins Bild gerollt —
+     eine lange Liste hat sie sonst unterhalb der Rollfläche. */
+  if(setFocusNew){
+    const el=box.querySelector(`[data-k="${setFocusNew.k}"][data-i="${setFocusNew.i}"]`);
+    setFocusNew=null;
+    if(el){ el.scrollIntoView({block:'nearest'}); el.focus(); }
+  }
 
   /* Der Rückweg läuft auf jedem Weg hinaus — Speichern, Abbrechen,
      Klick daneben, Escape —, aber **nur einmal**: `reopen()` baut das
@@ -359,6 +456,13 @@ function openSettings(where,done){
     const ana=box.querySelector('#sAna').checked;
     if(ana!==!!state.anaOpen) ui.ana=ana;
     state.anaOpen=ana;
+    /* Dieselbe Regel für die abgeschlossenen Monate der
+       Jahresansicht: nur geändert wirkt sofort — sonst risse ein
+       Speichern in den Einstellungen die Spalten weg, die man
+       vorher von Hand wieder eingeblendet hat. */
+    const hdm=box.querySelector('#sHideDone').checked;
+    if(hdm!==!!state.hideDoneMonths) ui.hideDone=hdm;
+    state.hideDoneMonths=hdm;
     /* ── Worin der Suchbegriff sucht (Bereich „Filter") ─────────
        Eine leere Wahl wird nicht übernommen: ein Suchbegriff, der
        nirgends sucht, fände nie etwas. Das Speichern weist sie
@@ -450,7 +554,16 @@ function openSettings(where,done){
     askCarryCodes(codeChanges);
     state.groups=d.groups; state.incomeGroups=d.incomeGroups; state.kakCats=d.kakCats;
     state.kakCats.forEach(ensureKakCat);
-    if(taken.length) toast(t('set.taken',taken.join(', ')));
+    /* Die Beschriftung einer gemerkten Zuordnung. Sie hängt an
+       nichts — wiedererkannt wird die Datei am Fingerabdruck —,
+       deshalb genügt das Zuweisen; ein leeres Feld behält den
+       alten Namen, sonst stünde dort später gar nichts. */
+    box.querySelectorAll('[data-cm]').forEach(inp=>{
+      const m=state.csvMaps[inp.dataset.cm];
+      const v=inp.value.trim();
+      if(m&&v) m.file=v;
+    });
+    if(taken.length) warn(t('set.taken',taken.join(', ')));
   };
 
   /* Eine mit „+" angelegte, aber nie ausgefüllte Zeile ist keine
@@ -467,11 +580,17 @@ function openSettings(where,done){
 
   box._close=closeSettings;          /* auch für Escape (js/ui.js) */
 
-  /* Neu aufbauen heißt: dasselbe Fenster noch einmal, mit demselben
-     Ziel und demselben Rückweg. Ohne beides landete man nach jedem
-     „+" wieder ganz vorn — und das Fenster darunter erführe nie,
-     dass es neue Einträge gibt. */
-  const reopen=()=>{ box.remove(); openSettings(where,done); };
+  /* Neu aufbauen heißt: dasselbe Fenster noch einmal, **im Bereich,
+     der gerade zu sehen ist**, mit demselben Rückweg. Bis 5.9.26
+     ging `where` mit — der Bereich, wegen dem das Fenster geöffnet
+     wurde: wer aus dem Posten-Fenster über „Kategorien pflegen"
+     kam, dann zu den Banken wechselte und dort „+" drückte, stand
+     danach wieder bei den Kategorien. Der Link sagt nur, wo es
+     losgeht; danach ist jeder Bereich frei. `setPane` führt
+     showPane() nach, und ein Bereichsname setzt in openSettings()
+     keinen Fokus auf ein Feld. Ohne den Rückweg erführe das Fenster
+     darunter nie, dass es neue Einträge gibt. */
+  const reopen=()=>{ box.remove(); openSettings(setPane,done); };
 
   /* Die Sprache wirkt sofort — das Fenster selbst wechselt mit. */
   box.querySelector('#sLang').onchange=()=>{ applyEdits(); save(); reopen(); renderChrome(); };
@@ -489,11 +608,65 @@ function openSettings(where,done){
      Kategorie-Fenster, das darunter noch offen stünde, schriebe
      seinen Stand danach in ein Buch, das es so nicht mehr gibt.
      Deshalb kein Rückweg (`handBack`) — es gibt nichts mehr, wohin. */
-  const leaveTo=open=>{ applyEdits(); tidy(); save();
+  const leaveTo=open=>{
+    /* Geändert und nicht gespeichert? Dann entscheidet der Nutzer.
+       Abgelehnt heißt **verwerfen**, nicht „hierbleiben": gefragt
+       wurde nach dem Speichern, und der Weg in den Import ist mit
+       dem Klick darauf schon beschlossen. */
+    if(formSig()!==sig0){
+      if(confirm(t('set.leaveSave'))){ applyEdits(); tidy(); save(); }
+    }else{ tidy(); }
     document.querySelectorAll('.modal').forEach(m=>m.remove());
     render(); open(); };
-  box.querySelector('#impFast').onclick=()=>leaveTo(openImportInfo);
+  /* Eine gemerkte Zuordnung vergessen. Am Buch ändert das nichts —
+     schon importierte Zahlen bleiben stehen —, nur der nächste
+     Import dieser Datei-Art fängt wieder bei der Feldzuordnung an.
+     Gefragt wird trotzdem: was der Wizard einmal gelernt hat, ist
+     ein paar Klicks wert, und zurückholen lässt es sich nicht. */
+  /* Der Stift öffnet seit 5.9.26 spät die **Struktur** (Art und
+     Feldverknüpfung), nicht mehr die Filterkriterien: die
+     Importkriterien wohnen an den Posten und stehen in deren
+     Fenstern — gesammelt hinter #impCrit oben und im ☰-Menü des
+     CSV-Imports. */
+  box.querySelectorAll('[data-cmrm]').forEach(b=>b.onclick=()=>{
+    const fp=b.dataset.cmrm, m=state.csvMaps[fp]||{};
+    if(!confirm(t('set.csvMapDelAsk',m.file||fp))) return;
+    applyEdits();
+    delete state.csvMaps[fp];
+    save();
+    reopen();
+  });
+  /* **Der Stift ändert die Struktur**: das Fenster openCsvStructure
+     (js/dialogs/csv2-wizard.js) legt sich über die Einstellungen,
+     mit `reopen` als Rückweg — die Zeile darunter soll danach die
+     neue Art zeigen. Getipptes wird vorher übernommen, aber nur,
+     wenn sich etwas geändert hat (formSig): ein Stift, der das Buch
+     schon vom Öffnen schmutzig machte, fragte beim Schließen nach
+     Änderungen, die niemand gemacht hat. */
+  box.querySelectorAll('[data-cmed]').forEach(b=>b.onclick=()=>{
+    if(formSig()!==sig0){ applyEdits(); save(); }
+    openCsvStructure(b.dataset.cmed,reopen);
+  });
+  /* **Alle Importkriterien** — regulär und flexibel, gegliedert wie
+     der Zielbereich des Imports. Ohne Rückweg: das Fenster schreibt
+     an die Posten, in den Einstellungen ändert sich dadurch nichts,
+     und ein Neuaufbau nähme Getipptes mit. */
+  box.querySelector('#impCrit').onclick=()=>openImpRules('all');
+  box.querySelector('#impFast').onclick=()=>leaveTo(openCsvWizard);
   box.querySelector('#impSheet').onclick=()=>leaveTo(openSheetInfo);
+  /* Alle importierten Daten löschen — nach Rückfrage, die die
+     Zahlen nennt. Getipptes wird vorher übernommen, wie bei jedem
+     Handgriff, der das Fenster neu aufbaut; das Buch ändert sich
+     sofort (save), in die Datei kommt es mit „Daten speichern". */
+  box.querySelector('#impWipe').onclick=()=>{
+    const c=importCount();
+    if(!c.any) return;
+    if(!confirm(t('set.impWipeAsk',c.items,c.tx,c.months))) return;
+    applyEdits();
+    wipeAllImports();
+    save(); render(); reopen();
+    toast(t('set.impWipeDone',c.items,c.tx));
+  };
 
   /* ── Sortieren per Ziehen ───────────────────────────────── */
   let dragFrom=null,dragList=null;
@@ -528,6 +701,7 @@ function openSettings(where,done){
     const k=b.dataset.add;
     if(k==='groups'||k==='incomeGroups'||k==='kakCats') state[k].push('');
     else state[k].push({code:'',label:''});
+    setFocusNew={k:k,i:state[k].length-1};
     reopen();
   });
 
@@ -539,7 +713,7 @@ function openSettings(where,done){
       const old=state[k][i], used=groupUseCount(old);
       if(used){
         const rest=state[k].filter((_,j)=>j!==i);
-        if(!rest.length){ toast(t('set.keepOne')); return; }
+        if(!rest.length){ warn(t('set.keepOne')); return; }
         if(!confirm(t('set.moveAsk',old,used,rest[0]))) return;
       }
     }

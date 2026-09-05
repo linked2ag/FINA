@@ -4,7 +4,7 @@
 
 Die Bilder in doc/img/ zeigen die laufende Anwendung, nicht eine Zeichnung
 davon — sie veralten also, sobald sich die Oberfläche ändert. Damit das kein
-Handbetrieb wird, baut dieses Skript aus index.html eine Wegwerfseite, lädt
+Handbetrieb wird, baut dieses Skript aus fina-online.html eine Wegwerfseite, lädt
 eine Beispieldatei hinein und fotografiert einzelne Teile mit Chrome ohne
 Fenster.
 
@@ -27,7 +27,7 @@ DEMO = os.environ.get('FINA_DEMO') or os.path.expanduser(
     '~/Library/CloudStorage/GoogleDrive-lex2keeper@gmail.com/My Drive/'
     '# MDA/Finanzen/FINA Tabellen/fina-demo-en.json')
 
-# Die Wegwerfseite: dieselben Skripte wie index.html, dazu ein Aufsatz, der
+# Die Wegwerfseite: dieselben Skripte wie fina-online.html, dazu ein Aufsatz, der
 # die Beispieldatei einsetzt und die Ansicht so herrichtet, wie es der
 # Abzug braucht. Alles über die Adresszeile steuerbar (?v=…&only=…).
 HARNESS = r"""<script>
@@ -48,7 +48,7 @@ if(p.get('scope')) ui.scope=p.get('scope');
    zwölf Monate nebeneinander zeigen soll, wäre das der falsche
    Zustand. (Bis 23.8.26 stand hier `ui.showAll`, das es nicht
    mehr gibt.) */
-if(p.get('all')){ state.hideDoneMonths=false; ui.hideSettled=false; }
+if(p.get('all')){ state.hideDoneMonths=false; ui.hideDone=false; ui.hideSettled=false; }
 /* Die Auswertung der Monatsansicht steht eingeklappt — für den
    Abzug des Zeitstrahls wird sie aufgeklappt. Ebenso lässt sich
    je Bereich sagen, ob er zugeklappt ist (fold=in,out). */
@@ -182,7 +182,7 @@ def chrome(url, size, shot=None):
 
 def build_page():
     demo = json.load(open(DEMO, encoding='utf-8'))
-    src = open(os.path.join(ROOT, 'Webclient.html'), encoding='utf-8').read()
+    src = open(os.path.join(ROOT, 'fina-online.html'), encoding='utf-8').read()
     body = HARNESS.replace('__DEMO__', json.dumps(demo, ensure_ascii=False))
     open(PAGE, 'w', encoding='utf-8').write(src.replace('</body>', body + '\n</body>'))
     return demo

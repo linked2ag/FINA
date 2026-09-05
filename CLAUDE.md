@@ -35,7 +35,8 @@ ganze Projekt zu lesen.
 | Kategorie umbenennen/anlegen/löschen | `js/categories.js` |
 | Summen, Salden, „Monat erledigt", Rangfolge der flexiblen Werte, mittlerer Verbrauch | `js/calc.js` |
 | Datei laden/speichern, dirty-Zustand, Statuszeile | `js/storage.js` |
-| CSV-Import aus Fast Budget | `js/csv.js` |
+| CSV-Import 2.0 — Wizard, Anleitung daneben, Struktur- und Kriterien-Fenster | `js/dialogs/csv2-wizard.js` |
+| CSV-Import aus Fast Budget (alter Weg, unbenutzt) | `js/csv.js` |
 | CSV-Import einer FINA-Tabelle | `js/sheet.js` |
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
@@ -54,7 +55,7 @@ ganze Projekt zu lesen.
 | Der Vergleich mit dem, was es sonst gibt | `compare.html` |
 | Die Datenschutzerklärung | `datenschutz.html` |
 | Sprache, Sprungmenü, Ausschnitt, Bewegung **dieser fünf Seiten** | `js/landing.js` |
-| Der Web-Client — die Anwendung selbst | `Webclient.html` (lädt `js/` und `css/`) |
+| Der Web-Client — die Anwendung selbst | `fina-online.html` (lädt `js/` und `css/`); `Webclient.html` ist seit 5.9.26 nur noch der Stub, der alte Lesezeichen dorthin weiterleitet |
 | Welche Fassung die Apps als aktuell melden | `version.json` |
 | Das Symbol — Reiter der Seite **und** App-Icon | `desktop/build/icon.html` → `icon.png` |
 
@@ -72,14 +73,24 @@ Abschnitt.**
 
 * **Die Kopfzeile ist eine Toolbar:** links das Wortzeichen mit dem Jahr, in der Mitte die
   Ansichten als Segmented Control (`#views`, weiterhin von `renderChrome()` gefüllt),
-  rechts nur der ☰-Knopf (`#btnMenu`, Klasse `.burger`) — der Dateiname steht seit
+  rechts der ☰-Knopf (`#btnMenu`, Klasse `.burger`) und davor bis zu zwei Knöpfe, die
+  aus dem Menü heraustreten (siehe „Zwei Knöpfe treten aus dem Menü heraus") — der
+  Dateiname steht seit
   22.8.26 **nur noch im Menü** (`#menuFile` zuoberst; `.filepath` bleibt im HTML, ist
   aber per CSS verborgen). **Alle Aktionsknöpfe
-  stecken im Menü dahinter** (`#hdrTools`, jetzt auf jeder Breite): Speichern · Sicherung ·
-  Trennen · CSV-Import (`#btnImportCsv` → `openImportInfo()`) ‖ Neuer flexibler Eintrag /
+  wohnen im Menü dahinter** (`#hdrTools`, auf jeder Breite), seit 30.8.26 in dieser
+  Ordnung: Hochladen · CSV-Import (`#btnImportCsv` → `openCsvWizard()`) ‖ Speichern ·
+  Sicherung · Trennen ‖ Neuer flexibler Eintrag /
   Neuer regulärer Eintrag (`#mNewFlex/#mNewOut`, verdrahtet bei
   den festen Schaltflächen in `js/app.js`) ‖ Einstellungen ‖ Anleitung (oranger Texteintrag,
   kein gefüllter Knopf mehr).
+  **„Daten hochladen" steht zuoberst und mit dem CSV-Import zusammen** (seit 30.8.26; bis
+  dahin war `#btnLoad` im geladenen Buch verborgen, geladen wurde ausschließlich auf der
+  Begrüßungsseite). Beide holen etwas herein, und das ist der erste Griff, den man sucht;
+  die ganze Datei steht vor einzelnen Spalten. Weil damit auch ein Buch mit
+  ungespeicherter Arbeit getroffen werden kann, fragt `loadData()` (`js/storage.js`)
+  vorher — dieselbe Rückfrage wie beim Schließen (`store.loadAsk`). Auf dem Telefon fehlt
+  der CSV-Import; dort trägt `#btnLoad` den Trenner (`css/mobile.css`).
   **Zum Anlegen gibt es zwei Wege und nicht drei** (seit 23.8.26): eine eigene Zeile für die
   Einnahme entfiel, weil der reguläre Eintrag ohnehin ohne Vorauswahl aufgeht
   (`editItem(null,'1')`) und dort Einnahmen und Kosten in **einer** Auswahlliste stehen
@@ -95,6 +106,40 @@ Abschnitt.**
   (Klasse `open`); der rote Punkt `#dirtyDot` und der Menükopf-Dateiname `#menuFile`
   (**immer** zuoberst im Menü, seit 22.8.26 auch bei breitem Fenster) werden in
   `renderStatus()` (`js/storage.js`) nachgeführt.
+* **Zwei Knöpfe treten aus dem Menü heraus** (seit 30.8.26): **„Daten speichern"**,
+  sobald es etwas zu speichern gibt (`dirty`), und der **Umfrage-Knopf**, solange eine
+  Umfrage offen ist. Draußen ist die Reihenfolge fest — **Umfrage · Speichern · ☰**; die
+  Umfrage steht immer als äußerste links und soll nicht springen, wenn „Speichern"
+  dazwischen auftaucht. Speichern trägt draußen den **roten Rahmen** des Siegels
+  (`.btn.savebtn`, ein Rahmen und keine Füllung: der Knopf ist der Weg heraus, keine
+  Warnung), die Umfrage ihren **leuchtenden Ring** (`.btn.srvbtn`, ein weicher
+  `box-shadow` in der eigenen Farbe — nötig geworden, seit der rote Rahmen danebensteht).
+  **Verschoben wird der Knopf selbst**, nicht eine zweite Kopie: er steht einmal im HTML
+  und wandert zwischen `.hdrright` und `#hdrTools`; zwei Knöpfe für dieselbe Sache
+  bräuchten zwei Verdrahtungen und liefen auseinander. Im Menü ist die Umfrage ein
+  Eintrag wie jeder andere — `css/layout.css` nimmt ihr dort die Füllung — und steht
+  zuoberst, so wie sie draußen als erste stünde.
+  **Gemessen, nicht geraten:** `fitHeaderBtns()` in `js/app.js` zählt die natürlichen
+  Breiten der Knöpfe (dafür `.hdrright>.btn{flex:0 0 auto}`) und hält sie gegen die
+  Breite, die die Flexbox der rechten Seite zuteilt (`flex:1 1 0` — sie hängt am Fenster
+  und nicht am Inhalt). Passt es nicht, geht **zuerst die Umfrage** zurück ins Menü, dann
+  „Speichern": die eigene ungespeicherte Arbeit ist das dringendere. Gezählt wird nur, was
+  in der Reihe steht — `#hdrTools` ist ein absolut gesetztes Kind derselben Leiste und
+  wäre offen 230 px breit. Auf dem Telefon tritt nichts heraus (`.tools #btnSave` ist dort
+  ausgeblendet, und `surveyOpen()` sagt dort ohnehin nein).
+  **Der rote Punkt am Hamburger sagt seitdem „hier drin wartet etwas"**: Ungespeichertes
+  oder eine Umfrage, aber nur, solange der zugehörige Knopf nicht ohnehin daneben steht.
+  Bis 30.8.26 hing er allein am dirty-Flag. Gesetzt wird er in `fitHeaderBtns()` und nicht
+  mehr in `renderStatus()` — nur wer die Knöpfe gerade verteilt hat, weiß, was im Menü
+  steckt; `renderStatus()` ruft die Funktion dafür am Ende auf.
+* **Die Sprechblasen des Menüs stehen seitlich.** `data-ttip` setzt seit 30.8.26 kein
+  `title` mehr, sondern `data-tip` — die eigene Sprechblase (`renderChrome()`). Und weil
+  `#hdrTools` das Merkmal `data-tipside` trägt, stellt `showTip()` (`js/ui.js`) sie dort
+  **neben** den Eintrag statt darüber oder darunter: über und unter einem Menüeintrag
+  stehen die Nachbareinträge, und die Blase deckte genau das zu, wozwischen man wählt.
+  Gesucht wird zuerst rechts, dann links; das Menü klebt am rechten Rand, in der Praxis
+  steht sie also links. Wer ein weiteres Menü baut, setzt `data-tipside` daran — überall
+  sonst bleibt es bei über/unter (siehe den Kommentar in `showTip()`).
 * **Die Monatsleiste steht unter der Filterzeile** (seit 22.8.26), nicht mehr an der
   Kopfzeile: dort, wo die Jahresmatrix ihre Monate hat, und im selben Bild — weiße Karte
   mit Radius 8 und derselben Schrift wie der Spaltenkopf der Matrix (9.5 px
@@ -112,7 +157,7 @@ Abschnitt.**
   also mit Auswertung und Filterzeile oben mit. Verdrahtet ist sie über `data-mtab`
   (Regel 1) — **nicht** `data-m`, das gehört den Monatszellen der Jahresmatrix
   (`dblMonth`). `renderChrome()` rührt sie nicht mehr an, `#months` ist aus
-  `Webclient.html` verschwunden; die Kopfzeile ist damit in jeder Ansicht gleich hoch.
+  `fina-online.html` verschwunden; die Kopfzeile ist damit in jeder Ansicht gleich hoch.
 * **Die Filterzeile ist eine Bahn über die ganze Seite** — in **beiden** Ansichten
   dasselbe Bild: ein flacher Streifen von Rand zu Rand auf `--paper-2` mit einer Haarlinie
   darunter, kein eingefasster Kasten mehr (bis 22.8.26 grauer Grund, Radius 7, Rahmen
@@ -404,7 +449,7 @@ gebraucht wird, bleibt der rohe Name stehen.
 
 **4. Klassische Skripte, feste Reihenfolge.**
 Keine ES-Module und kein `fetch`, damit die Seite auch per Doppelklick über `file://`
-läuft. Neue Dateien in `Webclient.html` eintragen: `i18n.js` zuerst, dann Werkzeuge,
+läuft. Neue Dateien in `fina-online.html` eintragen: `i18n.js` zuerst, dann Werkzeuge,
 dann Ansichten, `app.js` bleibt die letzte. Auf oberster Ebene deklarierte `const`/`function` sind für alle später
 geladenen Dateien sichtbar.
 
@@ -435,7 +480,7 @@ im Browser ist es undefiniert. Daran hängen drei Stellen und sonst nichts:
   steht (`state.updateCheck`) und auf der Begrüßungsseite noch gar nicht gelesen ist.
   Gemerkt wird nichts — FINA führt keine Ablage neben der Datei des Nutzers.
 * **`renderChrome()` in `js/app.js`** — das Wortzeichen oben links ist im Browser ein Link
-  zur Startseite (`<a href="index.html">` in `Webclient.html`). In der App heißt der
+  zur Startseite (`<a href="index.html">` in `fina-online.html`). In der App heißt der
   Web-Client selbst `index.html` (siehe unten): der Klick wäre dort ein stilles Neuladen
   mitsamt der ungespeicherten Arbeit, deshalb nimmt `renderChrome()` dem Link dort `href`
   und `title`.
@@ -453,7 +498,7 @@ Adresse** — danach fragen die schon installierten Apps, und die Weiterleitung 
 das ohne Zutun.
 
 **Der Web-Client heißt in der Auslieferung der App weiter `index.html`:** `desktop/sync.mjs`
-kopiert `Webclient.html` nach `desktop/app/index.html` — so bleibt `desktop/main.js`
+kopiert `fina-online.html` nach `desktop/app/index.html` — so bleibt `desktop/main.js`
 unberührt, und in die App gelangt nie die Verkaufsseite.
 
 **Die Sprache hat zwei Zuständigkeiten, und die Datei gewinnt.**
@@ -649,6 +694,15 @@ und zu (Klick daneben und Escape schließen) und hebt über einen `IntersectionO
 hervor, wo man gerade ist (`.here`). Ein neuer Abschnitt braucht also zwei Zeilen: die
 Kennung am `<section>` und den Eintrag im Menü.
 
+**Ein Sprung landet auf der Überschrift** (seit 30.8.26): `section[id]{scroll-margin-top:92px}`
+in `css/landing.css`. Die Kopfzeile klebt oben, und ein Anker setzt den Anfang seines
+Abschnitts genau an den oberen Fensterrand — also **unter** die Kopfzeile: man kam bisher
+im Text an, und die Überschrift, wegen der man gesprungen ist, stand verdeckt darüber. Die
+92 px sind ihre Höhe (`.site-header .wrap{min-height:72px}`) plus Luft; **wer die Kopfzeile
+höher macht, ändert diese Zahl mit.** Das Maß sitzt am `<section>` und nicht an der
+Überschrift: der Sprung zielt auf den Abschnitt, und über der Überschrift steht oft noch
+sein Etikett (`.eyebrow`), das mit ins Bild gehört.
+
 ### Den Ausschnitt schieben
 
 Zwei Stellen zeigen etwas, das breiter ist als sein Rahmen: das Bildschirmfoto der
@@ -683,7 +737,7 @@ Ein neuer Ausschnitt braucht `data-pan` am Kasten, `.panview` um den Inhalt und 
 
 **Nach außen sprachabhängig: `FINA Buch` auf Deutsch, `FINA Book` auf Englisch — im
 Fließtext `FINA`.** In der Anwendung setzt `renderChrome()` Wortzeichen und Seitentitel
-über `t('app.name')`; im HTML von `Webclient.html` steht nur der englische Rückfall. Auf
+über `t('app.name')`; im HTML von `fina-online.html` steht nur der englische Rückfall. Auf
 Startseite und Guide-Seite steht der Name als `data-l`-Paar. **Sprachunabhängig englisch
 bleiben** die Pakete (`productName` und die drei `artifactName` in
 `desktop/package.json`) und der Fenstertitel der App (`title` in `desktop/main.js`) —
@@ -706,7 +760,7 @@ nirgends.
 ## Das Symbol gibt es einmal
 
 `icon.png` im Stamm ist beides — das Zeichen der **Webseite** (`<link rel="icon">` in
-`Webclient.html`, `index.html`, `guide.html`, dem `download/`-Stub und in
+`fina-online.html`, `index.html`, `guide.html`, dem `download/`-Stub und in
 `guideDoc()`) und die Vorlage, aus der **electron-builder** .icns und .ico macht.
 `desktop/sync.mjs` legt es vor jedem Bau nach `desktop/build/icon.png`, wo
 electron-builder es sucht; deshalb steht diese Kopie in `.gitignore`. Zwei gepflegte
@@ -779,10 +833,9 @@ Daraus folgen drei Stellen, die zusammengehören:
 
 * **Der Weg zum Import darf nicht in diesem Reiter liegen.** Der Knopf steht im
   Einstellungsfenster im Bereich **Import** (`#impFast`, siehe „Der Bereich Import") und
-  öffnet `openImportInfo()` — ein Fenster, das erst sagt, aus welcher App die Datei kommt
-  und welche Spalten darin stehen müssen, und dann zur Dateiauswahl führt. Danach laufen wie
-  bisher Schritt 1 und 2 in `js/dialogs/csv-import.js`. Denselben Weg nimmt der Knopf
-  `#btnImportK` in der Ansicht selbst.
+  öffnet seit 24.8.26 den CSV-Import 2.0 (`openCsvWizard()`, siehe „Der CSV-Import 2.0");
+  der alte Fast-Budget-Weg (`openImportInfo()`, `js/dialogs/csv-import.js`) liegt
+  unbenutzt daneben. Denselben Weg nimmt der Knopf `#btnImportK` in der Ansicht selbst.
 * **`render()` lenkt um.** Steht `ui.view` noch auf `'kakeibo'`, obwohl es den Reiter nicht
   mehr gibt (Datei getrennt, Datei ohne Buchungen), wäre kein Reiter ausgewählt — dann
   tritt die Prognose an seine Stelle.
@@ -842,13 +895,39 @@ schon gewählt ist).
 Eine Zeile liest sich wie ein Kontoauszug des Monats: **womit er anfängt, was ihn bewegt,
 womit er schließt.**
 
-| M | START | IN · REG · FLEX · COR | END |
-|---|---|---|---|
-| Monat | Stand, den der Monat vorfindet | die vier Bewegungen | Stand danach |
+| M | START | IN · REG · FLEX · COR | SUM | PROG |
+|---|---|---|---|---|
+| Monat | Stand, den der Monat vorfindet | die vier Bewegungen | ihre Summe | Stand danach |
 
-`START` einer Zeile ist `END` der Zeile darüber, im Januar der Anfangsbestand — und er ist
+`START` einer Zeile ist `PROG` der Zeile darüber, im Januar der Anfangsbestand — und er ist
 zugleich der Anfang des Balkens daneben. Beides kommt aus derselben Zahl (`start` in
 `viewPrognose()`), damit Tabelle und Grafik nicht auseinanderlaufen können.
+
+**`SUM` sagt, wie der Monat abgeschlossen hat** (seit 30.8.26): die Summe seiner vier
+Bewegungen, also `saldo(m)` — dieselbe Zahl, die die Jahresmatrix „Saldo je Monat" nennt
+und die Monatsansicht als vierte Kachel zeigt, und zugleich der Unterschied zwischen
+`START` und `PROG` in dieser Zeile. Sie trägt `--bg-sal` (Klasse `salcol`), das Violett
+von „alles zusammen". In der Zeile des Anfangsbestands bleibt sie leer: er ist keine
+Bewegung eines Monats.
+
+**Es gab die Spalte schon einmal, als „BAL", und sie stand falsch.** Damals stand sie
+**statt** des Kontostands ganz links, und man las eine Summe, die es auf keinem Konto
+gibt. Der Fehler war der Platz, nicht die Zahl: jetzt steht sie **vor** dem Kontostand, in
+der Leserichtung der Zeile — die vier Bewegungen, ihre Summe, und was daraus für das Konto
+wird.
+
+**`END` heißt seit 30.8.26 `PROG`**, in beiden Sprachen (`prog.colEnd`; wie „Fast Budget"
+und wie B · PT · DD · LP wechselt das Wort nicht mit der Sprache). „END" las sich wie das
+Ende des Monats — also wie die Schlusssumme, die daneben jetzt als SUM steht. Es ist aber
+der **Kontostand**, und über zwölf Zeilen gelesen ist die Spalte die Entwicklung der
+Finanzen über das Jahr: genau das, was der Verlauf daneben zeichnet. Der Klassenname
+`endcol` bleibt — er sagt nur, welche Spalte gemeint ist.
+
+**Zwischen PROG und der Grafik steht eine kräftigere Linie** (2 px `--rule-strong`): links
+wird gelesen, rechts gemessen, und die Haarlinie zwischen zwei Zahlenspalten sagte das
+nicht. Sie sitzt an **PROG** und nicht an der Grafik — PROG klebt beim seitlichen Rollen
+(siehe unten), und eine Linie an der Grafik wanderte darunter weg. Mobil trägt sie die
+zusammengelegte Zelle (`.mlead`).
 
 **Jede Bewegung trägt die Farbe ihrer Geldart.** Die vier mittleren Spalten bekommen den
 hellen Grund, den dieselbe Geldart überall trägt — `--bg-in` · `--bg-out` · `--bg-flex` ·
@@ -859,18 +938,19 @@ gerade liest. Die Klassen stehen in `PROG_COLS` (Kopf) **und** an den Zellen der
 wird die ganze Spalte, Kopfzelle eingeschlossen, sonst liest sie sich als zwölf getönte
 Zellen statt als ein Streifen.
 
-**`START` und `END` bleiben ungefärbt** — beides sind Stände und keine Bewegungen: der eine,
+**`START` und `PROG` bleiben ungefärbt** — beides sind Stände und keine Bewegungen: der eine,
 mit dem der Monat anfängt, der andere, mit dem er schließt, und derselbe Wert steht eine
 Zeile tiefer wieder unter `START`. Zwei Spalten, die dasselbe sagen, sollen auch gleich
 aussehen; `END` trug bis 22.8.26 das Violett `--bg-sal` und las sich damit wie eine eigene
-Geldart. **Gesetzt ist sein Grund trotzdem** (`--paper-2`, genau das, was unter einer
+Geldart. **Seit 30.8.26 trägt `SUM` dieses Violett** — dort ist es richtig: die Spalte
+fasst die vier Geldarten zusammen, statt einen Stand zu nennen. **Gesetzt ist sein Grund trotzdem** (`--paper-2`, genau das, was unter einer
 ungefärbten Zelle steht): die Spalte klebt beim seitlichen Rollen, und eine durchsichtige
 Zelle ließe die Spalten darunter hindurchziehen. Die Monatsspalte trägt ihren deckenden
 Grund aus demselben Grund.
 
 **Zwei Spalten bleiben beim seitlichen Rollen stehen.** Die Monatsspalte klebt am linken
 Rand (`td:first-child`, `left:0`) — eine Zahl ohne ihren Monat ist keine Zeile mehr. Und
-**END klebt daneben**, sobald es dort ankommt (`left:calc(var(--progleadw) - 1px)`, also die
+**PROG klebt daneben**, sobald es dort ankommt (`left:calc(var(--progleadw) - 1px)`, also die
 Breite der Monatsspalte **minus ein Pixel**): der Stand zum Monatsende ist die Zahl, gegen die man den Balken daneben
 liest, und beim Rollen nach rechts wanderte sie als erste aus dem Bild. Weil `position:sticky`
 erst greift, wenn die Zelle diese Stelle erreicht, **löst sie sich beim Zurückrollen von
@@ -892,9 +972,9 @@ allem, `pointer-events:none` lässt die Sprechblasen der Balken in Ruhe.
 Dieselbe Rechnung, aber die falsche Erzählung: die Zahl, die man im Balken daneben sieht,
 ist der **Kontostand**, und der stand ganz rechts, während links eine Summe stand, die es
 auf keinem Konto gibt. Wer in einem Monat −823,97 las und im Balken das Konto bei 5.422 sah,
-musste beides erst zusammenrechnen und hielt die Grafik für falsch. Die Summe der Bewegungen
-gibt es weiterhin: als Unterschied zwischen START und END und als Länge des Balkens. Eine
-eigene Spalte braucht sie nicht.
+musste beides erst zusammenrechnen und hielt die Grafik für falsch. Seit 30.8.26 gibt es
+die Summe der Bewegungen wieder als Spalte — als `SUM`, **vor** dem Kontostand statt an
+seiner Stelle (siehe „Die Spalten der Prognose").
 
 ## Was sich in der Prognose ändern lässt
 
@@ -907,12 +987,12 @@ wechselt man die Ansicht, um etwas zu ändern, das man gerade ansieht.
   `corEdit(m)` (`js/views/prognose.js`): `dblItem(state.balance.id)` **an der Zelle**, dazu
   `data-m` — verdrahtet ist das schon (siehe die Ausnahme unter Regel 1). Die COR-Zelle der
   Anfangsbestandszeile bleibt außen vor: sie gehört keinem Monat.
-* **Spalte END, die Zeile „Anfangsbestand"** → das Einstellungsfenster, Bereich
+* **Spalte PROG, die Zeile „Anfangsbestand"** → das Einstellungsfenster, Bereich
   „Allgemein", mit der Schreibmarke in `#sOpen` und dem Wert markiert. Das Merkmal ist
   `data-opening`, verdrahtet in `wire()`; es öffnet `openSettings('sOpen')`. Der
   Anfangsbestand ist eine Einstellung und hat kein eigenes Fenster (siehe „Der
   Anfangsbestand"), diese Zeile ist aber die einzige Stelle, an der er in einer Ansicht
-  steht. **Nur diese eine Zelle**: END einer Monatszeile ist eine gerechnete Summe.
+  steht. **Nur diese eine Zelle**: PROG einer Monatszeile ist eine gerechnete Summe.
 
 Die beiden Sprechblasen sind der einzige Hinweis darauf, dass hier etwas anfassbar ist —
 `prog.tipBal` am Spaltenkopf COR und `prog.openEdit` an der Zelle selbst. Wer die Wege
@@ -1034,7 +1114,7 @@ einem Minus rechts.
 **Der farbige Grund ragt nicht über die Zeilentrennung, die Linien schon.** Eine Rasterlinie
 muss durchgehen, sonst hat sie alle 38 px eine Lücke (`bottom:-1px` an `.tgrid` / `.tzero`).
 Die Zonen dürfen das **nicht**: sie sind so breit wie die Spalte, und die liegt beim Rollen
-zum Teil unter der klebenden END-Spalte — ein Pixel Überstand malte dort quer über deren
+zum Teil unter der klebenden PROG-Spalte — ein Pixel Überstand malte dort quer über deren
 Trennlinie, sichtbar als Rest der Spalte, die gerade darunter wegscrollt. Über die
 Stapelfolge ist das nicht zu lösen: der Grund einer Tabellenzelle wird früh gezeichnet, ein
 absolut gesetztes Kind einer anderen Zelle später — auch ein eigener Überzug mit `z-index`
@@ -1062,7 +1142,8 @@ Balken des Anfangsbestands zählt dabei mit (`openFrom(v)`): er fängt an der Ra
 ihm an und liegt damit unter allen anderen Werten — wo genau, hängt von der Schrittweite ab,
 deshalb wird er je Stufe mitgerechnet und nicht einmal vorab. Dadurch fällt die
 **erste Rasterlinie genau auf den linken Rand der Spalte** — und das ist derselbe Strich,
-der die Spalte „Kumuliert" abschließt. Die Grafik zeichnet die äußeren beiden Linien deshalb
+der die Spalte PROG abschließt (seit 30.8.26 2 px stark, siehe oben). Die Grafik zeichnet
+die äußeren beiden Linien deshalb
 **nicht** selbst (links der Strich der Tabelle, rechts ihr Rand) und fängt ohne
 Innenabstand an; ihre Beträge stehen trotzdem darüber. Vorher fing die Achse irgendwo an,
 die erste Linie stand ein Stück drinnen, und zwischen der letzten Zahl und dem Raster klaffte
@@ -1132,7 +1213,7 @@ steht folglich die gewöhnliche Summe der zwölf Monate — das Ergebnis des Jah
 **Der Kontostand steht hier nicht mehr.** Er stand hier als `carryIn(m) + saldo(m)` und trug
 damit den Anfangsbestand und alle Monate davor in eine Tabelle hinein, in der jede andere
 Zahl genau **einem** Monat gehört: zwei Bedeutungen in derselben Spalte. Wo das Konto am
-Monatsende steht, sagt die **Prognose** in der Spalte `END` — dort steht es neben dem
+Monatsende steht, sagt die **Prognose** in der Spalte `PROG` — dort steht es neben dem
 Verlauf, an dem man es liest, und dort ist auch der Anfangsbestand eine eigene Zeile. Mit
 dem Kontostand ist auch der Anfangsbestand aus der Beschriftung verschwunden (`.openhint`,
 `year.openLab`, `year.openTip` — alle drei sind weg): er steckt in keiner Zahl dieser Zeile
@@ -1168,27 +1249,40 @@ sagen über den dunklen Grund (`aria-pressed`), ob sie gerade gelten; ein zweite
 schaltet sie ab. In Klammern steht, wie viel sie gerade verstecken. Genau wie die Filter
 der Monatsansicht.
 
-**Die beiden sind verschieden weit gültig, und der Unterschied ist Absicht** (22.8.26).
-Sie sind keine Filter — sie räumen ab, was fertig ist —, aber nur einer von beiden nimmt
-dabei **Zeilen** weg:
+**Beide gelten seit 30.8.26 nur der Sitzung**, und beide haben in der Datei eine
+**Vorgabe fürs Öffnen** — oder gar nichts. Sie sind keine Filter: sie räumen ab, was
+fertig ist; nur einer von beiden nimmt dabei **Zeilen** weg:
 
-| Knopf | nimmt weg | steht in | Klick ruft |
+| Knopf | nimmt weg | Klick setzt | Vorgabe fürs Öffnen |
 |---|---|---|---|
-| „Abgeschlossene Monate ausblenden" | Spalten (abgerechnete Monate) | der **Datei** (`state.hideDoneMonths`) | `save()` + `render()` |
-| „Erledigte Posten ausblenden" | Zeilen (bezahlte Posten) | der **Sitzung** (`ui.hideSettled`) | nur `render()` |
+| „Abgeschlossene Monate ausblenden" | Spalten (abgerechnete Monate) | `ui.hideDone` | `state.hideDoneMonths` (Einstellungen → Darstellung) |
+| „Erledigte Posten ausblenden" | Zeilen (bezahlte Posten) | `ui.hideSettled` | keine — fängt immer offen an |
 
-Spalten wegzunehmen versteckt nichts, was noch aussteht — das ist eine Gewohnheit beim
-Lesen und darf die Datei überleben. Zeilen wegzunehmen schon: eine geöffnete Datei soll
-nicht von selbst Posten verbergen, um die in dieser Sitzung niemand gebeten hat — das sieht
-aus, als fehlte etwas. Deshalb setzt `afterLoad()` `ui.hideSettled` beim Öffnen zurück, wie
-den Suchbegriff. Bis 22.8.26 stand auch dieser Knopf in der Datei; `migrate()` **löscht**
-das alte Feld (`delete s.hideSettled`), sonst schriebe `stateJson()` es bei jedem Speichern
-wieder hinaus.
+Beide Klicks rufen nur `render()`, **kein `save()`**: was beim Arbeiten umgeschaltet wird,
+geht die Datei nichts an. Bis 22.8.26 stand auch „Erledigte Posten ausblenden" in der
+Datei; `migrate()` **löscht** das alte Feld (`delete s.hideSettled`), sonst schriebe
+`stateJson()` es bei jedem Speichern wieder hinaus.
 
-**Vorgabe ist beides `false`:** eine frisch geöffnete Datei zeigt alles. Neben
-`hideDoneMonths` stehen nur noch die zugeklappten Bereiche in der Datei — `state.folded`
-und `state.foldedYear` (siehe unten); alles andere (Monatsfilter, Suchfeld, gewählter
-Monat, aufgeklappte Auswertung) bleibt in `ui` und damit ungespeichert.
+**Bis 30.8.26 schrieb „Abgeschlossene Monate ausblenden" unmittelbar in die Datei**, und
+das war als Unterschied gedacht: Spalten wegzunehmen versteckt nichts, was noch aussteht.
+Nur standen damit zwei Knöpfe nebeneinander, von denen einer die Datei ändert und der
+andere nicht — das ist nicht zu erraten, und ein Buch wurde vom bloßen Aufräumen der
+Ansicht schmutzig. Jetzt tun beide dasselbe; wer den Anfangszustand festlegen will, tut es
+dort, wo die Angaben der Datei beisammenstehen (siehe „Der Bereich „Darstellung""). Das
+Feld `state.hideDoneMonths` bleibt, wie es heißt und wo es steht — nur seine Bedeutung
+wechselte von „gerade ausgeblendet" zu „geht ausgeblendet auf", und für den Nutzer ist das
+beim nächsten Öffnen dasselbe Bild.
+
+**Gelesen wird die Vorgabe genau einmal**, in `afterLoad()` (`ui.hideDone=!!state.hideDoneMonths`),
+wie `ui.ana` aus `state.anaOpen`. `visMonths()` in `js/views/jahr.js` liest seitdem
+`ui.hideDone` und nicht mehr den Zustand; wer eine weitere Stelle baut, die Monate
+ausblendet, liest ebenfalls dort. **Auch `doc/make-shots.py` hängt daran**: `all=1` setzt
+beide zurück.
+
+**Vorgabe ist beides `false`:** eine frisch geöffnete Datei zeigt alles. In der Datei
+stehen daneben nur noch die zugeklappten Bereiche — `state.folded` und `state.foldedYear`
+(siehe unten); alles andere (Monatsfilter, Suchfeld, gewählter Monat) bleibt in `ui` und
+damit ungespeichert.
 
 **In der Leiste stehen sie abgesetzt am rechten Rand** (`.ybhide`, `margin-left:auto` in
 `css/layout.css`): Suchfeld und „Filteroptionen…" links, die beiden rechts. Zwischen ihnen
@@ -1208,14 +1302,25 @@ allein am Suchbegriff (`foldLock` in `viewJahr()`, siehe „Was das Klappen übe
 Über den Karten steht eine einzige dünne Zeile mit den vier Zahlen des Monats — Einnahmen,
 Flexible Payments, regelmäßige Kosten, noch offen.
 
-**„Noch offen" meint alles, was der Monat noch kostet**, also die regelmäßigen Posten ohne
-Haken **und** die Flexible-Payments-Kategorien ohne Haken (`openItems` + `openFlex` in
-`anaBar()`). Offen heißt dabei das Gegenteil von `kakDone()` — Korrektur · Import · Haken ·
-fester Betrag; wer die Rangfolge dort ändert, ändert sie hier mit. Bis 22.8.26 zählten nur
-die Posten, und die Kachel nannte einen kleineren Betrag als den, der wirklich aussteht —
-neben einer Kachel „Flexible Payments", die eine Spalte weiter links stand. **Es sind die Zahlen der Zeilen, die
-darunter stehen**, nicht die des ganzen Monats: wird gefiltert, rechnet die Leiste mit
-(siehe „Was ein Filter mit den Summen macht"). Und klein **darüber** die Überschrift
+**Die vierte Kachel ist der Saldo des Monats** (seit 30.8.26): alles, was der Monat
+bringt, und alles, was er kostet — Einnahmen, Flexible Payments, regelmäßige Kosten und
+die Saldokorrektur. Also **dieselbe Zahl**, die die oberste Zeile der Jahresmatrix nennt
+(`year.totalRow`, „Saldo je Monat") und die auf dem Telefon als SALDO-Kachel steht;
+deshalb derselbe Name (`month.kpiSaldo`) und dieselbe Farbe — `--bg-sal`, das helle
+Violett, das in FINA „alles zusammen" heißt (Klasse `t-sal`). **Nicht** das Blau der
+Saldokorrektur: die ist eine der vier Zahlen darin.
+
+Bis dahin stand hier **„Noch offen"** — die Summe dessen, was noch nicht abgehakt ist,
+Posten und Flexible-Payments-Kategorien zusammen. Das war eine Zahl über den Fortschritt
+der Arbeit, während die drei Kacheln daneben von Geld handeln; und ob der Monat ins Plus
+oder ins Minus läuft, sagte keine von ihnen. Die Schlüssel `month.kpiOpen`,
+`month.kpiOpenN` und `month.kpiUnclear` bleiben in `js/i18n.js` — die **mobile** Leiste
+(`mobileTop()`) hat für fünf Zahlen Platz und zeigt „Noch offen" weiter, neben ihrer
+eigenen SALDO-Zeile.
+
+**Es sind die Zahlen der Zeilen, die darunter stehen**, nicht die des ganzen Monats: wird
+gefiltert, rechnet die Leiste mit (siehe „Was ein Filter mit den Summen macht") — der
+Saldo einer nach Einnahmen gefilterten Ansicht ist die Summe der Einnahmen. Und klein **darüber** die Überschrift
 „Auswertung" (`.analab`). **Ein Kontostand steht dort nicht:** den zeigt die Jahresansicht,
 wo er neben den elf anderen Monaten steht und sich lesen lässt; hier stünde er allein und
 ohne Vergleich. Was der Monat mit dem Konto macht, sagt der Zeitstrahl darunter, Zeile für
@@ -1253,7 +1358,12 @@ Filter übrig lässt (`sel`, siehe „Was ein Filter mit den Summen macht").
 Die Tage stehen deshalb in der Beschriftung und nicht mehr als Leiste darunter: die Breite
 gehört jetzt dem Betrag, nicht der Zeit. Fällt der heutige Tag in eine Zeile, trägt sie
 die Marke „Jetzt" (`month.tlNow`) — sie bezeichnet den Abschnitt, in dem man gerade steht,
-und nicht einen einzelnen Tag; deshalb nicht „Heute". Sie steht in der Hervorhebungsfarbe
+und nicht einen einzelnen Tag; deshalb nicht „Heute". **Mit einer Ausnahme** (seit
+26.8.30): steht man in den letzten Tagen und am Monatsende ist kein Eintrag mehr offen,
+rückt die Marke auf den Monatsabschluss — erledigt ist erledigt, was bleibt, ist das
+Abschließen. Entschieden wird das in `tlNowKey()` (`js/views/monat.js`), und zwar über den
+**ganzen** Monat (`dueIn`), nicht über die gefilterte Auswahl: ein Filter soll die Marke
+nicht verschieben. Sie steht in der Hervorhebungsfarbe
 (`.tnow`) — Rahmen und Schrift in `--accent-2`, der Grund durchsichtig: gefüllt und rot
 wäre sie eine Warnung.
 
@@ -1492,10 +1602,13 @@ einer fremden Seite**. Alles dazu steht in `js/dialogs/umfrage.js`; die beiden A
 Absenders (Formbricks) in `js/config.js` (`SURVEY_HOST`, `SURVEY_WS`).
 
 **Nichts springt von selbst auf.** Eine offene Umfrage meldet sich als **oranger Knopf in
-der Kopfzeile** (`#btnSurvey`, links vom Hamburger, `.btn.srvbtn` — dieselbe gefüllte Farbe,
-die die Anleitung bis zum Mac-Redesign trug) und wartet dort. Ein Fenster, das beim Öffnen
-eines Buches von selbst aufginge, stünde vor der Arbeit, wegen der man das Buch geöffnet
-hat. Gezeigt wird der Knopf in `renderChrome()` über `surveyOpen()`.
+der Kopfzeile** (`#btnSurvey`, `.btn.srvbtn` — dieselbe gefüllte Farbe, die die Anleitung
+bis zum Mac-Redesign trug) und wartet dort. Ein Fenster, das beim Öffnen eines Buches von
+selbst aufginge, stünde vor der Arbeit, wegen der man das Buch geöffnet hat. Ob es eine
+gibt, sagt `renderChrome()` über `surveyOpen()`; **wo der Knopf steht, entscheidet
+`fitHeaderBtns()`** (siehe „Zwei Knöpfe treten aus dem Menü heraus"): draußen als
+äußerster links, mit leuchtendem Ring — bei engem Fenster zuoberst im Menü, und dann sagt
+der rote Punkt am Hamburger, dass dort etwas wartet.
 
 **Gefragt wird erst, wenn einmal gespeichert wurde** (`srvSaved()`). Wer FINA zum ersten
 Mal öffnet, hat noch gar keine Datei — ihn zu fragen, wie ihm FINA gefällt, wäre eine Frage
@@ -1827,7 +1940,15 @@ Gefiltert nichts und kein Fenster offen, bleibt Escape unangetastet beim Browser
   gerade kein Feld den Fokus hat — in Monat und Jahr gibt es nichts anderes, wohin ein
   Buchstabe gehörte. Außen vor bleiben: ein offenes Fenster, die Begrüßungsseite, Ansichten
   ohne Suchfeld und das Leerzeichen bei leerem Feld (es filterte auf nichts und nähme dem
-  Browser das Blättern).
+  Browser das Blättern). **Nur das erste Zeichen** läuft über den Handler; danach hat das
+  Feld den Fokus, und der Browser tippt selbst hinein.
+  **Der dritte Schritt des CSV-Imports hält sich an dieselbe Regel** (`c2Keys()` in
+  `js/dialogs/csv2-wizard.js`, seit 26.8.30): dort ist der Schnellfilter das Suchfeld, und
+  auch dort gibt es sonst nichts, wohin ein Buchstabe gehörte. Der Handler hängt am
+  **Dokument**, nicht am Fenster — ohne Fokus im Fenster käme ein Tastendruck dort gar
+  nicht an —, und er tritt dem Handler in `js/app.js` nicht in die Quere: der steigt bei
+  offenem `.modal` ohnehin aus. Angemeldet wird er in `openCsvWizard()`, abgemeldet in
+  `c2Close()` und beim ersten Druck auf ein weggeräumtes Fenster.
 * **Der Fokus von selbst**, wenn nach dem Zeichnen niemand sonst ihn hat (siehe `wire()`).
 
 Einen eigenen Tastengriff ins Suchfeld gibt es **nicht mehr**: seit ein einzelner Buchstabe
@@ -2375,6 +2496,13 @@ eine dünne Zeile **über** den Auswahllisten, ein Weg je Liste (`setLinks()` /
   `banks`). Zwei Wege in denselben Bereich sind kein Fehler: geklickt wird auf das, was
   gerade fehlt, nicht auf den Bereich, in dem es zufällig wohnt. Der Saldokorrektur fehlt
   die Kategorie, ihr fehlt auch der Weg.
+* **„+ Neu…" im CSV-Import** (`c2NewTarget()`, seit 26.8.30): dieselben drei Wege, und aus
+  demselben Grund. **Das Fenster geht auch ohne eine einzige Kategorie auf** — bis dahin
+  wies es mit einer Kurzmeldung ab (`c2.needCats`, der Schlüssel ist weg), und der Nutzer
+  stand vor einem Knopf, der nichts tat, ohne zu erfahren, wohin er sollte. Jetzt steht der
+  Weg dorthin über den Listen; sein `relist()` baut die drei Auswahllisten neu und behält
+  das Gewählte, der getippte Name bleibt ohnehin stehen. Das Fenster der **flexiblen**
+  Kategorie braucht das nicht: dort entsteht die Kategorie ja gerade.
 * **Fenster der Flexible Payments**: deren **eigene** Kategorien (Bereich `kak`) — nicht die
   der regelmäßigen Kosten.
 
@@ -2486,25 +2614,115 @@ Mal wieder ganz vorn. Ein neuer Bereich braucht drei Zeilen: einen Eintrag in `N
 
 ### Der Bereich „Darstellung"
 
-Die Breiten der Jahresmatrix, die Schwelle der größten Einzelposten — und der Haken
-**„Monat mit aufgeklappter Auswertung öffnen"** (`#sAna` → `state.anaOpen`). Er ist eine
-**Vorgabe fürs Öffnen** und kein Schalter: was er tut, steht in „Die Auswertung über der
-Monatsansicht". Der Satz daneben (`set.anaHint`) sagt genau das, sonst suchte man hier den
-Weg zum Zuklappen.
+Die Breiten der Jahresmatrix, die Schwelle der größten Einzelposten — und **zwei Haken,
+die sagen, womit eine Datei aufgeht**:
+
+| Haken | schreibt | gelesen in `afterLoad()` nach |
+|---|---|---|
+| „Monat mit aufgeklappter Auswertung öffnen" (`#sAna`) | `state.anaOpen` | `ui.ana` |
+| „Jahr mit ausgeblendeten abgeschlossenen Monaten öffnen" (`#sHideDone`, seit 30.8.26) | `state.hideDoneMonths` | `ui.hideDone` |
+
+**Beides sind Vorgaben und keine Schalter**: was sie tun, steht in „Die Auswertung über der
+Monatsansicht" und in „Die Leiste der Jahresansicht". Die Sätze daneben (`set.anaHint`,
+`set.hideDoneHint`) sagen genau das, sonst suchte man hier den Weg zum Auf- und Zuklappen.
+
+**Geändert wirkt sofort, ungeändert nicht** (`applyGeneral()`): steht der Haken anders als
+im Zustand, wird `ui.…` mitgezogen — ein Haken, der erst beim nächsten Laden etwas tut,
+sieht kaputt aus. Sonst bleibt die Anzeige, wie sie ist; sonst risse ein Speichern in den
+Einstellungen zu, was man vorher von Hand aufgeklappt hat.
 
 ### Der Bereich „Import"
 
-Beide Wege, die Zahlen von außen hereinholen, stehen hier — `#impFast` (Fast Budget,
-einzelne Monate) und `#impSheet` (FINA-Tabelle, ein ganzes Jahr). In der **Kopfzeile** steht
-dafür kein Knopf mehr: dort saß er zwischen „Daten hochladen" und „Daten speichern" und sah
-aus wie ein dritter Weg, eine Datei zu öffnen. Er ist keiner — er ändert das Buch, das schon
-offen ist.
+**Nur das Nötigste** (seit 5.9.26 spät): ein Satz unter der Überschrift, drei Knöpfe in
+einer Reihe (`.impways`) — `#impFast` (CSV-Import 2.0, `openCsvWizard()`), `#impCrit`
+(alle Importkriterien, `openImpRules('all')`), `#impSheet` (FINA-Tabelle, ein ganzes
+Jahr) —, darunter allein `#impWipe` (alle importierten Daten löschen, rot; ohne Import
+grau). Was ein Knopf tut, steht in seiner Sprechblase (`data-tip`), nicht als Absatz
+darunter: vier Handgriffe brauchen keine Seite Text. In der **Kopfzeile** steht für den
+Import kein eigener Knopf; im Menü ist es der CSV-Import neben „Daten hochladen".
 
-**Beide schließen das Fenster, bevor sie öffnen** (`leaveTo()`). Ein Import legt selbst
-Kategorien an; bliebe das Einstellungsfenster daneben stehen, schriebe sein „Speichern" die
-Listen zurück, die vor dem Import darin standen, und der Import wäre wieder weg. Übernommen
-wird dabei wie beim Wechsel der Sprache: `applyEdits()`, `tidy()`, `save()` — Getipptes geht
-also nicht verloren.
+**`#impFast` und `#impSheet` schließen das Fenster, bevor sie öffnen** (`leaveTo()`). Ein
+Import legt selbst Kategorien an; bliebe das Einstellungsfenster daneben stehen, schriebe
+sein „Speichern" die Listen zurück, die vor dem Import darin standen. Ungespeichertes wird
+vorher erfragt (`set.leaveSave`). `#impCrit` dagegen legt sein Fenster **über** die
+Einstellungen und braucht keinen Rückweg: es schreibt an die Posten, in den Einstellungen
+ändert sich dadurch nichts.
+
+**Darunter die gemerkten CSV-Strukturen** (`state.csvMaps`, je Datei-Art eine; Schlüssel
+ist der Fingerabdruck der Spaltenköpfe, `c2Fp()`): je Zeile (`.listrow.maprow`) der Name
+als Feld, ein Stift, ein ✕ — und darunter allein die Art (`kind`: reguläre oder flexible
+Posten). Bis 5.9.26 stand hier die ganze Feldverknüpfung als Zeile, dazu der Tag des
+Merkens und ein langer Absatz; das war zu viel Beschriftung für einen Blick.
+
+* **Der Name ist nur die Beschriftung.** Wiedererkannt wird eine Datei am Fingerabdruck,
+  nicht am Namen; `applyEdits()` schreibt ihn wie jede andere Angabe zurück (ein leeres
+  Feld behält den alten).
+* **Der Stift öffnet die Struktur** (`openCsvStructure(fp,done)` in
+  `js/dialogs/csv2-wizard.js`) — ein Fenster über den Einstellungen, mit `reopen` als
+  Rückweg, damit die Zeile danach die neue Art zeigt: oben die Art als Auswahlliste,
+  darunter links die sechs FINA-Felder (Datum, Betrag, Referenz 1–4), rechts je ein
+  Auswahlmenü mit den Spalten der Datei (`header`, sonst „Spalte n"). Dieselben Regeln wie
+  in Schritt 2 des Imports: ein Feld wohnt in einer Spalte, ohne Datum und Betrag wird
+  nicht gespeichert (`.errline`). Gearbeitet wird auf einer Kopie; `header` und
+  Fingerabdruck bleiben, sie **sind** die Datei-Art.
+* **Das ✕ vergisst die Struktur** — mit Rückfrage. Am Buch ändert es nichts: der nächste
+  Import dieser Art fängt wieder bei den Spalten an, die Importkriterien bleiben an den
+  Posten.
+* **Gezogen wird hier nichts:** die Reihenfolge sagt nichts, also kein Griff.
+
+### Der CSV-Import 2.0 (`js/dialogs/csv2-wizard.js`, seit 24.8.26)
+
+Liest jede CSV in drei Schritten — **Datei** · **Spalten & Felder** · **Zuordnen** — und
+schreibt erst mit „Fertig" ins Buch (`c2Apply()`): regulär `amounts`, `paid`, `imp` und
+`impRows`, flexibel `tx`, `flexActual` und `flexSource`. Der Arbeitsstand lebt in `W`, nur
+solange das Fenster offen ist. Der alte Fast-Budget-Weg (`js/csv.js`,
+`js/dialogs/csv-import.js`) liegt unbenutzt daneben. Wie die Datei innen aussieht, steht
+in `FINA Strukturen und Objekte/` (Stand v260905-4) — **vor jeder Änderung an der
+Struktur wird Lex gefragt**, und migriert wird beim Lesen (`migrate()`).
+
+* **Sechs Importfelder, für beide Arten dieselben:** Datum, Betrag, Referenz 1–4
+  (`C2_FIELDS`, `C2_REFS`). Die Referenzen sind eine Rangfolge wie Überschrift 1–4; im
+  Buch stehen sie als Liste an den Quellzeilen (`impRows[m][].r`) und Buchungen
+  (`tx[].r`). Die Importdaten-Liste der Fenster zeigt je Referenz eine Zeile.
+* **Struktur und Kriterien sind getrennt.** Die **Struktur** (`state.csvMaps[fp]` =
+  `{date, file, kind, f, header}`) ist Art und Feldverknüpfung je Datei-Art. Die
+  **Importkriterien** wohnen am Posten bzw. an der flexiblen Kategorie
+  (`impRules[]`, je Regel `{terms:[{f,op,val}]}`) und nennen **Felder, nie Spalten** — sie
+  gelten damit für jede Datei-Art. `migrate()` übersetzt die älteren Formen (Regeln je
+  Datei-Art, `main`/`cat`/`desc` statt Referenzen).
+* **Schritt 1:** Datei wählen, Art wählen (`.c2kind`: „Reguläre Posten" / „Flexible
+  Posten"). Kennt FINA die Datei-Art, steht darüber der Kasten der gemerkten Struktur:
+  **„Automatisch CSV-Datenstruktur vorbereiten"** bringt Felder **und Art** mit, sperrt die
+  beiden Art-Knöpfe (`c2LockedKind()`, `.c2kind.klock`, Sprechblase `c2.kindLockTip`) und
+  geht gleich nach Schritt 2; **„CSV-Datenstruktur neu anordnen"** fängt leer an, mit
+  wählbarer Art. Eine Art aus der Struktur ist als solche vermerkt (`W.kindFromMap`):
+  „Neu anordnen" und eine neue Datei nehmen sie zurück, eine von Hand gewählte bleibt.
+  Eine Struktur ohne Art (Nachmittag des 5.9.26) hält in Schritt 1, bis die Art gewählt
+  ist, und trägt sie beim „Weiter" in Schritt 2 nach.
+* **Schritt 2:** die Beschriftungszeile (Spalte HDR/BZ), die Spalten (jeder Spaltenkopf
+  ein Knopf), über jeder gewählten Spalte ihr Feld. „Spalten speichern und weiter" fragt
+  nach einem Namen (`c2AskMapName()`) und legt die Struktur ab (`c2SaveCols()`); kam sie
+  aus dem Gemerkten und steht noch so da (`c2ColsSame()`), heißt der Knopf nur „Weiter".
+  Nach Schritt 3 kommen nur verknüpfte Spalten mit (`c2GoStep3()`).
+* **Schritt 3:** oben die Posten der Art mit zwölf Monaten (Ziel per Klick, orange), in
+  der Mitte die Zuordnungsleiste (☰ · „Modus: Einmalige Zuordnung" · „Zuordnen und
+  merken" · „Neu anlegen und zuordnen" · rechts „Gemerkte Importkriterien anwenden…"),
+  unten die Dateizeilen mit Filter je Feld und Schnellfilter. Gelb heißt „in diesem Lauf
+  zugeordnet", Cyan „früher importiert", Grau „steht schon so im Buch" (siehe „Die
+  Farbsprache"). Ein einzelner Buchstabe ohne Fokus geht in den Schnellfilter
+  (`c2Keys()`).
+* **Die Anleitung daneben** (`C2_GUIDE`, Knopf „Anleitung" ganz links in Schritt 2 und 3)
+  teilt das Fenster; die Texte stehen in der Datei, nicht in `js/i18n.js`, und beginnen je
+  Schritt mit **„Layout"** — grob, was im Fenster steht —, dann Zweck, dann nummerierte
+  Schritte. Kein „Oben: … Darunter: …" (das fand Lex schrecklich).
+* **Das Fenster „Importkriterien"** (`openImpRules(kind,done)`, `kind` = `'reg'`,
+  `'flex'` oder `'all'`) zeigt je Regel einen Block — Posten oben, Bedingungen als Zeilen
+  Feld · Vergleichsart · Wert · ✕, „+ Bedingung" —, gegliedert wie der Zielbereich:
+  Einnahmen · Regelmäßige Kosten je Kategorie · Flexible Payments (`.cmesec`,
+  `.c2mpcat`). Arbeitskopie, „Speichern" schreibt an die Posten; eine Bedingung bleibt
+  stehen, ein leerer Wert hält auf. Erreichbar über das ☰ der Zuordnungsleiste und über
+  `#impCrit` in den Einstellungen. Denselben Block trägt jedes Posten- und Beträge-Fenster
+  unter den Monaten (`impCrit*`).
 
 ## Eine FINA-Tabelle einlesen
 
@@ -2726,7 +2944,7 @@ Ein neuer `<h4>`-Block entsteht dabei nur zu einem tatsächlichen Versionswechse
 
 **Bilder.** `gshot('dateiname','Bildunterschrift')` setzt ein Bild aus `doc/img/`; der Klick
 öffnet es in voller Größe in einem neuen Reiter, weil im schmalen Bereich sonst nichts zu
-erkennen wäre. Die Bilder entstehen mit `doc/make-shots.py` (baut aus `index.html` eine
+erkennen wäre. Die Bilder entstehen mit `doc/make-shots.py` (baut aus `fina-online.html` eine
 Wegwerfseite, lädt eine Beispieldatei hinein, fotografiert mit Chrome ohne Fenster).
 
 **Drei Dinge muss wissen, wer das Skript anfasst** (alle drei am 23.8.26 nachgezogen, als
@@ -2806,6 +3024,78 @@ Kategoriezeile darin (`.card.sec-out .ledger tr.group`) die zweite Stufe. Die ne
 `tr.group` bleibt neutral — im Flexible-Payments-Bereich gliedert dieselbe Zeile Monate und
 Hauptkategorien, keine Kostenblöcke.
 
+## Importiert ist ein eigener Stand, und er sieht überall gleich aus
+
+Ein Monat kann abgehakt sein, weil jemand ihn bestätigt hat — oder weil er aus einer CSV
+kam. Das ist nicht dasselbe, und seit 26.8.30 sagt es **jede** Stelle, an der der Stand
+eines Postens steht: statt des Hakens der Download-Pfeil (`IMPORT_SVG` in `js/config.js`)
+in **elektrischem Blau** (`--imp`, `css/tokens.css`).
+
+| Wo | Bild | gebaut in |
+|---|---|---|
+| Siegel der Monatsansicht | weißer Pfeil auf blauem Grund (`.seal.imp`) | `js/views/monat.js` |
+| Zeichen der Jahresmatrix | blauer Pfeil als Strich (`.mk-imp`) | `js/views/jahr.js` (`okSym()`) |
+| Monatskachel im Posten-Fenster | wie das Siegel | `js/dialogs/item.js` |
+
+**Die Farbe ist mit Absicht laut.** Die Palette ist sonst gedeckt; Rot heißt „jetzt", Grün
+„erledigt", Gelb heißt seit 30.8.26 **„gefiltert"** (`--flt`, siehe unten) — für den Import
+blieb Blau, und ein gedecktes Blau ginge zwischen den Kanten der Saldokorrektur unter. „Das
+hat nicht der Nutzer eingetragen" muss man finden, ohne danach zu suchen.
+
+**Das Zeichen ist nur der Pfeil**, ohne Strich darunter: bei 9 px in einer Tabellenzelle
+wurde die Grundlinie zu einem Fleck. Und **der Haken hat seinen eigenen hellen Grünton**
+(`--ok-lit`): `--ok` bleibt die gedeckte **Betragsfarbe**, eine Spalte aus neongrünen
+Zahlen liest sich nicht.
+
+## Die Farbsprache: jede Farbe sagt genau eine Sache
+
+Sie gilt in der ganzen Anwendung und gehört keinem Bereich. Wer eine Fläche baut, die
+einen dieser Zustände meldet, nimmt diese Farbe — und keine zweite Bedeutung dazu:
+
+| Merkmal | Farbe | heißt |
+|---|---|---|
+| `--accent` / `--accent-soft` | Orange | **hier kann man handeln** oder **das ist gewählt** — Knöpfe, Weiterlese-Links, Sprungmenü, die gewählte Zeile |
+| `--imp` | Cyan `#00D7FF` | **kam aus einem Import** — nicht der Nutzer hat es eingetragen |
+| `--ok-lit` | Grün `#00BC00` | **von Hand abgehakt** |
+| `--flt` | Neongelb `#FFFA00` | **hier wird gerade gefiltert** |
+| `--seal` | Rot | **jetzt** — der laufende Monat, die laufende Zeile |
+| `--amber` | Bernstein | **geschätzt**, noch nicht bestätigt |
+
+**Gewählt schlägt alles.** Im Zielbereich des CSV-Imports kann eine Zeile zugleich
+importiert (Cyan), frisch zugeordnet (Gelb) und gewählt sein — dann gilt Orange: „hier
+arbeite ich gerade" ist unabhängig davon, woher die Zahlen kommen. Cyan an dieser Stelle
+sagte „importiert" und nicht „gewählt", und dann hieße dieselbe Farbe zweierlei.
+
+**Auf dem Cyan steht Tinte, nicht Weiß.** Es ist so hell, dass ein weißer Strich darin
+verschwindet — der Pfeil im Siegel, das Zeichen im Kreis und die Schrift der gewählten
+Zeile sind deshalb dunkel. Wer die Farbe ändert, prüft das mit.
+
+**Der Stand eines Postens ist überall derselbe Kreis** (`.statmark`, seit 30.8.26): gefüllt
+grün mit Haken (abgehakt), gefüllt cyan mit Pfeil (importiert), eingefasst mit `?`
+(geschätzt) — und nichts, wo nichts ist. Vorher trug die Monatsansicht ein Siegel, die
+Jahresmatrix einen nackten Haken und der CSV-Zielbereich wieder etwas anderes; derselbe
+Stand sah in drei Ansichten verschieden aus. Die nackten Zeichen `.mk-ok`/`.mk-q` gibt es
+nur noch **im Fließtext** (Zeichenerklärung, Anleitung), wo ein Kreis mitten im Satz zu
+groß wäre.
+
+**Neongelb heißt „gefiltert", überall** (seit 30.8.26): die Filterleisten von Monat und
+Jahr (`.filterbar.on`, `.ybrow.on`), der ☰-Knopf des Telefons (`.mfbtn.on`), die
+Filterfelder des CSV-Imports und seine angehefteten Filterzeilen. Vorher stand dort das
+Orange — und Orange heißt in FINA „hier kann man handeln" (Knöpfe, Weiterlese-Links,
+Sprungmenü). Zwei Bedeutungen auf einer Farbe sind eine zu viel; wer eine weitere Fläche
+baut, die einen greifenden Filter meldet, nimmt `--flt`.
+
+**Woher der Stand kommt, wissen zwei verschiedene Stellen:** bei einem Posten das Feld
+`it.imp[m-1]` (gesetzt von `c2Apply()`), bei einer Flexible-Payments-Kategorie
+`flexKind(k,m)==='imp'` — eine **Korrektur** zählt nicht dazu, die hat jemand von Hand
+gesetzt, und das sagt die orange Marke in der Zeile.
+
+**Den Haken abnehmen heißt: kein Import mehr.** Wer im Posten-Fenster einen importierten
+Monat aufmacht, um die Zahl anzufassen, nimmt die Aussage „so stand es in der Datei"
+zurück: `setSeal()` tauscht das Zeichen sofort auf den Haken, und `#fSave` löscht `imp`
+für diesen Monat. Bliebe die Marke stehen, behauptete ein später von Hand gesetzter Haken
+einen Import, den es nie gab.
+
 ## Was beim Öffnen einer Datei einmal entschieden wird
 
 `afterLoad()` in `js/state.js` läuft **nur** beim Öffnen, Trennen und beim Start — nicht
@@ -2828,6 +3118,10 @@ Dort steht auch, **ob die Auswertung der Monatsansicht aufgeklappt beginnt**: `u
 kommt aus `state.anaOpen` (siehe „Die Auswertung über der Monatsansicht"). Die Einstellung
 gehört der Datei, das Auf- und Zuklappen der Sitzung — deshalb wird sie hier gelesen und
 nirgends sonst.
+
+**Genauso, ob die Jahresansicht die abgeschlossenen Monate versteckt**: `ui.hideDone` kommt
+aus `state.hideDoneMonths` (seit 30.8.26, siehe „Die Leiste der Jahresansicht"). Dieselbe
+Bauform, derselbe Grund — und `ui.hideSettled` wird daneben wie eh auf `false` gesetzt.
 
 Dort steht auch, **womit man begrüßt wird**: mit Datei der laufende Monat
 (`ui.view='monat'`, `ui.month=CUR`), ohne Datei die Jahresansicht. Der Unterschied ist der

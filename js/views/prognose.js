@@ -79,9 +79,15 @@ function yearTrack(f,pos,cut){
    Konto gibt. Wer in einem Monat −823,97 las und im Balken das
    Konto bei 5.422 sah, musste beides erst zusammenrechnen.
 
-   Die Summe der Bewegungen gibt es weiterhin — als Unterschied
-   zwischen START und END, und als Länge des Balkens. Eine eigene
-   Spalte braucht sie nicht. */
+   **Seit 30.8.26 steht die Summe der Bewegungen wieder als eigene
+   Spalte da — SUM, zwischen COR und PROG.** Sie sagt, wie der
+   Monat abgeschlossen hat: alles, was er gebracht hat, gegen
+   alles, was er gekostet hat. Der alte Fehler war nicht die
+   Spalte, sondern ihr Platz: sie stand **statt** des Kontostands
+   ganz links, und man las eine Summe, die es auf keinem Konto
+   gibt. Jetzt steht sie **vor** ihm, in der Leserichtung der
+   Zeile: die vier Bewegungen, ihre Summe, und was daraus für das
+   Konto wird. */
 /* ── Jede Bewegung in der Farbe ihrer Geldart ─────────────────
    Die vier mittleren Spalten tragen den hellen Grund, den dieselbe
    Geldart überall trägt: grün die Einnahmen, rot die regelmäßigen
@@ -90,11 +96,25 @@ function yearTrack(f,pos,cut){
    Monatsansicht. In einer Tabelle aus sieben Zahlenspalten sagt die
    Farbe schneller als die Überschrift, was man gerade liest.
 
-   **START bleibt ungefärbt**: es ist keine Bewegung, sondern ein
-   Stand — derselbe, der eine Zeile höher unter END steht. **END
-   trägt das Violett**, das in dieser Anwendung „alles zusammen"
-   heißt (der Anfangsbestand, die Saldozeile) — und zwar die
-   hellste Stufe: es ist ein Grund und keine Marke. */
+   **START und PROG bleiben ungefärbt**: beides sind Stände und
+   keine Bewegungen — der eine, mit dem der Monat anfängt, der
+   andere, mit dem er schließt, und derselbe Wert steht eine Zeile
+   tiefer wieder unter START.
+
+   **SUM trägt das Violett**, das in dieser Anwendung „alles
+   zusammen" heißt (--bg-sal: der Anfangsbestand, die Saldozeile,
+   die Saldo-Kachel der Monatsansicht) — und zwar die hellste
+   Stufe: es ist ein Grund und keine Marke. Nicht das Blau der
+   Korrektur daneben: die ist eine der vier Zahlen, die in SUM
+   eingehen.
+
+   ── Die Spalte END heißt seit 30.8.26 PROG ───────────────────
+   „END" las sich wie das Ende des Monats — als wäre es die
+   Schlusssumme, die daneben jetzt als SUM steht. Es ist aber der
+   **Kontostand**, und über zwölf Zeilen gelesen ist die Spalte
+   die Entwicklung der Finanzen über das Jahr: genau das, was der
+   Verlauf daneben zeichnet. Der Klassenname `endcol` bleibt, wie
+   er ist — er sagt nur, welche Spalte gemeint ist. */
 const PROG_COLS=[
   {ab:'M',     cls:'',            name:'g.month',          tip:'prog.tipMonth'},
   {ab:'START', cls:'num',         name:'prog.colStart',    tip:'prog.tipStart'},
@@ -102,8 +122,13 @@ const PROG_COLS=[
   {ab:'REG',   cls:'num outcol',  name:'prog.colFixed',    tip:'prog.tipFixed'},
   {ab:'FLEX',  cls:'num flexcol', name:'prog.colKak',      tip:'prog.tipKak'},
   {ab:'COR',   cls:'num balcol',  name:'prog.colBal',      tip:'prog.tipBal'},
-  {ab:'END',   cls:'num endcol',  name:'prog.colEnd',      tip:'prog.tipEnd'},
+  {ab:'SUM',   cls:'num salcol',  name:'prog.colSum',      tip:'prog.tipSum'},
+  {ab:'PROG',  cls:'num endcol',  name:'prog.colEnd',      tip:'prog.tipEnd'},
 ];
+/* Die beiden Spalten, die die mobile Fassung zu **einer** klebenden
+   Zelle zusammenlegt. Über den Namen und nicht über den Index: eine
+   Spalte dazwischen verschöbe jede Zahl, die hier stünde. */
+const PROG_LEAD=PROG_COLS[0], PROG_END=PROG_COLS[PROG_COLS.length-1];
 
 /* Die Beschriftung der Rasterlinien (gnum) steht in js/format.js:
    auch der Zeitstrahl der Monatsansicht beschriftet damit sein
@@ -387,6 +412,10 @@ function viewPrognose(){
     return `<tr class="openrow"><td>${t('set.opening')}</td>
       <td class="num"></td><td class="num incol"></td><td class="num outcol"></td><td class="num flexcol"></td>
       <td class="num balcol${corEmpty?' mid':''}"></td>
+      <!-- SUM bleibt leer: der Anfangsbestand ist keine Bewegung
+           eines Monats, sondern der Stand, auf dem das Jahr
+           aufsetzt — es gibt nichts zu summieren. -->
+      <td class="num salcol"></td>
       <td class="num endcol ${cls(op)}" data-opening="1"
         data-tip="${esc(t('prog.openEdit'))}">${eur(op)}</td>
       ${track}</tr>`;
@@ -415,6 +444,13 @@ function viewPrognose(){
       <td class="num outcol neg">${eur(fixedCost(m))}</td>
       <td class="num flexcol neg">${eur(kakeiboFor(m))}</td>
       <td class="num balcol${corEmpty?' mid':''} ${cls(balanceFix(m))}"${corEdit(m)}>${eur(balanceFix(m))}</td>
+      <!-- Wie der Monat abgeschlossen hat: die Summe seiner vier
+           Bewegungen, also saldo(m) — dieselbe Zahl, die die
+           Jahresmatrix in „Saldo je Monat" nennt und die
+           Monatsansicht als vierte Kachel zeigt. Sie ist zugleich
+           der Unterschied zwischen START und PROG in dieser
+           Zeile. -->
+      <td class="num salcol ${cls(s)}">${eur(s)}</td>
       <td class="num endcol ${cls(cum)}">${eur(cum)}</td>
       <td class="flowcell">${rails}${yearTrack(flow[i],pos,sc.cut)}</td></tr>`;
   }).join('');
@@ -465,8 +501,8 @@ function viewPrognose(){
   if(mob){
     const tile=(c,lab,val,vc)=>`<span class="mk${c?' '+c:''}"><span class="lab">${lab}</span
       ><span class="val ${vc}">${eur(val)}</span></span>`;
-    const mhead=`<th class="mlead" data-tip="${esc(t(PROG_COLS[0].name)+' — '+t(PROG_COLS[0].tip))}"
-      ><span class="mm">${PROG_COLS[0].ab}</span><span class="me">${PROG_COLS[6].ab}</span></th>`;
+    const mhead=`<th class="mlead" data-tip="${esc(t(PROG_LEAD.name)+' — '+t(PROG_LEAD.tip))}"
+      ><span class="mm">${PROG_LEAD.ab}</span><span class="me">${PROG_END.ab}</span></th>`;
     return `
     <div class="mkpi">
       ${tile('t-in',t('prog.kpiIncome',from),incRest,'pos')}

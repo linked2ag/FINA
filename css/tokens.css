@@ -76,6 +76,63 @@
 :root{
   --paper:#E9EAE3; --paper-2:#F4F5F0; --ink:#1B2320; --ink-2:#5A625C;
   --rule:#C7CBC0; --rule-strong:#A9AFA2; --seal:#B23A2E; --ok:#2E6A4C; --amber:#9A6A00;
+  /* Importiert — der einzige laute Ton der Palette, und mit Absicht:
+     „das hat nicht der Nutzer eingetragen, das kam aus einer Datei"
+     muss man **finden**, ohne danach zu suchen. Rot heißt jetzt,
+     Grün heißt erledigt, Gelb heißt geschätzt; für den Import blieb
+     nur Blau, und ein gedecktes Blau ginge zwischen den Kanten der
+     Saldokorrektur unter. Er gilt überall, wo der Stand eines
+     Postens steht: Siegel im Monat, Zeichen in der Jahresmatrix,
+     Monatskachel im Fenster.
+
+     **Das Zeichen darauf ist dunkel, nicht weiß.** Das Cyan ist so
+     hell, dass ein weißer Strich darin verschwindet; Tinte darauf
+     liest sich in jeder Größe. Wer die Farbe ändert, prüft diese
+     Regel mit (.seal.imp svg, .statmark). */
+  --imp:#00D7FF;
+  /* Dasselbe Blau als **Schriftfarbe**. Das Cyan der Fläche ist so
+     hell, dass es als Text auf Papier nicht mehr lesbar ist; dieser
+     Ton sagt dasselbe und lässt sich lesen. Er gilt dort, wo Text
+     seine Herkunft aus einem Import trägt — die zugeordneten Zeilen
+     im Zielbereich des CSV-Imports.
+
+     **Nachgerechnet, nicht geschätzt:** auf dem hellen Gelb dieser
+     Zeilen (--flt zu 26 % auf Papier, ≈ #EFEEA8) trägt dieser Ton
+     einen Kontrast von 5,1:1 — der hellere #0A7FA0 kam auf 4,0:1
+     und war zu wenig. Wer ihn aufhellt, rechnet nach. */
+  --ink-imp:#0A6A88;
+  /* Abgehakt — dasselbe Grün wie eine Einnahme, nur hell und
+     leuchtend: das Zeichen ist 10 px groß und soll auf einen Blick
+     zu finden sein, während `--ok` als **Betragsfarbe** gedeckt
+     bleiben muss (eine Spalte aus neongrünen Zahlen liest sich
+     nicht). Deshalb ein eigener Ton und nicht `--ok` geändert.
+     Er gilt für jeden Haken: Siegel, Jahresmatrix, Monatskachel. */
+  --ok-lit:#00AF00;
+  /* Gefiltert — Neongelb, und wie das Blau eine Aussage der ganzen
+     Anwendung: „hier wird gerade etwas ausgeblendet". Es gilt für
+     jede Fläche, die einen greifenden Filter meldet — die
+     Filterleisten von Monat und Jahr, die Filterfelder und die
+     angehefteten Filterzeilen des CSV-Imports. Vorher war das
+     Orange, und Orange heißt in FINA „hier kann man handeln"
+     (Knöpfe, Weiterlese-Links); zwei Bedeutungen auf einer Farbe
+     sind eine zu viel. Dunkle Schrift darauf, immer. */
+  --flt:#FFFA00;
+  /* Einmalig — dasselbe Rot wie überall in FINA, und es sagt genau
+     eine Sache: **diese Zuordnung wurde nicht gemerkt.** Sie steht
+     neben der Herkunft (Cyan „kam aus einem Import") und
+     beantwortet die zweite Frage: kommt sie beim nächsten Mal von
+     selbst wieder oder nicht.
+
+     Getragen wird sie **nicht von der Fläche, sondern vom
+     Zeichen**: ein einmalig importierter Monat sieht aus wie jeder
+     andere importierte — nur sein Statuskreis ist rot statt cyan,
+     und im CSV-Import steht die zugehörige Zeile in roter Schrift.
+     Die Fläche gehört weiter der Frage „neu oder schon im Buch".
+
+     **Ein eigener Name für denselben Ton:** wer das Rot der
+     Einmaligkeit ändern will, ändert es hier und nicht an --seal,
+     an dem der laufende Monat hängt. */
+  --once:var(--seal);
   --shade:#DDDFD6;
   /* Abbezahlte Zeilen — in Jahres- wie in Monatsansicht dasselbe
      Grau. Eine Spur heller als --shade: es soll zurücktreten,
@@ -184,28 +241,17 @@ body{background:var(--paper);
 /* Eine Notiz behält ihre Zeilen — überall, wo sie zu sehen ist.
    Wer im Notizfenster eine neue Zeile anfängt, meint sie auch:
    eine Liste bliebe sonst ein einziger langer Satz. Deshalb
-   pre-wrap statt normal, hier wie an .noteprev, .cellnote und
-   der Sprechblase (.tip in css/components.css). */
+   pre-wrap statt normal, hier wie an .cellnote und der
+   Sprechblase (.tip in css/components.css). */
 /* Die Monatsnotiz steht links unter der Zahlungszeile und reicht
    nach rechts so weit wie ihre Zelle — bis an den Rand des Blocks.
    Der senkrechte Strich davor bindet sie an die Position und wächst
    mit ihr: bei mehreren Zeilen über alle.
 
-   **Die Vorschau unter dem Namen sieht genauso aus.** Eine Notiz
-   ist eine Notiz — in der Monatsansicht, in der Jahresmatrix und
-   in den Fast Budget Details; sähe sie je Ansicht anders aus,
-   sähe sie nach etwas anderem aus. Deshalb steht das Bild hier an
-   **einer** Stelle, und .noteprev legt nur noch den Abbruch nach
-   zwei Zeilen darüber (siehe unten). */
-.itemnote,.noteprev{display:block;font-size:11.5px;color:var(--ink);white-space:pre-wrap;text-align:left;
+   Eine Vorschau der Positionsnotiz unter dem Namen (.noteprev) gab
+   es bis 5.9.26 in der Jahresmatrix und in den Import Details —
+   sie ist heraus: ausgeschrieben steht eine Notiz nur noch hier, in
+   der Monatsansicht; überall sonst zeigt die Lampe sie als
+   Sprechblase. */
+.itemnote{display:block;font-size:11.5px;color:var(--ink);white-space:pre-wrap;text-align:left;
   margin-top:4px;padding-left:9px;border-left:2px solid var(--rule-strong)}
-/* Vorschau der Notiz zur ganzen Position: zwei Zeilen unter dem
-   Namen, danach Auslassungspunkte. Der volle Text steht in der
-   Sprechblase und im Notizfenster.
-
-   Der Abbruch bleibt: eine Zeile der Jahresmatrix darf nicht mit
-   der Länge einer Notiz wachsen — zehn Zeilen Text schöben die
-   zwölf Monatsspalten daneben auseinander. In der Monatsansicht
-   steht die Notiz in einer eigenen Zeile und darf ausschreiben. */
-.noteprev{overflow-wrap:anywhere;overflow:hidden;
-  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}

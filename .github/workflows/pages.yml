@@ -95,6 +95,10 @@ jobs:
             if [ -e "_site/$f" ]; then echo "FEHLER: $f gehört nicht auf die Seite"; exit 1; fi
           done
           test -f _site/index.html || { echo "FEHLER: index.html fehlt"; exit 1; }
+          # Die Anwendung selbst (seit 5.9.26 fina-online.html; Webclient.html
+          # ist nur noch der Stub, der alte Lesezeichen dorthin weiterleitet).
+          test -f _site/fina-online.html || { echo "FEHLER: fina-online.html fehlt — die Anwendung selbst"; exit 1; }
+          test -f _site/Webclient.html    || { echo "FEHLER: Webclient.html fehlt — der Stub für alte Lesezeichen"; exit 1; }
           test -d _site/doc/img   || { echo "FEHLER: doc/img fehlt — die Anleitung braucht die Bilder"; exit 1; }
           # Die Schriften liegen seit August 2026 bei: ohne sie sähe
           # die Seite anders aus, als sie soll, und der Satz im Kopf

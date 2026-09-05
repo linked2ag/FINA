@@ -1,7 +1,7 @@
 # desktop/ — FINA Book für Mac und Windows
 
 Hier steht der **Rahmen**, nicht die Anwendung. FINA selbst liegt eine Ebene höher in
-`index.html`, `css/` und `js/`; dieser Ordner packt genau diese Dateien in ein Fenster,
+`fina-online.html` (in der App `index.html`), `css/` und `js/`; dieser Ordner packt genau diese Dateien in ein Fenster,
 das ohne Browser auskommt.
 
 Wer an FINA etwas ändert, ändert es oben. Wer etwas daran ändert, **dass** FINA außerhalb

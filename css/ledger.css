@@ -317,6 +317,21 @@
    keine — sie hat ihr eigenes Raster und endet am Tischrand. */
 .progtable td,.progtable th{border-right:1px solid var(--rule)}
 .progtable td:last-child,.progtable th:last-child{border-right:0}
+/* ── Zahlen links, Grafik rechts ─────────────────────────────
+   Zwischen der letzten Zahlenspalte und dem Verlauf steht eine
+   kräftigere Linie: links wird gelesen, rechts gemessen, und die
+   Haarlinie zwischen zwei Zahlenspalten sagte das nicht.
+
+   Sie sitzt an **PROG** und nicht an der Grafik: PROG klebt beim
+   seitlichen Rollen (siehe oben), und eine Linie an der Grafik
+   wanderte darunter weg — die Spalte stünde dann ohne Kante über
+   den Balken. So bleibt der Schnitt immer dort, wo die Zahlen
+   aufhören. Mobil trägt ihn die zusammengelegte Zelle (.mlead).
+
+   Sie ist zugleich die erste Rasterlinie der Grafik: die zeichnet
+   ihre äußeren beiden nicht selbst (siehe viewPrognose). */
+.progtable td.endcol,.progtable th.endcol,
+.progtable td.mlead,.progtable th.mlead{border-right:2px solid var(--rule-strong)}
 /* Die Zelle trägt das Raster, deshalb muss sie der Bezugspunkt
    sein. Die Linien stehen als eigene Kinder darin und reichen über
    die volle Zeilenhöhe — dadurch stoßen sie von Zeile zu Zeile
@@ -377,6 +392,12 @@
 .progtable td.outcol,.progtable th.outcol{background:var(--bg-out)}
 .progtable td.flexcol,.progtable th.flexcol{background:var(--bg-flex)}
 .progtable td.balcol,.progtable th.balcol{background:var(--bg-bal)}
+/* SUM — wie der Monat abgeschlossen hat. Das helle Violett, das in
+   FINA „alles zusammen" heißt (--bg-sal: Anfangsbestand, „Saldo je
+   Monat", die Saldo-Kachel der Monatsansicht). Nicht das Blau der
+   Korrektur daneben: die ist eine der vier Zahlen, die hier
+   zusammenkommen. */
+.progtable td.salcol,.progtable th.salcol{background:var(--bg-sal)}
 /* **END trägt den Grund der Tabelle, wie START.** Beides sind
    Stände und keine Bewegungen — der eine, mit dem der Monat
    anfängt, der andere, mit dem er schließt; zwei Spalten, die

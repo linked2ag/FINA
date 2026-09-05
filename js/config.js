@@ -27,7 +27,7 @@
    diese Nummer tragen. Versionen entstehen dort nur auf Zuruf; die
    Webseite läuft ihnen voraus, und die Apps hinterher (siehe
    „Die zwei Veröffentlichungskanäle" in der Planung). */
-const VERSION='26.8.23';
+const VERSION='26.9.5';
 
 /* Wo die Apps ihre Fassung nachschlagen. Die Datei beschreibt den
    **App-Kanal**, nicht die Webseite: stünde dort jede Webversion,
@@ -100,4 +100,31 @@ const LAMP_SVG='<svg><use href="#ic-lamp"/></svg>';
 /* Pfeil aus dem Kasten heraus: etwas verlässt diese Seite und
    öffnet sich in einem eigenen Reiter des Browsers. */
 const EXPAND_SVG='<svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-8 8"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
-const CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>';
+/* **Beide Zeichen stehen mittig in ihrem viewBox** — nachgemessen
+   mit `getBBox()` samt halber Strichbreite, nicht geschätzt. Der
+   Haken lag um 0.25, der Pfeil um 0.75 Einheiten daneben; in einem
+   Kreis von 14 px sind das Bruchteile eines Pixels, aber sie stehen
+   in derselben Spalte untereinander, und dort fällt jede Abweichung
+   auf. Wer an einem Pfad dreht, misst nach: die gemalte Fläche muss
+   in x **und** y die Mitte 12 haben. */
+const CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.25l5.5 5.5L20 6.25"/></svg>';
+/* Das Fragezeichen des geschätzten Stands — als Strichzeichen wie
+   der Haken und der Pfeil, nicht als Buchstabe (5.9.26): ein
+   Schriftzeichen sitzt auf seiner Grundlinie und hing im Kreis
+   sichtbar zu hoch, je nach Schrift und Zeile verschieden. Der
+   Bogen und der Punkt sind um die Mitte der Zeichenfläche gebaut
+   (x 8,6–15,4 · y 5,6–18,6), das Zeichen steht damit mittig, wo
+   immer es gezeigt wird — Siegel der Monatsansicht, Kreis der
+   Jahresmatrix, Kacheln der Fenster. */
+const EST_SVG='<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8.6 9a3.4 3.4 0 1 1 5.2 2.9c-1.2.8-1.8 1.5-1.8 2.9"/><path d="M12 18.6h.01"/></svg>';
+/* Pfeil nach unten: der Monat kam aus einem CSV-Import — erledigt,
+   aber nicht von Hand abgehakt (js/dialogs/csv2-wizard.js).
+   **Nur der Pfeil, kein Strich darunter:** das Zeichen steht bei
+   9 px in einer Tabellenzelle und bei 10 px in einem Siegel von
+   16 px — die Grundlinie wurde dort zu einem Fleck und machte aus
+   dem Pfeil einen Klecks. Der Pfeil allein sagt dasselbe.
+   **Seit 30.8.26 knapp ein Fünftel größer** (um die Mitte 12
+   skaliert): im blauen Kreis wirkte er verloren. Die gemalte
+   Fläche samt runder Kappen (±1.6) hat weiter die Mitte 12 in
+   x und y — wer daran dreht, misst nach (siehe CHECK_SVG). */
+const IMPORT_SVG='<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.75v15.9"/><path d="M4.65 12.9l7.35 7.35 7.35-7.35"/></svg>';

@@ -147,9 +147,33 @@ const hasActual=m=>!!state.flexSource[m];
 const hasImport=()=>!!state&&(((state.tx||[]).length>0)
   ||Object.keys(state.flexSource||{}).some(m=>state.flexSource[m]));
 const kakOv=(k,m)=>{const e=state.kak[k];return e&&e.override&&e.override[m-1]!=null?e.override[m-1]:null;};
+
+/* ── Ist DIESER Monat für DIESE Kategorie importiert? ─────────
+   `hasActual(m)` ist eine Aussage über den **Monat**: eine Datei
+   hat ihn geschrieben. Für die einzelne Kategorie genügt das
+   nicht, seit „Importdaten löschen" im Beträge-Fenster (und im
+   Zielmenü des Wizards) eine Kategorie wieder herauslösen kann.
+   Die Quelle des Monats bleibt dabei stehen — sie gehört dem
+   Monat, und die anderen Kategorien stehen weiter darin.
+
+   **Gemerkt wird das als `null` in `state.flexActual[m]`**, und
+   zwar ausdrücklich nicht als 0: eine 0 ist ein gültiger
+   importierter Betrag (c2Apply und applyImport setzen jede
+   Kategorie eines berührten Monats erst auf 0 und addieren dann
+   ihre Buchungen darauf) — eine Kategorie, die in der Datei nicht
+   vorkam, hat dort mit Recht 0 und bleibt importiert. `null`
+   heißt: „hier stand ein Import, und der Nutzer hat ihn
+   weggenommen." Ein neuer Import über denselben Monat
+   überschreibt es und holt die Kategorie zurück.
+
+   Ein fehlender Schlüssel ist **kein** `null`: alte Dateien
+   kennen die Marke nicht, und dort soll alles bleiben, wie es
+   war. */
+const flexImp=(k,m)=>hasActual(m)&&!(state.flexActual[m]&&state.flexActual[m][k]===null);
+
 const kakVal=(k,m)=>{
   const o=kakOv(k,m); if(o!=null) return o;
-  return hasActual(m)?(state.flexActual[m][k]||0):((state.kak[k]&&state.kak[k].plan[m-1])||0);
+  return flexImp(k,m)?(state.flexActual[m][k]||0):((state.kak[k]&&state.kak[k].plan[m-1])||0);
 };
 /* ── Woher der Wert eines Monats stammt ───────────────────────
    Dieselbe Rangfolge wie kakVal() und kakDone(), nur als Wort —
@@ -168,17 +192,69 @@ const kakVal=(k,m)=>{
 function flexKind(k,m){
   const e=state.kak[k]; if(!e) return 'none';
   if(kakOv(k,m)!=null) return 'corr';
-  if(hasActual(m)) return 'imp';
+  if(flexImp(k,m)) return 'imp';
   if(e.paid[m-1]) return 'done';
   if((e.plan[m-1]||0)===0) return 'none';
   return e.estimated?'est':'fix';
 }
 const FLEX_KIND_LABEL={corr:'kak.kCorr',imp:'kak.kImp',done:'kak.kDone',fix:'kak.kFix',est:'kak.kEst'};
 
+/* ── Kam der Import aus einer einmaligen Zuordnung? ───────────
+   Der Statuskreis eines importierten Monats ist cyan, wenn die
+   Zuordnung gemerkt wurde, und **rot**, wenn nicht: beim nächsten
+   Import derselben Datei-Art käme dieser Wert nicht von selbst
+   wieder. Das ist eine Frage neben der Herkunft, keine andere
+   Herkunft — deshalb eine eigene Funktion und **kein** weiterer
+   Rückgabewert von flexKind(): dessen fünf Werte stehen als Marke
+   in der Ansicht „Fast Budget Details" und hätten damit ein
+   sechstes Wort gebraucht, das dort nichts erklärt.
+
+   Beim Posten steht es an der Zahl selbst (`it.imp[m-1]`: 1
+   gemerkt, 2 einmalig — ältere Dateien haben dort `true`, und das
+   heißt wie 1). Bei einer flexiblen Kategorie steht es an den
+   Buchungen: einmalig ist der Monat, wenn **jede** seiner
+   Buchungen aus einer einmaligen Zuordnung kam. */
+function impOnceAt(it,m){return !!(it&&it.imp&&it.imp[m-1]===2);}
+function flexImpOnce(k,m){
+  const rows=(state.tx||[]).filter(x=>x.m===m&&x.main===k);
+  return rows.length>0&&rows.every(x=>x.once);
+}
+
+/* ── Die drei Referenzen einer importierten Zeile (5.9.26) ─────
+   Der CSV-Import kennt fünf Felder: Datum, Betrag und Referenz
+   1 · 2 · 3 (C2_REFS in js/dialogs/csv2-wizard.js). Die Referenzen
+   stehen als Liste `r` an einer Buchung der flexiblen Kosten
+   (tx[]) und an einer Quellzeile eines Posten (impRows[m][]) — in
+   ihrer Rangfolge, wie Überschrift 1 · 2 · 3.
+
+   **Ältere Dateien tragen stattdessen** an der Buchung `cat`
+   (Unterkategorie) und `note` (Beschreibung), an der Quellzeile
+   einen zusammengesetzten Text `x`. Gelesen wird beides, und zwar
+   nur hier: wer eine Buchung beschriftet, fragt diese vier
+   Funktionen und nicht die Felder — sonst läsen zwei Ansichten
+   dieselbe Buchung verschieden.
+
+   * txSub(x)  — die Ebene unter der Kategorie im Reiter „Import
+     Details": Referenz 1, bei alten Buchungen die Unterkategorie.
+   * txNote(x) — was darunter als Notiz steht: Referenz 2 und 3,
+     bei alten Buchungen die Beschreibung.
+   * txText(x) — alles in einer Zeile (Zielbereich des Imports).
+   * impRowText(r) — dasselbe für eine Quellzeile eines Posten.
+   refsText(list) fügt eine Referenzliste mit „ · " zusammen. */
+function refsText(r){return (r||[]).filter(Boolean).join(' · ');}
+function txSub(x){return x&&x.r?(x.r[0]||''):((x&&x.cat)||'');}
+function txNote(x){return x&&x.r?refsText(x.r.slice(1)):((x&&x.note)||'');}
+function txText(x){
+  if(x&&x.r)return refsText(x.r);
+  const c=(x&&x.cat)||'',n=(x&&x.note)||'';
+  return c+(c&&n?' · ':'')+n;
+}
+function impRowText(r){return r&&r.r?refsText(r.r):((r&&r.x)||'');}
+
 function kakDone(k,m){
   const e=state.kak[k]; if(!e) return false;
   if(kakOv(k,m)!=null) return true;
-  if(hasActual(m)) return true;
+  if(flexImp(k,m)) return true;
   if(e.paid[m-1]) return true;
   return !e.estimated && (e.plan[m-1]||0)!==0;   /* fester, eingetippter Wert gilt als erfasst */
 }

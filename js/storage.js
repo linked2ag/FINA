@@ -119,6 +119,11 @@ async function writeHandle(){
 }
 
 async function loadData(){
+  /* Seit „Daten hochladen" wieder im Menü steht (30.8.26), kann
+     das auch ein Buch mit ungespeicherter Arbeit treffen. Dieselbe
+     Rückfrage wie beim Schließen — eine geladene Datei ersetzt den
+     ganzen Zustand, und danach ist die alte Arbeit weg. */
+  if(dirty && !confirm(t('store.loadAsk'))) return;
   try{
     if(canFS){
       const [h]=await window.showOpenFilePicker({types:[{description:t('store.fileKind'),accept:{'application/json':['.json']}}]});
@@ -131,7 +136,7 @@ async function loadData(){
     } else {
       document.getElementById('fileJson').click();
     }
-  }catch(e){ if(e.name!=='AbortError') toast(t('store.loadFail',e.message)); }
+  }catch(e){ if(e.name!=='AbortError') warn(t('store.loadFail',e.message)); }
 }
 
 /* ── Eine Sicherung neben der laufenden Datei ────────────────
@@ -149,7 +154,7 @@ function saveBackup(){
   try{
     const name=downloadJson();
     toast(t('store.backup',name));
-  }catch(e){ toast(t('store.saveFail',e.message)); }
+  }catch(e){ warn(t('store.saveFail',e.message)); }
 }
 
 async function saveData(){
@@ -169,7 +174,7 @@ async function saveData(){
       const name=downloadJson();
       dirty=false; renderStatus(); toast(t('store.downloaded',name)+upgradeNote());
     }
-  }catch(e){ if(e.name!=='AbortError') toast(t('store.saveFail',e.message)); }
+  }catch(e){ if(e.name!=='AbortError') warn(t('store.saveFail',e.message)); }
 }
 
 function unlinkData(){
@@ -216,8 +221,10 @@ function renderStatus(){
     mf.classList.toggle('warnpath',dirty);
     mf.hidden=!!ui.welcome;
   }
-  const dd=document.getElementById('dirtyDot');
-  if(dd) dd.hidden=!dirty;
+  /* Den roten Punkt setzt fitHeaderBtns() (js/app.js): er sagt
+     seit 30.8.26 nicht mehr bloß „ungespeichert", sondern „im Menü
+     wartet etwas" — und ob etwas dort wartet, weiß nur, wer die
+     beiden Knöpfe gerade verteilt hat. */
   /* Schließen geht immer, sobald ein Buch offen ist — auch bei
      einem frisch angefangenen, das noch keine Datei hat. Es ist
      der Weg zurück zur Begrüßungsseite, und der darf nicht davon
@@ -225,10 +232,20 @@ function renderStatus(){
      selbst ist der Knopf ohnehin verborgen. */
   const ub=document.getElementById('btnUnlink'); if(ub) ub.disabled=!!ui.welcome;
   const sb=document.getElementById('btnSave'); if(sb) sb.disabled=!dirty&&!state.fixed.length&&!state.tx.length;
+  /* Neben dem Hamburger oder in seinem Menü — das hängt am
+     dirty-Flag und ändert sich damit genau hier. */
+  if(typeof fitHeaderBtns==='function') fitHeaderBtns();
+  /* **Auf der Begrüßungsseite steht nur der eine Satz.** Was
+     danach kommt — „Alle Änderungen gespeichert", „Letzter
+     CSV-Import: noch keiner" — sind Auskünfte über ein Buch, und
+     dort ist keines offen: gespeichert ist nichts, weil es nichts
+     zu speichern gibt. Ein leeres Buch, das gerade angefangen
+     wurde, ist etwas anderes und behält die ganze Zeile. */
   const el=document.getElementById('storeStatus');
-  if(el) el.innerHTML=(fileName?t('store.loadedFrom',esc(fileName)):t('store.noFile'))
-    +(dirty?t('store.dirty'):t('store.clean'))
-    +' &nbsp;·&nbsp; '+t('store.lastImport',state.lastImport||t('store.never'));
+  if(el) el.innerHTML=ui.welcome?t('store.noFile').trim()
+    :((fileName?t('store.loadedFrom',esc(fileName)):t('store.noFile'))
+      +(dirty?t('store.dirty'):t('store.clean'))
+      +' &nbsp;·&nbsp; '+t('store.lastImport',state.lastImport||t('store.never')));
 }
 
 /* ── Die Rückfrage vor dem Schließen ─────────────────────────

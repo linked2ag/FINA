@@ -22,7 +22,7 @@ let state=null;
    Knopf vor dem Suchfeld): offen oder zu — Anzeige wie ana, nicht
    in der Datei. Auf dem Schreibtisch wird es nie gelesen. */
 let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',secFilter:'alle',scope:'monat',kakPick:null,
-  q:'',qFocus:false,ana:false,mFilters:false,welcome:true,hideSettled:false};
+  q:'',qFocus:false,ana:false,mFilters:false,welcome:true,hideSettled:false,hideDone:false};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────
    Der Nutzer stellt im Fenster hinter dem Hamburger-Knopf ein,
@@ -96,8 +96,12 @@ function normalize(it){
   it.paid=it.paid||Array(12).fill(false);
   if(Array.isArray(it.unclear)){ it.estimated=it.unclear.some(Boolean); delete it.unclear; }
   it.estimated=!!it.estimated;
+  /* Welche Monate aus einem CSV-Import stammen: erledigt wie ein
+     Haken, aber blau gezeigt (js/dialogs/csv2-wizard.js). */
+  it.imp=Array.isArray(it.imp)?it.imp:Array(12).fill(false);
   while(it.notes.length<12) it.notes.push('');
   while(it.paid.length<12) it.paid.push(false);
+  while(it.imp.length<12) it.imp.push(false);
   it.bank=it.bank||''; it.pay=it.pay||''; it.dueDay=it.dueDay||''; normLinks(it);
   if(it.end===undefined) it.end=null;
   return it;
@@ -194,16 +198,20 @@ function emptyState(){
     fixed:[], balance:blankBalance(),
     flexActual:o, flexSource:src, tx:[], plan:{},
     kakCats:[], kak:{}, labWidth:250, monWidth:100, topMin:50, lastImport:null,
-    /* „Abgeschlossene Monate ausblenden". Der Knopf nimmt **Spalten**
-       weg und keine Zeile — er versteckt nichts, was noch aussteht,
-       sondern räumt ab, was abgerechnet ist. Das ist eine Gewohnheit
-       beim Lesen und gehört deshalb in die Datei: einmal eingestellt,
-       beim nächsten Öffnen wieder da. Vorgabe: alle zwölf Monate.
+    /* „Abgeschlossene Monate ausblenden" — hier steht seit 30.8.26
+       nur noch die **Vorgabe fürs Öffnen**, gepflegt in den
+       Einstellungen unter „Darstellung" (#sHideDone). Gelesen wird
+       sie einmal in afterLoad() nach ui.hideDone; danach entscheidet
+       der Knopf in der Jahresleiste, und der gilt nur für diese
+       Sitzung.
 
-       Sein Nachbar „Erledigte Posten ausblenden" steht ausdrücklich
-       **nicht** hier: der nimmt Zeilen weg (siehe ui.hideSettled
-       oben). Was Zeilen versteckt, soll eine geöffnete Datei nicht
-       stillschweigend mitbringen. */
+       Vorher schrieb der Knopf unmittelbar hierher. Das war ein
+       Sonderfall: sein Nachbar „Erledigte Posten ausblenden" gehört
+       längst der Sitzung, und zwei Knöpfe nebeneinander, von denen
+       einer die Datei ändert und der andere nicht, sind nicht zu
+       erraten. Jetzt tun beide dasselbe — und wer den Anfangszustand
+       festlegen will, tut es dort, wo die Angaben der Datei
+       beisammenstehen. Vorgabe: alle zwölf Monate. */
     hideDoneMonths:false,
     /* Zugeklappte Bereiche, je Geldart einer — einmal für die
        Monatsansicht, einmal für die Jahresmatrix. Auch das ist eine
@@ -237,7 +245,9 @@ function emptyState(){
        selbst stehen nicht darin** — die liegen beim Absender, ohne
        Kennung des Nutzers. Geschrieben wird der Vermerk erst, wenn
        der Server bestätigt hat (js/dialogs/umfrage.js). */
-    surveys:{}
+    surveys:{},
+    /* Gemerkte CSV-Zuordnungen (generischer Import, siehe migrate). */
+    csvMaps:{}
   };
 }
 
@@ -292,6 +302,12 @@ function afterLoad(){
      ausblenden": der Knopf gehört seit 22.8.26 der Sitzung, und
      eine neue Datei fängt mit allen Zeilen an. */
   ui.q=''; ui.qFocus=false; ui.hideSettled=false;
+  /* „Abgeschlossene Monate ausblenden": die Datei sagt nur, womit
+     die Jahresansicht **aufgeht** (state.hideDoneMonths, gepflegt
+     in den Einstellungen unter „Darstellung"). Danach entscheidet
+     der Knopf in der Jahresleiste, und zwar nur für diese Sitzung —
+     geschrieben wird dabei nichts. */
+  ui.hideDone=!!(state&&state.hideDoneMonths);
   /* Womit die Auswertung der Monatsansicht aufgeht, sagt die Datei:
      state.anaOpen, gepflegt in den Einstellungen unter
      „Darstellung". Von Haus aus ist sie zu — sie klebt beim Scrollen
@@ -432,8 +448,11 @@ function migrate(s){
   if(!s.monWidth) s.monWidth=100;
   if(typeof s.topMin!=='number'||!(s.topMin>=0)) s.topMin=50;
   if(!s.tx) s.tx=[];
-  /* Ältere Dateien kennen den Knopf nicht — dann gilt die Vorgabe:
-     alle zwölf Monate sind zu sehen. */
+  /* Ältere Dateien kennen die Angabe nicht — dann gilt die Vorgabe:
+     die Jahresansicht geht mit allen zwölf Monaten auf. Der alte
+     Wert bleibt gültig: er hieß bis 30.8.26 „gerade ausgeblendet"
+     und heißt jetzt „geht ausgeblendet auf" — für den Nutzer
+     dasselbe Bild beim nächsten Öffnen. */
   s.hideDoneMonths=!!s.hideDoneMonths;
   /* „Erledigte Posten ausblenden" stand bis 22.8.26 ebenfalls in der
      Datei. Es gehört nicht dorthin: der Knopf versteckt Zeilen, und
@@ -481,6 +500,106 @@ function migrate(s){
      Ältere Dateien kennen die Liste nicht — dann steht noch keine
      Umfrage darin, und das ist die richtige Antwort. */
   if(!s.surveys||typeof s.surveys!=='object') s.surveys={};
+  /* Die gemerkten CSV-Zuordnungen des generischen Imports, je
+     Datei-Art eine (Schlüssel: Fingerabdruck der Spaltenköpfe). */
+  if(!s.csvMaps||typeof s.csvMaps!=='object') s.csvMaps={};
+  /* **Die sechs Importfelder und die Kriterien am Posten** (Struktur
+     v260905-2 und v260905-3, 5.9.26). Eine gemerkte CSV-Struktur
+     trägt in `f` nur noch Datum, Betrag und Referenz 1 bis 4 —
+     nichts sonst. Zwei ältere Formen werden beim Lesen übersetzt:
+
+     1. **Felder:** statt der Referenzen `main` (Hauptkategorie),
+        `cat` (Unterkategorie) und `desc` (Beschreibung). Sie werden
+        in dieser Rangfolge zu Referenz 1, 2, 3 — was fehlt, rückt
+        auf, sodass eine Datei mit nur einer Beschreibung diese als
+        Referenz 1 bekommt.
+     2. **Regeln je Datei-Art** (`rules[]`, Bedingungen mit
+        Spaltennummer `ci`) wandern **an den Posten** (`impRules`,
+        Bedingungen mit Feld `f`): die Spalte wird über die
+        Feldverknüpfung zum Feld; eine Spalte ohne Feld bekommt die
+        nächste freie Referenz, damit die Bedingung nicht verloren
+        geht — erst wenn keine mehr frei ist, fällt sie weg. Ein Ziel,
+        das die Regeln als „n:Name" kennen (beim Merken erst
+        angelegt), wird über den Namen gefunden oder aus `newT`
+        angelegt. Danach sind `cols`, `rules` und `newT` aus der
+        Struktur heraus. **`kind` bleibt** (Struktur v260905-4,
+        5.9.26 spät): die Art gehört wieder zur Struktur — der
+        automatische Weg des Imports bringt sie mit und sperrt sie.
+        Eine Struktur ohne Art (gemerkt am Nachmittag) bleibt ohne;
+        der Import fragt sie dann einmal und trägt sie nach. Ein
+        anderer Wert als reg/flex ist keine Art und fällt weg. */
+  Object.keys(s.csvMaps).forEach(fp=>{
+    const m=s.csvMaps[fp];
+    if(!m||typeof m!=='object')return;
+    const n=v=>(v==null||isNaN(+v))?-1:+v;
+    const f=Object.assign({},m.f||{});
+    if(!('ref1' in f)&&!('ref2' in f)&&!('ref3' in f)&&!('ref4' in f)){
+      const refs=[f.main,f.cat,f.desc].map(n).filter(v=>v>=0);
+      f.ref1=refs[0]==null?-1:refs[0];f.ref2=refs[1]==null?-1:refs[1];f.ref3=refs[2]==null?-1:refs[2];
+    }
+    const nf={date:n(f.date),amount:n(f.amount),ref1:n(f.ref1),ref2:n(f.ref2),ref3:n(f.ref3),ref4:n(f.ref4)};
+    if(Array.isArray(m.rules)&&m.rules.length){
+      const fieldOf={};
+      Object.keys(nf).forEach(k=>{if(nf[k]>=0&&fieldOf[nf[k]]==null)fieldOf[nf[k]]=k;});
+      const free=()=>['ref1','ref2','ref3','ref4'].find(k=>nf[k]<0);
+      const oldFlt=flt=>{
+        const ts=[];
+        Object.keys(flt||{}).forEach(k=>{
+          const v=String(flt[k]).trim();
+          if(!v)return;
+          if(v[0]==='=')ts.push({ci:+k,op:'is',val:v.slice(1).trim()});
+          else ts.push({ci:+k,op:'has',val:v});
+        });
+        return ts.filter(x=>x.val!=='');
+      };
+      const byName=(nm,flex)=>{
+        const q=String(nm||'').trim().toLowerCase();
+        if(flex){const k=(s.kakCats||[]).find(x=>String(x).trim().toLowerCase()===q);return k?s.kak[k]:null;}
+        return s.fixed.find(x=>String(x.name||'').trim().toLowerCase()===q)||null;
+      };
+      m.rules.forEach(r=>{
+        if(!r||!r.t||!r.t.tid)return;
+        const terms=[];
+        (r.terms?r.terms:oldFlt(r.flt)).forEach(tm=>{
+          if(!tm)return;
+          const val=String(tm.val==null?'':tm.val).trim();
+          if(!val)return;
+          if(tm.f){terms.push({f:String(tm.f),op:tm.op||'has',val:val});return;}
+          const ci=n(tm.ci);
+          if(ci<0)return;
+          let k=fieldOf[ci];
+          if(!k){k=free();if(!k)return;nf[k]=ci;fieldOf[ci]=k;}
+          terms.push({f:k,op:tm.op||'has',val:val});
+        });
+        if(!terms.length)return;
+        const tid=String(r.t.tid);
+        let host=null;
+        if(tid.indexOf('i:')===0)host=s.fixed.find(x=>String(x.id)===tid.slice(2))||byName(r.t.name,false);
+        else if(tid.indexOf('k:')===0)host=(s.kak&&s.kak[tid.slice(2)])||byName(tid.slice(2),true);
+        else if(tid.indexOf('n:')===0){
+          const nm=tid.slice(2),flex=m.kind==='flex';
+          host=byName(nm,flex);
+          if(!host){
+            if(flex){
+              if(!s.kakCats.includes(nm))s.kakCats.push(nm);
+              host=s.kak[nm]=s.kak[nm]||blankKak(0);
+            }else{
+              const nt=(m.newT||[]).find(y=>y&&y.tid===tid);
+              if(!nt||!nt.group)return;
+              host=normalize({id:uid(),name:nm,group:nt.group,amounts:Array(12).fill(0)});
+              host.bank=nt.bank||'';host.pay=nt.pay||'';host.dueDay=nt.due||'';
+              s.fixed.push(host);
+            }
+          }
+        }
+        if(!host)return;
+        (host.impRules=host.impRules||[]).push({terms:terms});
+      });
+    }
+    m.f=nf;
+    if(m.kind!=='reg'&&m.kind!=='flex')delete m.kind;
+    delete m.cols;delete m.rules;delete m.newT;
+  });
   /* `created` gab es einen Tag lang: der Tag, an dem ein Buch
      angefangen wurde, gedacht als Frist für neue Nutzer. Die Frist
      hängt jetzt am ersten **Speichern** und braucht kein Datum

@@ -107,7 +107,7 @@ in, and you can overwrite it.</p>
 <p>Below that, twelve boxes. <b>An expense is typed with a minus</b>: “-49,90”. Same amount every
 month? Type it once in the quick entry and apply it to all of them. Clicking into a box selects
 what is in it, so typing replaces it.</p>
-<p>Under every month is a <b>tick</b>: “this one is settled”. It locks the amount. If a figure is
+<p>Under every month is a <b>tick</b>: “this one is settled”. It locks the amount. If a number is
 not fixed yet, tick <b>“${t('item.est')}”</b> instead — it then shows in yellow with a question
 mark.</p>
 
@@ -115,7 +115,7 @@ mark.</p>
 ${gshot('flex-dialog','The amounts window of a Flexible Payments category')}
 <p>Press <b>${t('year.addKak')}</b>. Same window, only you are describing a category instead of a
 contract. The name is the <b>heading</b> — click it to change it.</p>
-<p>You cannot know these figures in advance, and you are not meant to. Put in what you expect,
+<p>You cannot know these numbers in advance, and you are not meant to. Put in what you expect,
 tick <b>“${t('item.est')}”</b>, and correct it once the month is over.</p>
 
 <h4>Step 7 — Your monthly routine</h4>
@@ -128,7 +128,7 @@ ${gshot('month-out','The regular costs of one month')}
   <li>Press <b>${t('app.save')}</b>.</li>
 </ol>
 <p><b>A guessed amount is not ticked off in passing.</b> Its seal opens the item instead, with
-that month’s figure ready to correct. Put the real number in, tick the month there, save. Cancel
+that month’s amount ready to correct. Put the real number in, tick the month there, save. Cancel
 and nothing has changed — a guess should not become a fact unseen.</p>
 <p>To change a row, take the pencil next to it or <b>double-click the amount or the name</b>. A
 double-click on an amount marks that month in the window, so you find it again among the twelve.
@@ -148,7 +148,7 @@ the name so the newest is easy to spot.</p>
 anything you are unsure about. It does not count as saving: the file you work in still has the
 change ahead of it.</p>
 <p>The file is plain text and yours alone. Copy it somewhere safe now and then — it is the only
-place your figures exist.</p>
+place your numbers exist.</p>
 
 <h4>That is the whole book</h4>
 <p>Everything else answers a question you have not asked yet: the year table, the forecast, the
@@ -285,8 +285,8 @@ by month, and tick off what has actually been paid. In return it tells you at an
 is left this month and how the year is going to end.</p>
 <p>Everything lives in <b>one file on your own computer</b>. No account, no server. Nothing is sent
 anywhere. The app only writes to that file when you press <b>${t('app.save')}</b>. Keep a copy
-somewhere safe: it is the only place your figures exist.</p>
-<p><b>The book starts from a figure you give it.</b> In <b>${t('app.settings')}</b>, right next to
+somewhere safe: it is the only place your numbers exist.</p>
+<p><b>The book starts from a number you give it.</b> In <b>${t('app.settings')}</b>, right next to
 the year, there is a field called <b>${t('set.opening')}</b>: what was in your account before
 January.</p>
 <p>Type 5.530,00 there and every balance in FINA counts on from 5.530,00. Income adds to it, costs
@@ -343,7 +343,7 @@ Then you do not have to type it a second time: <b>${t('app.settings')}</b>, sect
 <p>The table needs a header row with the twelve month names, one row per item, and twelve month
 columns. In the narrow column behind each month a <b>/</b> marks the sum rows. That is how FINA
 tells a heading from an item.</p>
-<p><b>The structure is worked out, not guessed.</b> A heading is a row whose twelve figures are
+<p><b>The structure is worked out, not guessed.</b> A heading is a row whose twelve numbers are
 exactly the sum of the rows below it. A CSV file has no indentation, but it has those sums.</p>
 <p>Before anything changes, FINA puts its own reading next to the sum rows of your table and writes
 <b>${t('sheet.ok')}</b> or <b>${t('sheet.off')}</b> beside each one. If one differs, a heading was
@@ -410,7 +410,7 @@ the list did.</p>
 <p>Mind the name: the tab is called ${t('view.kakeibo')}, while the kind of money keeps its own
 name, <b>${t('g.flex')}</b>, in the blocks and categories everywhere else.</p>
 ${gshot('flex-view','Flexible Payments: spending by category')}
-<p>In its left-hand card, in brackets behind every main category, it says where that figure comes
+<p>In its left-hand card, in brackets behind every main category, it says where that number comes
 from. <b>${t('kak.kImp')}</b> from the import. <b>${t('kak.kCorr')}</b> where you overwrote an
 imported month. <b>${t('kak.kDone')}</b> where you ticked one off. <b>${t('kak.kFix')}</b> for a
 typed amount that is not an estimate. <b>${t('kak.kEst')}</b> for what is still open.</p>
@@ -419,16 +419,16 @@ the period, and <b>${t('kak.cur')}</b> next to it takes you back to this month f
 anywhere.</p>
 
 <h4>The analytics area</h4>
-<p>Above every month sits one thin line with the four figures of the month: what comes in, what the
+<p>Above every month sits one thin line with the four numbers of the month: what comes in, what the
 everyday categories cost, what the bills cost, and what of that is <b>still open</b>.</p>
 <p>There is no balance among them. A balance wants the other eleven months next to it to mean
 anything; you find it in the year view and in the forecast. What this month does to your account
 is what the timeline below says, row by row.</p>
 <p><b>The four count the rows you can see.</b> Filter the month, and they follow — see
 <i>Filtering and finding</i>.</p>
-<p>Click anywhere on it and it opens. Below the figures a timeline appears that shows how your
+<p>Click anywhere on it and it opens. Below the numbers a timeline appears that shows how your
 balance moves through the month.</p>
-${gshot('ui-analytics','The analytics area, opened: figures, timeline, filter row')}
+${gshot('ui-analytics','The analytics area, opened: numbers, timeline, filter row')}
 <p>It starts closed on purpose. The line sticks to the top of the screen while you scroll, so
 closed it costs one row instead of six. Once you open it, it stays open until you close it again.
 That choice belongs to the screen and is not kept in the file.</p>
@@ -441,7 +441,7 @@ afterwards.</p>
 this file. In January there is nothing to carry in. It is the only row that does not filter,
 because nothing falls due in it.</p>
 <p><b>${t('month.tlClose')} takes up everything without a payday:</b> the ${t('g.flex')}, the
-balance correction, and every item you left without a due date. Its figure is therefore the
+balance correction, and every item you left without a due date. Its number is therefore the
 balance of the whole month.</p>
 ${gshot('ui-waterfall','The waterfall: every row starts where the row above it ended')}
 <p><b>The bar is a waterfall.</b> The scale is the balance itself: the further right, the more is
@@ -463,7 +463,7 @@ then frays out towards the left, and the range it covers is printed under the ch
 That is the same as the due-date buttons in the filter row, only where you happen to be reading.
 Click it again and the filter is off.</p>
 <p>The timeline then shows that part alone: the other rows lie flat, because nothing you are
-looking at moves in them. Only <b>${t('month.tlOpen')}</b> keeps its figure — that is where the
+looking at moves in them. Only <b>${t('month.tlOpen')}</b> keeps its number — that is where the
 month starts, whatever you filter.</p>
 
 <h4>A regular cost, step by step</h4>
@@ -499,14 +499,14 @@ of them. The month you are currently in is deliberately left open, because it is
 yet.</p>
 ${gshot('item-dialog','The item window')}
 <p>Is an amount not fixed yet — the electricity bill, roughly? Tick the box
-<b>“${t('item.est')}”</b>. FINA then shows the figure in yellow with a question mark, so you can
+<b>“${t('item.est')}”</b>. FINA then shows the number in yellow with a question mark, so you can
 see at a glance which numbers are guesses.</p>
 <p><b>A guess is not ticked off in passing.</b> Click the seal of such a month in the month view
-and FINA opens the item instead, with that month’s figure ready to correct. Put the real number
-in, tick the month there, save. Cancel and nothing has changed — neither the figure nor the tick.
+and FINA opens the item instead, with that month’s amount ready to correct. Put the real number
+in, tick the month there, save. Cancel and nothing has changed — neither the amount nor the tick.
 Taking a tick away needs no detour: that changes no number.</p>
 <p>A <b>double-click on an amount</b> opens the item too, and marks that month with an orange
-frame, so you find it again among the twelve. If the month is still open its figure stands ready
+frame, so you find it again among the twelve. If the month is still open its amount stands ready
 selected; if it is ticked, only the frame is there. Opening the item any other way marks
 nothing.</p>
 <p>At the bottom of the window, next to Cancel, stands <b>${t('item.dup')}</b>. It opens the same
@@ -519,9 +519,9 @@ the same button.</p>
 <h4>Everyday spending</h4>
 <p>Everyday spending works the same way, only with categories instead of contracts. Give a
 category an amount per month and tick it off once the month is done.</p>
-<p>If you cannot pin the figure down, an estimate is enough. FINA marks it as a guess. In the
+<p>If you cannot pin the number down, an estimate is enough. FINA marks it as a guess. In the
 month view that mark sits at the right-hand end of the row, because it says something about the
-figure, not about the name.</p>
+number, not about the name.</p>
 <p>If you use the <b>Fast Budget</b> app on your phone, you can save yourself the typing. Export
 your transactions there as a CSV file and load it here with <b>${t('app.import')}</b>.</p>
 <p>The button sits in <b>${t('app.settings')}</b>, in the section <b>${t('set.navImport')}</b>,
@@ -534,10 +534,10 @@ the file, shows you which months are in it, lets you deselect any of them, and t
 what it is about to overwrite.</p>
 <p>Only the very last button changes anything, and the chosen months are <b>replaced, not added
 to</b>. After that the app also knows your subcategories and every single booking behind them.</p>
-<p>Both ways can live side by side. Months you imported show the real figures, months you did not
-show the ones you typed. If an imported figure is wrong you can simply overwrite it. In the
+<p>Both ways can live side by side. Months you imported show the real numbers, months you did not
+show the ones you typed. If an imported number is wrong you can simply overwrite it. In the
 amounts window that month then says <b>CORRECTED</b> in orange instead of IMPORTED, the moment you
-type — and pointing at the word tells you what the imported figure was. The import is not lost.</p>
+type — and pointing at the word tells you what the imported number was. The import is not lost.</p>
 
 <h4>Reading the year table</h4>
 <ul>
@@ -570,7 +570,7 @@ type — and pointing at the word tells you what the imported figure was. The im
   <li>That row belongs to the frame like the column headings and stays put whatever you type.</li>
   <li>The column headings, that row and the three block rows all stay at the top while you scroll.
       The table scrolls inside itself; sideways you move it with the bar above it, so nothing lies
-      across your figures.</li>
+      across your numbers.</li>
   <li>Clicking a month name takes you into that month. A double-click on an amount or on the name
       opens the item, the same window as the pencil.</li>
 </ul>
@@ -578,10 +578,10 @@ type — and pointing at the word tells you what the imported figure was. The im
 <h4>Filtering and finding</h4>
 <p>Filtering never changes your file. It only decides which rows you are shown, and you can take it
 back at any time.</p>
-<p><b>The figures follow what is on screen.</b> Filter a month down to three rows, and the three
+<p><b>The numbers follow what is on screen.</b> Filter a month down to three rows, and the three
 block totals, the category totals and the analytics line above them count those three. The year
 table does the same: the block rows, the category rows and <b>${t('year.totalRow')}</b> add up what
-is left standing. Switch the filter off and the full figures are back.</p>
+is left standing. Switch the filter off and the full numbers are back.</p>
 <p>That way a filter answers a question. Search for a category and you read what it brings in and
 what it costs, instead of a total that belongs to rows you cannot see.</p>
 <p>Two things stay out of it. <b>${t('month.tlOpen')}</b>, the first row of the timeline, is the
@@ -610,7 +610,7 @@ hiding stands next to its heading as “(n hidden)”.</p>
 looking for should never hide in something you folded last week.</p>
 <p>The month view and the year view share one search field, and they share its word: type it in
 one and it still applies in the other.</p>
-<p>It filters while you type, in parts of words and of figures, and without regard to capitals;
+<p>It filters while you type, in parts of words and of numbers, and without regard to capitals;
 “1.234,56” and “1234.56” find the same row. In the month view it looks at the month on screen, in
 the year view at all twelve. There, a hit on the name of a block or of a category shows that block
 whole. Nothing in the file changes, only what you see.</p>
@@ -618,7 +618,7 @@ whole. Nothing in the file changes, only what you see.</p>
 looked for in</b>: <b>${t('flt.fName')}</b>, <b>${t('flt.fNote')}</b>, <b>${t('flt.fAmount')}</b>,
 <b>${t('flt.fTotal')}</b>, <b>${t('flt.fMeta')}</b>.</p>
 <p>Everything is ticked to begin with — that is the search that looks everywhere. Take entries out
-and the filter narrows: only names, say, or only figures.</p>
+and the filter narrows: only names, say, or only numbers.</p>
 <p><b>${t('g.save')}</b> keeps the choice, <b>${t('g.cancel')}</b> drops it. At least one entry
 has to stay ticked. A filter with nothing to search would simply find nothing, so FINA says so in
 red instead of saving.</p>
@@ -665,7 +665,7 @@ for when you really want to read it.</p>
 
 <h4>Saving and safety</h4>
 <p>Nothing is ever written by itself. <b>${t('app.save')}</b> writes everything into your file:
-figures and settings. In Chrome and Edge it writes back into the very same file; other browsers
+numbers and settings. In Chrome and Edge it writes back into the very same file; other browsers
 put a fresh copy in your downloads folder.</p>
 <p>Such a copy carries <b>the date and time in front of its name</b> — “260809-142530 fina.json”.
 In a folder full of them the newest is then simply the last, and you can see at a glance which is
@@ -1122,7 +1122,53 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.8.23 <span class="pill">latest</span></h4>
+<h4>26.9.5 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>CSV import 2.0</b> — reads any CSV in three steps: file, columns and fields,
+      matching. FINA remembers the column structure per file type and the import criteria
+      at each entry.</li>
+  <li><b>A guide beside the import</b> — the “${t('app.guide')}” button in steps 2 and 3
+      explains the step next to the window.</li>
+  <li><b>${t('set.navImport')} in the settings</b> — change a remembered CSV structure with
+      the pencil, and see all import criteria in one window.</li>
+  <li>Bug fixing and cosmetic touch-ups.</li>
+</ul>
+
+<h4>26.8.30</h4>
+<ul>
+  <li><b>“${t('app.save')}” steps out of the menu</b> — as soon as there is something to
+      save it stands next to the ☰ button with a red frame, and an open survey sits to its
+      left. When the header gets too narrow both slip back into the menu, and the red dot on
+      the ☰ button says that something in there is waiting for you.</li>
+  <li><b>“${t('app.load')}” is back in the menu</b> — together with the CSV import it opens
+      the menu as its own group, so you can pick up another file without closing this one
+      first. Unsaved work is asked about before anything is replaced.</li>
+  <li><b>The month view now shows its balance</b> — the fourth box of the analytics line
+      adds up everything the month brings in and everything it costs, instead of counting
+      what is not ticked off yet. It is the same number the year view calls
+      <b>${t('year.totalRow')}</b>.</li>
+  <li><b>The forecast has a new column</b> — <b>SUM</b> says how the month closed, between
+      the correction and the running balance. That balance is now headed <b>PROG</b>: read
+      down the column it shows how your finances develop over the year. A stronger line
+      separates the numbers from the chart.</li>
+  <li><b>Two settings decide what you see when a file opens</b> — under
+      <b>${t('set.navView')}</b> you now say whether the month starts with its analytics open
+      and whether the year starts with completed months hidden. What you switch while working
+      stays with this session and is not written back.</li>
+  <li>Bug fixing and cosmetic touch-ups.</li>
+</ul>
+
+<h4>26.8.24</h4>
+<ul>
+  <li><b>The CSV import reads any file now</b> — bank statement, card export, tracker.
+      A three-step window guides you: pick the file, choose columns and fields, then match
+      the rows to your entries or flexible categories with filters. Imported months carry a
+      blue seal instead of the check mark, and FINA remembers the mapping per file type —
+      the next upload of the same kind runs by itself.</li>
+  <li>Bug fixing and cosmetic touch-ups.</li>
+</ul>
+
+<h4>26.8.23</h4>
 <ul>
   <li><b>FINA is free while we pilot</b> — everything is unlocked, nothing is locked away,
       and instead of a price we ask what you think: the orange button in the header waits
@@ -1185,7 +1231,7 @@ en:()=>`
       screen, and both open that way next time on this computer. Once a book is open, the book
       decides: its language lives in the file and is changed in ${t('app.settings')}.</li>
   <li><b>The timeline follows the due-date filter</b> — pick a section (a timeline row or a
-      filter button): orange lines frame it, and only this row keeps its figures — one sum
+      filter button): orange lines frame it, and only this row keeps its numbers — one sum
       and, per money type, a bar on a labelled grid. The other rows stay put with pale
       bars; a second click on the chosen one brings the waterfall back.</li>
   <li>Bugfixing and cosmetic changes.</li>
@@ -1229,8 +1275,8 @@ en:()=>`
 <h4>26.8.11</h4>
 <ul>
   <li><b>Filtering now adds up what you see.</b> In the month view the block totals, the category
-      totals and the four figures of the analytics line; in the year table the block rows, the
-      category rows and <b>${t('year.totalRow')}</b>. Switch the filter off and the full figures
+      totals and the four numbers of the analytics line; in the year table the block rows, the
+      category rows and <b>${t('year.totalRow')}</b>. Switch the filter off and the full numbers
       are back.</li>
   <li><b>A FINA table can be read in</b> — the spreadsheet FINA grew out of becomes a whole book.
       Before anything changes you see what FINA read against the sum rows of your table.</li>
@@ -1251,7 +1297,7 @@ en:()=>`
       invoice, customer account. The name fills itself from the address, the order can be
       dragged, and where there is no link yet a dash invites you to add one.</li>
   <li><b>An estimated amount is no longer ticked off blindly.</b> The seal opens the entry
-      with that month’s figure ready to correct; you tick it there.</li>
+      with that month’s amount ready to correct; you tick it there.</li>
   <li><b>${t('view.kakeibo')}</b> — the fourth tab’s new name, opened with
       Ctrl/Cmd + Shift + D, and it starts with the largest single items.</li>
   <li><b>Corrected imported months say so at once</b>, in orange, and name the imported
@@ -1296,7 +1342,7 @@ en:()=>`
 <h4>26.8.6</h4>
 <ul>
   <li><b>A first screen</b> with no file open: open a file, or start from scratch.</li>
-  <li><b>${t('month.ana')}</b> — the five figures of the month open a timeline of it.</li>
+  <li><b>${t('month.ana')}</b> — the five numbers of the month open a timeline of it.</li>
   <li><b>One filter row at the top</b>, for all three blocks at once.</li>
   <li><b>Blocks fold away.</b></li>
   <li>Bugfixing and cosmetic changes.</li>
@@ -1336,7 +1382,54 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.8.23 <span class="pill">neu</span></h4>
+<h4>26.9.5 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>CSV-Import 2.0</b> — liest jede CSV in drei Schritten: Datei, Spalten und Felder,
+      Zuordnen. FINA merkt sich die Spaltenstruktur je Datei-Art und die Importkriterien
+      am Posten.</li>
+  <li><b>Anleitung neben dem Import</b> — der Knopf „${t('app.guide')}" in Schritt 2 und 3
+      erklärt den Schritt neben dem Fenster.</li>
+  <li><b>${t('set.navImport')} in den Einstellungen</b> — eine gemerkte CSV-Struktur mit
+      dem Stift ändern, alle Importkriterien in einem Fenster sehen.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.30</h4>
+<ul>
+  <li><b>„${t('app.save')}" tritt aus dem Menü heraus</b> — sobald es etwas zu speichern
+      gibt, steht der Knopf mit rotem Rahmen neben dem ☰, und eine offene Umfrage steht
+      links daneben. Wird die Kopfzeile zu eng, gehen beide zurück ins Menü, und der rote
+      Punkt am ☰ sagt, dass dort drin etwas auf dich wartet.</li>
+  <li><b>„${t('app.load')}" steht wieder im Menü</b> — zusammen mit dem CSV-Import als
+      eigene Gruppe ganz oben. Du kannst damit eine andere Datei öffnen, ohne die jetzige
+      vorher zu schließen; nach ungespeicherter Arbeit wird vorher gefragt.</li>
+  <li><b>Die Monatsansicht zeigt jetzt ihren Saldo</b> — die vierte Kachel der Auswertung
+      rechnet alles zusammen, was der Monat bringt und kostet, statt zu zählen, was noch
+      nicht abgehakt ist. Es ist dieselbe Zahl, die die Jahresansicht
+      <b>${t('year.totalRow')}</b> nennt.</li>
+  <li><b>Die Prognose hat eine neue Spalte</b> — <b>SUM</b> sagt, wie der Monat
+      abgeschlossen hat, und steht zwischen der Korrektur und dem Kontostand. Der heißt
+      jetzt <b>PROG</b>: von oben nach unten gelesen zeigt die Spalte die Entwicklung
+      deiner Finanzen über das Jahr. Eine kräftigere Linie trennt die Zahlen von der
+      Grafik.</li>
+  <li><b>Zwei Einstellungen entscheiden, womit eine Datei aufgeht</b> — unter
+      <b>${t('set.navView')}</b> sagst du jetzt, ob der Monat mit aufgeklappter Auswertung
+      anfängt und ob das Jahr die abgeschlossenen Monate versteckt. Was du beim Arbeiten
+      umschaltest, gilt nur für diese Sitzung und wird nicht zurückgeschrieben.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.24</h4>
+<ul>
+  <li><b>Der CSV-Import liest jetzt jede Datei</b> — Kontoauszug, Kartenexport, Tracker.
+      Ein Fenster führt in drei Schritten durch: Datei wählen, Spalten und Felder festlegen,
+      dann die Zeilen mit Filtern deinen Posten oder flexiblen Kategorien zuordnen.
+      Importierte Monate tragen ein blaues Siegel statt des Hakens, und FINA merkt sich die
+      Zuordnung je Datei-Art — derselbe Export läuft beim nächsten Mal von selbst durch.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.8.23</h4>
 <ul>
   <li><b>FINA ist in der Pilotphase kostenlos</b> — alles ist freigeschaltet, nichts ist
       weggesperrt, und statt eines Preises fragen wir nach deiner Meinung: der orange Knopf
@@ -1761,7 +1854,7 @@ function guideDoc(){
 function openGuideTab(){
   const html=guideDoc();
   const w=window.open('','_blank');
-  if(!w){ toast(t('guide.fullBlocked')); return; }
+  if(!w){ warn(t('guide.fullBlocked')); return; }
   w.document.open(); w.document.write(html); w.document.close();
   closeGuide();
 }

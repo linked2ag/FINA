@@ -6,10 +6,15 @@
 
 /* Vollständig abgehakte Monate werden eingeklappt — aber nur,
    wenn der Nutzer den Knopf dafür gedrückt hat. Die Vorgabe ist
-   das ganze Jahr; der Schalter steht in der Datei
-   (state.hideDoneMonths, siehe js/state.js). */
+   das ganze Jahr.
+
+   Der Schalter gehört seit 30.8.26 der **Sitzung** (ui.hideDone),
+   genau wie sein Nachbar „Erledigte Posten ausblenden". In der
+   Datei steht daneben nur, womit die Ansicht aufgeht
+   (state.hideDoneMonths, Einstellungen → Darstellung); gelesen
+   wird das einmal in afterLoad(). */
 function visMonths(){
-  if(!state||!state.hideDoneMonths) return MONTHS.map((_,i)=>i+1);
+  if(!ui.hideDone) return MONTHS.map((_,i)=>i+1);
   const open=MONTHS.map((_,i)=>i+1).filter(m=>!monthDone(m));
   return open.length?open:MONTHS.map((_,i)=>i+1);
 }
@@ -98,18 +103,34 @@ function mrow(label,vals,opt={}){
   const estAt=m=>it?(estOf(it)&&!paidAt(it,m))
     :(kk?(state.kak[kk].estimated&&!kakDone(kk,m)):false);
   const estTot=vals.some((v,i)=>v!==0&&estAt(i+1));
+  /* Abgehakt ist nicht gleich abgehakt: was aus einer CSV kam,
+     trägt statt des Hakens den Download-Pfeil in elektrischem Blau
+     — dasselbe Zeichen wie das Siegel der Monatsansicht und die
+     Monatskachel im Posten-Fenster. Wer die Matrix überfliegt,
+     sieht damit auf einen Blick, welche Monate er selbst bestätigt
+     hat und welche eine Datei mitgebracht hat. */
+  /* `once` sagt nur, welche Farbe der Kreis bekommt — rot statt
+     cyan (siehe impOnceAt/flexImpOnce in js/calc.js). */
+  const okSym=(imp,once)=>imp?`<span class="statmark imp${once?' once':''}" title="${esc(t(once?'c2.sealOnceTip':'c2.sealTip'))}">${IMPORT_SVG}</span>`
+    :`<span class="statmark" title="${esc(t('year.paidTip'))}">${CHECK_SVG}</span>`;
+  /* Dasselbe Fragezeichen wie im Siegel der Monatsansicht
+     (EST_SVG in js/config.js) — ein Zeichen, in beiden Ansichten. */
+  const estSym=`<span class="statmark est" title="${esc(t('year.estTip'))}">${EST_SVG}</span>`;
   const mark=m=>{
     let sym='';
     /* Die Saldokorrektur wird nicht abgehakt: ihr Betrag ist die
        Korrektur selbst, da ist nichts zu bestätigen. Die Zelle
        behält nur ihre Notizlampe. */
     if(isBalanceItem(it)) sym='';
-    else if(it) sym=it.amounts[m-1]===0?'':(paidAt(it,m)?'<span class="mk-ok">&#10003;</span>':(estOf(it)?'<span class="mk-q">?</span>':''));
+    else if(it) sym=it.amounts[m-1]===0?'':(paidAt(it,m)?okSym(it.imp&&it.imp[m-1],impOnceAt(it,m))
+      :(estOf(it)?estSym:''));
     /* Wie beim Posten: wo kein Betrag steht, steht auch kein
        Fragezeichen — sonst wäre eine noch leere Kategorie eine
-       Reihe aus zwölf Fragezeichen. */
-    else if(kk) sym=kakDone(kk,m)?'<span class="mk-ok">&#10003;</span>'
-      :((state.kak[kk].estimated&&vals[m-1]!==0)?'<span class="mk-q">?</span>':'');
+       Reihe aus zwölf Fragezeichen. Bei den Flexible Payments sagt
+       `flexKind()`, woher der Wert kommt: 'imp' heißt unverändert
+       importiert, und nur das trägt den Pfeil. */
+    else if(kk) sym=kakDone(kk,m)?okSym(flexKind(kk,m)==='imp',flexImpOnce(kk,m))
+      :((state.kak[kk].estimated&&vals[m-1]!==0)?estSym:'');
     else return '';
     const lamp=it?lampHtml('item',it.id,m):lampHtml('kak',kk,m);
     return `<span class="mkcell"><span class="mksym">${sym}</span>${lamp}</span>`;
@@ -123,7 +144,12 @@ function mrow(label,vals,opt={}){
   const done=settled?' settled':'';
   const posLamp=it?lampPos('item',it.id):(kk?lampPos('kak',kk):'');
   /* Die ersten Zeilen der Notiz stehen klein unter dem Namen. */
-  const notePrev=it?notePreview('item',it.id):(kk?notePreview('kak',kk):'');
+  /* **Keine Notizvorschau in der Bezeichnungsspalte** (5.9.26; bis
+     dahin standen die ersten zwei Zeilen der Notiz unter dem Namen).
+     Die Matrix ist zum Vergleichen da, und eine zweizeilige Zeile
+     zwischen einzeiligen bricht das Raster, an dem man zwölf Monate
+     entlangliest. Die Notiz zeigt die Lampe davor als Sprechblase;
+     ausgeschrieben steht sie nur in der Monatsansicht. */
   /* Doppelklick auf Betrag oder Bezeichnung öffnet dieselbe
      Position wie der Stift links (siehe dblItem in js/ui.js).
      Zeilen ohne Posten — Summen, Gruppen — bekommen das Merkmal
@@ -138,7 +164,7 @@ function mrow(label,vals,opt={}){
   const arrow=fold?yfoldBtn(fold.key,fold.on):'';
   const dblFold=fold?` data-dblyfold="${esc(fold.key)}"`:'';
   return `<tr class="${opt.cls||''}${((it||kk)&&!opt.asCat)?' itemrow':''}${done}"${dbl}${dblFold}><td class="ed">${arrow||pencil}</td><td class="ln">${link}</td>
-    <td class="nt">${posLamp}</td><td class="lab">${label}${notePrev}</td>
+    <td class="nt">${posLamp}</td><td class="lab">${label}</td>
     <td class="code cB"${bank?` title="${esc(bankLabel(bank))}"`:''}>${esc(bank)}</td>
     <td class="code cZ"${pay?` title="${esc(payLabel(pay))}"`:''}>${esc(pay)}</td>
     <td class="code cF"${it&&it.dueDay?` title="${esc(DUE_LABEL(it.dueDay))}"`:''}>${it?esc(DUE_SHORT(it.dueDay)):''}</td>
@@ -254,6 +280,44 @@ function viewJahr(){
      **diesem** Monat fällig ist, und ein Posten ohne Betrag ist es
      nicht. */
   const base=it=>wide||!(ui.hideSettled&&yearSettled(it));
+  /* ── Die Filter der Monatsansicht gelten auch hier ───────────
+     Bereich, Fälligkeit und Zahlungsstand stehen in `ui` und
+     wandern seit 30.8.26 mit über den Reiterwechsel: wer im Monat
+     nach den regelmäßigen Kosten filtert und ins Jahr springt,
+     will dieselben Zeilen wiederfinden — vorher galt hier allein
+     der Suchbegriff, und die halbe Filterung verschwand
+     stillschweigend. Zurückgenommen wird wie überall: ✕ oder
+     Escape setzen alle vier zusammen zurück.
+
+     Der Zahlungsstand ist im Monat eine Frage an **einen** Monat
+     (paidAt(it,m)); eine Jahreszeile hat zwölf. Hier heißt
+     „bezahlt" deshalb: abgeschlossen (yearSettled — jeder Monat
+     mit Betrag ist abgehakt), „offen" ist das Gegenteil, und
+     „unklar" bleibt die Schätzung, die ohnehin am Posten hängt.
+     Die weite Suche (wide) übergeht alle drei, wie im Monat. */
+  const secOn=!wide&&ui.secFilter!=='alle';
+  const dueOn=!wide&&ui.dueFilter!=='alle';
+  const payOn=!wide&&ui.filter!=='alle';
+  const secOk=s=>!secOn||ui.secFilter===s;
+  const dueOk=v=>!dueOn||dueGroup(v)===ui.dueFilter;
+  const settledK=k=>{
+    let any=false;
+    for(let m=1;m<=12;m++){
+      const v=kakVal(k,m);
+      if(!v)continue;
+      any=true;
+      if(!kakDone(k,m))return false;
+    }
+    return any;
+  };
+  const stateOkI=it=>!payOn
+    ||(ui.filter==='unklar'?!!estOf(it)
+    :ui.filter==='bezahlt'?yearSettled(it)
+    :!yearSettled(it));
+  const stateOkK=k=>!payOn
+    ||(ui.filter==='unklar'?!!(state.kak[k]&&state.kak[k].estimated)
+    :ui.filter==='bezahlt'?settledK(k)
+    :!settledK(k));
   /* Die Zahl hinter „Erledigte Posten ausblenden" zählt nur, was
      dieser Knopf versteckt — nicht, was der Suchbegriff wegnimmt.
      Ein Posten ohne jeden Betrag ist nie abgeschlossen
@@ -281,8 +345,10 @@ function viewJahr(){
      `filterOn` bleibt davon unberührt: **welche Zeilen es gibt**,
      entscheiden beide weiterhin (keepSec unten). Gesperrt ist nur
      das Klappen. */
-  const filterOn=!!q||!!ui.hideSettled;
-  const foldLock=!!q;
+  const filterOn=!!q||!!ui.hideSettled||secOn||dueOn||payOn;
+  /* Auch die drei übernommenen Filter klappen alles auf — wer
+     filtert, hat ein Ziel (dieselbe Regel wie im Monat). */
+  const foldLock=!!q||secOn||dueOn||payOn;
   /* ── Beim Filtern verschwindet ein leerer Block ganz ──────────
      Bleibt in einem Block keine Zeile übrig, fällt auch seine
      Blockzeile weg — mitsamt der Leerzeile davor. Zwölf Nullen
@@ -338,7 +404,11 @@ function viewJahr(){
      ist die einzige Zeile der blauen Karte und liest sich wie ein
      Posten — heller Grund (--bg-bal), gewöhnliche Schrift; die
      Blockzeile der Karte ist „Saldo je Monat" darüber. */
-  const balOn=qOk(state.balance)||hit(t('bal.row'));
+  /* Wie im Monat: die Korrektur gehört keinem Bereich und fällt
+     bei jeder Bereichswahl weg; ihre Fälligkeit ist der
+     Monatsabschluss (Z), abgehakt wird sie nie — der
+     Zahlungsstand lässt sie stehen. */
+  const balOn=secOk('bal')&&dueOk('')&&(qOk(state.balance)||hit(t('bal.row')));
   if(balOn)
     parts.push(mrow(`<span data-tip="${esc(t('bal.tip'))}">${t('bal.row')}</span>`,
       state.balance.amounts,{item:state.balance,asCat:true,cls:'r-bal',editTip:t('bal.editTip')}));
@@ -356,7 +426,8 @@ function viewJahr(){
     /* Trifft der Name der Kategorie, steht sie mit allem darunter
        da — genau wie im Kostenblock. */
     const gHit=secIn||hit(keyLabel(g));
-    const vis=settledLast(items).filter(it=>base(it)&&(gHit||qOk(it)));
+    const vis=settledLast(items).filter(it=>secOk('in')&&base(it)&&(gHit||qOk(it))
+      &&dueOk(it.dueDay)&&stateOkI(it));
     if(!vis.length) return;
     incVis.push(...vis);
     if(incMany) incRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-in'});
@@ -371,7 +442,10 @@ function viewJahr(){
      soll. Über den Stift bekommt sie ihre Monatswerte. Für
      Einnahmen und Kosten gilt seit base() dasselbe. */
   const secFlex=hit(t('year.kakRow'));
-  const kakVis=kakCats().filter(k=>state.kak[k]&&(secFlex||!q||hayKak(k).includes(q)));
+  /* Flexible Kategorien haben keinen Zahltag — sie gehören zum
+     Monatsabschluss (Z), wie im Monat. */
+  const kakVis=kakCats().filter(k=>state.kak[k]&&secOk('flex')&&dueOk('')&&stateOkK(k)
+    &&(secFlex||!q||hayKak(k).includes(q)));
   const kakRows=kakVis
     .map(k=>mrow(esc(keyLabel(k)),MONTHS.map((_,i)=>kakVal(k,i+1)),{kak:k,cls:'r-flex'})).join('');
   /* Die Flexible Payments hängen nicht an `amounts`, sondern an
@@ -394,7 +468,8 @@ function viewJahr(){
        da — auch mit den Posten, die für sich genommen nicht
        passen. */
     const gHit=secOut||hit(keyLabel(g));
-    const vis=settledLast(items).filter(it=>base(it)&&(gHit||qOk(it)));
+    const vis=settledLast(items).filter(it=>secOk('out')&&base(it)&&(gHit||qOk(it))
+      &&dueOk(it.dueDay)&&stateOkI(it));
     if(!vis.length) return;
     outVis.push(...vis);
     outRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-out'});
@@ -479,12 +554,17 @@ function viewJahr(){
 
      Die beiden Ausblenden-Knöpfe zählen ausdrücklich **nicht** mit.
      Sie sind keine Filter: sie räumen ab, was fertig ist — der eine
-     Spalten (state.hideDoneMonths, in der Datei), der andere Zeilen
-     (ui.hideSettled, nur diese Sitzung). Deshalb stehen sie in der
+     Spalten (ui.hideDone), der andere Zeilen (ui.hideSettled).
+     **Beide gelten nur dieser Sitzung** (seit 30.8.26); womit die
+     Ansicht aufgeht, steht für beide nicht hier, sondern in den
+     Einstellungen unter „Darstellung". Deshalb stehen sie in der
      Zeile auch abgesetzt am rechten Rand (.ybhide). Dass sie gerade
      gelten, sagen sie selbst: dunkler Grund und die Zahl in
      Klammern. */
-  const filtered=!!(ui.q||'').trim();
+  /* Die Zeile leuchtet, sobald irgendein Filter greift — seit die
+     drei Filter der Monatsansicht auch hier gelten, zählen sie
+     mit (30.8.26; vorher allein der Suchbegriff). */
+  const filtered=!!(ui.q||'').trim()||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle';
   /* **Gefärbt wird die Zeile, nicht die Leiste.** Unter den Knöpfen
      hängt in derselben Leiste der waagerechte Rollbalken der Matrix
      — der filtert nichts und soll die Farbe deshalb auch nicht
@@ -507,7 +587,7 @@ function viewJahr(){
            keine Trennlinie — eine Linie machte aus ihnen die dritte
            Filtergruppe. -->
       <span class="ybhide">
-        <button class="btn small" id="btnFold" aria-pressed="${!!state.hideDoneMonths}"
+        <button class="btn small" id="btnFold" aria-pressed="${!!ui.hideDone}"
           data-tip="${esc(t('year.hideDoneTip'))}">${t('year.hideDone')}${hidden?` (${hidden})`:''}</button>
         <button class="btn small" id="btnHideSettled" aria-pressed="${!!ui.hideSettled}"
           data-tip="${esc(t('year.hideSettledTip'))}">${t('year.hideSettled')}${hiddenRows?` (${hiddenRows})`:''}</button>

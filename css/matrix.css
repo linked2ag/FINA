@@ -109,11 +109,24 @@
 .matrix td.ed{left:0;padding:4px 0;text-align:center}
 .matrix td.ln{left:30px;padding:4px 0;text-align:center}
 .matrix td.nt{left:60px;padding:4px 0;text-align:center}
+/* **Die drei Symbole stehen auf einer Mitte** (5.9.26). Als
+   Inline-Kästen hingen sie an der Schriftlinie ihrer Zelle, und
+   ein Knopf bringt seine eigene Schrift mit — die Lampe stand
+   dadurch ein Pixel tiefer als Stift und Kette, in einer zweizeiligen
+   Zeile (mit Notiz) noch deutlicher. Als Block ist jedes Symbol der
+   ganze Inhalt seiner Zelle, und die Zelle setzt es selbst in die
+   Mitte (vertical-align:middle); waagerecht zentriert der Rand. */
+.matrix td.ed .pencil,.matrix td.ln .linkicon,.matrix td.nt .lamp{display:grid;margin:0 auto}
 .matrix td.lab{left:90px;text-align:left;white-space:normal}
 .matrix td.cB{left:calc(90px + var(--labw,250px))}
 .matrix td.cZ{left:calc(128px + var(--labw,250px))}
 .matrix td.cF{left:calc(166px + var(--labw,250px))}
-.matrix td.cE{left:calc(204px + var(--labw,250px));font-size:10.5px;border-right:2px solid var(--rule-strong)}
+/* Die LP-Spalte trägt **Tinte** wie die Bezeichnung daneben, nicht
+   das Grau der Kürzelspalten: dort steht ein Datum, das man liest —
+   und es steht auf der farbigen Ampel, auf der ein graues Datum
+   verschwimmt. */
+.matrix td.cE{left:calc(204px + var(--labw,250px));font-size:10.5px;color:var(--ink);
+  border-right:2px solid var(--rule-strong)}
 
 /* ── Ampel der Spalte „Ende" ──────────────────────────────────
    Nur die Zelle, nicht die Zeile. Gerechnet wird vom laufenden
@@ -273,9 +286,22 @@
    (4a), und Blockzeilen tragen keine Vorzeichenfarbe. Ob ein Monat
    ins Plus oder ins Minus läuft, sagt das Minus vor der Zahl. */
 
-/* ── Haken, Fragezeichen, Notizlampe je Monatszelle ───────── */
-.mk-ok{color:var(--ok)}
-.mk-q{color:var(--amber)}
+/* ── Der Stand je Monatszelle, die Notizlampe daneben ─────────
+   Das Zeichen selbst ist seit 30.8.26 überall dasselbe: ein
+   gefüllter Kreis (.statmark in css/components.css) wie das Siegel
+   der Monatsansicht. Die alten nackten Zeichen (.mk-ok, .mk-q,
+   .mk-imp) gibt es nicht mehr; hier steht nur noch, wie groß der
+   Kreis in einer Tabellenzelle sein darf. */
+.matrix .statmark{width:13px;height:13px}
+.matrix .statmark svg{width:9px;height:9px}
+/* **Die Lampe ist so groß wie der Kreis daneben** (5.9.26). Ihr
+   Zeichen füllt nur drei Viertel seiner Zeichenfläche (der Bogen der
+   Birne läuft von 3 bis 21 von 24): mit 12 px war die Birne 9 px
+   hoch und stand als kleines Ding neben dem 13-px-Kreis — und neben
+   dem Stift links. Mit 16 px ist sie 12 px hoch, so groß wie beides.
+   Das Kästchen bleibt 16 px; gilt für beide Stellen in der Matrix,
+   links neben dem Stift und rechts neben dem Kreis. */
+.matrix .lamp svg{width:16px;height:16px}
 .mkcell{display:grid;grid-template-columns:13px 16px;gap:3px;align-items:center;justify-items:center;
   width:32px;margin:0 auto}
 .mkcell .mksym{width:13px;text-align:center;line-height:1}

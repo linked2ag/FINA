@@ -11,7 +11,7 @@
    ══════════════════════════════════════════════════════════════ */
 
 /* Die Reiterleiste unten gibt es nur auf dem Telefon; das Element
-   steht immer im Dokument (Webclient.html), sichtbar wird es erst
+   steht immer im Dokument (fina-online.html), sichtbar wird es erst
    in der Abfrage darunter. */
 .mtabs{display:none}
 
@@ -61,10 +61,12 @@ header{margin:0 -12px}
    weiter, dass es Ungespeichertes gibt; gespeichert wird am
    Schreibtisch. */
 .tools #btnSave,.tools #btnImportCsv{display:none}
-/* Der CSV-Import trug den Trenner, der die Dateigruppe abschließt
-   (.mi-sep in css/layout.css) — ohne ihn übernimmt „Daten
-   schließen" als letzter sichtbarer Eintrag der Gruppe. */
-.tools #btnUnlink{border-bottom:1px solid var(--hairline)}
+/* Der CSV-Import schließt am Schreibtisch die erste Gruppe ab —
+   „Daten hochladen" und er stehen dort zusammen (.mi-sep in
+   css/layout.css). Auf dem Telefon fehlt er, also übernimmt das
+   Hochladen den Trenner: sonst liefe es ohne Kante in die
+   Dateigruppe darunter. */
+.tools #btnLoad{border-bottom:1px solid var(--hairline)}
 /* Die Ansichtsreiter oben entfallen — dieselben Reiter stehen
    unten am Daumen (.mtabs). Das display setzt renderChrome()
    inline (dort steht die Weiche); die Regel hier ist der doppelte
@@ -121,7 +123,9 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
   background:var(--grad-btn);border:1px solid var(--rule);color:var(--ink);
   border-radius:8px;box-shadow:var(--sh-btn);font-size:16px;padding:0}
 .mfbtn[aria-expanded="true"]{background:var(--shade)}
-.mfbtn.on{background:var(--accent);border-color:var(--accent-2);color:#fff}
+/* Gefiltert heißt auf dem Telefon dasselbe wie am Schreibtisch:
+   Neongelb mit dunkler Schrift (--flt, siehe css/tokens.css). */
+.mfbtn.on{background:var(--flt);border-color:var(--rule-strong);color:var(--ink)}
 .mfbadge{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:8px;
   background:var(--seal);color:var(--paper-2);font-family:var(--font-data);font-size:9.5px;
   font-weight:600;line-height:16px;padding:0 3px}

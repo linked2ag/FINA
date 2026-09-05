@@ -44,10 +44,114 @@ MOBILE_MQ.addEventListener('change',()=>render());
    Alles mit data-t bekommt seinen Text aus js/i18n.js, data-ttip
    entsprechend den Tooltip. So wechselt die feste Kopfzeile die
    Sprache mit, ohne dass sie neu gebaut werden muss. */
+/* ── Speichern und Umfrage: draußen oder im Menü ──────────────
+   Zwei Knöpfe wollen gesehen werden, bevor jemand das Menü
+   öffnet: „Daten speichern", sobald es etwas zu speichern gibt,
+   und die Umfrage, solange eine offen ist. Beide wohnen im Menü
+   und treten links neben den Hamburger heraus, solange die Zeile
+   Platz dafür hat.
+
+   **Verschoben wird der Knopf selbst**, nicht eine zweite Kopie:
+   ein Knopf an zwei Stellen bräuchte zwei Verdrahtungen, zwei
+   Beschriftungen und zwei Zustände — und die liefen auseinander.
+   Er steht deshalb einmal im HTML und wandert zwischen
+   `.hdrright` und `#hdrTools`.
+
+   **Die Reihenfolge draußen ist fest:** Umfrage · Speichern ·
+   Hamburger. Die Umfrage steht immer als äußerste links; sie soll
+   nicht springen, wenn „Speichern" dazwischen auftaucht.
+
+   **Gemessen, nicht geraten.** Die rechte Seite der Kopfzeile ist
+   eine Flexbox mit `flex:1 1 0` — ihre Breite hängt am Fenster und
+   nicht an ihrem Inhalt. Passt der Inhalt nicht hinein, ragt er
+   stillschweigend über die Ansichtsreiter. Also: die natürlichen
+   Breiten zusammenzählen (dafür dürfen die Knöpfe nicht
+   schrumpfen, siehe `.hdrright>.btn` in css/layout.css) und gegen
+   die zugeteilte Breite halten. Passt es nicht, geht zuerst die
+   Umfrage zurück ins Menü, dann „Speichern": die eigene
+   ungespeicherte Arbeit ist das dringendere von beidem.
+
+   **Der rote Punkt am Hamburger sagt, was drinsteckt.** Er hing
+   bis 30.8.26 allein am dirty-Flag; jetzt heißt er „hier drin
+   wartet etwas" — Ungespeichertes oder eine Umfrage, und nur
+   solange der zugehörige Knopf nicht ohnehin daneben steht. Auf
+   dem Telefon gibt es „Daten speichern" nicht (css/mobile.css);
+   dort bleibt der Punkt der einzige Hinweis. */
+function fitHeaderBtns(){
+  const right=document.querySelector('.hdrright');
+  const menu=document.getElementById('hdrTools');
+  const burger=document.getElementById('btnMenu');
+  const save=document.getElementById('btnSave');
+  const srv=document.getElementById('btnSurvey');
+  const dot=document.getElementById('dirtyDot');
+  if(!right||!menu||!burger||!save||!srv) return;
+
+  const wel=!!ui.welcome, mob=isMobile();
+  /* „Wenn gespeichert werden soll — und wenn Speichern überhaupt
+     möglich ist": also nur mit ungespeicherter Arbeit, nur mit
+     offenem Buch, und nicht auf dem Telefon. */
+  const wantSave=!wel&&!mob&&dirty;
+  const wantSrv=!wel&&!mob&&!srv.hidden;
+
+  /* Im Menü steht die Umfrage **zuoberst**, vor der Gruppe, die
+     Zahlen hereinholt: draußen stünde sie als erstes in der Zeile,
+     drinnen also als erstes in der Liste. „Daten speichern" kehrt
+     an seinen Platz in der Dateigruppe zurück, vor „Sicherung
+     speichern". */
+  const homeSrv=()=>menu.insertBefore(srv,document.getElementById('btnLoad'));
+  const homeSave=()=>menu.insertBefore(save,document.getElementById('btnBackup'));
+
+  if(wantSrv) right.insertBefore(srv,burger); else homeSrv();
+  if(wantSave) right.insertBefore(save,burger); else homeSave();
+
+  /* Die Fuge zwischen den Knöpfen steht als `gap` an .hdrright.
+
+     **Gezählt wird nur, was in der Reihe steht.** Das Menü selbst
+     ist ein Kind derselben Leiste (`.tools`, absolut gesetzt): es
+     nimmt keinen Platz in der Zeile, wäre offen aber 230 px breit
+     — und die Knöpfe verschwänden jedes Mal ins Menü, sobald man
+     es aufklappt. Dasselbe gälte für jedes weitere Overlay, das
+     hier je dazukommt. */
+  const inRow=el=>{
+    if(!el.offsetWidth) return false;
+    const pos=getComputedStyle(el).position;
+    return pos!=='absolute'&&pos!=='fixed';
+  };
+  const fits=()=>{
+    let need=0,n=0;
+    Array.prototype.forEach.call(right.children,el=>{
+      if(!inRow(el)) return;
+      need+=el.offsetWidth; n++;
+    });
+    return need+Math.max(0,n-1)*9<=right.clientWidth;
+  };
+  if(!fits()&&srv.parentNode===right) homeSrv();
+  if(!fits()&&save.parentNode===right) homeSave();
+
+  /* Draußen trägt „Speichern" den roten Rahmen, drinnen ist es
+     eine Menüzeile wie jede andere. Der Umfrage-Knopf behält seine
+     Klasse: im Menü nimmt css/layout.css ihr die Füllung. */
+  const sOut=save.parentNode===right, vOut=srv.parentNode===right;
+  save.classList.toggle('savebtn',sOut);
+  srv.classList.toggle('mi-sep',!vOut);
+
+  if(dot) dot.hidden=wel||!((dirty&&!sOut)||(!srv.hidden&&!vOut));
+}
+
 function renderChrome(){
   document.documentElement.lang=LANG();
   document.querySelectorAll('[data-t]').forEach(el=>{ el.textContent=t(el.dataset.t); });
-  document.querySelectorAll('[data-ttip]').forEach(el=>{ el.title=t(el.dataset.ttip); });
+  /* Die Erklärung eines Knopfes kommt als FINA-Sprechblase und
+     nicht als `title` des Browsers: der zeigt sie erst nach etwa
+     einer Sekunde, und im Hamburger-Menü legte er sie mitten über
+     die Einträge darunter — man las die Erklärung und sah nicht
+     mehr, wozwischen man wählt. `data-tipside` am #hdrTools sagt
+     showTip() (js/ui.js), dass die Blase dort **seitlich** steht:
+     rechts, und links, sobald rechts kein Platz mehr ist. */
+  document.querySelectorAll('[data-ttip]').forEach(el=>{
+    el.setAttribute('data-tip',t(el.dataset.ttip));
+    el.removeAttribute('title');
+  });
   const yl=document.getElementById('yearLbl'); if(yl) yl.textContent=t('app.sub',YEAR);
   /* Der Name wechselt die Sprache mit (FINA Buch / FINA Book) —
      Wortzeichen und Reitertitel kommen deshalb aus t(), nicht aus
@@ -80,10 +184,17 @@ function renderChrome(){
   /* Auch die Anleitung und das Jahr: die Begrüßung ist bewusst
      leer — die Anleitung gehört ins geladene Buch, und ein Jahr
      gibt es ohne Datei noch nicht. */
+  /* „Daten hochladen" steht seit 30.8.26 wieder mit im Menü, als
+     erster Eintrag der Gruppe, die etwas hereinholt (CSV-Import
+     ist der zweite). Es war bis dahin verborgen — geladen wurde
+     ausschließlich auf der Begrüßungsseite —, und wer eine zweite
+     Datei öffnen wollte, musste erst schließen. Ein Buch mit
+     ungespeicherter Arbeit fragt vorher (loadData in
+     js/storage.js). */
   ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewFlex','mNewOut',
    'btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.hidden=wel||id==='btnLoad';
+    if(el) el.hidden=wel;
   });
 
   /* Der Umfrage-Knopf hängt nicht am geladenen Buch allein: es
@@ -93,6 +204,10 @@ function renderChrome(){
      Funktion noch einmal auf. */
   const sb=document.getElementById('btnSurvey');
   if(sb) sb.hidden=!surveyOpen();
+  /* Wo die beiden Knöpfe stehen — neben dem Hamburger oder in
+     seinem Menü —, entscheidet der Platz. Siehe fitHeaderBtns()
+     weiter unten. */
+  fitHeaderBtns();
 
   /* Eine Sprachwahl steht hier nicht mehr: mit offenem Buch
      entscheidet die Datei (state.lang), und geändert wird das im
@@ -100,7 +215,7 @@ function renderChrome(){
      beisammen. Auf der Begrüßungsseite gibt es die Wahl weiter,
      denn dort gibt es noch keine Datei (js/views/willkommen.js). */
 
-  /* Der Menüknopf der mobilen Kopfzeile (siehe Webclient.html und
+  /* Der Menüknopf der mobilen Kopfzeile (siehe fina-online.html und
      css/mobile.css). Auf der Begrüßungsseite wäre das Menü leer —
      dort gibt es ihn nicht. */
   const mb=document.getElementById('btnMenu');
@@ -165,7 +280,7 @@ function renderChrome(){
      die Liste dazwischen nennt die aktuelle und klappt alle auf.
      Dieselbe Liste (VIEWS), dieselbe Wirkung wie die Segmented
      Control oben; am Rand ist Schluss, wie bei den Monaten. Das
-     Element gibt es immer (Webclient.html), sichtbar macht es erst
+     Element gibt es immer (fina-online.html), sichtbar macht es erst
      css/mobile.css unter 700 px; auf der Begrüßungsseite bleibt es
      weg wie die Reiter oben. */
   const mt=document.getElementById('mtabs');
@@ -303,7 +418,7 @@ function syncMatrixHead(){
 
    Wird das Fenster breiter, hat die Tabelle womöglich nichts mehr
    zu rollen — dann verschwindet die Leiste, und umgekehrt. */
-addEventListener('resize',()=>{ syncMatrixHead(); fitRails(); });
+addEventListener('resize',()=>{ syncMatrixHead(); fitRails(); fitHeaderBtns(); });
 
 /* Zeichnet alles neu und hält dabei die Scrollposition. */
 function render(){
@@ -456,17 +571,40 @@ function wire(){
      abgehakt.
 
      Nur beim Setzen des Hakens. Einen Haken wieder wegzunehmen
-     ändert keine Zahl und braucht keinen Umweg. */
+     ändert keine Zahl und braucht keinen Umweg.
+
+     ── Und ein importierter Monat genauso ──────────────────────
+     Dort steht der Pfeil und nicht der Haken, und den Pfeil
+     wegzunehmen heißt: „das kam nicht aus der Datei". Das ist
+     keine Kleinigkeit — die Zahl daneben stammt aus dem Import,
+     und wer die Marke abnimmt, will fast immer den Betrag
+     anfassen. Also derselbe Weg wie beim geschätzten: das Fenster
+     geht auf, der Monat steht markiert da, und drinnen entscheidet
+     man beides zusammen (setSeal/`#fSave` in js/dialogs/item.js
+     nehmen die Import-Marke dann mit). Wer abbricht, hat nichts
+     geändert.
+
+     Der Unterschied zum geschätzten Betrag: dort fragt der Weg vor
+     dem **Setzen**, hier vor dem **Wegnehmen** — der Grund ist
+     beide Male, dass ein Klick sonst eine Zahl umdeutet, die
+     niemand angesehen hat. */
   const askFirst=(est,on)=>est&&!on;
   document.querySelectorAll('[data-paid]').forEach(b=>b.onclick=()=>{
     const it=findItem(b.dataset.paid); if(!it) return;
-    if(askFirst(estOf(it),it.paid[ui.month-1])){ editItem(it,null,null,ui.month); return; }
-    it.paid[ui.month-1]=!it.paid[ui.month-1];
+    const on=it.paid[ui.month-1];
+    if(askFirst(estOf(it),on)||(on&&it.imp&&it.imp[ui.month-1])){
+      editItem(it,null,null,ui.month); return;
+    }
+    it.paid[ui.month-1]=!on;
     keepQFocus(); save();render();
   });
   document.querySelectorAll('[data-kpaid]').forEach(b=>b.onclick=()=>{
     if(b.disabled) return;
     const k=b.dataset.kpaid, e=state.kak[k]; if(!e) return;
+    /* Bei einer flexiblen Kategorie stellt sich die Frage nicht:
+       ist ihr Monat importiert, ist das Siegel ohnehin gesperrt
+       (`imported` in itemRowKak, js/views/monat.js) — dort gibt es
+       keinen Haken, den man abnehmen könnte. */
     if(askFirst(e.estimated,e.paid[ui.month-1])){ editKak(k,null,ui.month); return; }
     e.paid[ui.month-1]=!e.paid[ui.month-1]; keepQFocus(); save();render();
   });
@@ -758,7 +896,12 @@ function wire(){
      Wie in der Monatsansicht: steht im Suchfeld etwas, geht der
      Fokus danach dorthin zurück. */
   const fb=document.getElementById('btnFold');
-  if(fb) fb.onclick=()=>{state.hideDoneMonths=!state.hideDoneMonths;keepQFocus();save();render();};
+  /* „Abgeschlossene Monate ausblenden" gilt seit 30.8.26 nur noch
+     dieser Sitzung (ui.hideDone) — genau wie sein Nachbar. In der
+     Datei steht daneben die **Vorgabe fürs Öffnen**
+     (state.hideDoneMonths, Einstellungen → Darstellung); was hier
+     geklickt wird, ändert sie nicht. Deshalb kein save(). */
+  if(fb) fb.onclick=()=>{ui.hideDone=!ui.hideDone;keepQFocus();render();};
   const hs=document.getElementById('btnHideSettled');
   if(hs) hs.onclick=()=>{ui.hideSettled=!ui.hideSettled;keepQFocus();render();};
 
@@ -778,7 +921,7 @@ function wire(){
   /* Derselbe Weg wie über die Kopfzeile: erst das Fenster mit den
      Spalten, dann die Dateiauswahl. */
   const imp=document.getElementById('btnImportK');
-  if(imp) imp.onclick=()=>openImportInfo();
+  if(imp) imp.onclick=()=>openCsvWizard();
 
   /* Zum Schluss: Tab springt in der Ansicht nur noch von Feld zu
      Feld. Die Kopfzeile bleibt außen vor — über sie erreicht man
@@ -1068,10 +1211,11 @@ document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();
 document.getElementById('btnSurvey').onclick=()=>openSurvey();
-/* Der CSV-Import im Menü nimmt denselben Weg wie der Bereich
-   „Import" der Einstellungen: erst das Fenster, das sagt, was die
-   Datei braucht (openImportInfo), dann die Dateiauswahl. */
-document.getElementById('btnImportCsv').onclick=()=>openImportInfo();
+/* Der CSV-Import im Menü öffnet den generischen Wizard
+   (js/dialogs/csv2-wizard.js): jede CSV, drei Schritte, ins Buch
+   geschrieben wird erst mit „Anwenden". Der alte
+   Fast-Budget-Weg (openImportInfo) bleibt als Bibliothek liegen. */
+document.getElementById('btnImportCsv').onclick=()=>openCsvWizard();
 /* Die beiden „Neu…"-Wege des Menüs — dieselben Fenster wie die
    Knöpfe, die bis zum Mac-Redesign in den Karten standen. Eine
    eigene Zeile für die Einnahme gibt es nicht: der reguläre
@@ -1089,7 +1233,7 @@ document.getElementById('fileJson').onchange=e=>{
   const r=new FileReader();
   r.onload=()=>{ try{ state=migrate(JSON.parse(r.result)); fileName=f.name; fileHandle=null; dirty=false;
       afterLoad(); ui.welcome=false; render(); toast(t('store.loaded',f.name)+oldNote()); }
-    catch(err){ toast(t('store.readFail')); } };
+    catch(err){ warn(t('store.readFail')); } };
   r.readAsText(f,'utf-8'); e.target.value='';
 };
 
@@ -1102,9 +1246,9 @@ document.getElementById('fileCsv').onchange=e=>{
   r.onload=()=>{
     try{
       const rows=parseFastBudget(r.result);
-      if(!rows.length){toast(t('imp.noRows'));return;}
+      if(!rows.length){warn(t('imp.noRows'));return;}
       openImport(rows,f.name);
-    }catch(err){toast(t('imp.failed',err.message));}
+    }catch(err){warn(t('imp.failed',err.message));}
   };
   r.readAsText(f,'utf-8'); e.target.value='';
 };
@@ -1118,9 +1262,9 @@ document.getElementById('fileSheet').onchange=e=>{
   r.onload=()=>{
     try{
       const sheet=parseFinaSheet(r.result);
-      if(!sheet.blocks.length){toast(t('sheet.noBlocks'));return;}
+      if(!sheet.blocks.length){warn(t('sheet.noBlocks'));return;}
       openSheetImport(sheet,f.name);
-    }catch(err){toast(t('imp.failed',err.message));}
+    }catch(err){warn(t('imp.failed',err.message));}
   };
   r.readAsText(f,'utf-8'); e.target.value='';
 };

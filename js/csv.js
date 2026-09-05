@@ -89,7 +89,13 @@ function applyImport(rows,pick){
   months.forEach(m=>{state.kakCats.forEach(k=>{state.flexActual[m][k]=0;
     if(state.kak[k]&&state.kak[k].override) state.kak[k].override[m-1]=null;});state.flexSource[m]='Fast Budget';});
   mine.forEach(r=>{const k=r.main||'(ohne Hauptkategorie)'; state.flexActual[r.m][k]=(state.flexActual[r.m][k]||0)+r.v;});
-  for(let m=1;m<=12;m++) state.kakCats.forEach(k=>state.flexActual[m][k]=Math.round((state.flexActual[m][k]||0)*100)/100);
+  /* Gerundet wird über alle zwölf Monate, auch die unberührten —
+     ein `null` bleibt dabei stehen: es ist die Marke „hier wurde
+     der Import weggenommen" (flexImp in js/calc.js) und keine
+     Zahl. Als 0 gelesen holte dieser Lauf sie in Monaten zurück,
+     die er gar nicht angefasst hat. */
+  for(let m=1;m<=12;m++) state.kakCats.forEach(k=>{const v=state.flexActual[m][k];
+    if(v!=null) state.flexActual[m][k]=Math.round(v*100)/100;});
 
   state.lastImport=new Date().toLocaleString('de-DE');
   save();

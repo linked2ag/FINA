@@ -4,11 +4,32 @@
    Ansicht und in jedem Fenster vorkommt.
    ══════════════════════════════════════════════════════════════ */
 
-/* Kurzmeldung am unteren Rand. */
-function toast(msg){
+/* ── Kurzmeldung am unteren Rand ──────────────────────────────
+   **Es gibt zwei Sorten, und nur eine erscheint** (30.8.26):
+
+   * `toast(msg)` ist die **Bestätigung** — „Datei geladen",
+     „7 importierte Monate gelöscht", „Kategorie gelöscht". Sie
+     sagte, was man ohnehin gerade sieht, und stand dafür
+     viereinhalb Sekunden über der Statuszeile und dem unteren
+     Rand der Tabelle. Sie ist **abgeschaltet**.
+   * `warn(msg)` ist die **Absage** — „Speichern fehlgeschlagen",
+     „Kategorie schon vergeben", „ohne Block kann nicht
+     gespeichert werden". Sie kommt immer: ohne sie täte ein Klick
+     auf „Speichern" nichts und sagte auch nicht, warum.
+
+   Der Schalter steht hier und nicht an den Fundstellen — ein
+   `true` bringt die Bestätigungen zurück. Wer eine neue Meldung
+   baut, entscheidet an der Fundstelle: bestätigt sie, ist es
+   `toast()`; verweigert sie etwas oder meldet einen Fehler, ist es
+   `warn()`. Ein eigenes Aussehen braucht die Absage nicht — sie
+   ist seitdem die einzige Meldung, die überhaupt erscheint. */
+const TOASTS=false;
+function showNote(msg){
   const el=document.createElement('div');el.className='toast';el.textContent=msg;
   document.body.appendChild(el);setTimeout(()=>el.remove(),4600);
 }
+function toast(msg){ if(TOASTS)showNote(msg); }
+function warn(msg){ showNote(msg); }
 
 /* Escape schließt immer das oberste Fenster. Fenster, die beim
    Schließen aufräumen müssen, legen ihren eigenen Weg in
@@ -467,7 +488,7 @@ function bindLinks(root,links,redraw){
   });
   const add=root.querySelector('[data-lnadd]');
   if(add) add.onclick=()=>{
-    if(links.length>=MAX_LINKS){ toast(t('link.max',MAX_LINKS)); return; }
+    if(links.length>=MAX_LINKS){ warn(t('link.max',MAX_LINKS)); return; }
     editLink(null,v=>{ links.push(v); redraw(); });
   };
 
@@ -556,7 +577,32 @@ function showTip(el){
 
   const r=el.getBoundingClientRect(), tr=tipEl.getBoundingClientRect();
   const gap=8;
-  /* **Immer über oder unter dem Element, nie daneben.** Neben dem
+
+  /* ── Ein Menü erklärt sich seitlich ──────────────────────────
+     Über und unter einem Eintrag stehen in einer Liste die
+     Nachbareinträge — genau die, zwischen denen man gerade
+     wählt. Dort deckte die Blase zu, wovon sie handelt.
+
+     Ein Menü meldet sich deshalb mit `data-tipside` an (das
+     Hamburger-Menü der Kopfzeile in fina-online.html tut es):
+     dann steht die Blase **rechts daneben**, und nur wenn dort
+     kein Platz mehr ist, links. Senkrecht mittig zur Zeile — so
+     zeigt sie auf den Eintrag, zu dem sie gehört. */
+  if(el.closest&&el.closest('[data-tipside]')){
+    const right=r.right+gap, left=r.left-gap-tr.width;
+    let x;
+    if(right+tr.width<=window.innerWidth-gap) x=right;
+    else if(left>=gap) x=left;
+    else x=(window.innerWidth-r.right>r.left)?right:left;
+    x=Math.min(Math.max(gap,x),Math.max(gap,window.innerWidth-gap-tr.width));
+    let ym=r.top+r.height/2-tr.height/2;
+    ym=Math.min(Math.max(gap,ym),Math.max(gap,window.innerHeight-gap-tr.height));
+    tipEl.style.left=Math.round(x)+'px';
+    tipEl.style.top=Math.round(ym)+'px';
+    return;
+  }
+
+  /* **Sonst immer über oder unter dem Element, nie daneben.** Neben dem
      Element verdeckte die Blase den Nachbarn — in einer Tabelle
      die Zelle daneben, in einer Leiste den nächsten Knopf, und
      das ist regelmäßig genau das, womit man das Überfahrene
@@ -584,7 +630,28 @@ function showTip(el){
 }
 const hideTip=()=>{ tipEl.hidden=true; };
 
+/* ── Auch title= wird zur Sprechblase (5.9.26) ─────────────────
+   Bis dahin gab es zwei Sorten Hinweis: die eigene Blase (sofort,
+   dunkel) an allem mit data-tip, und den Hinweis des Browsers
+   (nach einer Sekunde, hell) an allem mit title. Jetzt ist es eine
+   Sorte: sobald die Maus über ein Element mit title kommt, wandert
+   der Text nach data-tip und der title fällt — sonst zeigte der
+   Browser seinen Hinweis obendrein. Beim nächsten Zeichnen steht
+   der title wieder da und wandert erneut; wer ihn zwischendurch
+   setzt (cb.title=…, setSeal in js/dialogs/item.js), wird beim
+   nächsten Überfahren genauso gelesen — deshalb gewinnt ein
+   vorhandener title immer über eine ältere Blase.
+
+   Nur die Maus: ein title zeigte sich nie beim Fokus, und das
+   soll so bleiben (data-tiphover) — die Filterfelder des Wizards
+   tragen einen und haben fast immer den Fokus. */
 document.addEventListener('mouseover',e=>{
+  const tl=e.target.closest&&e.target.closest('[title]');
+  if(tl){
+    const s=tl.getAttribute('title');
+    tl.removeAttribute('title');
+    if(s){ tl.setAttribute('data-tip',s); tl.setAttribute('data-tiphover','1'); }
+  }
   const el=e.target.closest&&e.target.closest('[data-tip]');
   if(el) showTip(el);
 });
@@ -709,18 +776,10 @@ function lampPos(kind,key){
     ${n?`data-tip="${esc(n)}"`:''} aria-label="${esc(n?t('note.isPos',n):t('note.addPos'))}">${LAMP_SVG}</button>`;
 }
 
-/* Die ersten Zeilen der Notiz, klein unter dem Namen. Sie stehen
-   dort, damit man eine Notiz überhaupt bemerkt, ohne die Maus zu
-   bewegen — nach zwei Zeilen bricht css/tokens.css sie ab.
-
-   Bewusst ohne data-tip: die Sprechblase gehört der Lampe. Führe
-   die Maus über die Vorschau, passiert nichts; erst die Lampe
-   zeigt den vollen Text. Sonst spränge die Blase schon beim
-   Überqueren der Zeile auf. */
-function notePreview(kind,key){
-  const n=noteOf(kind,key,0);
-  return n?`<div class="noteprev">${esc(n)}</div>`:'';
-}
+/* Eine Notizvorschau unter dem Namen (notePreview, .noteprev) gab
+   es bis 5.9.26 in der Jahresmatrix und in den Import Details. Sie
+   ist weg: die Notiz zur Position zeigt die Lampe als Sprechblase,
+   ausgeschrieben steht nur die Monatsnotiz in der Monatsansicht. */
 
 /* Hängt an alle Lampen unterhalb von root das Notizfenster. */
 function bindNotes(root,after){
@@ -742,7 +801,7 @@ function bindNotes(root,after){
 function openNote(kind,key,m,done){
   const cur=noteOf(kind,key,m);
   const target=noteTarget(kind,key);
-  if(!target){ toast(t('note.gone')); return; }
+  if(!target){ warn(t('note.gone')); return; }
   /* Ein Entwurf hat noch keinen Namen im Zustand — der steht im
      Namensfeld des Fensters, das ihn angemeldet hat. */
   const draft=draftOf(kind,key);
@@ -784,4 +843,248 @@ function openNote(kind,key,m,done){
   grow();
   ta.addEventListener('input',grow);
   ta.focus();
+}
+
+/* ── Die importierten Daten im Fenster ────────────────────────
+   Das Posten- und das Beträge-Fenster können rechts eine Liste
+   aufklappen, die zeigt, was der CSV-Import an dieser Position
+   hinterlassen hat — je Monat eine Gruppe: der Monat mit seinem
+   Betrag und der Import-Marke (cyan gemerkt, rot einmalig),
+   darunter jede Buchung als zwei Zeilen: Datum und Betrag, dann
+   der Verwendungszweck. Beim regelmäßigen Posten kommen die
+   Buchungen aus it.impRows (seit 30.8.26, siehe c2Apply in
+   js/dialogs/csv2-wizard.js — ältere Importe haben sie nicht,
+   dort bleibt es beim Monat mit seiner Summe), bei den flexiblen
+   Kategorien aus state.tx. Sortiert wird nach Datum, bei gleichem
+   Tag nach dem Verwendungszweck — wie ein Kontoauszug.
+
+   Die Liste ist **kein eigenes Fenster**: .impon am .box macht
+   das Fenster um die Spalte breiter — höher macht es sie nicht,
+   die Liste steht absolut an der rechten Kante, läuft über die
+   ganze Fensterhöhe und rollt in sich; ihre Monatsgruppen tragen
+   das Gewand der .dgrp-Blöcke (css/components.css). Der Knopf
+   dazu steht in der Fußzeile
+   (#impBtn, von impSideWire beschriftet); ist das Browserfenster
+   zu schmal für die Spalte, öffnet er stattdessen ein Fenster
+   darüber. Die Wahl lebt in ui.impPanel — Sitzung, nie Datei.
+   Daneben steht #impDel („Importdaten löschen") — seine Wirkung
+   wohnt in den beiden Dialogen, denn nur sie kennen ihren
+   Schlüssel; impSideWire nimmt beide Knöpfe heraus, wenn es
+   nichts zu zeigen gibt. */
+function impSideData(kind,ref){
+  const out=[];
+  /* Sortiert nach Datum, dann nach Verwendungszweck: dn ist der
+     Tag als Zahl (Jahr·Monat·Tag), damit „05." vor „12." kommt
+     und nicht alphabetisch. */
+  const sorted=rows=>rows.sort((a,b)=>(a.dn-b.dn)||String(a.txt||'').localeCompare(String(b.txt||'')));
+  const two=n=>String(n).padStart(2,'0');
+  /* **Je Zeile die drei Referenzen** (5.9.26): neuere Importe
+     tragen sie als Liste `r`, und die Liste zeigt sie je Referenz
+     als eigene Zeile (impSideRows). Ältere Zeilen haben nur ihren
+     zusammengesetzten Text — der steht dann als eine Zeile. `txt`
+     ist in beiden Fällen der Sortierschlüssel (txText/impRowText
+     in js/calc.js). */
+  if(kind==='item'&&ref&&ref.imp){
+    for(let i=0;i<12;i++){
+      if(!ref.imp[i])continue;
+      const src=(ref.impRows&&ref.impRows[i+1])||[];
+      out.push({m:i+1,sum:ref.amounts[i]||0,once:ref.imp[i]===2,
+        rows:sorted(src.map(r=>{
+          const p=String(r.d||'').split('.');
+          return {d:r.d||'',dn:(+p[2]||0)*10000+(+p[1]||0)*100+(+p[0]||0),v:r.v,r:r.r||null,txt:impRowText(r)};
+        }))});
+    }
+  }else if(kind==='kak'&&ref){
+    for(let m=1;m<=12;m++){
+      if(flexKind(ref,m)!=='imp')continue;
+      out.push({m:m,sum:kakVal(ref,m),once:flexImpOnce(ref,m),
+        rows:sorted(state.tx.filter(x=>x.m===m&&x.main===ref).map(x=>({
+          d:x.d?two(x.d)+'.'+two(x.m)+'.'+two(x.y%100):'',
+          dn:(x.y%100)*10000+x.m*100+(x.d||0),v:x.v,r:x.r||null,txt:txText(x)})))});
+    }
+  }
+  /* Aus dem Wizard geöffnet (c2Detail): was diese Datei dem Ziel
+     schon zugeordnet hat, aber noch nicht angewendet ist, kommt
+     hellgelb dazu (nw, c2PendingRows in js/dialogs/csv2-wizard.js)
+     — dieselbe Farbsprache wie der Zielbereich des Imports. Ein
+     Monat, den erst diese Datei bringt, wird eine eigene Gruppe
+     mit der Summe des Schwebenden und ohne Import-Marke: im Buch
+     steht er ja noch nicht. Außerhalb des Wizards ist das Ergebnis
+     leer, und die Liste zeigt wie bisher nur das Buch. */
+  if(ref&&typeof c2PendingRows==='function'){
+    const pend=c2PendingRows(kind,ref);
+    Object.keys(pend).forEach(mk=>{
+      const m=+mk,rows=pend[mk];
+      let g=out.find(x=>x.m===m);
+      if(!g){
+        g={m:m,sum:Math.round(rows.reduce((s,r)=>s+r.v,0)*100)/100,once:false,nw:1,rows:[]};
+        out.push(g);
+      }
+      g.rows=sorted(g.rows.concat(rows));
+    });
+    out.sort((a,b)=>a.m-b.m);
+  }
+  return out;
+}
+/* **Und die Liste steht gleich bei diesem Monat.** Ein Rahmen, den
+   man erst suchen muss, ist keiner: die Gruppe kann die achte von
+   zwölf sein und läge dann außerhalb der Rollfläche. Gemessen wird
+   an den Kanten und nicht an offsetTop — die Rollfläche greift
+   seitlich über ihre Spalte hinaus (css/components.css) und ist
+   selbst nicht positioniert, ein offsetParent wäre also nicht
+   verlässlich derselbe. Die 12 px sind ihr oberes Polster: die
+   Gruppe soll an der Kante stehen, nicht daran kleben. */
+function impScrollToAsk(root){
+  const el=root.querySelector('.impmon.askmon');
+  if(!el)return;
+  const sc=el.closest('.impscroll');
+  if(!sc)return;
+  sc.scrollTop+=el.getBoundingClientRect().top-sc.getBoundingClientRect().top-12;
+}
+/* ── Was dieser Importlauf den Monaten bringt ─────────────────
+   Ein Nachschlagewerk `{monat:{v,once}}` für die Monatskästchen
+   der beiden Fenster (js/dialogs/item.js,
+   js/dialogs/kakeibo-betraege.js). Sie zeigen den Monat so, wie
+   „Anwenden" ihn hinterlassen wird — mit seinem Betrag, seinem
+   Importzeichen und geschlossen —, nur auf hellgelbem Grund:
+   dieselbe Farbsprache wie die Zeilen der Liste daneben und wie
+   der Zielbereich des Wizards, Gelb heißt „kommt neu herein und
+   steht noch nicht in der Datei".
+
+   **Gerechnet wird wie beim Anwenden** (c2Apply): der Monat
+   bekommt die Summe der zugeordneten Zeilen — er wird ersetzt und
+   nicht dazugezählt —, und einmalig ist er, sobald **eine** seiner
+   Zeilen aus einer nicht gemerkten Regel kam. Stünde hier eine
+   andere Rechnung, verspräche die Vorschau etwas anderes, als das
+   Buch bekommt.
+
+   Außerhalb des Wizards ist das Ergebnis leer, und die Fenster
+   sehen aus wie immer. */
+function impPendingMonths(kind,ref){
+  const out={};
+  if(!ref||typeof c2PendingRows!=='function')return out;
+  const p=c2PendingRows(kind,ref);
+  Object.keys(p).forEach(mk=>{
+    const rows=p[mk];
+    if(!rows.length)return;
+    out[+mk]={v:Math.round(rows.reduce((s,r)=>s+r.v,0)*100)/100,
+              once:rows.some(r=>r.once)};
+  });
+  return out;
+}
+/* **Jeder Monat der Liste trägt seine Marke**, und ihre Farbe
+   sagt, woher er kommt: Cyan, was schon im Buch steht (rot, wenn
+   die Zuordnung nicht gemerkt wurde), Gelb, was dieser Lauf erst
+   bringt. Bis 30.8.26 blieb ein rein schwebender Monat ohne
+   Zeichen — daneben stand einer mit, und der Unterschied sah
+   willkürlich aus, obwohl beide gleich importbereit sind. */
+/* **Der Monat, dessentwegen das Fenster aufging, ist auch hier
+   eingefasst** (30.8.26): kam man über einen Doppelklick auf einen
+   Betrag oder über das Siegel eines geschätzten Monats, trägt seine
+   Kachel links den gelben Rahmen (.askcell) — und seine Gruppe in
+   der Liste denselben. Es ist dieselbe Frage („welcher Monat war
+   das?"), und sie stellt sich rechts genauso: in einer Liste aus
+   zwölf Gruppen sucht man ihn sonst am Namen ab. Gescrollt wird
+   auch dorthin, siehe impSideWire(). */
+function impSideRows(data,ask){
+  const mark=g=>`<i class="statmark imp${g.nw?' nw':(g.once?' once':'')}" data-tip="${esc(t(g.nw?'c2.sealNewTip':(g.once?'c2.sealOnceTip':'c2.sealTip')))}">${IMPORT_SVG}</i>`;
+  return `<div class="impscroll">`+data.map(g=>
+    `<div class="impmon${g.m===ask?' askmon':''}" data-impm="${g.m}"><p class="impmh">${mark(g)}<b>${esc(MONTHS_LONG[g.m-1])}</b><span class="${cls(g.sum)}">${eur(g.sum)}</span></p>`+
+    g.rows.map(x=>
+      `<div class="improw${x.nw?' nw':''}"><p class="imprl"><span class="d">${esc(x.d)}</span><span class="v ${cls(x.v)}">${eur(x.v)}</span></p>`
+      /* Je Referenz eine Zeile, mit ihrer Nummer davor — nur die,
+         in denen etwas steht. Ohne Referenzen (ältere Importe) der
+         eine zusammengesetzte Text. */
+      +(x.r&&x.r.some(Boolean)
+        ?x.r.map((v,i)=>v?`<p class="imprd ref"><span class="rl">${esc(t('impv.ref',i+1))}</span>${esc(v)}</p>`:'').join('')
+        :(x.txt?`<p class="imprd">${esc(x.txt)}</p>`:''))+`</div>`).join('')
+    +`</div>`).join('')+`</div>`;
+}
+/* `ask` ist der Monat, dessentwegen das Fenster aufging (der
+   focusMonth der beiden Dialoge) — oder nichts. */
+function impSideWire(modal,kind,ref,ask){
+  const btn=modal.querySelector('#impBtn'),del=modal.querySelector('#impDel');
+  const data=impSideData(kind,ref);
+  const boxEl=modal.querySelector('.box');
+  /* **Ohne Importdaten bleibt der Knopf stehen und ist grau**
+     (30.8.26; vorher fiel er ganz weg). Er sagt dann, dass es
+     diesen Bereich gibt und an dieser Position nichts darin steht —
+     ein Knopf, der je nach Posten da ist oder nicht, lässt die
+     Fußzeile bei jedem Fenster anders aussehen. Der Löschknopf
+     geht: er wohnt unter der Liste, und die gibt es hier nicht. */
+  if(!data.length){
+    if(del)del.remove();
+    if(btn){btn.hidden=false;btn.disabled=true;btn.textContent=t('impv.show');}
+    return;
+  }
+  if(!btn){if(del)del.remove();return;}
+  /* „Importdaten löschen" braucht etwas im Buch — steht in der
+     Liste nur Schwebendes aus dem Wizard (nw), gibt es nichts zu
+     löschen, und der Knopf bleibt weg. */
+  const hasBook=data.some(g=>!g.nw);
+  if(del&&!hasBook)del.remove();
+  const aside=document.createElement('aside');
+  aside.className='impside';
+  /* **Die Liste steht in denselben drei Zeilen wie das Fenster**
+     (30.8.26): Überschrift, Rollfläche, Fußzeile — das Fenster
+     wird bei offener Liste zu einem Raster aus zwei Spalten, und
+     die Liste nimmt dessen Zeilen als `subgrid` (css/components.css).
+     Dadurch fangen beide Rollflächen auf derselben Höhe an und
+     hören auf derselben auf: man rollt links und rechts in
+     symmetrischen Hälften. Vorher stand die Liste absolut von
+     Fensterkante zu Fensterkante, und ein gemessenes Polster
+     (--impalign) schob nur ihre erste Gruppe auf die Höhe des
+     ersten Blocks — der Anfang stimmte, das Ende nicht.
+
+     **Der Löschknopf wohnt in dieser Fußzeile** und nicht mehr in
+     der des Fensters: er gehört zur Liste, und wo die Liste nicht
+     zu sehen ist, soll er es auch nicht sein. */
+  aside.innerHTML=`<h4>${t('impv.title')}</h4>`+impSideRows(data,ask)+`<div class="impfoot"></div>`;
+  boxEl.appendChild(aside);
+  const foot=aside.querySelector('.impfoot');
+  if(del){del.hidden=false;foot.appendChild(del);}
+  const narrow=()=>matchMedia('(max-width:980px)').matches;
+  const lab=()=>{btn.textContent=t(boxEl.classList.contains('impon')&&!narrow()?'impv.hide':'impv.show');};
+  /* **Sind Daten da, steht die Liste offen** — sobald das Fenster
+     dafür breit genug ist. Sie ist der Grund, warum das Fenster
+     aus dem Import heraus geöffnet wird; erst aufklappen zu müssen
+     hieße, den Weg zweimal zu gehen. `ui.impPanel` merkt sich nur
+     eine ausdrückliche Wahl (Sitzung, nie Datei) — deshalb die
+     Frage auf `!==false` und nicht auf „wahr". */
+  if(ui.impPanel!==false&&!narrow())boxEl.classList.add('impon');
+  btn.hidden=false;
+  lab();
+  impScrollToAsk(aside);
+  btn.onclick=()=>{
+    /* Zu schmal für die Spalte: dieselben Daten als Fenster darüber
+       — geschlossen wie jedes Fenster, auch mit Escape. Der
+       Löschknopf zieht mit hinein; es ist **derselbe** Knopf und
+       keine zweite Kopie, sonst liefen zwei Verdrahtungen für
+       dieselbe Sache auseinander. */
+    if(narrow()){
+      const m=document.createElement('div');
+      m.className='modal';m.style.zIndex=70;
+      m.innerHTML=`<div class="box narrow impovl"><h3>${t('impv.title')}</h3>`
+        +impSideRows(data,ask)
+        +`<div class="row-end"><button class="btn" id="impOvlX">${t('g.close')}</button></div></div>`;
+      document.body.appendChild(m);
+      impScrollToAsk(m);
+      const end=m.querySelector('.row-end');
+      if(del)end.insertBefore(del,end.firstChild);
+      tabThroughFields(m);
+      const x=m.querySelector('#impOvlX');
+      const back=()=>{if(del)foot.appendChild(del);m.remove();};
+      x.onclick=back;
+      /* Auch der Weg über Escape und den Klick daneben (js/ui.js)
+         muss den Knopf zurückbringen — sonst nähme das Fenster ihn
+         mit hinaus. */
+      new MutationObserver((r,o)=>{if(!m.isConnected){o.disconnect();if(del&&!del.isConnected)foot.appendChild(del);}})
+        .observe(document.body,{childList:true});
+      x.focus();
+      return;
+    }
+    boxEl.classList.toggle('impon');
+    ui.impPanel=boxEl.classList.contains('impon');
+    lab();
+  };
 }

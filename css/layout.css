@@ -70,12 +70,72 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .dirtydot{position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;
   background:var(--seal);border:1.5px solid var(--chrome-hi)}
 .dirtydot[hidden]{display:none}
+
+/* ── Die beiden Knöpfe links vom Hamburger ────────────────────
+   „Daten speichern" und die Umfrage wohnen im Menü und treten
+   heraus, solange dafür Platz ist — verschoben wird der Knopf
+   selbst (fitHeaderBtns in js/app.js), nicht eine zweite Kopie:
+   ein Knopf an zwei Stellen liefe früher oder später auseinander.
+
+   Draußen ist die Reihenfolge fest: Umfrage · Speichern ·
+   Hamburger. Die Umfrage steht immer als äußerste links — sie ist
+   der einzige Knopf, der von außen kommt, und sie soll nicht
+   springen, wenn „Speichern" dazwischen auftaucht.
+
+   `flex:0 0 auto` ist nicht Kosmetik: fitHeaderBtns() misst die
+   natürliche Breite dieser Knöpfe gegen die Breite, die die
+   Flexbox der rechten Seite zuteilt. Dürften sie schrumpfen,
+   wäre die Messung immer „passt". */
+.hdrright>.btn{flex:0 0 auto}
+/* Ungespeichert heißt hier dasselbe wie überall: das Rot des
+   Siegels. Ein **Rahmen** und keine Füllung — gefüllt stritte er
+   mit dem Umfrage-Knopf daneben, und rot gefüllt sähe aus wie ein
+   Fehler. Der Knopf ist der Weg heraus, keine Warnung. */
+/* **„Daten speichern" ist orange gefüllt** (30.8.26) — dasselbe
+   Bild wie „Im Browser öffnen" auf der Startseite (.header-cta in
+   css/landing.css): der Knopf ist der Weg aus dem Fenster hinaus,
+   und Orange heißt in FINA „hier kann man handeln". Bis dahin trug
+   er den roten Rahmen des Siegels; rot ist in FINA aber „jetzt"
+   (der laufende Monat, die laufende Zeile), und an einem Knopf las
+   sich das wie eine Warnung, obwohl Speichern nichts überschreibt,
+   was man nicht selbst getippt hat. Den Unterschied zum
+   Umfrage-Knopf daneben macht seitdem allein dessen leuchtender
+   Ring (.btn.srvbtn). */
+.btn.savebtn{background:var(--accent);border-color:var(--accent);color:#fff;
+  font-weight:600;box-shadow:none}
+.btn.savebtn:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.btn.savebtn[hidden]{display:none!important}
+/* ── Zeichen für Menüeinträge, als Masken ─────────────────────
+   (5.9.26) Dieselben Strichzeichen wie im Menü hinter dem Hamburger
+   (siehe die #btn…::before-Regeln unten), nur einmal hinterlegt:
+   die Aufklappmenüs der Filterzeile (.dropmenu, hier) und die
+   Menüs des CSV-Imports (.c2fpop, css/components.css) tragen
+   dieselbe Zeichenspalte und holen sich ihr Zeichen von hier. Wer
+   ein Zeichen ändert, ändert es damit überall. */
+:root{
+  --ic-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E");
+  --ic-sliders:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h9'/%3E%3Cpath d='M17 7h3'/%3E%3Cpath d='M4 17h3'/%3E%3Cpath d='M11 17h9'/%3E%3Ccircle cx='15' cy='7' r='2'/%3E%3Ccircle cx='9' cy='17' r='2'/%3E%3C/svg%3E");
+  --ic-clear:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M9.2 9.2l5.6 5.6'/%3E%3Cpath d='M14.8 9.2l-5.6 5.6'/%3E%3C/svg%3E");
+  --ic-open:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6'/%3E%3Cpath d='M20 4l-9 9'/%3E%3Cpath d='M18 13v6H5V6h6'/%3E%3C/svg%3E");
+  --ic-search:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='M16 16l4.5 4.5'/%3E%3C/svg%3E");
+  --ic-trash:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M9 7V4h6v3'/%3E%3Cpath d='M6 7l1 13h10l1-13'/%3E%3C/svg%3E");
+  --ic-undo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10h10a5 5 0 0 1 0 10H9'/%3E%3Cpath d='M8 6l-4 4 4 4'/%3E%3C/svg%3E");
+  --ic-list:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16'/%3E%3Cpath d='M4 12h16'/%3E%3Cpath d='M4 18h10'/%3E%3C/svg%3E");
+}
+
 /* ── Das Menü hinter dem Hamburger ────────────────────────────
    Ein Overlay unter dem Knopf: es legt sich über den Inhalt und
    verschiebt nie Layout. Auf und zu schaltet js/app.js über die
    Klasse .open — dieselbe Mechanik, die vorher nur das Telefon
    hatte. Trenner (.mi-sep) schließen eine Gruppe ab; jeder
-   Eintrag trägt vorn sein Zeichen (siehe unten). */
+   Eintrag trägt vorn sein Zeichen (siehe unten).
+
+   **Dieses Bild tragen seit 5.9.26 alle Menüs der Anwendung**:
+   weiße Karte, Radius 8, --sh-pop, 230 px, Einträge mit 7/12 px
+   Polster in 12 px Schrift, vorn eine Zeichenspalte von 15 px,
+   Trenner in --rule-strong — die Aufklappmenüs der Filterzeile
+   (.dropmenu unten) und die Menüs des CSV-Imports (.c2fpop in
+   css/components.css). Wer hier ein Maß ändert, ändert es dort mit. */
 .tools{position:absolute;top:calc(100% + 8px);right:0;z-index:46;display:none;flex-direction:column;
   width:230px;background:#fff;border:1px solid var(--rule);border-radius:8px;
   box-shadow:var(--sh-pop);overflow:hidden;padding:0}
@@ -85,7 +145,7 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   padding:7px 12px;font-size:12px;color:var(--ink);transition:background .12s}
 .tools .btn:hover{background:var(--paper-2)}
 .tools .btn:disabled{opacity:.45}
-.tools .mi-sep{border-bottom:1px solid var(--hairline)}
+.tools .mi-sep{border-bottom:1px solid var(--rule-strong)}
 .tools #btnSave{font-weight:600}
 /* Jeder Eintrag trägt vorn sein Zeichen. Es kommt als **Maske**
    aus diesem Stylesheet und nicht als Kind-Element: renderChrome()
@@ -100,6 +160,11 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   -webkit-mask-position:center;mask-position:center;
   -webkit-mask-size:15px 15px;mask-size:15px 15px}
 .tools .mi-new{font-weight:600}
+/* Im Menü ist die Umfrage ein Eintrag wie jeder andere: keine
+   Füllung, kein eigenes Orange. Dass sie wartet, sagt der rote
+   Punkt am Hamburger — zwei Signale für dieselbe Sache machen
+   keins davon deutlicher. */
+.tools #btnSurvey.srvbtn{background:none;border:0;color:var(--ink);box-shadow:none}
 /* Pfeil nach oben aus der Ablage: eine Datei kommt herein */
 .tools #btnLoad::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 15V4'/%3E%3Cpath d='M8 8l4-4 4 4'/%3E%3Cpath d='M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 15V4'/%3E%3Cpath d='M8 8l4-4 4 4'/%3E%3Cpath d='M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3'/%3E%3C/svg%3E")}
 /* Diskette: der Stand geht in die Datei zurueck */
@@ -112,6 +177,8 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .tools #btnImportCsv::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M12 11v6'/%3E%3Cpath d='M9.5 14.5L12 17l2.5-2.5'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M12 11v6'/%3E%3Cpath d='M9.5 14.5L12 17l2.5-2.5'/%3E%3C/svg%3E")}
 /* Plus im Kreis, ohne Farbe: hier entsteht etwas Neues */
 .tools .mi-new::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 8.2v7.6'/%3E%3Cpath d='M8.2 12h7.6'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 8.2v7.6'/%3E%3Cpath d='M8.2 12h7.6'/%3E%3C/svg%3E")}
+/* Sprechblase mit Häkchen: die Umfrage wartet */
+.tools #btnSurvey::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 4H4v12h4v4l4-4h8z'/%3E%3Cpath d='M8.5 10l2 2 4-4'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 4H4v12h4v4l4-4h8z'/%3E%3Cpath d='M8.5 10l2 2 4-4'/%3E%3C/svg%3E")}
 /* Schieberegler: die Angaben der Datei einstellen */
 .tools #btnSettings::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h9'/%3E%3Cpath d='M17 7h3'/%3E%3Cpath d='M4 17h3'/%3E%3Cpath d='M11 17h9'/%3E%3Ccircle cx='15' cy='7' r='2'/%3E%3Ccircle cx='9' cy='17' r='2'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h9'/%3E%3Cpath d='M17 7h3'/%3E%3Cpath d='M4 17h3'/%3E%3Cpath d='M11 17h9'/%3E%3Ccircle cx='15' cy='7' r='2'/%3E%3Ccircle cx='9' cy='17' r='2'/%3E%3C/svg%3E")}
 /* Aufgeschlagenes Buch: die Anleitung */
@@ -353,9 +420,11 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 
    Leuchtend und nicht als blasse Tönung: die Leiste klebt oben
    unter der Kopfzeile und soll auch dann auffallen, wenn man von
-   der Liste darunter kommt. Genommen wird dafür --accent-soft und
-   nicht --accent: das satte Orange ist als **Knopf**farbe gedacht
-   und wird über eine ganze Leiste hinweg hart. Ihre Knöpfe sind
+   der Liste darunter kommt. Genommen wird dafür seit 30.8.26 das
+   Neongelb `--flt` — die Farbe, die in der ganzen Anwendung
+   „gefiltert" heißt (siehe css/tokens.css). Vorher stand hier das
+   Orange, und Orange heißt in FINA „hier kann man handeln"; zwei
+   Bedeutungen auf einer Farbe sind eine zu viel. Ihre Knöpfe sind
    von Haus aus durchsichtig — auf dem farbigen Grund bekommen sie
    deshalb Papier unter sich, und der gedrückte bleibt dunkel: die
    Leiste sagt, *dass* gefiltert wird, der Knopf, *was*. Die Linien
@@ -414,7 +483,7 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 /* Dieselben Regeln wie im Monat: dort die Filterzeile, hier diese
    Zeile — eine Leiste, die anders aussieht, sähe nach einem
    anderen Werkzeug aus. */
-.anabar .filterbar.on,.yearbar .ybrow.on{background:var(--accent-soft);border-color:var(--accent)}
+.anabar .filterbar.on,.yearbar .ybrow.on{background:var(--flt);border-color:var(--rule-strong)}
 .anabar .filterbar.on .btn,.yearbar .ybrow.on .btn{background:var(--paper-2)}
 .anabar .filterbar.on .btn:hover,.yearbar .ybrow.on .btn:hover{background:#fff}
 /* ── Angewendet heißt dunkel, immer ─────────────────────────
@@ -445,11 +514,28 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .drophead{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .drophead .caret{font-size:8px;color:var(--ink-2)}
 .drophead[aria-pressed="true"] .caret{color:inherit}
+/* **Dasselbe Bild wie das Menü hinter dem Hamburger** (5.9.26,
+   siehe .tools oben): 230 px, Einträge mit 7/12 px Polster in 12 px
+   Schrift, Trenner in --rule-strong — und vorn dieselbe Zeichenspalte
+   von 15 px. Hier trägt sie den **Haken am gewählten Wert**: ein
+   Menü aus Werten ist eine Wahl, und die Wahl steht vorn, wie in
+   jedem Mac-Menü. „Filteroptionen…" trägt das Zeichen der
+   Einstellungen (dorthin führt es), „Filter zurücknehmen" im mobilen
+   Menü den Kreis mit dem Kreuz. Die Farben bleiben, wie sie waren:
+   Orange am gewählten Wert heißt „hier wird ausgeblendet", Tinte an
+   „Alle" heißt „gewählt, kein Filter". */
 .dropmenu{position:absolute;top:calc(100% + 6px);left:0;z-index:35;display:flex;flex-direction:column;
-  min-width:190px;background:#fff;border:1px solid var(--rule);border-radius:8px;
+  min-width:230px;background:#fff;border:1px solid var(--rule);border-radius:8px;
   box-shadow:var(--sh-pop);overflow:hidden;text-align:left}
-.dropmenu .mi{display:block;width:100%;background:none;border:0;border-radius:0;text-align:left;
-  padding:4px 12px;font-size:12px;color:var(--ink);cursor:pointer;box-shadow:none}
+.dropmenu .mi{display:flex;align-items:center;gap:9px;width:100%;background:none;border:0;border-radius:0;text-align:left;
+  padding:7px 12px;font-size:12px;color:var(--ink);cursor:pointer;box-shadow:none;transition:background .12s}
+.dropmenu .mi::before{content:'';flex:0 0 auto;width:15px;height:15px;background:currentColor;opacity:.85;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:15px 15px;mask-size:15px 15px}
+.dropmenu .mi.sel::before{-webkit-mask-image:var(--ic-check);mask-image:var(--ic-check)}
+.dropmenu .mi[data-qfields]::before{-webkit-mask-image:var(--ic-sliders);mask-image:var(--ic-sliders)}
+.dropmenu .mi[data-qclear]::before{-webkit-mask-image:var(--ic-clear);mask-image:var(--ic-clear)}
 .dropmenu .mi:hover{background:var(--paper-2)}
 .dropmenu .mi:disabled{opacity:.45;cursor:not-allowed}
 .dropmenu .mi.sel{background:var(--accent-soft);font-weight:600}
@@ -460,8 +546,8 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    und im mobilen Menü (.mfmenu) gleichermaßen. */
 .dropmenu .mi.sel[data-filter="alle"],.dropmenu .mi.sel[data-duefilter="alle"],
 .dropmenu .mi.sel[data-secfilter="alle"]{background:var(--ink);color:var(--paper-2)}
-.dropmenu .mi.mi-sep{border-bottom:1px solid var(--hairline);padding:6px 12px}
-.dropmenu .mi.mi-top{border-top:1px solid var(--hairline);padding:6px 12px}
+.dropmenu .mi.mi-sep{border-bottom:1px solid var(--rule-strong)}
+.dropmenu .mi.mi-top{border-top:1px solid var(--rule-strong)}
 /* „Gilt gerade" heißt auch im Menü dunkel — der Weg zu den
    Filteroptionen trägt sein aria-pressed wie jeder Filterknopf. */
 .dropmenu .mi[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
@@ -470,6 +556,12 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .anahead .anak.t-in{background:var(--bg-in)}
 .anahead .anak.t-out{background:var(--bg-out)}
 .anahead .anak.t-flex{background:var(--bg-flex)}
+/* Die vierte Kachel ist der Saldo des Monats: das helle Violett,
+   das in FINA „alles zusammen" heißt — es gehört zu keiner der
+   drei Geldarten, weil es sie alle zusammenfasst (--bg-sal in
+   css/tokens.css, dieselbe Farbe wie „Saldo je Monat"). Nicht das
+   Blau der Saldokorrektur: die ist eine der Zahlen darin. */
+.anahead .anak.t-sal{background:var(--bg-sal)}
 .anahead .lab{font-family:var(--font-data);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .anahead .lab b{font-weight:600;color:var(--ink)}

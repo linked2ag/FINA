@@ -70,6 +70,11 @@
            auf — wer antwortet und absendet, wird den Knopf los
            (surveyOpen() in js/dialogs/umfrage.js, gezeigt in
            renderChrome). -->
+      <!-- Beide Knöpfe wohnen im Menü und treten nur heraus,
+           solange dafür Platz ist: fitHeaderBtns() in js/app.js
+           schiebt sie zwischen .hdrright und #hdrTools hin und
+           her. Draußen ist die Reihenfolge fest — Umfrage,
+           Speichern, Hamburger. -->
       <button class="btn srvbtn" id="btnSurvey"
         data-t="srv.open" data-ttip="srv.openTip" hidden></button>
       <button class="burger" id="btnMenu" aria-expanded="false"
@@ -82,21 +87,36 @@
            Schließen: js/app.js, unten bei den festen Schaltflächen.
            Reihenfolge mit Trennern (.mi-sep schließt eine Gruppe ab):
            Datei ‖ Neu anlegen ‖ Einstellungen ‖ Anleitung. -->
-      <div class="tools" id="hdrTools">
+      <div class="tools" id="hdrTools" data-tipside="1">
         <!-- Der Dateiname steht als Menükopf immer zuoberst (css:
              .menufile, gefüllt in renderStatus) — man sieht, an
              welcher Datei die Knöpfe darunter arbeiten. -->
         <span class="menufile" id="menuFile" hidden></span>
+        <!-- ── Woher die Zahlen kommen ──────────────────────────
+             „Daten hochladen" und „CSV importieren" stehen als
+             eigene, abgetrennte Gruppe **am Anfang** des Menüs:
+             beide holen etwas herein, und das ist der erste
+             Griff, den man sucht. Hochladen zuerst — eine ganze
+             Datei kommt vor einzelnen Spalten.
+
+             Bei engem Fenster schiebt fitHeaderBtns() (js/app.js)
+             den Umfrage-Knopf davor: er steht dann als erstes im
+             Menü, so wie er draußen als erstes in der Zeile
+             stünde. -->
         <button class="btn" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
-        <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
-        <!-- Eine Kopie mit Zeitstempel im Namen, neben der laufenden
-             Datei her (js/storage.js). -->
-        <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
-        <button class="btn" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
         <!-- Derselbe Weg wie der Bereich „Import" der Einstellungen
              (#impFast): erst das Fenster, das sagt, was die Datei
              braucht, dann die Dateiauswahl. -->
         <button class="btn mi-sep" id="btnImportCsv" data-t="menu.csv" data-ttip="menu.csvTip"></button>
+        <!-- Die Dateigruppe: sichern und schließen. „Daten
+             speichern" steht hier nur, solange nichts zu speichern
+             ist — sobald es etwas gibt, holt fitHeaderBtns() den
+             Knopf neben den Hamburger. -->
+        <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
+        <!-- Eine Kopie mit Zeitstempel im Namen, neben der laufenden
+             Datei her (js/storage.js). -->
+        <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
+        <button class="btn mi-sep" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
         <!-- Die beiden Wege, etwas anzulegen (Regel 1: verdrahtet
              in js/app.js unten). Eine eigene Zeile für die Einnahme
              gibt es nicht mehr: der reguläre Eintrag geht ohne
@@ -171,6 +191,12 @@
 <script src="js/dialogs/kakeibo-betraege.js"></script>
 <script src="js/dialogs/settings.js"></script>
 <script src="js/dialogs/csv-import.js"></script>
+<!-- Der generische CSV-Import (Wizard im Popup): liest jede CSV,
+     ordnet Zeilen den Posten oder flexiblen Kategorien zu und
+     schreibt erst mit „Anwenden" ins Buch. Er ist der Weg hinter
+     „CSV importieren" — der Fast-Budget-Leser darüber bleibt als
+     Bibliothek liegen. -->
+<script src="js/dialogs/csv2-wizard.js"></script>
 <script src="js/dialogs/sheet-import.js"></script>
 <script src="js/dialogs/guide.js"></script>
 <script src="js/dialogs/umfrage.js"></script>
