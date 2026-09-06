@@ -161,7 +161,28 @@
    flach wie ohne ihn; die Farbe kommt aus dem Block (weiter unten,
    neben den Kanten). */
 .matrix .foldarrow{background:none;border:0;padding:0;cursor:pointer;
-  display:block;width:100%;font-size:10px;line-height:1;letter-spacing:0;color:inherit}
+  display:block;width:100%;line-height:1;letter-spacing:0;color:inherit}
+.matrix .foldarrow .tri{display:block;margin:0 auto}
+/* ── Mit Maus fährt der Pfeil erst heraus (seit 6.9.26) ────────
+   Wie im Kartenkopf der Monatsansicht: in Ruhe ist die Stiftspalte
+   der Blockzeile leer, steht die Maus über der Zeile (oder der
+   Fokus darin), fährt der Pfeil von links hinein und die
+   Beschriftung daneben rückt weich nach rechts — hier über das
+   Polster der Zelle, denn die Spalte des Pfeils ist fest. Nur
+   Zeilen mit Pfeil (data-hk); beim Filtern gibt es keinen.
+   `.still` hält ihn nach einem Neuzeichnen draußen
+   (bindHoverStill in js/ui.js). Ohne Maus steht er fest. */
+@media (hover:hover){
+  .matrix tr[data-hk] .foldarrow{opacity:0;transform:translateX(-14px);
+    transition:opacity .22s ease-out,transform .22s ease-out}
+  .matrix tr[data-hk] td.lab{transition:padding-left .22s ease-out}
+  .matrix tr[data-hk]:hover .foldarrow,.matrix tr[data-hk]:focus-within .foldarrow,
+  .matrix tr[data-hk].still .foldarrow{opacity:1;transform:none}
+  .matrix tr[data-hk]:hover td.lab,.matrix tr[data-hk]:focus-within td.lab,
+  .matrix tr[data-hk].still td.lab{padding-left:18px}
+  .matrix tr[data-hk].still .foldarrow,.matrix tr[data-hk].still td.lab{transition:none}
+}
+@media (prefers-reduced-motion:reduce){.matrix .foldarrow,.matrix tr[data-hk] td.lab{transition:none}}
 
 /* ── Zeilentypen ──────────────────────────────────────────────
    Drei Stufen, damit man ohne Suchen sieht, worin man liest:
@@ -205,10 +226,13 @@
 .matrix tr.grp.r-in td.ed{box-shadow:inset 3px 0 0 var(--edge-in)}
 /* Der Klapp-Pfeil trägt die Kantenfarbe seines Blocks — wie in der
    Monatsansicht der Pfeil im Kopf seiner Karte. */
-.matrix tr.sec.r-in .foldarrow{color:var(--edge-in)}
-.matrix tr.sec.r-flex .foldarrow{color:var(--edge-flex)}
-.matrix tr.sec.r-out .foldarrow{color:var(--edge-out)}
-.matrix tr.sec .foldarrow:hover{color:var(--ink)}
+/* Das gedeckte Grau der Beschriftungen, --ink-2 (seit 6.9.26;
+   vorher die Kantenfarbe des Blocks): der Pfeil gehört zur
+   Überschrift und ist ein Hinweis, kein Wort — wie alle
+   ausfahrenden Pfeile. */
+.matrix tr.sec .foldarrow{color:var(--ink-2)}
+/* Die ganze Blockzeile klappt mit einem Klick (data-blkfold). */
+.matrix tr[data-blkfold]{cursor:pointer}
 
 /* Abbezahlt: nichts steht mehr aus (yearSettled in js/calc.js).
    Die ganze Zeile tritt grau zurück und überschreibt dabei die

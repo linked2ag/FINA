@@ -69,9 +69,9 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    Aufforderung und keine Angabe — sie tritt zurück. */
 .titlebtn.empty{color:var(--ink-2);font-style:italic}
 /* Ein Fenster, das genau eine Sache fragt, ist so breit wie diese
-   eine Sache. Ohne das nähme es die 1080 px von .modal .box und
+   eine Sache. Ohne das nähme es die 1080 px von :is(.modal,.modalghost,.boxslide) .box und
    stünde mit einem Feld darin verloren da. */
-.modal .box.narrow{max-width:460px}
+:is(.modal,.modalghost,.boxslide) .box.narrow{max-width:460px}
 /* Die beiden Kategorielisten im Einstellungsfenster: Einnahmen
    und Ausgaben nebeneinander, jede in der Farbe ihrer Geldart —
    dieselbe, die sie in allen Ansichten trägt. Die Kante links
@@ -87,8 +87,8 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 /* Drei Listen nebeneinander (seit 6.9.26): Einnahmen · Flexibel ·
    Regulär — die Regel schlägt das „zu zweit" der Formfenster
    (.box.form .c3), im schmalen Fenster fallen sie untereinander. */
-.modal .box .grouplists.c3{grid-template-columns:1fr 1fr 1fr}
-@media (max-width:760px){.modal .box .grouplists.c3{grid-template-columns:1fr}}
+:is(.modal,.modalghost,.boxslide) .box .grouplists.c3{grid-template-columns:1fr 1fr 1fr}
+@media (max-width:760px){:is(.modal,.modalghost,.boxslide) .box .grouplists.c3{grid-template-columns:1fr}}
 /* Der feste „ohne Kategorie"-Eintrag: eine Beschriftung, kein Feld
    — gestrichelt eingefasst, damit man sieht, dass hier nichts zu
    tippen ist; der Griff davor bleibt, verschieben darf man ihn. */
@@ -149,7 +149,7 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    überall gleich: in den Ansichten, in der Prognose und in der
    Überschrift der Fenster. */
 .lamp.pos{margin-right:6px;vertical-align:-4px}
-.modal h3 .lamp.pos{vertical-align:-3px}
+:is(.modal,.modalghost,.boxslide) h3 .lamp.pos{vertical-align:-3px}
 /* Das Kettensymbol ist mal ein Link (ein einziger Eintrag), mal ein
    Knopf (mehrere — dann öffnet er die Auswahl). Beide sehen gleich
    aus: welcher es ist, geht den Leser nichts an. */
@@ -423,13 +423,156 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
 .errline{color:var(--seal);font-size:13px;font-weight:600;margin:12px 0 0}
 
 /* ── Fenster (Modal) ──────────────────────────────────────── */
-.modal{position:fixed;inset:0;background:rgba(27,35,32,.42);display:grid;place-items:center;padding:18px;z-index:50}
+.modal,.modalghost{position:fixed;inset:0;background:rgba(27,35,32,.42);display:grid;place-items:center;padding:18px;z-index:50}
+/* ── Fenster fallen von oben herein und fahren nach oben hinaus ──
+   (seit 6.9.26) Beim Öffnen blendet der Grund ein und der Kasten
+   kommt 40 px von oben herunter. Beim Schließen läuft es rückwärts —
+   nur ist das Fenster dann schon aus dem Dokument: ein Beobachter in
+   js/ui.js legt an seine Stelle einen **Geist** (.modalghost, eine
+   Kopie ohne Kennungen, ohne Klick, ohne Fokus), der nach oben
+   hinausfährt und sich danach selbst entfernt. Deshalb gelten alle
+   Nachfahren-Regeln von .modal in diesem Stylesheet auch
+   :is(.modal,.modalghost,.boxslide). Ein Fenster, das im selben Zug durch ein
+   neues ersetzt wird (Einstellungen bauen sich neu auf), bekommt
+   .noanim: dann fällt nichts und fährt nichts. */
+@keyframes fina-fade{from{opacity:0}to{opacity:1}}
+@keyframes fina-fadeout{from{opacity:1}to{opacity:0}}
+@keyframes fina-dropin{from{opacity:0;transform:translateY(-40px)}to{opacity:1;transform:none}}
+@keyframes fina-dropout{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-40px)}}
+.modal{animation:fina-fade .22s ease-out}
+.modal .box{animation:fina-dropin .22s ease-out}
+.modal.noanim,.modal.noanim .box{animation:none}
+/* Dieselbe Stufe wie ein Fenster: ein Fenster über einem anderen
+   (die Kriterien über dem Import) fährt sonst hinter diesem hinaus,
+   wo es niemand sieht. Der Geist steht im Dokument nach dem
+   Fenster und liegt damit obenauf. */
+.modalghost{z-index:50;pointer-events:none;animation:fina-fadeout .22s ease-in forwards}
+.modalghost .box{animation:fina-dropout .22s ease-in forwards}
+/* ── Menüs klappen auf (seit 6.9.26) ─────────────────────────────
+   Hamburger der Kopfzeile, die Aufklappmenüs der Filterzeile, das
+   mobile Filtermenü und die Menüs im CSV-Import: sie kommen leicht
+   von oben und entfalten sich vom oberen Rand aus. Die Filtermenüs
+   tragen .popin nur beim ersten Zeichnen (fltDrop in
+   js/views/monat.js): jedes Tippen zeichnet neu, und ein offenes
+   Menü soll dabei nicht neu anfahren. */
+@keyframes fina-menu{from{opacity:0;transform:translateY(-6px) scaleY(.92)}to{opacity:1;transform:none}}
+@keyframes fina-menuout{to{opacity:0;transform:translateY(-6px) scaleY(.92)}}
+.dropmenu.popin,.tools.open,.c2fpop{transform-origin:top;animation:fina-menu .18s ease-out}
+/* Und zu geht es denselben Weg zurück (seit 6.9.26): der Hamburger
+   trägt .closing, solange er zusammenklappt (js/app.js); die
+   Aufklappmenüs und die Menüs des Imports sind da schon weg und
+   klappen als Geist zu (popOut / settleMenus in js/ui.js). */
+.tools.closing{display:flex;pointer-events:none;transform-origin:top;animation:fina-menuout .18s ease-in forwards}
+.dropmenu.popout,.c2fpop.popout{pointer-events:none;transform-origin:top;animation:fina-menuout .18s ease-in forwards}
+/* ── Die Ansicht wechselt seitwärts (seit 6.9.26) ─────────────
+   Der Geist der alten Ansicht (.viewghost, fest über ihrer Fläche,
+   gebaut in slideViewOut in js/ui.js) fährt ein Stück zur Seite
+   und blendet aus; #view kommt mit .in-left/.in-right von der
+   anderen Seite. Ein Zehntel der Breite, nicht die ganze: über
+   1600 px ist ein voller Weg eine Fahrt, kein Wechsel. Die Zahl
+   steht an den vier Keyframes. */
+@keyframes fina-inL{from{transform:translateX(-100%)}}
+@keyframes fina-inR{from{transform:translateX(100%)}}
+/* Der Geist der alten Ansicht steht still unter der neuen: er liegt
+   über dem Seitengrund (z 1), die hereinfahrende Ansicht darüber
+   (z 2, nur solange sie die Klasse trägt) — beides unter der
+   Kopfzeile (z 40). */
+.viewghost{position:fixed;overflow:hidden;pointer-events:none;z-index:1}
+#view.in-left,#view.in-right{position:relative;z-index:2;will-change:transform;background:var(--paper)}
+/* Über und unter der Ansicht deckt je ein Streifen im Seitengrund,
+   was von der Kopie darunter sonst hervorsähe: oben die Lücke, wenn
+   die neue Ansicht tiefer anfängt als die alte, unten alles bis zum
+   Fensterrand. Beide absolut — eine Mindesthöhe an der Ansicht
+   machte die Seite für die Dauer der Fahrt länger, der Rollbalken
+   kam und ging, und das sah wie ein Ruck am Ende aus. */
+#view.in-left::before,#view.in-right::before{content:'';position:absolute;left:0;right:0;
+  top:calc(-1 * var(--viewgap,0px));height:var(--viewgap,0px);background:var(--paper)}
+#view.in-left::after,#view.in-right::after{content:'';position:absolute;left:0;right:0;
+  top:100%;height:var(--viewfill,0px);background:var(--paper)}
+/* Die klebenden Leisten der Ansicht kleben an der Seite und tragen
+   als `top` die Höhe der Kopfzeile; im Geist — einem eigenen
+   Rollrahmen, der schon unter der Kopfzeile beginnt — rutschten sie
+   um genau dieses Maß nach unten. Hier stehen sie, wo sie standen. */
+.viewghost .stickybar{position:relative!important;top:0!important}
+/* Der obere Außenabstand des ersten Inhalts (die Auswertungszeile
+   der Prognose) fällt in der Seite durch die Ansicht hindurch nach
+   oben und ist im gemessenen Rechteck schon drin; die Kopie ist ein
+   eigener Block, in dem er innen bliebe — alles rutschte um ihn nach
+   unten. */
+.viewghost>:first-child>:first-child{margin-top:0!important}
+/* Keine Rollbalken in einer Kopie: ihre Rollflächen bekommen beim
+   Bauen die Rollstellung des Originals gesetzt, und macOS blendet
+   dabei den schwebenden Balken kurz ein — in einer Fläche, die
+   niemand rollt, ist das nur ein Flackern. */
+.viewghost *,.modalghost *,.foldghost *,.boxslide *{scrollbar-width:none}
+.viewghost *::-webkit-scrollbar,.modalghost *::-webkit-scrollbar,.foldghost *::-webkit-scrollbar,.boxslide *::-webkit-scrollbar{display:none}
+/* Langsam an, schnell über die alte Ansicht, zum Ende weich aus
+   (Lex, 6.9.26): eine S-Kurve mit sanftem Anfang — etwas länger als
+   die übrigen Wege, damit der Anlauf zu sehen ist. */
+#view.in-left{animation:fina-inL .46s cubic-bezier(.75,0,.15,1)}
+#view.in-right{animation:fina-inR .46s cubic-bezier(.75,0,.15,1)}
+/* Solange die neue Ansicht von der Seite kommt, ragt sie über den
+   rechten Rand: kein Rollbalken dafür (gesetzt in slideViewIn). */
+html.viewslide{overflow-x:hidden}
+/* Und der Platz des senkrechten Rollbalkens bleibt reserviert: taucht
+   er in einer Ansicht auf und in der nächsten nicht, rückte sonst
+   alles Zentrierte — die Ansichtswahl in der Kopfzeile — beim
+   Wechsel um seine Breite. Mit den schwebenden Rollbalken von macOS
+   ändert das nichts. */
+html{scrollbar-gutter:stable}
+/* ── Der Inhalt eines Fensters wechselt (boxSwap in js/ui.js) ──
+   Der alte Inhalt ist ein Geist des Kastens in seinem
+   .boxslide-Rahmen und blendet aus; im echten Kasten ist, was
+   .swapfade trägt, so lange unsichtbar, bis das Fenster seine neue
+   Größe hat (.swapping), und blendet dann ein. Menü und Kopfzeile
+   tragen die Klasse nicht: sie bleiben und fahren mit. */
+.boxslide{position:fixed;pointer-events:none;z-index:51}
+.boxslide .box.fadeout{animation:fina-fadeout .15s ease-out forwards}
+.modal .box .swapfade{transition:opacity .16s ease-out}
+.modal .box.swapping .swapfade{opacity:0;transition:none}
+/* Die Einstellungen: immer dieselbe Breite, nur die Höhe folgt dem
+   Bereich (Lex, 6.9.26). */
+.modal .box.setbox{width:min(1080px,100%)}
+/* ── Ein Bereich klappt zu oder auf (foldSnap/foldPlay in js/ui.js) ──
+   Der Geist des Verschwundenen (.foldghost) klappt von unten her zu;
+   eine neue Tabelle klappt über ihren Ausschnitt auf (.foldin), neue
+   Zeilen der Matrix über die Deckkraft (.foldin-row). Die Karte um
+   den Geist trägt ihre Bereichsklasse (Farben der Zeilen), aber
+   kein Polster und keinen Rahmen: er steht genau auf der Tabelle. */
+@keyframes fina-foldout{to{clip-path:inset(0 0 100% 0);opacity:0}}
+@keyframes fina-foldin{from{clip-path:inset(0 0 100% 0);opacity:0}}
+@keyframes fina-rowin{from{opacity:0}}
+.foldghost{position:fixed;overflow:hidden;pointer-events:none;z-index:30;margin:0;padding:0;border:0;box-shadow:none;
+  clip-path:inset(0 0 0 0);animation:fina-foldout .28s cubic-bezier(.4,0,.2,1) forwards}
+.foldghost>.ledger{width:100%}
+.foldin{animation:fina-foldin .28s cubic-bezier(.4,0,.2,1)}
+.foldghost>.tline{margin:0}
+.foldin-row{animation:fina-rowin .28s ease-out}
+/* Die Importdaten am Posten-Fenster fahren von rechts herein und
+   nach rechts hinaus (impBtn in js/ui.js) — das Fenster schneidet
+   sie dabei ab (.box.split trägt overflow:hidden). */
+@keyframes fina-impin{from{transform:translateX(110%);opacity:0}}
+@keyframes fina-impout{to{transform:translateX(110%);opacity:0}}
+.impside.impin{animation:fina-impin .22s ease-out}
+.impside.impout{animation:fina-impout .22s ease-in forwards;pointer-events:none}
+/* Beim Hinausfahren steht die Liste schon außerhalb des Rasters (kein
+   .impon mehr am Kasten) — sichtbar bleibt sie trotzdem, bis sie
+   draußen ist. */
+:is(.modal,.modalghost,.boxslide) .box.split>.impside.impout{display:grid}
+@media (prefers-reduced-motion:reduce){.impside.impin,.impside.impout{animation:none}}
+@media (prefers-reduced-motion:reduce){
+  .modal,.modal .box,.modalghost,.modalghost .box,.dropmenu.popin,.tools.open,.c2fpop,
+  #view.in-left,#view.in-right,.foldin,.foldin-row{animation:none}
+  .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout{display:none}
+  .modal .box{transition:none!important;clip-path:none!important;transform:none!important}
+  .modal .box .swapfade{transition:none}
+}
 /* Das Mac-Fenster (Vorlage 5a/5b): Papiergrund, Rand in
    --rule-strong, Radius 10 und der tiefe Schatten des Chrome.
    Die Blöcke darin (.dgrp) stehen seit 23.8.26 auf demselben
    Grund wie das Fenster und schweben über --sh-grp — nicht mehr
    grau auf --chrome. */
-.modal .box{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:10px;
+:is(.modal,.modalghost,.boxslide) .box{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:10px;
   box-shadow:var(--sh-modal);
   max-width:1080px;width:100%;max-height:92vh;overflow:auto;padding:22px;
   /* Die graue Schrift ist in den Fenstern eine Stufe dunkler als
@@ -451,12 +594,12 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
    stellt den Abstand wieder her. min-height:0 ist Pflicht: ohne
    das gibt ein Flex-Kind seine Mindesthöhe nie her und das Fenster
    wächst über 92vh hinaus, statt zu scrollen. */
-.modal .box.split{display:flex;flex-direction:column;overflow:hidden}
+:is(.modal,.modalghost,.boxslide) .box.split{display:flex;flex-direction:column;overflow:hidden}
 /* Oben und unten trägt die .dbody eigenes Polster: der Schatten
    des ersten und des letzten Blocks braucht Platz, sonst schneidet
    die Scrollkante ihn ab, sobald der Rumpf an einem Ende steht.
    Unten mehr als oben — der Schatten fällt nach unten. */
-.modal .box.split>.dbody{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;
+:is(.modal,.modalghost,.boxslide) .box.split>.dbody{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;
   margin:0 calc(-1*var(--boxpad));padding:12px var(--boxpad) 26px}
 /* Das Posten- und das Kategorie-Fenster fokussieren beim Öffnen
    sich selbst statt eines Feldes (tabindex="-1", siehe
@@ -464,7 +607,7 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
    Feld ungefragt die Tastatur. Ein Fokusring gehört dabei nicht
    aufs Fenster — er sagt „hier wird getippt", und genau das
    passiert nicht. */
-.modal .box:focus{outline:none}
+:is(.modal,.modalghost,.boxslide) .box:focus{outline:none}
 /* ── Ein Formularfenster ist schmal ──────────────────────────
    Die Monate stehen zu dritt in einer Reihe — ein Quartal je Zeile
    (siehe .mgrid). Ein Kästchen bleibt dabei so breit wie zuvor,
@@ -472,11 +615,11 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
    Fuge + 2 × 22 Polster des Fensters + 2 × 12 des Blocks, in dem
    sie stehen. Breiter wäre es leerer Platz neben den Kästchen,
    schmaler drückte es sie zusammen. */
-.modal .box.form{max-width:588px}
+:is(.modal,.modalghost,.boxslide) .box.form{max-width:588px}
 /* Im schmalen Fenster stehen die Auswahllisten zu zweit: vier
    nebeneinander wären 120 px je Liste, und darin ist von einer
    Kategorie nichts mehr zu lesen. */
-.modal .box.form .c4,.modal .box.form .c3{grid-template-columns:1fr 1fr}
+:is(.modal,.modalghost,.boxslide) .box.form .c4,:is(.modal,.modalghost,.boxslide) .box.form .c3{grid-template-columns:1fr 1fr}
 /* ── Die Blöcke eines Fensters ───────────────────────────────
    Zuordnung · Links · Schnelleingabe · Monate: jeder in einem
    eigenen Feld auf dem Grund des Fensters, abgehoben durch den
@@ -663,8 +806,8 @@ body.gresize{user-select:none;cursor:col-resize}
 .guide p,.guide li{font-size:14px;line-height:1.55;margin:0 0 8px}
 .guide ul,.guide ol{margin:0 0 8px;padding-left:20px}
 .guide li{margin-bottom:5px}
-.modal h3{font-family:var(--font-display);font-weight:700;font-size:19px;margin:0 0 4px}
-.modal .subline{font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
+:is(.modal,.modalghost,.boxslide) h3{font-family:var(--font-display);font-weight:700;font-size:19px;margin:0 0 4px}
+:is(.modal,.modalghost,.boxslide) .subline{font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
 .row-end{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:16px;flex-wrap:wrap}
 /* Die Knopfzeile eines Fensters steht hinter einer Haarlinie: was
    darüber steht, wird ausgefüllt, was darunter steht, entscheidet.
@@ -672,7 +815,7 @@ body.gresize{user-select:none;cursor:col-resize}
 /* Keine Haarlinie mehr über der Knopfzeile (23.8.26): die Blöcke
    darüber schweben über ihren Schatten, das trennt Ausfüllen und
    Entscheiden deutlicher, als ein Strich es tat. */
-.modal .box>.row-end{margin-top:14px}
+:is(.modal,.modalghost,.boxslide) .box>.row-end{margin-top:14px}
 /* ── Was löscht, trägt rote Schrift in rotem Rahmen ───────────
    **Seit 30.8.26 sind beide Löschwege eines Fensters derselbe
    Knopf** — „Kategorie löschen" links in der Fußzeile (.dellink)
@@ -929,9 +1072,11 @@ body.gresize{user-select:none;cursor:col-resize}
    nur das Aussehen — **hell, auf grauem Grund**, wie der Hinweis
    des Mac: bis 5.9.26 war die eigene Blase dunkel und der
    Browser-Hinweis hell, zwei Bilder für dieselbe Sache. */
+/* Weiß auf Schwarz (seit 6.9.26, Lex): Tinte als Grund, Papier als
+   Schrift — und erst nach TIP_DELAY (js/config.js). */
 .tip{position:fixed;z-index:80;max-width:300px;pointer-events:none;
-  background:var(--chrome);color:var(--ink);padding:4px 9px;border-radius:5px;
-  border:1px solid var(--rule-strong);
+  background:var(--ink);color:var(--paper-2);padding:4px 9px;border-radius:5px;
+  border:1px solid var(--ink);
   font-size:11px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;
   box-shadow:0 3px 8px rgba(0,0,0,.14)}
 .tip[hidden]{display:none}
@@ -1007,17 +1152,17 @@ textarea.srvtext{width:100%;display:block}
    Stehen bleibt, was noch zu tun ist. Deshalb hier oben kein
    zusätzliches Polster: die Überschrift bringt ihren Abstand
    selbst mit. */
-.modal .box.srvbox>.dbody{padding-top:0}
-.modal .box.srvbox>.dbody>h3{margin-top:0}
+:is(.modal,.modalghost,.boxslide) .box.srvbox>.dbody{padding-top:0}
+:is(.modal,.modalghost,.boxslide) .box.srvbox>.dbody>h3{margin-top:0}
 /* Die drei Zeilen unten gehören zusammen und stehen als ein Stück
    fest: orange Bahn, Auskunft, Knöpfe. Getrennt vom Rumpf sind sie
    durch den Abstand, nicht durch einen Strich — über der Knopfzeile
    steht seit 23.8.26 keine Haarlinie mehr. */
-.modal .box.srvbox>.srvsave{margin-top:14px}
-.modal .box.srvbox>.srvnote{margin-bottom:0}
+:is(.modal,.modalghost,.boxslide) .box.srvbox>.srvsave{margin-top:14px}
+:is(.modal,.modalghost,.boxslide) .box.srvbox>.srvnote{margin-bottom:0}
 .srvsave{background:var(--accent);color:#fff;border-radius:8px;box-shadow:var(--sh-grp);
   padding:9px 12px;margin:0 0 8px;font-size:12.5px;font-weight:600;line-height:1.45}
-.modal .subline.srvnote{margin:0 0 14px}
+:is(.modal,.modalghost,.boxslide) .subline.srvnote{margin:0 0 14px}
 
 /* ══ Der generische CSV-Import (js/dialogs/csv2-wizard.js) ══════
    Drei Schritte im Popup: klein für die Dateiwahl, danach streckt
@@ -1025,8 +1170,8 @@ textarea.srvtext{width:100%;display:block}
    Zugeordnet heißt Neongelb (--flt), importiert Cyan (--imp) —
    dieselben drei Zustandsfarben wie in der ganzen Anwendung
    (css/tokens.css). */
-.modal .box.c2box{max-width:620px}
-.modal .box.c2big{max-width:none;width:100%;height:calc(100vh - 36px);max-height:none;
+:is(.modal,.modalghost,.boxslide) .box.c2box{max-width:620px}
+:is(.modal,.modalghost,.boxslide) .box.c2big{max-width:none;width:100%;height:calc(100vh - 36px);max-height:none;
   display:flex;flex-direction:column;overflow:hidden;padding:14px 16px}
 .c2head{display:flex;align-items:center;gap:16px;margin:0 0 10px;flex-wrap:wrap}
 .c2head h3{margin:0}
@@ -1305,7 +1450,7 @@ textarea.srvtext{width:100%;display:block}
    dafür, ob an einem Ziel Zeilen hängen — er soll beim
    Überfliegen der Liste auffallen. */
 .c2fold{border:0;background:none;padding:0;cursor:pointer;display:grid;place-items:center;
-  width:17px;height:17px;color:var(--ink)}
+  width:17px;height:17px;color:var(--ink-2)}
 /* Der Pfeil steht mittig zwischen ☰ und Beschriftung: als Block
    klebte er am linken Zellenrand — 5 px zum Menü, 16 px zum Namen.
    Die 5,5 px teilen die Lücke gleich (gemessen, je 10,5 px). */
@@ -1315,9 +1460,51 @@ textarea.srvtext{width:100%;display:block}
    Klappen. Als SVG bleibt das Maß gleich, offen liegt es um 90°
    gedreht. */
 .c2fold svg{width:13.5px;height:13.5px;fill:currentColor;display:block;
-  transition:transform .12s ease}
+  transform:rotate(0deg);transition:transform .22s ease-out}
 .c2fold.open svg{transform:rotate(90deg)}
 .c2fold.off{color:var(--rule-strong);cursor:default}
+/* ── Mit Maus fährt der Pfeil erst heraus (seit 6.9.26) ────────
+   Wie an den Klappen der beiden Ansichten: in Ruhe ist die
+   Pfeilspalte leer, steht die Maus über der Zielzeile (oder der
+   Fokus darin), fährt der Pfeil von links hinein — die Bezeichnung
+   daneben bleibt hier stehen, die Spalte ist fest. Nur Zeilen mit
+   etwas zu klappen tragen data-hk; ein Platzhalter für „nichts zu
+   klappen" wird dann gar nicht gezeigt. `.still` hält den Pfeil
+   nach einem Neuzeichnen draußen (bindHoverStill in js/ui.js).
+   Ohne Maus steht er fest. */
+@media (hover:hover){
+  .c2ttab tr.c2trow .c2fold.off{visibility:hidden}
+  .c2ttab tr[data-hk] .c2fold{opacity:0;transform:translateX(-14px);
+    transition:opacity .22s ease-out,transform .22s ease-out}
+  .c2ttab tr[data-hk]:hover .c2fold,.c2ttab tr[data-hk]:focus-within .c2fold,
+  .c2ttab tr[data-hk].still .c2fold{opacity:1;transform:none}
+  .c2ttab tr[data-hk].still .c2fold{transition:none}
+  /* Die Beschriftung einer Blockzeile rückt mit dem Pfeil nach rechts —
+     wie die Blockzeile der Jahresmatrix (css/matrix.css). */
+  .c2ttab tr.ghead[data-hk] td.tn{transition:padding-left .22s ease-out}
+  .c2ttab tr.ghead[data-hk]:hover td.tn,.c2ttab tr.ghead[data-hk]:focus-within td.tn,
+  .c2ttab tr.ghead[data-hk].still td.tn{padding-left:17px}
+  .c2ttab tr.ghead[data-hk].still td.tn{transition:none}
+}
+@media (prefers-reduced-motion:reduce){.c2ttab .c2fold{transition:none}}
+/* ── „Alle aufklappen / zuklappen" in der Kopfzelle „Ziel" ─────
+   (seit 6.9.26) Ein kleiner Knopf am rechten Rand der Kopfzelle,
+   absolut gesetzt — die Zelle klebt und ist damit sein Bezug; ihr
+   overflow:hidden schneidet ihn ab, solange er draußen steht. Mit
+   Maus fährt er von der rechten Kante nach links herein, sobald
+   die Maus über der Kopfzeile steht, und bleibt dabei rechtsbündig;
+   `.still` hält ihn nach dem Klick draußen (bindHoverStill in
+   js/ui.js). Ohne Maus steht er fest. */
+.c2ttab thead th.tn{overflow:hidden}
+.c2ttab .c2foldall{position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  padding:1px 7px;font-size:10px;line-height:1.5;white-space:nowrap}
+@media (hover:hover){
+  .c2ttab .c2foldall{opacity:0;transform:translate(calc(100% + 8px),-50%);
+    transition:opacity .22s ease-out,transform .22s ease-out}
+  .c2ttab thead tr:hover .c2foldall,.c2ttab thead tr:focus-within .c2foldall,
+  .c2ttab thead tr.still .c2foldall{opacity:1;transform:translateY(-50%)}
+  .c2ttab thead tr.still .c2foldall{transition:none}
+}
 .c2ttab th.tn,.c2ttab td.tn{left:52px}
 .c2ttab thead th.tn,.c2ttab thead th.mapc,.c2ttab thead th.foldc{z-index:4;background:var(--chrome-hi)}
 .c2ttab td.num,.c2ttab thead th.num{text-align:right;min-width:62px}
@@ -1372,7 +1559,11 @@ textarea.srvtext{width:100%;display:block}
    denn auf sie folgt der nächste Posten, und ohne sie liefen seine
    Zeilen in den nächsten hinein. */
 .c2ttab tr.c2src:has(+tr.c2trow) td{border-bottom-color:var(--ink)}
-.c2ttab tr.c2trow{cursor:pointer}
+/* Kein Markieren im Zielbereich (6.9.26, Lex): ein Klick wählt die
+   Zeile, ein Doppelklick klappt sie — beim Doppelklick zog der
+   Browser sonst das getroffene Wort blau, als wäre es zum Kopieren.
+   Die Zeilen sind Ziele, kein Text. */
+.c2ttab tr.c2trow{cursor:pointer;user-select:none;-webkit-user-select:none}
 /* **Grau: zugeordnet, aber es ändert sich nichts.** Eine gemerkte
    Zuordnung greift beim nächsten Einlesen derselben Datei-Art auf
    alles, was sie findet — auch auf die Monate, die längst im Buch
@@ -1481,7 +1672,7 @@ textarea.srvtext{width:100%;display:block}
 .c2ttab{
   --cTL:radial-gradient(circle 8px at 100% 100%,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) top left/8px 8px no-repeat;
   --cTR:radial-gradient(circle 8px at 0 100%,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) top right/8px 8px no-repeat}
-.c2ttab tr.ghead{position:sticky;top:var(--c2headH,0px);z-index:3;--cellbg:var(--paper-2)}
+.c2ttab tr.ghead{position:sticky;top:var(--c2headH,0px);z-index:3;--cellbg:var(--paper-2);cursor:pointer;user-select:none;-webkit-user-select:none}
 .c2ttab tr.ghead td{background:var(--cellbg);padding-top:8px;padding-bottom:8px}
 .c2ttab tr.ghead td.tn{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ink)}
 .c2ttab tr.ghead td.num{font-weight:600}
@@ -1735,6 +1926,14 @@ textarea.srvtext{width:100%;display:block}
 .c2fpop button:hover:not(:disabled){background:var(--paper-2)}
 .c2fpop button:disabled{opacity:.45;cursor:default}
 .c2fpop button.on{font-weight:600}
+/* Die sechs Vergleichsarten tragen ihr Zeichen (--ic-op-… in
+   css/layout.css); die gewählte behält den Haken. */
+.c2fpop [data-op="has"]:not(.on)::before{-webkit-mask-image:var(--ic-op-has);mask-image:var(--ic-op-has)}
+.c2fpop [data-op="not"]:not(.on)::before{-webkit-mask-image:var(--ic-op-not);mask-image:var(--ic-op-not)}
+.c2fpop [data-op="starts"]:not(.on)::before{-webkit-mask-image:var(--ic-op-starts);mask-image:var(--ic-op-starts)}
+.c2fpop [data-op="ends"]:not(.on)::before{-webkit-mask-image:var(--ic-op-ends);mask-image:var(--ic-op-ends)}
+.c2fpop [data-op="is"]:not(.on)::before{-webkit-mask-image:var(--ic-op-is);mask-image:var(--ic-op-is)}
+.c2fpop [data-op="amt"]:not(.on)::before{-webkit-mask-image:var(--ic-op-amt);mask-image:var(--ic-op-amt)}
 .c2fpop button.on::before{-webkit-mask-image:var(--ic-check);mask-image:var(--ic-check)}
 .c2fpop [data-do="open"]::before{-webkit-mask-image:var(--ic-open);mask-image:var(--ic-open)}
 /* „Suchen nach gemerkten Kriterien" trägt Tinte wie jeder Eintrag
@@ -1780,7 +1979,7 @@ textarea.srvtext{width:100%;display:block}
    (.c2mptab), nur um 18 px eingerückt statt um Kästchen und Stift.
    Unten im Kasten „+ Bedingung" links und „Diese Regel löschen"
    rechts, wie im Block der Posten-Fenster (.icbar). */
-.modal .box.cmebox{max-width:1240px;width:calc(100vw - 40px)}
+:is(.modal,.modalghost,.boxslide) .box.cmebox{max-width:1240px;width:calc(100vw - 40px)}
 .cmeent .cmerule{margin:2px 0 6px 18px;padding:8px 10px;background:var(--paper-2);
   border:1px solid var(--rule);border-radius:6px}
 /* „Diese Regel löschen" schließt rechts mit dem Wertfeld ab, nicht
@@ -1839,7 +2038,7 @@ textarea.srvtext{width:100%;display:block}
    FINA-Feldern. Abgewähltes tritt grau zurück. Die vier Knöpfe
    unten: „Alles wählen · Alles abwählen" links, „Abbrechen ·
    Anwenden" rechts. */
-.modal .box.c2mpbox{max-width:940px;width:calc(100vw - 40px)}
+:is(.modal,.modalghost,.boxslide) .box.c2mpbox{max-width:940px;width:calc(100vw - 40px)}
 .c2mphow{margin:0 0 12px;padding-left:20px;font-size:12.5px;line-height:1.5;color:var(--ink)}
 .c2mphow li{margin:2px 0}
 /* **Blockzeile und Kategoriezeile kleben beim Rollen** (6.9.26), wie
@@ -1858,7 +2057,7 @@ textarea.srvtext{width:100%;display:block}
    darüber liefe Inhalt sichtbar durch. Den Abstand für den Schatten
    des ersten Blocks trägt stattdessen dessen Außenabstand: der rollt
    mit dem Inhalt und verschiebt die Klebekante nicht. */
-.modal .box.c2mpbox>.dbody,.modal .box.cmebox>.dbody{padding-top:0}
+:is(.modal,.modalghost,.boxslide) .box.c2mpbox>.dbody,:is(.modal,.modalghost,.boxslide) .box.cmebox>.dbody{padding-top:0}
 .c2mpbox .dbody>.c2mpgrp:first-child,.cmebox .dbody>.c2mpgrp:first-child{margin-top:12px}
 .c2mpgrp.g-in{background:var(--bg-in)}
 .c2mpgrp.g-flex{background:var(--bg-flex)}
@@ -2114,17 +2313,17 @@ textarea.srvtext{width:100%;display:block}
    gilt nichts davon — der Knopf öffnet dann ein Fenster darüber
    (.impovl), und .impon bleibt ohne Wirkung; der Löschknopf zieht
    mit hinein (js/ui.js). */
-.modal .box.split>.impside{display:none}
+:is(.modal,.modalghost,.boxslide) .box.split>.impside{display:none}
 @media (min-width:981px){
-  .modal .box.split.impon{max-width:910px;
+  :is(.modal,.modalghost,.boxslide) .box.split.impon{max-width:910px;
     display:grid;grid-template-columns:1fr 300px;
     grid-template-rows:auto minmax(0,1fr) auto;column-gap:22px}
-  .modal .box.split.impon>h3{grid-column:1;grid-row:1}
+  :is(.modal,.modalghost,.boxslide) .box.split.impon>h3{grid-column:1;grid-row:1}
   /* Die .dbody greift links weiter über das Polster hinaus (siehe
      .box.split oben), rechts endet sie an der Fuge zur Liste. */
-  .modal .box.split.impon>.dbody{grid-column:1;grid-row:2;margin-right:0;padding-right:0}
-  .modal .box.split.impon>.row-end{grid-column:1;grid-row:3}
-  .modal .box.split.impon>.impside{display:grid;grid-column:2;grid-row:1/4;
+  :is(.modal,.modalghost,.boxslide) .box.split.impon>.dbody{grid-column:1;grid-row:2;margin-right:0;padding-right:0}
+  :is(.modal,.modalghost,.boxslide) .box.split.impon>.row-end{grid-column:1;grid-row:3}
+  :is(.modal,.modalghost,.boxslide) .box.split.impon>.impside{display:grid;grid-column:2;grid-row:1/4;
     grid-template-rows:subgrid;min-height:0}
 }
 /* **Gibt das Browserfenster mehr her, bekommt es allein die Liste**
@@ -2143,10 +2342,10 @@ textarea.srvtext{width:100%;display:block}
    ohnehin erst, wenn Platz da ist, die Spaltenbreite aber nicht
    von selbst. */
 @media (min-width:1085px){
-  .modal .box.split.impon{max-width:1010px;grid-template-columns:1fr 400px}
+  :is(.modal,.modalghost,.boxslide) .box.split.impon{max-width:1010px;grid-template-columns:1fr 400px}
 }
-.modal .impside h4,.impovl h3{margin:0 0 10px}
-.modal .impside h4{font-family:var(--font-data);font-size:9px;letter-spacing:.12em;
+:is(.modal,.modalghost,.boxslide) .impside h4,.impovl h3{margin:0 0 10px}
+:is(.modal,.modalghost,.boxslide) .impside h4{font-family:var(--font-data);font-size:9px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-2);font-weight:600;align-self:end}
 /* Dasselbe Polster wie die .dbody daneben (12 oben, 26 unten):
    der Schwebe-Schatten der ersten und der letzten Monatsgruppe
@@ -2158,7 +2357,7 @@ textarea.srvtext{width:100%;display:block}
 .impscroll{overflow-y:auto;scrollbar-width:thin;min-height:0;
   margin:0 -8px;padding:12px 8px 26px}
 /* Die Fußzeile der Liste — ein Knopf, auf einer Linie mit denen
-   des Fensters. Dieselben Maße wie .modal .box>.row-end.
+   des Fensters. Dieselben Maße wie :is(.modal,.modalghost,.boxslide) .box>.row-end.
 
    **Der Knopf nimmt die ganze Breite der Spalte** (30.8.26): er
    gehört der Liste über ihm und keiner der Knöpfe daneben, und über
@@ -2217,3 +2416,19 @@ textarea.srvtext{width:100%;display:block}
    Eingabefeldern. */
 .impmh .pos,.imprl .v.pos{color:var(--ok)}
 .impmh .neg,.imprl .v.neg{color:var(--seal)}
+
+/* ── Das Dreieck der Klapp-Pfeile (seit 6.9.26) ──────────────
+   Aus Rändern gebaut, nicht als Schriftzeichen: so ist es überall
+   gleich — 9 px lang und 13 px breit an der Basis, also nicht
+   länger als das frühere ▶, aber kräftiger. Die Farbe kommt aus
+   dem Element darum (currentColor). `down` dreht es nach unten,
+   wo das Aufgeklappte steht. Gebaut von tri() in js/ui.js. */
+.tri{display:inline-block;width:0;height:0;vertical-align:middle;
+  border-top:6.5px solid transparent;border-bottom:6.5px solid transparent;border-left:9px solid currentColor}
+.tri.down{transform:rotate(90deg)}
+/* Die Drehung läuft in derselben Zeit wie das Herausfahren
+   (bindHoverStill in js/ui.js stellt den alten Winkel voran). */
+/* Die Ruhelage ist ein ausdrückliches 0°: von 90° zu „none" dreht
+   der Browser nicht, er springt. */
+.tri{transform:rotate(0deg);transition:transform .22s ease-out}
+@media (prefers-reduced-motion:reduce){.tri{transition:none}}

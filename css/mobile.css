@@ -385,6 +385,6 @@ body.mobile .progtable{--progleadw:78px}
    Dieselben Fenster, nur bis an den Rand: auf 390 px ist jedes
    Polster außen verlorener Platz. */
 .modal{padding:8px}
-.modal .box{padding:14px 12px;max-height:94vh;--boxpad:12px}
+:is(.modal,.modalghost,.boxslide) .box{padding:14px 12px;max-height:94vh;--boxpad:12px}
 
 }

@@ -45,7 +45,7 @@ ganze Projekt zu lesen.
 | Datei laden/speichern, dirty-Zustand, Statuszeile | `js/storage.js` |
 | CSV-Import — Wizard, Anleitung daneben, Struktur- und Kriterien-Fenster | `js/dialogs/csv2-wizard.js` |
 | Die Struktur der JSON-Datei, je Fassung eine Datei nach dem Tag | `FINA Strukturen und Objekte/` |
-| Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
+| Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe — **und die Bewegung**: Geister, Fenster-Übergänge, Klappen, Menüs (siehe „Bewegung") | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
 | Begrüßungsseite (ohne Datei) | `js/views/willkommen.js` |
 | Inhalt eines Fensters | `js/dialogs/item·settings.js` (Posten, Einstellungen); die Fenster des Imports in `csv2-wizard.js` |
@@ -152,6 +152,9 @@ Abschnitt.**
   Gesucht wird zuerst rechts, dann links; das Menü klebt am rechten Rand, in der Praxis
   steht sie also links. Wer ein weiteres Menü baut, setzt `data-tipside` daran — überall
   sonst bleibt es bei über/unter (siehe den Kommentar in `showTip()`).
+  **Jede Sprechblase kommt erst nach einer halben Sekunde** (seit 6.9.26: `TIP_DELAY` in
+  `js/config.js`, `tipLater()` in `js/ui.js`, für Maus und Fokus gleichermaßen) und ist
+  **weiß auf Tinte** (`.tip`). Wer nur vorbeifährt, sieht keine.
 * **Die Monatsleiste steht unter der Filterzeile** (seit 22.8.26), nicht mehr an der
   Kopfzeile: dort, wo die Jahresmatrix ihre Monate hat, und im selben Bild — weiße Karte
   mit Radius 8 und derselben Schrift wie der Spaltenkopf der Matrix (9.5 px
@@ -300,6 +303,123 @@ Abschnitt.**
   **weg**: sie stritt dort mit dem Dateinamen um den Platz; die Siegel erklären ihre
   Sprechblasen und die Anleitung.
 
+## Bewegung (seit 6.9.26)
+
+**Alles, was erscheint oder verschwindet, ist animiert — in beide Richtungen.** Das ist
+Lex' Grundregel, und sie gilt für jede neue Stelle ohne Nachfrage: „Es soll alles flüssig
+und weich sein. Nicht langsam." Der ganze Apparat wohnt in `js/ui.js` (Abschnitt hinter
+`impSideWire`); die Keyframes und die Geist-Klassen stehen in `css/components.css` und
+`css/layout.css`. **Animiert werden nur `transform`, `opacity` und `clip-path`** — „nichts
+davon setzt die Seite neu"; Breite und Höhe zu bewegen hieße, den ganzen Kasten in jedem
+Bild neu zu setzen, und mit den Tabellen des Imports ruckelte genau das sichtbar. 150 bis
+460 ms, `ease-out` oder `cubic-bezier(.4,0,.2,1)`. **Alles hinter `prefers-reduced-motion`
+abschaltbar** — ein Sammelblock in `css/components.css` (Animationen `none`, Geister
+`display:none`) plus Einzelregeln in `layout.css` und `matrix.css`; wer eine Bewegung baut,
+trägt sie dort ein.
+
+* **Geister.** Fenster, Menüs und Ansichten verschwinden mit einem nackten `remove()` oder
+  per `innerHTML` — was hinausfahren soll, ist dann schon weg. `ghostOf(n,cls,rect)` baut
+  aus dem alten Element eine Kopie fürs Auge: ohne Kennungen (`getElementById` fände sonst
+  den Geist), ohne Klick (`pointer-events:none`), ohne Fokus (`inert`), mit den Feldwerten
+  und Rollstellungen des Originals — nur Datei-Felder bleiben leer (ein `InvalidStateError`
+  brach sonst den CSV-Import ab), und `data-hk` bleibt in der Kopie, sonst stünden im Geist
+  alle Pfeile da. **Das Rechteck wird vor dem Entfernen gemessen.** Vier Geist-Klassen:
+  `.modalghost` (Fenster, `z-index:50` — ein Fenster über einem anderen fährt sonst hinter
+  diesem hinaus) · `.viewghost` (Ansicht) · `.foldghost` (Klappen) · `.boxslide` (Rahmen
+  beim Inhaltswechsel). Alle mit `scrollbar-width:none` (macOS blendete den schwebenden
+  Balken kurz ein) und im Geist klebende Leisten auf `position:relative`. Jeder Geist
+  entfernt sich per `animationend` **und** per Uhr (700 ms) selbst.
+* **Fenster** fallen von oben herein und fahren nach oben hinaus — Fertig, Abbrechen, Kreuz,
+  Escape, Klick daneben, alle Wege. Ein `MutationObserver` am Ende von `js/ui.js` sieht
+  jedes `.modal` kommen und gehen: fällt eins heraus, legt er einen `.modalghost` an seine
+  Stelle. **Fällt im selben Zug ein neues Fenster derselben Bauart herein** (Einstellungen
+  nach „+", Entfernen, Sortieren — `kind()` vergleicht die Kastenklasse), gibt es keinen
+  Geist, das neue trägt `.noanim`, und sein Kasten wächst stattdessen aus der Größe des
+  alten (`flipBox`). Ein **anderes** Fenster, das zugleich zugeht (Strukturfenster über den
+  Einstellungen), fährt normal hinaus. Deshalb tragen **alle** Nachfahren-Regeln von
+  `.modal` in `components.css` und `mobile.css` den Selektor
+  `:is(.modal,.modalghost,.boxslide) .box` — der Geist muss aussehen wie das Original.
+  Keyframes `fina-dropin/-dropout/-fade/-fadeout` (220 ms, 40 px).
+* **Größenänderung eines Fensters** ist überall dieselbe: `flipBox(box,from,delay)` mit
+  `boxSize` (WeakMap), `FLIP_MS=240`. `clip-path:inset(… round 10px)` plus `transform`,
+  **oben links angehängt** — „von der Mitte aus wüchse es nach beiden Seiten, und man sähe
+  den Inhalt zur Seite wandern, ohne dass rechts etwas käme" (Lex). Wachsen: Ausschnitt
+  öffnet sich; Schrumpfen: alte Maße halten (`max-width/max-height`), Ausschnitt schließen,
+  dann die Maße abfallen lassen. Angemeldet werden neue Kästen beim `boxWatch`
+  (ResizeObserver, Aufruf in `requestAnimationFrame`, damit „ResizeObserver loop
+  completed…" ausbleibt; übersprungen bei `data-flip`); **beim Ziehen des Browserfensters**
+  (`lastResize`, < 300 ms) passiert nichts.
+* **Inhaltswechsel in einem Fenster** — Bereich der Einstellungen (`showPane()` →
+  `paneNow()` in `js/dialogs/settings.js`; `.setpane.swapfade`, Kasten `.setbox` mit
+  **fester Breite** `min(1080px,100%)`, nur die Höhe folgt dem Bereich), Schritt im Wizard
+  (`c2Render(swap)` bei `W.drawnStep!==W.step`, Arbeitsfläche `.c2work.swapfade`): erst
+  blendet der alte Inhalt aus, dann die Größenänderung, dann blendet der neue ein — auch bei
+  gleicher Größe. `boxSwap(box,mutate)`, `SWAP_MS=150`: Geist des Kastens in `.boxslide` mit
+  `.fadeout`, `mutate()`, `flipBox`, `.swapfade` blendet ein; `.swapping` verbirgt den
+  neuen Inhalt, bis das Fenster seine Größe hat. **Ein Inhalt erscheint nie, bevor die
+  Bewegung zu Ende ist.** Kopfzeile und Menü bleiben dabei stehen.
+* **Die Importdaten am Posten-Fenster** (`impSideWire`, `.impside.impin/.impout`) laufen
+  zweizügig: erst wird das Fenster breiter (`flipBox` mit gemessener Altgröße — der
+  ResizeObserver käme ein Bild zu spät), dann fährt die Liste von rechts herein; beim
+  Ausblenden erst hinaus, dann schmaler. Beim Öffnen mit sichtbarer Liste bleibt sie
+  `visibility:hidden`, bis das Fenster zu Ende gefallen ist (260 ms).
+* **Ansichten** wechseln seitwärts über die volle Breite in Reiterrichtung
+  (`slideViewOut(vbox,dir)` / `slideViewIn(vbox,dir)` um `innerHTML` in `render()`,
+  `VIEW_MS=460`; Richtung aus der Reihenfolge in `VIEWS`, nur bei `lastView!==ui.view`
+  und nicht auf der Begrüßungsseite). **Die alte Ansicht bleibt stehen und wird
+  überlagert** (Lex, 6.9.26 spät; bis dahin fuhr sie zur Seite hinaus): `#view.in-left /
+  .in-right` mit `--paper`-Grund, Keyframes `fina-inL/-inR`,
+  `cubic-bezier(.75,0,.15,1)` — langsam an, schnell über die alte Ansicht, zum Ende weich
+  aus. `--viewgap` / `--viewfill` sind Deckstreifen (`::before/::after`),
+  `html.viewslide{overflow-x:hidden}`, `html{scrollbar-gutter:stable}` (sonst rückten die
+  Reiter beim Wechsel). `syncStickyTops()` misst deshalb nur noch `#view .stickybar` und
+  `#view .card > .sechead` — Geister ausgenommen — und sucht `.monthscroll` statt
+  `#monthScroll`, denn der Geist hat keine IDs. Ein bloßes Neuzeichnen derselben Ansicht
+  (Tippen, Filtern) bewegt nichts.
+* **Die Pille der Ansichtswahl gleitet** (`.vpill` hinter den `.vtab`, `renderChrome()`):
+  die alte Lage wird vor `innerHTML` gemessen, die Pille steht sofort neu und fährt per
+  `transform: translateX() scaleX()` von der alten herüber — `left/width` zu bewegen setzte
+  die Kopfzeile in jedem Bild neu.
+* **Klappen** — Karten der Monatsansicht, Blöcke der Matrix, die Auswertung, die Blöcke
+  und Zielzeilen des Imports: `foldSnap(root)` vor dem Neuzeichnen, `foldPlay(root,snap)`
+  danach, ausgelöst über `ui.foldAnim` (gesetzt in `toggleFold()` und an `data-ana`,
+  gelesen und zurückgesetzt in `render()`) bzw. `W.foldAnim` im Wizard. Merkmal `data-fk`
+  — im Monat `card:in|flex|out|bal|ms` und `body:in|flex|out|tl`, in der Matrix
+  `tbody data-fk="blk:i"`, im Import `blk:…`, `bhead:…`, `row:…`, `src:…`. Was bleibt,
+  fährt per FLIP (`translateY`, gedeckelt auf `innerHeight` — „ein Weg über 2000 px in
+  280 ms ist kein Gleiten mehr"); was verschwindet, wird ein `.foldghost` mit `clip-path`
+  von unten (nur der sichtbare Teil); was neu ist, `.foldin` (clip-path) oder in Tabellen
+  `.foldin-row` (nur Deckkraft — Zeilen einer Tabelle teilen sich keinen Ausschnitt).
+  `rowsGhost()` baut für Tabellenzeilen eine eigene Tabelle mit `colgroup` aus der
+  Kopfzeile; Rollflächen `.yearscroll` und `.c2top .c2scroll`.
+* **Klapp-Pfeile** (`tri(down)`, `.tri`, `data-hk`): mit Maus in Ruhe unsichtbar, fahren
+  beim Überfahren oder Fokus heraus (Überschrift rückt weich nach rechts), drehen sich beim
+  Klappen (`.tri.down{rotate(90deg)}`, Ruhelage ausdrücklich `rotate(0deg)` — von 90° zu
+  `none` springt der Browser), Farbe überall `--ink-2`. `bindHoverStill(root)` (in
+  `wire()` und `c2Wire()`) gibt einem neu gebauten Element mit gemerktem Schlüssel `.still`
+  — ausgefahren ohne Übergang — und stellt den Pfeil vor dem Loslassen in die alte Drehung:
+  **was beim Neuzeichnen unter der Maus bleibt, fährt nicht neu an.** Zwei
+  Animationsbilder später wird geprüft, ob die Maus noch darüber steht. Die Regeln stehen
+  hinter `@media (hover:hover)` in `layout.css`, `matrix.css`, `components.css`.
+* **Menüs** — Hamburger, die drei Filter-Aufklappmenüs, das mobile Filtermenü, die Menüs des
+  Imports — klappen auf und zu (`fina-menu/-menuout`). Aufklappmenüs tragen `data-dm`;
+  `.popin` nur beim **ersten** Zeichnen — `ui.menuDrawn` (gesetzt am Ende von `wire()`)
+  sagt, welches Menü schon stand, ein Filtermenü, das nach dem Tippen offen bleibt, fährt
+  nicht noch einmal an (`snapMenus()` / `settleMenus()`). `popOut(el)` ersetzt jedes
+  `.c2fpop.remove()` im Import. Der Hamburger schließt über `.tools.closing`
+  (`animationend` plus Uhr 260 ms, `shut()` in `js/app.js`); beim Öffnen wird die Animation
+  nach 260 ms abgeschnitten, und ein `visibilitychange`-Handler setzt offenen Menüs und
+  Fenstern `animation:none` — ein Klick aus einem anderen Programm heraus ließ das Menü
+  sonst unsichtbar auf dem ersten Bild stehen (Chrome hält die Seite für verdeckt).
+* **Die Filterzeile wechselt ihre Farbe mit Übergang**: `render()` merkt `fbWasOn`, setzt für
+  ein Bild `.was-on/.was-off` (`layout.css`, `!important`) und nimmt sie wieder — nicht
+  beim Ansichtswechsel.
+* **Native `<select>`-Listen lassen sich nicht animieren** — der Browser zeichnet sie. Dafür
+  bräuchte es eigene Listen; das ist bewusst nicht gebaut.
+
+`ui.foldAnim` und `ui.menuDrawn` sind Sitzungsfelder wie `ui.fltMenu`, nie in der Datei;
+im Wizard heißen sie `W.foldAnim`, `W.drawnStep`, `W.blkFold`.
+
 ## Die vier Regeln
 
 **1. Views erzeugen `data-*`, `app.js` verdrahtet.**
@@ -311,8 +431,9 @@ selbst.
 
 Bestehende Attribute: `paid` (Siegel) · `filter` `duefilter` `secfilter` `tpart` `q` `qfields` `kd` `mfilters` (Filter;
 `qfields` öffnet die Einstellungen im Bereich „Filter", `mfilters` das mobile Filtermenü) ·
-`ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich der Monatsansicht
-zuklappen) · `yfold` `dblyfold` (einen Block der Jahresmatrix zuklappen) · `qclear` (Filter
+`ana` (Auswertung auf-/zuklappen) · `fold` `secfold` (einen Bereich der Monatsansicht
+zuklappen — Pfeil und Kartenkopf) · `yfold` `blkfold` (einen Block der Jahresmatrix
+zuklappen — Pfeil und Blockzeile) · `qclear` (Filter
 zurücknehmen) ·
 `wload` `wnew` (Begrüßungsseite) · `opening` (Anfangsbestand in den Einstellungen öffnen) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `txlist` (die
@@ -1282,9 +1403,13 @@ wo er neben den elf anderen Monaten steht und sich lesen lässt; hier stünde er
 ohne Vergleich. Was der Monat mit dem Konto macht, sagt der Zeitstrahl darunter, Zeile für
 Zeile. Sie ist kein Kästchen in der Reihe: sie benennt die
 Leiste, sie ist keine Kennzahl. Ein Klick irgendwo darauf klappt sie auf, und darunter
-erscheint der Zeitstrahl. **Einen Pfeil trägt sie nicht:** ob sie offen ist, sagt der Zeitstrahl
-selbst; für Tastatur und Vorlesehilfe steht es in `aria-expanded`. Gebaut wird sie in
-`anaBar()` / `timeline()` in `js/views/monat.js`.
+erscheint der Zeitstrahl. **Einen festen Pfeil trägt sie nicht** — seit 6.9.26 fährt beim
+Überfahren (oder Tastaturfokus) in der **ersten** Kachel ein Klapp-Pfeil heraus
+(`.anaarrow`, `data-hk="ana"`, siehe „Bewegung"): die Zeile ist eine Reihe aus Zahlen, ein
+fester Pfeil davor läse sich wie eine fünfte Angabe, und ein Pfeil je Kachel sähe nach vier
+Klappen aus. Ob sie offen ist, sagt der Zeitstrahl selbst; für Tastatur und Vorlesehilfe
+steht es in `aria-expanded`. Gebaut wird sie in `anaBar()` / `timeline()` in
+`js/views/monat.js`.
 
 **Die Leiste hat drei Stücke, und die Auswertung ist das letzte:** Filterzeile ·
 Monatsleiste · Auswertung (`anaBar()`). Die Filterzeile dockt oben an der Kopfzeile an, die
@@ -1741,17 +1866,17 @@ und die Blöcke der Jahresmatrix. Sichtbar bleibt jeweils nur die oberste Zeile:
 Überschrift, Knöpfe, Summe. Was darunter hinge, wird gar nicht erst gebaut.
 
 **Der Schalter ist ein Pfeil, kein Wort** (`data-fold="in|flex|out"`, gebaut in
-`foldBtn()`): ▾ offen, ▸ zugeklappt, in der Kantenfarbe seines Bereichs. Er steht ganz
-links in der Kopfzeile und ist so breit wie die Siegelspalte der Tabelle darunter
-(`--markw` aus `css/ledger.css`) — dadurch steht er senkrecht über den Haken der
-Positionen. Das Polster rechts (`padding:0 4px 0 0`) schiebt seine Mitte auf die der
-Siegel; wer an `--markw` oder am Innenabstand von `.markcell` dreht, prüft diese Flucht
-nach. **Der Pfeil ist ein Dreieck von rund 18 px** (▼ / ▶ bei `font-size:23px`, die
-Zeilenhöhe hält die Kopfzeile flach) — kein kleines Zeichen in einem großen Kreis, sondern
-das Zeichen selbst, in der Farbe des Bereichs.
+`foldBtn()`): ein Dreieck, das nach unten zeigt, wenn der Bereich offen ist, und nach rechts,
+wenn er zu ist. Seit 6.9.26 ist es **überall dasselbe Dreieck** (`tri()` in `js/ui.js`,
+`.tri`, 9 × 13 px, gedecktes Grau `--ink-2` — ein Hinweis, kein Wort; bis dahin ▼/▶ in der
+Bereichsfarbe, rund 18 px), es steht ganz links in der Kopfzeile in einem 14-px-Feld
+(`.sechead .foldarrow` / `.foldpad`; bis dahin `--markw` breit), und **mit Maus ist es in
+Ruhe unsichtbar**: es fährt beim Überfahren des Kopfes heraus und dreht sich beim Klappen
+(`data-hk`, siehe „Bewegung"). Ohne Maus — Telefon, Touch — steht es fest.
 
-**Ein Doppelklick auf die Kopfzeile tut dasselbe** (`data-dblfold` an der `.sechead`,
-verdrahtet in `wire()`); auf Knöpfen und Links darin nicht, die haben ihr eigenes Ziel.
+**Ein Klick auf die Kopfzeile tut dasselbe** (`data-secfold` an der `.sechead`, verdrahtet
+in `wire()`; seit 6.9.26 ein einfacher Klick, bis dahin ein Doppelklick über
+`data-dblfold`); auf Knöpfen und Links darin nicht, die haben ihr eigenes Ziel.
 
 **Zugeklappt trägt der Kopf keine Linie mehr** (`.card.folded>.sechead`): unter ihm steht
 keine Zeile, die er abtrennen könnte — der Bereich ist dann nur noch eine Farbe.
@@ -1765,11 +1890,12 @@ bleiben.
 
 Der Pfeil (`data-yfold`, gebaut in `yfoldBtn()`) steht in `td.ed`, der **Stiftspalte** —
 eine Blockzeile hat dort nichts, und es ist die erste Spalte, also dieselbe Stelle wie im
-Kartenkopf des Monats. Er trägt die Kantenfarbe seines Blocks
-(`.matrix tr.sec.r-* .foldarrow` in `css/matrix.css`), ist mit 15 px kleiner als der der
-Monatsansicht und macht die Blockzeile über `line-height:.8` nicht höher. Der Doppelklick
-sitzt hier an der **ganzen Zeile** (`data-dblyfold` am `tr`), nicht an einer Zelle: die
-Zeile ist die Überschrift.
+Kartenkopf des Monats. Es ist dasselbe Dreieck wie im Monat (`.tri`, `--ink-2`; bis 6.9.26
+in der Kantenfarbe des Blocks), es fährt mit Maus ebenfalls erst beim Überfahren der Zeile
+heraus (`.matrix tr[data-hk]`, `td.lab{padding-left:18px}` in `css/matrix.css`) und macht
+die Blockzeile nicht höher. Der Klick sitzt hier an der **ganzen Zeile** (`data-blkfold` am
+`tr`, seit 6.9.26 ein einfacher Klick statt des Doppelklicks `data-dblyfold`), nicht an
+einer Zelle: die Zeile ist die Überschrift.
 
 **Zwei Schalter, nicht einer:** `state.folded` gilt der Monatsansicht, `state.foldedYear`
 der Matrix. Es sind zwei verschiedene Listen im selben Buch — wer den Monat aufräumt, will
@@ -1784,8 +1910,9 @@ Dateien kennen stattdessen das einzelne Feld `flexCollapsed`; `migrate()` zieht 
 `state.folded` herüber und löscht es — die Matrix fängt dabei offen an.
 
 Verdrahtet sind beide Ansichten in `wire()` durch dieselbe Schleife über
-`[['fold','dblfold','folded'],['yfold','dblyfold','foldedYear']]`; `toggleFold()` bekommt
-den Namen der Liste als erstes Argument.
+`[['fold','secfold','folded'],['yfold','blkfold','foldedYear']]`; `toggleFold()` bekommt
+den Namen der Liste als erstes Argument und setzt `ui.foldAnim`, damit `render()` das
+Klappen animiert (siehe „Bewegung").
 
 ### Was das Klappen überschreibt
 
@@ -1811,10 +1938,10 @@ erkennbaren Grund: **dieselbe Anwendung sah in zwei Dateien verschieden aus**, u
 sieht wie ein Fehler aus, nicht wie eine Regel. Der Zeitstrahl bleibt auch über einer
 zugeklappten Karte lesbar. Wer die Regel zurückbauen will, weiß jetzt, warum sie weg ist.
 
-**Solange der Filter gilt, gibt es keinen Pfeil und keinen Doppelklick.** `foldBtn()`
-liefert im Monat ein leeres `.foldpad` derselben Breite — sonst spränge die Überschrift —,
-in der Matrix bleibt die Stiftspalte einfach leer; `data-dblfold` / `data-dblyfold` bleiben
-weg. Ein Pfeil, der gegen eine Überschreibung anklappen wollte, hielte nicht, was er
+**Solange der Filter gilt, gibt es keinen Pfeil und keinen Klick auf die Überschrift.**
+`foldBtn()` liefert im Monat ein leeres `.foldpad` derselben Breite — sonst spränge die
+Überschrift —, in der Matrix bleibt die Stiftspalte einfach leer; `data-secfold` /
+`data-blkfold` (und `data-hk`) bleiben weg. Ein Pfeil, der gegen eine Überschreibung anklappen wollte, hielte nicht, was er
 verspricht, und ein Wert, den niemand sieht, soll auch nicht heimlich kippen. Fällt der
 Filter weg, gilt wieder die Datei — unverändert.
 
@@ -2637,7 +2764,12 @@ und migriert wird beim Lesen (`migrate()`).
   Struktur aus dem Gemerkten und steht noch so da (`c2ColsSame()`), heißt der Knopf nur
   „Weiter". Nach Schritt 3 kommen nur verknüpfte Spalten mit (`c2GoStep3()`).
 * **Schritt 3:** oben alle drei Bereiche wie die Jahresmatrix (`tbody.c2blk`, Kategorien
-  als klebende Zeilen, Ziel per Klick orange), in der Mitte die Zuordnungsleiste (☰ mit
+  als klebende Zeilen, Ziel per Klick orange; **die Blockzeile klappt ihren Block** mit
+  einem Klick — `data-c2blk`, `W.blkFold`, seit 6.9.26 spät —, und rechts in der Kopfzelle
+  „Ziel" fährt beim Überfahren „Alle aufklappen / Alle zuklappen" heraus, `data-c2foldall`,
+  `.c2foldall`; die sechs Vergleichsarten im Zeilenfilter tragen je ein Zeichen
+  `--ic-op-*`, und die Zielzeilen lassen sich nicht als Text markieren — „Die Zeilen sind
+  Ziele, kein Text"), in der Mitte die Zuordnungsleiste (☰ mit
   rotem Punkt, solange ein Filter etwas trägt · „Modus: Einmalige Zuordnung" · „Zuordnen
   und merken" · „Neu anlegen und zuordnen" · rechts der Schalter „Schon zugeordnete
   CSV-Zeilen verbergen/zeigen" (`W.showOld`) und „Automatisch zuordnen mit gemerkten
@@ -2978,11 +3110,13 @@ baut, die einen greifenden Filter meldet, nimmt `--flt`.
 `c2Apply()`; 1 gemerkt, 2 einmalig, in älteren Dateien `true`) — bei flexiblen Posten
 genauso wie bei regulären, seit beide dasselbe Modell haben (6.9.26).
 
-**Den Haken abnehmen heißt: kein Import mehr.** Wer im Posten-Fenster einen importierten
-Monat aufmacht, um die Zahl anzufassen, nimmt die Aussage „so stand es in der Datei"
-zurück: `setSeal()` tauscht das Zeichen sofort auf den Haken, und `#fSave` löscht `imp`
-für diesen Monat. Bliebe die Marke stehen, behauptete ein später von Hand gesetzter Haken
-einen Import, den es nie gab.
+**Ein importierter Monat ist im Posten-Fenster gesperrt** (seit 6.9.26 spät: `impLock`
+in `js/dialogs/item.js` — Siegel und Feld sind zu, die Sprechblase `item.impLockedTip`
+sagt, warum). Bis dahin nahm das Abnehmen des Hakens den Import zurück; jetzt gibt es nur
+einen Weg, den Wert loszuwerden: **„Alle Importdaten löschen"** (`impv.del`) in der
+Fußzeile des Fensters — das nimmt die Quellzeilen und die Marke `imp` zusammen weg, und
+danach ist der Monat wieder ein gewöhnlicher. So kann nie ein Betrag im Buch stehen, der
+„aus der Datei" heißt, aber von Hand geändert wurde.
 
 ## Was beim Öffnen einer Datei einmal entschieden wird
 

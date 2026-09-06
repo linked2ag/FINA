@@ -631,7 +631,17 @@ function showTip(el){
   tipEl.style.left=Math.round(x)+'px';
   tipEl.style.top=Math.round(y)+'px';
 }
-const hideTip=()=>{ tipEl.hidden=true; };
+/* ── Erst nach einer Weile (seit 6.9.26, Lex) ───────────────────
+   Die Blase kommt nicht mehr sofort, sondern nach TIP_DELAY
+   (js/config.js, eine halbe Sekunde — der eine Wert für alle Hinweise):
+   wer nur vorbeifährt, sieht keine; wer stehen bleibt, bekommt sie.
+   Verlässt die Maus das Element vorher, fällt der Auftrag. */
+let tipT=0;
+function tipLater(el){
+  clearTimeout(tipT); tipEl.hidden=true;
+  tipT=setTimeout(()=>{ if(el.isConnected&&el.matches(':hover, :focus')) showTip(el); },TIP_DELAY);
+}
+const hideTip=()=>{ clearTimeout(tipT); tipEl.hidden=true; };
 
 /* ── Auch title= wird zur Sprechblase (5.9.26) ─────────────────
    Bis dahin gab es zwei Sorten Hinweis: die eigene Blase (sofort,
@@ -656,7 +666,7 @@ document.addEventListener('mouseover',e=>{
     if(s){ tl.setAttribute('data-tip',s); tl.setAttribute('data-tiphover','1'); }
   }
   const el=e.target.closest&&e.target.closest('[data-tip]');
-  if(el) showTip(el);
+  if(el) tipLater(el);
 });
 document.addEventListener('mouseout',e=>{
   if(e.target.closest&&e.target.closest('[data-tip]')) hideTip();
@@ -667,9 +677,18 @@ document.addEventListener('focusin',e=>{
      gearbeitet wird, bekommt den Fokus immer wieder zurück (siehe
      wire() in js/app.js) — seine Sprechblase stünde sonst die
      ganze Zeit daneben, statt einmal zu erklären. */
-  if(el&&!el.hasAttribute('data-tiphover')) showTip(el);
+  if(el&&!el.hasAttribute('data-tiphover')) tipLater(el);
 });
 document.addEventListener('focusout',hideTip);
+/* Wird die Seite wieder sichtbar (das Fenster war verdeckt), stehen
+   Animationen, die währenddessen anfingen, mitunter auf ihrem
+   ersten Bild fest — ein Menü bliebe unsichtbar, ein Fenster leer.
+   Was dann gerade auf ist, wird ohne Animation fertig gestellt;
+   das nächste Öffnen baut es ohnehin neu. */
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible') return;
+  document.querySelectorAll('.tools.open,.dropmenu.popin,.c2fpop,.modal,.modal .box').forEach(el=>{ el.style.animation='none'; });
+});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') hideTip(); });
 window.addEventListener('scroll',hideTip,true);
 
@@ -1072,7 +1091,15 @@ function impSideWire(modal,kind,ref,ask){
      hieße, den Weg zweimal zu gehen. `ui.impPanel` merkt sich nur
      eine ausdrückliche Wahl (Sitzung, nie Datei) — deshalb die
      Frage auf `!==false` und nicht auf „wahr". */
-  if(ui.impPanel!==false&&!narrow())boxEl.classList.add('impon');
+  if(ui.impPanel!==false&&!narrow()){
+    /* Geht das Fenster mit sichtbarer Liste auf, kommt die Liste
+       erst, wenn das Fenster zu Ende gefallen ist (fina-dropin,
+       220 ms): der Kasten ist von Anfang an breit, die Liste darin
+       unsichtbar, dann fährt sie von rechts herein. */
+    boxEl.classList.add('impon'); aside.style.visibility='hidden';
+    setTimeout(()=>{ if(!boxEl.isConnected||!boxEl.classList.contains('impon')) return;
+      aside.style.visibility=''; aside.classList.add('impin'); setTimeout(()=>aside.classList.remove('impin'),300); },260);
+  }
   btn.hidden=false;
   lab();
   impScrollToAsk(aside);
@@ -1104,8 +1131,461 @@ function impSideWire(modal,kind,ref,ask){
       x.focus();
       return;
     }
-    boxEl.classList.toggle('impon');
-    ui.impPanel=boxEl.classList.contains('impon');
-    lab();
+    /* **In zwei Zügen** (Lex, 6.9.26 spät): beim Einblenden wird erst
+       das Fenster breiter — der Inhalt rückt mit der linken Kante
+       nach links, rechts kommt Platz —, dann fährt die Liste von
+       rechts herein. Beim Ausblenden erst die Liste nach rechts
+       hinaus, dann das Fenster schmaler. Die Größenänderung läuft
+       nicht über den ResizeObserver (der käme ein Bild zu spät und
+       ließe das Fenster einmal springen), sondern sofort über
+       flipBox mit der gemessenen alten Größe. */
+    const from={w:boxEl.offsetWidth,h:boxEl.offsetHeight};
+    clearTimeout(boxEl._impT);
+    if(!boxEl.classList.contains('impon')){
+      aside.classList.remove('impout'); aside.style.visibility='hidden';
+      boxEl.classList.add('impon'); ui.impPanel=true; lab();
+      const moved=flipBox(boxEl,from);
+      boxEl._impT=setTimeout(()=>{ aside.style.visibility=''; aside.classList.add('impin');
+        setTimeout(()=>aside.classList.remove('impin'),300); },moved?FLIP_MS:0);
+    } else {
+      /* Ausblenden **in einem Zug** (Lex): die Liste fährt nach rechts
+         hinaus, während das Fenster schon schmaler wird. Dafür löst
+         sich die Liste aus dem Raster — absolut an ihrer Stelle im
+         Fenster —, damit der Kasten ohne sie umbauen und mit seinem
+         Ausschnitt zusammenfahren kann; danach fällt alles wieder ab. */
+      /* Nacheinander (Lex, endgültig): erst fährt die Liste ganz nach
+         rechts hinaus, dann wird das Fenster schmaler. Beides zugleich
+         sah aus, als klappte das Fenster in sich zusammen. */
+      aside.classList.remove('impin'); aside.classList.add('impout');
+      boxEl._impT=setTimeout(()=>{
+        const f2={w:boxEl.offsetWidth,h:boxEl.offsetHeight};
+        aside.classList.remove('impout'); boxEl.classList.remove('impon'); ui.impPanel=false; lab();
+        flipBox(boxEl,f2);
+      },230);
+    }
   };
 }
+
+/* ── Der Klapp-Pfeil ist ein Dreieck, das herausfährt ──────────
+   Ein Dreieck aus Rändern (.tri in css/components.css), kein
+   Schriftzeichen: ▶ und ▼ sind je Schrift verschieden breit, und
+   ein Zeichen lässt sich nicht „breiter, aber nicht länger"
+   machen. `down` dreht es um 90° — offen zeigt der Pfeil nach
+   unten, dorthin, wo das Aufgeklappte steht. Benutzt von der
+   Auswertung (anaBar), den Kartenköpfen (foldBtn) und den
+   Blockzeilen der Matrix (yfoldBtn). */
+const tri=down=>`<i class="tri${down?' down':''}" aria-hidden="true"></i>`;
+
+/* ── Ein ausgefahrener Pfeil bleibt beim Neuzeichnen stehen ────
+   Die Pfeile sind in Ruhe nicht da und fahren erst heraus, wenn
+   die Maus über der Zeile steht (css/layout.css, css/matrix.css).
+   Ein Klick zeichnet die Ansicht aber neu, und der neue Pfeil
+   finge dann wieder von links an — obwohl die Maus nie weg war.
+
+   Deshalb merkt sich `hovKeys`, worüber die Maus gerade steht
+   (das Merkmal data-hk: `ana`, `fold:in`, `yfold:out` …), und
+   bindHoverStill() gibt einem frisch gebauten Element mit
+   demselben Schlüssel die Klasse `still`: ausgefahren, ohne
+   Bewegung. Erst wenn die Maus die Zeile verlässt, fällt die
+   Klasse — und dann fährt der Pfeil wie gewohnt zurück. Ist die
+   Maus während des Neuzeichnens weitergezogen, kam von der alten
+   Zeile kein mouseleave mehr; zwei Bilder später wird deshalb
+   nachgesehen, ob sie noch darüber steht. Aufgerufen in wire(). */
+const hovKeys=new Set();
+/* ── Und beim Klappen dreht sich der Pfeil ──────────────────────
+   Der Klick baut die Zeile neu, und der neue Pfeil stünde sofort
+   in seiner neuen Richtung. Deshalb merkt sich `hovState` je
+   Schlüssel, wohin der Pfeil zuletzt zeigte; steht die neue Zeile
+   unter der Maus (`still`) und zeigt ihr Pfeil anders, wird er
+   erst ohne Übergang in die alte Richtung gestellt und dann
+   losgelassen — die CSS-Transition (.tri, .c2fold svg in
+   css/components.css) dreht ihn in derselben Zeit, in der er
+   herausfährt. Der drehende Teil ist das Dreieck (.tri) oder das
+   SVG des Import-Pfeils; „unten" heißt .tri.down bzw. .c2fold.open. */
+const hovState=new Map();
+function spinPart(el){
+  const n=el.querySelector('.tri, .c2fold svg'); if(!n) return null;
+  return {n,down:n.classList.contains('down')||!!n.closest('.c2fold.open')};
+}
+function bindHoverStill(root){
+  const els=[...root.querySelectorAll('[data-hk]')];
+  /* Ein Schlüssel ohne Element ist ein Rest der vorigen Ansicht —
+     die Zeile, über der die Maus stand, gibt es nicht mehr. */
+  [...hovKeys].forEach(k=>{ if(!els.some(e=>e.getAttribute('data-hk')===k)) hovKeys.delete(k); });
+  els.forEach(el=>{
+    const k=el.getAttribute('data-hk'), sp=spinPart(el);
+    if(hovKeys.has(k)){
+      el.classList.add('still');
+      const was=hovState.get(k);
+      if(sp&&was!==undefined&&was!==sp.down){
+        sp.n.style.transition='none'; sp.n.style.transform=was?'rotate(90deg)':'rotate(0deg)';
+        sp.n.getBoundingClientRect();
+        sp.n.style.transition=''; sp.n.style.transform='';
+      }
+    }
+    if(sp) hovState.set(k,sp.down);
+    el.addEventListener('mouseenter',()=>hovKeys.add(k));
+    el.addEventListener('mouseleave',()=>{hovKeys.delete(k);el.classList.remove('still');});
+  });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>els.forEach(el=>{
+    if(el.classList.contains('still')&&!el.matches(':hover')){
+      hovKeys.delete(el.getAttribute('data-hk'));el.classList.remove('still');
+    }
+  })));
+}
+
+/* ── Ein Geist: die Kopie eines Elements, das gerade geht ──────
+   (seit 6.9.26) Fenster, Menüs und Ansichten werden mit einem
+   nackten `remove()` oder per innerHTML ersetzt — was hinausfahren
+   soll, ist dann schon weg. ghostOf() baut aus dem alten Element
+   eine Kopie fürs Auge: ohne Kennungen (getElementById fände sonst
+   den Geist), ohne Klick (pointer-events in CSS), ohne Fokus
+   (inert), mit den Feldwerten und Rollstellungen des Originals,
+   sonst spränge der Inhalt im letzten Bild. Mit `rect` steht sie
+   fest an genau dieser Stelle des Bildschirms — für alles, was
+   nicht ohnehin den ganzen Schirm füllt. Sie entfernt sich nach
+   der Animation selbst. Das Rechteck muss **vor** dem Entfernen
+   gemessen werden: ein Element außerhalb des Dokuments hat keins. */
+function ghostOf(n,cls,rect){
+  const g=n.cloneNode(true);
+  const src=n.querySelectorAll('input,textarea,select'), dst=g.querySelectorAll('input,textarea,select');
+  /* Ein Datei-Feld lässt sich nicht befüllen — der Browser wirft
+     dabei (InvalidStateError), und das brach das Wählen der CSV im
+     ersten Schritt des Imports. Sein Wert ist ohnehin unsichtbar. */
+  src.forEach((s,i)=>{ if(!dst[i]||s.type==='file') return;
+    if(s.type==='checkbox'||s.type==='radio') dst[i].checked=s.checked; else dst[i].value=s.value; });
+  g.removeAttribute('id'); g.className=cls; g.setAttribute('inert','');
+  g.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+  /* data-hk bleibt: daran hängt in css/layout.css, dass die
+     Klapp-Pfeile in Ruhe unsichtbar sind — ohne das Merkmal stünden
+     sie in der Kopie plötzlich alle da. Angefasst wird die Kopie
+     ohnehin nicht (inert, pointer-events). */
+  if(rect) g.style.cssText+=`;position:fixed;top:${rect.top}px;left:${rect.left}px;right:auto;bottom:auto;width:${rect.width}px;height:${rect.height}px;margin:0`;
+  document.body.appendChild(g);
+  const sa=n.querySelectorAll('*'), da=g.querySelectorAll('*');
+  sa.forEach((e,i)=>{ if(da[i]&&(e.scrollTop||e.scrollLeft)){ da[i].scrollTop=e.scrollTop; da[i].scrollLeft=e.scrollLeft; } });
+  g.addEventListener('animationend',()=>g.remove());
+  setTimeout(()=>g.remove(),700);
+  return g;
+}
+/* Ein Menü oder Aufklappfenster geht: Geist an Ort und Stelle mit
+   der Klasse fürs Zusammenklappen, dann weg damit. Für alles, das
+   sich mit `remove()` schließt (die Menüs des CSV-Imports). */
+function popOut(el){
+  if(!el||!el.isConnected){ if(el) el.remove(); return; }
+  ghostOf(el,el.className+' popout',el.getBoundingClientRect());
+  el.remove();
+}
+/* Die Aufklappmenüs der Filterzeile leben in #view und gehen mit
+   jedem render() — auch dann, wenn sie danach wieder dastehen
+   (ein Wert gewählt, das Menü bleibt offen). Deshalb in zwei
+   Schritten: vor dem Zeichnen merken (Rechteck und Element), nach
+   dem Zeichnen nachsehen, welches fehlt — nur das bekommt seinen
+   Geist. Erkannt wird ein Menü an data-dm (fltDrop, mobiles Menü). */
+function snapMenus(root){
+  return [...root.querySelectorAll('.dropmenu[data-dm]')].map(el=>({key:el.dataset.dm,el,rect:el.getBoundingClientRect()}));
+}
+function settleMenus(pending){
+  pending.forEach(p=>{ if(!document.querySelector(`.dropmenu[data-dm="${p.key}"]`)) ghostOf(p.el,p.el.className.replace(' popin','')+' popout',p.rect); });
+}
+
+/* ── Die neue Ansicht fährt über die alte (seit 6.9.26) ──────────
+   Monat · Jahr · Prognose · Import Details stehen in dieser Reihe
+   (VIEWS). Wer nach rechts wechselt, sieht die neue Ansicht von
+   rechts über die alte fahren; nach links umgekehrt. **Die alte
+   bleibt stehen** und wird überlagert (Lex, 6.9.26 spät; bis dahin
+   fuhr sie zur Seite hinaus). Aufgerufen in render() **vor** dem
+   Ersetzen von #view: der Geist der alten Ansicht legt sich genau
+   über ihre Fläche, unbewegt und unter der neuen (z-index in
+   css/components.css); #view bekommt danach die Klasse fürs
+   Hereinkommen und liegt so lange darüber. Beides fällt am Ende
+   der Fahrt wieder ab. Solange die neue von der Seite kommt, ragt
+   sie über den rechten Rand — die Klasse viewslide am
+   Wurzelelement unterdrückt so lange den waagerechten Rollbalken.
+   dir>0 heißt: die neue kommt von rechts. */
+let viewSlideT=0, viewGhostTop=0, viewGhostBottom=0;
+const VIEW_MS=460;
+function slideViewOut(vbox,dir){
+  const r=vbox.getBoundingClientRect(); viewGhostTop=r.top; viewGhostBottom=Math.min(r.bottom,innerHeight);
+  const g=ghostOf(vbox,'viewghost stay',{top:r.top,left:r.left,width:r.width,height:Math.min(r.height,innerHeight-r.top)});
+  setTimeout(()=>g.remove(),VIEW_MS+30);
+}
+function slideViewIn(vbox,dir){
+  vbox.classList.remove('in-left','in-right');
+  /* Die hereinfahrende Ansicht deckt die alte ganz zu: sie trägt
+     dafür den Seitengrund und ist mindestens so hoch wie der Geist
+     darunter (bis zum unteren Fensterrand) — sonst schienen die
+     beiden Ansichten für einen Moment ineinander. */
+  const top=vbox.getBoundingClientRect().top;
+  /* Fängt die neue Ansicht tiefer an als die alte (die Ansichten
+     haben verschieden viel Luft nach oben), bliebe darüber ein
+     Streifen des Geistes zu sehen — der ::before-Streifen deckt ihn. */
+  vbox.style.setProperty('--viewtop',top+'px');
+  vbox.style.setProperty('--viewgap',Math.max(0,top-viewGhostTop)+'px');
+  /* Der Streifen unter der Ansicht reicht genau bis zur Unterkante
+     der Kopie — nicht weiter, sonst wüchse die Seite für die Dauer
+     der Fahrt. */
+  vbox.style.setProperty('--viewfill',Math.max(0,viewGhostBottom-vbox.getBoundingClientRect().bottom)+'px');
+  void vbox.offsetWidth;
+  vbox.classList.add(dir>0?'in-right':'in-left');
+  document.documentElement.classList.add('viewslide');
+  clearTimeout(viewSlideT);
+  viewSlideT=setTimeout(()=>{ document.documentElement.classList.remove('viewslide'); vbox.classList.remove('in-left','in-right'); },VIEW_MS+30);
+}
+/* ── Ein Fenster ändert seine Größe weich (seit 6.9.26) ──────────
+   Ein Schritt im Import, ein anderer Bereich der Einstellungen: der
+   Kasten (.box) wird größer oder kleiner, und bisher sprang er. Ein
+   ResizeObserver merkt sich je Kasten die letzte Größe; ändert sie
+   sich, ruft er flipBox().
+
+   **Animiert werden Ausschnitt und Lage, nicht das Maß.** Breite
+   und Höhe zu bewegen hieße, den ganzen Kasten in jedem Bild neu zu
+   setzen — mit den Tabellen des Imports ruckelte das sichtbar.
+   clip-path und transform laufen auf der Grafikkarte. Das Fenster
+   ist zentriert; wächst es, wandert seine Oberkante um die halbe
+   Differenz nach oben. Damit der Inhalt — das Menü der
+   Einstellungen — an dieser Kante hängt und mitfährt, wird der
+   Kasten so verschoben, dass seine Oberkante zu Beginn auf der
+   alten liegt, und fährt dann an seinen Platz; der Ausschnitt gibt
+   dabei unten frei, was dazukommt. **Schrumpft** er, behält er für
+   die Dauer die alten Maße, fährt um die halbe Differenz nach unten
+   und der Ausschnitt schließt sich unten; erst danach fallen die
+   Maße ab — die neue Oberkante liegt dann genau dort, wo er
+   angekommen ist, nichts springt. `round 10px` hält die Rundung.
+   `delay` lässt den Kasten warten, während der alte Inhalt noch
+   ausblendet (boxSwap). Beim Ziehen des Browserfensters läuft
+   nichts (lastResize): dort führt die Hand. Liefert, ob etwas
+   animiert wurde. */
+const boxSize=new WeakMap();
+let lastResize=0; window.addEventListener('resize',()=>{lastResize=Date.now();});
+const FLIP_MS=240;
+function flipBox(box,from,delay=0){
+  const to={w:box.offsetWidth,h:box.offsetHeight};
+  boxSize.set(box,to);
+  if(!from||(Math.abs(from.w-to.w)<1&&Math.abs(from.h-to.h)<1)) return false;
+  if(Date.now()-lastResize<300) return false;
+  /* Angehängt wird oben links (seit 6.9.26 spät, Lex): wird das
+     Posten-Fenster breiter, weil die Importdaten rechts dazukommen,
+     rückt sein Inhalt nach links und die Liste fährt rechts heraus —
+     von der Mitte aus wüchse es nach beiden Seiten, und man sähe den
+     Inhalt zur Seite wandern, ohne dass rechts etwas käme. */
+  const dw=to.w-from.w, dh=to.h-from.h, grow=dw>=0&&dh>=0;
+  const ins=(bot,right)=>`inset(0px ${Math.max(0,right)}px ${Math.max(0,bot)}px 0px round 10px)`;
+  box.dataset.flip='1';
+  /* Ohne Wechsel des Inhalts (der ResizeObserver hat gerufen) ist
+     der neue Inhalt schon da: was .swapfade trägt, wird für die
+     Dauer der Bewegung verborgen und blendet danach ein — der
+     Inhalt erscheint erst, wenn das Fenster seine Größe hat. */
+  if(!delay&&box.querySelector('.swapfade')&&!box.classList.contains('swapping')){
+    box.classList.add('swapping'); clearTimeout(box._swapT);
+    box._swapT=setTimeout(()=>box.classList.remove('swapping'),FLIP_MS);
+  }
+  box.style.transition='none';
+  if(grow){ box.style.clipPath=ins(dh,dw); box.style.transform=`translate(${dw/2}px,${dh/2}px)`; }
+  else { /* max-width/max-height lösen: ein Kasten, der schmaler wird,
+            weil seine Klasse jetzt eine kleinere max-width hat, ließe
+            sich sonst nicht auf den alten Maßen halten. */
+         box.style.maxWidth='none'; box.style.maxHeight='none';
+         box.style.width=from.w+'px'; box.style.height=from.h+'px'; box.style.overflow='hidden';
+         box.style.clipPath=ins(0,0); box.style.transform='translate(0px,0px)'; }
+  box.getBoundingClientRect();
+  box.style.transition=`clip-path .22s ease-out ${delay}ms,transform .22s ease-out ${delay}ms`;
+  if(grow){ box.style.clipPath=ins(0,0); box.style.transform='translate(0px,0px)'; }
+  else { box.style.clipPath=ins(-dh,-dw); box.style.transform=`translate(${-dw/2}px,${-dh/2}px)`; }
+  clearTimeout(box._flipT);
+  box._flipT=setTimeout(()=>{ ['transition','clipPath','transform','width','height','overflow','maxWidth','maxHeight'].forEach(k=>box.style[k]='');
+    delete box.dataset.flip; boxSize.set(box,{w:box.offsetWidth,h:box.offsetHeight}); },delay+FLIP_MS);
+  return true;
+}
+
+/* ── Der Inhalt eines Fensters wechselt (seit 6.9.26) ─────────────
+   Ein anderer Bereich der Einstellungen, der nächste Schritt im
+   Import: erst blendet der alte Inhalt aus, dann nimmt das Fenster
+   seine neue Größe an (flipBox, verzögert), dann blendet der neue
+   Inhalt ein — auch bei gleicher Größe. `mutate` baut den neuen
+   Inhalt; was dabei aus- und einblendet, trägt die Klasse .swapfade
+   (die Bereiche der Einstellungen, die Arbeitsfläche des Imports),
+   alles andere — Menü, Kopfzeile — bleibt stehen und fährt mit dem
+   Kasten. Der alte Inhalt ist als Geist des ganzen Kastens an
+   seiner Stelle (.boxslide-Rahmen), damit die Regeln von
+   :is(.modal,…) .box greifen. */
+const SWAP_MS=150;
+function boxSwap(box,mutate){
+  const r=box.getBoundingClientRect(), from={w:box.offsetWidth,h:box.offsetHeight};
+  const wrap=document.createElement('div'); wrap.className='boxslide';
+  wrap.style.cssText=`top:${r.top}px;left:${r.left}px;width:${r.width}px;height:${r.height}px`;
+  document.body.appendChild(wrap);
+  const g=ghostOf(box,box.className.replace(/\bswapping\b/,'')+' fadeout');
+  g.style.cssText='width:100%;height:100%;max-width:none;max-height:none';
+  wrap.appendChild(g);
+  g.addEventListener('animationend',()=>wrap.remove()); setTimeout(()=>wrap.remove(),700);
+  box.classList.add('swapping');
+  mutate();
+  const moved=flipBox(box,from,SWAP_MS);
+  clearTimeout(box._swapT);
+  box._swapT=setTimeout(()=>box.classList.remove('swapping'),SWAP_MS+(moved?FLIP_MS:0));
+}
+
+/* ── Ein Bereich klappt zu oder auf (seit 6.9.26) ───────────────
+   Die drei Karten der Monatsansicht und die drei Blöcke der
+   Jahresmatrix. render() baut alles neu, deshalb in zwei Schritten
+   um das Zeichnen herum (aufgerufen aus render(), wenn ui.foldAnim
+   gesetzt ist — toggleFold in js/app.js setzt es):
+
+   **Vorher** (foldSnap) merkt sich jedes Element mit data-fk sein
+   Rechteck: die Karten (`card:in` …) und ihre Tabellen
+   (`body:in` …) im Monat, die tbody-Stücke der Matrix (`blk:n`).
+   **Nachher** (foldPlay) fährt, was noch da ist und seine Höhe
+   gewechselt hat, per transform von der alten an die neue Stelle
+   (FLIP). Was verschwunden ist — die Tabelle einer zugeklappten
+   Karte, die Zeilen eines zugeklappten Blocks — bleibt als Geist
+   an seiner Stelle und klappt von unten her zu (.foldghost,
+   clip-path). Was neu da ist, klappt auf: die Tabelle einer Karte
+   über ihren Ausschnitt (.foldin), die Zeilen eines Blocks über die
+   Deckkraft (.foldin-row — Zeilen einer Tabelle teilen sich keinen
+   Ausschnitt). Alles transform, opacity, clip-path: nichts davon
+   setzt die Seite neu. */
+const bodyRows=tb=>[...tb.querySelectorAll(':scope>tr')].filter(tr=>!tr.matches('.spacer,.sec,.ghead'));
+/* Die Kopie verschwundener Zeilen — Matrix wie Import: eine eigene
+   Tabelle derselben Klasse, Spaltenbreiten aus der Kopfzeile der
+   neuen Tabelle (table-layout fixed), so breit wie das Original und
+   um dessen Rollstand versetzt; nur der sichtbare Teil der
+   Rollfläche, damit die Kante beim Zuklappen im Bild bleibt. */
+function rowsGhost(root,rows,scrollSel){
+  if(!rows.length) return;
+  const sc=root.querySelector(scrollSel), tbl=sc&&sc.querySelector('table'); if(!sc||!tbl) return;
+  const sr=sc.getBoundingClientRect();
+  const top=Math.max(rows[0].rect.top,sr.top), bottom=Math.min(rows[rows.length-1].rect.bottom,sr.bottom);
+  if(bottom<=top) return;
+  const g=document.createElement('div'); g.className='foldghost';
+  g.style.cssText=`top:${top}px;left:${sr.left}px;width:${sr.width}px;height:${bottom-top}px`;
+  const inner=document.createElement('div'); inner.style.cssText='overflow:hidden;width:100%;height:100%';
+  const t2=document.createElement('table'); t2.className=tbl.className;
+  t2.style.cssText=`table-layout:fixed;width:${tbl.offsetWidth}px;margin-top:${rows[0].rect.top-top}px;margin-left:${tbl.getBoundingClientRect().left-sr.left}px`;
+  const cg=document.createElement('colgroup'), hdr=tbl.tHead&&tbl.tHead.rows[0];
+  if(hdr) [...hdr.cells].forEach(c=>{ const col=document.createElement('col'); col.style.width=c.getBoundingClientRect().width+'px'; cg.appendChild(col); });
+  t2.appendChild(cg);
+  const tb=document.createElement('tbody'); rows.forEach(w=>tb.appendChild(w.el.cloneNode(true))); t2.appendChild(tb);
+  inner.appendChild(t2); g.appendChild(inner); g.setAttribute('inert','');
+  document.body.appendChild(g); g.addEventListener('animationend',()=>g.remove()); setTimeout(()=>g.remove(),700);
+}
+function foldSnap(root){
+  const m=new Map();
+  root.querySelectorAll('[data-fk]').forEach(el=>{
+    const rows=el.matches('tbody')?bodyRows(el).map(tr=>({el:tr,rect:tr.getBoundingClientRect()})):null;
+    m.set(el.dataset.fk,{el,rect:el.getBoundingClientRect(),rows:rows&&rows.length?rows:null});
+  });
+  return m;
+}
+function foldPlay(root,snap){
+  const now=new Map(); root.querySelectorAll('[data-fk]').forEach(el=>now.set(el.dataset.fk,el));
+  const SCROLL='.yearscroll, .c2top .c2scroll';
+  /* 1) Fahren, was geblieben ist */
+  now.forEach((el,k)=>{
+    const was=snap.get(k); if(!was) return;
+    /* Weiter als ein Fenster fährt nichts: was von weit unten kommt
+       oder weit nach unten geht, ist am anderen Ende ohnehin nicht
+       im Bild — und ein Weg über 2000 px in 280 ms ist kein
+       Gleiten mehr. */
+    const dy=Math.max(-innerHeight,Math.min(innerHeight,was.rect.top-el.getBoundingClientRect().top));
+    if(Math.abs(dy)<1) return;
+    el.style.transition='none'; el.style.transform=`translateY(${dy}px)`;
+    el.getBoundingClientRect();
+    el.style.transition='transform .28s cubic-bezier(.4,0,.2,1)'; el.style.transform='';
+    setTimeout(()=>{el.style.transition='';},320);
+  });
+  /* 2) Zuklappen: Geist der Tabelle einer Karte … */
+  snap.forEach((was,k)=>{
+    if(k.startsWith('body:')&&!now.has(k)){
+      /* Nur der sichtbare Teil: eine Tabelle über zwei Bildschirme
+         klappte sonst in 280 ms von ganz unten zu — für das Auge ein
+         Sprung. Ohne Karte darum (der Zeitstrahl) bleibt es beim
+         nackten Geist. */
+      const vis=Math.min(was.rect.bottom,innerHeight)-was.rect.top; if(vis<=0) return;
+      const card=was.el.closest('.card');
+      const g=document.createElement('div'); g.className=(card?card.className.replace(/\bfolded\b/,'')+' ':'')+'foldghost';
+      g.style.cssText=`top:${was.rect.top}px;left:${was.rect.left}px;width:${was.rect.width}px;height:${vis}px`;
+      g.appendChild(was.el.cloneNode(true)); g.setAttribute('inert','');
+      document.body.appendChild(g); g.addEventListener('animationend',()=>g.remove()); setTimeout(()=>g.remove(),700);
+    }
+    /* … und der Zeilen eines Blocks (Matrix wie Import) */
+    if(k.startsWith('blk:')&&was.rows){
+      const el=now.get(k); if(el&&bodyRows(el).length) return;
+      rowsGhost(root,was.rows,SCROLL);
+    }
+  });
+  /* 2b) Zuklappen eines Ziels im Import: seine Quellzeilen
+     (src:<tid>:n) sind weg — als Gruppe je Ziel. Ist das Ziel selbst
+     mit weg (sein Block ist zugeklappt), deckt das der Block-Geist. */
+  const gone={};
+  snap.forEach((was,k)=>{ if(k.startsWith('src:')&&!now.has(k)){ const tid=k.slice(4,k.lastIndexOf(':')); if(now.has('row:'+tid)) (gone[tid]=gone[tid]||[]).push(was); } });
+  Object.values(gone).forEach(list=>{ list.sort((a,b)=>a.rect.top-b.rect.top); rowsGhost(root,list,SCROLL); });
+  /* 3) Aufklappen */
+  now.forEach((el,k)=>{
+    if(k.startsWith('src:')&&!snap.has(k)) el.classList.add('foldin-row');
+    if(k.startsWith('body:')&&!snap.has(k)){
+      /* Aufklappen über den Ausschnitt — aber nur über den Teil, der
+         im Bild ist: die Kante läuft von der Oberkante bis zum
+         unteren Fensterrand, der Rest darunter ist ohnehin verdeckt. */
+      const H=el.offsetHeight, R=Math.max(0,Math.min(H,innerHeight-el.getBoundingClientRect().top));
+      el.style.transition='none'; el.style.clipPath=`inset(0 0 ${H}px 0)`; el.style.opacity='0';
+      el.getBoundingClientRect();
+      el.style.transition='clip-path .28s cubic-bezier(.4,0,.2,1),opacity .2s ease-out';
+      el.style.clipPath=`inset(0 0 ${Math.max(0,H-R)}px 0)`; el.style.opacity='';
+      setTimeout(()=>{el.style.transition='';el.style.clipPath='';},320);
+    }
+    if(k.startsWith('blk:')){ const was=snap.get(k); if(was&&!was.rows) bodyRows(el).forEach(tr=>tr.classList.add('foldin-row')); }
+  });
+}
+
+/* Gestellt wird im nächsten Bild, nicht im Beobachter selbst: wer
+   dort die Größe ändert, bekommt vom Browser „ResizeObserver loop
+   completed with undelivered notifications" — harmlos, aber eine
+   Zeile in der Konsole bei jedem Wachsen. */
+const boxWatch=(typeof ResizeObserver==='undefined')?null:new ResizeObserver(es=>es.forEach(e=>{
+  const b=e.target; if(b.dataset.flip||!b.isConnected) return;
+  const was=boxSize.get(b); boxSize.set(b,{w:b.offsetWidth,h:b.offsetHeight});
+  requestAnimationFrame(()=>{ if(b.isConnected&&!b.dataset.flip) flipBox(b,was); });
+}));
+
+/* ── Fenster fahren nach oben hinaus (seit 6.9.26) ──────────────
+   Geschlossen wird ein Fenster an vielen Stellen mit einem nackten
+   `box.remove()` — und dann ist es weg, bevor irgendetwas laufen
+   könnte. Statt jede Stelle umzubauen, sieht ein MutationObserver
+   am Rumpf zu: fällt ein .modal heraus, legt er an seine Stelle
+   einen Geist (.modalghost, siehe ghostOf), der per CSS nach oben
+   hinausfährt. Fällt im selben Zug ein neues Fenster herein (die
+   Einstellungen bauen sich bei „+", Entfernen, Sortieren komplett
+   neu auf), gibt es keinen Geist, und das neue trägt .noanim —
+   sonst flöge das alte hinaus, während das neue fällt, und man
+   sähe zwei; sein Kasten wächst stattdessen aus der Größe des
+   alten (flipBox). Für den Code ist der Geist unsichtbar: er trägt
+   die Klasse .modal nicht, jede Abfrage nach offenen Fenstern
+   übersieht ihn. Hier werden auch die Kästen neuer Fenster beim
+   ResizeObserver angemeldet. */
+(function(){
+  if(!document.body||typeof MutationObserver==='undefined') return;
+  const isModal=n=>n.nodeType===1&&n.classList.contains('modal');
+  new MutationObserver(recs=>{
+    const added=[],removed=[];
+    recs.forEach(r=>{ r.addedNodes.forEach(n=>{if(isModal(n))added.push(n);});
+                      r.removedNodes.forEach(n=>{if(isModal(n))removed.push(n);}); });
+    /* Ein Neuaufbau ist nur, was durch **dasselbe** Fenster ersetzt
+       wird — erkannt an der Klasse des Kastens (die Einstellungen
+       durch die Einstellungen). Geht dabei zugleich ein anderes
+       Fenster zu — das Strukturfenster über den Einstellungen, die
+       sich beim Zurückkommen neu bauen —, fährt das nach oben hinaus
+       wie jedes andere; sonst schiene es in die Einstellungen
+       hinüberzugehen. */
+    const kind=n=>{ const b=n.querySelector('.box'); return b?b.className.replace(/\b(swapping|in-left|in-right)\b/g,'').trim():''; };
+    const left=[...removed];
+    added.forEach(n=>{
+      const b=n.querySelector('.box');
+      const twin=left.findIndex(o=>kind(o)===kind(n));
+      if(twin>=0){ const oldBox=left[twin].querySelector('.box'); left.splice(twin,1);
+        n.classList.add('noanim'); if(b&&oldBox) flipBox(b,boxSize.get(oldBox)); }
+      if(b&&boxWatch){ if(!boxSize.has(b)) boxSize.set(b,{w:b.offsetWidth,h:b.offsetHeight}); boxWatch.observe(b); }
+    });
+    left.forEach(n=>{ if(!n.isConnected) ghostOf(n,'modalghost'); });
+  }).observe(document.body,{childList:true,subtree:true});
+})();

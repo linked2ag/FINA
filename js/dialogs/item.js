@@ -236,17 +236,20 @@ function editItem(item,group,copyOf,focusMonth){
         const lock=!isBal&&(it.paid[i]||!!nw);
         /* Ein importierter Monat trägt auch hier den Download-Pfeil
            auf elektrischem Blau statt des Hakens — dasselbe Bild wie
-           in Monats- und Jahresansicht. Wer den Haken abnimmt, macht
-           den Monat wieder zu einem gewöhnlichen: setSeal() tauscht
-           das Zeichen zurück, und beim Speichern fällt die Marke
-           (siehe unten). */
+           in Monats- und Jahresansicht. **Und er ist gesperrt** (seit
+           6.9.26, Lex): der Betrag kam aus der Datei und lässt sich
+           hier nicht anfassen — das Siegel ist abgeschaltet, das Feld
+           bleibt zu. Wer den Wert loswerden will, löscht die
+           Importdaten (Knopf in der Fußzeile). Bis dahin nahm das
+           Abnehmen des Hakens den Import zurück. */
         const imp=nw||(lock&&it.imp&&it.imp[i]),impOne=nw?nw.once:(lock&&impOnceAt(it,i+1));
+        const impLock=!nw&&!!imp;
         const val=nw?nw.v:it.amounts[i];
         return `<div class="cell${lock?' lockedcell':''}${nw?' newimp':''}" data-cell="${i}">
         <div class="cellhead"><span class="mlab ${i+1===CUR?'curm':''}">${m}</span>
           <span class="ctools">${lampHtml('item',it.id,i+1)}
-            ${isBal?'':`<button type="button" class="seal mini${imp?' imp':''}${impOne?' once':''}" data-pi="${i}" aria-pressed="${lock}"${nw?' disabled':''}
-              title="${nw?t('c2.sealNewTip'):(imp?t(impOne?'c2.sealOnceTip':'c2.sealTip'):(lock?t('item.lockedTip'):t('month.markPaid')))}">${imp?IMPORT_SVG:CHECK_SVG}</button>`}</span></div>
+            ${isBal?'':`<button type="button" class="seal mini${imp?' imp':''}${impOne?' once':''}" data-pi="${i}" aria-pressed="${lock}"${(nw||impLock)?' disabled':''}
+              title="${nw?t('c2.sealNewTip'):(imp?t('item.impLockedTip'):(lock?t('item.lockedTip'):t('month.markPaid')))}">${imp?IMPORT_SVG:CHECK_SVG}</button>`}</span></div>
         <input class="num signed" data-mi="${i}" ${lock?'disabled':''} value="${val?nf.format(val):''}" placeholder="0,00">
         <div class="cellnote">${esc(it.notes[i]||'')}</div></div>`;}).join('')}</div>
     </div></div>

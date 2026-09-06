@@ -321,7 +321,7 @@ const C2_GUIDE={
     en:`<h4>Layout</h4>
       <p>The window has three areas, one above the other:</p>
       <ul>
-        <li><b>Entries</b> (top): the entries of your book with their twelve months, in three blocks like the year view — Income, Flexible, Regular costs. The entry you click becomes the target and turns orange.</li>
+        <li><b>Entries</b> (top): the entries of your book with their twelve months, in three blocks like the year view — Income, Flexible, Regular. The entry you click becomes the target and turns orange. A click on a block row folds the block; “Expand all” / “Collapse all” at the right of the heading does it for all three.</li>
         <li><b>Assignment bar</b> (middle): the buttons that assign rows. From the left: the ☰ menu, “One-time assignment mode”, “Assign and remember”, “Create new and assign”. On the right, if entries carry import criteria: “Automatically assign with remembered criteria…”.</li>
         <li><b>File rows</b> (bottom): the rows of your CSV file, one column per FINA field. Above the columns: a filter field per column, and above the table the quick filter across all fields.</li>
       </ul>
@@ -331,9 +331,9 @@ const C2_GUIDE={
       <h4>Assign with criteria</h4>
       <ol>
         <li>In Entries, click the entry that should receive the rows.</li>
-        <li>In File rows, narrow the rows down: type into a column filter, a fragment is enough. Or click a value in a row — it goes straight into the filter of its column. The quick filter above the table only narrows the view; on its own it makes no rule.</li>
-        <li>Press Enter to pin the criterion. The ☰ at the filter field sets how it compares: contains, starts with, exactly, and so on. Several criteria narrow down together.</li>
-        <li>In the Assignment bar, click “Assign and remember”. The rows move to the entry, and the criteria are stored at the entry as its import criteria.</li>
+        <li>In File rows, narrow the rows down: type into a column filter, a fragment is enough. Or click a value in a row — it goes straight into the filter of its column. The ☰ at the filter field sets how it compares: contains, does not contain, starts with, ends with, exactly, amount. The quick filter above the table only narrows the view; on its own it makes no rule.</li>
+        <li>Press Enter to pin the criterion. Several criteria narrow down together.</li>
+        <li>In the Assignment bar, click “Assign and remember for next time”. The rows move to the entry, and the criteria are stored at the entry as its import criteria.</li>
       </ol>
       <p>Assigned rows stay in the file rows: grey, with a cross in the column “X”. The button “Hide already assigned CSV entries” takes them out of the table and brings them back. Under the target you see them when you expand it with the small arrow or double-click its row.</p>
       <h4>Assign by hand, once</h4>
@@ -356,15 +356,15 @@ const C2_GUIDE={
       <ul>
         <li>Orange: the chosen target.</li>
         <li>Yellow: assigned in this run, not yet in the book.</li>
-        <li>Blue: imported earlier, already in the book.</li>
-        <li>Grey: already in the book with the same amount — this import changes nothing there. File rows that are already assigned — in the book from an earlier import, or in this run — stay in the table grey with a cross in the column “X”; the button “Hide already assigned CSV entries” takes them out and brings them back.</li>
+        <li>Light blue: imported earlier, already in the book.</li>
+        <li>Grey: already in the book — this import changes nothing there. In File rows, grey with a cross in the column “X” means the row is assigned, from an earlier import or in this run.</li>
       </ul>
       <h4>Finishing</h4>
       <p>“Finish” writes everything that is assigned into your book and stores the criteria. The ✕ at the top right closes the wizard without any assignment — the current work is thrown away. Save your file afterwards.</p>`,
     de:`<h4>Layout</h4>
       <p>Das Fenster hat drei Bereiche, untereinander:</p>
       <ul>
-        <li><b>Posten</b> (oben): die Posten deines Buches mit ihren zwölf Monaten, in drei Blöcken wie in der Jahresansicht — Einnahmen, Flexible, Regelmäßige Kosten. Der Posten, den du anklickst, wird zum Ziel und ist orange.</li>
+        <li><b>Posten</b> (oben): die Posten deines Buches mit ihren zwölf Monaten, in drei Blöcken wie in der Jahresansicht — Einnahmen, Flexibel, Regulär. Der Posten, den du anklickst, wird zum Ziel und ist orange. Ein Klick auf eine Blockzeile klappt den Block zu; „Alle aufklappen“ / „Alle zuklappen“ rechts in der Kopfzeile tut es für alle drei.</li>
         <li><b>Zuordnungsleiste</b> (Mitte): die Knöpfe, die Zeilen zuordnen. Von links: das ☰-Menü, „Modus: Einmalige Zuordnung“, „Zuordnen und merken“, „Neu anlegen und zuordnen“. Rechts, wenn Posten Importkriterien tragen: „Automatisch zuordnen mit gemerkten Importkriterien…“.</li>
         <li><b>Dateizeilen</b> (unten): die Zeilen deiner CSV-Datei, je FINA-Feld eine Spalte. Über den Spalten: je Spalte ein Filterfeld, und über der Tabelle der Schnellfilter über alle Felder.</li>
       </ul>
@@ -374,9 +374,9 @@ const C2_GUIDE={
       <h4>Zuordnen mit Kriterien</h4>
       <ol>
         <li>Klicke unter Posten den Posten an, der die Zeilen bekommen soll.</li>
-        <li>Grenze unter Dateizeilen die Zeilen ein: tippe in ein Spaltenfilter, ein Teilstück genügt. Oder klicke auf einen Wert in einer Zeile — er steht sofort im Filter seiner Spalte. Der Schnellfilter über der Tabelle grenzt nur die Ansicht ein; allein ergibt er keine Regel.</li>
-        <li>Drücke Enter, um das Kriterium anzuheften. Das ☰ am Filterfeld stellt ein, wie verglichen wird: enthält, fängt mit, genau, und so weiter. Mehrere Kriterien grenzen zusammen ein.</li>
-        <li>Klicke in der Zuordnungsleiste auf „Zuordnen und merken“. Die Zeilen wandern zum Posten, und die Kriterien werden am Posten als seine Importkriterien gespeichert.</li>
+        <li>Grenze unter Dateizeilen die Zeilen ein: tippe in ein Spaltenfilter, ein Teilstück genügt. Oder klicke auf einen Wert in einer Zeile — er steht sofort im Filter seiner Spalte. Das ☰ am Filterfeld stellt ein, wie verglichen wird: enthält, enthält nicht, fängt mit, endet mit, genau, Betrag. Der Schnellfilter über der Tabelle grenzt nur die Ansicht ein; allein ergibt er keine Regel.</li>
+        <li>Drücke Enter, um das Kriterium anzuheften. Mehrere Kriterien grenzen zusammen ein.</li>
+        <li>Klicke in der Zuordnungsleiste auf „Zuordnen und merken für die Zukunft“. Die Zeilen wandern zum Posten, und die Kriterien werden am Posten als seine Importkriterien gespeichert.</li>
       </ol>
       <p>Zugeordnete Zeilen bleiben in den Dateizeilen stehen: grau, mit einem Kreuz in der Spalte „X“. Der Knopf „Schon zugeordnete CSV-Zeilen verbergen“ nimmt sie aus der Tabelle und holt sie wieder. Unter dem Posten siehst du sie, wenn du ihn mit dem kleinen Pfeil aufklappst oder auf seine Zeile doppelklickst.</p>
       <h4>Von Hand zuordnen, einmalig</h4>
@@ -399,8 +399,8 @@ const C2_GUIDE={
       <ul>
         <li>Orange: das gewählte Ziel.</li>
         <li>Gelb: in diesem Lauf zugeordnet, noch nicht im Buch.</li>
-        <li>Blau: früher importiert, schon im Buch.</li>
-        <li>Grau: schon mit demselben Betrag im Buch — dieser Import ändert dort nichts. Dateizeilen, die schon zugeordnet sind — im Buch aus einem früheren Import oder in diesem Lauf —, bleiben grau mit einem Kreuz in der Spalte „X“ in der Tabelle; der Knopf „Schon zugeordnete CSV-Zeilen verbergen“ nimmt sie heraus und holt sie wieder.</li>
+        <li>Hellblau: früher importiert, schon im Buch.</li>
+        <li>Grau: schon im Buch — dieser Import ändert dort nichts. Unter Dateizeilen heißt Grau mit einem Kreuz in der Spalte „X“: Die Zeile ist zugeordnet, aus einem früheren Import oder in diesem Lauf.</li>
       </ul>
       <h4>Zum Schluss</h4>
       <p>„Fertig“ schreibt alles Zugeordnete ins Buch und speichert die Kriterien. Das ✕ rechts oben schließt den Wizard ohne Zuordnung — die aktuelle Arbeit ist dann weg. Speichere danach deine Datei.</p>`}
@@ -1022,8 +1022,8 @@ function c2ScanBook(){
   });
 }
 
-function c2Render(){
-  W.modal.querySelectorAll('.c2fpop').forEach(p=>p.remove());
+function c2Render(swap){
+  W.modal.querySelectorAll('.c2fpop').forEach(popOut);
   if(W.step===3&&W.csv)c2ScanBook();
   /* **Der Zielbereich springt beim Filtern nicht.** Gefiltert wird
      unten, gelesen oben — und wer eine Zeile im Blick hat, während
@@ -1031,7 +1031,10 @@ function c2Render(){
      Flächen behalten deshalb ihren Rollstand über den Neuaufbau
      hinweg; gemessen wird vorher, gesetzt danach. */
   const keep=[...W.box.querySelectorAll('.c2scroll')].map(el=>[el.scrollTop,el.scrollLeft]);
-  W.box.classList.toggle('c2big',W.step>1);
+  /* Klappt gerade ein Ziel (W.foldAnim, gesetzt von den drei
+     Klapp-Wegen in c2Wire), merkt sich foldSnap die Lage der Zeilen
+     und foldPlay fährt sie nach dem Bauen an ihre neue Stelle. */
+  const folds=W.foldAnim?foldSnap(W.box):null; W.foldAnim=false;
   const steps=[t('c2.steps1'),t('c2.steps2'),t('c2.steps3')];
   const head=`<div class="c2head"><h3>${t('c2.title')}</h3>
     <span class="c2steps">${steps.map((s,i)=>
@@ -1050,8 +1053,22 @@ function c2Render(){
      zusammen sind `.c2work`, die Fläche unter der Kopfzeile. Die
      Höhe verteilt sich darin wie zuvor im Fenster selbst; Schritt 1
      ist klein und braucht das nicht. */
-  if(W.step===1)W.box.innerHTML=head+c2Step1();
-  else W.box.innerHTML=head+`<div class="c2work"><div class="c2main">${W.step===2?c2Step2():c2Step3()}</div>${W.guide?c2GuidePanel():''}</div>`;
+  /* Ein Wechsel des Schritts (nicht ein bloßes Neuzeichnen) läuft
+     in drei Zügen (boxSwap in js/ui.js): die Arbeitsfläche blendet
+     aus, das Fenster nimmt seine neue Größe an — die Kopfzeile mit
+     Titel und Schritten bleibt stehen —, die neue Arbeitsfläche
+     blendet ein; bei gleicher Größe (2 → 3) nur aus und ein. Die
+     Arbeitsfläche trägt dafür .swapfade. */
+  const build=()=>{
+    W.box.classList.toggle('c2big',W.step>1);
+    if(W.step===1)W.box.innerHTML=head+`<div class="swapfade">${c2Step1()}</div>`;
+    else W.box.innerHTML=head+`<div class="c2work swapfade"><div class="c2main">${W.step===2?c2Step2():c2Step3()}</div>${W.guide?c2GuidePanel():''}</div>`;
+  };
+  /* `swap` erzwingt den Dreischritt auch ohne Schrittwechsel — beim
+     Wählen der Datei in Schritt 1 wächst das Fenster um den Kasten
+     der gemerkten Struktur. */
+  if(swap||(W.drawnStep&&W.drawnStep!==W.step)) boxSwap(W.box,build); else build();
+  W.drawnStep=W.step;
   c2Wire();
   tabThroughFields(W.box);
   /* **Die Blockzeilen des Zielbereichs kleben unter dem Spaltenkopf**
@@ -1068,6 +1085,7 @@ function c2Render(){
   const now=[...W.box.querySelectorAll('.c2scroll')];
   if(now.length===keep.length)
     now.forEach((el,i)=>{el.scrollTop=keep[i][0];el.scrollLeft=keep[i][1];});
+  if(folds) foldPlay(W.box,folds);
 }
 
 /* ── Schritt 1: die Datei ──────────────────────────────────────
@@ -1422,7 +1440,15 @@ function c2TopTable(){
        wiedergefunden hat, obwohl ihre Monate längst im Buch
        stehen. Gelb bliebe eine Ankündigung, die nicht eintritt. */
     const fresh=hasNew(e);
-    return `<tr class="c2trow ${tint}${has&&!fresh?' old':''}${imped(e)?' imped':''}${fresh?' has':''}${isOpen?' open':''}${W.target===e.tid?' sel':''}" data-c2t="${esc(e.tid)}">
+    /* data-hk: der Klapp-Pfeil fährt erst heraus, wenn die Maus
+       über der Zeile steht, und bleibt nach einem Neuzeichnen
+       draußen (bindHoverStill in js/ui.js) — nur an Zeilen, die
+       etwas zu klappen haben. */
+    const hk=(B.by[e.tid]?B.by[e.tid].rows.length:0)+prevLines(e).length?` data-hk="c2:${esc(e.tid)}"`:'';
+    /* data-fk: beim Auf- und Zuklappen fahren die Zeilen weich an
+       ihre neue Stelle (foldSnap/foldPlay in js/ui.js, gerufen in
+       c2Render, wenn W.foldAnim gesetzt ist). */
+    return `<tr class="c2trow ${tint}${has&&!fresh?' old':''}${imped(e)?' imped':''}${fresh?' has':''}${isOpen?' open':''}${W.target===e.tid?' sel':''}" data-c2t="${esc(e.tid)}" data-fk="row:${esc(e.tid)}"${hk}>
       <td class="mapc">${men?`<button class="c2rowmenu" data-c2menu="${esc(e.tid)}" title="${esc(t('c2.rowMenu'))}">&#9776;</button>`:''}</td>
       ${foldCell(e)}
       <td class="tn">${esc(e.name)}${e.isNew?`<i class="c2newtag">${t('c2.newTag')}</i>`:''}</td>`+
@@ -1461,7 +1487,8 @@ function c2TopTable(){
        liest sie nach Datum, nicht nach Zustand. */
     if(!W.open[e.tid])return '';
     const b=B.by[e.tid];
-    const line=(cls2,lead,inner,attr)=>`<tr class="c2src ${cls2}"${attr||''}><td class="mapc"></td><td class="foldc"></td>
+    let sn=0;
+    const line=(cls2,lead,inner,attr)=>`<tr class="c2src ${cls2}" data-fk="src:${esc(e.tid)}:${sn++}"${attr||''}><td class="mapc"></td><td class="foldc"></td>
       <td class="tn c2srclead"><div><b>↳</b>${lead}</div></td>
       <td colspan="${SRCSPAN}" class="c2srcline"><div>${inner}</div></td></tr>`;
     const lead=(a,v)=>`<span class="d">${a}</span><span class="v">${v}</span>`;
@@ -1499,7 +1526,7 @@ function c2TopTable(){
           ` data-c2ri="${W.asg[i]}" title="${t(old?'c2.rowTipOld':'c2.rowTip',esc(e.name))}"`);
       });
       if(b.rows.length>SRCCAP)
-        out+=`<tr class="c2src cur c2srcmore"><td class="mapc"></td><td class="foldc"></td><td class="tn"></td><td colspan="${SRCSPAN}">${t('c2.srcMore',b.rows.length-SRCCAP)}</td></tr>`;
+        out+=`<tr class="c2src cur c2srcmore" data-fk="src:${esc(e.tid)}:more"><td class="mapc"></td><td class="foldc"></td><td class="tn"></td><td colspan="${SRCSPAN}">${t('c2.srcMore',b.rows.length-SRCCAP)}</td></tr>`;
     }
     return out;
   };
@@ -1508,6 +1535,18 @@ function c2TopTable(){
      Überschrift eine andere Zahl als ihre Posten. */
   const gsum=list=>sumOf(list.map(eff));
   const grow=(cls2,label)=>`<tr class="${cls2}"><td class="mapc"></td><td class="foldc"></td><td class="tn">${label}</td>`;
+  /* **Die Blockzeile klappt ihren Block** (6.9.26 spät, Lex): ein
+     Klick auf die Zeile, wie in der Jahresmatrix — zugeklappt bleibt
+     die Blockzeile mit ihren Summen, Kategorien und Ziele darunter
+     werden gar nicht erst gebaut. Der Zustand lebt in W.blkFold
+     (nur für diesen Lauf). Der Pfeil fährt beim Überfahren heraus
+     (data-hk) wie an den Zielzeilen. */
+  W.blkFold=W.blkFold||{};
+  const bhead=(cls2,key,label)=>{
+    const fold=!!W.blkFold[key];
+    return `<tr class="${cls2}" data-c2blk="${key}" data-hk="c2blk:${key}" data-fk="bhead:${key}"><td class="mapc"></td><td class="foldc"><button class="c2fold${fold?'':' open'}" data-c2blk="${key}" aria-expanded="${!fold}"
+      title="${esc(t(fold?'c2.blkShow':'c2.blkHide'))}">${C2_TRI}</button></td><td class="tn">${label}</td>`;
+  };
   /* **Drei Blöcke wie in der Jahresmatrix** (6.9.26): Einnahmen,
      Flexible, Regelmäßige Kosten — jeder als eigener
      `<tbody>`, mit einer Leerzeile davor (10 px, wie zwischen den
@@ -1540,16 +1579,16 @@ function c2TopTable(){
   .forEach(bl=>{
     const list=bl[3];
     if(!list.length)return;
-    let body=grow('ghead '+bl[1],esc(bl[0]))+numCells(gsum(list))+'</tr>';
+    let body=bhead('ghead '+bl[1],bl[1],esc(bl[0]))+numCells(gsum(list))+'</tr>';
     const cats=order(bl[1]).slice();
     list.forEach(e=>{if(!cats.includes(e.group))cats.push(e.group);});
-    cats.forEach(c=>{
+    if(!W.blkFold[bl[1]]) cats.forEach(c=>{
       const sub=list.filter(e=>e.group===c);
       if(!sub.length)return;
       body+=grow('gcat '+bl[1],esc(keyLabel(c)))+numCells(gsum(sub))+'</tr>';
       sub.forEach(e=>{body+=trow(e,bl[2])+srcLines(e);});
     });
-    parts.push(`<tbody class="c2blk">${spacer()}${body}</tbody>`);
+    parts.push(`<tbody class="c2blk" data-fk="blk:${bl[1]}">${spacer()}${body}</tbody>`);
   });
   const body=parts.length?parts.join('')
     :`<tbody><tr><td class="c2empty" colspan="${NCOL}">${t('c2.emptyT',t('c2.newAssign'))}</td></tr></tbody>`;
@@ -1565,11 +1604,24 @@ function c2TopTable(){
     return `<button class="c2fold${any?' open':''}" data-c2foldall="${any?'0':'1'}"
       aria-expanded="${any}" title="${esc(t(any?'c2.foldAllHide':'c2.foldAllShow',openable.length))}">${C2_TRI}</button>`;
   }
+  /* Derselbe Handgriff als Wort (seit 6.9.26): ein Knopf am
+     rechten Rand der Kopfzelle „Ziel", der erst herausfährt, wenn
+     die Maus über der Kopfzeile steht (.c2foldall in
+     css/components.css). Er heißt, was er tut: „Alle zuklappen",
+     sobald ein Ziel offen steht, sonst „Alle aufklappen". Verdrahtet
+     wie der Pfeil über data-c2foldall; data-hk an der Kopfzeile
+     hält ihn nach dem Klick draußen (bindHoverStill). */
+  function foldAllBtn(){
+    if(!openable.length)return '';
+    const any=openable.some(tid=>W.open[tid]);
+    return `<button class="btn c2foldall" data-c2foldall="${any?'0':'1'}"
+      title="${esc(t(any?'c2.foldAllHide':'c2.foldAllShow',openable.length))}">${t(any?'c2.foldAllBtnHide':'c2.foldAllBtnShow')}</button>`;
+  }
   /* **Keine Gesamtspalte**: hier wird zugeordnet, nicht bilanziert —
      die Jahressumme steht in der Jahresmatrix. Die Spalte nahm nur
      die Breite weg, die die zugeordneten Zeilen brauchen. */
   return `<table class="c2ttab">
-    <thead><tr><th class="mapc"></th><th class="foldc">${foldAllCell()}</th><th class="tn">${t('c2.tgt')}</th>
+    <thead><tr${openable.length?' data-hk="c2:head"':''}><th class="mapc"></th><th class="foldc">${foldAllCell()}</th><th class="tn">${t('c2.tgt')}${foldAllBtn()}</th>
       ${MONTHS.map((m,i)=>`<th class="num${cm(i+1)}">${i+1===CUR?`<span class="c2now">${m}</span>`:m}</th>`).join('')}</tr></thead>
     ${body}</table>`;
 }
@@ -2049,7 +2101,7 @@ function c2Pin(ci,raw){
 function c2FltMenu(btn,ci){
   const old=W.modal.querySelector('.c2fpop');
   const again=old&&old.dataset.ci===String(ci);
-  if(old)old.remove();
+  if(old)popOut(old);
   if(again)return;
   const pop=document.createElement('div');
   pop.className='c2fpop';pop.dataset.ci=ci;
@@ -2061,7 +2113,7 @@ function c2FltMenu(btn,ci){
   pop.style.left=Math.max(8,Math.min(r.right-w,innerWidth-w-8))+'px';
   pop.style.top=(r.bottom+3+h>innerHeight?Math.max(8,r.top-3-h):r.bottom+3)+'px';
   const close=()=>{
-    pop.remove();
+    popOut(pop);
     document.removeEventListener('click',away,true);
     document.removeEventListener('scroll',away,true);
   };
@@ -2177,7 +2229,7 @@ function c2ClearFlt(){W.flt={};W.fltOp={};W.chips=[];W.q='';W.editRule=null;c2Re
 function c2AssignMenu(btn){
   const old=W.modal.querySelector('.c2fpop');
   const again=old&&old.dataset.tid==='assign';
-  if(old)old.remove();
+  if(old)popOut(old);
   if(again)return;
   const item=(act,lab,tip,x)=>`<button data-do="${act}"${x||''} title="${esc(tip)}">${esc(lab)}</button>`;
   /* „Filter zurücknehmen" **in Rot, solange ein Filter etwas trägt**
@@ -2195,7 +2247,7 @@ function c2AssignMenu(btn){
   pop.style.left=Math.max(8,Math.min(r.left,innerWidth-w-8))+'px';
   pop.style.top=(r.bottom+3+hh>innerHeight?Math.max(8,r.top-3-hh):r.bottom+3)+'px';
   const close=()=>{
-    pop.remove();
+    popOut(pop);
     document.removeEventListener('click',away,true);
     document.removeEventListener('scroll',away,true);
   };
@@ -2297,7 +2349,7 @@ function c2Unassign(tid,dry){
 function c2RowMenu(btn,tid){
   const old=W.modal.querySelector('.c2fpop');
   const again=old&&old.dataset.tid===tid;
-  if(old)old.remove();
+  if(old)popOut(old);
   if(again)return;
   const x=c2Find(tid);
   const ri=W.rules.findIndex(r=>r.t.tid===tid);
@@ -2377,7 +2429,7 @@ function c2RowMenu(btn,tid){
   pop.style.left=Math.max(8,Math.min(r.left,innerWidth-w-8))+'px';
   pop.style.top=(r.bottom+3+h>innerHeight?Math.max(8,r.top-3-h):r.bottom+3)+'px';
   const close=()=>{
-    pop.remove();
+    popOut(pop);
     document.removeEventListener('click',away,true);
     document.removeEventListener('scroll',away,true);
   };
@@ -2479,6 +2531,7 @@ function c2Wire(){
   const box=W.box;
   const on=(a,fn)=>{box.querySelectorAll(`[data-c2="${a}"]`).forEach(b=>{b.onclick=fn;});};
   on('close',c2Close);
+  bindHoverStill(box);
 
   if(W.step===1){
     const file=box.querySelector('#c2File');
@@ -2500,7 +2553,7 @@ function c2Wire(){
            Schritt 1 nicht mehr. Kennt FINA sie, hält Schritt 1 an —
            der Kasten der gemerkten Struktur will zuerst eine
            Antwort (c2MapPending, c2Advance). */
-        if(!c2Advance())c2Render();
+        if(!c2Advance())c2Render(true);
       };
       r.readAsArrayBuffer(f);
     };
@@ -2675,18 +2728,28 @@ function c2Wire(){
         c2RefreshAssign();
       };
     });
-    const fa=box.querySelector('[data-c2foldall]');
-    if(fa)fa.onclick=e=>{
-      e.stopPropagation();
+    /* Zwei Wege zu demselben: der Pfeil links und der Knopf in der
+       Kopfzelle „Ziel" — beide tragen data-c2foldall. */
+    /* Blockzeile und ihr Pfeil: ein Klick klappt den Block — auf
+       Knöpfen in der Zeile nicht, der Pfeil selbst ist einer und
+       hat seinen eigenen Klick. */
+    box.querySelectorAll('tr[data-c2blk]').forEach(tr=>{
+      const key=tr.dataset.c2blk;
+      const flip=e=>{ e.stopPropagation(); W.foldAnim=true; if(W.blkFold[key]) delete W.blkFold[key]; else W.blkFold[key]=1; c2Render(); };
+      tr.onclick=e=>{ if(e.target.closest('button,a,input')) return; flip(e); };
+      const b=tr.querySelector('button[data-c2blk]'); if(b) b.onclick=flip;
+    });
+    box.querySelectorAll('[data-c2foldall]').forEach(fa=>fa.onclick=e=>{
+      e.stopPropagation(); W.foldAnim=true;
       if(fa.dataset.c2foldall==='1')
         box.querySelectorAll('[data-c2fold]').forEach(b=>{W.open[b.dataset.c2fold]=1;});
       else W.open={};
       c2Render();
-    };
+    });
     box.querySelectorAll('[data-c2fold]').forEach(b=>{
       b.onclick=e=>{
         e.stopPropagation();
-        const tid=b.dataset.c2fold;
+        const tid=b.dataset.c2fold; W.foldAnim=true;
         if(W.open[tid])delete W.open[tid]; else W.open[tid]=1;
         c2Render();
       };
@@ -2704,6 +2767,7 @@ function c2Wire(){
         if(e.target.closest('button,a,input'))return;
         const tid=tr.dataset.c2t;
         if(!tr.querySelector('[data-c2fold]'))return;
+        W.foldAnim=true;
         if(W.open[tid])delete W.open[tid]; else W.open[tid]=1;
         c2Render();
       };

@@ -267,8 +267,31 @@ function renderChrome(){
      an der die vier Buchstaben stehen; eine eigene Zeile dafür wäre
      der Preis nicht wert. Woher der Buchstabe kommt: VIEW_KEYS
      unten in dieser Datei. */
+  /* Die weiße Pille des gewählten Reiters ist ein eigenes Element
+     (.vpill, seit 6.9.26) und **gleitet** zum neuen Reiter: vor dem
+     Neuaufbau wird gemessen, wo sie stand, danach, wo sie hin soll —
+     steht sie an einer anderen Stelle, fängt sie an der alten an und
+     fährt hinüber (css/layout.css). Ein bloßes Neuzeichnen derselben
+     Ansicht setzt sie nur hin. */
+  const oldPill=vEl.querySelector('.vpill'), oldBox=oldPill?{l:oldPill.offsetLeft,w:oldPill.offsetWidth}:null;
   vEl.innerHTML=VIEWS.map(([k,l])=>`<button class="vtab" role="tab" aria-selected="${ui.view===k}"
-    data-v="${k}" data-tip="${esc(t('view.keyTip',viewKey(k)))}">${l}</button>`).join('');
+    data-v="${k}" data-tip="${esc(t('view.keyTip',viewKey(k)))}">${l}</button>`).join('')+'<span class="vpill" aria-hidden="true"></span>';
+  {
+    const on=vEl.querySelector('.vtab[aria-selected="true"]'), pill=vEl.querySelector('.vpill');
+    if(on&&!wel){
+      const to={l:on.offsetLeft,w:on.offsetWidth};
+      pill.style.top=on.offsetTop+'px'; pill.style.height=on.offsetHeight+'px';
+      /* Die Pille steht sofort an ihrer neuen Stelle und fährt per
+         transform von der alten herüber (Verschiebung und Dehnung) —
+         left/width zu bewegen setzte die Kopfzeile in jedem Bild
+         neu, und das ruckelte im Ansichtswechsel, der zugleich läuft. */
+      pill.style.left=to.l+'px'; pill.style.width=to.w+'px';
+      if(oldBox&&Math.abs(oldBox.l-to.l)>0.5){
+        pill.style.transition='none'; pill.style.transform=`translateX(${oldBox.l-to.l}px) scaleX(${oldBox.w/to.w})`;
+        pill.getBoundingClientRect(); pill.style.transition=''; pill.style.transform='';
+      }
+    } else pill.hidden=true;
+  }
   /* Ein offenes Filtermenü gehört zur Monatsansicht und schließt
      mit dem Wechsel — sonst stünde es beim Zurückkommen wieder
      offen da, als hätte es niemand verlassen. */
@@ -309,7 +332,11 @@ function renderChrome(){
 function syncStickyTops(){
   const h=document.querySelector('header'); if(!h) return;
   const top=h.offsetHeight;
-  document.querySelectorAll('.stickybar').forEach(el=>{ el.style.top=top+'px'; });
+  /* Nur die lebende Ansicht — nicht die Geister (.viewghost), die
+     beim Wechsel noch daneben stehen: die tragen keine Kennungen
+     mehr, und ein Kartenkopf darin bekäme hier das Maß der Seite
+     statt der Null seiner Rollfläche (js/ui.js, ghostOf). */
+  document.querySelectorAll('#view .stickybar').forEach(el=>{ el.style.top=top+'px'; });
   /* Dasselbe Maß ist zugleich die Höhe der Kopfzeile — und die
      Filterzeile darunter soll genau so hoch sein. Sie bekommt es
      als --barh; gemessen und nicht geraten, damit sie mitwächst,
@@ -325,8 +352,8 @@ function syncStickyTops(){
   /* Rollt die Monatsansicht in ihrer eigenen Fläche (#monthScroll),
      richtet sich sticky an DIESER Fläche aus, nicht am Fenster —
      die Köpfe kleben dann an ihrer Oberkante, also top 0. */
-  document.querySelectorAll('.card > .sechead').forEach(sh=>{
-    sh.style.top=sh.closest('#monthScroll')?'0px':base+'px'; });
+  document.querySelectorAll('#view .card > .sechead').forEach(sh=>{
+    sh.style.top=sh.closest('.monthscroll')?'0px':base+'px'; });
 }
 
 /* ── Die Monatsansicht rollt in ihrer eigenen Fläche ──────────
@@ -449,12 +476,37 @@ function render(){
 
   renderChrome();
   const vbox=document.getElementById('view');
+  /* Ein Wechsel der Ansicht (nicht ein bloßes Neuzeichnen) geht
+     seitwärts: die alte fährt als Geist hinaus, die neue kommt von
+     der anderen Seite — in der Richtung der Reiter (slideViewOut /
+     slideViewIn in js/ui.js). */
+  const vix=k=>VIEWS.findIndex(v=>v[0]===k);
+  const slide=(!ui.welcome&&lastView&&lastView!==ui.view)?(vix(ui.view)>vix(lastView)?1:-1):0;
+  if(slide) slideViewOut(vbox,slide);
+  /* Offene Aufklappmenüs gehen mit dem Zeichnen — ein Menü, das
+     danach nicht mehr dasteht, klappt als Geist zu (js/ui.js). */
+  const menus=snapMenus(vbox);
+  /* Klappt gerade ein Bereich (toggleFold setzt ui.foldAnim), fahren
+     die Nachbarn nach dem Zeichnen an ihre neue Stelle und das
+     Verschwundene klappt als Geist zu (foldSnap/foldPlay in js/ui.js). */
+  const folds=ui.foldAnim?foldSnap(vbox):null; ui.foldAnim=false;
+  /* Die Filterzeile wird mit jedem Zeichnen neu gebaut — ihre Farbe
+     kann also nicht von selbst übergehen. Gemerkt wird, ob sie
+     leuchtete; steht sie danach anders da, fängt sie in der alten
+     Farbe an und geht über (.was-on/.was-off in css/layout.css). */
+  const fbOld=vbox.querySelector('.filterbar,.ybrow'), fbWasOn=fbOld?fbOld.classList.contains('on'):null;
   /* Welche Ansicht gerade steht, trägt #view als Klasse — der
      Haken, an dem css/mobile.css die Monatszeilen umbaut, ohne
      die Tabellen der anderen Ansichten zu erwischen. */
   vbox.className=ui.welcome?'':('view-'+ui.view);
   vbox.innerHTML= ui.welcome ? viewWelcome()
     : ({monat:viewMonat,prognose:viewPrognose,kakeibo:viewKakeibo,jahr:viewJahr})[ui.view]();
+  if(slide) slideViewIn(vbox,slide);
+  settleMenus(menus);
+  if(folds) foldPlay(vbox,folds);
+  { const fb=vbox.querySelector('.filterbar,.ybrow');
+    if(fb&&fbWasOn!==null&&!slide&&fbWasOn!==fb.classList.contains('on')){
+      fb.classList.add(fbWasOn?'was-on':'was-off'); fb.getBoundingClientRect(); fb.classList.remove('was-on','was-off'); } }
   wire(); renderStatus();
 
   window.scrollTo(sx,sy);
@@ -674,7 +726,7 @@ function wire(){
   /* Die Auswertung auf- und zuklappen. Sie steht in ui, nicht in
      der Datei: was gerade zu sehen ist, gehört zur Anzeige. */
   document.querySelectorAll('[data-ana]').forEach(b=>b.onclick=()=>{
-    ui.ana=!ui.ana; keepQFocus(); render(); });
+    ui.ana=!ui.ana; ui.foldAnim=true; keepQFocus(); render(); });
   /* Einen Bereich zuklappen (in · flex · out) — die Karten der
      Monatsansicht (data-fold) und die Blöcke der Jahresmatrix
      (data-yfold). Beide gelten für alle zwölf Monate und stehen
@@ -688,17 +740,19 @@ function wire(){
   const toggleFold=(store,k,openNow)=>{
     if(!state[store]) state[store]=blankFolded();
     state[store][k]=openNow;
+    ui.foldAnim=true;
     keepQFocus(); save(); render();
   };
-  /* Ein Doppelklick auf die Überschrift (Monat) oder die Blockzeile
-     (Jahr) tut dasselbe wie der Pfeil — auf Knöpfen und Links darin
-     nicht, die haben ihr eigenes Ziel. */
-  [['fold','dblfold','folded'],['yfold','dblyfold','foldedYear']].forEach(([a,d,store])=>{
+  /* Ein **Klick** auf die Überschrift (Monat) oder die Blockzeile
+     (Jahr) tut dasselbe wie der Pfeil (seit 6.9.26; bis dahin der
+     Doppelklick) — auf Knöpfen und Links darin nicht, die haben ihr
+     eigenes Ziel; der Pfeil selbst ist so ein Knopf, sonst klappte
+     ein Klick auf ihn zweimal. */
+  [['fold','secfold','folded'],['yfold','blkfold','foldedYear']].forEach(([a,d,store])=>{
     document.querySelectorAll(`[data-${a}]`).forEach(b=>b.onclick=()=>
       toggleFold(store,b.getAttribute(`data-${a}`),b.getAttribute('aria-expanded')==='true'));
-    document.querySelectorAll(`[data-${d}]`).forEach(h=>h.ondblclick=ev=>{
+    document.querySelectorAll(`[data-${d}]`).forEach(h=>h.onclick=ev=>{
       if(ev.target.closest('button,a,input,select,textarea')) return;
-      const sel=window.getSelection(); if(sel) sel.removeAllRanges();
       const arrow=h.querySelector(`[data-${a}]`);
       toggleFold(store,h.getAttribute(`data-${d}`),!arrow||arrow.getAttribute('aria-expanded')==='true');
     });
@@ -922,6 +976,7 @@ function wire(){
      Feld. Die Kopfzeile bleibt außen vor — über sie erreicht man
      Ansicht, Monat und Datei weiter mit der Tastatur. */
   tabThroughFields(document.getElementById('view'));
+  bindHoverStill(document.getElementById('view'));
 
   /* Der Fokus kehrt ins Suchfeld zurück — ohne zu scrollen, die
      Seite steht danach ohnehin wieder auf ihrer alten Höhe.
@@ -952,6 +1007,10 @@ function wire(){
      Tabelle darunter ist eine andere geworden. */
   bindRails();
   syncMatrixHead();
+  /* Welches Menü jetzt offen gezeichnet ist — beim nächsten
+     Zeichnen fährt es dann nicht noch einmal an (fltDrop und das
+     mobile Filtermenü in js/views/monat.js lesen es). */
+  ui.menuDrawn=ui.fltMenu||(ui.mFilters?'mf':null);
 }
 
 /* ── Strg/Cmd + Umschalt + Buchstabe: die Ansicht wechseln ───
@@ -1187,12 +1246,33 @@ addEventListener('mouseup',ev=>{
   const mb=document.getElementById('btnMenu');
   const tools=document.getElementById('hdrTools');
   if(!mb||!tools) return;
-  const shut=()=>{ tools.classList.remove('open'); mb.setAttribute('aria-expanded','false'); };
+  /* Zu geht es animiert (seit 6.9.26): .closing hält das Menü
+     sichtbar, solange es zusammenklappt (css/components.css), und
+     fällt danach ab — per animationend und zur Sicherheit per Uhr,
+     denn ohne Bewegung (prefers-reduced-motion) endet keine. */
+  let shutT=0;
+  const shut=()=>{
+    if(!tools.classList.contains('open')) return;
+    tools.classList.remove('open'); tools.classList.add('closing');
+    mb.setAttribute('aria-expanded','false');
+    clearTimeout(shutT); shutT=setTimeout(()=>tools.classList.remove('closing'),260);
+  };
+  tools.addEventListener('animationend',()=>{ if(tools.classList.contains('closing')) tools.classList.remove('closing'); });
+  /* **Ein Klick aus einem anderen Programm heraus** (Lex, 6.9.26):
+     der Klick, der das Browserfenster nach vorn holt, kommt an,
+     das Menü bekommt .open — aber seine Aufklapp-Animation fängt
+     an, solange Chrome die Seite noch für verdeckt hält, und bleibt
+     dann auf ihrem ersten Bild stehen: unsichtbar, obwohl offen.
+     Deshalb wird die Animation nach ihrer Dauer abgeschnitten,
+     wenn das Menü noch offen ist — steht sie fest, zeigt sich das
+     Menü spätestens dann; lief sie normal, ist sie längst fertig. */
+  let openT=0;
   mb.onclick=ev=>{
     ev.stopPropagation();
     const on=!tools.classList.contains('open');
-    tools.classList.toggle('open',on);
-    mb.setAttribute('aria-expanded',String(on));
+    if(on){ tools.classList.remove('closing'); tools.style.animation=''; tools.classList.add('open'); mb.setAttribute('aria-expanded','true');
+      clearTimeout(openT); openT=setTimeout(()=>{ if(tools.classList.contains('open')) tools.style.animation='none'; },260); }
+    else { tools.style.animation=''; shut(); }
   };
   document.addEventListener('click',ev=>{ if(!tools.contains(ev.target)) shut(); });
   tools.addEventListener('click',ev=>{ if(ev.target.closest('button,a')) shut(); });

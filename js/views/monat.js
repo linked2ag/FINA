@@ -77,7 +77,7 @@ function itemRow(it,m){
    Karten darunter fluchtet. */
 function balanceRow(m){
   const it=state.balance, v=it.amounts[m-1], note=it.notes[m-1], mob=isMobile();
-  return `<div class="card sec-bal">
+  return `<div class="card sec-bal" data-fk="card:bal">
     <table class="ledger"><tr class="balrow"${dblItem(BALANCE_ID)}>
       <td class="markcell"></td>
       <td class="num amt ${cls(v)}">${eur(v)}</td>
@@ -163,7 +163,7 @@ function fltDrop(id,kind,label,cur,opts){
   return `<span class="fltdrop">
     <button class="btn small drophead" data-fltmenu="${id}" aria-expanded="${open}"
       aria-haspopup="menu" aria-pressed="${cur!=='alle'}">${label}: ${curLab} <span class="caret">&#9662;</span></button>
-    ${open?`<span class="dropmenu" role="menu">${opts.map(([v,l,tp,ic])=>
+    ${open?`<span class="dropmenu${ui.menuDrawn===id?'':' popin'}" data-dm="${id}" role="menu">${opts.map(([v,l,tp,ic])=>
       `<button class="mi${cur===v?' sel':''}" role="menuitemradio" aria-checked="${cur===v}"
         data-${kind}="${esc(v)}" data-ic="${ic}"${tp?` data-tip="${esc(tp)}"`:''}>${v==='alle'?t('flt.all'):l}</button>`).join('')}</span>`:''}</span>`;
 }
@@ -220,12 +220,25 @@ function anaBar(m,sel,selAny){
      nennt die Kachel den Saldo der Zeilen, die zu sehen sind. */
   const flexSum=sum(sel.items.filter(isFlex));
   const sal=sum(inc)+flexSum+sum(due)+(sel.bal?balanceFix(m):0);
-  const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
-      ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
+  /* ── Der Pfeil, der beim Überfahren herausfährt ─────────────
+     Die Zeile trägt von Haus aus keinen Pfeil: sie ist eine Reihe
+     aus Zahlen, und ein fester Pfeil davor läse sich wie eine
+     fünfte Angabe. Dass sie sich klappen lässt, sagt sie erst,
+     wenn man mit der Maus darüber steht — dann fährt von links ein
+     Pfeil vor die erste Beschriftung, und die rückt dafür nach
+     rechts (`.anaarrow` in css/layout.css, seit 6.9.26). Er zeigt
+     nach rechts, solange die Auswertung zu ist, und nach unten,
+     wenn sie offen steht — dieselben Zeichen wie der Klapp-Pfeil
+     der Karten (foldBtn). Nur die erste Kachel trägt ihn: ein Pfeil
+     je Kachel sähe nach vier Klappen aus, es ist aber eins. */
+  const arrow=`<span class="anaarrow" aria-hidden="true">${tri(open)}</span>`;
+  const cell=(c,lab,val,vc,tip,first)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
+      >${first?arrow:''}<span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
   /* Die Zahlenzeile trägt keine Überschrift mehr („Auswertung" —
      mit dem Mac-Redesign gestrichen): sie ist EIN eingefasster
      Kasten aus vier Kacheln in den Bereichsfarben; dass sie sich
-     klappen lässt, sagen Sprechblase und aria-expanded. */
+     klappen lässt, sagen Sprechblase, aria-expanded und der
+     ausfahrende Pfeil. */
   /* ── Die Reihenfolge der Leiste ──────────────────────────────
      Filterzeile · Monatsleiste · Auswertung. Die Filterzeile steht
      **ganz oben und ohne Abstand** — sie dockt an der Kopfzeile an
@@ -250,11 +263,11 @@ function anaBar(m,sel,selAny){
          mit, und zwischen ihr und der Filterzeile liegt so viel
          Luft, wie die Bereiche voneinander haben. -->
     ${monthTabs()}
-    <button class="anahead" data-ana="1" aria-expanded="${open}" aria-label="${esc(t('month.ana'))}"
+    <button class="anahead" data-ana="1" data-hk="ana" aria-expanded="${open}" aria-label="${esc(t('month.ana'))}"
       data-tip="${esc(open?t('month.anaClose'):t('month.anaOpen'))}">
       <span class="anarow">
-        ${cell('t-in',t('month.kpiIncome'),sum(inc),'pos')}
-        ${cell('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),flexSum,'neg')}
+        ${cell('t-in',t('month.kpiIncome'),sum(inc),'pos',null,true)}
+        ${cell('t-flex',t('month.kak'),flexSum,'neg')}
         ${cell('t-out',t('month.kpiFixed'),sum(due),'neg')}
         ${cell('t-sal',t('month.kpiSaldo'),sal,sal<0?'neg':(sal>0?'pos':''),t('month.kpiSaldoTip'))}
       </span>
@@ -323,7 +336,7 @@ function mobileTop(m,sel,sums){
         aria-label="${esc(t('month.mFilters'))}" title="${esc(t('month.mFiltersTip'))}"
         >&#9776;${nFlt?`<span class="mfbadge">${nFlt}</span>`:''}</button>
     </div>
-    ${open?`<div class="dropmenu mfmenu" role="menu">
+    ${open?`<div class="dropmenu mfmenu${ui.menuDrawn==='mf'?'':' popin'}" data-dm="mf" role="menu">
       <button class="mi mi-sep" data-qclear="1"${anyOn?'':' disabled'}>${t('g.clearFilter')}</button>
       <span class="mghead">${t('flt.due')}</span>
       ${FLT_DUE().map(([v,l,,ic])=>`<button class="mi${ui.dueFilter===v?' sel':''}" role="menuitemradio"
@@ -339,7 +352,7 @@ function mobileTop(m,sel,sums){
     ${tile('t-in',t('month.kpiIncome'),sums.inc,'pos')}
     ${tile('t-sal',t('month.kpiSaldo'),sal,cls(sal))}
     ${tile('t-out',t('month.kpiFixed'),sums.out,'neg')}
-    ${tile('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sums.flex,'neg')}
+    ${tile('t-flex',t('month.kak'),sums.flex,'neg')}
   </div>`;
 }
 
@@ -685,7 +698,7 @@ function partLine(m,sel,selAny){
      auch die blassen Balken tragen ihre Geldartfarbe. */
   const kinds=FLOW_KINDS.filter(k=>Object.values(ctx).some(l=>l.some(x=>x.k===k)));
   const chips=kinds.map(k=>`<span class="lk"><i class="b-${k}"></i>${t(FLOW_LABEL[k])}</span>`).join('');
-  return `<div class="tline part" style="--nbars:${nb}">${empty?'':tlAxis(marks)}${rows}
+  return `<div data-fk="body:tl" class="tline part" style="--nbars:${nb}">${empty?'':tlAxis(marks)}${rows}
     ${chips?`<div class="thint">${chips}</div>`:''}</div>`;
 }
 
@@ -766,7 +779,7 @@ function timeline(m,sel,selAny){
   /* Zwei Balken hat hier die höchste Zeile (Zufluss über Abfluss);
      hoch ist die Zeile trotzdem wie überall — gleiche Höhen in
      beiden Fassungen, nichts springt beim Filtern. */
-  return `<div class="tline${zout?' cut':''}" style="--nbars:${TL_MINBARS}">${tlAxis(marks)}${flow.map(row).join('')}
+  return `<div data-fk="body:tl" class="tline${zout?' cut':''}" style="--nbars:${TL_MINBARS}">${tlAxis(marks)}${flow.map(row).join('')}
     <div class="thint">${chips}${scale}</div></div>`;
 }
 
@@ -785,7 +798,7 @@ function foldBtn(key,on,hide){
   if(hide) return `<span class="foldpad" aria-hidden="true"></span>`;
   const lab=on?t('month.maxAreaTip'):t('month.minAreaTip');
   return `<button class="foldarrow" data-fold="${key}" aria-expanded="${!on}"
-    aria-label="${esc(lab)}" title="${esc(lab)}">${on?'&#9654;':'&#9660;'}</button>`;
+    aria-label="${esc(lab)}" title="${esc(lab)}">${tri(!on)}</button>`;
 }
 /* „(3 ausgeblendet)" neben der Überschrift. Von Hand zugeklappt
    sagt es nichts — dort ist ohnehin keine Zeile zu sehen. Beim
@@ -1026,7 +1039,7 @@ function viewMonat(){
      Sprung in die Transactions-Auswertung bleibt am Flex-Kopf, denn
      er führt zu genau diesem Monat. */
   const secHead=(fk,folded,titleHtml,totHtml,extraHtml='')=>
-    `<div class="sechead"${openAll?'':` data-dblfold="${fk}"`}>${foldBtn(fk,folded,openAll)}<h2 style="margin:0">${titleHtml}</h2>
+    `<div class="sechead"${openAll?'':` data-secfold="${fk}" data-hk="fold:${fk}"`}>${foldBtn(fk,folded,openAll)}<h2 style="margin:0">${titleHtml}</h2>
       ${mob?totHtml:`${extraHtml}${totHtml}`}</div>`;
   /* Der Sprung in die Auswertung nur, wenn es sie gibt: den Reiter
      „Transactions" bringt erst der Import mit (hasImport in
@@ -1034,25 +1047,25 @@ function viewMonat(){
   const flexExtra=(!mob&&hasImport())?`<button class="headlink" data-kview="${m}"
     title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:'';
 
-  const cardIn=!showIn?'':`<div class="card sec-in${fIn?' folded':''}">
+  const cardIn=!showIn?'':`<div class="card sec-in${fIn?' folded':''}" data-fk="card:in">
     ${secHead('in',fIn,
       `${t('month.income')}${hiddenNote(incAll.length,incUse.length,fIn)}`,
       `<span class="tot pos">${eur(incSum)}</span>`)}
-    ${fIn?'':`<table class="ledger">${incRows||noRows('month.noIncome')}</table>`}
+    ${fIn?'':`<table class="ledger" data-fk="body:in">${incRows||noRows('month.noIncome')}</table>`}
   </div>`;
 
-  const cardFlex=!showFlex?'':`<div class="card sec-flex${fFlex?' folded':''}">
+  const cardFlex=!showFlex?'':`<div class="card sec-flex${fFlex?' folded':''}" data-fk="card:flex">
     ${secHead('flex',fFlex,
-      `${t('month.kak')}<span class="pill">${esc(state.flexSource[m]||t('month.kpiPlanned'))}</span>${hiddenNote(flexAll.length,flexUse.length,fFlex)}`,
+      `${t('month.kak')}${state.flexSource[m]?`<span class="pill">${esc(state.flexSource[m])}</span>`:''}${hiddenNote(flexAll.length,flexUse.length,fFlex)}`,
       `<span class="tot neg">${eur(flexSum)}</span>`,flexExtra)}
-    ${fFlex?'':`<table class="ledger">${flexRows||noRows('month.noKak')}</table>`}
+    ${fFlex?'':`<table class="ledger" data-fk="body:flex">${flexRows||noRows('month.noKak')}</table>`}
   </div>`;
 
-  const cardOut=!showOut?'':`<div class="card sec-out${fOut?' folded':''}">
+  const cardOut=!showOut?'':`<div class="card sec-out${fOut?' folded':''}" data-fk="card:out">
     ${secHead('out',fOut,
       `${t('month.fixed')}${hiddenNote(outAll,outUse,fOut)}`,
       `<span class="tot neg">${eur(outSum)}</span>`)}
-    ${fOut?'':`<table class="ledger">${outRows||noRows('month.noFixed')}</table>`}
+    ${fOut?'':`<table class="ledger" data-fk="body:out">${outRows||noRows('month.noFixed')}</table>`}
   </div>`;
 
   /* Nichts gefunden: die Karten sind alle weg, die Saldokorrektur
@@ -1080,5 +1093,5 @@ function viewMonat(){
   ${cardOut}`;
   return `
   ${mob?mobileTop(m,sel,{inc:incSum,flex:flexSum,out:outSum}):anaBar(m,sel,selAny)}
-  ${mob?inner:`<div class="monthscroll" id="monthScroll">${inner}</div>`}`;
+  ${mob?inner:`<div class="monthscroll" id="monthScroll" data-fk="card:ms">${inner}</div>`}`;
 }

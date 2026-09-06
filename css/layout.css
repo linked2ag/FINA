@@ -135,6 +135,17 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
      geschätzt, mit Haken bezahlt. „Alle" trägt in allen drei Menüs
      den Stern. Strichzeichen wie die übrigen, Farbe aus der Zeile
      (currentColor) — auf der dunklen „Alle"-Zeile also Papier. */
+  /* Die Vergleichsarten des Zeilenfilters in Schritt 3 des Imports
+     (6.9.26): ein Wort ist ein liegender Kasten, und gefüllt ist
+     der Teil, der zählen soll — in der Mitte (enthält), am Anfang,
+     am Ende, ganz (nur das), durchgestrichen (enthält nicht). Der
+     Betrag ist eine Liste von Werten, einer davon angehakt. */
+  --ic-op-has:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='8' width='18' height='8' rx='2'/%3E%3Crect x='9' y='10' width='6' height='4' rx='1' fill='black' stroke='none'/%3E%3C/svg%3E");
+  --ic-op-not:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='8' width='18' height='8' rx='2'/%3E%3Crect x='9' y='10' width='6' height='4' rx='1' fill='black' stroke='none'/%3E%3Cpath d='M4 20L20 4'/%3E%3C/svg%3E");
+  --ic-op-starts:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='8' width='18' height='8' rx='2'/%3E%3Crect x='5' y='10' width='6' height='4' rx='1' fill='black' stroke='none'/%3E%3C/svg%3E");
+  --ic-op-ends:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='8' width='18' height='8' rx='2'/%3E%3Crect x='13' y='10' width='6' height='4' rx='1' fill='black' stroke='none'/%3E%3C/svg%3E");
+  --ic-op-is:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='8' width='18' height='8' rx='2' fill='black' stroke='none'/%3E%3C/svg%3E");
+  --ic-op-amt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h4M4 12h4M4 17h4'/%3E%3Cpath d='M11 7h9M11 17h9'/%3E%3Cpath d='M11 12h4'/%3E%3Cpath d='M16.5 12.5l1.6 1.6L21 10.5'/%3E%3C/svg%3E");
   --ic-all:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14'/%3E%3Cpath d='M5.94 8.5l12.12 7'/%3E%3Cpath d='M5.94 15.5l12.12-7'/%3E%3C/svg%3E");
   --ic-sec-in:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 17l5.5-5.5 4 4L20 7'/%3E%3Cpath d='M14.5 7H20v5.5'/%3E%3C/svg%3E");
   --ic-sec-flex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12c2-5 4-5 6 0s4 5 6 0s4-5 6 0'/%3E%3C/svg%3E");
@@ -316,8 +327,13 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .vtab{background:none;border:0;border-radius:5px;padding:4px 14px;font-size:12px;color:var(--ink-2);
   white-space:nowrap;cursor:pointer}
 .vtab:hover{color:var(--ink)}
-.vtab[aria-selected="true"]{background:#fff;color:var(--ink);font-weight:600;
-  box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.vtab{position:relative;z-index:1}
+.vtab[aria-selected="true"]{color:var(--ink);font-weight:600}
+/* Die weiße Pille liegt hinter den Reitern und gleitet zum
+   gewählten (gesetzt in renderChrome, js/app.js). */
+.vpill{position:absolute;z-index:0;background:#fff;border-radius:5px;box-shadow:0 1px 2px rgba(0,0,0,.18);
+  transform-origin:left center;will-change:transform;transition:transform .42s cubic-bezier(.75,0,.15,1)}
+@media (prefers-reduced-motion:reduce){.vpill{transition:none}}
 
 /* ── Karten und Raster ────────────────────────────────────── */
 .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;align-items:start}
@@ -401,21 +417,40 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 /* Das Polster rechts (12 px) schiebt die Pfeilmitte auf die der
    16-px-Siegel darunter: deren Spalte beginnt nach dem
    12-px-Kartenpolster, der Pfeilkasten schon an der Kante. */
-.sechead .foldarrow{flex:0 0 auto;width:var(--markw);padding:0 12px 0 0;
-  display:grid;place-items:center;background:none;border:0}
-/* Klein wie im Mock (▼ bei 10 px): der Pfeil selbst, kein Kreis um
-   ihn herum — dieselbe Spalte wie die Siegel darunter, die Farbe
-   des Bereichs. */
-.sechead .foldarrow{font-size:10px;line-height:1;color:inherit}
+.sechead .foldarrow{flex:0 0 auto;width:14px;padding:0;
+  display:grid;place-items:center;background:none;border:0;line-height:1;color:inherit}
 .sechead .foldarrow:hover{color:var(--ink)}
-/* Bei offener Auswertung gibt es keinen Pfeil — der Platz bleibt
-   trotzdem stehen, damit die Überschrift nicht springt. */
-.sechead .foldpad{flex:0 0 auto;width:var(--markw)}
+/* Beim Filtern gibt es keinen Pfeil — der Platz bleibt trotzdem
+   stehen, damit die Überschrift nicht springt (nur dort, wo der
+   Pfeil fest steht; mit Maus ist er in Ruhe ohnehin nicht da). */
+.sechead .foldpad{flex:0 0 auto;width:14px}
+/* ── Mit Maus fährt der Pfeil erst heraus (seit 6.9.26) ────────
+   Am Schreibtisch ist der Pfeil in Ruhe nicht da: null breit,
+   durchsichtig, ein Stück nach links. Steht die Maus über dem
+   Kartenkopf (oder der Fokus darin), wächst er auf seine Breite
+   und die Überschrift rückt weich nach rechts — dieselbe Bewegung
+   wie in der Auswertung (.anaarrow). Der negative Außenabstand in
+   Ruhe hebt die 9-px-Fuge des Flex auf. `.still` hält ihn nach
+   einem Neuzeichnen ausgefahren, ohne neu anzufahren
+   (bindHoverStill in js/ui.js). Auf dem Telefon und auf Geräten
+   ohne Maus steht er fest — dort gibt es kein Überfahren. */
+@media (hover:hover) and (min-width:700px){
+  .sechead[data-hk] .foldarrow{width:0;margin-right:-9px;opacity:0;transform:translateX(-14px);
+    transition:width .22s ease-out,margin-right .22s ease-out,opacity .22s ease-out,transform .22s ease-out}
+  .sechead[data-hk]:hover .foldarrow,.sechead[data-hk]:focus-within .foldarrow,
+  .sechead[data-hk].still .foldarrow{width:14px;margin-right:0;opacity:1;transform:none}
+  .sechead[data-hk].still .foldarrow{transition:none}
+  .sechead .foldpad{display:none}
+}
 .sechead h2{flex:1 1 auto;min-width:0}
-.card.sec-in .foldarrow{color:var(--edge-in)}
-.card.sec-flex .foldarrow{color:var(--edge-flex)}
-.card.sec-out .foldarrow{color:var(--edge-out)}
-.sechead .foldarrow:hover{color:var(--ink)}
+/* Der Pfeil trägt das gedeckte Grau der Beschriftungen (--ink-2,
+   seit 6.9.26; bis dahin die Kantenfarbe des Bereichs): er gehört
+   zur Überschrift, nicht zur Farbe der Karte — und er ist ein
+   Hinweis, kein Wort, deshalb nicht ganz schwarz. Dieselbe Farbe
+   tragen alle ausfahrenden Pfeile. */
+.sechead .foldarrow{color:var(--ink-2)}
+/* Der ganze Kopf klappt mit einem Klick (data-secfold). */
+.sechead[data-secfold]{cursor:pointer}
 /* Zweizeilige Überschrift: oben der Name, darunter der Satz, der
    sagt, woher die Zahlen kommen. Beides gehört zusammen und
    bleibt deshalb ein Block — die Knöpfe rechts daneben rücken
@@ -452,8 +487,9 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    Schrift der Seite; die 1px-Fugen des Rasters zeichnen wie bei
    .kpi die Trennlinien. Die Überschrift steht klein darüber und
    nicht als Kästchen in der Reihe: sie benennt die Leiste, sie ist
-   keine Kennzahl. Einen Pfeil trägt sie nicht — ob die Auswertung
-   offen ist, sagt der Zeitstrahl darunter. */
+   keine Kennzahl. Einen festen Pfeil trägt sie nicht — ob die
+   Auswertung offen ist, sagt der Zeitstrahl darunter; erst beim
+   Überfahren fährt einer heraus (.anaarrow, weiter unten). */
 .anahead{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
 /* Sie ist das letzte Stück der Leiste — über den Karten, die sie
    zusammenfasst. Der Abstand nach oben ist derselbe, den die
@@ -467,7 +503,7 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;
   box-shadow:var(--sh-card)}
 .anarow .anak{background:var(--paper-2);min-width:0;padding:5px 12px;
-  display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  display:flex;align-items:center;justify-content:space-between;gap:8px}
 /* Die Filterzeile gehört zur Leiste, nicht in eine Karte: sie gilt
    für alle drei Bereiche. Wie sie aussieht, steht ein Stück
    weiter unten — sie und die Zeile der Jahresmatrix tragen
@@ -548,6 +584,16 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 /* Dieselben Regeln wie im Monat: dort die Filterzeile, hier diese
    Zeile — eine Leiste, die anders aussieht, sähe nach einem
    anderen Werkzeug aus. */
+/* Die Farbe geht über (seit 6.9.26): die Zeile wird mit jedem
+   Zeichnen neu gebaut, deshalb setzt render() ihr für ein Bild die
+   alte Farbe (.was-on/.was-off) und nimmt sie wieder — der Übergang
+   läuft dann von selbst. Die Knöpfe gehen mit. */
+.anabar .filterbar,.yearbar .ybrow{transition:background-color .25s ease-out,border-color .25s ease-out}
+.anabar .filterbar .btn,.yearbar .ybrow .btn{transition:background-color .25s ease-out,color .15s}
+.anabar .filterbar.was-off,.yearbar .ybrow.was-off{background:var(--paper-2)!important;border-color:var(--rule)!important}
+.anabar .filterbar.was-on,.yearbar .ybrow.was-on{background:var(--flt)!important;border-color:var(--rule-strong)!important}
+.anabar .filterbar.was-off .btn:not([aria-pressed="true"]),.yearbar .ybrow.was-off .btn:not([aria-pressed="true"]){background:transparent!important}
+.anabar .filterbar.was-on .btn:not([aria-pressed="true"]),.yearbar .ybrow.was-on .btn:not([aria-pressed="true"]){background:var(--paper-2)!important}
 .anabar .filterbar.on,.yearbar .ybrow.on{background:var(--flt);border-color:var(--rule-strong)}
 .anabar .filterbar.on .btn,.yearbar .ybrow.on .btn{background:var(--paper-2)}
 .anabar .filterbar.on .btn:hover,.yearbar .ybrow.on .btn:hover{background:#fff}
@@ -639,6 +685,33 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    css/tokens.css, dieselbe Farbe wie „Saldo je Monat"). Nicht das
    Blau der Saldokorrektur: die ist eine der Zahlen darin. */
 .anahead .anak.t-sal{background:var(--bg-sal)}
+/* ── Der Pfeil, der herausfährt (seit 6.9.26) ──────────────────
+   Steht in der ersten Kachel vor der Beschriftung und ist in Ruhe
+   nicht da: null breit, durchsichtig, um ein Stück nach links
+   verschoben. Beim Überfahren der Zeile (und beim Tastaturfokus)
+   wächst er auf seine Breite, wird sichtbar und rückt an seinen
+   Platz — die Beschriftung daneben rutscht dabei genauso weich
+   nach rechts, weil sie an seiner Breite hängt. Der negative
+   Außenabstand in Ruhe hebt die Fuge des Flex (gap) auf, sonst
+   stünde die Beschriftung immer 8 px eingerückt. Die Richtung
+   (▶ zu, ▼ offen) kommt aus der View; hier steht nur die
+   Bewegung. Dieselbe Größe wie der Klapp-Pfeil der Karten. */
+.anahead .anaarrow{flex:0 0 auto;width:14px;line-height:1;color:var(--ink-2);display:grid;place-items:center}
+@media (hover:hover){
+  .anahead .anaarrow{width:0;margin-right:-8px;opacity:0;transform:translateX(-14px);
+    transition:width .22s ease-out,margin-right .22s ease-out,opacity .22s ease-out,transform .22s ease-out}
+  .anahead:hover .anaarrow,.anahead:focus-visible .anaarrow,.anahead.still .anaarrow{width:14px;margin-right:0;opacity:1;transform:none}
+  /* Nach einem Klick ist die Zeile neu gebaut, die Maus aber noch
+     da: `still` hält den Pfeil draußen, ohne ihn neu anzufahren
+     (bindHoverStill in js/ui.js). Fällt die Klasse beim Verlassen,
+     fährt er wie gewohnt zurück. */
+  .anahead.still .anaarrow{transition:none}
+}
+/* Die Beschriftung nimmt sich den Platz bis zum Betrag: mit dem
+   Pfeil als drittem Kind stellte space-between sie sonst in die
+   Mitte der Kachel. */
+.anahead .lab{margin-right:auto}
+@media (prefers-reduced-motion:reduce){.anahead .anaarrow,.sechead .foldarrow{transition:none}}
 .anahead .lab{font-family:var(--font-data);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .anahead .lab b{font-weight:600;color:var(--ink)}

@@ -28,6 +28,10 @@
    Webseite läuft ihnen voraus, und die Apps hinterher (siehe
    „Die zwei Veröffentlichungskanäle" in der Planung). */
 const VERSION='26.9.6';
+/* Wie lange die Maus auf einem Element stehen muss, bis seine
+   Sprechblase (data-tip, title) erscheint — der eine Wert für alle
+   Hinweise (tipLater in js/ui.js) — eine halbe Sekunde. */
+const TIP_DELAY=500;
 
 /* Wo die Apps ihre Fassung nachschlagen. Die Datei beschreibt den
    **App-Kanal**, nicht die Webseite: stünde dort jede Webversion,

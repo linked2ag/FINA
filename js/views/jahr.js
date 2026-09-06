@@ -72,7 +72,7 @@ function matrixHead(extra){
 function yfoldBtn(key,on){
   const lab=on?t('year.maxAreaTip'):t('year.minAreaTip');
   return `<button class="foldarrow" data-yfold="${key}" aria-expanded="${!on}"
-    aria-label="${esc(lab)}" title="${esc(lab)}">${on?'&#9654;':'&#9660;'}</button>`;
+    aria-label="${esc(lab)}" title="${esc(lab)}">${tri(!on)}</button>`;
 }
 
 /* Eine Matrixzeile. opt.item = regelmäßiger Posten, opt.kak =
@@ -158,7 +158,7 @@ function mrow(label,vals,opt={}){
      weg. */
   const fold=opt.fold||null;
   const arrow=fold?yfoldBtn(fold.key,fold.on):'';
-  const dblFold=fold?` data-dblyfold="${esc(fold.key)}"`:'';
+  const dblFold=fold?` data-blkfold="${esc(fold.key)}" data-hk="yfold:${esc(fold.key)}"`:'';
   return `<tr class="${opt.cls||''}${(it&&!opt.asCat)?' itemrow':''}${done}"${dbl}${dblFold}><td class="ed">${arrow||pencil}</td><td class="ln">${link}</td>
     <td class="nt">${posLamp}</td><td class="lab">${label}</td>
     <td class="code cB"${bank?` title="${esc(bankLabel(bank))}"`:''}>${esc(bank)}</td>
@@ -496,7 +496,7 @@ function viewJahr(){
      Kopf: beide bilden die blaue Karte des Mac-Redesigns (4a).
      Erst ab dem zweiten Stück trennt die Leerzeile — und vor dem
      ersten Block, wenn die Korrektur weggefiltert ist. */
-  const body=parts.map((p,i)=>`<tbody>${(i===0&&balOn)?'':spacer()}${p}</tbody>`).join('');
+  const body=parts.map((p,i)=>`<tbody data-fk="blk:${i}">${(i===0&&balOn)?'':spacer()}${p}</tbody>`).join('');
 
   /* ── Die oberste Zeile ist der Monat selbst ─────────────────
      Was er bringt und was er kostet, zusammengezählt — **nur

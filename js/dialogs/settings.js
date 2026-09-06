@@ -161,7 +161,7 @@ function openSettings(where,done){
 
   /* Ein Bereich: Überschrift, ein Satz dazu, Inhalt. Alle werden
      gebaut, sichtbar ist einer. */
-  const pane=(key,title,hint,inner)=>`<section class="setpane" data-pane="${key}"${key===setPane?'':' hidden'}>
+  const pane=(key,title,hint,inner)=>`<section class="setpane swapfade" data-pane="${key}"${key===setPane?'':' hidden'}>
     <h4>${title}</h4>${hint?`<p class="note" style="margin:-2px 0 14px">${hint}</p>`:''}${inner}</section>`;
 
   /* ── Der Bereich „Filter" ─────────────────────────────────────
@@ -185,7 +185,7 @@ function openSettings(where,done){
   const NAV=Object.keys(SET_PANE_LABEL).map(k=>[k,t(SET_PANE_LABEL[k])]);
   const navIdx=NAV.findIndex(([k])=>k===setPane);
 
-  box.innerHTML=`<div class="box split">
+  box.innerHTML=`<div class="box split setbox">
     <h3>${t('set.title')}</h3>
     <!-- Wird das Fenster schmaler, als das Menü links braucht,
          tritt an die Stelle des Menüs diese Zeile: ‹ · Aufklapp-
@@ -396,7 +396,17 @@ function openSettings(where,done){
      Aufklappliste im schmalen Fenster führen beide hierher, dazu
      die beiden Schrittknöpfe ‹ › — am Rand der Liste ist Schluss,
      wie bei den Monaten. */
+  /* Der Wechsel ist animiert (seit 6.9.26, boxSwap in js/ui.js):
+     der Bereich rechts blendet aus, das Fenster nimmt seine neue
+     Höhe an — das Menü links fährt mit —, der neue Bereich blendet
+     ein. paneNow() ist der eigentliche Wechsel, showPane() hüllt ihn
+     in die Bewegung; beim ersten Aufbau ist es kein Wechsel. */
   const showPane=k=>{
+    if(k===setPane){ paneNow(k); return; }
+    const bx=box.querySelector('.box');
+    if(bx&&bx.isConnected) boxSwap(bx,()=>paneNow(k)); else paneNow(k);
+  };
+  const paneNow=k=>{
     setPane=k;
     box.querySelectorAll('[data-sect]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sect===k));
     box.querySelectorAll('.setpane').forEach(p=>{ p.hidden=p.dataset.pane!==k; });
