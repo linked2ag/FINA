@@ -121,6 +121,34 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   --ic-trash:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M9 7V4h6v3'/%3E%3Cpath d='M6 7l1 13h10l1-13'/%3E%3C/svg%3E");
   --ic-undo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10h10a5 5 0 0 1 0 10H9'/%3E%3Cpath d='M8 6l-4 4 4 4'/%3E%3C/svg%3E");
   --ic-list:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16'/%3E%3Cpath d='M4 12h16'/%3E%3Cpath d='M4 18h10'/%3E%3C/svg%3E");
+  /* Lupe über einer Liste: „Suchen nach gemerkten Kriterien" im
+     Zeilenmenü des CSV-Imports (css/components.css). */
+  --ic-critsearch:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h9'/%3E%3Cpath d='M3 11h6'/%3E%3Cpath d='M3 16h5'/%3E%3Ccircle cx='15' cy='13.5' r='4.5'/%3E%3Cpath d='M18.3 16.8L21 19.5'/%3E%3C/svg%3E");
+  /* ── Die Zeichen der Filterwerte (6.9.26) ───────────────────
+     Je Wert eines Aufklappmenüs sein eigenes Zeichen — data-ic am
+     Eintrag, gesetzt aus den FLT_*-Listen in js/views/monat.js,
+     die Regeln dazu bei .dropmenu unten. Bereich als Richtung:
+     Einnahmen steigen, Kosten fallen, Flexibles wellt sich.
+     Fälligkeit als Spanne mit dem Punkt am Anfang, in der Mitte,
+     am Ende — der Abschluss als Endstrich. Zahlungsstand als
+     derselbe Kreis wie .statmark: leer ist offen, mit Fragezeichen
+     geschätzt, mit Haken bezahlt. „Alle" trägt in allen drei Menüs
+     den Stern. Strichzeichen wie die übrigen, Farbe aus der Zeile
+     (currentColor) — auf der dunklen „Alle"-Zeile also Papier. */
+  --ic-all:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14'/%3E%3Cpath d='M5.94 8.5l12.12 7'/%3E%3Cpath d='M5.94 15.5l12.12-7'/%3E%3C/svg%3E");
+  --ic-sec-in:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 17l5.5-5.5 4 4L20 7'/%3E%3Cpath d='M14.5 7H20v5.5'/%3E%3C/svg%3E");
+  --ic-sec-flex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12c2-5 4-5 6 0s4 5 6 0s4-5 6 0'/%3E%3C/svg%3E");
+  --ic-sec-out:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7l5.5 5.5 4-4L20 17'/%3E%3Cpath d='M14.5 17H20v-5.5'/%3E%3C/svg%3E");
+  --ic-due-a:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h18'/%3E%3Cpath d='M3 8v8'/%3E%3Cpath d='M21 8v8'/%3E%3Ccircle cx='7.5' cy='12' r='2.3' fill='black' stroke='none'/%3E%3C/svg%3E");
+  --ic-due-m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h18'/%3E%3Cpath d='M3 8v8'/%3E%3Cpath d='M21 8v8'/%3E%3Ccircle cx='12' cy='12' r='2.3' fill='black' stroke='none'/%3E%3C/svg%3E");
+  --ic-due-e:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h18'/%3E%3Cpath d='M3 8v8'/%3E%3Cpath d='M21 8v8'/%3E%3Ccircle cx='16.5' cy='12' r='2.3' fill='black' stroke='none'/%3E%3C/svg%3E");
+  /* Monatseröffnung (6.9.26 spät): das Spiegelbild des Monatsabschlusses —
+     der kräftige Strich links, die Linie läuft nach rechts in den Monat. */
+  --ic-due-p:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h16'/%3E%3Cpath d='M4 6.5v11' stroke-width='3'/%3E%3C/svg%3E");
+  --ic-due-z:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h16'/%3E%3Cpath d='M20 6.5v11' stroke-width='3'/%3E%3C/svg%3E");
+  --ic-pay-open:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3C/svg%3E");
+  --ic-pay-est:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M9.96 10.2a2.04 2.04 0 1 1 3.12 1.74c-.72.48-1.08.9-1.08 1.74'/%3E%3Cpath d='M12 15.96h.01'/%3E%3C/svg%3E");
+  --ic-pay-paid:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M8 12.3l2.7 2.7 5.3-5.6'/%3E%3C/svg%3E");
 }
 
 /* ── Das Menü hinter dem Hamburger ────────────────────────────
@@ -137,8 +165,13 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    (.dropmenu unten) und die Menüs des CSV-Imports (.c2fpop in
    css/components.css). Wer hier ein Maß ändert, ändert es dort mit. */
 .tools{position:absolute;top:calc(100% + 8px);right:0;z-index:46;display:none;flex-direction:column;
-  width:230px;background:#fff;border:1px solid var(--rule);border-radius:8px;
+  min-width:230px;width:max-content;max-width:calc(100vw - 32px);
+  background:#fff;border:1px solid var(--rule);border-radius:8px;
   box-shadow:var(--sh-pop);overflow:hidden;padding:0}
+/* **Das Menü ist so breit wie sein Dateiname** (6.9.26 spät):
+   230 px sind das Mindestmaß, ein langer Name in der Kopfzeile des
+   Menüs (.mfname, eine Zeile) zieht es auf — bis an den Rand des
+   Fensters; was dann noch übersteht, endet mit „…". */
 .tools.open{display:flex}
 .tools .btn{display:flex;align-items:center;gap:9px;
   background:none;border:0;border-radius:0;text-align:left;
@@ -159,7 +192,21 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-position:center;mask-position:center;
   -webkit-mask-size:15px 15px;mask-size:15px 15px}
-.tools .mi-new{font-weight:600}
+/* **„Neuer Eintrag" ist der nächste Handgriff** (6.9.26 spät) und
+   trägt deshalb Tinte mit weißer Schrift — wie jeder schwarze
+   Knopf in FINA, der sagt „hier geht es weiter". Gewöhnliche
+   Schriftstärke: die Füllung hebt ihn genug hervor. Das Zeichen
+   davor nimmt die Schriftfarbe an und wird damit weiß. */
+.tools .mi-new{background:var(--ink);color:#fff}
+.tools .mi-new:hover{background:#333}
+/* **Die Anleitung steht in Orange mit weißer Schrift** (6.9.26
+   spät; davor oranger Text auf Weiß): Orange heißt „hier kann man
+   handeln", und als Fläche fällt es unter neun Einträgen auf.
+   Offen (aria-pressed) eine Stufe dunkler. Die Regeln überstimmen
+   .btn.guidebtn aus css/components.css über die Kennung. */
+.tools #btnGuide.guidebtn{background:var(--accent);color:#fff;font-weight:500}
+.tools #btnGuide.guidebtn:hover{background:var(--accent-2);color:#fff}
+.tools #btnGuide.guidebtn[aria-pressed="true"]{background:var(--accent-2);color:#fff}
 /* Im Menü ist die Umfrage ein Eintrag wie jeder andere: keine
    Füllung, kein eigenes Orange. Dass sie wartet, sagt der rote
    Punkt am Hamburger — zwei Signale für dieselbe Sache machen
@@ -185,13 +232,21 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .tools #btnGuide::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 7c-1.6-1.5-3.7-2-6-2H4v13h2c2.3 0 4.4.5 6 2'/%3E%3Cpath d='M12 7c1.6-1.5 3.7-2 6-2h2v13h-2c-2.3 0-4.4.5-6 2'/%3E%3Cpath d='M12 7v13'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 7c-1.6-1.5-3.7-2-6-2H4v13h2c2.3 0 4.4.5 6 2'/%3E%3Cpath d='M12 7c1.6-1.5 3.7-2 6-2h2v13h-2c-2.3 0-4.4.5-6 2'/%3E%3Cpath d='M12 7v13'/%3E%3C/svg%3E")}
 /* Der Dateiname steht als Kopf **immer** oben im Menü — man soll
    sehen, an welcher Datei die Knöpfe darunter arbeiten, auch wenn
-   der Name daneben in der Kopfzeile steht. */
+   der Name daneben in der Kopfzeile steht. **Zwei Zeilen** (6.9.26
+   spät, renderStatus in js/storage.js): der Name in Tinte, in
+   einer Zeile — das Menü wächst mit ihm (.tools) —, darunter der
+   Stand: rot, solange etwas ungespeichert ist, sonst grau. */
 .menufile{display:none}
 .tools .menufile:not([hidden]){display:block;padding:8px 12px;
-  font-family:var(--font-data);font-size:10.5px;font-weight:600;color:var(--ink-2);
-  background:var(--paper-2);border-bottom:1px solid var(--hairline);
-  white-space:normal;overflow-wrap:anywhere}
-.tools .menufile.warnpath{color:var(--seal)}
+  font-family:var(--font-data);font-size:10.5px;font-weight:600;color:var(--ink);
+  background:var(--paper-2);border-bottom:1px solid var(--rule-strong);
+  white-space:nowrap}
+/* Unter dem Kopf dieselbe Linie wie zwischen den Gruppen (6.9.26
+   spät; davor eine Haarlinie): der Kopf ist keine Gruppe, aber er
+   soll genauso klar von „Daten hochladen" abgesetzt sein. */
+.tools .menufile .mfname{display:block;overflow:hidden;text-overflow:ellipsis}
+.tools .menufile .mfstat{display:block;margin-top:3px;font-weight:500;color:var(--ink-2)}
+.tools .menufile.warnpath .mfstat{color:var(--seal)}
 
 /* ── Monatsleiste ─────────────────────────────────────────────
    Zwölf Kürzel in einer Zeile: erledigte Monate grün und
@@ -220,11 +275,21 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   text-align:center;cursor:pointer}
 .mtab .mp{display:inline-block;padding:2px 8px;border-radius:9px}
 .mtab:hover .mp{color:var(--ink)}
+/* Erledigt: grün und durchgestrichen — **an der Pille, nicht am
+   Knopf** (6.9.26). Die Beschriftung steht in .mp, und das ist ein
+   inline-block: eine text-decoration des Knopfes reicht nicht in
+   einen inline-block hinein (atomare Inline-Boxen nehmen die
+   Dekoration ihrer Vorfahren nicht an). Am Knopf gesetzt war der
+   Monat zwar grün, aber nie durchgestrichen — anders als derselbe
+   Monat im Spaltenkopf der Jahresmatrix (.mhead.done). Die Regel
+   steht **vor** der schwarzen Pille: gewählt gewinnt deren Farbe,
+   der Strich bleibt in der Schrift der Pille — und der laufende
+   Monat behält ihn in seinem Rot, wie .mhead.done.now in der
+   Matrix. */
+.mtab.alldone .mp{color:var(--ok);text-decoration:line-through;text-decoration-thickness:1.5px}
 /* Der gewählte Monat als schwarze Pille (seit 23.8.26; vorher nur
    eine dunkle Einfassung): Tinte heißt überall „gilt gerade". */
 .mtab[aria-selected="true"] .mp{background:var(--ink);color:var(--paper-2);font-weight:600}
-.mtab.alldone{color:var(--ok);text-decoration:line-through;text-decoration-thickness:1.5px}
-.mtab.current{text-decoration:none}
 /* Der laufende Monat trägt seinen roten Ring immer — gefüllt wird
    er nur, wenn er auch gewählt ist (seit 23.8.26; vorher blieb die
    rote Pille auch dann gefüllt, wenn ein anderer Monat gewählt
@@ -517,9 +582,11 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 /* **Dasselbe Bild wie das Menü hinter dem Hamburger** (5.9.26,
    siehe .tools oben): 230 px, Einträge mit 7/12 px Polster in 12 px
    Schrift, Trenner in --rule-strong — und vorn dieselbe Zeichenspalte
-   von 15 px. Hier trägt sie den **Haken am gewählten Wert**: ein
-   Menü aus Werten ist eine Wahl, und die Wahl steht vorn, wie in
-   jedem Mac-Menü. „Filteroptionen…" trägt das Zeichen der
+   von 15 px. Hier trägt sie **je Wert sein eigenes Zeichen** (seit
+   6.9.26, data-ic → --ic-… oben; bis dahin ein Haken am gewählten
+   Wert und ein schwarzes Quadrat vor jedem anderen): man sieht,
+   wonach gefiltert wird, bevor man liest — und dass gewählt ist,
+   sagt die farbige Zeile allein. „Filteroptionen…" trägt das Zeichen der
    Einstellungen (dorthin führt es), „Filter zurücknehmen" im mobilen
    Menü den Kreis mit dem Kreuz. Die Farben bleiben, wie sie waren:
    Orange am gewählten Wert heißt „hier wird ausgeblendet", Tinte an
@@ -533,7 +600,17 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-position:center;mask-position:center;
   -webkit-mask-size:15px 15px;mask-size:15px 15px}
-.dropmenu .mi.sel::before{-webkit-mask-image:var(--ic-check);mask-image:var(--ic-check)}
+.dropmenu .mi[data-ic="all"]::before{-webkit-mask-image:var(--ic-all);mask-image:var(--ic-all)}
+.dropmenu .mi[data-ic="sec-in"]::before{-webkit-mask-image:var(--ic-sec-in);mask-image:var(--ic-sec-in)}
+.dropmenu .mi[data-ic="sec-flex"]::before{-webkit-mask-image:var(--ic-sec-flex);mask-image:var(--ic-sec-flex)}
+.dropmenu .mi[data-ic="sec-out"]::before{-webkit-mask-image:var(--ic-sec-out);mask-image:var(--ic-sec-out)}
+.dropmenu .mi[data-ic="due-a"]::before{-webkit-mask-image:var(--ic-due-a);mask-image:var(--ic-due-a)}
+.dropmenu .mi[data-ic="due-m"]::before{-webkit-mask-image:var(--ic-due-m);mask-image:var(--ic-due-m)}
+.dropmenu .mi[data-ic="due-e"]::before{-webkit-mask-image:var(--ic-due-e);mask-image:var(--ic-due-e)}
+.dropmenu .mi[data-ic="due-z"]::before{-webkit-mask-image:var(--ic-due-z);mask-image:var(--ic-due-z)}
+.dropmenu .mi[data-ic="pay-open"]::before{-webkit-mask-image:var(--ic-pay-open);mask-image:var(--ic-pay-open)}
+.dropmenu .mi[data-ic="pay-est"]::before{-webkit-mask-image:var(--ic-pay-est);mask-image:var(--ic-pay-est)}
+.dropmenu .mi[data-ic="pay-paid"]::before{-webkit-mask-image:var(--ic-pay-paid);mask-image:var(--ic-pay-paid)}
 .dropmenu .mi[data-qfields]::before{-webkit-mask-image:var(--ic-sliders);mask-image:var(--ic-sliders)}
 .dropmenu .mi[data-qclear]::before{-webkit-mask-image:var(--ic-clear);mask-image:var(--ic-clear)}
 .dropmenu .mi:hover{background:var(--paper-2)}
@@ -640,6 +717,23 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .trow .tname{display:flex;align-items:baseline;gap:6px;min-width:0;
   font-family:var(--font-ui);font-size:12px;font-weight:400;color:var(--ink);
   white-space:nowrap;overflow:hidden}
+/* **Vor jedem Abschnitt sein Zeichen** (6.9.26 spät) — dieselben
+   Masken wie im Aufklappmenü „Fälligkeit" (--ic-due-*), damit man
+   die Zeile und den Filter als dasselbe erkennt; die Monatseröffnung
+   hat kein Menü und bekommt das Spiegelbild des Abschlusses
+   (--ic-due-p). Gesetzt über data-ic an der .tname (tlLabel in
+   js/views/monat.js); das Zeichen steht mittig zur Zeile, nicht an
+   der Schriftlinie. */
+.trow .tname[data-ic]::before{content:'';flex:0 0 auto;width:15px;height:15px;align-self:center;
+  background:currentColor;opacity:.85;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:15px 15px;mask-size:15px 15px}
+.trow .tname[data-ic="due-p"]::before{-webkit-mask-image:var(--ic-due-p);mask-image:var(--ic-due-p)}
+.trow .tname[data-ic="due-a"]::before{-webkit-mask-image:var(--ic-due-a);mask-image:var(--ic-due-a)}
+.trow .tname[data-ic="due-m"]::before{-webkit-mask-image:var(--ic-due-m);mask-image:var(--ic-due-m)}
+.trow .tname[data-ic="due-e"]::before{-webkit-mask-image:var(--ic-due-e);mask-image:var(--ic-due-e)}
+.trow .tname[data-ic="due-z"]::before{-webkit-mask-image:var(--ic-due-z);mask-image:var(--ic-due-z)}
 /* Der heutige Tag liegt in dieser Zeile: eine Marke in der
    Hervorhebungsfarbe — nur Rahmen und Schrift, der Grund bleibt
    durchsichtig. Gefüllt und rot wäre sie eine Warnung. */
@@ -891,7 +985,9 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    steht, erst nach allen Zeilen. Beides ist der falsche Ort.
 
    Deshalb verbergen die beiden Tabellen ihren eigenen Balken und
-   bekommen einen über sich gesetzt (scrollRail in js/ui.js). Er ist
+   bekommen einen eigenen daneben gesetzt (scrollRail in js/ui.js) —
+   die Prognose über ihre Tabelle, die Jahresmatrix seit 6.9.26
+   **unter** ihre Fläche (bis dahin oben in der Knopfleiste). Er ist
    ein gewöhnlicher Rollrahmen mit einem Streifen darin, der so
    breit ist wie die Tabelle — mehr braucht ein Rollbalken nicht.
 
@@ -909,20 +1005,18 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .scrollrail::-webkit-scrollbar-track{background:var(--paper);border:1px solid var(--rule)}
 .scrollrail::-webkit-scrollbar-thumb{background:var(--rule-strong);border:1px solid var(--paper)}
 .scrollrail::-webkit-scrollbar-thumb:hover{background:var(--ink-2)}
-/* In der Knopfleiste der Jahresmatrix steht sie auf einer eigenen
-   Zeile, über die ganze Breite: sie gehört zur Tabelle darunter und
-   nicht zwischen die Knöpfe — **deshalb sitzt sie an ihr**. Die
-   10 px Abstand liegen über der Leiste, das negative Maß darunter
-   hebt das Polster der Knopfleiste auf. So bleibt zwischen der
-   Filterzeile und dem Spaltenkopf der Matrix genau so viel Luft,
-   wie die Bereiche voneinander haben (10 px) — mit Rollbalken wie
-   ohne, denn ohne ihn (.off) trägt das Polster der Leiste dieselben
-   10 px allein. */
-.yearbar .scrollrail{flex:0 0 100%;margin:10px 0 -10px}
+/* Unter der Jahresmatrix steht sie direkt an der Fläche, über die
+   ganze Breite — dort, wo man einen waagerechten Rollbalken sucht
+   (seit 6.9.26; bis dahin auf einer eigenen Zeile in der
+   Knopfleiste). Den Platz dafür nimmt sizeMatrix (js/app.js) der
+   Fläche ab: die Seite soll auch mit ihr nicht rollen. Die Luft
+   zwischen Filterzeile und Spaltenkopf trägt die Knopfleiste
+   allein (.yearbar, 10 px Polster). */
+.yearpane+.scrollrail{margin:8px 0 0}
 /* In der Prognose steht sie in der Karte, direkt über der Tabelle. */
 .progscroll+.scrollrail,.scrollrail+.progscroll{margin-top:6px}
 /* Und die Tabellen selbst zeigen unten **keinen** waagerechten
-   Balken: dafür ist die Leiste oben da, zwei wären einer zu viel.
+   Balken: dafür ist die eigene Leiste da, zwei wären einer zu viel.
 
    Die Prognose rollt nur waagerecht und legt ihren Balken einfach
    ab. Die Jahresmatrix rollt in beiden Richtungen und braucht ihren

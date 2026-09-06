@@ -1,8 +1,8 @@
-# FINA Struktur v260905-3
+# FINA Struktur v260905
 
-**Stand:** 5. September 2026, dritte Fassung des Tages · Fassung der Anwendung `26.8.30` (`VERSION` in `js/config.js`)
+**Stand:** 5. September 2026 · veröffentlicht am Abend als Fassung der Anwendung `26.9.5` (`VERSION` in `js/config.js`)
 
-**Vorgängerin:** `FINA Struktur v260905-2.md`. Was sich gegenüber ihr geändert hat, steht unten unter „Änderungen an dieser Fassung".
+**Vorgängerin:** keine – die erste Datei dieses Ordners. Wie sie an diesem Tag in vier Schritten entstanden ist, steht unten unter „Der Weg zu dieser Fassung".
 
 ## Wozu diese Datei
 
@@ -15,9 +15,13 @@ einer älteren Datei fehlt.
 1. **Bevor sich an der Struktur etwas ändert, wird Lex gewarnt.** Eine Änderung heißt
    fast immer: alte Dateien müssen beim Öffnen umgebaut werden (Migration), sonst liest
    FINA sie falsch.
-2. **Jede Änderung bekommt eine neue Datei** mit neuer Nummer. Die alte bleibt liegen –
-   so sieht man, was sich wann geändert hat. Die Nummer ist `v` + Datum (`JJMMTT`) +
-   laufende Nummer am Tag: `v260905-1`.
+2. **Die Fassung ist das Datum.** Eine neue Datei gibt es nur, wenn alte Dateien beim
+   Öffnen umgebaut werden müssen (Migration); alles andere wird in der aktuellen Datei
+   fortgeschrieben. Sie heißt `v` + Datum (`JJMMTT`): `v260906`. Einen Zusatz `-2`, `-3`
+   bekommt ein Tag nur, wenn an ihm **zweimal etwas hinausgegangen** ist, das die Datei
+   verändert. Zwischenstände innerhalb eines Tages bekommen keine eigene Datei; sie
+   stehen als „Schritte" im Abschnitt „Der Weg zu dieser Fassung". Die alte Datei bleibt
+   liegen – so sieht man, was sich wann geändert hat. (Regel von Lex, 6.9.26.)
 3. **Migration passiert beim Lesen, nie beim Speichern.** `migrate()` in `js/state.js`
    flickt eine geladene Datei an Ort und Stelle. Sie baut das Objekt **nicht** aus
    bekannten Feldern neu – unbekannte Felder überleben, damit eine Datei zwischen
@@ -63,7 +67,7 @@ neues Buch sie anlegt (`emptyState()` in `js/state.js`).
 | `qHidden` | Sucht das Suchfeld auch in ausgeblendeten Posten? | `false` | … `false` |
 | `updateCheck` | Dürfen die Mac-/Windows-Apps nach einer neueren Fassung fragen? | `true` | … `true` |
 | `surveys{}` | Vermerke zu Umfragen, Schlüssel = Kennung der Umfrage. Siehe 7. | | … leer |
-| `csvMaps{}` | Gemerkte CSV-Strukturen, Schlüssel = Fingerabdruck der Spaltenköpfe. **Nur die Feldverknüpfung**, keine Regeln. Siehe 6. | | … leer |
+| `csvMaps{}` | Gemerkte CSV-Strukturen, Schlüssel = Fingerabdruck der Spaltenköpfe. **Art und Feldverknüpfung**, keine Regeln. Siehe 6. | | … leer |
 
 **Was `migrate()` außerdem löscht** (Felder, die FINA selbst einmal angelegt hat und die
 niemand mehr liest): `hideSettled`, `created`, `flexCollapsed` (nach dem Übertrag).
@@ -162,20 +166,26 @@ Eine Zeile aus einem CSV-Import der flexiblen Kosten.
 Der Schlüssel ist ein Hashwert über die Spaltenköpfe der Datei (`c2Fp()` in
 `js/dialogs/csv2-wizard.js`) – daran erkennt FINA die Datei-Art beim nächsten Hochladen.
 
-**Eine Struktur ist nur die Feldverknüpfung** – welche Spalte der Datei welches
-FINA-Feld trägt. Sie gilt für reguläre wie für flexible Importe; die Art wird jedes Mal
-im ersten Schritt gewählt. Regeln stehen hier **nicht** mehr, sie wohnen am Posten (6a).
+**Eine Struktur ist die Art und die Feldverknüpfung** – ob die Datei-Art reguläre oder
+flexible Posten füttert, und welche Spalte der Datei welches FINA-Feld trägt.
+„Automatisch CSV-Datenstruktur vorbereiten" bringt beides mit und sperrt die Art im
+Wizard; wer dieselbe Datei-Art einmal anders einlesen will, ordnet die Struktur im Import
+neu an (das überschreibt sie) oder ändert sie in den Einstellungen unter Import mit dem
+Stift – dort stehen links die FINA-Felder und die Art, rechts die Spalten der Datei.
+Regeln stehen hier **nicht**, sie wohnen am Posten (6a).
 
 | Feld | Was es ist | Beispiel |
 |---|---|---|
 | `date` | Tag, an dem gemerkt wurde (Text) | `"5.9.2026"` |
-| `file` | Name der Datei beim ersten Mal – nur eine Beschriftung, in den Einstellungen änderbar | `"umsaetze.csv"` |
+| `file` | Die Beschriftung – beim ersten Merken der Dateiname, danach der Name aus dem Namensfenster des Imports; in den Einstellungen änderbar | `"umsaetze.csv"` |
+| `kind` | Was in der Datei steckt: `"reg"` (reguläre Posten) oder `"flex"` (flexible Kategorien). **Kann fehlen**: bei Strukturen vom Nachmittag des 5.9.26 (Fassung Schritt 3 des 5.9.26) und wenn im Stift-Fenster „—" gewählt wurde – der nächste Import fragt die Art dann einmal und trägt sie nach. | `"reg"` |
 | `f{}` | Welche Spalte welches FINA-Feld trägt: `{date, amount, ref1, ref2, ref3, ref4}`, je Spaltennummer oder `-1`. **Es gibt nur diese sechs Felder.** | `{"date":0,"amount":4,"ref1":3,"ref2":-1,"ref3":-1,"ref4":-1}` |
-| `header[]` | Die Spaltenköpfe der Datei – damit die Einstellungen „Referenz 1 ← Verwendungszweck" zeigen können statt einer Nummer | `["Buchungstag","…"]` |
+| `header[]` | Die Spaltenköpfe der Datei – damit das Stift-Fenster in den Einstellungen die Spalten beim Namen nennen kann statt „Spalte 4" | `["Buchungstag","…"]` |
 
-**Ältere Einträge** (bis 5.9.26) trugen dazu `kind`, `cols[]`, `rules[]` und `newT[]`,
-und `f` kannte `main`, `cat`, `desc` statt der Referenzen. `migrate()` übersetzt beim
-Öffnen (siehe „Änderungen an dieser Fassung") und entfernt die vier Felder.
+**Ältere Einträge** (bis 5.9.26 nachmittags) trugen dazu `cols[]`, `rules[]` und
+`newT[]`, und `f` kannte `main`, `cat`, `desc` statt der Referenzen; ihr `kind` hatte
+dieselbe Bedeutung wie heute. `migrate()` übersetzt beim Öffnen (siehe „Schritt 3" unten) und entfernt die drei Felder – `kind` bleibt, sofern es `reg` oder
+`flex` ist.
 
 ## 6a. Ein Importkriterium (`impRules[i]` am Posten oder an der Kategorie)
 
@@ -226,7 +236,32 @@ Wahl im Reiter Import Details, die Breite der Anleitung, die Aufteilung im CSV-W
 
 ---
 
-## Änderungen an dieser Fassung (5.9.26, dritte Fassung)
+## Der Weg zu dieser Fassung (5.9.26, vier Schritte an einem Tag)
+
+Vier Zwischenstände, keiner davon veröffentlicht – hinausgegangen ist am Abend nur das
+Ergebnis. Sie stehen hier, weil eine zwischendurch gespeicherte Datei so aussehen kann und
+`migrate()` jede dieser Formen liest.
+
+### Schritt 4 (spät)
+
+* **Die Art gehört wieder zur Struktur.** `csvMaps[…].kind` (`"reg"` | `"flex"`) wird
+  mit „Spalten speichern und weiter" geschrieben (`c2SaveCols()` in
+  `js/dialogs/csv2-wizard.js`), außerdem vom Stift-Fenster der Einstellungen
+  (`openCsvStructure()`) und – bei einer Struktur ohne Art – vom „Weiter" in Schritt 2. Grund: „Automatisch CSV-Datenstruktur vorbereiten" soll
+  ohne weitere Frage in Schritt 2 gehen; die Art ist danach im Wizard gesperrt
+  (`c2LockedKind()`). Die dritte Fassung hatte sie am Nachmittag herausgenommen – auf
+  Wunsch am Abend wieder hinein.
+* **Migration beim Lesen:** `migrate()` löscht `kind` nicht mehr – nur einen Wert, der
+  weder `reg` noch `flex` ist. Strukturen aus Schritt 3 des 5.9.26 haben kein `kind`; bei ihnen
+  bleibt die Art in Schritt 1 wählbar (der Wizard hält an, solange keine gewählt ist)
+  und wird beim Weitergehen nachgetragen (`c2WireNav`, Knopf „Weiter" in Schritt 2).
+* **Folge für ältere Fassungen:** eine Anwendung der dritten Fassung löscht `kind` beim
+  Öffnen und schreibt die Struktur ohne Art zurück – die neuere fragt sie beim nächsten
+  Import dann wieder einmal. Verloren geht nichts.
+
+### Schritt 3 (nachmittags)
+
+*(Stand von damals – was `kind` betrifft, gilt seit Schritt 4 der Abschnitt darüber.)*
 
 * **Referenz 4.** Die Importfelder sind jetzt Datum, Betrag und Referenz 1 bis 4
   (`csvMaps[…].f` bekommt `ref4`; `impRows[m][].r` und `tx[].r` können vier Einträge
@@ -248,7 +283,7 @@ Wahl im Reiter Import Details, die Breite der Anleitung, die Aufteilung im CSV-W
   `csvMaps` keine Regeln mehr und kennt `impRules` nicht – sie ordnete nichts von selbst
   zu, verlöre aber nichts: die Regeln bleiben als unbekanntes Feld am Posten stehen.
 
-## Änderungen der Fassung v260905-2 (5.9.26, zweite Fassung)
+### Schritt 2
 
 * **Die fünf Importfelder.** Der CSV-Import kennt nur noch Datum, Betrag, Referenz 1,
   Referenz 2 und Referenz 3 — für reguläre und flexible Posten dieselben. Zugeordnet
@@ -267,7 +302,7 @@ Wahl im Reiter Import Details, die Breite der Anleitung, die Aufteilung im CSV-W
 * **Weggefallen:** der Knopf „Je Hauptkategorie automatisch" im dritten Schritt des
   Imports. Er hing an der Hauptkategorie-Spalte, die es nicht mehr gibt.
 
-## Änderungen der Fassung v260905-1 (5.9.26, erste Fassung)
+### Schritt 1
 
 * **Neue Vergleichsart `amt`** in den Bedingungen einer CSV-Regel (`csvMaps[].rules[].terms[].op`).
   Sie entsteht über „Suchen nach Betrag" im Zielmenü des CSV-Imports und wird mit

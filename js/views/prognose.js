@@ -526,7 +526,7 @@ function viewPrognose(){
       <span class="anarow">
         ${cell('t-in',t('prog.kpiIncome',from),incRest,'pos')}
         ${cell('t-out',t('prog.kpiFixed',from),fixRest,'neg',t('prog.kpiOpen',eur(openRest)))}
-        ${cell('t-flex',t('prog.kpiKak',from),kakRest,'neg',t('prog.kpiPerMonth',eur(planSum(CUR))))}
+        ${cell('t-flex',t('prog.kpiKak',from),kakRest,'neg',t('prog.kpiPerMonth',eur(kakeiboFor(CUR))))}
         ${cell('',t('prog.kpiSoFar'),soFar,cls(soFar),CUR>1?t('prog.kpiSoFarSub',MONTHS[CUR-2]):t('prog.kpiSoFarNone'))}
         ${cell('',t('prog.kpiEnd'),yearEnd,cls(yearEnd),t('prog.kpiEndSub',YEAR))}
       </span>

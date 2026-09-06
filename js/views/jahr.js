@@ -85,23 +85,21 @@ function yfoldBtn(key,on){
    Stift, Lampe und Haken, wird aber wie eine Kategorie gezeigt.
    Das braucht genau die Saldokorrektur. */
 function mrow(label,vals,opt={}){
-  const it=opt.item||null, kk=opt.kak||null;
+  const it=opt.item||null;
   /* Die Gesamtspalte ist die Summe der zwölf Monate. Eine Zeile,
      deren Werte keine Beträge eines Monats sind, sondern Stände,
      dürfte so nicht summiert werden — dann gibt der Aufrufer den
      Wert vor. Zur Zeit tut das keine Zeile; der Weg bleibt, weil er
      die einzige Stelle ist, an der so etwas richtig würde. */
   const sum=opt.total!==undefined?opt.total:vals.reduce((a,b)=>a+b,0);
-  const edit=it?`data-edit="${it.id}"`:(kk?`data-kedit="${esc(kk)}"`:'');
+  const edit=it?`data-edit="${it.id}"`:'';
   const pencil=edit?`<button class="pencil" ${edit} title="${opt.editTip||t('year.editTip')}">&#9998;</button>`:'';
   /* Der Beleglink — Posten wie Flexible Payments haben einen. */
-  const links=it?it.links:(kk&&state.kak[kk]?state.kak[kk].links:null);
-  const link=linkIcon(links,it?'item':'kak',it?it.id:kk);
+  const link=linkIcon(it?it.links:null,'item',it?it.id:'');
   /* Geschätzt gilt je Monat und nur, solange nicht abgehakt: ein
      bezahlter Betrag ist bestätigt und wird nach Vorzeichen
      eingefärbt, nicht mehr gelb. */
-  const estAt=m=>it?(estOf(it)&&!paidAt(it,m))
-    :(kk?(state.kak[kk].estimated&&!kakDone(kk,m)):false);
+  const estAt=m=>it?(estOf(it)&&!paidAt(it,m)):false;
   const estTot=vals.some((v,i)=>v!==0&&estAt(i+1));
   /* Abgehakt ist nicht gleich abgehakt: was aus einer CSV kam,
      trägt statt des Hakens den Download-Pfeil in elektrischem Blau
@@ -129,10 +127,8 @@ function mrow(label,vals,opt={}){
        Reihe aus zwölf Fragezeichen. Bei den Flexible Payments sagt
        `flexKind()`, woher der Wert kommt: 'imp' heißt unverändert
        importiert, und nur das trägt den Pfeil. */
-    else if(kk) sym=kakDone(kk,m)?okSym(flexKind(kk,m)==='imp',flexImpOnce(kk,m))
-      :((state.kak[kk].estimated&&vals[m-1]!==0)?estSym:'');
     else return '';
-    const lamp=it?lampHtml('item',it.id,m):lampHtml('kak',kk,m);
+    const lamp=lampHtml('item',it.id,m);
     return `<span class="mkcell"><span class="mksym">${sym}</span>${lamp}</span>`;
   };
   const bank=it?it.bank:'', pay=it?it.pay:'';
@@ -142,7 +138,7 @@ function mrow(label,vals,opt={}){
      tragen ihre Blockfarbe. */
   const settled=!opt.asCat&&yearSettled(it);
   const done=settled?' settled':'';
-  const posLamp=it?lampPos('item',it.id):(kk?lampPos('kak',kk):'');
+  const posLamp=it?lampPos('item',it.id):'';
   /* Die ersten Zeilen der Notiz stehen klein unter dem Namen. */
   /* **Keine Notizvorschau in der Bezeichnungsspalte** (5.9.26; bis
      dahin standen die ersten zwei Zeilen der Notiz unter dem Namen).
@@ -154,7 +150,7 @@ function mrow(label,vals,opt={}){
      Position wie der Stift links (siehe dblItem in js/ui.js).
      Zeilen ohne Posten — Summen, Gruppen — bekommen das Merkmal
      nicht. */
-  const dbl=it?dblItem(it.id):(kk?dblKak(kk):'');
+  const dbl=it?dblItem(it.id):'';
   /* Blockzeilen klappen ihren Block zu: der Pfeil steht in der
      Stiftspalte — eine Blockzeile hat dort nichts —, und ein
      Doppelklick auf die Zeile tut dasselbe. Beides gibt es nur,
@@ -163,7 +159,7 @@ function mrow(label,vals,opt={}){
   const fold=opt.fold||null;
   const arrow=fold?yfoldBtn(fold.key,fold.on):'';
   const dblFold=fold?` data-dblyfold="${esc(fold.key)}"`:'';
-  return `<tr class="${opt.cls||''}${((it||kk)&&!opt.asCat)?' itemrow':''}${done}"${dbl}${dblFold}><td class="ed">${arrow||pencil}</td><td class="ln">${link}</td>
+  return `<tr class="${opt.cls||''}${(it&&!opt.asCat)?' itemrow':''}${done}"${dbl}${dblFold}><td class="ed">${arrow||pencil}</td><td class="ln">${link}</td>
     <td class="nt">${posLamp}</td><td class="lab">${label}</td>
     <td class="code cB"${bank?` title="${esc(bankLabel(bank))}"`:''}>${esc(bank)}</td>
     <td class="code cZ"${pay?` title="${esc(payLabel(pay))}"`:''}>${esc(pay)}</td>
@@ -300,24 +296,10 @@ function viewJahr(){
   const payOn=!wide&&ui.filter!=='alle';
   const secOk=s=>!secOn||ui.secFilter===s;
   const dueOk=v=>!dueOn||dueGroup(v)===ui.dueFilter;
-  const settledK=k=>{
-    let any=false;
-    for(let m=1;m<=12;m++){
-      const v=kakVal(k,m);
-      if(!v)continue;
-      any=true;
-      if(!kakDone(k,m))return false;
-    }
-    return any;
-  };
   const stateOkI=it=>!payOn
     ||(ui.filter==='unklar'?!!estOf(it)
     :ui.filter==='bezahlt'?yearSettled(it)
     :!yearSettled(it));
-  const stateOkK=k=>!payOn
-    ||(ui.filter==='unklar'?!!(state.kak[k]&&state.kak[k].estimated)
-    :ui.filter==='bezahlt'?settledK(k)
-    :!settledK(k));
   /* Die Zahl hinter „Erledigte Posten ausblenden" zählt nur, was
      dieser Knopf versteckt — nicht, was der Suchbegriff wegnimmt.
      Ein Posten ohne jeden Betrag ist nie abgeschlossen
@@ -418,8 +400,10 @@ function viewJahr(){
   /* Einnahmen stehen nach Kategorie gebündelt wie die Kosten —
      seit es mehr als eine geben kann. Bei genau einer entfällt die
      Zwischenzeile: sie stünde über allem und sagte nichts. */
+  /* Die Kategoriezeile steht immer (seit 6.9.26; vorher bei den
+     Einnahmen nur ab zwei Kategorien): auch „… ohne Kategorie" ist
+     eine Auskunft. */
   let incRows='';
-  const incMany=incomeGroups().filter(g=>inc.some(it=>it.group===g)).length>1;
   incomeGroups().forEach(g=>{
     const items=inc.filter(it=>it.group===g);
     if(!items.length) return;
@@ -430,7 +414,7 @@ function viewJahr(){
       &&dueOk(it.dueDay)&&stateOkI(it));
     if(!vis.length) return;
     incVis.push(...vis);
-    if(incMany) incRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-in'});
+    incRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-in'});
     vis.forEach(it=>{incRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-in'});});
   });
   if(keepSec(incRows))
@@ -444,13 +428,28 @@ function viewJahr(){
   const secFlex=hit(t('year.kakRow'));
   /* Flexible Kategorien haben keinen Zahltag — sie gehören zum
      Monatsabschluss (Z), wie im Monat. */
-  const kakVis=kakCats().filter(k=>state.kak[k]&&secOk('flex')&&dueOk('')&&stateOkK(k)
-    &&(secFlex||!q||hayKak(k).includes(q)));
-  const kakRows=kakVis
-    .map(k=>mrow(esc(keyLabel(k)),MONTHS.map((_,i)=>kakVal(k,i+1)),{kak:k,cls:'r-flex'})).join('');
+  /* Die flexiblen Posten nach Kategorie gebündelt (seit 6.9.26), wie
+     Einnahmen und Kosten — und seit 6.9.26 abends **sind** es Posten
+     (isFlex in js/calc.js): dieselben Zeilen, dieselben Filter,
+     dieselben Zeichen. Trifft der Suchbegriff den Namen der
+     Kategorie, steht sie mit allem darunter da. */
+  const kakVis=[];
+  let kakRows='';
+  flexGroups().forEach(g=>{
+    const items=state.fixed.filter(it=>isFlex(it)&&it.group===g);
+    if(!items.length) return;
+    countHidden(items);
+    const gHit=secFlex||hit(keyLabel(g));
+    const vis=settledLast(items).filter(it=>secOk('flex')&&base(it)&&(gHit||qOk(it))
+      &&dueOk(it.dueDay)&&stateOkI(it));
+    if(!vis.length) return;
+    kakVis.push(...vis);
+    kakRows+=mrow(esc(keyLabel(g)),monSums(vis),{cls:'grp r-flex'});
+    vis.forEach(it=>{kakRows+=mrow(esc(it.name),it.amounts,{item:it,cls:'r-flex'});});
+  });
   /* Die Flexible Payments hängen nicht an `amounts`, sondern an
      kakVal() — sie brauchen deshalb ihre eigene Summe. */
-  const kakSums=MONTHS.map((_,i)=>kakVis.reduce((s,k)=>s+kakVal(k,i+1),0));
+  const kakSums=monSums(kakVis);
   /* Nur der Name des Blocks. Der Hinweis auf den Import stand
      früher klein darunter — er erklärt aber nicht die Zeile,
      sondern eine Funktion, und dafür gibt es die Anleitung. */
@@ -461,7 +460,7 @@ function viewJahr(){
   const secOut=hit(t('g.fixed'));
   let outRows='';
   costGroups().forEach(g=>{
-    const items=state.fixed.filter(it=>it.group===g);
+    const items=state.fixed.filter(it=>isCost(it)&&it.group===g);
     if(!items.length) return;
     countHidden(items);
     /* Trifft der Name der Kategorie, steht sie mit allem darunter
@@ -572,15 +571,28 @@ function viewJahr(){
      dem Papiergrund. */
   /* Angelegt wird seit dem Mac-Redesign über das Hamburger-Menü
      der Kopfzeile — die Leiste trägt nur noch, was filtert:
-     Suchfeld · ✕ · Filteroptionen · die beiden Ausblenden-Knöpfe.
-     Die Filteroptionen stehen direkt hinter dem ✕, wie in der
-     Filterzeile der Monatsansicht — beides gehört zum Suchfeld. */
+     Suchfeld · ✕ · Filteroptionen · die drei Aufklappmenüs · die
+     beiden Ausblenden-Knöpfe. Die Filteroptionen stehen direkt
+     hinter dem ✕, wie in der Filterzeile der Monatsansicht — beides
+     gehört zum Suchfeld.
+
+     **Die drei Aufklappmenüs stehen seit 6.9.26 auch hier**
+     (fltDrop und die FLT_*-Listen aus js/views/monat.js). Bereich,
+     Fälligkeit und Zahlungsstand gelten in dieser Ansicht schon
+     seit 30.8.26 — einstellen ließen sie sich bis dahin aber allein
+     im Monat, und ein Filter, der hier wirkt, aber nirgends zu sehen
+     ist, sieht nach verschwundenen Zeilen aus. Dieselben Knöpfe,
+     dieselbe Verdrahtung: wire() in js/app.js hängt sie am Dokument
+     an, nicht an der Ansicht. */
   return `<div class="sechead yearbar stickybar" id="yearBar">
       <div class="ybrow${filtered?' on':''}">
       <span class="fbgroup">
         ${filterField('fltyear')}
         ${fltOptionsBtn()}
       </span>
+      ${fltDrop('sec','secfilter',t('month.fSec'),ui.secFilter,FLT_SEC())}
+      ${fltDrop('due','duefilter',t('flt.due'),ui.dueFilter,FLT_DUE())}
+      ${fltDrop('pay','filter',t('flt.state'),ui.filter,FLT_PAY())}
       <!-- Die beiden Ausblenden-Knöpfe stehen abgesetzt am rechten
            Rand: sie filtern nicht, sie räumen ab, was fertig ist.
            Zwischen ihnen und dem Suchfeld steht deshalb Luft und
@@ -592,13 +604,7 @@ function viewJahr(){
         <button class="btn small" id="btnHideSettled" aria-pressed="${!!ui.hideSettled}"
           data-tip="${esc(t('year.hideSettledTip'))}">${t('year.hideSettled')}${hiddenRows?` (${hiddenRows})`:''}</button>
       </span>
-      </div>
-      <!-- Der waagerechte Rollbalken der Matrix, außerhalb der
-           Tabelle: in ihr säße er quer über der letzten Zeile, und
-           die steht bei zweihundert Positionen weit unterhalb des
-           Bildschirms. Hier klebt er mit der Leiste unter der
-           Kopfzeile und ist immer zu greifen. -->
-      ${scrollRail('yearScroll')}</div>
+      </div></div>
     <!-- Unter der Tabelle steht nichts mehr. Der lange Hinweis, der
          hier stand — Stift und Doppelklick, die Kürzel B · PT · DD ·
          LP, die Ampel der Restlaufzeit, der graue Grund, der
@@ -612,6 +618,13 @@ function viewJahr(){
          Fläche darin ist genau um seine Höhe höher als er zeigt
          (sizeMatrix in js/app.js). Gerollt wird dadurch weiter vom
          Browser selbst — nur den Balken sieht man nicht, den gibt
-         es oben in der Leiste. -->
-    <div class="yearpane"><div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead(spacer()+totRow)}${body}</table></div></div>`;
+         es als eigene Leiste **unter** der Fläche (seit 6.9.26;
+         bis dahin oben in der Knopfleiste): sie steht immer im
+         Bild, weil die Fläche nur so hoch ist, wie unter der
+         Knopfleiste Platz bleibt (sizeMatrix rechnet sie mit ab),
+         und sie ist dauerhaft gestaltet — anders als der Balken der
+         Fläche selbst, der unter macOS erst beim Rollen auftaucht
+         und dann quer über der letzten Zeile liegt. -->
+    <div class="yearpane"><div class="scroll yearscroll" id="yearScroll" style="--labw:${state.labWidth}px;--monw:${state.monWidth}px"><table class="matrix" style="width:calc(392px + var(--labw) + ${V.length} * (var(--monw) + 46px))">${COLS()}${matrixHead(spacer()+totRow)}${body}</table></div></div>
+    ${scrollRail('yearScroll')}`;
 }

@@ -21,8 +21,10 @@
    mitgibt. Der waagerechte Balken wird deshalb nicht abgeschaltet,
    sondern **abgeschnitten** — die Fläche ist um seine Höhe höher
    als der Rahmen `.yearpane`, der sie zeigt (sizeMatrix in
-   js/app.js). Unten bleibt damit nur die Tabelle; gerollt wird
-   waagerecht an der Leiste darüber. */
+   js/app.js). Gerollt wird waagerecht an der eigenen Leiste, die
+   seit 6.9.26 **unter** der Fläche steht (davor in der
+   Knopfleiste) — der Balken der Fläche selbst bleibt versteckt,
+   zwei wären einer zu viel. */
 .yearpane{overflow:hidden}
 .yearscroll{overflow:auto}
 
@@ -406,3 +408,10 @@
    die Blockzeile der blauen Karte ist „Saldo je Monat" darüber.
    Nur der Stift trägt das Blau der Karte. */
 .matrix tbody tr.r-bal:not(.sec) .pencil{color:var(--ink-bal)}
+
+/* ── Die Kategoriezeile des flexiblen Blocks (seit 6.9.26) ────
+   Dieselbe Leiter wie r-in und r-out: Stufe -2 als Grund, die Kante
+   des Bereichs als 3-px-Strich an der ersten Zelle. */
+.matrix tr.grp.r-flex td{background:var(--bg-flex-2);border-bottom-color:var(--bg-flex-3)}
+.matrix tr.grp.r-flex td.ed{box-shadow:inset 3px 0 0 var(--edge-flex)}
+.matrix tr.grp.r-flex{--cellbg:var(--bg-flex-2)}

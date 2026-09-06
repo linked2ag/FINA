@@ -513,3 +513,10 @@
   border-bottom:1px solid var(--hairline)}
 .progcard .thint{margin:0 -16px -12px;padding:6px 16px 8px;
   border-top:1px solid var(--hairline);background:transparent}
+
+/* ── Die Kategoriezeile der flexiblen Posten (seit 6.9.26) ────
+   Stufe -2 wie bei Einnahmen und Kosten, mit der Kante links. Nur
+   in der Monatsansicht: in den Import Details gliedert dieselbe
+   Zeile Monate und Hauptkategorien und bleibt neutral. */
+.view-monat .card.sec-flex .ledger tr.group td{background:var(--bg-flex-2);font-weight:600}
+.view-monat .card.sec-flex .ledger tr.group td:first-child{box-shadow:inset 5px 0 0 var(--edge-flex)}

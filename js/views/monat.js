@@ -89,37 +89,8 @@ function balanceRow(m){
       <td class="notecell" colspan="4"><div class="itemnote">${esc(note)}</div></td></tr>`:''}</table></div>`;
 }
 
-/* Die Namenszelle spannt am Schreibtisch über die drei
-   Meta-Spalten (colspan 4): eine Kategorie hat weder Bank noch
-   Zahltag, und nur so steht die Marke (imported/estimated/
-   corrected) der .rowline wirklich am **rechten Rand** der Karte —
-   vorher endete sie an einer unsichtbaren Spaltengrenze mitten in
-   der Zeile. */
-function kakRow(k,m){
-  const e=state.kak[k]; if(!e) return '';
-  /* Importiert heißt hier **für diese Kategorie** (flexImp in
-     js/calc.js) und nicht „der Monat kam aus einer Datei": wem die
-     Importdaten weggenommen wurden, der trägt weder die Marke noch
-     ein gesperrtes Siegel. */
-  const v=kakVal(k,m), done=kakDone(k,m), imported=flexImp(k,m);
-  const est=e.estimated&&!done, mob=isMobile(), note=e.notes[m-1];
-  /* Steht der Wert unverändert aus einer Datei da, trägt das Siegel
-     den Download-Pfeil auf elektrischem Blau — dasselbe Zeichen wie
-     bei einem importierten Monat eines Postens. Eine Korrektur
-     zählt nicht dazu: die hat jemand von Hand gesetzt, und das sagt
-     die orange Marke in der Zeile. */
-  const kimp=done&&flexKind(k,m)==='imp',konce=kimp&&flexImpOnce(k,m);
-  return `<tr class="${done?'paid':''}"${dblKak(k)}>
-    <td class="markcell"><button class="seal${!done&&e.estimated?' est':''}${kimp?' imp':''}${konce?' once':''}" aria-pressed="${done}" data-kpaid="${esc(k)}"
-      ${imported?`disabled title="${t('month.imported')}"`:`title="${done?t('month.markOpen'):t('month.markDone')}"`}>${kimp?IMPORT_SVG:(est?EST_SVG:CHECK_SVG)}</button></td>
-    <td class="num amt ${est?'est':cls(v)}">${eur(v)}</td>
-    <td class="pencell"><div class="ptools"><button class="pencil" data-kedit="${esc(k)}" title="${t('month.editKak')}">&#9998;</button>${linkIcon(e.links,'kak',k)}${lampHtml('kak',k,m)}</div></td>
-    <td class="nm"${mob?'':' colspan="4"'}><div class="rowline">
-        <span><span class="iname">${esc(keyLabel(k))}</span></span>
-        ${kakOv(k,m)!=null?'<span class="pill corrp">corrected</span>':(imported?'<span class="pill">imported</span>':(e.estimated?`<span class="pill">${t('g.estimated')}</span>`:''))}</div>
-      ${(mob&&note)?`<div class="itemnote">${esc(note)}</div>`:''}</td></tr>${
-    (!mob&&note)?noteRow(done?'paid':'',dblKak(k),note):''}`;
-}
+/* Die Zeile eines flexiblen Postens ist seit 6.9.26 abends dieselbe
+   wie die eines regulären (itemRow): er ist ein Posten. */
 
 /* ══ Die Auswertung über dem Monat ═══════════════════════════
    Sie steht eingeklappt: eine einzige dünne Zeile, links die
@@ -162,20 +133,24 @@ function kakRow(k,m){
    darunter drei Zeilen stehen. */
 /* ── Die drei Filtergruppen der Monatsansicht ─────────────────
    Wert, Beschriftung, Sprechblase — eine Liste je Gruppe, benutzt
-   vom Aufklappmenü der Filterzeile **und** vom Filtermenü der
-   mobilen Fassung. 'alle' trägt keine eigene Beschriftung: im Menü
-   heißt es überall t('flt.all'). */
-const FLT_SEC=()=>[['alle','',t('month.fSecAllTip')],['in',t('month.fSecIn'),t('month.fSecInTip')],
-  ['flex',t('month.fSecFlex'),t('month.fSecFlexTip')],['out',t('month.fSecOut'),t('month.fSecOutTip')]];
-const FLT_DUE=()=>[['alle','',t('month.fDueAllTip')],['A',t('month.fDueA'),t('month.fDueATip')],
-  ['M',t('month.fDueM'),t('month.fDueMTip')],['E',t('month.fDueE'),t('month.fDueETip')],
-  ['Z',t('month.tlClose'),t('month.fDueZTip')]];
-const FLT_PAY=()=>[['alle','',t('month.fAllTip')],['offen',t('month.fOpen'),t('month.fOpenTip')],
-  ['unklar',t('month.fEst'),t('month.fEstTip')],['bezahlt',t('month.fPaid'),t('month.fPaidTip')]];
+   vom Aufklappmenü der Filterzeile, vom Filtermenü der mobilen
+   Fassung **und seit 6.9.26 von der Leiste der Jahresansicht**.
+   'alle' trägt keine eigene Beschriftung: im Menü heißt es überall
+   t('flt.all'). Das vierte Glied ist das Zeichen des Werts
+   (data-ic am Eintrag → --ic-… in css/layout.css): jeder Wert
+   trägt vorn sein eigenes, „Alle" überall den Stern. */
+const FLT_SEC=()=>[['alle','',t('month.fSecAllTip'),'all'],['in',t('month.fSecIn'),t('month.fSecInTip'),'sec-in'],
+  ['flex',t('month.fSecFlex'),t('month.fSecFlexTip'),'sec-flex'],['out',t('month.fSecOut'),t('month.fSecOutTip'),'sec-out']];
+const FLT_DUE=()=>[['alle','',t('month.fDueAllTip'),'all'],['A',t('month.fDueA'),t('month.fDueATip'),'due-a'],
+  ['M',t('month.fDueM'),t('month.fDueMTip'),'due-m'],['E',t('month.fDueE'),t('month.fDueETip'),'due-e'],
+  ['Z',t('month.tlClose'),t('month.fDueZTip'),'due-z']];
+const FLT_PAY=()=>[['alle','',t('month.fAllTip'),'all'],['offen',t('month.fOpen'),t('month.fOpenTip'),'pay-open'],
+  ['unklar',t('month.fEst'),t('month.fEstTip'),'pay-est'],['bezahlt',t('month.fPaid'),t('month.fPaidTip'),'pay-paid']];
 
 /* ── Ein Aufklappmenü der Filterzeile ─────────────────────────
    Der Knopf nennt Gruppe und gewählten Wert („Fälligkeit: Alle"),
-   das Menü darunter die Werte; der gewählte steht auf Orange
+   das Menü darunter die Werte, jeder mit seinem Zeichen vorn
+   (data-ic, css/layout.css); der gewählte steht auf Orange
    (--accent-soft). **Es bleibt beim Wählen offen** — wer filtert,
    stellt meist mehr als eins ein: welcher Wert gewählt wurde,
    erledigt das gewohnte data-*-Attribut (toggleFilter in wire()),
@@ -188,9 +163,9 @@ function fltDrop(id,kind,label,cur,opts){
   return `<span class="fltdrop">
     <button class="btn small drophead" data-fltmenu="${id}" aria-expanded="${open}"
       aria-haspopup="menu" aria-pressed="${cur!=='alle'}">${label}: ${curLab} <span class="caret">&#9662;</span></button>
-    ${open?`<span class="dropmenu" role="menu">${opts.map(([v,l,tp])=>
+    ${open?`<span class="dropmenu" role="menu">${opts.map(([v,l,tp,ic])=>
       `<button class="mi${cur===v?' sel':''}" role="menuitemradio" aria-checked="${cur===v}"
-        data-${kind}="${esc(v)}"${tp?` data-tip="${esc(tp)}"`:''}>${v==='alle'?t('flt.all'):l}</button>`).join('')}</span>`:''}</span>`;
+        data-${kind}="${esc(v)}" data-ic="${ic}"${tp?` data-tip="${esc(tp)}"`:''}>${v==='alle'?t('flt.all'):l}</button>`).join('')}</span>`:''}</span>`;
 }
 
 /* ── Die Monatsleiste ─────────────────────────────────────────
@@ -225,7 +200,7 @@ function monthTabs(){
 function anaBar(m,sel,selAny){
   const open=!!ui.ana;
   const inc=sel.items.filter(isIncome);
-  const due=sel.items.filter(it=>!isIncome(it));
+  const due=sel.items.filter(isCost);
   const sum=arr=>arr.reduce((s,it)=>s+it.amounts[m-1],0);
   /* ── Die vierte Kachel ist der Saldo des Monats ──────────────
      Alles, was der Monat bringt, und alles, was er kostet —
@@ -243,7 +218,7 @@ function anaBar(m,sel,selAny){
 
      Gerechnet wird über `sel`, wie alles in dieser Leiste: gefiltert
      nennt die Kachel den Saldo der Zeilen, die zu sehen sind. */
-  const flexSum=sel.kaks.reduce((s,k)=>s+kakVal(k,m),0);
+  const flexSum=sum(sel.items.filter(isFlex));
   const sal=sum(inc)+flexSum+sum(due)+(sel.bal?balanceFix(m):0);
   const cell=(c,lab,val,vc,tip)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
       ><span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
@@ -313,14 +288,18 @@ function anaBar(m,sel,selAny){
 
    Gerechnet wird wie in anaBar über `sel` — die Kacheln nennen,
    was nach dem Filtern zu sehen ist, dieselben Zahlen wie die
-   Karten darunter. **Ihre Reihenfolge (seit 23.8.26): oben
-   Einnahmen und Noch offen, darunter Flexible und regelmäßige
-   Kosten** — zuerst, was hereinkommt und was noch aussteht. Die
-   SALDO-Zeile ist die Summe samt Saldokorrektur: das Ergebnis
-   dieses Monats, wie es die oberste Zeile der Jahresmatrix nennt. */
+   Karten darunter. **Es sind dieselben vier Kacheln wie am
+   Schreibtisch** (seit 6.9.26), nur anders gestellt: Einnahmen und
+   Saldo oben, regelmäßige Kosten und Flexible darunter — im 2 × 2
+   liest man die erste Zeile zuerst, und dort sollen die beiden
+   Zahlen stehen, die man zuerst wissen will. Bis
+   dahin stand oben rechts „Noch offen" und der Saldo als eigene
+   Zeile über beide Spalten — die Leiste nannte auf dem Telefon
+   damit eine andere Zahl als am Schreibtisch, und der Saldo stand
+   an einer anderen Stelle. Der Saldo ist die Summe samt
+   Saldokorrektur: das Ergebnis dieses Monats, wie es die oberste
+   Zeile der Jahresmatrix nennt (month.kpiSaldo, --bg-sal). */
 function mobileTop(m,sel,sums){
-  const due=sel.items.filter(it=>!isIncome(it));
-  const openSum=due.filter(it=>!paidAt(it,m)).reduce((s,it)=>s+it.amounts[m-1],0);
   const sal=sums.inc+sums.flex+sums.out+(sel.bal?balanceFix(m):0);
   const nFlt=(ui.dueFilter!=='alle'?1:0)+(ui.filter!=='alle'?1:0);
   const open=!!ui.mFilters;
@@ -347,22 +326,20 @@ function mobileTop(m,sel,sums){
     ${open?`<div class="dropmenu mfmenu" role="menu">
       <button class="mi mi-sep" data-qclear="1"${anyOn?'':' disabled'}>${t('g.clearFilter')}</button>
       <span class="mghead">${t('flt.due')}</span>
-      ${FLT_DUE().map(([v,l])=>`<button class="mi${ui.dueFilter===v?' sel':''}" role="menuitemradio"
-        aria-checked="${ui.dueFilter===v}" data-duefilter="${esc(v)}">${v==='alle'?t('flt.all'):l}</button>`).join('')}
+      ${FLT_DUE().map(([v,l,,ic])=>`<button class="mi${ui.dueFilter===v?' sel':''}" role="menuitemradio"
+        aria-checked="${ui.dueFilter===v}" data-duefilter="${esc(v)}" data-ic="${ic}">${v==='alle'?t('flt.all'):l}</button>`).join('')}
       <span class="mghead">${t('flt.state')}</span>
-      ${FLT_PAY().map(([v,l])=>`<button class="mi${ui.filter===v?' sel':''}" role="menuitemradio"
-        aria-checked="${ui.filter===v}" data-filter="${esc(v)}">${v==='alle'?t('flt.all'):l}</button>`).join('')}
+      ${FLT_PAY().map(([v,l,,ic])=>`<button class="mi${ui.filter===v?' sel':''}" role="menuitemradio"
+        aria-checked="${ui.filter===v}" data-filter="${esc(v)}" data-ic="${ic}">${v==='alle'?t('flt.all'):l}</button>`).join('')}
       <button class="mi mi-top" data-qfields="1" aria-pressed="${custom}">${t('flt.options')}</button>
     </div>`:''}
     ${monthTabs()}
   </div>
   <div class="mkpi">
     ${tile('t-in',t('month.kpiIncome'),sums.inc,'pos')}
-    ${tile('',t('month.kpiOpen'),openSum,openSum?'neg':'')}
-    ${tile('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sums.flex,'neg')}
+    ${tile('t-sal',t('month.kpiSaldo'),sal,cls(sal))}
     ${tile('t-out',t('month.kpiFixed'),sums.out,'neg')}
-    <span class="mk msal"><span class="lab">${t('month.kpiSaldo')}</span
-      ><span class="val ${cls(sal)}">${eur(sal)}</span></span>
+    ${tile('t-flex',t('month.kpiKak',hasActual(m)?t('month.kpiActual'):t('month.kpiPlanned')),sums.flex,'neg')}
   </div>`;
 }
 
@@ -488,7 +465,12 @@ function tlLabel(k,last,nowKey){
      ist (month.tlOpenTip / month.tlCloseTip). */
   const tip=d?t('month.tlDaysTip',d[0],d[1])
     :t(k==='P'?'month.tlOpenTip':'month.tlCloseTip');
-  return `<span class="tname"><span data-tip="${esc(tip)}">${tlName(k)}</span>${
+  /* Das Zeichen vor dem Namen (6.9.26 spät): dasselbe wie im
+     Aufklappmenü „Fälligkeit" (FLT_DUE, css --ic-due-*); die
+     Monatseröffnung hat dort keinen Eintrag und trägt das
+     Spiegelbild des Abschlusses (--ic-due-p). */
+  const ic={P:'due-p',A:'due-a',M:'due-m',E:'due-e',Z:'due-z'}[k];
+  return `<span class="tname" data-ic="${ic}"><span data-tip="${esc(tip)}">${tlName(k)}</span>${
     now?`<b class="tnow">${t('month.tlNow')}</b>`:''}</span>`;
 }
 
@@ -859,24 +841,18 @@ function viewMonat(){
   const secHit=lab=>!!q&&qField('meta')&&norm(lab).includes(q);
   const qIn=secHit(t('month.income')), qFlex=secHit(t('month.kak')),
         qOut=secHit(t('month.fixed')), qBal=secHit(t('bal.row'));
-  const qOk=(it,mm)=>!q||(isIncome(it)?qIn:qOut)||hayItem(it,mm).includes(q);
+  /* Der Bereich eines Postens — Einnahme, flexibel oder regulär —
+     entscheidet sich an seiner Kategorie (isIncome/isFlex in
+     js/calc.js). */
+  const secOf=it=>isIncome(it)?'in':(isFlex(it)?'flex':'out');
+  const qOk=(it,mm)=>!q||(isIncome(it)?qIn:(isFlex(it)?qFlex:qOut))||hayItem(it,mm).includes(q);
   const secOk=s=> wide||ui.secFilter==='alle'||ui.secFilter===s;
   const dueOk=v=> ui.dueFilter==='alle'||dueGroup(v)===ui.dueFilter;
   const stateOk=it=> ui.filter==='alle'
     || (ui.filter==='offen'&&!paidAt(it,m))
     || (ui.filter==='unklar'&&estOf(it))
     || (ui.filter==='bezahlt'&&paidAt(it,m));
-  const show=it=> secOk(isIncome(it)?'in':'out')&&qOk(it,m)&&(wide||(stateOk(it)&&dueOk(it.dueDay)));
-  const showKak=k=>{
-    const e=state.kak[k]; if(!e) return false;
-    const done=kakDone(k,m);
-    if(!secOk('flex')) return false;
-    if(q&&!qFlex&&!hayKak(k,m).includes(q)) return false;
-    if(wide) return true;
-    return (ui.filter==='alle'||(ui.filter==='offen'&&!done)
-      ||(ui.filter==='unklar'&&!!e.estimated)||(ui.filter==='bezahlt'&&done))
-      && dueOk('');
-  };
+  const show=it=> secOk(secOf(it))&&qOk(it,m)&&(wide||(stateOk(it)&&dueOk(it.dueDay)));
   const balOn=secOk('bal')&&(!q||qBal||hayItem(state.balance,m).includes(q))&&(wide||dueOk(''));
 
   /* ── Dieselbe Auswahl ohne den Fälligkeitsfilter ─────────────
@@ -889,16 +865,7 @@ function viewMonat(){
      den Strom und daneben den ganzen Monat.
      Genommen wird nur, was auch in einer Karte stünde (dieselbe
      Gruppierung), damit beide Zahlen aus derselben Quelle kommen. */
-  const showAny=it=> secOk(isIncome(it)?'in':'out')&&qOk(it,m)&&(wide||stateOk(it));
-  const showKakAny=k=>{
-    const e=state.kak[k]; if(!e) return false;
-    const done=kakDone(k,m);
-    if(!secOk('flex')) return false;
-    if(q&&!qFlex&&!hayKak(k,m).includes(q)) return false;
-    if(wide) return true;
-    return ui.filter==='alle'||(ui.filter==='offen'&&!done)
-      ||(ui.filter==='unklar'&&!!e.estimated)||(ui.filter==='bezahlt'&&done);
-  };
+  const showAny=it=> secOk(secOf(it))&&qOk(it,m)&&(wide||stateOk(it));
   const balAny=secOk('bal')&&(!q||qBal||hayItem(state.balance,m).includes(q));
 
   /* Womit die Liste anfängt: gewöhnlich die Posten dieses Monats,
@@ -914,9 +881,17 @@ function viewMonat(){
     const all=incAll.filter(it=>it.group===g);
     return {g,all,items:settledLast(all.filter(show)),any:all.filter(showAny)};
   });
-  const flexAll=kakCats(), flexUse=flexAll.filter(showKak);
+  /* Die flexiblen Posten nach Kategorie gebündelt wie die Kosten
+     (seit 6.9.26): dieselben Zeilen, dieselben Filter — ein flexibler
+     Posten ist ein Posten (isFlex in js/calc.js). */
+  const flexGroupsL=flexGroups().map(g=>{
+    const all=pool.filter(it=>isFlex(it)&&it.group===g);
+    return {g,all,items:settledLast(all.filter(show)),any:all.filter(showAny)};
+  });
+  const flexAll=pool.filter(isFlex);
+  const flexUse=flexGroupsL.reduce((a,x)=>a.concat(x.items),[]);
   const outGroups=costGroups().map(g=>{
-    const all=pool.filter(it=>it.group===g);
+    const all=pool.filter(it=>isCost(it)&&it.group===g);
     return {g,all,items:settledLast(all.filter(show)),any:all.filter(showAny)};
   });
   /* Die gezeigten Kosten in einer flachen Liste — daraus kommen
@@ -946,14 +921,13 @@ function viewMonat(){
      des Zeitstrahls. Das ist der Stand, den der Monat vorfindet,
      und den machen die Monate davor — die filtert niemand. */
   const sumIt=arr=>arr.reduce((s,it)=>s+it.amounts[m-1],0);
-  const sel={items:incUse.concat(outItems),kaks:flexUse,bal:balOn};
+  const sel={items:incUse.concat(flexUse,outItems),bal:balOn};
   /* Dieselbe Auswahl ohne den Fälligkeitsfilter — nur der
      gefilterte Zeitstrahl braucht sie, für die Balken der nicht
      gewählten Abschnitte (siehe showAny oben). */
-  const selAny={items:incGroups.concat(outGroups).reduce((a,x)=>a.concat(x.any),[]),
-    kaks:flexAll.filter(showKakAny),bal:balAny};
+  const selAny={items:incGroups.concat(flexGroupsL,outGroups).reduce((a,x)=>a.concat(x.any),[]),bal:balAny};
   const incSum=sumIt(incUse);
-  const flexSum=flexUse.reduce((s,k)=>s+kakVal(k,m),0);
+  const flexSum=sumIt(flexUse);
   const outSum=sumIt(outItems);
 
   /* ── Wann ein Bereich zugeklappt ist ─────────────────────────
@@ -999,18 +973,28 @@ function viewMonat(){
      ausgeblendeten. Gebaut mit derselben Funktion, damit beide
      Bereiche nicht auseinanderlaufen. Summiert werden die
      **gezeigten** Posten; wie viele fehlen, steht daneben. */
-  const groupHead=(g,all,items)=>`<tr class="group"><td></td><td class="num amt">${eur(sumIt(items))}</td><td></td>
+  const groupHead=(g,all,items,sum)=>`<tr class="group"><td></td><td class="num amt">${eur(sum!=null?sum:sumIt(items))}</td><td></td>
       <td colspan="${mob?1:4}">${esc(keyLabel(g))}${items.length!==all.length?` <span class="note">${t('month.hidden',all.length-items.length)}</span>`:''}</td></tr>`;
+  /* **Die Kategoriezeile steht immer** (seit 6.9.26; bis dahin bei
+     den Einnahmen nur ab zwei Kategorien): auch „… ohne Kategorie"
+     ist eine Auskunft — die Posten darunter haben noch keine. In
+     allen drei Bereichen dieselbe Regel. */
   let incRows='';
   if(!fIn){
-    const many=incGroups.filter(x=>x.all.length).length>1;
     incGroups.forEach(({g,all,items})=>{
       if(!items.length) return;
-      if(many) incRows+=groupHead(g,all,items);
+      incRows+=groupHead(g,all,items);
       items.forEach(it=>{incRows+=itemRow(it,m);});
     });
   }
-  const flexRows=fFlex?'':flexUse.map(k=>kakRow(k,m)).join('');
+  let flexRows='';
+  if(!fFlex){
+    flexGroupsL.forEach(({g,all,items})=>{
+      if(!items.length) return;
+      flexRows+=groupHead(g,all,items);
+      items.forEach(it=>{flexRows+=itemRow(it,m);});
+    });
+  }
 
   let outRows='';
   outGroups.forEach(({g,all,items})=>{

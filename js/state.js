@@ -194,10 +194,16 @@ function emptyState(){
        eine Zahl trug. */
     opening:0,
     banks:[], pays:[],
-    groups:[], incomeGroups:[],
+    /* Jede Liste fängt mit ihrem festen „ohne Kategorie" an
+       (NOCAT_* in js/i18n.js): ein neues Buch kann damit sofort
+       Posten anlegen, auch ohne eine einzige eigene Kategorie. */
+    groups:[NOCAT_OUT], incomeGroups:[NOCAT_IN], flexGroups:[NOCAT_FLEX],
     fixed:[], balance:blankBalance(),
-    flexActual:o, flexSource:src, tx:[], plan:{},
-    kakCats:[], kak:{}, labWidth:250, monWidth:100, topMin:50, lastImport:null,
+    /* flexSource: je Monat die Datei, aus der die flexiblen Posten
+       kamen (das Etikett am Kartenkopf). kak, kakCats, plan,
+       flexActual und tx gibt es seit 6.9.26 abends nicht mehr —
+       flexible Posten stehen in `fixed` (siehe migrateKak). */
+    flexSource:src, labWidth:250, monWidth:100, topMin:50, lastImport:null,
     /* „Abgeschlossene Monate ausblenden" — hier steht seit 30.8.26
        nur noch die **Vorgabe fürs Öffnen**, gepflegt in den
        Einstellungen unter „Darstellung" (#sHideDone). Gelesen wird
@@ -254,9 +260,89 @@ function emptyState(){
 /* Neue Kakeibo-Kategorie: Planwerte, Haken, Notizen, Korrekturen
    und zugehörige Links — dieselbe Ausstattung wie ein regelmäßiger
    Posten, nur ohne Bank, Zahlungsart und Fälligkeit. */
-function blankKak(v){
-  return {plan:Array(12).fill(v||0),paid:Array(12).fill(false),estimated:true,
-    note:'',notes:Array(12).fill(''),override:Array(12).fill(null),links:[]};
+/* ── „ohne Kategorie" in jeder Liste, und jeder Posten in einer ──
+   (6.9.26) Aufgerufen von migrate() und von applySheet() (js/sheet.js):
+   die drei Kategorielisten tragen ihren festen Schlüssel (NOCAT_* in
+   js/i18n.js) genau einmal — fehlt er, kommt er nach oben —, und
+   flexGroups gibt es überhaupt. Ein Posten, dessen Kategorie in
+   keiner Liste steht, wäre unsichtbar; er zieht deshalb in „ohne
+   Kategorie" seines Bereichs. Beim regulären Posten ist der Bereich
+   ohne Liste nicht zu erkennen — dann Regulär; nur der alte feste
+   Name 'EINNAHMEN' bleibt eine Einnahme. Ein flexibler Posten ohne
+   `group` (Dateien von vor dieser Fassung) steht in „Flexibel ohne
+   Kategorie". */
+function ensureNoCat(s){
+  if(!Array.isArray(s.flexGroups)) s.flexGroups=[];
+  [['incomeGroups',NOCAT_IN],['flexGroups',NOCAT_FLEX],['groups',NOCAT_OUT]].forEach(([k,key])=>{
+    if(!Array.isArray(s[k])) s[k]=[];
+    s[k]=s[k].filter((g,i,a)=>g!==key||a.indexOf(g)===i);
+    if(!s[k].includes(key)) s[k].unshift(key);
+  });
+  (s.fixed||[]).forEach(it=>{
+    if(s.groups.includes(it.group)||s.incomeGroups.includes(it.group)||s.flexGroups.includes(it.group)) return;
+    it.group=it.group==='EINNAHMEN'?NOCAT_IN:NOCAT_OUT;
+  });
+}
+
+/* ── Die flexiblen Kategorien werden Posten (6.9.26 abends) ────────
+   Bis dahin hatten die flexiblen Kosten ein eigenes Modell: je
+   Kategorie `kak[name]` mit plan[12], paid[12], override[12], die
+   importierten Ist-Werte in `flexActual[m][name]`, die Buchungen in
+   `tx[]`. Seitdem ist ein flexibler Posten ein Posten wie jeder
+   andere in `fixed[]`, erkennbar an seiner Kategorie aus
+   `flexGroups` (isFlex in js/calc.js) — gleiche Felder, gleiches
+   Fenster, gleiche Wege.
+
+   Aus dem alten Modell wird je Monat:
+     • importiert (Quelle des Monats gesetzt, kein `null` in
+       flexActual): Betrag = Korrektur (override), sonst der
+       Ist-Wert; abgehakt; imp = 1 (2, wenn alle Buchungen des
+       Monats einmalig waren); die Buchungen als Quellzeilen
+       (impRows[m]: Tag, Betrag, Referenzen — ältere ohne
+       Referenzen als Text `x`).
+     • sonst: Betrag = Planwert, Haken wie gesetzt.
+   Name, Notizen, Links, „geschätzt" und die Importkriterien
+   ziehen mit. Danach fallen `kak`, `kakCats`, `plan`, `flexActual`
+   und `tx` aus der Datei — FINA hat sie selbst angelegt, und
+   stateJson() schriebe sie sonst bei jedem Speichern wieder hinaus
+   (dieselbe Behandlung wie `hideSettled`). `flexSource` bleibt: es
+   ist das Etikett am Kartenkopf und die Antwort auf „kam dieser
+   Monat aus einer Datei". */
+function migrateKak(s){
+  const cats=Array.isArray(s.kakCats)?s.kakCats:Object.keys(s.kak||{});
+  const two=n=>String(n).padStart(2,'0');
+  const y=s.year||new Date().getFullYear();
+  cats.forEach(k=>{
+    const e=s.kak&&s.kak[k]; if(!e) return;
+    const grp=(e.group&&Array.isArray(s.flexGroups)&&s.flexGroups.includes(e.group))?e.group:NOCAT_FLEX;
+    const it=normalize({id:uid(),name:String(k),group:grp,amounts:Array(12).fill(0),
+      estimated:!!e.estimated,note:e.note||'',notes:(e.notes||[]).slice(),links:(e.links||[]).slice()});
+    if(Array.isArray(e.impRules)&&e.impRules.length) it.impRules=e.impRules;
+    for(let m=1;m<=12;m++){
+      const fa=s.flexActual&&s.flexActual[m];
+      const imp=!!(s.flexSource&&s.flexSource[m])&&!(fa&&fa[k]===null);
+      if(imp){
+        const ov=e.override&&e.override[m-1];
+        it.amounts[m-1]=ov!=null?ov:((fa&&fa[k])||0);
+        it.paid[m-1]=true;
+        const rows=(s.tx||[]).filter(x=>x.m===m&&(x.main||'(ohne Hauptkategorie)')===k);
+        it.imp[m-1]=(rows.length&&rows.every(x=>x.once))?2:1;
+        if(rows.length){
+          it.impRows=it.impRows||{};
+          it.impRows[m]=rows.map(x=>{
+            const r={d:x.d?two(x.d)+'.'+two(m)+'.'+two((x.y||y)%100):'',v:+x.v||0};
+            if(x.r) r.r=x.r; else { const tx=[x.cat||'',x.note||''].filter(Boolean).join(' · '); if(tx) r.x=tx; }
+            return r;
+          });
+        }
+      }else{
+        it.amounts[m-1]=(e.plan&&e.plan[m-1])||0;
+        it.paid[m-1]=!!(e.paid&&e.paid[m-1]);
+      }
+    }
+    s.fixed.push(it);
+  });
+  delete s.kak; delete s.kakCats; delete s.plan; delete s.flexActual; delete s.tx;
 }
 
 /* Einmal beim Öffnen einer Datei: was die Ansicht daraus macht.
@@ -266,7 +352,7 @@ function blankKak(v){
    Danach entscheidet der Nutzer; deshalb steht das hier und nicht
    in der View, die bei jedem Zeichnen läuft. */
 function afterLoad(){
-  ui.kakDetail=!!(state&&state.tx&&state.tx.length);
+  ui.kakDetail=!!(state&&typeof flexTx==='function'&&flexTx().length);
   /* Der Reiter „Fast Budget Details" fängt beim **ganzen Jahr** an
      und rechts bei den **größten Einzelposten** — das ist die
      Bedeutung von `ui.kakPick=null` (siehe js/views/kakeibo.js).
@@ -430,7 +516,11 @@ function migrate(s){
   s.balance.paid=Array(12).fill(false);
   s.balance.estimated=false;
   if(!s.plan) s.plan={};
-  if(!s.kakCats||!s.kakCats.length) s.kakCats=s.kak?Object.keys(s.kak):[];
+  /* Ohne Liste zählen die Einträge von `kak` — und ganz ohne `kak`
+     die Schlüssel des uralten `plan` (je Kategorie ein Betrag): eine
+     Datei aus dieser Zeit hat sonst keine Stelle, an der ihre
+     flexiblen Posten stünden (6.9.26). */
+  if(!s.kakCats||!s.kakCats.length) s.kakCats=s.kak?Object.keys(s.kak):Object.keys(s.plan||{});
   if(!s.kak) s.kak={};
   s.kakCats.forEach(k=>{
     const e=s.kak[k]||(s.kak[k]={});
@@ -444,10 +534,16 @@ function migrate(s){
     if(e.estimated===undefined) e.estimated=true;
     normLinks(e);
   });
+  /* Die flexiblen Kategorien werden Posten (6.9.26 abends, siehe
+     migrateKak oben) — vorher die festen „ohne Kategorie"-Einträge,
+     damit die Kategorie eines flexiblen Postens gültig ist. */
+  if(!s.tx) s.tx=[];
+  ensureNoCat(s);
+  migrateKak(s);
+  ensureNoCat(s);
   if(!s.labWidth) s.labWidth=250;
   if(!s.monWidth) s.monWidth=100;
   if(typeof s.topMin!=='number'||!(s.topMin>=0)) s.topMin=50;
-  if(!s.tx) s.tx=[];
   /* Ältere Dateien kennen die Angabe nicht — dann gilt die Vorgabe:
      die Jahresansicht geht mit allen zwölf Monaten auf. Der alte
      Wert bleibt gültig: er hieß bis 30.8.26 „gerade ausgeblendet"
@@ -504,8 +600,8 @@ function migrate(s){
      Datei-Art eine (Schlüssel: Fingerabdruck der Spaltenköpfe). */
   if(!s.csvMaps||typeof s.csvMaps!=='object') s.csvMaps={};
   /* **Die sechs Importfelder und die Kriterien am Posten** (Struktur
-     v260905-2 und v260905-3, 5.9.26). Eine gemerkte CSV-Struktur
-     trägt in `f` nur noch Datum, Betrag und Referenz 1 bis 4 —
+     v260905, Schritte 2 und 3 des 5.9.26). Eine gemerkte CSV-Struktur
+     trägt in `f` nur noch Datum, Betrag und Referenz 1 bis 5 —
      nichts sonst. Zwei ältere Formen werden beim Lesen übersetzt:
 
      1. **Felder:** statt der Referenzen `main` (Hauptkategorie),
@@ -522,26 +618,31 @@ function migrate(s){
         das die Regeln als „n:Name" kennen (beim Merken erst
         angelegt), wird über den Namen gefunden oder aus `newT`
         angelegt. Danach sind `cols`, `rules` und `newT` aus der
-        Struktur heraus. **`kind` bleibt** (Struktur v260905-4,
-        5.9.26 spät): die Art gehört wieder zur Struktur — der
-        automatische Weg des Imports bringt sie mit und sperrt sie.
-        Eine Struktur ohne Art (gemerkt am Nachmittag) bleibt ohne;
-        der Import fragt sie dann einmal und trägt sie nach. Ein
-        anderer Wert als reg/flex ist keine Art und fällt weg. */
+        Struktur heraus. **Und seit 6.9.26 auch `kind`** (Struktur
+        v260906, Schritt 1): eine Art der Datei gibt es nicht mehr —
+        Importkriterien gelten für reguläre wie für flexible Posten
+        gleich, der Import zeigt alle Ziele zusammen. Das Feld wird
+        beim Lesen gelöscht, sonst schriebe stateJson() es bei jedem
+        Speichern wieder hinaus (dieselbe Behandlung wie
+        `hideSettled` und `created`). Der Schlüssel bleibt der
+        Fingerabdruck; eine zweite Struktur derselben Datei-Art liegt
+        unter „fp#2", „fp#3" … (c2MapsFor in js/dialogs/csv2-wizard.js). */
   Object.keys(s.csvMaps).forEach(fp=>{
     const m=s.csvMaps[fp];
     if(!m||typeof m!=='object')return;
     const n=v=>(v==null||isNaN(+v))?-1:+v;
     const f=Object.assign({},m.f||{});
-    if(!('ref1' in f)&&!('ref2' in f)&&!('ref3' in f)&&!('ref4' in f)){
+    if(!('ref1' in f)&&!('ref2' in f)&&!('ref3' in f)&&!('ref4' in f)&&!('ref5' in f)){
       const refs=[f.main,f.cat,f.desc].map(n).filter(v=>v>=0);
       f.ref1=refs[0]==null?-1:refs[0];f.ref2=refs[1]==null?-1:refs[1];f.ref3=refs[2]==null?-1:refs[2];
     }
-    const nf={date:n(f.date),amount:n(f.amount),ref1:n(f.ref1),ref2:n(f.ref2),ref3:n(f.ref3),ref4:n(f.ref4)};
+    /* Referenz 5 seit 6.9.26 spät — eine ältere Struktur kennt sie
+       nicht und bekommt -1 (Struktur v260906). */
+    const nf={date:n(f.date),amount:n(f.amount),ref1:n(f.ref1),ref2:n(f.ref2),ref3:n(f.ref3),ref4:n(f.ref4),ref5:n(f.ref5)};
     if(Array.isArray(m.rules)&&m.rules.length){
       const fieldOf={};
       Object.keys(nf).forEach(k=>{if(nf[k]>=0&&fieldOf[nf[k]]==null)fieldOf[nf[k]]=k;});
-      const free=()=>['ref1','ref2','ref3','ref4'].find(k=>nf[k]<0);
+      const free=()=>['ref1','ref2','ref3','ref4','ref5'].find(k=>nf[k]<0);
       const oldFlt=flt=>{
         const ts=[];
         Object.keys(flt||{}).forEach(k=>{
@@ -552,10 +653,14 @@ function migrate(s){
         });
         return ts.filter(x=>x.val!=='');
       };
+      /* Flexible Posten stehen seit 6.9.26 abends in s.fixed (migrateKak
+         ist hier schon gelaufen); ein `k:`-Ziel aus einer alten
+         Struktur wird also über den Namen wiedergefunden. */
+      const isFlexG=x=>Array.isArray(s.flexGroups)&&s.flexGroups.includes(x.group);
       const byName=(nm,flex)=>{
         const q=String(nm||'').trim().toLowerCase();
-        if(flex){const k=(s.kakCats||[]).find(x=>String(x).trim().toLowerCase()===q);return k?s.kak[k]:null;}
-        return s.fixed.find(x=>String(x.name||'').trim().toLowerCase()===q)||null;
+        return s.fixed.find(x=>String(x.name||'').trim().toLowerCase()===q&&(flex?isFlexG(x):!isFlexG(x)))
+          ||s.fixed.find(x=>String(x.name||'').trim().toLowerCase()===q)||null;
       };
       m.rules.forEach(r=>{
         if(!r||!r.t||!r.t.tid)return;
@@ -575,21 +680,19 @@ function migrate(s){
         const tid=String(r.t.tid);
         let host=null;
         if(tid.indexOf('i:')===0)host=s.fixed.find(x=>String(x.id)===tid.slice(2))||byName(r.t.name,false);
-        else if(tid.indexOf('k:')===0)host=(s.kak&&s.kak[tid.slice(2)])||byName(tid.slice(2),true);
+        else if(tid.indexOf('k:')===0)host=byName(tid.slice(2),true);
         else if(tid.indexOf('n:')===0){
           const nm=tid.slice(2),flex=m.kind==='flex';
           host=byName(nm,flex);
           if(!host){
-            if(flex){
-              if(!s.kakCats.includes(nm))s.kakCats.push(nm);
-              host=s.kak[nm]=s.kak[nm]||blankKak(0);
-            }else{
-              const nt=(m.newT||[]).find(y=>y&&y.tid===tid);
-              if(!nt||!nt.group)return;
-              host=normalize({id:uid(),name:nm,group:nt.group,amounts:Array(12).fill(0)});
-              host.bank=nt.bank||'';host.pay=nt.pay||'';host.dueDay=nt.due||'';
-              s.fixed.push(host);
-            }
+            const nt=(m.newT||[]).find(y=>y&&y.tid===tid);
+            /* Ohne Kategorie in `newT` steht der neue reguläre Posten
+               in „Regulär ohne Kategorie" (6.9.26; bis dahin fiel er
+               samt Kriterium weg, weil es die Kategorie nicht gab).
+               Eine unbekannte Kategorie fängt ensureNoCat unten. */
+            host=normalize({id:uid(),name:nm,group:flex?NOCAT_FLEX:((nt&&nt.group)||NOCAT_OUT),amounts:Array(12).fill(0)});
+            host.bank=(nt&&nt.bank)||'';host.pay=(nt&&nt.pay)||'';host.dueDay=(nt&&nt.due)||'';
+            s.fixed.push(host);
           }
         }
         if(!host)return;
@@ -597,9 +700,12 @@ function migrate(s){
       });
     }
     m.f=nf;
-    if(m.kind!=='reg'&&m.kind!=='flex')delete m.kind;
+    delete m.kind;
     delete m.cols;delete m.rules;delete m.newT;
   });
+  /* Noch einmal, weil die alten Regeln eben Posten angelegt haben
+     können — mit einer Kategorie, die es in keiner Liste gibt. */
+  ensureNoCat(s);
   /* `created` gab es einen Tag lang: der Tag, an dem ein Buch
      angefangen wurde, gedacht als Frist für neue Nutzer. Die Frist
      hängt jetzt am ersten **Speichern** und braucht kein Datum

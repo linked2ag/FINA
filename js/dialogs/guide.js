@@ -1122,7 +1122,24 @@ einen anderen Rechner — FINA liest sie dort genauso.</p>
 news:{
 
 en:()=>`
-<h4>26.9.5 <span class="pill">latest</span></h4>
+<h4>26.9.6 <span class="pill">latest</span></h4>
+<ul>
+  <li><b>Flexible entries are entries like any other</b> — same window, same fields, one
+      “${t('menu.newOut')}”; the category decides between income, flexible and regular, and
+      each of the three areas keeps an “N/A” category for entries without one.</li>
+  <li><b>CSV import</b> — rows already in the book stay in the file table, grey with a
+      cross in the column “X”, and so do rows assigned in this run; a button hides and shows
+      them. A fifth reference field. An import adds to a month instead of replacing it.</li>
+  <li><b>Year view</b> — the three filter menus (area, due date, payment state), completed
+      months struck through in the month bar, the scrollbar below the table.</li>
+  <li><b>${t('set.navImport')} in the settings</b> — three sections; a remembered CSV
+      structure opens as a window with its own delete button. The table import is gone.</li>
+  <li><b>Menu</b> — file name and status on two lines, “${t('menu.newOut')}” in black,
+      “${t('app.guide')}” in orange.</li>
+  <li>Bug fixing and cosmetic touch-ups.</li>
+</ul>
+
+<h4>26.9.5</h4>
 <ul>
   <li><b>CSV import 2.0</b> — reads any CSV in three steps: file, columns and fields,
       matching. FINA remembers the column structure per file type and the import criteria
@@ -1382,7 +1399,28 @@ en:()=>`
 `,
 
 de:()=>`
-<h4>26.9.5 <span class="pill">neu</span></h4>
+<h4>26.9.6 <span class="pill">neu</span></h4>
+<ul>
+  <li><b>Flexible Posten sind Posten wie alle anderen</b> — dasselbe Fenster, dieselben
+      Felder, ein „${t('menu.newOut')}"; die Kategorie entscheidet zwischen Einnahme,
+      flexibel und regulär, und jeder der drei Bereiche behält eine Kategorie „N/A" für
+      Posten ohne eigene.</li>
+  <li><b>CSV-Import</b> — Zeilen, die schon im Buch stehen, bleiben grau mit Kreuz in der
+      Spalte „X" in der Dateitabelle, ebenso die in diesem Lauf zugeordneten; ein Knopf
+      verbirgt und zeigt sie. Ein fünftes Referenzfeld. Ein Import ergänzt einen Monat,
+      statt ihn zu ersetzen.</li>
+  <li><b>Jahresansicht</b> — die drei Filtermenüs (Bereich, Fälligkeit, Zahlungsstand),
+      abgeschlossene Monate durchgestrichen in der Monatsleiste, der Rollbalken unter der
+      Tabelle.</li>
+  <li><b>${t('set.navImport')} in den Einstellungen</b> — drei Abschnitte; eine gemerkte
+      CSV-Struktur öffnet sich als Fenster mit eigenem Löschknopf. Der Tabellenimport ist
+      weg.</li>
+  <li><b>Menü</b> — Dateiname und Stand auf zwei Zeilen, „${t('menu.newOut')}" schwarz,
+      „${t('app.guide')}" orange.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>
+
+<h4>26.9.5</h4>
 <ul>
   <li><b>CSV-Import 2.0</b> — liest jede CSV in drei Schritten: Datei, Spalten und Felder,
       Zuordnen. FINA merkt sich die Spaltenstruktur je Datei-Art und die Importkriterien
@@ -1729,7 +1767,6 @@ function setGuideWidth(w){
      Spaltenköpfe der Jahresmatrix und die Rollleisten über den
      Tabellen müssen neu gemessen werden. */
   if(typeof syncMatrixHead==='function') syncMatrixHead();
-  if(typeof fitRails==='function') fitRails();
 }
 
 function guideOpen(){ return !!document.getElementById('guidePanel'); }

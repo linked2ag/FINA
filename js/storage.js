@@ -215,9 +215,16 @@ function renderStatus(){
      Fenster steht der Name nicht mehr in der Zeile, sondern im
      Menükopf (.menufile) — und der rote Punkt am Knopf selbst
      (#dirtyDot) sagt „ungespeichert" auf jeder Breite. */
+  /* **Zwei Zeilen** (6.9.26 spät): oben der Dateiname, immer in
+     Tinte und in einer Zeile — das Menü wird dafür so breit, wie
+     der Name es braucht (css: .tools) —, darunter der Stand: rot
+     „ungespeicherte Änderungen" oder grau „alles gespeichert".
+     Bis dahin hing der Stand mit Gedankenstrich am Namen, beides
+     in einer Farbe, und ein langer Name brach um. */
   const mf=document.getElementById('menuFile');
   if(mf){
-    mf.textContent=fileName?(fileName+(dirty?t('store.unsaved'):'')):t('store.none');
+    mf.innerHTML=`<span class="mfname">${esc(fileName||t('store.none'))}</span>`
+      +`<span class="mfstat">${esc(dirty?t('store.unsavedLine'):t('store.savedLine'))}</span>`;
     mf.classList.toggle('warnpath',dirty);
     mf.hidden=!!ui.welcome;
   }
@@ -231,7 +238,7 @@ function renderStatus(){
      abhängen, ob schon etwas darin steht. Auf der Begrüßungsseite
      selbst ist der Knopf ohnehin verborgen. */
   const ub=document.getElementById('btnUnlink'); if(ub) ub.disabled=!!ui.welcome;
-  const sb=document.getElementById('btnSave'); if(sb) sb.disabled=!dirty&&!state.fixed.length&&!state.tx.length;
+  const sb=document.getElementById('btnSave'); if(sb) sb.disabled=!dirty&&!state.fixed.length;
   /* Neben dem Hamburger oder in seinem Menü — das hängt am
      dirty-Flag und ändert sich damit genau hier. */
   if(typeof fitHeaderBtns==='function') fitHeaderBtns();

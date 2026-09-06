@@ -9,10 +9,18 @@ Mac-App und als Windows-App. Der Rahmen für die beiden Apps steht in `desktop/`
 (Electron); die Anwendung selbst weiß davon nur eins — `window.FINA_NATIVE`. Siehe
 „Die drei Fassungen" weiter unten und `desktop/README.md`.
 
-Der Bereich, der früher **Kakeibo** hieß, heißt in der Oberfläche **Flexible Payments**.
-Die Schlüssel im Zustand und in den Dateinamen (`kak`, `kakCats`, `flexActual`,
-`ui.view='kakeibo'`, `js/views/kakeibo.js`) behalten ihren alten Namen — umbenannt wurde
-nur der sichtbare Text in `js/i18n.js`.
+**Drei Bereiche, ein Posten-Modell** (seit 6.9.26): **Einnahmen · Flexibel · Regulär**
+(`g.in` · `g.flex` · `g.fixed`; englisch Income · Flexible · Regular). Jeder Posten steht
+in `state.fixed`, seine Kategorie (`it.group`) sagt über die Liste, in der sie steht, zu
+welchem Bereich er gehört — `incomeGroups`, `flexGroups`, `groups`, gelesen über
+`isIncome()` · `isFlex()` · `isCost()` in `js/calc.js`. Der Bereich, der früher **Kakeibo**
+und dann **Flexible Payments** hieß, hat kein eigenes Modell mehr: `kak`, `kakCats`,
+`plan`, `flexActual` und `tx` sind aus der Datei heraus (`migrateKak()` in `js/state.js`
+zieht sie beim Öffnen in Posten), das Beträge-Fenster ist weg. Geblieben sind nur Namen:
+`ui.view='kakeibo'` und `js/views/kakeibo.js` (der Reiter „Import Details", er liest die
+Quellzeilen der flexiblen Posten über `flexTx()`), dazu `state.flexSource` als Etikett am
+Kartenkopf. Wie die Datei innen aussieht, steht je Fassung in
+`FINA Strukturen und Objekte/` (benannt nach dem Tag; `v260906` ist der aktuelle Stand).
 
 Diese Datei ist die Landkarte: sie soll erlauben, gezielt eine Datei zu öffnen, statt das
 ganze Projekt zu lesen.
@@ -33,15 +41,14 @@ ganze Projekt zu lesen.
 | Zahlen-/Textformat, Fälligkeitsregeln (A/M/E, Zahltag) | `js/format.js` |
 | Aufbau des Zustands, Altdateien reparieren (`migrate`) | `js/state.js` |
 | Kategorie umbenennen/anlegen/löschen | `js/categories.js` |
-| Summen, Salden, „Monat erledigt", Rangfolge der flexiblen Werte, mittlerer Verbrauch | `js/calc.js` |
+| Summen, Salden, „Monat erledigt", die drei Bereiche (`isIncome/isFlex/isCost`), Quellzeilen als Buchungen (`flexTx`), mittlerer Verbrauch | `js/calc.js` |
 | Datei laden/speichern, dirty-Zustand, Statuszeile | `js/storage.js` |
-| CSV-Import 2.0 — Wizard, Anleitung daneben, Struktur- und Kriterien-Fenster | `js/dialogs/csv2-wizard.js` |
-| CSV-Import aus Fast Budget (alter Weg, unbenutzt) | `js/csv.js` |
-| CSV-Import einer FINA-Tabelle | `js/sheet.js` |
+| CSV-Import — Wizard, Anleitung daneben, Struktur- und Kriterien-Fenster | `js/dialogs/csv2-wizard.js` |
+| Die Struktur der JSON-Datei, je Fassung eine Datei nach dem Tag | `FINA Strukturen und Objekte/` |
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
 | Begrüßungsseite (ohne Datei) | `js/views/willkommen.js` |
-| Inhalt eines Fensters | `js/dialogs/item·kakeibo-betraege·settings·csv-import·sheet-import.js` |
+| Inhalt eines Fensters | `js/dialogs/item·settings.js` (Posten, Einstellungen); die Fenster des Imports in `csv2-wizard.js` |
 | Die Umfrage — Knopf, Fenster, Absenden | `js/dialogs/umfrage.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
 | Bildschirmfotos für README und Anleitung | `doc/make-shots.py` → `doc/img/` |
@@ -78,29 +85,34 @@ Abschnitt.**
   Dateiname steht seit
   22.8.26 **nur noch im Menü** (`#menuFile` zuoberst; `.filepath` bleibt im HTML, ist
   aber per CSS verborgen). **Alle Aktionsknöpfe
-  wohnen im Menü dahinter** (`#hdrTools`, auf jeder Breite), seit 30.8.26 in dieser
-  Ordnung: Hochladen · CSV-Import (`#btnImportCsv` → `openCsvWizard()`) ‖ Speichern ·
-  Sicherung · Trennen ‖ Neuer flexibler Eintrag /
-  Neuer regulärer Eintrag (`#mNewFlex/#mNewOut`, verdrahtet bei
-  den festen Schaltflächen in `js/app.js`) ‖ Einstellungen ‖ Anleitung (oranger Texteintrag,
-  kein gefüllter Knopf mehr).
+  wohnen im Menü dahinter** (`#hdrTools`, auf jeder Breite), seit 6.9.26 in dieser
+  Ordnung und mit diesen Linien (`.mi-sep`): Hochladen ‖ CSV-Import (`#btnImportCsv` →
+  `openCsvWizard()`) ‖ Speichern · Sicherung ‖ Trennen ‖ Neuer Eintrag (`#mNewOut`,
+  **schwarz mit weißer Schrift** — der nächste Handgriff; verdrahtet bei den festen
+  Schaltflächen in `js/app.js`) ‖ Einstellungen ‖ Anleitung (**orange Fläche mit weißer
+  Schrift**, `.tools #btnGuide`). **Der Menükopf hat zwei Zeilen** (`renderStatus()` in
+  `js/storage.js`, `.menufile`): oben der Dateiname in Tinte und in **einer** Zeile — das
+  Menü wird so breit, wie der Name es braucht (`.tools{min-width:230px;width:max-content}`,
+  begrenzt auf das Fenster, Rest mit „…") —, darunter der Stand: rot „ungespeicherte
+  Änderungen" oder grau „alles gespeichert"; die Linie darunter ist dieselbe wie zwischen
+  den Gruppen.
   **„Daten hochladen" steht zuoberst und mit dem CSV-Import zusammen** (seit 30.8.26; bis
   dahin war `#btnLoad` im geladenen Buch verborgen, geladen wurde ausschließlich auf der
   Begrüßungsseite). Beide holen etwas herein, und das ist der erste Griff, den man sucht;
   die ganze Datei steht vor einzelnen Spalten. Weil damit auch ein Buch mit
   ungespeicherter Arbeit getroffen werden kann, fragt `loadData()` (`js/storage.js`)
   vorher — dieselbe Rückfrage wie beim Schließen (`store.loadAsk`). Auf dem Telefon fehlt
-  der CSV-Import; dort trägt `#btnLoad` den Trenner (`css/mobile.css`).
-  **Zum Anlegen gibt es zwei Wege und nicht drei** (seit 23.8.26): eine eigene Zeile für die
-  Einnahme entfiel, weil der reguläre Eintrag ohnehin ohne Vorauswahl aufgeht
-  (`editItem(null,'1')`) und dort Einnahmen und Kosten in **einer** Auswahlliste stehen
-  (`groupOpts()` in `js/dialogs/item.js`) — die Kategorie entscheidet über die Geldart, nicht
-  der Weg ins Fenster.
+  der CSV-Import (`css/mobile.css`).
+  **Zum Anlegen gibt es einen Weg** (seit 6.9.26; bis dahin zwei, davor drei): „Neuer
+  Eintrag" geht ohne Vorauswahl auf (`editItem(null,'1')`), und dort stehen Einnahmen,
+  flexible und reguläre Posten in **einer** Auswahlliste mit drei Gruppen (`groupOpts()`
+  in `js/dialogs/item.js`) — die Kategorie entscheidet über den Bereich, nicht der Weg ins
+  Fenster.
   **Jeder Eintrag trägt vorn sein Zeichen**, und zwar als **Maske** aus `css/layout.css`
   (`.tools .btn::before`, `mask-image` mit einem SVG als Daten-URI): `renderChrome()`
   schreibt die Beschriftung über `textContent`, ein Kind-Element überlebte das nicht. Die
-  Maske nimmt `currentColor` an — Tinte, bei der Anleitung ihr Orange. **Farbige Zeichen
-  gibt es nicht mehr**: die beiden „Neu…"-Einträge trugen bis 23.8.26 ein gefülltes Plus in
+  Maske nimmt `currentColor` an — Tinte, auf den beiden gefüllten Einträgen Weiß. **Farbige
+  Zeichen gibt es nicht mehr**: die beiden „Neu…"-Einträge trugen bis 23.8.26 ein gefülltes Plus in
   der Farbe ihrer Geldart, und in einer Liste aus neun Wegen sagte diese Farbe nichts — sie
   machte das Menü nur bunt. Öffnen/Schließen läuft über die alte Mobil-Mechanik
   (Klasse `open`); der rote Punkt `#dirtyDot` und der Menükopf-Dateiname `#menuFile`
@@ -271,8 +283,7 @@ Abschnitt.**
   Geldart** (`.dgrp.t-in/t-flex/t-out/t-bal` → `--bg-in` …; die zweite Stufe stand hier
   für einen Tag und war zu viel Farbe für einen ganzen Block): im
   Posten-Fenster folgt er der
-  Block-Auswahl (`mtint`/`updateTint` in `js/dialogs/item.js`, ohne Block neutral), im
-  Beträge-Fenster ist er immer gelb. Weiße Felder mit Radius 6, Mono-Versalien 8.5 px
+  Block-Auswahl (`mtint`/`updateTint` in `js/dialogs/item.js`, ohne Block neutral). Weiße Felder mit Radius 6, Mono-Versalien 8.5 px
   als Feldbeschriftung, Monatskacheln mit Radius 7 (geschlossen auf `--settled`),
   Einstellungsmenü mit roter 3-px-Kante, Löschen als oranger Textlink links in der
   Fußzeile (`.dellink`). Im schmalen Einstellungsfenster steht die Zeile
@@ -298,7 +309,7 @@ braucht also immer zwei Stellen: das Attribut in der View und eine Zeile in `wir
 Ausnahme: `data-note` und `data-tip` gehören `js/ui.js` und funktionieren überall von
 selbst.
 
-Bestehende Attribute: `paid` `kpaid` (Siegel) · `filter` `duefilter` `secfilter` `tpart` `q` `qfields` `kd` `mfilters` (Filter;
+Bestehende Attribute: `paid` (Siegel) · `filter` `duefilter` `secfilter` `tpart` `q` `qfields` `kd` `mfilters` (Filter;
 `qfields` öffnet die Einstellungen im Bereich „Filter", `mfilters` das mobile Filtermenü) ·
 `ana` (Auswertung auf-/zuklappen) · `fold` `dblfold` (einen Bereich der Monatsansicht
 zuklappen) · `yfold` `dblyfold` (einen Block der Jahresmatrix zuklappen) · `qclear` (Filter
@@ -307,13 +318,13 @@ zurücknehmen) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `txlist` (die
 Buchungen als Fenster, mobile Transactions-Ansicht) · `goto` `kview`
 (Sprünge in eine andere Ansicht) · `mtab` (Monatsleiste unter der Filterzeile) ·
-`edit` `kedit` `dbledit` `dblkedit` `lists` (Fenster) · `newitem` `newkak` (neu anlegen) ·
+`edit` `dbledit` `lists` (Fenster) · `newitem` (neu anlegen) ·
 `links` (Auswahl der zugehörigen Links).
 
-`data-dbledit` und `data-dblkedit` sitzen an der **Zeile**, nicht an der Zelle, und sie
+`data-dbledit` sitzt an der **Zeile**, nicht an der Zelle, und es
 gibt es in **jeder** Ansicht: ein Doppelklick auf den Betrag oder auf die Bezeichnung
-öffnet dasselbe Fenster wie der Stift. Gebaut werden sie mit `dblItem(id)` /
-`dblKak(key)` aus `js/ui.js`; verdrahtet sind sie einmal in `wire()`.
+öffnet dasselbe Fenster wie der Stift. Gebaut werden sie mit `dblItem(id)` aus
+`js/ui.js`; verdrahtet sind sie einmal in `wire()`.
 
 **Ausnahme Prognose: dort trägt die Zelle das Merkmal.** Eine Zeile ist da ein Monat und
 keine Position — an der Zeile stünde der Doppelklick über sechs Zahlen, die verschiedenen
@@ -333,97 +344,58 @@ dort gibt es keine Position zu öffnen.
 dort der Name (`EINNAHMEN` aus dem Einnahmenblock der Monatsansicht). Ohne Vorauswahl steht
 im Fenster `item.blockPick` („— bitte wählen —"), und `#fSave` weist das Speichern zurück:
 ein Posten ohne Block stünde in keiner Kategorie der Monatsansicht und in keiner Gruppe der
-Jahresmatrix. Eine stille Vorauswahl landete unbemerkt in der Datei — deshalb keine. `data-newkak` öffnet
-`editKak(null)` — dasselbe Fenster wie für eine vorhandene Kategorie, nur leer. Angelegt
-wird erst beim Speichern; wer abbricht, hinterlässt nichts.
+Jahresmatrix. Eine stille Vorauswahl landete unbemerkt in der Datei — deshalb keine.
+Angelegt wird erst beim Speichern; wer abbricht, hinterlässt nichts.
 
 **2. Kategorien nie direkt umbenennen.**
-Positionen zeigen über den *Namen* auf ihre Kategorie (`it.group`), die flexiblen Werte
-hängen als Schlüssel in `kak`, `plan`, `flexActual` und `tx[].main`. Wird ein Name in `state.groups`
-oder `state.kakCats` einfach überschrieben, verlieren die Zeilen ihren Bezug und
-verschwinden aus der Anzeige. Immer `renameGroup()` / `renameKakCat()` aus
-`js/categories.js` benutzen — die ziehen alles Abhängige mit.
-Umbenannt wird an zwei Stellen: im Einstellungsfenster und im Beträge-Fenster
-(`editKak`). Beide rufen `renameKakCat()` und führen danach `state.kakCats` selbst nach —
-die Funktion rührt die Liste nicht an.
+Posten zeigen über den *Namen* auf ihre Kategorie (`it.group`), und die drei Listen
+`incomeGroups`, `flexGroups`, `groups` sagen, zu welchem Bereich der Name gehört. Wird ein
+Name in einer Liste einfach überschrieben, verlieren die Zeilen ihren Bezug, landen bei
+`ensureNoCat()` in „N/A" und wechseln womöglich den Bereich. Immer `renameGroup()` /
+`dropGroup()` aus `js/categories.js` benutzen — die ziehen die Posten mit
+(`renameFlexGroup`/`dropFlexGroup` sind nur Namen dafür). Umbenannt wird an einer Stelle:
+im Einstellungsfenster (`applyRenames()` in `js/dialogs/settings.js`, das den Namen gegen
+**alle drei** Listen prüft). Das frühere Beträge-Fenster der flexiblen Kategorien
+(`js/dialogs/kakeibo-betraege.js`, `editKak`, `renameKakCat`) gibt es seit 6.9.26 nicht mehr.
 
-**Im Beträge-Fenster steht der Name nicht als Feld.** Er ist keine Angabe unter vielen,
-sondern der Schlüssel — deshalb steht er in der **Überschrift**, und die ist der Knopf, der
-ihn ändert (`.titlebtn`, `#kTitle`). Ein Klick öffnet `askName()` in
-`js/dialogs/kakeibo-betraege.js`: ein schmales Fenster (`.box.narrow`) mit dem Namen fertig
-markiert, dazu „Abbrechen" und „Übernehmen". Enter übernimmt, Escape bricht ab (das
-erledigt `js/ui.js` für jedes oberste Fenster). Übernommen wird nur ins offene Fenster —
-in die Datei kommt der Name erst mit „Speichern", deshalb heißt der Knopf nicht so.
+## Drei Kategorielisten, je eine mit „N/A"
 
-Bis dahin lebt der Name allein in der Variablen `name` in `editKak()`; **ein Feld, aus dem
-man ihn lesen könnte, gibt es nicht mehr** (`#kName` ist weg). Wer dort etwas anbaut, das
-den Namen braucht — Duplizieren, der Entwurf der Notizlampen, das Speichern —, liest diese
-Variable. Ohne Namen wird nicht gespeichert: `#kSave` öffnet dann das Namensfenster, statt
-eine Meldung zu zeigen, denn dorthin müsste man ohnehin.
+`state.incomeGroups`, `state.flexGroups` (seit 6.9.26) und `state.groups` sind die drei
+Kategorielisten — gepflegt nebeneinander im Einstellungsfenster (Bereich „Kategorien",
+`.grouplists.c3`). Früher gab es für die Einnahmen den einen festen Block `'EINNAHMEN'`; er
+ist heute nur noch der Name, unter dem `migrate()` eine **alte** Datei weiterführt. Als
+roher Schlüssel wird er **nicht** übersetzt; angezeigt wird er über `keyLabel()` als
+`INCOME` (Regel 3).
 
-`tabThroughFields()` nimmt `.titlebtn` ausdrücklich **nicht** aus der Tab-Reihenfolge: die
-Überschrift ist der einzige Weg zu dieser Angabe, ein Symbol neben einem Feld ist sie nicht.
+**Jede Liste beginnt mit einem festen Eintrag**, einem je Bereich: `NOCAT_IN` =
+`(Einnahmen ohne Kategorie)`, `NOCAT_FLEX` = `(Flexibel ohne Kategorie)`, `NOCAT_OUT` =
+`(Regulär ohne Kategorie)` (`js/i18n.js`, `isNoCat()`). Der Bereich steht im Schlüssel,
+weil derselbe Schlüssel sonst in zwei Listen stünde; **angezeigt** wird er in beiden
+Sprachen als **„N/A"** (`NOCAT_LABELS`, seit 6.9.26 spät auf Lex' Wunsch) — überall, wo er
+steht, ist der Bereich die Überschrift darüber, ein Name, der ihn wiederholt, sagte zweimal
+dasselbe. Er lässt sich sortieren, aber nicht umbenennen und nicht löschen (`.fixedrow` in
+den Einstellungen); Posten ohne gültige Kategorie zieht `ensureNoCat()` (`js/state.js`)
+dorthin, und wer eine Kategorie entfernt, schiebt ihre Posten in das „N/A" **derselben**
+Liste (`dropGroup(name,fallback)`). **Eine leere Liste gibt es damit nicht mehr**, auch
+in einem frisch angefangenen Buch nicht (`emptyState()`).
 
-**Über der Schnelleingabe steht der bisherige Mittelwert** (`#kAvg`, orange): der Durchschnitt der
-Monate, die schon feststehen — abgehakt oder importiert, bis zum laufenden Monat. Er steht
-rechts, also über dem Betragsfeld, weil genau dort die Annahme für die kommenden Monate
-eingetippt wird.
+**`isIncome(it)`, `isFlex(it)`, `isCost(it)` fragen die Listen** (`js/calc.js`). Daraus
+folgt das Wichtigste: **ein Name darf über alle drei Listen zusammen nur einmal
+vorkommen** — stünde er in zweien, wäre nicht mehr entscheidbar, welchem Bereich ein
+Posten gehört. Durchgesetzt wird das in `applyRenames()` in `js/dialogs/settings.js`.
 
-Gerechnet wird er in `showAvg()` **aus den Feldern des Fensters**, nicht aus dem Zustand:
-wer einen Monat abhakt oder einen Betrag ändert, soll die Wirkung sehen, bevor er die
-Annahme setzt — und eine neue Kategorie hat im Zustand ohnehin nichts zu lesen. Die Regel,
-welche Monate zählen, ist dieselbe wie in `avgActual()` (`js/calc.js`); wer sie dort ändert,
-ändert sie hier mit, sonst nennt das Fenster einen anderen Schnitt als die Prognose.
-Genannt wird der **letzte mitgezählte** Monat, nicht der laufende — welcher es ist,
-entscheiden die Siegel.
+**Im Posten-Fenster steht eine Liste, nicht drei.** `groupOpts()` in `js/dialogs/item.js`
+baut sie mit drei `<optgroup>`: Einnahmen, Flexibel, Regulär — in den Farben ihrer
+Bereiche (`.og-in/.og-flex/.og-out`), und der Monatsblock des Fensters färbt sich mit der
+Wahl (`mtint`: `t-in/t-flex/t-out`). Vorgewählt ist bei einem neuen Posten „N/A" der
+regulären Kosten. Das Feld steht in derselben Reihe wie Bank, Zahlungsart und Fälligkeit
+(`c4`), bei der Saldokorrektur entfällt es (`c3`).
 
-Aufgerufen wird `showAvg()` an sechs Stellen: beim Aufbau, an jedem Siegel, an den beiden
-Sammelknöpfen, an „Übernehmen" und an „Leeren". **Was ein Knopf ins Feld schreibt, löst kein
-`input` aus** — dieselbe Regel wie bei der Vorzeichenfarbe.
-
-## Einnahmen haben Kategorien wie die Kosten
-
-`state.incomeGroups` ist die zweite Kategorieliste — gepflegt im Einstellungsfenster, neben
-`state.groups`. Früher gab es dafür den einen festen Block `'EINNAHMEN'`; er ist heute nur
-noch der Name, unter dem `migrate()` eine **alte** Datei weiterführt — die Posten zeigen mit
-`it.group='EINNAHMEN'` schon darauf, für sie ändert sich nichts. Als roher Schlüssel wird er
-**nicht** übersetzt; angezeigt wird er über `keyLabel()` als `INCOME` (Regel 3).
-
-**Die Liste darf leer sein**, und `incomeGroups()` fällt auf nichts mehr zurück (siehe „Ein
-neues Buch weiß nichts"). Leer heißt: es gibt noch keine Einnahmen — dieselbe Antwort, die
-`costGroups()` und `kakCats()` in diesem Fall geben. Wer irgendwo `incomeGroups()[0]` liest,
-rechnet also mit `undefined`.
-
-**`isIncome(it)` fragt die Liste, nicht einen festen Namen** (`js/calc.js`). Daraus folgt
-das Wichtigste: **ein Name darf über beide Listen zusammen nur einmal vorkommen.** Stünde
-er in beiden, wäre nicht mehr entscheidbar, ob ein Posten Geld bringt oder kostet.
-Durchgesetzt wird das in `applyRenames()` in `js/dialogs/settings.js`, das bei einer
-Kategorieliste auch gegen die jeweils andere prüft.
-
-Beide Listen laufen dort durch dieselben Zweige — `collect()`, `applyRenames()`,
-Hinzufügen, Entfernen, Speichern kennen `'incomeGroups'` neben `'groups'`. Beim Entfernen
-ziehen die Posten in die erste verbliebene Kategorie **derselben** Liste um: eine Einnahme
-darf nicht bei den Kosten landen; die letzte Kategorie **in Gebrauch** gibt das Fenster
-nicht her (`set.keepOne`).
-
-**Keine Einnahme-Kategorie ist erlaubt.** Wer die letzte leert, meint es so — ein frisch
-angefangenes Buch hat ohnehin keine. `#lSave` holt nur das zurück, worauf noch ein Posten
-zeigt: ohne seine Kategorie entschiede `isIncome()` ihn stillschweigend zu den Kosten, und
-seine Zeile wechselte den Block. Dafür merkt sich das Fenster die Liste **vor**
-`applyEdits()` — danach steht dort schon die neue.
-
-**Im Posten-Fenster steht eine Liste, nicht zwei.** `groupOpts()` in `js/dialogs/item.js`
-baut sie mit `<optgroup>`: erst die Einnahmen, dann die Ausgaben, grün und rot wie überall.
-Die Beschriftung einer Gruppe ist von Haus aus **nicht wählbar** — man trifft also immer
-eine Kategorie und nie die Überschrift darüber. Das Feld steht in derselben Reihe wie Bank,
-Zahlungsart und Fälligkeit (`c4`), bei der Saldokorrektur entfällt es (`c3`).
-
-**Monats- und Jahresansicht bündeln die Einnahmen nach Kategorie**, genau wie die Kosten —
-sonst wäre die Kategorie an der einzigen Stelle unsichtbar, an der man sie liest. **Bei
-genau einer Kategorie entfällt die Zwischenzeile:** sie stünde über allem und sagte nichts.
-Die Zeile trägt die Farbe ihrer Geldart (`tr.group` in `.card.sec-in`, `tr.grp.r-in` in der
-Matrix). `data-newitem` im Einnahmenblock trägt die **erste** Einnahme-Kategorie, nicht mehr
-den festen Namen.
+**Monats- und Jahresansicht bündeln jeden Bereich nach Kategorie** — auch die flexiblen
+Posten (`flexGroupsL` in `js/views/monat.js`, `r-flex` in `js/views/jahr.js`) —, und die
+Kategoriezeile steht **immer**, auch bei einer einzigen Kategorie: sie trägt die Farbe
+ihres Bereichs (`tr.group` in `.card.sec-in/-flex/-out`, `tr.grp.r-in/-flex/-out` in der
+Matrix) und ist die einzige Stelle, an der man die Kategorie liest.
 
 **Kürzel sind der Sonderfall.** Banken und Zahlungsarten hängen genauso über ihren Wert an
 den Posten (`it.bank`, `it.pay`), wandern aber **nicht** selbständig mit: das Kürzel steht
@@ -440,10 +412,11 @@ die Wahl steht in `state.lang` und damit in der JSON-Datei. `MONTHS`, `MONTHS_LO
 und `CUR` sind Getter auf `window` — sie lesen Sprache und Datei bei jedem Zugriff, die
 Fundstellen (`MONTHS[i]`, `YEAR`) bleiben unverändert. **Achtung:** eine lokale Variable
 namens `t` verdeckt die Übersetzungsfunktion. Buchungen heißen deshalb überall `x`.
-`'EINNAHMEN'`, `'(ohne Hauptkategorie)'` und `'(ohne Kategorie)'` sind Schlüssel im
-Zustand und dürfen **nicht** übersetzt werden — sonst verlieren die Zeilen ihre Daten.
-Angezeigt werden sie über `keyLabel()` aus `js/i18n.js`, und zwar in jeder Sprache auf
-Englisch (`INCOME`, `(no main category)`, `(no category)`). Überall, wo so ein Name auf den
+`'EINNAHMEN'`, `'(ohne Hauptkategorie)'`, `'(ohne Kategorie)'` und die drei festen
+`NOCAT_*`-Schlüssel sind Schlüssel im Zustand und dürfen **nicht** übersetzt werden — sonst
+verlieren die Zeilen ihre Daten. Angezeigt werden sie über `keyLabel()` aus `js/i18n.js`:
+die drei alten in jeder Sprache auf Englisch (`INCOME`, `(no main category)`,
+`(no category)`), die drei `NOCAT_*` in beiden Sprachen als „N/A". Überall, wo so ein Name auf den
 Bildschirm geht, steht `esc(keyLabel(name))`; wo er als Wert, `data-…` oder Vergleich
 gebraucht wird, bleibt der rohe Name stehen.
 
@@ -797,10 +770,10 @@ Anleitung über dasselbe `tokens.css` versorgt.
 ## Welche Reiter es gibt
 
 `VIEWS` in `js/config.js` ist die Reihenfolge der Reiter — und die Liste selbst hängt am
-Zustand: **„Fast Budget Details" erscheint nur, wenn einmal importiert wurde**
-(`hasImport()` in `js/calc.js`: Buchungen in `state.tx` oder eine Quelle in
-`state.flexSource`). Der Reiter wertet genau diese Buchungen aus; ohne sie stünde dort eine
-leere Gliederung. Er steht als **letzter**, nach der Prognose.
+Zustand: **„Import Details" erscheint nur, wenn einmal importiert wurde**
+(`hasImport()` in `js/calc.js`: Quellzeilen an einem Posten (`impRows`) oder eine Quelle
+in `state.flexSource`). Der Reiter wertet die Quellzeilen der flexiblen Posten aus
+(`flexTx()` baut daraus Buchungen); ohne sie stünde dort eine leere Gliederung. Er steht als **letzter**, nach der Prognose.
 
 **Jeder Reiter hat einen Tastengriff**, `VIEW_KEYS` unten in `js/app.js`:
 Strg/Cmd + Umschalt + **M** Monat · **Y** Jahr · **F** Prognose · **I** Import Details
@@ -831,11 +804,10 @@ dafür wäre den Platz nicht wert.
 
 Daraus folgen drei Stellen, die zusammengehören:
 
-* **Der Weg zum Import darf nicht in diesem Reiter liegen.** Der Knopf steht im
-  Einstellungsfenster im Bereich **Import** (`#impFast`, siehe „Der Bereich Import") und
-  öffnet seit 24.8.26 den CSV-Import 2.0 (`openCsvWizard()`, siehe „Der CSV-Import 2.0");
-  der alte Fast-Budget-Weg (`openImportInfo()`, `js/dialogs/csv-import.js`) liegt
-  unbenutzt daneben. Denselben Weg nimmt der Knopf `#btnImportK` in der Ansicht selbst.
+* **Der Weg zum Import darf nicht in diesem Reiter liegen.** Importiert wird über das
+  Menü der Kopfzeile (`#btnImportCsv` → `openCsvWizard()`, siehe „Der CSV-Import"); die
+  Einstellungen haben seit 6.9.26 keinen Import-Knopf mehr, und der alte Fast-Budget-Weg
+  (`js/csv.js`, `js/dialogs/csv-import.js`) ist samt Tabellenimport (`js/sheet.js`) weg.
 * **`render()` lenkt um.** Steht `ui.view` noch auf `'kakeibo'`, obwohl es den Reiter nicht
   mehr gibt (Datei getrennt, Datei ohne Buchungen), wäre kein Reiter ausgewählt — dann
   tritt die Prognose an seine Stelle.
@@ -845,46 +817,26 @@ Daraus folgen drei Stellen, die zusammengehören:
 Der Name des Reiters (`view.kakeibo`) ist nicht der Name der Geldart. Für die drei Blöcke,
 die Kategorien und alles, was „Flexible Payments" als Art von Geld meint, steht `g.flex`.
 
-## Woher ein Wert der Flexible Payments stammt
+## Woher ein Wert eines flexiblen Posten stammt
 
-Hinter dem Namen der Hauptkategorie steht **in Klammern**, woher der Betrag kommt:
-`flexKind(k,m)` in `js/calc.js` liefert `corr` · `imp` · `done` · `fix` · `est` · `none`,
-gebaut wird die Marke in `kindTag()` in `js/views/kakeibo.js`, beschriftet über
-`FLEX_KIND_LABEL` und die Schlüssel `kak.kImp` … `kak.kEst`.
+Hinter dem Namen des Posten steht in „Import Details" **in Klammern**, woher der Betrag
+kommt: `flexKind(it,m)` in `js/calc.js` liefert `imp` · `done` · `fix` · `est` · `none`
+(aus dem Import · abgehakt · fest eingetippt · geschätzt · kein Betrag), gebaut wird die
+Marke in `kindTag()` in `js/views/kakeibo.js`, beschriftet über `FLEX_KIND_LABEL` und die
+Schlüssel `kak.kImp` … `kak.kEst`. Die Regel ist dieselbe wie beim Statuskreis eines
+Posten: Import (`it.imp[m-1]`) vor Haken vor Betrag.
 
-**Eine eigene Spalte ist es nicht mehr.** Sie hielt zwischen Kategorie und Betrag eine
-Breite frei, in der bei einem einzelnen Monat ein Wort stand und in den Unterzeilen gar
-nichts — und sie trennte die beiden Angaben, die man zusammen liest. In der Klammer trägt
-die Marke auch keinen Rahmen mehr (`.kinds`, `.kk`, `.ksep` in `css/ledger.css`): die
-Klammer fasst schon zusammen, es bleibt die Farbe.
+**Eine Marke „korrigiert" gibt es seit 6.9.26 nicht mehr.** Sie gehörte zum alten Modell
+(`override` neben `flexActual`); jetzt ist der importierte Betrag der Betrag des Posten,
+und wer ihn im Fenster anfasst, nimmt damit den Import zurück (siehe „Importiert ist ein
+eigener Stand"). Ein alter Korrekturwert wird beim Öffnen als Betrag übernommen
+(`migrateKak()`).
 
-**Im Beträge-Fenster steht dieselbe Auskunft je Monat** (`tag()` in
-`js/dialogs/kakeibo-betraege.js`): **IMPORTED** grün für den unveränderten Import,
-**CORRECTED** orange für den von Hand gesetzten Wert.
-
-**Die Marke liest das Feld, nicht den Zustand**, und springt beim Tippen sofort um — nicht
-erst nach Speichern und erneutem Öffnen. Sie sitzt dafür in einem eigenen Platzhalter
-(`.tagslot`, `data-tag`), den `showTag(i)` austauscht. Die Regel ist **dieselbe wie beim
-Speichern** (`override` bleibt leer, wenn der Wert dem Import entspricht) — stünde hier eine
-andere, verspräche die Marke etwas anderes, als die Datei bekommt. Und wie überall gilt:
-**was ein Knopf ins Feld schreibt, löst kein `input` aus** — Schnelleingabe und „Leeren"
-rufen `showTags()` deshalb selbst, genau wie `signValues()` und `showAvg()`. Beim Aufbau
-gibt es die Felder noch nicht; dann zählt der gespeicherte Stand — dieselbe Farbe, die in der ganzen
-Anwendung „steht noch nicht fest, das hat jemand gesetzt" heißt. Rot wäre eine Warnung, und
-eine Korrektur ist keine. Die Marke sagt beim Überfahren, **was importiert war**
-(`kdlg.corrTip`): wer eine Korrektur sieht, will als Erstes wissen, wovon abgewichen wurde.
-Der Ursprungswert steht weiter in `state.flexActual` — die Korrektur liegt daneben in
-`override` und überschreibt ihn nicht.
-
-**`flexKind()` prüft in derselben Reihenfolge wie `kakVal()` und `kakDone()`** — Korrektur
-vor Import, Import vor Haken, Haken vor eingetipptem Betrag. Wer die Rangfolge dort ändert,
-ändert sie hier mit, sonst behauptet die Marke etwas anderes, als gerechnet wird.
-
+**Eine eigene Spalte ist es nicht.** In der Klammer trägt die Marke keinen Rahmen (`.kinds`,
+`.kk`, `.ksep` in `css/ledger.css`): die Klammer fasst schon zusammen, es bleibt die Farbe.
 Bei einem einzelnen Monat steht ein Wort, beim ganzen Jahr je Art eine Marke mit der Zahl
-der Monate, die häufigste zuerst; Monate ohne Betrag zählen nicht mit. Die Unterzeilen
-tragen nichts — Unterkategorien kennt nur der Import, ihre Art steht schon in der
-Hauptzeile. Was die fünf Wörter bedeuten, sagt die Marke selbst als Sprechblase
-(`kak.kindTip`, `data-tip` an `.kinds`) — bis 20.8.26 stand es als Absatz unter der Tabelle.
+der Monate, die häufigste zuerst; Monate ohne Betrag zählen nicht mit. Was die Wörter
+bedeuten, sagt die Marke selbst als Sprechblase (`kak.kindTip`, `data-tip` an `.kinds`).
 
 **Der Weg zurück ins Jetzt** steht gleich hinter der Monatsauswahl: `data-kmonth="cur"`
 setzt `ui.month=CUR` und `ui.scope='monat'` (`kak.cur`, gesperrt, wenn der laufende Monat
@@ -1008,19 +960,19 @@ ein Fenster darunter (siehe „Der Weg zu einer Liste steht über der Liste").
 
 ## Die Annahme der Prognose
 
-Die rechte Karte zeigt je Kategorie zwei **gerechnete** Zahlen: die Annahme, mit der
-gerechnet wird (`state.kak[k].plan[CUR-1]`), und den Durchschnitt der feststehenden Monate
-(`avgActual`). **Beide sind nur zu lesen, und die Ansicht schreibt nichts.** Getippt wurde
+Die rechte Karte zeigt je flexiblem Posten zwei **gerechnete** Zahlen: die Annahme, mit
+der gerechnet wird (sein Betrag im laufenden Monat, `it.amounts[CUR-1]`), und den
+Durchschnitt der feststehenden Monate (`avgActual`). **Beide sind nur zu lesen, und die Ansicht schreibt nichts.** Getippt wurde
 die Annahme früher an dieser Stelle, und jedes Zeichen schrieb sich sofort in alle zwölf
 Monate — auch in vergangene und ohne Rückfrage. Einen Knopf, der den Ø in einem Zug
 übernimmt, gibt es ebenfalls nicht mehr: welcher Monat welchen Betrag bekommt, entscheidet
 sich dort, wo die zwölf Monate stehen.
 
-Geändert wird die Annahme also nur im Fenster der Kategorie (Stift oder Doppelklick).
-Unter der Tabelle steht stattdessen `.calchint` — drei Sätze, die sagen, woher die beiden
-Spalten kommen (`prog.howCurrent`, `prog.howAvg`, `prog.howEdit`). Wer die Rangfolge der
-Werte ändert (`kakVal` in `js/calc.js`) oder die Grundlage des Durchschnitts (`avgMonths`),
-ändert diese drei Sätze mit — sie beschreiben genau das.
+Geändert wird die Annahme also nur im Posten-Fenster (Stift oder Doppelklick). Unter der
+Tabelle steht stattdessen `.calchint` — drei Sätze, die sagen, woher die beiden Spalten
+kommen (`prog.howCurrent`, `prog.howAvg`, `prog.howEdit`). Wer die Grundlage des
+Durchschnitts ändert (`avgMonths` in `js/calc.js`), ändert diese drei Sätze mit — sie
+beschreiben genau das.
 
 ## Die Spalte „Verlauf" der Prognose
 
@@ -1231,8 +1183,11 @@ keine — der Weg bleibt, weil er die Stelle ist, an der eine Zeile aus Ständen
 
 ## Die Leiste der Jahresansicht
 
-Links das Suchfeld mit dem ✕, direkt dahinter „Filteroptionen…", dann die beiden Knöpfe,
-die ebenfalls filtern („Abgeschlossene Monate ausblenden", „Erledigte Posten ausblenden").
+Links das Suchfeld mit dem ✕, direkt dahinter „Filteroptionen…", dann **dieselben drei
+Aufklappmenüs wie im Monat** — Bereich · Fälligkeit · Zahlungsstand (`fltDrop()`, seit
+6.9.26 auch hier; sie wirkten in der Jahresansicht schon vorher, waren dort aber nicht zu
+sehen) —, rechts abgesetzt die beiden Knöpfe, die ebenfalls filtern („Abgeschlossene
+Monate ausblenden", „Erledigte Posten ausblenden").
 Was die Zeichen ✓ und ? bedeuten, steht **nirgends mehr als Zeile**: die `.viewkey` neben
 den Ansichtsreitern ist seit 22.8.26 weg (sie stritt dort mit dem Dateinamen um den
 Platz) — die Siegel erklären ihre Sprechblasen und die Anleitung.
@@ -1314,9 +1269,10 @@ Bis dahin stand hier **„Noch offen"** — die Summe dessen, was noch nicht abg
 Posten und Flexible-Payments-Kategorien zusammen. Das war eine Zahl über den Fortschritt
 der Arbeit, während die drei Kacheln daneben von Geld handeln; und ob der Monat ins Plus
 oder ins Minus läuft, sagte keine von ihnen. Die Schlüssel `month.kpiOpen`,
-`month.kpiOpenN` und `month.kpiUnclear` bleiben in `js/i18n.js` — die **mobile** Leiste
-(`mobileTop()`) hat für fünf Zahlen Platz und zeigt „Noch offen" weiter, neben ihrer
-eigenen SALDO-Zeile.
+`month.kpiOpenN` und `month.kpiUnclear` bleiben in `js/i18n.js`. Die **mobile** Leiste
+(`mobileTop()`) zeigt seit 6.9.26 dieselben vier Kacheln in 2 × 2: oben Einnahmen und
+Saldo, unten Regulär und Flexibel — die erste Zeile trägt die beiden Zahlen, die man
+zuerst wissen will.
 
 **Es sind die Zahlen der Zeilen, die darunter stehen**, nicht die des ganzen Monats: wird
 gefiltert, rechnet die Leiste mit (siehe „Was ein Filter mit den Summen macht") — der
@@ -1349,7 +1305,11 @@ Knopf (`data-ana`); in den Kästchen steht deshalb nichts weiter Anklickbares, n
 `data-tip`. Die Filterzeile steht daneben, nicht darin — sie hat ihre eigenen Knöpfe.
 
 **Der Zeitstrahl teilt den Monat in fünf Zeilen** — Monatseröffnung, Monatsanfang,
-Monatsmitte, Monatsende, Monatsabschluss. Jede Zeile nennt links ihren Namen samt Tagen
+Monatsmitte, Monatsende, Monatsabschluss. **Vor jedem Namen steht sein Zeichen** (seit
+6.9.26): dieselben Masken wie im Aufklappmenü „Fälligkeit" (`--ic-due-*`, `data-ic` an der
+`.tname`, gesetzt in `tlLabel()`), damit man Zeile und Filter als dasselbe erkennt; die
+Monatseröffnung hat kein Menü und trägt das Spiegelbild des Abschlusses (`--ic-due-p`).
+Jede Zeile nennt links ihren Namen samt Tagen
 (1.–10., 11.–20., ab dem 21.), dann die Veränderung und den Kontostand danach; rechts
 steht über die ganze übrige Breite ihr Balken. Gerechnet wird das in `monthFlow()`
 (`js/calc.js`) aus der Fälligkeit der einzelnen Positionen — und zwar aus denen, die der
@@ -1891,7 +1851,7 @@ Wie die drei Bereiche gefiltert werden, steht in `viewMonat()`:
 | | Bereich | Zahlungsstand | Fälligkeit | Suchbegriff |
 |---|---|---|---|---|
 | Posten (Einnahmen, Kosten) | `in` bzw. `out` über `isIncome` | `paidAt` / `estOf` | `dueGroup(it.dueDay)` | `hayItem` |
-| Flexible Payments | immer `flex` | `kakDone` / `e.estimated` | immer `Z` — sie haben keinen Zahltag | `hayKak` |
+| flexible Posten | `flex` über `isFlex` | wie jeder Posten | wie jeder Posten (`dueGroup`) | `hayItem` |
 | Saldokorrektur | gehört keinem — fällt bei jeder Wahl weg | — sie wird nicht abgehakt | immer `Z` | `hayItem` |
 
 Was eine Karte dabei verliert, steht als `(n ausgeblendet)` neben ihrer Überschrift.
@@ -1981,10 +1941,9 @@ ein Filter greift. Die Regeln stehen an einer Stelle
 (`.anabar .filterbar,.yearbar .ybrow` in `css/layout.css`, samt der `.on`-Zwillinge
 darunter) — eine Leiste, die anders aussieht, sähe nach einem anderen Werkzeug aus.
 
-**Der Rollbalken sitzt an der Tabelle, nicht an der Zeile** (`.yearbar .scrollrail`,
-`margin:10px 0 -10px`): zwischen der Filterzeile und dem Spaltenkopf der Matrix liegt
-damit genau so viel Luft, wie die Bereiche voneinander haben — mit Balken wie ohne, denn
-ohne ihn (`.off`) trägt das Polster der Leiste dieselben 10 px allein.
+**Der Rollbalken steht seit 6.9.26 unter der Matrix**, nicht mehr in der Leiste (siehe
+„Waagerecht scrollen"); die Luft zwischen Filterzeile und Spaltenkopf trägt das Polster der
+Leiste allein.
 
 **Gefärbt wird nur am Suchbegriff.** Im Monat leuchtet die Zeile an den Handgriffen der
 Sitzung; in der Jahresansicht ist der Suchbegriff der einzige davon. Die beiden
@@ -2007,22 +1966,22 @@ darüber die Summe aller zwanzig nennt, beantwortet eine Frage, die niemand gest
 wer filtert, will wissen, was das Gefundene zusammen ausmacht. Ohne Filter ist beides
 dieselbe Zahl — dann steht überall wieder die volle Summe.
 
-**Prognose und Fast Budget Details bleiben draußen** — dort wird nicht gefiltert, und
+**Prognose und Import Details bleiben draußen** — dort wird nicht gefiltert, und
 `income(m)`, `fixedCost(m)`, `kakeiboFor(m)` und `openCost(m)` stehen weiter für den ganzen
 Monat.
 
 Daraus folgt für beide Views eine feste Reihenfolge: **erst sammeln, was gezeigt wird, dann
 summieren.**
 
-* **`js/views/monat.js`** — `sumIt(arr)` über die Monatsbeträge; `incSum`, `flexSum`
-  (über `kakVal`, nicht über `amounts`) und `outSum` entstehen aus `incUse`, `flexUse` und
-  `outItems`, der flachen Liste der gezeigten Kosten. `groupHead()` summiert `items`, nicht
+* **`js/views/monat.js`** — `sumIt(arr)` über die Monatsbeträge; `incSum`, `flexSum` und
+  `outSum` entstehen aus `incUse`, `flexUse` und `outItems`, den flachen Listen der
+  gezeigten Posten. `groupHead()` summiert `items`, nicht
   `all` — `all` sagt nur noch, wie viele fehlen.
 * **`js/views/jahr.js`** — `monSums(arr)` liefert die zwölf Monatssummen einer Liste. Die
   Blöcke füllen beim Bauen `incVis`, `kakVis` und `outVis`; die Gesamtspalte rechnet `mrow()`
   ohnehin aus den zwölf Werten.
 
-**Die Auswertung bekommt die Auswahl als ein Stück.** `sel = {items, kaks, bal}` entsteht in
+**Die Auswertung bekommt die Auswahl als ein Stück.** `sel = {items, bal}` entsteht in
 `viewMonat()` aus **denselben** Listen, aus denen die Zeilen gebaut werden, und geht an
 `anaBar(m,sel)` → `timeline(m,sel)` → `monthFlow(m,sel)`. Deshalb können Leiste, Zeitstrahl
 und Karten nicht auseinanderlaufen. Ohne `sel` rechnet `monthFlow()` wie bisher über den
@@ -2048,7 +2007,7 @@ Zwei Nebenwirkungen, die man kennen muss:
 * **Die Sprechblase an „noch offen"** zählt „x von y" ebenfalls über die gezeigten Posten —
   sonst stünde dort „3 von 20", während darunter drei Zeilen sind. Dafür ist
   `unclearCount()` aus `js/calc.js` verschwunden: die Zahl steht nicht mehr im Zustand.
-  Gezählt werden dabei **Posten und Flexible-Payments-Kategorien zusammen** (siehe unten).
+  Gezählt werden dabei alle gezeigten Posten, die flexiblen eingeschlossen.
 * **Der Zeitstrahl ist zugleich der Fälligkeitsfilter** (`data-tpart`). Wer eine Zeile
   anklickt, sieht danach nur noch ihre Zahlen — die übrigen Zeilen bleiben mit Namen und
   blassen Balken stehen, orange Trennlinien fassen die gewählte ein, und statt des
@@ -2081,19 +2040,19 @@ kein Anzeigezustand, und deshalb gehört sie ins Einstellungsfenster, wo die Ang
 Datei beisammenstehen. Vorgabe ist alles gewählt; eine Datei ohne die Angabe bekommt in
 `migrate()` alles.
 
-Die fünf Schlüssel und was zu ihnen zählt, steht in `hayItem()` / `hayKak()` in
-`js/calc.js`, abgefragt über `qField(k)`:
+Die fünf Schlüssel und was zu ihnen zählt, steht in `hayItem()` in `js/calc.js`,
+abgefragt über `qField(k)`:
 
 | Schlüssel | Vergleichsstoff |
 |---|---|
-| `name` | Bezeichnung des Postens, Name der Flexible-Payments-Kategorie |
+| `name` | Bezeichnung des Postens |
 | `note` | Notiz zur Position und die zwölf Monatsnotizen |
 | `amount` | die Monatsbeträge, in beiden Schreibweisen |
 | `total` | die Jahressumme — auch in der Monatsansicht, es ist dieselbe Zeile |
 | `meta` | Kategorie, Bank, Zahlungsart, Fälligkeit — **und** die Namen der Blöcke: `hit()` in `js/views/jahr.js`, `secHit()` in `js/views/monat.js` |
 
 Wer einen Teil hinzufügt, braucht vier Stellen: den Schlüssel in `QFIELDS`, den Zweig in
-beiden `hay…`-Funktionen, die Zeile in `qfRows` im Bereich „Filter"
+`hayItem()`, die Zeile in `qfRows` im Bereich „Filter"
 (`js/dialogs/settings.js`) und zwei Texte in `js/i18n.js`
 (`flt.f…` und `flt.f…Hint`).
 
@@ -2145,8 +2104,8 @@ Das Suchfeld filtert beim Tippen. Gesucht wird in allem, was an der Zeile zu seh
 Name, Betrag, Bank, Zahlungsart, Kategorie, Fälligkeit, Notizen —, soweit der Nutzer es im
 Fenster hinter dem Hamburger-Knopf gewählt hat (siehe unten), in Teilstücken und ohne
 Rücksicht auf Groß- und Kleinschreibung; `norm()` in `js/format.js` macht dabei Punkt und
-Komma gleich, damit „1.234,56" und „1234.56" dasselbe finden. Den Vergleichsstoff liefern
-`hayItem(it,m)` und `hayKak(k,m)` in `js/calc.js` — mit Monat für die Monatsansicht, ohne
+Komma gleich, damit „1.234,56" und „1234.56" dasselbe finden. Den Vergleichsstoff liefert
+`hayItem(it,m)` in `js/calc.js` — mit Monat für die Monatsansicht, ohne
 für die Jahresansicht, die alle zwölf durchsucht. Der Suchbegriff steht in `ui.q` und gilt
 in **beiden** Ansichten; die Bedingung selbst in `show()` in `js/views/monat.js` und in
 `shown()` in `js/views/jahr.js`. Kategoriezeilen bleiben stehen, sobald ein
@@ -2177,18 +2136,17 @@ sonst versteckte der Suchbegriff der vorigen die halbe neue.
 
 ## Duplizieren und Entwürfe
 
-`editItem(item,group,copyOf)` und `editKak(k,copy)` bauen aus einem dritten Argument dasselbe
-Fenster wie für etwas Neues: `isNew` ist dann wahr, es gibt keinen Löschknopf, und angelegt
-wird erst beim Speichern. Die Kopie baut der Knopf `#fDup` / `#kDup` selbst — aus dem
-**getippten** Stand des Fensters, nicht aus der Datei. Beim Posten liest `collect(o)` die
-Felder (dieselbe Funktion, die auch `#fSave` benutzt), bei der Kategorie werden die zwölf
-Felder in `plan` geschrieben; Haken, Notizen und `override` bleiben leer. Die Vorlage wird
-dabei nie angefasst — auch das im Fenster Getippte wandert in die Kopie, nicht in sie.
+`editItem(item,group,copyOf)` baut aus einem dritten Argument dasselbe Fenster wie für
+etwas Neues: `isNew` ist dann wahr, es gibt keinen Löschknopf, und angelegt wird erst beim
+Speichern. Die Kopie baut der Knopf `#fDup` selbst — aus dem **getippten** Stand des
+Fensters, nicht aus der Datei: `collect(o)` liest die Felder (dieselbe Funktion, die auch
+`#fSave` benutzt); Haken, Notizen und Import-Marken bleiben leer. Die Vorlage wird dabei
+nie angefasst — auch das im Fenster Getippte wandert in die Kopie, nicht in sie.
 
-**Ein Entwurf ist keine Position im Zustand.** `findItem()` und `state.kak` finden ihn nicht,
-die Notizlampen liefen also ins Leere. Deshalb meldet jedes Fenster, das erst anlegt, seinen
+**Ein Entwurf ist keine Position im Zustand.** `findItem()` findet ihn nicht, die
+Notizlampen liefen also ins Leere. Deshalb meldet jedes Fenster, das erst anlegt, seinen
 Entwurf mit `useDraft(kind,key,obj,label,box)` aus `js/ui.js` an; `noteTarget()` sieht dort
-zuerst nach. Der Schlüssel ist beim Posten `it.id`, bei der Kategorie der leere Name.
+zuerst nach. Der Schlüssel ist `it.id`.
 `label` ist eine Funktion und liest den Namen aus dem Feld — im Zustand steht er ja noch
 nicht. Abgemeldet wird nichts: der Entwurf gilt nur, solange sein Kasten im Dokument hängt
 (`box.isConnected`), ein geschlossenes Fenster nimmt ihn also von selbst mit. Die Notiz eines
@@ -2199,8 +2157,7 @@ sonst melden seine Lampen „gibt es nicht mehr".
 
 ## Zugehörige Links
 
-Eine Position und eine Flexible-Payments-Kategorie tragen eine **Liste** von Links —
-Vertrag, Rechnung, Kundenkonto. Jeder Eintrag ist `{name,url}`; **höchstens zehn**
+Jede Position trägt eine **Liste** von Links — Vertrag, Rechnung, Kundenkonto. Jeder Eintrag ist `{name,url}`; **höchstens zehn**
 (`MAX_LINKS`).
 
 **Ohne Namen wird kein Link angelegt.** Der Name ist das Einzige, was der Link später zeigt
@@ -2222,8 +2179,7 @@ ohne Schema hält der Browser eine Adresse für einen Pfad der eigenen Seite. Es
 Stellen gebraucht: beim Laden alter Dateien und beim Eintippen im Fenster.
 
 **Im Fenster steht kein Eingabefeld mehr, sondern eine Liste** (`linkRows()` /
-`bindLinks()`, gebaut in `js/ui.js`, verwendet von `js/dialogs/item.js` und
-`js/dialogs/kakeibo-betraege.js`). Je Zeile von links: der **Griff** ⋮⋮ zum Sortieren, der
+`bindLinks()`, gebaut in `js/ui.js`, verwendet von `js/dialogs/item.js`). Je Zeile von links: der **Griff** ⋮⋮ zum Sortieren, der
 **Stift** (öffnet das Webseitenänderungsfenster), das **Kreuz** (löschen) — und dann erst
 der **Link als Text**. Der Link ist ein Link: ein Klick öffnet die Seite in einem neuen
 Reiter, beim Überfahren nennt die Sprechblase die volle Adresse. Der Name allein wäre eine
@@ -2283,7 +2239,7 @@ Namen trotzdem: `ok()` holt ihn nach.
 
 **In den Ansichten bleibt es beim Kettensymbol** (`linkIcon()`): bei **keinem** Link ein
 Strich `–` mit `data-lnnew`, bei **einem** ein gewöhnlicher `<a>`, bei **mehreren** ein Knopf
-mit `data-links="item:<id>"` bzw. `kak:<name>`, der `openLinkList()` öffnet — ein Fenster, in dem alle Links stehen. Ein
+mit `data-links="item:<id>"`, der `openLinkList()` öffnet — ein Fenster, in dem alle Links stehen. Ein
 Symbol je Link stünde bei zehn Links zehnmal vor dem Namen und nähme der
 Bezeichnungsspalte der Jahresmatrix den Platz, den sie ohnehin knapp hat. Alle drei Formen
 sehen gleich aus (`.linkicon` trägt deshalb `background:none;border:0`); welche es ist,
@@ -2314,8 +2270,7 @@ Zahl richtigstellen, dann im Fenster abhaken, dann speichern. Wer abbricht, hat 
 geändert und nichts abgehakt.
 
 Gebaut ist das in `wire()` (`js/app.js`, `askFirst()`): `editItem(it,null,null,ui.month)`
-bzw. `editKak(k,null,ui.month)` — der vierte bzw. dritte Parameter ist der Monat, dessen
-Feld hervorgehoben wird. **Nur beim Setzen des Hakens.** Einen Haken wieder wegzunehmen
+— der vierte Parameter ist der Monat, dessen Feld hervorgehoben wird. **Nur beim Setzen des Hakens.** Einen Haken wieder wegzunehmen
 ändert keine Zahl und braucht keinen Umweg.
 
 ## Welcher Monat im Fenster hervorgehoben ist
@@ -2334,7 +2289,7 @@ zeigt auf genau einen Monat, und im Fenster soll man wiederfinden, worauf man ge
 
 Woher der Monat kommt, entscheidet `dblMonth(cell)` in `wire()`: in der Jahresmatrix steht
 er an der Zelle (`data-m`, gesetzt in `mrow()`), in der Monatsansicht ist es der gezeigte
-Monat (`td.amt` → `ui.month`), in den Fast Budget Details nur bei einem einzelnen Monat —
+Monat (`td.amt` → `ui.month`), in den Import Details nur bei einem einzelnen Monat —
 über das ganze Jahr zeigt ein Betrag auf zwölf und damit auf keinen.
 
 ## Unter der letzten Zeile einer Karte keine Trennlinie
@@ -2372,7 +2327,7 @@ eine Tabellenzeile ohne Nachbarn.
 ## Notizen behalten ihre Zeilen
 
 Eine Notiz wird an vier Stellen gezeigt: in der Sprechblase (`.tip`), als Vorschau unter dem
-Namen (`.noteprev` — Jahresmatrix und Fast Budget Details), als Monatsnotiz in der
+Namen (`.noteprev` — Jahresmatrix und Import Details), als Monatsnotiz in der
 Monatsansicht (`.itemnote`, aufrecht und linksbündig — kursiv las sie sich wie ein
 Einschub; ein senkrechter Strich davor bindet sie an ihre Position und wächst über alle
 ihre Zeilen mit) und in der Monatszelle des Bearbeitungsfensters (`.cellnote`).
@@ -2482,7 +2437,7 @@ meint, nimmt eine der beiden Stellen:
   alles, was „bis heute" bedeutet — etwa der Durchschnitt in `avgMonths()`.
 * `completedMonths()` ist dasselbe **ohne** den laufenden Monat (`CUR-1`): er ist noch
   nicht abgerechnet. Damit rechnet alles, was „abschließen" heißt — die Knöpfe „Alle
-  Monate bis … abschließen" in den beiden Beträge-Fenstern.
+  Monate bis … abschließen" im Posten-Fenster.
 
 Der Name dazu kommt immer aus `MONTHS[CUR-1]` bzw. `MONTHS_LONG[…]`, nie aus dem Text.
 
@@ -2492,8 +2447,8 @@ Ein Fenster, in dem aus einer Liste gewählt wird, sagt auch, wo diese Liste gep
 eine dünne Zeile **über** den Auswahllisten, ein Weg je Liste (`setLinks()` /
 `bindSetLinks()` in `js/ui.js`, `.listlinks` in `css/components.css`, Text `item.listsIn`).
 
-* **Posten-Fenster**: Kategorien (Bereich `groups`) · Banken · Zahlungsarten (beide
-  `banks`). Zwei Wege in denselben Bereich sind kein Fehler: geklickt wird auf das, was
+* **Posten-Fenster**: Kategorien (Bereich `groups`, alle drei Listen) · Banken ·
+  Zahlungsarten (beide `banks`). Zwei Wege in denselben Bereich sind kein Fehler: geklickt wird auf das, was
   gerade fehlt, nicht auf den Bereich, in dem es zufällig wohnt. Der Saldokorrektur fehlt
   die Kategorie, ihr fehlt auch der Weg.
 * **„+ Neu…" im CSV-Import** (`c2NewTarget()`, seit 26.8.30): dieselben drei Wege, und aus
@@ -2501,10 +2456,7 @@ eine dünne Zeile **über** den Auswahllisten, ein Weg je Liste (`setLinks()` /
   wies es mit einer Kurzmeldung ab (`c2.needCats`, der Schlüssel ist weg), und der Nutzer
   stand vor einem Knopf, der nichts tat, ohne zu erfahren, wohin er sollte. Jetzt steht der
   Weg dorthin über den Listen; sein `relist()` baut die drei Auswahllisten neu und behält
-  das Gewählte, der getippte Name bleibt ohnehin stehen. Das Fenster der **flexiblen**
-  Kategorie braucht das nicht: dort entsteht die Kategorie ja gerade.
-* **Fenster der Flexible Payments**: deren **eigene** Kategorien (Bereich `kak`) — nicht die
-  der regelmäßigen Kosten.
+  das Gewählte, der getippte Name bleibt ohnehin stehen.
 
 Vorher stand dort ein einzelner Sammellink (`item.lists`, `#fLists`) weit unten hinter der
 Betragsart, und er **schloss das Fenster**. Beides ist weg.
@@ -2520,18 +2472,13 @@ und `reopen()` reicht es weiter: „+", Entfernen und Sortieren bauen das Fenste
 ein Rückweg, der dabei verloren ginge, wäre der Rückweg für den häufigsten Fall überhaupt —
 man kommt ja her, um etwas anzulegen.
 
-Was die beiden Fenster damit tun:
+Was das Posten-Fenster damit tut:
 
-* **`relist()` im Posten-Fenster** baut die drei Auswahllisten neu. **Gewählt bleibt, was
+* **`relist()`** baut die drei Auswahllisten neu. **Gewählt bleibt, was
   gewählt war**; nur wenn es den Eintrag nicht mehr gibt, zählt der Posten selbst
   (`it.group`, `it.bank`, `it.pay`) — Umbenennen zieht ihn mit (`renameGroup`,
   `askCarryCodes`), und ein Fenster, das den alten Namen behielte, schriebe ihn beim
   Speichern zurück. Ein leeres Feld bleibt leer: „—" ist eine Wahl und keine Lücke.
-* **`relist()` im Kategorie-Fenster** prüft den **Schlüssel**. Dort steht dieselbe Kategorie
-  in der Liste, sie kann also umbenannt oder entfernt worden sein: `k` wäre dann veraltet und
-  legte beim Speichern eine zweite an. Wiedergefunden wird sie über ihren Eintrag selbst
-  (`Object.keys(state.kak).find(n=>state.kak[n]===e)`) — `renameKakCat()` verschiebt genau
-  dieses Objekt. Ist er nirgends mehr, schließt das Fenster mit `kdlg.gone`.
 
 **Ein Import nimmt alles mit.** `leaveTo()` entfernt **jedes** offene Fenster, nicht nur das
 eigene: ein Posten-Fenster, das darunter stehen bliebe, schriebe seinen Stand danach in ein
@@ -2542,9 +2489,9 @@ wird in `wire()` bei jedem Zeichnen neu verdrahtet — es überschriebe den Rüc
 
 ## Ein Fenster steht in Blöcken
 
-Die beiden Fenster, in denen etwas geändert wird — `js/dialogs/item.js` (Posten,
-Saldokorrektur) und `js/dialogs/kakeibo-betraege.js` (Flexible-Payments-Kategorie) —, tragen
-**dasselbe Gerüst**, und zwar in dieser Reihenfolge:
+Das Fenster, in dem etwas geändert wird — `js/dialogs/item.js` (Posten aller drei
+Bereiche, Saldokorrektur; das frühere Beträge-Fenster der flexiblen Kategorien ist seit
+6.9.26 weg) —, trägt **dieses Gerüst**, in dieser Reihenfolge:
 
 | | Block | worin |
 |---|---|---|
@@ -2588,7 +2535,7 @@ Auswahllisten zu zweit (`.box.form .c4`): vier nebeneinander wären 120 px je Li
 darin ist von einer Kategorie nichts mehr zu lesen.
 
 **Kopf und Knopfzeile stehen fest, gescrollt wird nur der Rumpf** (seit 23.8.26): die
-drei großen Fenster — Posten, Beträge, Einstellungen — tragen `.box.split`, und alles
+großen Fenster — Posten, Einstellungen — tragen `.box.split`, und alles
 zwischen Überschrift und `.row-end` steckt in einer `.dbody` (`css/components.css`):
 Name und „Speichern" bleiben immer im Bild, gleich wie weit man in den Monaten steht.
 Wer dort einen Block ergänzt, baut ihn **in** die `.dbody`; ein neues Fenster, das
@@ -2633,155 +2580,97 @@ Einstellungen zu, was man vorher von Hand aufgeklappt hat.
 
 ### Der Bereich „Import"
 
-**Nur das Nötigste** (seit 5.9.26 spät): ein Satz unter der Überschrift, drei Knöpfe in
-einer Reihe (`.impways`) — `#impFast` (CSV-Import 2.0, `openCsvWizard()`), `#impCrit`
-(alle Importkriterien, `openImpRules('all')`), `#impSheet` (FINA-Tabelle, ein ganzes
-Jahr) —, darunter allein `#impWipe` (alle importierten Daten löschen, rot; ohne Import
-grau). Was ein Knopf tut, steht in seiner Sprechblase (`data-tip`), nicht als Absatz
-darunter: vier Handgriffe brauchen keine Seite Text. In der **Kopfzeile** steht für den
-Import kein eigener Knopf; im Menü ist es der CSV-Import neben „Daten hochladen".
+**Drei Abschnitte untereinander** (seit 6.9.26): je eine Überschrift und darunter Knöpfe
+derselben Bauart (`.impsec`, `.impline` als Spalte) — **„CSV-Daten importieren"** mit
+`#impWipe` (alle importierten Daten löschen, rot `.delbtn`; ohne Import grau),
+**„Importkriterien"** mit `#impCrit` („Alle gemerkten Importkriterien verwalten",
+`openImpRules('all')`, legt sein Fenster über die Einstellungen), **„Gemerkte
+CSV-Strukturen"** mit je Struktur einem Knopf über die volle Breite (`.btn.setmap`,
+`data-cmed`: links der Name, rechts klein „gemerkt am"). Importiert wird **nicht** von
+hier, sondern über das Menü der Kopfzeile; der Tabellenimport ist samt Funktion weg.
 
-**`#impFast` und `#impSheet` schließen das Fenster, bevor sie öffnen** (`leaveTo()`). Ein
-Import legt selbst Kategorien an; bliebe das Einstellungsfenster daneben stehen, schriebe
-sein „Speichern" die Listen zurück, die vor dem Import darin standen. Ungespeichertes wird
-vorher erfragt (`set.leaveSave`). `#impCrit` dagegen legt sein Fenster **über** die
-Einstellungen und braucht keinen Rückweg: es schreibt an die Posten, in den Einstellungen
-ändert sich dadurch nichts.
+**Der Knopf einer Struktur öffnet `openCsvStructure(key,done)`** (`js/dialogs/csv2-wizard.js`)
+— ein Fenster über den Einstellungen, mit `reopen` als Rückweg: drei Blöcke (`.dgrp.csgrid`)
+— der Name allein, dann Datum und Betrag als Pflichtfelder, dann Referenz 1 bis 5 —, rechts
+je ein Auswahlmenü mit den Spalten der Datei (`header`, sonst „Spalte n"). Dieselben Regeln
+wie in Schritt 2 des Imports: ein Feld wohnt in einer Spalte, ohne Datum und Betrag wird
+nicht gespeichert (`.errline`), ein Name, den eine andere Struktur trägt, auch nicht.
+Gearbeitet wird auf einer Kopie; `header` und Schlüssel bleiben, sie **sind** die
+Datei-Art. **Gelöscht wird dort auch**: „Diese Struktur aus FINA löschen" (`#csDel`, rot,
+links in der Fußzeile bündig mit den Blöcken) fragt nach, nimmt die Struktur sofort aus dem
+Buch und schließt; am Buch ändert sich sonst nichts — die Importkriterien bleiben an den
+Posten. Dasselbe Fenster öffnet der Stift im Kasten von Schritt 1 des Imports.
 
-**Darunter die gemerkten CSV-Strukturen** (`state.csvMaps`, je Datei-Art eine; Schlüssel
-ist der Fingerabdruck der Spaltenköpfe, `c2Fp()`): je Zeile (`.listrow.maprow`) der Name
-als Feld, ein Stift, ein ✕ — und darunter allein die Art (`kind`: reguläre oder flexible
-Posten). Bis 5.9.26 stand hier die ganze Feldverknüpfung als Zeile, dazu der Tag des
-Merkens und ein langer Absatz; das war zu viel Beschriftung für einen Blick.
-
-* **Der Name ist nur die Beschriftung.** Wiedererkannt wird eine Datei am Fingerabdruck,
-  nicht am Namen; `applyEdits()` schreibt ihn wie jede andere Angabe zurück (ein leeres
-  Feld behält den alten).
-* **Der Stift öffnet die Struktur** (`openCsvStructure(fp,done)` in
-  `js/dialogs/csv2-wizard.js`) — ein Fenster über den Einstellungen, mit `reopen` als
-  Rückweg, damit die Zeile danach die neue Art zeigt: oben die Art als Auswahlliste,
-  darunter links die sechs FINA-Felder (Datum, Betrag, Referenz 1–4), rechts je ein
-  Auswahlmenü mit den Spalten der Datei (`header`, sonst „Spalte n"). Dieselben Regeln wie
-  in Schritt 2 des Imports: ein Feld wohnt in einer Spalte, ohne Datum und Betrag wird
-  nicht gespeichert (`.errline`). Gearbeitet wird auf einer Kopie; `header` und
-  Fingerabdruck bleiben, sie **sind** die Datei-Art.
-* **Das ✕ vergisst die Struktur** — mit Rückfrage. Am Buch ändert es nichts: der nächste
-  Import dieser Art fängt wieder bei den Spalten an, die Importkriterien bleiben an den
-  Posten.
-* **Gezogen wird hier nichts:** die Reihenfolge sagt nichts, also kein Griff.
-
-### Der CSV-Import 2.0 (`js/dialogs/csv2-wizard.js`, seit 24.8.26)
+### Der CSV-Import (`js/dialogs/csv2-wizard.js`, seit 24.8.26, umgebaut 6.9.26)
 
 Liest jede CSV in drei Schritten — **Datei** · **Spalten & Felder** · **Zuordnen** — und
-schreibt erst mit „Fertig" ins Buch (`c2Apply()`): regulär `amounts`, `paid`, `imp` und
-`impRows`, flexibel `tx`, `flexActual` und `flexSource`. Der Arbeitsstand lebt in `W`, nur
-solange das Fenster offen ist. Der alte Fast-Budget-Weg (`js/csv.js`,
-`js/dialogs/csv-import.js`) liegt unbenutzt daneben. Wie die Datei innen aussieht, steht
-in `FINA Strukturen und Objekte/` (Stand v260905-4) — **vor jeder Änderung an der
-Struktur wird Lex gefragt**, und migriert wird beim Lesen (`migrate()`).
+schreibt erst mit „Fertig" ins Buch (`c2Apply()`): je Posten `amounts`, `paid`, `imp` (1
+gemerkt, 2 einmalig) und `impRows` (die Quellzeilen `{d,v,r}`), für flexible Posten
+außerdem `state.flexSource[m]` als Etikett. **Ein Monat mit Quellzeilen wird ergänzt, nicht
+ersetzt** (6.9.26): neue Zeilen kommen dazu, der Betrag ist die Summe. Der Arbeitsstand
+lebt in `W`, nur solange das Fenster offen ist. Wie die Datei innen aussieht, steht in
+`FINA Strukturen und Objekte/` — **vor jeder Änderung an der Struktur wird Lex gefragt**,
+und migriert wird beim Lesen (`migrate()`).
 
-* **Sechs Importfelder, für beide Arten dieselben:** Datum, Betrag, Referenz 1–4
-  (`C2_FIELDS`, `C2_REFS`). Die Referenzen sind eine Rangfolge wie Überschrift 1–4; im
-  Buch stehen sie als Liste an den Quellzeilen (`impRows[m][].r`) und Buchungen
-  (`tx[].r`). Die Importdaten-Liste der Fenster zeigt je Referenz eine Zeile.
-* **Struktur und Kriterien sind getrennt.** Die **Struktur** (`state.csvMaps[fp]` =
-  `{date, file, kind, f, header}`) ist Art und Feldverknüpfung je Datei-Art. Die
-  **Importkriterien** wohnen am Posten bzw. an der flexiblen Kategorie
-  (`impRules[]`, je Regel `{terms:[{f,op,val}]}`) und nennen **Felder, nie Spalten** — sie
-  gelten damit für jede Datei-Art. `migrate()` übersetzt die älteren Formen (Regeln je
-  Datei-Art, `main`/`cat`/`desc` statt Referenzen).
-* **Schritt 1:** Datei wählen, Art wählen (`.c2kind`: „Reguläre Posten" / „Flexible
-  Posten"). Kennt FINA die Datei-Art, steht darüber der Kasten der gemerkten Struktur:
-  **„Automatisch CSV-Datenstruktur vorbereiten"** bringt Felder **und Art** mit, sperrt die
-  beiden Art-Knöpfe (`c2LockedKind()`, `.c2kind.klock`, Sprechblase `c2.kindLockTip`) und
-  geht gleich nach Schritt 2; **„CSV-Datenstruktur neu anordnen"** fängt leer an, mit
-  wählbarer Art. Eine Art aus der Struktur ist als solche vermerkt (`W.kindFromMap`):
-  „Neu anordnen" und eine neue Datei nehmen sie zurück, eine von Hand gewählte bleibt.
-  Eine Struktur ohne Art (Nachmittag des 5.9.26) hält in Schritt 1, bis die Art gewählt
-  ist, und trägt sie beim „Weiter" in Schritt 2 nach.
+* **Sieben Importfelder:** Datum, Betrag, Referenz 1 bis 5 (`C2_FIELDS`, `C2_REFS`; die
+  fünfte seit 6.9.26). Die Referenzen sind gleichrangige freie Felder; im Buch stehen sie
+  als Liste `r` an den Quellzeilen. Eine **Art** der Datei gibt es nicht mehr — Kriterien
+  gelten für alle drei Bereiche, der Import zeigt alle Ziele zusammen.
+* **Struktur und Kriterien sind getrennt.** Die **Struktur** (`state.csvMaps[key]` =
+  `{date, file, f, header}`) ist die Feldverknüpfung je Datei-Art; Schlüssel ist der
+  Fingerabdruck der Spaltenköpfe (`c2Fp()`), eine zweite Struktur derselben Art liegt
+  unter `fp#2`, `fp#3` … (`c2MapsFor`, `c2MapKey`). Die **Importkriterien** wohnen am
+  Posten (`impRules[]`, je Regel `{terms:[{f,op,val}]}`) und nennen **Felder, nie
+  Spalten**. `migrate()` übersetzt die älteren Formen (Regeln je Datei-Art, `kind`,
+  `main`/`cat`/`desc`) — siehe das Strukturdokument.
+* **Schritt 1:** Datei wählen. Kennt FINA die Datei-Art, steht der orange Kasten
+  (`.c2known`) mit je Struktur einer Zeile (Name · Tag · Stift · ✕, bei mehreren ein
+  Radio): **„Automatisch CSV-Datenstruktur vorbereiten"** bringt die Felder mit und geht
+  nach Schritt 2 (`W.autoCols`), **„CSV-Datenstruktur von Grund auf neu anordnen"** fängt
+  leer an. Eine unbekannte Datei springt gleich nach Schritt 2. „Weiter" ist schwarz.
 * **Schritt 2:** die Beschriftungszeile (Spalte HDR/BZ), die Spalten (jeder Spaltenkopf
-  ein Knopf), über jeder gewählten Spalte ihr Feld. „Spalten speichern und weiter" fragt
-  nach einem Namen (`c2AskMapName()`) und legt die Struktur ab (`c2SaveCols()`); kam sie
-  aus dem Gemerkten und steht noch so da (`c2ColsSame()`), heißt der Knopf nur „Weiter".
-  Nach Schritt 3 kommen nur verknüpfte Spalten mit (`c2GoStep3()`).
-* **Schritt 3:** oben die Posten der Art mit zwölf Monaten (Ziel per Klick, orange), in
-  der Mitte die Zuordnungsleiste (☰ · „Modus: Einmalige Zuordnung" · „Zuordnen und
-  merken" · „Neu anlegen und zuordnen" · rechts „Gemerkte Importkriterien anwenden…"),
-  unten die Dateizeilen mit Filter je Feld und Schnellfilter. Gelb heißt „in diesem Lauf
-  zugeordnet", Cyan „früher importiert", Grau „steht schon so im Buch" (siehe „Die
-  Farbsprache"). Ein einzelner Buchstabe ohne Fokus geht in den Schnellfilter
-  (`c2Keys()`).
+  ein Knopf), über jeder gewählten Spalte ihr Feld. „Spalten speichern und weiter" prüft
+  erst Datum und Betrag (`c2Missing`), dann **gewählte Spalten ohne Feld** (`c2LooseCols`,
+  6.9.26): ein Fenster nennt sie und bietet „Abwählen" an — das bleibt im Schritt, damit man
+  das Ergebnis sieht; „Abbrechen" lässt alles stehen. Danach der Name (`c2AskMapName()`,
+  mit dem Haken „bisherige behalten und diese dazu merken") und `c2SaveCols()`; kam die
+  Struktur aus dem Gemerkten und steht noch so da (`c2ColsSame()`), heißt der Knopf nur
+  „Weiter". Nach Schritt 3 kommen nur verknüpfte Spalten mit (`c2GoStep3()`).
+* **Schritt 3:** oben alle drei Bereiche wie die Jahresmatrix (`tbody.c2blk`, Kategorien
+  als klebende Zeilen, Ziel per Klick orange), in der Mitte die Zuordnungsleiste (☰ mit
+  rotem Punkt, solange ein Filter etwas trägt · „Modus: Einmalige Zuordnung" · „Zuordnen
+  und merken" · „Neu anlegen und zuordnen" · rechts der Schalter „Schon zugeordnete
+  CSV-Zeilen verbergen/zeigen" (`W.showOld`) und „Automatisch zuordnen mit gemerkten
+  Importkriterien…"), unten die Dateizeilen mit Filter je Feld und Schnellfilter. **Die
+  Spalte „X" steht immer**: Zeilen, die schon im Buch stehen (`W.inBook`, `c2ScanBook()`
+  über Datum · Betrag · Referenzen), stehen grau mit Kreuz, schreibgeschützt und nie wieder
+  zuordenbar — **und ebenso Zeilen, die dieser Lauf zugeordnet hat** (`asg`, 6.9.26 spät;
+  ein Klick öffnet ihre Regel). Der Schalter verbirgt beide Sorten. Ein Filter allein über
+  den Schnellfilter trägt keine Regel (`c2.tOnlyQ`). Das Wahl-Fenster der gemerkten
+  Kriterien (`c2MapPick`, 940 px, Blöcke in Bereichsfarben, Stift je Posten, die Zeilen
+  als Tabelle) zeigt nur Posten mit **neuen** Zeilen; schon importierte stehen darin grau
+  mit Kreuz. Gelb heißt „in diesem Lauf zugeordnet" (im Zielbereich), Cyan „früher
+  importiert", Grau „schon im Buch" (siehe „Die Farbsprache"). Ein einzelner Buchstabe
+  ohne Fokus geht in den Schnellfilter (`c2Keys()`).
 * **Die Anleitung daneben** (`C2_GUIDE`, Knopf „Anleitung" ganz links in Schritt 2 und 3)
   teilt das Fenster; die Texte stehen in der Datei, nicht in `js/i18n.js`, und beginnen je
   Schritt mit **„Layout"** — grob, was im Fenster steht —, dann Zweck, dann nummerierte
   Schritte. Kein „Oben: … Darunter: …" (das fand Lex schrecklich).
-* **Das Fenster „Importkriterien"** (`openImpRules(kind,done)`, `kind` = `'reg'`,
-  `'flex'` oder `'all'`) zeigt je Regel einen Block — Posten oben, Bedingungen als Zeilen
-  Feld · Vergleichsart · Wert · ✕, „+ Bedingung" —, gegliedert wie der Zielbereich:
-  Einnahmen · Regelmäßige Kosten je Kategorie · Flexible Payments (`.cmesec`,
-  `.c2mpcat`). Arbeitskopie, „Speichern" schreibt an die Posten; eine Bedingung bleibt
-  stehen, ein leerer Wert hält auf. Erreichbar über das ☰ der Zuordnungsleiste und über
-  `#impCrit` in den Einstellungen. Denselben Block trägt jedes Posten- und Beträge-Fenster
-  unter den Monaten (`impCrit*`).
+* **Das Fenster „Importkriterien"** (`openImpRules('all',done)`, `.cmebox` 1240 px) zeigt
+  je Regel einen weißen Block — Posten oben, Bedingungen als Zeilen Feld · Vergleichsart
+  („Enthält" …) · Wert · „Diese Regel löschen" —, gegliedert wie der Zielbereich mit
+  klebenden Bereichsköpfen. Arbeitskopie, „Speichern" schreibt an die Posten. Erreichbar
+  über das ☰ der Zuordnungsleiste und über `#impCrit` in den Einstellungen; das Zeilenmenü
+  eines Ziels bietet „Nach gemerkten Kriterien suchen" (`critq`, lädt die Bedingungen als
+  Filterzeilen). Denselben Block trägt jedes Posten-Fenster unter den Monaten (`impCrit*`),
+  samt „Alle Importdaten löschen", das auch schwebende Zuordnungen des offenen Imports
+  zurücknimmt (`impWipeAsk`, `c2Unassign`).
 
-## Eine FINA-Tabelle einlesen
+## Eine FINA-Tabelle einlesen — gibt es nicht mehr
 
-Die Vorlage ist die Tabellenkalkulation, aus der FINA entstanden ist: eine Zeile je
-Position, zwölf Monatsspalten, davor `URL` · `Deadline` · `B` · `Z` · `P` · `T` und die
-Spalte mit den Bezeichnungen, über der das **Jahr** steht. Gelesen wird sie in
-`js/sheet.js`, das Fenster steht in `js/dialogs/sheet-import.js`.
-
-**Die Gliederung wird gerechnet, nicht geraten.** Ein CSV-Export kennt keine Einrückung, die
-Ebenen stehen aber trotzdem darin — in den Summen:
-
-* **Blockzeile:** trägt in der schmalen Spalte hinter jedem Monat ein `/`. Das sind die vier
-  Summenzeilen der Tabelle (GESAMT, EINNAHMEN, FLEXIBLE PAYMENTS, REGULAR COSTS).
-* **Kategoriezeile:** hat keine Kürzel, und ihre zwölf Werte sind **genau die Summe der
-  Zeilen darunter** (`claim()`). Genommen wird die kürzeste Folge, die aufgeht — dadurch
-  erkennt FINA auch eine Überschrift, vor der keine Leerzeile steht.
-* Alles Übrige ist eine **Position**.
-
-Geht die Summe nicht auf, greift ein Rückfall (`untilBlank()`: eine kürzellose Zeile nach
-einer Leerzeile ist eine Überschrift bis zur nächsten Leerzeile). **Verborgen bleibt das
-nicht:** das Fenster stellt je Block die Summenzeile der Tabelle neben das, was FINA gelesen
-hat, und schreibt STIMMT oder WEICHT AB daneben. Weicht es ab, wurde eine Überschrift als
-Position gelesen und die Zahlen stünden doppelt da.
-
-**Welcher Block was ist, entscheidet der Nutzer** — geraten wird nur die Vorauswahl (die
-Zeile, die alle anderen zusammenzählt, ist die Gesamtsumme und wird übergangen; danach der
-Name, danach die Reihenfolge). Jede Änderung baut Schritt 1 neu auf, wie „+" im
-Einstellungsfenster.
-
-**Ein Buch wird ersetzt, nicht ergänzt.** `applySheet()` leert `fixed`, `groups`,
-`incomeGroups`, `kakCats`, `kak`, `tx`, `flexActual`, `flexSource` — und die
-**Saldokorrektur**: sie sagt, was in *diesen* zwölf Monaten aufgelaufen ist, und trüge sonst
-unsichtbar die Korrekturen eines anderen Jahres in das eingelesene hinein. Der
-**Anfangsbestand** bleibt: er ist eine Einstellung, steht an einer Stelle und ist dort in
-einem Griff geändert. Wer hier etwas ergänzt, das dem Buch gehört, leert es mit.
-
-Zwei Dinge folgen aus dem Datenmodell:
-
-* **Die Flexible Payments kennen nur eine Ebene.** Die Tabelle gliedert sie zweistufig
-  („KAKEIBO – PRIVAT" über „D-AILY"); zu `kakCats` werden deshalb die **untersten** Zeilen,
-  denn dort stehen die Zahlen, die man vergleicht. Geschrieben wird nach `plan[]` mit
-  `estimated=false` — nicht nach `flexActual`: eine Quelle in `flexSource[m]` überstimmt in
-  `kakVal()` jeden Planwert und ließe zugleich den Reiter „Fast Budget Details" ohne eine
-  einzige Buchung erscheinen.
-* **Ein Kategoriename darf über Einnahmen und Kosten zusammen nur einmal vorkommen** (siehe
-  „Einnahmen haben Kategorien wie die Kosten"). Zwei Überschriften desselben Namens werden
-  deshalb auseinandergehalten (`(2)`), nicht zusammengelegt: zusammengelegt stimmte danach
-  keine der beiden Summen mehr mit der Tabelle überein.
-
-**Was kein Gegenstück hat, geht nicht stillschweigend verloren.** Die Spalte `P` (Zahlungen
-im Jahr) wird nicht übernommen — die zwölf Monatsbeträge sagen dasselbe genauer, und das
-Fenster sagt es vorher. Was in `Deadline` steht und kein Monat ist („Variabel", „mtl.
-kündbar"), wird zur **Notiz** der Position. Kürzel, die die Listen nicht kennen, kommen als
-`{code, label:code}` hinein; ohne das trüge der Posten im Fenster ein Fragezeichen.
-
-**Abhaken ist eine Aussage über die Vergangenheit.** Der Haken „Abgeschlossene Monate
-abhaken" setzt `paid[]` bis `completedMonths()` — in einem vergangenen Jahr also alle zwölf,
-im laufenden bis zum Monat vor diesem. Gefragt wird **nach** dem Jahr: das Jahr entscheidet,
-was „abgeschlossen" heißt.
+Der Tabellenimport (`js/sheet.js`, `js/dialogs/sheet-import.js`, Knopf in den
+Einstellungen, Feld `#fileSheet`) ist seit 6.9.26 samt Funktion und Wörterbuch heraus. Wer
+eine Tabelle hereinholen will, exportiert sie als CSV und nimmt den CSV-Import.
 
 ## Erklärender Text steht in der Sprechblase, nicht in der Ansicht
 
@@ -2793,7 +2682,7 @@ die man die Ansicht geöffnet hat. Die Sprechblase steht nur da, wenn jemand fra
 steht bei dem, wonach er fragt.
 
 Deshalb sind am 20.8.26 aus den Ansichten verschwunden: der Absatz über die Marke „Art" in
-den Fast Budget Details (jetzt `kak.kindTip` an der Marke), die beiden Sätze über den
+den Import Details (jetzt `kak.kindTip` an der Marke), die beiden Sätze über den
 Zeilenpfeil und die Herkunft eines Betrags (der Pfeil trägt seinen `title` längst selbst),
 der Absatz unter der Prognose über blasse Monate und die Leserichtung einer Zeile (jede
 Spalte hat ihre Sprechblase) und die Überschrift „Ausblick 2026" über der Kennzahlenleiste
@@ -3085,10 +2974,9 @@ Orange — und Orange heißt in FINA „hier kann man handeln" (Knöpfe, Weiterl
 Sprungmenü). Zwei Bedeutungen auf einer Farbe sind eine zu viel; wer eine weitere Fläche
 baut, die einen greifenden Filter meldet, nimmt `--flt`.
 
-**Woher der Stand kommt, wissen zwei verschiedene Stellen:** bei einem Posten das Feld
-`it.imp[m-1]` (gesetzt von `c2Apply()`), bei einer Flexible-Payments-Kategorie
-`flexKind(k,m)==='imp'` — eine **Korrektur** zählt nicht dazu, die hat jemand von Hand
-gesetzt, und das sagt die orange Marke in der Zeile.
+**Woher der Stand kommt, weiß eine Stelle:** das Feld `it.imp[m-1]` (gesetzt von
+`c2Apply()`; 1 gemerkt, 2 einmalig, in älteren Dateien `true`) — bei flexiblen Posten
+genauso wie bei regulären, seit beide dasselbe Modell haben (6.9.26).
 
 **Den Haken abnehmen heißt: kein Import mehr.** Wer im Posten-Fenster einen importierten
 Monat aufmacht, um die Zahl anzufassen, nimmt die Aussage „so stand es in der Datei"
@@ -3103,11 +2991,10 @@ bei jedem Zeichnen. Es setzt `ui.kakDetail` auf „mit Unterkategorien", wenn di
 importierte Buchungen mitbringt, und sonst auf „nur Hauptkategorien": ohne Import gibt es
 keine Unterkategorien, der Knopf dazu ist dann in `js/views/kakeibo.js` auch gesperrt. Die
 View erzwingt das zusätzlich (`canDetail`), damit Anzeige und Knopf nie auseinanderlaufen.
-Kommen die ersten Buchungen per Import herein, schaltet `js/dialogs/csv-import.js` die
-Unterkategorien ein — aber nur, wenn vorher gar keine da waren; eine spätere eigene Wahl
-bleibt unangetastet.
+Die Buchungen sind seit 6.9.26 die Quellzeilen der flexiblen Posten (`flexTx()`), ihre
+Unterkategorie ist Referenz 1.
 
-Dort fällt auch die **Vorauswahl der rechten Karte** in „Fast Budget Details": **keine** —
+Dort fällt auch die **Vorauswahl der rechten Karte** in „Import Details": **keine** —
 `ui.kakPick=null` heißt „größte Einzelposten" (`kak.top`), und genau damit geht der Reiter
 auf. Eine vorgewählte Kategorie wäre die falsche Antwort: die erste der Liste steht dort,
 weil sie zuerst angelegt wurde, und die teuerste sagt nur, was die linke Spalte ohnehin
@@ -3265,14 +3152,16 @@ bestimmt selbst, wo es stehen bleibt. (Es gab beides schon — `scroll-snap-type
 und danach ein sanftes Gleiten nach dem Rollen; beides ist wieder heraus. Wer es
 zurückbauen will, weiß jetzt, dass es zweimal nicht überzeugt hat.)
 
-**Der Rollbalken steht über der Tabelle, nicht darunter.** Von Haus aus sitzt er am unteren
-Rand des Rollrahmens, also quer über der letzten Zeile. Deshalb verbergen beide Tabellen
-ihren waagerechten und bekommen einen eigenen darüber: `scrollRail(id)` / `bindRails()` in
+**Der Rollbalken ist ein eigener.** Von Haus aus sitzt er am unteren Rand des Rollrahmens,
+quer über der letzten Zeile, und unter macOS erst beim Rollen. Deshalb verbergen beide
+Tabellen ihren waagerechten und bekommen einen eigenen: `scrollRail(id)` / `bindRails()` in
 `js/ui.js`, `.scrollrail` in `css/layout.css` — ein Rollrahmen mit einem Streifen darin, der
-so breit ist wie die Tabelle. In der Matrix steht er **in der Knopfleiste** (`#yearBar`), in
-der Prognose in der Karte direkt über der Tabelle. Er wird ausdrücklich **gestaltet**, damit
-er dauerhaft zu sehen ist: hier ist er der Weg zum Rollen und nicht dessen Anzeige. Passt
-eine Tabelle ins Fenster, verschwindet er (`.off`).
+so breit ist wie die Tabelle. In der Matrix steht er seit 6.9.26 **unter der Fläche**
+(`.yearpane+.scrollrail`; bis dahin in der Knopfleiste) — `sizeMatrix()` zieht ihn bei der
+Höhe der Fläche mit ab, und `syncMatrixHead()` ruft davor `fitRails()`, damit feststeht, ob
+er da ist —, in der Prognose in der Karte direkt über der Tabelle. Er wird ausdrücklich
+**gestaltet**, damit er dauerhaft zu sehen ist: hier ist er der Weg zum Rollen und nicht
+dessen Anzeige. Passt eine Tabelle ins Fenster, verschwindet er (`.off`).
 
 Wie versteckt wird, ist je Tabelle verschieden — und das ist kein Zufall, sondern die
 einzige Möglichkeit:
@@ -3353,15 +3242,15 @@ Es gibt keine Testsuite. Änderungen im Browser gegen eine eigene Datei prüfen 
 auf die Konsole achten. Sinnvolle Durchgänge: leerer Start ohne Datei (darf nirgends
 abstürzen), Datei laden, alle vier Ansichten, **beide Sprachen**, Einstellungsfenster mit
 Umbenennen **plus** einer zweiten Aktion, CSV-Import, Saldokorrektur eintragen und im Saldo
-wiederfinden, Speichern und erneutes Laden. Dazu: aus Jahr **und** Monat je einen Posten und
-eine Flexible-Payments-Kategorie anlegen, eine Kategorie ohne jeden Betrag in allen drei
-Ansichten wiederfinden, und in beiden Beträge-Fenstern abschließen und wieder öffnen.
+wiederfinden, Speichern und erneutes Laden. Dazu: aus Jahr **und** Monat je einen Posten in
+jedem der drei Bereiche anlegen, eine Kategorie ohne jeden Betrag in allen drei Ansichten
+wiederfinden, und im Posten-Fenster abschließen und wieder öffnen.
 
-**Ein Import hat eine Probe, die etwas beweist:** die Summenzeile der Tabelle gegen
-`saldo(m)`, Monat für Monat. Stimmen alle zwölf, ist die Gliederung richtig gelesen und
-nichts doppelt gezählt — das ist die eine Prüfung, die sich nicht durch Hinsehen ersetzen
-lässt. Geprüft wird sie über ein Buch, das schon voll ist (die Kategorien müssen ganz
-verschwinden), und danach über Speichern und erneutes Laden.
+**Eine Migration hat eine Probe, die etwas beweist:** die alte Fassung aus Git holen
+(`git archive HEAD | tar -x -C …`), dieselbe Datei durch alte und neue `migrate()` laufen
+lassen und je Monat `income`, `kakeiboFor`, `fixedCost`, `balanceFix`, `saldo` vergleichen —
+dazu Speichern, erneut Laden, erneut Speichern (die Datei muss byte-gleich bleiben). So
+wurde der Umbau vom 6.9.26 mit drei echten und vier künstlichen Altdateien geprüft.
 
 **Die App hat ihre eigene Liste** — vierzehn Punkte in `desktop/README.md`, darunter die
 drei, die nur dort schiefgehen können: schreibt „Daten speichern" wirklich in dieselbe

@@ -93,17 +93,17 @@
              welcher Datei die Knöpfe darunter arbeiten. -->
         <span class="menufile" id="menuFile" hidden></span>
         <!-- ── Woher die Zahlen kommen ──────────────────────────
-             „Daten hochladen" und „CSV importieren" stehen als
-             eigene, abgetrennte Gruppe **am Anfang** des Menüs:
-             beide holen etwas herein, und das ist der erste
-             Griff, den man sucht. Hochladen zuerst — eine ganze
-             Datei kommt vor einzelnen Spalten.
+             „Daten hochladen" und „CSV importieren" stehen **am
+             Anfang** des Menüs, seit 6.9.26 spät jeder mit eigener
+             Linie darunter: beide holen etwas herein, und das ist
+             der erste Griff, den man sucht. Hochladen zuerst — eine
+             ganze Datei kommt vor einzelnen Spalten.
 
              Bei engem Fenster schiebt fitHeaderBtns() (js/app.js)
              den Umfrage-Knopf davor: er steht dann als erstes im
              Menü, so wie er draußen als erstes in der Zeile
              stünde. -->
-        <button class="btn" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
+        <button class="btn mi-sep" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
         <!-- Derselbe Weg wie der Bereich „Import" der Einstellungen
              (#impFast): erst das Fenster, das sagt, was die Datei
              braucht, dann die Dateiauswahl. -->
@@ -115,17 +115,20 @@
         <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
         <!-- Eine Kopie mit Zeitstempel im Namen, neben der laufenden
              Datei her (js/storage.js). -->
-        <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
+        <!-- Sichern und Schließen sind seit 6.9.26 spät getrennt:
+             eine Linie unter der Sicherung, das Schließen steht
+             allein — es ist der eine Eintrag, der die Datei loslässt. -->
+        <button class="btn mi-sep" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
         <button class="btn mi-sep" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
-        <!-- Die beiden Wege, etwas anzulegen (Regel 1: verdrahtet
-             in js/app.js unten). Eine eigene Zeile für die Einnahme
-             gibt es nicht mehr: der reguläre Eintrag geht ohne
-             Vorauswahl auf, und dort stehen Einnahmen und Kosten in
-             derselben Auswahlliste. -->
-        <button class="btn mi-new" id="mNewFlex" data-t="menu.newFlex"></button>
+        <!-- Der eine Weg, etwas anzulegen (Regel 1: verdrahtet in
+             js/app.js unten) — schwarz mit weißer Schrift als der
+             nächste Handgriff (css: .tools .mi-new). Der Eintrag
+             geht ohne Vorauswahl auf; Einnahmen, flexible und
+             reguläre Posten stehen dort in derselben Auswahlliste. -->
         <button class="btn mi-new mi-sep" id="mNewOut" data-t="menu.newOut"></button>
         <button class="btn mi-sep" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
-        <!-- Der einzige farbige Eintrag: er klappt die Anleitung
+        <!-- Der einzige farbige Eintrag — seit 6.9.26 spät eine
+             orange Fläche mit weißer Schrift: er klappt die Anleitung
              rechts auf und wieder zu (aria-pressed sagt, ob sie
              offen ist). -->
         <button class="btn guidebtn" id="btnGuide" aria-pressed="false" data-t="app.guide" data-ttip="app.guideTip"></button>
@@ -156,12 +159,10 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ic-lamp" viewBox="0 0 24 24">
 <path d="M9.5 18.5h5M10.5 21h3M12 3a6 6 0 0 0-3.6 10.8c.6.45.9 1.15.9 1.9v.3h5.4v-.3c0-.75.3-1.45.9-1.9A6 6 0 0 0 12 3z"/></symbol></svg>
 
-<!-- Dateiauswahl, wird über die Schaltflächen ausgelöst -->
-<input type="file" id="fileCsv" accept=".csv,text/csv" hidden>
-<!-- Zweite Auswahl für die FINA-Tabelle: dieselbe Dateiendung,
-     aber ein anderer Leser (js/sheet.js). Ein gemeinsames Feld
-     müsste sich merken, wer es geöffnet hat. -->
-<input type="file" id="fileSheet" accept=".csv,text/csv" hidden>
+<!-- Dateiauswahl für das Buch, ausgelöst über „Daten hochladen"
+     (Rückfallweg ohne File System Access API). Die CSV wählt der
+     Import-Wizard selbst (js/dialogs/csv2-wizard.js); die alten
+     Felder #fileCsv und #fileSheet sind seit 6.9.26 spät weg. -->
 <input type="file" id="fileJson" accept=".json,application/json" hidden>
 
 <!-- Logik — die Reihenfolge ist verbindlich:
@@ -175,10 +176,6 @@
 <script src="js/categories.js"></script>
 <script src="js/calc.js"></script>
 <script src="js/storage.js"></script>
-<script src="js/csv.js"></script>
-<!-- Liest die FINA-Tabelle; benutzt splitCsvLine() aus csv.js und
-     steht deshalb dahinter. -->
-<script src="js/sheet.js"></script>
 <script src="js/ui.js"></script>
 
 <script src="js/views/jahr.js"></script>
@@ -188,16 +185,12 @@
 <script src="js/views/kakeibo.js"></script>
 
 <script src="js/dialogs/item.js"></script>
-<script src="js/dialogs/kakeibo-betraege.js"></script>
 <script src="js/dialogs/settings.js"></script>
-<script src="js/dialogs/csv-import.js"></script>
-<!-- Der generische CSV-Import (Wizard im Popup): liest jede CSV,
-     ordnet Zeilen den Posten oder flexiblen Kategorien zu und
-     schreibt erst mit „Anwenden" ins Buch. Er ist der Weg hinter
-     „CSV importieren" — der Fast-Budget-Leser darüber bleibt als
-     Bibliothek liegen. -->
+<!-- Der CSV-Import (Wizard im Popup): liest jede CSV, ordnet Zeilen
+     den Posten zu und schreibt erst mit „Fertig" ins Buch. Er ist
+     der Weg hinter „CSV importieren"; der frühere Fast-Budget-Leser
+     (js/csv.js, js/dialogs/csv-import.js) ist seit 6.9.26 spät weg. -->
 <script src="js/dialogs/csv2-wizard.js"></script>
-<script src="js/dialogs/sheet-import.js"></script>
 <script src="js/dialogs/guide.js"></script>
 <script src="js/dialogs/umfrage.js"></script>
 

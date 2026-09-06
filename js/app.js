@@ -191,7 +191,7 @@ function renderChrome(){
      Datei öffnen wollte, musste erst schließen. Ein Buch mit
      ungespeicherter Arbeit fragt vorher (loadData in
      js/storage.js). */
-  ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewFlex','mNewOut',
+  ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewOut',
    'btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel;
@@ -395,7 +395,10 @@ function sizeMatrix(){
      Gemessen wird er, nicht geraten: gestaltete Balken sind 11 px
      hoch, überlagernde (macOS) messen 0 und schweben trotzdem über
      der letzten Zeile. Deshalb mindestens 14 px, aber nur, wenn es
-     waagerecht überhaupt etwas zu rollen gibt. */
+     waagerecht überhaupt etwas zu rollen gibt. Gerollt wird
+     waagerecht an der eigenen Leiste **unter** der Fläche
+     (scrollRail in viewJahr) — sie zählt oben zum Überstand `over`
+     und ist damit schon abgezogen. */
   const c=getComputedStyle(box);
   const by=parseFloat(c.borderTopWidth)+parseFloat(c.borderBottomWidth);
   const bar=box.scrollWidth>box.clientWidth
@@ -407,6 +410,10 @@ function sizeMatrix(){
    Zeichnen, Größenwechsel, die Breite der Anleitung. */
 function syncMatrixHead(){
   syncStickyTops();
+  /* Erst die Rollleisten: ob die der Jahresmatrix da ist (.off),
+     entscheidet mit, wie hoch die Fläche werden darf — sie steht
+     seit 6.9.26 darunter und wird in sizeMatrix mit abgezogen. */
+  fitRails();
   sizeMatrix();
   sizeMonth();
 }
@@ -417,8 +424,9 @@ function syncMatrixHead(){
    bestimmt selbst, wo es stehen bleibt.
 
    Wird das Fenster breiter, hat die Tabelle womöglich nichts mehr
-   zu rollen — dann verschwindet die Leiste, und umgekehrt. */
-addEventListener('resize',()=>{ syncMatrixHead(); fitRails(); fitHeaderBtns(); });
+   zu rollen — dann verschwindet die Leiste, und umgekehrt
+   (fitRails in syncMatrixHead). */
+addEventListener('resize',()=>{ syncMatrixHead(); fitHeaderBtns(); });
 
 /* Zeichnet alles neu und hält dabei die Scrollposition. */
 function render(){
@@ -598,16 +606,6 @@ function wire(){
     it.paid[ui.month-1]=!on;
     keepQFocus(); save();render();
   });
-  document.querySelectorAll('[data-kpaid]').forEach(b=>b.onclick=()=>{
-    if(b.disabled) return;
-    const k=b.dataset.kpaid, e=state.kak[k]; if(!e) return;
-    /* Bei einer flexiblen Kategorie stellt sich die Frage nicht:
-       ist ihr Monat importiert, ist das Siegel ohnehin gesperrt
-       (`imported` in itemRowKak, js/views/monat.js) — dort gibt es
-       keinen Haken, den man abnehmen könnte. */
-    if(askFirst(e.estimated,e.paid[ui.month-1])){ editKak(k,null,ui.month); return; }
-    e.paid[ui.month-1]=!e.paid[ui.month-1]; keepQFocus(); save();render();
-  });
   /* Mehrere Links an einer Zeile: das Kettensymbol öffnet die
      Auswahl (openLinkList in js/ui.js). Bei genau einem Link ist
      das Symbol ein gewöhnlicher Link und kommt hier nicht an. */
@@ -623,7 +621,7 @@ function wire(){
   document.querySelectorAll('[data-lnnew]').forEach(b=>b.onclick=()=>{
     const i=b.dataset.lnnew.indexOf(':');
     const kind=b.dataset.lnnew.slice(0,i), key=b.dataset.lnnew.slice(i+1);
-    if(kind==='kak') editKak(key); else { const it=findItem(key); if(it) editItem(it); }
+    { const it=findItem(key); if(it) editItem(it); }
     const box=[...document.querySelectorAll('.modal')].pop();
     const add=box&&box.querySelector('[data-lnadd]');
     if(add) add.click();
@@ -819,7 +817,6 @@ function wire(){
   /* Fenster öffnen */
   document.querySelectorAll('[data-lists]').forEach(b=>b.onclick=()=>editLists());
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editItem(findItem(b.dataset.edit)));
-  document.querySelectorAll('[data-kedit]').forEach(b=>b.onclick=()=>editKak(b.dataset.kedit));
   /* Doppelklick auf Betrag oder Bezeichnung öffnet dasselbe
      Fenster wie der Stift — in jeder Ansicht, in der eine Zeile zu
      einer Position gehört. Es zählen nur diese beiden Zellen; auf
@@ -850,7 +847,6 @@ function wire(){
     open(tr,dblMonth(cell));
   });
   dblOpen('[data-dbledit]',(tr,m)=>editItem(findItem(tr.dataset.dbledit),null,null,m));
-  dblOpen('[data-dblkedit]',(tr,m)=>editKak(tr.dataset.dblkedit,null,m));
   /* **Beides trägt in der Prognose die Zelle statt der Zeile.** Dort
      ist eine Zeile ein Monat und keine Position: der Doppelklick auf
      die Korrektur meint sie und nicht die fünf Zahlen daneben. Für
@@ -877,7 +873,6 @@ function wire(){
      Wert von data-newitem ist der vorgewählte Block ("1" = der
      erste der Liste). */
   document.querySelectorAll('[data-newitem]').forEach(b=>b.onclick=()=>editItem(null,b.dataset.newitem));
-  document.querySelectorAll('[data-newkak]').forEach(b=>b.onclick=()=>newKakCat());
   bindNotes(document,()=>render());
 
   /* Die beiden Ausblenden-Knöpfe der Jahresansicht — und sie sind
@@ -1211,10 +1206,12 @@ document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();
 document.getElementById('btnUnlink').onclick=()=>unlinkData();
 document.getElementById('btnSurvey').onclick=()=>openSurvey();
-/* Der CSV-Import im Menü öffnet den generischen Wizard
+/* Der CSV-Import im Menü öffnet den Wizard
    (js/dialogs/csv2-wizard.js): jede CSV, drei Schritte, ins Buch
-   geschrieben wird erst mit „Anwenden". Der alte
-   Fast-Budget-Weg (openImportInfo) bleibt als Bibliothek liegen. */
+   geschrieben wird erst mit „Fertig". Der alte Fast-Budget-Weg
+   (js/csv.js, js/dialogs/csv-import.js) und der Tabellenimport
+   (js/sheet.js) sind seit 6.9.26 spät weg — samt ihren
+   Dateifeldern #fileCsv/#fileSheet. */
 document.getElementById('btnImportCsv').onclick=()=>openCsvWizard();
 /* Die beiden „Neu…"-Wege des Menüs — dieselben Fenster wie die
    Knöpfe, die bis zum Mac-Redesign in den Karten standen. Eine
@@ -1224,7 +1221,9 @@ document.getElementById('btnImportCsv').onclick=()=>openCsvWizard();
    js/dialogs/item.js). #fSave sagt, wenn noch keine Kategorie da
    ist, dass Kategorien in den Einstellungen entstehen
    (item.needBlock). */
-document.getElementById('mNewFlex').onclick=()=>newKakCat();
+/* **Ein Eintrag, ein Fenster** (seit 6.9.26 abends): auch flexible
+   Posten entstehen hier — die Kategorie im Fenster entscheidet, ob
+   Einnahme, flexibel oder regulär. */
 document.getElementById('mNewOut').onclick=()=>editItem(null,'1');
 
 /* Rückfallweg, wenn der Browser die File System Access API nicht kennt. */
@@ -1234,38 +1233,6 @@ document.getElementById('fileJson').onchange=e=>{
   r.onload=()=>{ try{ state=migrate(JSON.parse(r.result)); fileName=f.name; fileHandle=null; dirty=false;
       afterLoad(); ui.welcome=false; render(); toast(t('store.loaded',f.name)+oldNote()); }
     catch(err){ warn(t('store.readFail')); } };
-  r.readAsText(f,'utf-8'); e.target.value='';
-};
-
-/* Die Datei wird nur gelesen; geändert wird erst, wenn der Nutzer
-   im Import-Fenster (js/dialogs/csv-import.js) beide Schritte
-   bestätigt hat. */
-document.getElementById('fileCsv').onchange=e=>{
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{
-      const rows=parseFastBudget(r.result);
-      if(!rows.length){warn(t('imp.noRows'));return;}
-      openImport(rows,f.name);
-    }catch(err){warn(t('imp.failed',err.message));}
-  };
-  r.readAsText(f,'utf-8'); e.target.value='';
-};
-
-/* Dieselbe Vorsicht für die FINA-Tabelle: gelesen wird sofort,
-   geschrieben erst nach beiden Schritten des Fensters
-   (js/dialogs/sheet-import.js). */
-document.getElementById('fileSheet').onchange=e=>{
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{
-      const sheet=parseFinaSheet(r.result);
-      if(!sheet.blocks.length){warn(t('sheet.noBlocks'));return;}
-      openSheetImport(sheet,f.name);
-    }catch(err){warn(t('imp.failed',err.message));}
-  };
   r.readAsText(f,'utf-8'); e.target.value='';
 };
 

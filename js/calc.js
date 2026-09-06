@@ -4,7 +4,6 @@
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Listen aus dem Zustand ───────────────────────────────── */
-const kakCats=()=>((state&&state.kakCats)||[]);
 const costGroups=()=>(state&&state.groups?state.groups:[]);
 /* Einnahmen haben eigene Kategorien, genau wie die Kosten — sie
    werden im Einstellungsfenster gepflegt. Früher gab es dafür den
@@ -21,7 +20,18 @@ const costGroups=()=>(state&&state.groups?state.groups:[]);
    suchen. Leer ist eine Antwort, keine Lücke — dieselbe Regel wie
    bei costGroups() und kakCats() darüber. */
 const incomeGroups=()=>(state&&Array.isArray(state.incomeGroups)?state.incomeGroups:[]);
-const allGroups=()=>incomeGroups().concat(costGroups());
+const allGroups=()=>incomeGroups().concat(flexGroups(),costGroups());
+/* Die Kategorien der flexiblen Posten (seit 6.9.26) — und die
+   Kategorie eines einzelnen: ohne Angabe „Flexibel ohne Kategorie"
+   (NOCAT_FLEX in js/i18n.js). */
+const flexGroups=()=>(state&&Array.isArray(state.flexGroups)?state.flexGroups:[]);
+/* Ein flexibler Posten ist ein Posten wie jeder andere (seit 6.9.26
+   abends): er steht in state.fixed, und seine Kategorie steht in
+   flexGroups — so wie eine Einnahme an incomeGroups erkannt wird.
+   Alles Übrige ist eine regelmäßige Ausgabe (isCost). */
+const isFlex=it=>!!it&&flexGroups().includes(it.group);
+const isCost=it=>!!it&&!isIncome(it)&&!isFlex(it);
+const flexItems=()=>((state&&state.fixed)||[]).filter(isFlex);
 const bankLabel=c=>{const b=(state.banks||[]).find(x=>x.code===c);return b?b.label:c;};
 const payLabel=c=>{const p=(state.pays||[]).find(x=>x.code===c);return p?p.label:c;};
 
@@ -54,20 +64,6 @@ function hayItem(it,m){
   if(qField('note')) p.push(it.note||'',...n);
   if(qField('amount')) p.push(...v.map(eur),...v.map(String));
   if(qField('total')) p.push(...hayNum(it.amounts.reduce((a,b)=>a+b,0)));
-  return norm(p.join(' '));
-}
-function hayKak(k,m){
-  const e=state.kak[k]; if(!e) return '';
-  const all=MONTHS.map((_,i)=>kakVal(k,i+1));
-  const v=m?[kakVal(k,m)]:all;
-  const n=m?[e.notes[m-1]||'']:e.notes;
-  const p=[];
-  /* Der Name einer Flexible-Payments-Kategorie ist zugleich ihre
-     Kategorie — er zählt zur Bezeichnung, nicht zu den Kürzeln. */
-  if(qField('name')) p.push(keyLabel(k));
-  if(qField('note')) p.push(e.note||'',...n);
-  if(qField('amount')) p.push(...v.map(eur),...v.map(String));
-  if(qField('total')) p.push(...hayNum(all.reduce((a,b)=>a+b,0)));
   return norm(p.join(' '));
 }
 /* Der getippte Suchbegriff, vergleichsfertig. Leer heißt: alles
@@ -104,8 +100,8 @@ function dueIn(m){return state.fixed.filter(it=>it.amounts[m-1]!==0);}
 function sumF(m,f){return dueIn(m).filter(f).reduce((s,it)=>s+it.amounts[m-1],0);}
 
 const income=m=>sumF(m,isIncome);
-const fixedCost=m=>sumF(m,it=>!isIncome(it));
-const openCost=m=>sumF(m,it=>!isIncome(it)&&!paidAt(it,m));
+const fixedCost=m=>sumF(m,isCost);
+const openCost=m=>sumF(m,it=>isCost(it)&&!paidAt(it,m));
 /* `unclearCount(m)` stand hier und zählte die geschätzten offenen
    Posten eines Monats. Die eine Stelle, die das brauchte — die
    Sprechblase an „noch offen" —, zählt seit dem Filtern über die
@@ -134,91 +130,77 @@ function yearFinished(it){
    Reihenfolge der übrigen bleibt wie in der Datei. */
 const settledLast=arr=>arr.slice().sort((a,b)=>(yearFinished(a)?1:0)-(yearFinished(b)?1:0));
 
-/* ── Kakeibo ──────────────────────────────────────────────────
-   Rangfolge je Monat: von Hand korrigierter Wert (override),
-   sonst Ist-Wert aus dem Import, sonst der geplante Wert. */
-const hasActual=m=>!!state.flexSource[m];
+/* ── Flexible Posten ──────────────────────────────────────────
+   Seit 6.9.26 abends gewöhnliche Posten. Was hier bis dahin stand —
+   plan, override, flexActual, tx und die Rangfolge kakVal() —, ist
+   in den Posten aufgegangen: ein importierter Monat trägt seinen
+   Betrag in amounts, den Pfeil in imp und seine Quellzeilen in
+   impRows, wie bei jedem Posten. Eine Korrektur ist das Aufmachen
+   des Monats (der Pfeil fällt dann, wie überall).
 
-/* Gibt es überhaupt importierte Buchungen? Daran hängt der Reiter
-   „Fast Budget Details": er wertet genau sie aus, ohne
-   Import stünde dort eine leere Gliederung. Gefragt wird nach
-   beidem — den Buchungen und der Quelle je Monat —, damit auch
-   eine von Hand zusammengestellte Datei erkannt wird. */
-const hasImport=()=>!!state&&(((state.tx||[]).length>0)
+   hasActual(m): der Monat kam aus einer Datei — ein flexibler Posten
+   trägt dort den Pfeil, oder die Quelle des Monats steht noch
+   (flexSource, seit je das Etikett am Kartenkopf). */
+const hasActual=m=>flexItems().some(it=>it.imp&&it.imp[m-1])
+  ||!!(state&&state.flexSource&&state.flexSource[m]);
+
+/* Gibt es überhaupt importierte Buchungen der flexiblen Posten?
+   Daran hängt der Reiter „Import Details": er wertet genau sie aus,
+   ohne Import stünde dort eine leere Gliederung. */
+const hasImport=()=>!!state&&(flexTx().length>0
   ||Object.keys(state.flexSource||{}).some(m=>state.flexSource[m]));
-const kakOv=(k,m)=>{const e=state.kak[k];return e&&e.override&&e.override[m-1]!=null?e.override[m-1]:null;};
 
-/* ── Ist DIESER Monat für DIESE Kategorie importiert? ─────────
-   `hasActual(m)` ist eine Aussage über den **Monat**: eine Datei
-   hat ihn geschrieben. Für die einzelne Kategorie genügt das
-   nicht, seit „Importdaten löschen" im Beträge-Fenster (und im
-   Zielmenü des Wizards) eine Kategorie wieder herauslösen kann.
-   Die Quelle des Monats bleibt dabei stehen — sie gehört dem
-   Monat, und die anderen Kategorien stehen weiter darin.
+/* ── Die Buchungen der flexiblen Posten, als Liste ─────────────
+   Der Reiter „Import Details" liest sie, wie er früher `tx[]` las:
+   je Buchung Jahr, Monat, Tag, `main` (der Name des Postens),
+   Betrag, die Referenzen und ob die Zuordnung einmalig war. Gebaut
+   werden sie aus den Quellzeilen (impRows) der flexiblen Posten —
+   eine zweite Ablage gibt es nicht mehr. Ältere Quellzeilen ohne
+   Referenzen tragen ihren Text in `x`; der steht dann als
+   Unterkategorie (txSub liest `cat`). */
+function flexTx(){
+  const out=[];
+  flexItems().forEach(it=>{
+    const rows=it.impRows||{};
+    Object.keys(rows).forEach(mk=>{
+      const m=+mk; if(!(m>=1&&m<=12)) return;
+      (rows[mk]||[]).forEach(r=>{
+        const p=String(r.d||'').split('.');
+        const x={y:p[2]?2000+(+p[2]):YEAR,m:m,d:+p[0]||0,main:it.name,v:+r.v||0};
+        if(r.r) x.r=r.r; else if(r.x) x.cat=r.x;
+        if(it.imp&&it.imp[m-1]===2) x.once=1;
+        out.push(x);
+      });
+    });
+  });
+  return out;
+}
 
-   **Gemerkt wird das als `null` in `state.flexActual[m]`**, und
-   zwar ausdrücklich nicht als 0: eine 0 ist ein gültiger
-   importierter Betrag (c2Apply und applyImport setzen jede
-   Kategorie eines berührten Monats erst auf 0 und addieren dann
-   ihre Buchungen darauf) — eine Kategorie, die in der Datei nicht
-   vorkam, hat dort mit Recht 0 und bleibt importiert. `null`
-   heißt: „hier stand ein Import, und der Nutzer hat ihn
-   weggenommen." Ein neuer Import über denselben Monat
-   überschreibt es und holt die Kategorie zurück.
-
-   Ein fehlender Schlüssel ist **kein** `null`: alte Dateien
-   kennen die Marke nicht, und dort soll alles bleiben, wie es
-   war. */
-const flexImp=(k,m)=>hasActual(m)&&!(state.flexActual[m]&&state.flexActual[m][k]===null);
-
-const kakVal=(k,m)=>{
-  const o=kakOv(k,m); if(o!=null) return o;
-  return flexImp(k,m)?(state.flexActual[m][k]||0):((state.kak[k]&&state.kak[k].plan[m-1])||0);
-};
 /* ── Woher der Wert eines Monats stammt ───────────────────────
-   Dieselbe Rangfolge wie kakVal() und kakDone(), nur als Wort —
-   damit die Ansicht zeigen kann, worauf sie sich stützt:
-
-     corr  von Hand korrigierter Import
-     imp   Ist-Wert aus Fast Budget
+   Als Wort, damit die Ansicht „Import Details" zeigen kann, worauf
+   sie sich stützt:
+     imp   aus einem Import (der Pfeil)
      done  kein Import, aber abgehakt
      fix   fester eingetippter Betrag, gilt damit als erfasst
      est   geschätzt und noch offen
-     none  gar kein Betrag
-
-   Wer die Rangfolge in kakVal/kakDone ändert, ändert sie hier
-   mit: die Spalte behauptete sonst etwas anderes, als gerechnet
-   wird. */
-function flexKind(k,m){
-  const e=state.kak[k]; if(!e) return 'none';
-  if(kakOv(k,m)!=null) return 'corr';
-  if(flexImp(k,m)) return 'imp';
-  if(e.paid[m-1]) return 'done';
-  if((e.plan[m-1]||0)===0) return 'none';
-  return e.estimated?'est':'fix';
+     none  gar kein Betrag */
+function flexKind(it,m){
+  if(!it) return 'none';
+  if(it.imp&&it.imp[m-1]) return 'imp';
+  if(it.paid[m-1]) return 'done';
+  if((it.amounts[m-1]||0)===0) return 'none';
+  return it.estimated?'est':'fix';
 }
-const FLEX_KIND_LABEL={corr:'kak.kCorr',imp:'kak.kImp',done:'kak.kDone',fix:'kak.kFix',est:'kak.kEst'};
+const FLEX_KIND_LABEL={imp:'kak.kImp',done:'kak.kDone',fix:'kak.kFix',est:'kak.kEst'};
 
 /* ── Kam der Import aus einer einmaligen Zuordnung? ───────────
    Der Statuskreis eines importierten Monats ist cyan, wenn die
    Zuordnung gemerkt wurde, und **rot**, wenn nicht: beim nächsten
    Import derselben Datei-Art käme dieser Wert nicht von selbst
-   wieder. Das ist eine Frage neben der Herkunft, keine andere
-   Herkunft — deshalb eine eigene Funktion und **kein** weiterer
-   Rückgabewert von flexKind(): dessen fünf Werte stehen als Marke
-   in der Ansicht „Fast Budget Details" und hätten damit ein
-   sechstes Wort gebraucht, das dort nichts erklärt.
-
-   Beim Posten steht es an der Zahl selbst (`it.imp[m-1]`: 1
+   wieder. Am Posten steht es an der Zahl selbst (`it.imp[m-1]`: 1
    gemerkt, 2 einmalig — ältere Dateien haben dort `true`, und das
-   heißt wie 1). Bei einer flexiblen Kategorie steht es an den
-   Buchungen: einmalig ist der Monat, wenn **jede** seiner
-   Buchungen aus einer einmaligen Zuordnung kam. */
+   heißt wie 1). */
 function impOnceAt(it,m){return !!(it&&it.imp&&it.imp[m-1]===2);}
-function flexImpOnce(k,m){
-  const rows=(state.tx||[]).filter(x=>x.m===m&&x.main===k);
-  return rows.length>0&&rows.every(x=>x.once);
-}
 
 /* ── Die drei Referenzen einer importierten Zeile (5.9.26) ─────
    Der CSV-Import kennt fünf Felder: Datum, Betrag und Referenz
@@ -251,15 +233,6 @@ function txText(x){
 }
 function impRowText(r){return r&&r.r?refsText(r.r):((r&&r.x)||'');}
 
-function kakDone(k,m){
-  const e=state.kak[k]; if(!e) return false;
-  if(kakOv(k,m)!=null) return true;
-  if(flexImp(k,m)) return true;
-  if(e.paid[m-1]) return true;
-  return !e.estimated && (e.plan[m-1]||0)!==0;   /* fester, eingetippter Wert gilt als erfasst */
-}
-const planSum=m=>kakCats().reduce((s,k)=>s+((state.kak[k]&&state.kak[k].plan[(m||1)-1])||0),0);
-
 /* Wie weit ist das Jahr gelaufen? Im laufenden Jahr bis zum
    heutigen Monat, in einem vergangenen bis Dezember, in einem
    künftigen noch gar nicht. CUR allein reicht dafür nicht: dort
@@ -282,28 +255,24 @@ function completedMonths(){
   return CUR-1;
 }
 
-/* Grundlage der Prognose-Annahme: **alle** bisherigen Monate,
-   deren Werte feststehen — nicht nur die letzten paar. Feststehen
-   heißt kakDone(): aus dem Import, aus einer Korrektur, abgehakt
-   oder als fester Wert eingetippt. Ein Monat, in dem nur die
-   geschätzte Annahme steht, zählt nicht mit; sonst rechnete die
-   Annahme ihren eigenen Durchschnitt aus. */
+/* Grundlage der Prognose-Annahme: **alle** bisherigen Monate, in
+   denen ein flexibler Posten feststeht — abgehakt oder importiert.
+   Ein Monat, in dem nur die geschätzte Annahme steht, zählt nicht
+   mit; sonst rechnete die Annahme ihren eigenen Durchschnitt aus. */
 function avgMonths(){
   const ms=[], last=elapsedMonths();
-  for(let m=1;m<=last;m++) if(hasActual(m)||kakCats().some(k=>kakDone(k,m))) ms.push(m);
+  for(let m=1;m<=last;m++) if(flexItems().some(it=>paidAt(it,m))) ms.push(m);
   return ms;
 }
 
-/* Der Durchschnitt einer Kategorie über diese Monate — gezählt
-   werden nur die, in denen sie selbst einen feststehenden Wert
-   hat. So zieht ein Monat, den eine andere Kategorie beigesteuert
-   hat, den Schnitt nicht auf null. */
-function avgActual(k,ms){
-  const use=(ms||avgMonths()).filter(m=>kakDone(k,m));
+/* Der Durchschnitt eines flexiblen Postens über diese Monate —
+   gezählt werden nur die, in denen er selbst feststeht. */
+function avgActual(it,ms){
+  const use=(ms||avgMonths()).filter(m=>paidAt(it,m));
   if(!use.length) return null;
-  return Math.round(use.reduce((s,m)=>s+kakVal(k,m),0)/use.length*100)/100;
+  return Math.round(use.reduce((s,m)=>s+(it.amounts[m-1]||0),0)/use.length*100)/100;
 }
-const kakeiboFor=m=>kakCats().reduce((s,k)=>s+kakVal(k,m),0);
+const kakeiboFor=m=>sumF(m,isFlex);
 
 /* ── Monatssaldo ──────────────────────────────────────────────
    Kosten sind negativ gespeichert, deshalb wird addiert. Die
@@ -353,7 +322,6 @@ const FLOW_PARTS=['A','M','E','Z'];
 const MONTH_PARTS=['P'].concat(FLOW_PARTS);
 function monthFlow(m,sel){
   const items=sel?sel.items:dueIn(m);
-  const kaks=sel?sel.kaks:kakCats();
   const bal=sel?!!sel.bal:true;
   const part={};
   FLOW_PARTS.forEach(k=>part[k]={sum:0,n:0,up:{},down:{}});
@@ -363,8 +331,10 @@ function monthFlow(m,sel){
     const side=v>0?b.up:b.down;
     side[kind]=(side[kind]||0)+Math.abs(v);
   };
-  items.forEach(it=>add(dueGroup(it.dueDay),isIncome(it)?'in':'out',it.amounts[m-1]));
-  kaks.forEach(k=>add('Z','flex',kakVal(k,m)));
+  /* Flexible Posten sind seit 6.9.26 abends gewöhnliche Posten mit
+     Fälligkeit — sie stehen dort, wo ihr Zahltag sie hinsetzt, und
+     nicht mehr pauschal im Monatsabschluss. */
+  items.forEach(it=>add(dueGroup(it.dueDay),isIncome(it)?'in':(isFlex(it)?'flex':'out'),it.amounts[m-1]));
   if(bal) add('Z','bal',balanceFix(m));
 
   let run=carryIn(m);
@@ -518,8 +488,8 @@ function yearScale(flow){
 /* ── Fortschritt eines Monats ─────────────────────────────── */
 function monthParts(m){
   const items=dueIn(m);
-  const total=items.length+kakCats().length;
-  const done=items.filter(it=>paidAt(it,m)).length+kakCats().filter(k=>kakDone(k,m)).length;
+  const total=items.length;
+  const done=items.filter(it=>paidAt(it,m)).length;
   return {total,done};
 }
 function monthDone(m){const p=monthParts(m);return p.total>0&&p.done===p.total;}

@@ -64,11 +64,14 @@ function txByMain(list,order){
    füllt das die rechte Karte (viewKakeibo), auf dem Telefon das
    Fenster (openKakTx) — dieselbe Rechnung, zwei Orte; zwei
    Fassungen liefen auseinander. */
+/* Die flexiblen Posten sind seit 6.9.26 abends gewöhnliche Posten
+   (isFlex in js/calc.js); ihre Buchungen liefert flexTx() aus den
+   Quellzeilen — `main` ist der Name des Postens. */
 function kakSideData(){
-  const cats=kakCats(), known=new Set(cats), order=cats.slice();
+  const cats=flexItems().map(it=>it.name), known=new Set(cats), order=cats.slice();
   const scopeYear=ui.scope==='jahr';
   const zeitraum=scopeYear?`${YEAR}`:MONTHS_LONG[ui.month-1];
-  const tx=state.tx.filter(x=>(scopeYear||x.m===ui.month)&&known.has(x.main||'(ohne Hauptkategorie)'));
+  const tx=flexTx().filter(x=>(scopeYear||x.m===ui.month)&&known.has(x.main||'(ohne Hauptkategorie)'));
   const pick=ui.kakPick||null;
   if(pick){
     const list=tx.filter(x=>(x.main||'(ohne Hauptkategorie)')===pick.main
@@ -113,14 +116,18 @@ function openKakTx(){
 }
 
 function viewKakeibo(){
-  const cats=kakCats();
-  /* Weder Kategorien noch Buchungen — dann steht hier nur der Weg
-     hinein: importieren oder die erste Kategorie anlegen. */
-  if(!cats.length&&!state.tx.length) return `<div class="empty"><strong>${t('kak.empty')}</strong>
+  const items=flexItems(), cats=items.map(it=>it.name), byName={};
+  items.forEach(it=>{byName[it.name]=it;});
+  const txAll=flexTx();
+  /* Weder Posten noch Buchungen — dann steht hier nur der Weg
+     hinein: importieren oder den ersten flexiblen Posten anlegen
+     (das gewöhnliche Posten-Fenster, vorgewählt „Flexibel ohne
+     Kategorie"). */
+  if(!cats.length&&!txAll.length) return `<div class="empty"><strong>${t('kak.empty')}</strong>
     ${t('kak.emptyHint')}
     <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button class="btn primary" id="btnImportK">${t('kak.importBtn')}</button>
-      <button class="btn" data-newkak="1">${t('year.addKak')}</button></div></div>`;
+      <button class="btn" data-newitem="${esc(NOCAT_FLEX)}">${t('menu.newOut')}</button></div></div>`;
 
   const scopeYear=ui.scope==='jahr';
   /* Unterkategorien kennt nur der Import. Ohne Buchungen gibt es
@@ -128,7 +135,7 @@ function viewKakeibo(){
      kategorien, ganz gleich, was zuletzt gewählt war, und der
      Knopf daneben ist gesperrt. Was beim Öffnen einer Datei
      vorgewählt ist, entscheidet afterLoad() in js/state.js. */
-  const canDetail=state.tx.length>0;
+  const canDetail=txAll.length>0;
   const detail=canDetail&&ui.kakDetail!==false;
   const zeitraum=scopeYear?`${YEAR}`:MONTHS_LONG[ui.month-1];
   const months=scopeYear?MONTHS.map((_,i)=>i+1):[ui.month];
@@ -138,7 +145,7 @@ function viewKakeibo(){
      (dropKakCat in js/categories.js); was hier trotzdem übrig
      bleibt, stammt aus einer von Hand bearbeiteten Datei. */
   const known=new Set(cats);
-  const inScope=state.tx.filter(x=>scopeYear||x.m===ui.month);
+  const inScope=txAll.filter(x=>scopeYear||x.m===ui.month);
   const tx=inScope.filter(x=>known.has(x.main||'(ohne Hauptkategorie)'));
   const orphan=inScope.length-tx.length;
 
@@ -148,7 +155,7 @@ function viewKakeibo(){
      Wert. Ohne Import steht hier also die eigene Eingabe und
      nicht eine leere Liste. */
   const val={};
-  cats.forEach(k=>{val[k]=Math.round(months.reduce((s,m)=>s+kakVal(k,m),0)*100)/100;});
+  cats.forEach(k=>{val[k]=Math.round(months.reduce((s,m)=>s+(byName[k].amounts[m-1]||0),0)*100)/100;});
 
   /* Unterkategorien kennt nur der Import — seit 5.9.26 ist es die
      Referenz 1 der Buchung, bei älteren Buchungen die
@@ -207,9 +214,9 @@ function viewKakeibo(){
      zuerst. Monate ohne Betrag zählen nicht mit — sie sagen
      nichts über die Herkunft. */
   function kindTag(k){
-    if(!state.kak[k]) return '';
+    const it=byName[k]; if(!it) return '';
     const per={};
-    months.forEach(m=>{const s=flexKind(k,m); if(s!=='none') per[s]=(per[s]||0)+1;});
+    months.forEach(m=>{const s=flexKind(it,m); if(s!=='none') per[s]=(per[s]||0)+1;});
     const list=Object.keys(per).sort((a,b)=>per[b]-per[a]);
     if(!list.length) return '';
     /* Was die fünf Wörter bedeuten, stand bis 20.8.26 als Absatz
@@ -224,13 +231,13 @@ function viewKakeibo(){
   /* Der Beleglink der Kategorie — dasselbe Symbol wie beim
      regelmäßigen Posten. */
   const kLink=k=>{
-    const l=state.kak[k]&&state.kak[k].links;
-    return (l&&l.length)?' '+linkIcon(l,'kak',k):'';
+    const it=byName[k], l=it&&it.links;
+    return (l&&l.length)?' '+linkIcon(l,'item',it.id):'';
   };
 
   let rows='';
   order.forEach(mk=>{
-    rows+=`<tr class="kmain"${state.kak[mk]?dblKak(mk):''}><td class="nm">${state.kak[mk]?lampPos('kak',mk):''}${esc(keyLabel(mk))}${kindTag(mk)}${kLink(mk)}</td>
+    rows+=`<tr class="kmain"${byName[mk]?dblItem(byName[mk].id):''}><td class="nm">${byName[mk]?lampPos('item',byName[mk].id):''}${esc(keyLabel(mk))}${kindTag(mk)}${kLink(mk)}</td>
       ${mainBar(mk)?bar(val[mk]):'<td></td>'}
       <td class="num ${cls(val[mk])}">${eur(val[mk])}</td>${arrow(mk)}</tr>`;
     if(!detail) return;

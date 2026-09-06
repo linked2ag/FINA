@@ -53,7 +53,11 @@ function groupOpts(cur){
   const opt=(g,cls)=>`<option value="${esc(g)}" class="${cls}"${g===cur?' selected':''}>${esc(keyLabel(g))}</option>`;
   const grp=(label,arr,cls)=>arr.length
     ?`<optgroup label="${esc(label)}" class="${cls}">${arr.map(g=>opt(g,cls)).join('')}</optgroup>`:'';
+  /* Drei Gruppen (seit 6.9.26 abends): Einnahmen · Flexibel ·
+     Regulär — die Kategorie entscheidet, was der Posten ist; ein
+     eigenes Fenster für flexible Posten gibt es nicht mehr. */
   return grp(t('set.groupsIn'),incomeGroups(),'og-in')
+       + grp(t('set.groupsFlex'),flexGroups(),'og-flex')
        + grp(t('set.groupsOut'),costGroups(),'og-out');
 }
 
@@ -72,12 +76,15 @@ function editItem(item,group,copyOf,focusMonth){
      Arbeitskopie, die erst „Speichern" übernimmt. Wer abbricht,
      hinterlässt nichts — wie beim Namen und bei den Beträgen. */
   const links=((item&&item.links)||[]).map(x=>({name:x.name,url:x.url}));
-  /* Ein neuer Posten bekommt nur dann einen Block, wenn der
-     Aufrufer einen nennt — „Neue Einnahme" tut das. Sonst bleibt
-     die Auswahl leer: welcher Block gemeint ist, weiß nur der
-     Nutzer, und eine stille Vorauswahl landet unbemerkt in der
-     Datei. Gespeichert wird erst mit Block (siehe #fSave). */
-  const firstGroup=(group&&group!=='1'&&allGroups().includes(group))?group:'';
+  /* Ein neuer Posten bekommt den Block, den der Aufrufer nennt —
+     der Einnahmenblock der Monatsansicht seine erste Kategorie.
+     Sonst **„N/A" der regulären Kosten** (seit 6.9.26; bis dahin
+     blieb die Auswahl leer, und ohne Wahl wurde nicht gespeichert):
+     der Eintrag steht in jeder Liste immer, und ein Posten darf
+     entstehen, bevor eine einzige eigene Kategorie angelegt ist.
+     Die Geldart sagt weiterhin allein die Kategorie — die drei
+     festen Einträge nennen ihren Bereich im Namen. */
+  const firstGroup=(group&&group!=='1'&&allGroups().includes(group))?group:NOCAT_OUT;
   const it=item||normalize({id:uid(),name:'',group:firstGroup,amounts:Array(12).fill(0)});
   const lockN=it.paid.filter((p,i)=>p&&it.amounts[i]!==0).length;
   /* So weit ist das Jahr abgerechnet: bis dahin reicht der Knopf
@@ -123,7 +130,7 @@ function editItem(item,group,copyOf,focusMonth){
      isIncome() (js/calc.js). Kein gewählter Block heißt keine
      Farbe: eine geratene wäre eine Aussage, die niemand gemacht
      hat. */
-  const mtint=g=>isBal?' t-bal':(g?(incomeGroups().includes(g)?' t-in':' t-out'):'');
+  const mtint=g=>isBal?' t-bal':(g?(incomeGroups().includes(g)?' t-in':(flexGroups().includes(g)?' t-flex':' t-out')):'');
 
   const box=document.createElement('div');
   box.className='modal';
@@ -258,10 +265,12 @@ function editItem(item,group,copyOf,focusMonth){
            Liste daneben auf oder holt sie herein — zwischen
            „Löschen" und „Duplizieren" stand er mitten unter den
            Wegen, die das Buch ändern. Hinter der Entscheidung ist
-           er das, was er ist: ein Griff an der Ansicht.
+           er das, was er ist: ein Griff an der Ansicht. **Schwarz
+           wie „Speichern"** (6.9.26): er ist der Weg zur Liste und
+           soll neben dem Speichern-Knopf nicht untergehen.
            „Importdaten löschen" ist nicht dabei — den nimmt
            impSideWire() in die Fußzeile der Liste (js/ui.js). -->
-      <button class="btn" id="impBtn" hidden></button></div>
+      <button class="btn primary" id="impBtn" hidden></button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box);
   /* Der Import-Bereich rechts (js/ui.js): der Knopf in der
@@ -281,13 +290,21 @@ function editItem(item,group,copyOf,focusMonth){
   const impDel=box.querySelector('#impDel');
   if(impDel) impDel.onclick=()=>{
     const months=it.imp?it.imp.map((v,i)=>v?i+1:0).filter(Boolean):[];
-    if(!months.length) return;
-    if(!confirm(t('c2.mnWipeAsk',it.name,months.length))) return;
+    /* **Auch das Schwebende des offenen Wizards** (6.9.26): was
+       dieser Import dem Posten zugeordnet, aber noch nicht
+       geschrieben hat, wird gelöst (c2Unassign) — sonst stand man
+       vor einer falschen Zuordnung ohne Weg heraus. Geschrieben
+       wird nur, wenn sich am Buch etwas geändert hat. */
+    const pend=impPendingCount('i:'+it.id);
+    if(!months.length&&!pend) return;
+    if(!confirm(impWipeAsk(it.name,months.length,pend))) return;
     months.forEach(m=>{it.amounts[m-1]=0;it.paid[m-1]=false;it.imp[m-1]=false;
       if(it.impRows)delete it.impRows[m];});
-    save(); box.remove(); render();
-    editItem(it);
-    toast(t('c2.mnWiped',it.name,months.length));
+    if(pend) c2Unassign('i:'+it.id);
+    if(months.length) save();
+    box.remove(); render();
+    impReopen(()=>editItem(it));
+    toast(months.length?t('c2.mnWiped',it.name,months.length):t('c2.tUnmapped',it.name,pend));
   };
 
   /* Ein Posten, den es noch nicht gibt, ist für findItem() nicht
@@ -424,7 +441,7 @@ function editItem(item,group,copyOf,focusMonth){
     const g=box.querySelector('#fGroup');
     if(g){
       const all=allGroups();
-      const cur=all.includes(g.value)?g.value:(all.includes(it.group)?it.group:'');
+      const cur=all.includes(g.value)?g.value:(all.includes(it.group)?it.group:NOCAT_OUT);
       g.innerHTML=(cur?'':`<option value="" selected>${t('item.blockPick')}</option>`)+groupOpts(cur);
     }
     const codes=(sel,arr,was)=>{

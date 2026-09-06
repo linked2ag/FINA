@@ -32,7 +32,7 @@ let setPane='general';
    Bereich braucht deshalb einen Eintrag hier, einen `pane(…)`-Aufruf
    unten und die Texte in js/i18n.js. */
 const SET_PANE_LABEL={general:'set.navGeneral',view:'set.navView',filter:'set.navFilter',
-  banks:'set.navBanks',groups:'set.groups',kak:'set.kak',import:'set.navImport'};
+  banks:'set.navBanks',groups:'set.groups',import:'set.navImport'};
 
 /* ── Wohin das Fenster aufgeht ────────────────────────────────
    `openSettings(wohin)` nimmt entweder den Namen eines **Bereichs**
@@ -102,8 +102,16 @@ function openSettings(where,done){
       <input data-k="${key}" data-i="${i}" data-f="label" value="${esc(x.label)}" placeholder="${t('set.label')}">
       <button class="linkish" data-rm="${key}" data-ri="${i}" title="${t('g.remove')}">&#10005;</button></div>`).join('');
 
-  /* Kategorien: nur ein Name. */
+  /* Kategorien: nur ein Name. **Der feste „ohne Kategorie"-Eintrag**
+     (isNoCat, js/i18n.js; seit 6.9.26) zeigt nur Griff und
+     Beschriftung — kein Feld, kein ✕: verschieben ja, umbenennen und
+     löschen nein. Damit collect() ihn an seiner Stelle wiederfindet,
+     trägt er ein verborgenes Feld mit dem rohen Schlüssel. */
   const nameRows=(arr,key,hintOf)=>arr.map((name,i)=>{
+    if(isNoCat(name)) return `<div class="listrow onecol fixedrow" draggable="true" data-list="${key}" data-idx="${i}">
+      <span class="grip" title="${t('set.dragTip')}">⋮⋮</span>
+      <span class="fixedname" title="${esc(t('set.noCatTip'))}">${esc(keyLabel(name))}<input type="hidden" data-k="${key}" data-i="${i}" data-f="name" value="${esc(name)}"></span>
+      <span></span></div>`;
     const hint=hintOf(name);
     return `<div class="listrow onecol" draggable="true" data-list="${key}" data-idx="${i}">
       <span class="grip" title="${t('set.dragTip')}">⋮⋮</span>
@@ -121,32 +129,35 @@ function openSettings(where,done){
      wird eine Datei am Fingerabdruck.
 
      **Je Zeile nur das Nötigste** (5.9.26 spät): Name, Stift, ✕ —
-     und darunter allein die Art. Bis dahin stand hier die ganze
-     Feldverknüpfung als Zeile („Datum ← Buchungstag · …"), dazu der
-     Tag des Merkens und ein langer Absatz; das war zu viel
-     Beschriftung für einen Blick. Was die Struktur ist, zeigt der
-     Stift (openCsvStructure in js/dialogs/csv2-wizard.js): links
-     die FINA-Felder, rechts je ein Auswahlmenü mit den Spalten der
+     und darunter allein der Tag des Merkens (seit 6.9.26; bis dahin
+     die Art, die es nicht mehr gibt: Importkriterien gelten für
+     reguläre wie für flexible Posten gleich). Bis 5.9.26 stand hier
+     die ganze Feldverknüpfung als Zeile („Datum ← Buchungstag · …")
+     und ein langer Absatz; das war zu viel Beschriftung für einen
+     Blick. Was die Struktur ist, zeigt der Stift (openCsvStructure
+     in js/dialogs/csv2-wizard.js): oben der Name, links die
+     FINA-Felder, rechts je ein Auswahlmenü mit den Spalten der
      Datei. Regeln stehen nicht hier: die Importkriterien wohnen an
      den Posten — gesammelt zeigt sie der Knopf oben (#impCrit). */
+  /* **Je Struktur ein Knopf** (6.9.26 spät; davor eine weiße Zeile
+     mit Stift und ✕ wie im Kasten von Schritt 1 des Imports): ein
+     gewöhnlicher .btn wie die beiden Knöpfe darüber — der Name, dahinter
+     klein „gemerkt am" —, jeder auf seiner eigenen Zeile unter der
+     Überschrift. Ein Klick öffnet das Strukturfenster (openCsvStructure
+     in js/dialogs/csv2-wizard.js); dort wird geändert **und gelöscht**.
+     Drei Knopfarten in einem Bereich sähen nach drei Werkzeugen aus,
+     es ist aber ein Bereich: „was FINA vom Import weiß". */
   const mapRows=Object.keys(state.csvMaps||{}).map(fp=>{
     const m=state.csvMaps[fp]||{};
-    const kind=(m.kind==='reg'||m.kind==='flex')?t(m.kind==='reg'?'c2.kindReg':'c2.kindFlex'):'—';
-    return `<div class="listrow onecol maprow">
-      <input data-cm="${esc(fp)}" value="${esc(m.file||'')}" placeholder="${t('set.csvMapName')}">
-      <button class="pencil" data-cmed="${esc(fp)}" title="${esc(t('set.csvMapEdit'))}">&#9998;</button>
-      <button class="linkish" data-cmrm="${esc(fp)}" title="${esc(t('set.csvMapDel'))}">&#10005;</button>
-      <p class="note">${esc(kind)}</p></div>`;
+    return `<button type="button" class="btn setmap" data-cmed="${esc(fp)}" title="${esc(t('set.csvMapEdit'))}">
+      <span class="n">${esc(m.file||fp)}</span>
+      <small>${esc(t('set.csvMapMeta',m.date||'—'))}</small></button>`;
   }).join('');
 
   const useHint=g=>{ const n=groupUseCount(g); return n?t('set.inUse',n):''; };
   const groupRows=nameRows(state.groups,'groups',useHint);
   const incGroupRows=nameRows(state.incomeGroups,'incomeGroups',useHint);
-  const kakRows=nameRows(state.kakCats,'kakCats',k=>{
-    const e=state.kak[k];
-    const n=e?e.plan.filter(v=>v!==0).length:0;
-    return n?t('set.monthsWith',n):'';
-  });
+  const flexGroupRows=nameRows(state.flexGroups,'flexGroups',g=>{const n=flexGroupUseCount(g);return n?t('set.inUse',n):'';});
 
   /* Ein Bereich: Überschrift, ein Satz dazu, Inhalt. Alle werden
      gebaut, sichtbar ist einer. */
@@ -276,20 +287,20 @@ function openSettings(where,done){
           </div>`)}
 
         ${pane('groups',t('set.groups'),t('set.groupsSub'),`
-          <!-- Zwei Listen nebeneinander: Einnahmen links, Ausgaben
-               rechts. Beide beschreiben regelmäßige Posten, aber
-               ein Posten gehört immer in genau eine der beiden
-               Welten — nebeneinander sieht man das, untereinander
-               läse sich die zweite Liste wie eine Fortsetzung der
-               ersten. Die Farbe der Überschrift ist dieselbe wie
-               die der Geldart in allen Ansichten. -->
-          <div class="cols c2 grouplists">
+          <!-- Drei Listen nebeneinander (seit 6.9.26; vorher zwei):
+               Einnahmen · Flexibel · Regulär, in der Reihenfolge der
+               Bereiche in Monat und Jahr. Ein Posten gehört immer in
+               genau eine der drei Welten — nebeneinander sieht man
+               das, untereinander läse sich die zweite Liste wie eine
+               Fortsetzung der ersten. Die Farbe der Überschrift ist
+               dieselbe wie die der Geldart in allen Ansichten. Jede
+               Liste fängt mit ihrem festen „ohne Kategorie" an. -->
+          <div class="cols c3 grouplists">
             <div class="field gl-in">${listHead(t('set.groupsIn'),'incomeGroups',t('set.addGroupIn'))}<div>${incGroupRows}</div></div>
+            <div class="field gl-flex">${listHead(t('set.groupsFlex'),'flexGroups',t('set.addGroupFlex'))}<div>${flexGroupRows}</div></div>
             <div class="field gl-out">${listHead(t('set.groupsOut'),'groups',t('set.addGroup'))}<div>${groupRows}</div></div>
           </div>`)}
 
-        ${pane('kak',t('set.kak'),t('set.kakSub'),`
-          <div class="field">${listHead(t('set.kak'),'kakCats',t('set.addKak'))}<div>${kakRows}</div></div>`)}
 
         <!-- Beide Wege holen Zahlen von außen herein und ändern die
              Datei; deshalb stehen sie beieinander — der eine ergänzt
@@ -305,28 +316,26 @@ function openSettings(where,done){
              und dies ist die eine Stelle, an der man sie beisammen
              sieht, ohne den Import zu öffnen. -->
         ${pane('import',t('set.navImport'),t('set.importSub'),`
-          <div class="field impways">
-            <button class="btn" id="impFast" data-tip="${esc(t('set.impFastHint'))}">${t('app.import')}</button>
-            <button class="btn" id="impCrit" data-tip="${esc(t('c2.mnCritTip'))}">${t('set.impCrit')}</button>
-            <button class="btn" id="impSheet" data-tip="${esc(t('set.impSheetHint'))}">${t('shInfo.title')}</button></div>
-          <!-- Der Weg zurück aus allen Importen auf einmal (5.9.26):
-               jeder importierte Monat eines Postens wird leer und
-               offen, die Buchungen der flexiblen Kosten fallen weg.
-               Die gemerkten Strukturen darunter bleiben — sie sind
-               keine Daten. Ohne Import ist der Knopf grau: was nicht
-               da ist, lässt sich nicht löschen. Er steht in einer
-               eigenen Reihe: ein roter Knopf zwischen den Importwegen
-               läse sich wie einer davon. -->
-          <div class="field impways">
-            <button class="btn delbtn" id="impWipe"${importCount().any?'':' disabled'} data-tip="${esc(t('set.impWipeHint'))}">${t('set.impWipe')}</button></div>
-          <!-- Die gemerkten Strukturen: je Datei-Art eine Zeile
-               (mapRows oben). Der Name ist nur die Beschriftung —
-               wiedererkannt wird eine Datei am Fingerabdruck ihrer
-               Spaltenköpfe —, der Stift ändert die Struktur, das ✕
-               vergisst sie: der nächste Import dieser Art fängt
-               wieder bei den Spalten an. -->
-          <div class="field impmaps">
-            <label>${t('set.csvMaps')}</label>
+          <!-- Drei Abschnitte (6.9.26 abends): **CSV-Daten** — hier nur
+               noch der Weg zurück, importiert wird über das Menü der
+               Kopfzeile —, **Importkriterien** und die **gemerkten
+               Strukturen**. Der Tabellenimport (FINA-Tabelle) ist
+               samt Funktion heraus. Je Abschnitt eine Überschrift
+               und darunter der Knopf (seit 6.9.26 spät; davor
+               daneben) — die gemerkten Strukturen als Knöpfe
+               derselben Bauart, einer je Zeile. -->
+          <div class="field impsec"><div class="impline">
+            <label>${t('set.impSecCsv')}</label>
+            <button class="btn delbtn" id="impWipe"${importCount().any?'':' disabled'} data-tip="${esc(t('set.impWipeHint'))}">${t('set.impWipe')}</button></div></div>
+          <div class="field impsec"><div class="impline">
+            <label>${t('set.impSecCrit')}</label>
+            <button class="btn" id="impCrit" data-tip="${esc(t('c2.mnCritTip'))}">${t('set.impCrit')}</button></div></div>
+          <!-- Die gemerkten Strukturen: je Datei-Art ein Knopf
+               (mapRows oben) — wiedererkannt wird eine Datei am
+               Fingerabdruck ihrer Spaltenköpfe; der Knopf öffnet das
+               Fenster, in dem geändert und gelöscht wird. -->
+          <div class="field impmaps impsec">
+            <label>${t('set.impSecMaps')}</label>
             ${mapRows||`<p class="note">${t('set.csvMapsNone')}</p>`}</div>`)}
       </div>
     </div>
@@ -411,7 +420,7 @@ function openSettings(where,done){
 
   /* Liest den aktuellen Stand aller vier Listen aus dem Fenster. */
   const collect=()=>{
-    const d={banks:[],pays:[],groups:[],incomeGroups:[],kakCats:[]};
+    const d={banks:[],pays:[],groups:[],incomeGroups:[],flexGroups:[]};
     ['banks','pays'].forEach(k=>{
       const idx=[...new Set([...box.querySelectorAll(`[data-k="${k}"]`)].map(i=>+i.dataset.i))].sort((a,b)=>a-b);
       idx.forEach(i=>{
@@ -420,7 +429,7 @@ function openSettings(where,done){
         d[k].push({code,label:label||code});
       });
     });
-    ['groups','incomeGroups','kakCats'].forEach(k=>{
+    ['groups','incomeGroups','flexGroups'].forEach(k=>{
       [...box.querySelectorAll(`[data-k="${k}"]`)].forEach(inp=>d[k].push(inp.value.trim()));
     });
     return d;
@@ -530,12 +539,15 @@ function openSettings(where,done){
          Posten eine Einnahme ist — derselbe Name auf beiden Seiten
          machte das unentscheidbar. Deshalb wird bei den
          Kategorielisten auch gegen die jeweils andere geprüft. */
-      const other = key==='groups' ? state.incomeGroups
-                  : key==='incomeGroups' ? state.groups : null;
-      const collision = key==='kakCats' ? !!state.kak[name]
-        : (names.some((n,j)=>j!==i&&n===name)||(other||[]).includes(name));
+      /* Seit 6.9.26 drei Listen (flexGroups dazu) — geprüft wird gegen
+         die beiden anderen; ein fester Schlüssel ist nie zu vergeben. */
+      const others = key==='groups' ? state.incomeGroups.concat(state.flexGroups)
+                   : key==='incomeGroups' ? state.groups.concat(state.flexGroups)
+                   : key==='flexGroups' ? state.groups.concat(state.incomeGroups) : null;
+      const collision = names.some((n,j)=>j!==i&&n===name)||(others||[]).includes(name)||isNoCat(name);
       if(collision){ names[i]=old; taken.push(name); return; }
-      if(key==='kakCats') renameKakCat(old,name); else renameGroup(old,name);
+      if(key==='flexGroups') renameFlexGroup(old,name);
+      else renameGroup(old,name);
     });
     return taken;
   };
@@ -546,23 +558,13 @@ function openSettings(where,done){
     applyGeneral();
     const d=collect();
     const taken=[...applyRenames('groups',d.groups),...applyRenames('incomeGroups',d.incomeGroups),
-                 ...applyRenames('kakCats',d.kakCats)];
+                 ...applyRenames('flexGroups',d.flexGroups)];
     /* Erst schauen, was sich am Kürzel geändert hat — danach
        überschreiben und fragen. */
     const codeChanges=[scanCodes('banks',d.banks),scanCodes('pays',d.pays)];
     state.banks=d.banks; state.pays=d.pays;
     askCarryCodes(codeChanges);
-    state.groups=d.groups; state.incomeGroups=d.incomeGroups; state.kakCats=d.kakCats;
-    state.kakCats.forEach(ensureKakCat);
-    /* Die Beschriftung einer gemerkten Zuordnung. Sie hängt an
-       nichts — wiedererkannt wird die Datei am Fingerabdruck —,
-       deshalb genügt das Zuweisen; ein leeres Feld behält den
-       alten Namen, sonst stünde dort später gar nichts. */
-    box.querySelectorAll('[data-cm]').forEach(inp=>{
-      const m=state.csvMaps[inp.dataset.cm];
-      const v=inp.value.trim();
-      if(m&&v) m.file=v;
-    });
+    state.groups=d.groups; state.incomeGroups=d.incomeGroups; state.flexGroups=d.flexGroups;
     if(taken.length) warn(t('set.taken',taken.join(', ')));
   };
 
@@ -574,7 +576,6 @@ function openSettings(where,done){
     state.pays=state.pays.filter(x=>x.code);
     state.groups=state.groups.filter(Boolean);
     state.incomeGroups=state.incomeGroups.filter(Boolean);
-    state.kakCats=state.kakCats.filter(Boolean);
   };
   const closeSettings=()=>{ tidy(); closeModal(box); handBack(); };
 
@@ -628,21 +629,15 @@ function openSettings(where,done){
      Importkriterien wohnen an den Posten und stehen in deren
      Fenstern — gesammelt hinter #impCrit oben und im ☰-Menü des
      CSV-Imports. */
-  box.querySelectorAll('[data-cmrm]').forEach(b=>b.onclick=()=>{
-    const fp=b.dataset.cmrm, m=state.csvMaps[fp]||{};
-    if(!confirm(t('set.csvMapDelAsk',m.file||fp))) return;
-    applyEdits();
-    delete state.csvMaps[fp];
-    save();
-    reopen();
-  });
-  /* **Der Stift ändert die Struktur**: das Fenster openCsvStructure
+  /* **Die Zeile öffnet die Struktur**: das Fenster openCsvStructure
      (js/dialogs/csv2-wizard.js) legt sich über die Einstellungen,
-     mit `reopen` als Rückweg — die Zeile darunter soll danach die
-     neue Art zeigen. Getipptes wird vorher übernommen, aber nur,
-     wenn sich etwas geändert hat (formSig): ein Stift, der das Buch
-     schon vom Öffnen schmutzig machte, fragte beim Schließen nach
-     Änderungen, die niemand gemacht hat. */
+     mit `reopen` als Rückweg — die Zeile darunter soll danach den
+     neuen Namen zeigen oder weg sein (gelöscht wird seit 6.9.26
+     spät dort, mit dem roten Knopf). Getipptes wird vorher
+     übernommen, aber nur, wenn sich etwas geändert hat (formSig):
+     ein Klick, der das Buch schon vom Öffnen schmutzig machte,
+     fragte beim Schließen nach Änderungen, die niemand gemacht
+     hat. */
   box.querySelectorAll('[data-cmed]').forEach(b=>b.onclick=()=>{
     if(formSig()!==sig0){ applyEdits(); save(); }
     openCsvStructure(b.dataset.cmed,reopen);
@@ -652,8 +647,6 @@ function openSettings(where,done){
      an die Posten, in den Einstellungen ändert sich dadurch nichts,
      und ein Neuaufbau nähme Getipptes mit. */
   box.querySelector('#impCrit').onclick=()=>openImpRules('all');
-  box.querySelector('#impFast').onclick=()=>leaveTo(openCsvWizard);
-  box.querySelector('#impSheet').onclick=()=>leaveTo(openSheetInfo);
   /* Alle importierten Daten löschen — nach Rückfrage, die die
      Zahlen nennt. Getipptes wird vorher übernommen, wie bei jedem
      Handgriff, der das Fenster neu aufbaut; das Buch ändert sich
@@ -699,7 +692,7 @@ function openSettings(where,done){
   box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
     applyEdits();
     const k=b.dataset.add;
-    if(k==='groups'||k==='incomeGroups'||k==='kakCats') state[k].push('');
+    if(k==='groups'||k==='incomeGroups'||k==='flexGroups') state[k].push('');
     else state[k].push({code:'',label:''});
     setFocusNew={k:k,i:state[k].length-1};
     reopen();
@@ -709,31 +702,30 @@ function openSettings(where,done){
   box.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
     const k=b.dataset.rm, i=+b.dataset.ri;
 
-    if(k==='groups'||k==='incomeGroups'){
-      const old=state[k][i], used=groupUseCount(old);
-      if(used){
-        const rest=state[k].filter((_,j)=>j!==i);
-        if(!rest.length){ warn(t('set.keepOne')); return; }
-        if(!confirm(t('set.moveAsk',old,used,rest[0]))) return;
-      }
-    }
-    if(k==='kakCats'){
-      const name=state.kakCats[i], n=name?kakTxCount(name):0;
-      if(name&&kakHasData(name)&&!confirm(t('set.dropKakAsk',name,n?t('set.dropKakTx',n):''))) return;
+    /* Die Posten einer entfernten Kategorie ziehen nach „ohne
+       Kategorie" **derselben** Liste (seit 6.9.26; vorher in die
+       erste verbliebene) — das ist immer da, also gibt es auch keine
+       letzte Kategorie mehr, die das Fenster festhalten müsste. Der
+       feste Eintrag selbst hat kein ✕ (nameRows). */
+    if(k==='groups'||k==='incomeGroups'||k==='flexGroups'){
+      const old=state[k][i];
+      if(isNoCat(old)) return;
+      const used=k==='flexGroups'?flexGroupUseCount(old):groupUseCount(old);
+      const home=k==='groups'?NOCAT_OUT:(k==='incomeGroups'?NOCAT_IN:NOCAT_FLEX);
+      if(used&&!confirm(t('set.moveAsk',old,used,keyLabel(home)))) return;
     }
 
     applyEdits();
     if(k==='groups'||k==='incomeGroups'){
       const name=state[k][i];
       state[k].splice(i,1);
-      /* Die Posten ziehen in die erste verbliebene Kategorie
-         **derselben** Liste um — eine Einnahme darf nicht bei den
-         Kosten landen. */
-      dropGroup(name,state[k][0]);
-    } else if(k==='kakCats'){
-      const name=state.kakCats[i];
-      state.kakCats.splice(i,1);
-      dropKakCat(name);
+      /* Die Posten ziehen nach „ohne Kategorie" **derselben** Liste —
+         eine Einnahme darf nicht bei den Kosten landen. */
+      dropGroup(name,k==='groups'?NOCAT_OUT:NOCAT_IN);
+    } else if(k==='flexGroups'){
+      const name=state[k][i];
+      state[k].splice(i,1);
+      dropFlexGroup(name);
     } else state[k].splice(i,1);
     reopen();
   });
@@ -771,8 +763,6 @@ function openSettings(where,done){
     state.incomeGroups=[...new Set(state.incomeGroups.filter(Boolean))];
     if(!state.incomeGroups.length)
       state.incomeGroups=inBefore.filter(g=>state.fixed.some(it=>it.group===g));
-    state.kakCats=[...new Set(state.kakCats.filter(Boolean))];
-    state.kakCats.forEach(ensureKakCat);
     save(); box.remove(); render(); toast(t('set.saved')); handBack();
   };
 }

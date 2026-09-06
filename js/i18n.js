@@ -87,7 +87,31 @@ const KEY_LABELS={
   '(ohne Hauptkategorie)':'(no main category)',
   '(ohne Kategorie)':'(no category)'
 };
-const keyLabel=k=>KEY_LABELS[k]||k;
+/* ── „ohne Kategorie" — je Bereich ein fester Schlüssel (6.9.26) ──
+   In jeder der drei Kategorielisten (incomeGroups, flexGroups,
+   groups) steht genau einer davon, immer: er nimmt die Posten auf,
+   die noch keine Kategorie haben. Umsortieren ja, umbenennen und
+   löschen nein (js/dialogs/settings.js). Der Schlüssel steht so in
+   der Datei und wird **nie übersetzt** — angezeigt wird er über
+   keyLabel() — **und zwar in beiden Sprachen als „N/A"** (seit
+   6.9.26 spät; davor „Einnahmen ohne Kategorie" usw.): überall, wo
+   der Eintrag steht, steht sein Bereich als Überschrift direkt
+   darüber — Auswahlliste, Einstellungen, Kartenkopf, Blockzeile —,
+   und ein Name, der den Bereich wiederholt, sagte zweimal dasselbe
+   (Lex' Vorschlag). Der Bereich steht trotzdem im **Schlüssel**,
+   weil derselbe Schlüssel in beiden Listen der regulären Posten
+   stünde und isIncome() ihn sonst nicht mehr auseinanderhielte. */
+const NOCAT_IN='(Einnahmen ohne Kategorie)';
+const NOCAT_FLEX='(Flexibel ohne Kategorie)';
+const NOCAT_OUT='(Regulär ohne Kategorie)';
+const NOCAT={in:NOCAT_IN,flex:NOCAT_FLEX,out:NOCAT_OUT};
+const isNoCat=g=>g===NOCAT_IN||g===NOCAT_FLEX||g===NOCAT_OUT;
+const NOCAT_LABELS={
+  [NOCAT_IN]:{en:'N/A',de:'N/A'},
+  [NOCAT_FLEX]:{en:'N/A',de:'N/A'},
+  [NOCAT_OUT]:{en:'N/A',de:'N/A'}
+};
+const keyLabel=k=>{const l=NOCAT_LABELS[k];return l?l[LANG()]:(KEY_LABELS[k]||k);};
 
 const STR={
 /* ── Kopfzeile und Gerüst ─────────────────────────────────── */
@@ -116,8 +140,8 @@ const STR={
 /* Der Knopf nennt die App, aus der die Datei kommt, nicht das
    Dateiformat: „CSV" sagt nichts darüber, welche CSV gemeint ist. */
 'app.import':{en:'Import CSV data',de:'CSV-Daten importieren'},
-'app.importTip':{en:'Read Flexible Payments from a Fast Budget CSV export — nothing is changed until you confirm',
-  de:'Flexible Payments aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
+'app.importTip':{en:'Read Flexible from a Fast Budget CSV export — nothing is changed until you confirm',
+  de:'Flexible aus einem Fast-Budget-CSV einlesen — geändert wird erst nach deiner Bestätigung'},
 /* ── Das Hamburger-Menü (Mac-Redesign 22.8.26) ────────────────
    Alle Aktionsknöpfe stecken im Menü hinter dem ☰-Knopf; die
    drei „Neu…"-Wege tragen dort die Farbe ihrer Geldart. */
@@ -125,7 +149,7 @@ const STR={
 'menu.csvTip':{en:'Read any CSV — bank statement, card export, tracker. Nothing is changed until you press “Apply”',
   de:'Jede CSV einlesen — Kontoauszug, Kartenexport, Tracker. Geändert wird erst, wenn du „Anwenden“ drückst'},
 'menu.newFlex':{en:'New flexible entry',de:'Neuer flexibler Eintrag'},
-'menu.newOut':{en:'New regular entry',de:'Neuer regulärer Eintrag'},
+'menu.newOut':{en:'New entry',de:'Neuer Eintrag'},
 'app.settings':{en:'Settings',de:'Einstellungen'},
 'app.settingsTip':{en:'Language, year, column widths, banks, payment types and categories',
   de:'Sprache, Jahr, Spaltenbreiten, Banken, Zahlungsarten und Kategorien'},
@@ -168,7 +192,7 @@ const STR={
 'upd.hideTip':{en:'Hide until the next start',de:'Bis zum nächsten Start ausblenden'},
 
 /* ── Ansichtsnamen ────────────────────────────────────────── */
-/* „Flexible Payments" ist der Name des Bereichs, der früher
+/* „Flexible" ist der Name des Bereichs, der früher
    Kakeibo hieß. Er bleibt in beiden Sprachen gleich — wie
    „Fast Budget" auch. Die internen Schlüssel (kak, kakCats,
    flexActual, ui.view='kakeibo') behalten ihre alten Namen. */
@@ -203,9 +227,9 @@ const STR={
 'g.total':{en:'Total',de:'Gesamt'},
 'g.amount':{en:'Amount',de:'Betrag'},
 'g.income':{en:'Income',de:'Einnahmen'},
-'g.fixed':{en:'Regular costs',de:'Regelmäßige Kosten'},
+'g.fixed':{en:'Regular',de:'Regulär'},
 /* Die Geldart, nicht der Reiter — siehe view.kakeibo. */
-'g.flex':{en:'Flexible Payments',de:'Flexible Payments'},
+'g.flex':{en:'Flexible',de:'Flexibel'},
 'g.estimated':{en:'estimated',de:'geschätzt'},
 'g.all':{en:'All',de:'Alle'},
 'g.none':{en:'None',de:'Keinen'},
@@ -243,8 +267,8 @@ const STR={
 'flt.sub':{en:'The word you type is looked for only in the parts ticked here — in the month view as in the year view. The choice is kept in the JSON file.',
   de:'Das getippte Wort wird nur in den hier angekreuzten Teilen gesucht — in der Monatsansicht wie in der Jahresansicht. Die Wahl steht in der JSON-Datei.'},
 'flt.fName':{en:'Item name',de:'Bezeichnung der Position'},
-'flt.fNameHint':{en:'The name of a regular item or of a Flexible Payments category',
-  de:'Der Name eines regelmäßigen Postens oder einer Flexible-Payments-Kategorie'},
+'flt.fNameHint':{en:'The name of a regular or a flexible item',
+  de:'Der Name eines regulären oder eines flexiblen Postens'},
 'flt.fNote':{en:'Notes',de:'Notizen'},
 'flt.fNoteHint':{en:'The note on the whole item and the note on a single month',
   de:'Die Notiz zur ganzen Position und die Notiz zu einem einzelnen Monat'},
@@ -282,6 +306,8 @@ const STR={
 /* ── Laden und Speichern ──────────────────────────────────── */
 'store.none':{en:'no file loaded',de:'keine Datei geladen'},
 'store.unsaved':{en:' — unsaved changes',de:' — ungespeicherte Änderungen'},
+'store.unsavedLine':{en:'unsaved changes',de:'ungespeicherte Änderungen'},
+'store.savedLine':{en:'all changes saved',de:'alles gespeichert'},
 'store.pathTip':{en:'For security reasons browsers reveal only the file name, not the full path.',
   de:'Browser geben aus Sicherheitsgründen nur den Dateinamen preis, nicht den vollständigen Pfad.'},
 'store.noFileTip':{en:'No data loaded yet',de:'Noch keine Daten geladen'},
@@ -360,7 +386,7 @@ const STR={
   de:'Alles, was dieser Monat bringt, und alles, was er kostet, zusammengezählt — nur dieser Monat, aufgeschlüsselt in den drei Blöcken darunter. Was am Monatsende auf dem Konto liegt, steht in der Prognose in der Spalte END.'},
 /* Die Blockzeile der Jahresmatrix ist zweizeilig: oben der
    Name, darunter klein, woher die Zahlen kommen können. */
-'year.kakRow':{en:'Flexible Payments',de:'Flexible Payments'},
+'year.kakRow':{en:'Flexible',de:'Flexibel'},
 'year.end':{en:'LP',de:'LP'},
 'year.endTip':{en:'Last payment — month.year. The colour shows the remaining term including the current month: green only this one, blue two to three, yellow four to six, red seven and more.',
   de:'Letzte Zahlung — Monat.Jahr. Die Farbe zeigt die Restlaufzeit mit dem laufenden Monat: grün noch dieser eine, blau zwei bis drei, gelb vier bis sechs, rot sieben und mehr.'},
@@ -407,21 +433,21 @@ const STR={
 /* Ohne Monatsnamen: welcher Monat gemeint ist, sagen die
    Monatsleiste und die Reiter — im Kartenkopf stand er doppelt. */
 'month.income':{en:'Income',de:'Einnahmen'},
-'month.kak':{en:'Flexible Payments',de:'Flexible Payments'},
-'month.fixed':{en:'Regular costs',de:'Regelmäßige Kosten'},
+'month.kak':{en:'Flexible',de:'Flexibel'},
+'month.fixed':{en:'Regular',de:'Regulär'},
 'month.kpiIncome':{en:'Income',de:'Einnahmen'},
-'month.kpiKak':{en:'Flexible {0}',de:'Flexible {0}'},
+'month.kpiKak':{en:'Flexible {0}',de:'Flexibel {0}'},
 'month.kpiActual':{en:'actual',de:'Ist'},
 'month.kpiPlanned':{en:'planned',de:'geplant'},
-'month.kpiFixed':{en:'Regular costs',de:'Regelmäßige Kosten'},
+'month.kpiFixed':{en:'Regular',de:'Regulär'},
 'month.kpiOpen':{en:'Still open',de:'Noch offen'},
 'month.kpiOpenN':{en:'{0} of {1} items{2}',de:'{0} von {1} Posten{2}'},
 /* Nur auf dem Telefon: die SALDO-Kachel unter den vier Kennzahlen
    und der Filterknopf vor dem Suchfeld, hinter dem Fälligkeit und
    Zahlungsstand wohnen (siehe mobileTop in js/views/monat.js). */
 'month.kpiSaldo':{en:'Balance',de:'Saldo'},
-'month.kpiSaldoTip':{en:'Everything the month brings in and everything it costs — income, Flexible Payments, regular costs and the balance correction. The same number the year view calls “Balance per month”.',
-  de:'Alles, was der Monat bringt, und alles, was er kostet — Einnahmen, Flexible Payments, regelmäßige Kosten und die Saldokorrektur. Dieselbe Zahl, die die Jahresansicht „Saldo je Monat" nennt.'},
+'month.kpiSaldoTip':{en:'Everything the month brings in and everything it costs — income, flexible and regular items and the balance correction. The same number the year view calls “Balance per month”.',
+  de:'Alles, was der Monat bringt, und alles, was er kostet — Einnahmen, flexible und reguläre Posten und die Saldokorrektur. Dieselbe Zahl, die die Jahresansicht „Saldo je Monat" nennt.'},
 'month.mFilters':{en:'Filters',de:'Filter'},
 /* Der Menüknopf der mobilen Kopfzeile — dahinter stehen alle
    Werkzeuge (Speichern, Sicherung, Einstellungen, Sprache …). */
@@ -430,14 +456,14 @@ const STR={
   de:'Fälligkeit und Zahlungsstand — die Filter dieser Ansicht'},
 'month.kpiUnclear':{en:' · {0} estimated',de:' · {0} geschätzt'},
 'month.noIncome':{en:'No income recorded.',de:'Keine Einnahmen hinterlegt.'},
-'month.noKak':{en:'No Flexible Payments categories yet — add them under Settings.',
-  de:'Noch keine Flexible-Payments-Kategorien angelegt — anzulegen unter Einstellungen.'},
+'month.noKak':{en:'No flexible items yet — create one from the menu (New flexible item).',
+  de:'Noch keine flexiblen Posten — anlegen über das Menü (Neuer flexibler Eintrag).'},
 'month.noFixed':{en:'No regular costs recorded.',de:'Keine regelmäßigen Kosten hinterlegt.'},
 /* Steht nur noch dort, wo der Filter **alles** weggenommen hat:
    einzelne leere Bereiche verschwinden beim Filtern ganz. */
 'month.noItems':{en:'No items for this filter.',de:'Keine Posten für diesen Filter.'},
 'month.openEval':{en:'Open analysis',de:'Auswertung öffnen'},
-'month.openEvalTip':{en:'Go to the Flexible Payments analysis for {0}',de:'Zur Flexible-Payments-Auswertung für {0}'},
+'month.openEvalTip':{en:'Go to the Import Details analysis for {0}',de:'Zur Auswertung Import Details für {0}'},
 /* Die Filterzeile. Jeder Knopf erklärt sich beim Überfahren
    selbst — die vier Wörter darauf können es nicht. */
 'month.fAll':{en:'Any state',de:'Jeder Stand'},
@@ -451,21 +477,21 @@ const STR={
 'month.fPaidTip':{en:'Only what is already ticked off',de:'Nur was schon abgehakt ist'},
 /* ── Der Bereichsfilter ───────────────────────────────────────
    Gemeint sind die drei Karten der Monatsansicht — Einnahmen,
-   Flexible Payments, regelmäßige Kosten —, nicht die Kategorien
+   Flexible, regelmäßige Kosten —, nicht die Kategorien
    darin. Weil auf dem Knopf nur ein kurzes Wort Platz hat, sagt
    die Sprechblase, welcher Bereich gemeint ist. */
 'month.fSec':{en:'Area',de:'Bereich'},
-'month.fSecAllTip':{en:'All three areas: income, Flexible Payments and regular costs',
-  de:'Alle drei Bereiche: Einnahmen, Flexible Payments und regelmäßige Kosten'},
+'month.fSecAllTip':{en:'All three areas: Income, Flexible and Regular',
+  de:'Alle drei Bereiche: Einnahmen, Flexibel und Regulär'},
 'month.fSecIn':{en:'Income',de:'Einnahmen'},
 'month.fSecInTip':{en:'Only the income area — the other areas and the balance correction are hidden',
   de:'Nur der Bereich Einnahmen — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
-'month.fSecFlex':{en:'Flexible',de:'Flexible'},
-'month.fSecFlexTip':{en:'Only the Flexible Payments area — the other areas and the balance correction are hidden',
-  de:'Nur der Bereich Flexible Payments — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
-'month.fSecOut':{en:'Costs',de:'Kosten'},
-'month.fSecOutTip':{en:'Only the regular costs area — the other areas and the balance correction are hidden',
-  de:'Nur der Bereich regelmäßige Kosten — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
+'month.fSecFlex':{en:'Flexible',de:'Flexibel'},
+'month.fSecFlexTip':{en:'Only the Flexible area — the other areas and the balance correction are hidden',
+  de:'Nur der Bereich Flexibel — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
+'month.fSecOut':{en:'Regular',de:'Regulär'},
+'month.fSecOutTip':{en:'Only the Regular area — the other areas and the balance correction are hidden',
+  de:'Nur der Bereich Regulär — die übrigen Bereiche und die Saldokorrektur werden ausgeblendet'},
 'month.fDueAll':{en:'All due dates',de:'Alle Fälligkeiten'},
 'month.fDueAllTip':{en:'Every due date — start, middle and end of the month',
   de:'Jede Fälligkeit — Anfang, Mitte und Ende des Monats'},
@@ -477,8 +503,8 @@ const STR={
 'month.fDueETip':{en:'Due date E or payday 21 onwards',de:'Fälligkeit E oder Zahltag ab dem 21.'},
 /* Der fünfte Knopf: alles ohne Zahltag. Er heißt wie die Zeile des
    Zeitstrahls, in die dasselbe fällt (month.tlClose). */
-'month.fDueZTip':{en:'Everything without a payday — the Flexible Payments, the balance correction and items with no due date',
-  de:'Alles ohne Zahltag — die Flexible Payments, die Saldokorrektur und Posten ohne Fälligkeit'},
+'month.fDueZTip':{en:'Everything without a payday — the flexible items, the balance correction and items with no due date',
+  de:'Alles ohne Zahltag — die flexiblen Posten, die Saldokorrektur und Posten ohne Fälligkeit'},
 'month.markPaid':{en:'mark as paid',de:'als bezahlt markieren'},
 'month.markOpen':{en:'mark as open',de:'als offen markieren'},
 'month.markDone':{en:'mark as recorded',de:'als erfasst markieren'},
@@ -489,14 +515,14 @@ const STR={
 'month.legOpen':{en:'unpaid',de:'unbezahlt'},
 'month.legPaid':{en:'paid',de:'bezahlt'},
 'month.legEst':{en:'amount estimated',de:'Betrag geschätzt'},
-'month.editKak':{en:'Edit Flexible Payments category',de:'Flexible-Payments-Kategorie ändern'},
+'month.editKak':{en:'Edit flexible item',de:'Flexiblen Posten ändern'},
 'month.done':{en:'{0} of {1} items done',de:'{0} von {1} Positionen erledigt'},
 /* Der Tastengriff an jedem Monatsreiter: Strg/Cmd + Pfeil links
    oder rechts geht einen Monat zurück oder weiter. Die Pfeile
    stehen in beiden Sprachen gleich da — nur das Wort davor
    wechselt, wie bei view.keyTip. */
 'month.keyTip':{en:'Ctrl/Cmd + ← / →',de:'Strg/Cmd + ← / →'},
-/* Bereich zuklappen — steht im Kopf der Flexible Payments, links
+/* Bereich zuklappen — steht im Kopf der Flexible, links
    vom Knopf, der eine Kategorie anlegt. */
 'month.minAreaTip':{en:'Show only the heading of this area — applies to every month',
   de:'Nur die Überschrift dieses Bereichs zeigen — gilt für jeden Monat'},
@@ -518,8 +544,8 @@ const STR={
    ohne Zahltag. */
 'month.tlOpenTip':{en:'The balance the month starts with — the sum of all previous months in this file. Nothing falls due here.',
   de:'Der Stand, mit dem der Monat beginnt — die Summe aller Monate davor in dieser Datei. Hier wird nichts fällig.'},
-'month.tlCloseTip':{en:'Everything without a payday lands here: Flexible Payments, the balance correction and items without a due day.',
-  de:'Alles ohne Zahltag landet hier: Flexible Payments, die Saldokorrektur und Posten ohne Fälligkeit.'},
+'month.tlCloseTip':{en:'Everything without a payday lands here: flexible items, the balance correction and items without a due day.',
+  de:'Alles ohne Zahltag landet hier: flexible Posten, die Saldokorrektur und Posten ohne Fälligkeit.'},
 /* Der Balken jeder Zeile: links der Nulllinie der Abzug, rechts
    die Zufuhr, eingefärbt nach Geldart — dieselben Farben wie die
    Karten der Monatsansicht. */
@@ -549,7 +575,7 @@ const STR={
   de:'Manuelle Korrektur des Saldos — für Ungenauigkeiten, die sich über die Monate eingeschlichen haben'},
 'bal.editTip':{en:'Edit balance correction',de:'Balance Correction ändern'},
 
-/* ── Flexible Payments (früher Kakeibo) ───────────────────── */
+/* ── Flexible (früher Kakeibo) ───────────────────── */
 'kak.empty':{en:'No transactions imported yet.',de:'Noch keine Transaktionen importiert.'},
 'kak.emptyHint':{en:'Export your transactions from Fast Budget as CSV and load them here.',
   de:'Exportiere in Fast Budget deine Transaktionen als CSV und lade sie hier hoch.'},
@@ -619,9 +645,9 @@ const STR={
 /* ── Prognose ─────────────────────────────────────────────── */
 'prog.title':{en:'Projection {0}',de:'Hochrechnung {0}'},
 'prog.kpiIncome':{en:'Income expected from {0}',de:'Einnahmen erwartet ab {0}'},
-'prog.kpiFixed':{en:'Regular costs from {0}',de:'Regelmäßige Kosten ab {0}'},
+'prog.kpiFixed':{en:'Regular from {0}',de:'Regulär ab {0}'},
 'prog.kpiOpen':{en:'{0} of it still open',de:'davon {0} noch offen'},
-'prog.kpiKak':{en:'Flexible Payments expected from {0}',de:'Flexible Payments erwartet ab {0}'},
+'prog.kpiKak':{en:'Flexible expected from {0}',de:'Flexibel erwartet ab {0}'},
 'prog.kpiPerMonth':{en:'{0} per month assumed',de:'{0} je Monat angenommen'},
 'prog.kpiSoFar':{en:'Balance so far',de:'Saldo bisher'},
 'prog.kpiSoFarSub':{en:'January to {0}',de:'Januar bis {0}'},
@@ -656,8 +682,8 @@ const STR={
   de:'alles, was in diesem Monat hereinkommt.'},
 'prog.tipFixed':{en:'the regular costs of the month — bills that repeat.',
   de:'die regelmäßigen Kosten des Monats — Rechnungen, die wiederkehren.'},
-'prog.tipKak':{en:'the Flexible Payments of the month: imported where available, otherwise the assumption.',
-  de:'die Flexible Payments des Monats: importiert, wo vorhanden, sonst die Annahme.'},
+'prog.tipKak':{en:'the flexible items of the month: imported where available, otherwise the assumption.',
+  de:'die flexiblen Posten des Monats: importiert, wo vorhanden, sonst die Annahme.'},
 'prog.tipBal':{en:'what you entered by hand to correct the balance. Usually empty. Double-click a month to change it.',
   de:'was du von Hand nachträgst, um den Saldo zu berichtigen. Meistens leer. Ein Doppelklick auf einen Monat ändert ihn.'},
 'prog.tipStart':{en:'what is on the account before this month — the closing balance of the month above.',
@@ -674,8 +700,8 @@ const STR={
   de:'Der Kontostand vor dem Januar. Er steht in den Einstellungen, weil er zu keinem Monat gehört — ein Doppelklick öffnet ihn dort.'},
 'prog.colFlowTip':{en:'How the balance moves through the year: each month starts at the previous month’s balance and ends at its own. The colours are the kinds of money.',
   de:'Wie sich der Kontostand durch das Jahr bewegt: jeder Monat fängt beim Stand des Monats davor an und endet bei seinem eigenen. Die Farben sind die Geldarten.'},
-'prog.card':{en:'Flexible Payments assumption per month',de:'Flexible-Payments-Annahme je Monat'},
-'prog.cardHint':{en:'For months without a Fast Budget import the app does not know the real Flexible Payments spending. These values tell it what to expect per category. Actual numbers exist for: {0}.',
+'prog.card':{en:'Flexible: assumption per month',de:'Flexibel: Annahme je Monat'},
+'prog.cardHint':{en:'For months without a Fast Budget import the app does not know the real Flexible spending. These values tell it what to expect per category. Actual numbers exist for: {0}.',
   de:'Für Monate ohne Fast-Budget-Import kennt die App die tatsächlichen Flexible-Payments-Ausgaben nicht. Diese Werte sagen ihr, mit wie viel sie pro Kategorie rechnen soll. Ist-Zahlen liegen vor für: {0}.'},
 'prog.noMonth':{en:'no month yet',de:'noch keinen Monat'},
 'prog.colCurrent':{en:'Current assumption',de:'Aktuelle Annahme'},
@@ -687,7 +713,7 @@ const STR={
 'prog.avgFromNone':{en:'No month has settled values yet, so there is no Ø to show. Import a month or tick one off.',
   de:'Noch kein Monat hat feststehende Werte, deshalb gibt es keinen Ø. Importiere einen Monat oder hake einen ab.'},
 'prog.avgOfN':{en:'calculated over {0} month(s)',de:'\u00fcber {0} Monate gerechnet'},
-'prog.noCats':{en:'No Flexible Payments categories yet.',de:'Noch keine Flexible-Payments-Kategorien angelegt.'},
+'prog.noCats':{en:'No flexible items yet.',de:'Noch keine flexiblen Posten angelegt.'},
 /* Die Annahme wird hier nur noch gezeigt, nicht getippt: geändert
    wird sie im Fenster der Kategorie oder in einem Zug über den
    Knopf darunter. */
@@ -705,7 +731,7 @@ const STR={
 'item.add':{en:'Add item',de:'Posten hinzufügen'},
 'item.name':{en:'Name',de:'Name'},
 'item.namePh':{en:'e.g. Netflix',de:'z. B. Netflix'},
-/* Wie bei den Flexible Payments: die Bezeichnung wird über die
+/* Wie bei den Flexible: die Bezeichnung wird über die
    Überschrift geöffnet, nicht in einem Feld getippt. */
 'item.nameBtnTip':{en:'Click to change the name',de:'Zum Ändern der Bezeichnung klicken'},
 'item.namePick':{en:'— choose a name —',de:'— Bezeichnung wählen —'},
@@ -793,12 +819,13 @@ const STR={
   de:'Öffnet eine Kopie dieses Postens — mit den Beträgen, ohne Haken und ohne Notizen. Angelegt wird die Kopie erst mit „Speichern"; dieser Posten bleibt, wie er ist.'},
 'item.dupTitle':{en:'Duplicate item',de:'Posten duplizieren'},
 
-/* ── Beträge einer Flexible-Payments-Kategorie ────────────── */
+/* ── Beträge einer flexiblen Posten ────────────── */
 'kdlg.est':{en:'Amount is estimated and may differ — shown in yellow with a question mark',
   de:'Summe ist geschätzt und kann abweichen — wird orange mit Fragezeichen dargestellt'},
 'kdlg.quick':{en:'Quick entry — every month',de:'Schnelle Eingabe — jeden Monat'},
 'kdlg.perMonth':{en:'Amount per month — expenses with a minus',de:'Betrag je Monat — Ausgaben mit Minus'},
-'kdlg.gone':{en:'This Flexible Payments category no longer exists.',de:'Diese Flexible-Payments-Kategorie gibt es nicht mehr.'},
+'kdlg.gone':{en:'This flexible item no longer exists.',de:'Diesen flexiblen Posten gibt es nicht mehr.'},
+'kdlg.cat':{en:'Category',de:'Kategorie'},
 'kdlg.lockedTip':{en:'recorded — remove the tick to change the amount',de:'erfasst — Haken entfernen, um den Betrag zu ändern'},
 'kdlg.lockTill':{en:'Close all months up to {0}',de:'Alle Monate bis {0} abschließen'},
 'kdlg.lockTillTip':{en:'Marks every month up to and including {0} as recorded — everything that is over. The current month stays open, and imported months are left alone.',
@@ -811,11 +838,11 @@ const STR={
    Schlüssel der Kategorie und keine Angabe unter vielen. */
 'kdlg.nameBtnTip':{en:'Click to change the name',de:'Zum Ändern der Bezeichnung klicken'},
 'kdlg.namePick':{en:'— choose a name —',de:'— Bezeichnung wählen —'},
-'kdlg.nameTitle':{en:'Name of the category',de:'Bezeichnung der Kategorie'},
-'kdlg.nameSubNew':{en:'Under this name the category appears in every view. You can change it later at any time.',
-  de:'Unter dieser Bezeichnung steht die Kategorie in allen Ansichten. Ändern lässt sie sich später jederzeit.'},
-'kdlg.nameSub':{en:'Renaming carries everything along — planned and actual amounts, corrections, notes and imported bookings. Nothing is written until you save the category.',
-  de:'Beim Umbenennen wandert alles mit — Plan- und Ist-Werte, Korrekturen, Notizen und importierte Buchungen. Geschrieben wird erst, wenn du die Kategorie speicherst.'},
+'kdlg.nameTitle':{en:'Name of the item',de:'Bezeichnung des Postens'},
+'kdlg.nameSubNew':{en:'Under this name the item appears in every view. You can change it later at any time.',
+  de:'Unter dieser Bezeichnung steht der Posten in allen Ansichten. Ändern lässt sie sich später jederzeit.'},
+'kdlg.nameSub':{en:'Renaming carries everything along — planned and actual amounts, corrections, notes and imported bookings. Nothing is written until you save the item.',
+  de:'Beim Umbenennen wandert alles mit — Plan- und Ist-Werte, Korrekturen, Notizen und importierte Buchungen. Geschrieben wird erst, wenn du den Posten speicherst.'},
 /* Über der Schnelleingabe: der Mittelwert der Monate, die schon
    feststehen. Er steht dort, weil man genau dort die Annahme für
    die kommenden Monate einträgt. */
@@ -823,19 +850,19 @@ const STR={
 'kdlg.avgNone':{en:'no closed month yet — no average',de:'noch kein abgeschlossener Monat — kein Mittelwert'},
 'kdlg.avgTip':{en:'Average of the months that are settled — closed by tick or imported, up to the current month. Typing in a month changes it straight away.',
   de:'Durchschnitt der feststehenden Monate — abgehakt oder importiert, bis zum laufenden Monat. Ein Eintrag in einem Monat ändert ihn sofort.'},
-'kdlg.dupTip':{en:'Opens a copy of this category — amounts included, ticks and notes removed. The copy is created when you press Save; this category stays as it is.',
-  de:'Öffnet eine Kopie dieser Kategorie — mit den Beträgen, ohne Haken und ohne Notizen. Angelegt wird die Kopie erst mit „Speichern"; diese Kategorie bleibt, wie sie ist.'},
-'kdlg.dupTitle':{en:'Duplicate category',de:'Kategorie duplizieren'},
-'kdlg.del':{en:'Delete category',de:'Kategorie l\u00f6schen'},
-'kdlg.delAsk':{en:'Delete “{0}”? Plan values, actual values, corrections and notes of this category go with it. This can only be undone from a saved file.',
-  de:'\u201e{0}\u201c l\u00f6schen? Plan- und Ist-Werte, Korrekturen und Notizen dieser Kategorie gehen mit. Das l\u00e4sst sich nur \u00fcber eine gespeicherte Datei r\u00fcckg\u00e4ngig machen.'},
+'kdlg.dupTip':{en:'Opens a copy of this item — amounts included, ticks and notes removed. The copy is created when you press Save; this item stays as it is.',
+  de:'Öffnet eine Kopie dieses Postens — mit den Beträgen, ohne Haken und ohne Notizen. Angelegt wird die Kopie erst mit „Speichern"; dieser Posten bleibt, wie er ist.'},
+'kdlg.dupTitle':{en:'Duplicate item',de:'Posten duplizieren'},
+'kdlg.del':{en:'Delete item',de:'Posten l\u00f6schen'},
+'kdlg.delAsk':{en:'Delete “{0}”? Plan values, actual values, corrections and notes of this item go with it. This can only be undone from a saved file.',
+  de:'\u201e{0}\u201c l\u00f6schen? Plan- und Ist-Werte, Korrekturen und Notizen dieses Postens gehen mit. Das l\u00e4sst sich nur \u00fcber eine gespeicherte Datei r\u00fcckg\u00e4ngig machen.'},
 'kdlg.delAskTx':{en:'{0} imported booking(s) are deleted as well.',de:'Dazu werden {0} importierte Buchungen gel\u00f6scht.'},
 'kdlg.deleted':{en:'“{0}” deleted.',de:'\u201e{0}\u201c gel\u00f6scht.'},
 
 /* ── Einstellungen ────────────────────────────────────────── */
 'set.title':{en:'Settings',de:'Einstellungen'},
-'set.sub':{en:'Everything here is stored in the JSON file: language, accounting year, column widths and the four lists. The file decides how the app looks when you load it.',
-  de:'Alles hier steht in der JSON-Datei: Sprache, Abrechnungsjahr, Spaltenbreiten und die vier Listen. Beim Laden richtet sich die Anwendung nach der Datei.'},
+'set.sub':{en:'Everything here is stored in the JSON file: language, accounting year, column widths and the lists. The file decides how the app looks when you load it.',
+  de:'Alles hier steht in der JSON-Datei: Sprache, Abrechnungsjahr, Spaltenbreiten und die Listen. Beim Laden richtet sich die Anwendung nach der Datei.'},
 /* Das Fenster ist in Bereiche geteilt: links das Menü, rechts
    der gewählte Bereich. Die Menüpunkte sind zugleich seine
    Überschrift. */
@@ -858,10 +885,10 @@ const STR={
   de:'Wie breit die Jahresmatrix gezeichnet wird, ab welchem Betrag eine Buchung als großer Einzelposten gilt, und wie Monat und Jahr aussehen, wenn du eine Datei öffnest.'},
 'set.banksSub':{en:'The code appears in the year overview in columns B and PT, the label below each item in the month view. Both lists are yours alone — name them the way you think of your accounts. Change a code later and FINA asks whether the items that carry it should be moved along.',
   de:'Das Kürzel steht in der Jahresübersicht in den Spalten B und PT, die Bezeichnung unter jedem Posten der Monatsansicht. Beide Listen gehören dir allein — benenne sie so, wie du an deine Konten denkst. Änderst du später ein Kürzel, fragt FINA, ob die Posten mit diesem Kürzel mitwandern sollen.'},
-'set.groupsSub':{en:'Two lists, and every regular item belongs to exactly one of them: income on the left, expenses on the right. A name may appear only once across both — it is what tells FINA whether an item is money coming in or going out. Renaming carries every item along; removing moves them into the first category left in the same list.',
-  de:'Zwei Listen, und jeder regelmäßige Posten gehört in genau eine davon: links die Einnahmen, rechts die Ausgaben. Ein Name darf über beide Listen hinweg nur einmal vorkommen — an ihm erkennt FINA, ob ein Posten Geld bringt oder kostet. Umbenennen zieht alle Posten mit; Entfernen schiebt sie in die erste verbliebene Kategorie derselben Liste.'},
-'set.kakSub':{en:'The categories of your everyday spending — one row each in the year overview and in the Flexible Payments view. Renaming carries plan values, actual values, corrections and imported bookings along. The order here is the order everywhere.',
-  de:'Die Kategorien deiner alltäglichen Ausgaben — je eine Zeile in der Jahresübersicht und in der Flexible-Payments-Ansicht. Beim Umbenennen wandern Planwerte, Ist-Werte, Korrekturen und importierte Buchungen mit. Die Reihenfolge hier gilt überall.'},
+'set.groupsSub':{en:'Three lists — Income, Flexible, Regular — and every item belongs to exactly one of them. Each list always keeps its “N/A” entry: items without a category are listed under it; it can be moved, but not renamed or deleted. A name may appear only once across the lists — it is what tells FINA whether an item is money coming in or going out. Renaming carries every item along; removing moves them into “N/A” of the same list.',
+  de:'Drei Listen — Einnahmen, Flexibel, Regulär —, und jeder Posten gehört in genau eine davon. Jede Liste behält immer ihr „N/A": darunter stehen die Posten ohne Kategorie; verschieben ja, umbenennen und löschen nein. Ein Name darf über die Listen hinweg nur einmal vorkommen — an ihm erkennt FINA, ob ein Posten Geld bringt oder kostet. Umbenennen zieht alle Posten mit; Entfernen schiebt sie nach „N/A" derselben Liste.'},
+'set.kakSub':{en:'Your flexible items — the everyday spending, one row each in the year overview and in the Import Details view. Renaming carries plan values, actual values, corrections and imported bookings along. The order here is the order everywhere. Their categories are kept under “Categories”.',
+  de:'Deine flexiblen Posten — die alltäglichen Ausgaben, je eine Zeile in der Jahresübersicht und in der Ansicht Import Details. Beim Umbenennen wandern Planwerte, Ist-Werte, Korrekturen und importierte Buchungen mit. Die Reihenfolge hier gilt überall. Ihre Kategorien stehen unter „Kategorien".'},
 /* Der Bereich „Import". Beide Wege kommen von außen herein und
    ändern die Datei — deshalb stehen sie beieinander und nicht
    mehr in der Kopfzeile, wo sie zwischen Laden und Speichern
@@ -870,30 +897,34 @@ const STR={
    Satz unter der Überschrift, und was ein Knopf tut, steht in seiner
    Sprechblase — die drei „…Hint" sind seitdem data-tip, keine
    Absätze. */
-'set.importSub':{en:'Structures and criteria are remembered in this file.',
-  de:'Strukturen und Kriterien merkt sich diese Datei.'},
+'set.importSub':{en:'Importing starts from the menu (“CSV import”). What an import learns — column structures and import criteria — is remembered in this file.',
+  de:'Importiert wird über das Menü („CSV-Import“). Was ein Import lernt — Spaltenstrukturen und Importkriterien — merkt sich diese Datei.'},
 'set.impFastHint':{en:'Reads any CSV — bank statement, card export, budget app.',
   de:'Liest jede CSV — Kontoauszug, Kartenexport, Haushalts-App.'},
-'set.impCrit':{en:'Import criteria…',de:'Importkriterien…'},
+'set.impCrit':{en:'Manage all remembered import criteria',de:'Alle gemerkten Importkriterien verwalten'},
+'set.impSecCsv':{en:'Import CSV data',de:'CSV-Daten importieren'},
+'set.impSecCrit':{en:'Import criteria',de:'Importkriterien'},
+'set.impSecMaps':{en:'Remembered CSV structure mapping',de:'Gemerkte CSV-Strukturen (Spalte → Feld)'},
 'set.impSheetHint':{en:'Brings a whole year in from the FINA spreadsheet — it replaces the book in this file.',
   de:'Holt ein ganzes Jahr aus der FINA-Tabelle herein — es ersetzt das Buch in dieser Datei.'},
 'set.impWipe':{en:'Delete all imported data',de:'Alle importierten Daten löschen'},
 'set.impWipeHint':{en:'Empties and reopens every imported month, removes imported transactions. CSV structures stay.',
   de:'Leert und öffnet jeden importierten Monat, nimmt importierte Buchungen weg. CSV-Strukturen bleiben.'},
-'set.impWipeAsk':{en:'Delete all imported data? {0} imported month value(s) of regular entries and {1} transaction(s) of the Flexible Payments in {2} month(s) will be removed. This cannot be undone — then “Save data”.',
-  de:'Alle importierten Daten löschen? {0} importierte Monatsbeträge regulärer Posten und {1} Buchungen der Flexible Payments in {2} Monat(en) werden entfernt. Das lässt sich nicht rückgängig machen — danach „Daten speichern“.'},
+'set.impWipeAsk':{en:'Delete all imported data? {0} imported month value(s) of regular items and {1} transaction(s) of the flexible items in {2} month(s) will be removed. This cannot be undone — then “Save data”.',
+  de:'Alle importierten Daten löschen? {0} importierte Monatsbeträge regulärer Posten und {1} Buchungen der flexiblen Posten in {2} Monat(en) werden entfernt. Das lässt sich nicht rückgängig machen — danach „Daten speichern“.'},
 'set.impWipeDone':{en:'Imported data deleted: {0} month value(s), {1} transaction(s). Then “Save data”.',
   de:'Importierte Daten gelöscht: {0} Monatsbeträge, {1} Buchungen. Danach „Daten speichern“.'},
 'set.csvMaps':{en:'Remembered CSV structures',de:'Gemerkte CSV-Strukturen'},
 'set.csvMapsNone':{en:'Nothing remembered yet.',de:'Noch nichts gemerkt.'},
 'set.csvMapName':{en:'Name',de:'Bezeichnung'},
-'set.csvMapEdit':{en:'Change the CSV structure — which column holds which FINA field',
+'set.csvMapEdit':{en:'Open the CSV structure — change which column holds which FINA field, or delete it',
   de:'Die CSV-Struktur ändern — welche Spalte welches FINA-Feld trägt'},
-/* Das Fenster hinter dem Stift (openCsvStructure). */
+/* Das Fenster hinter dem Stift (openCsvStructure) — in den
+   Einstellungen und im ersten Schritt des Imports. */
 'cs.title':{en:'CSV structure',de:'CSV-Struktur'},
-'cs.kind':{en:'Kind',de:'Art'},
 'cs.need':{en:'Date and Amount need a column.',de:'Datum und Betrag brauchen eine Spalte.'},
 'cs.saved':{en:'CSV structure saved. Then “Save data”.',de:'CSV-Struktur gespeichert. Danach „Daten speichern“.'},
+'cs.del':{en:'Delete this structure from FINA',de:'Diese Struktur aus FINA löschen'},
 'set.csvMapMeta':{en:'remembered on {0}',de:'gemerkt am {0}'},
 'set.leaveSave':{en:'Save your settings changes before the import opens? Cancel discards them — the import replaces lists anyway, so the window has to close.',
   de:'Deine Änderungen in den Einstellungen speichern, bevor der Import aufgeht? „Abbrechen" verwirft sie — der Import legt selbst Listen an, deshalb muss das Fenster schließen.'},
@@ -904,6 +935,7 @@ const STR={
 'cme.sub':{en:'Which rows of a file go to which entry. A rule catches a row when all its conditions hold. The first rule that matches wins.',
   de:'Welche Zeilen einer Datei zu welchem Posten gehen. Eine Regel greift, wenn alle ihre Bedingungen zutreffen. Die erste Regel, die trifft, gewinnt.'},
 'cme.assigns':{en:'Goes to',de:'Geht an'},
+'cme.rules':{en:'{0} rule(s)',de:'{0} Regel(n)'},
 'cme.val':{en:'Value',de:'Wert'},
 'cme.addTerm':{en:'+ Condition',de:'+ Bedingung'},
 'cme.delTerm':{en:'Remove condition',de:'Bedingung entfernen'},
@@ -951,19 +983,23 @@ const STR={
 'set.monw':{en:'Month columns',de:'Monatsspalten'},
 'set.widthHint':{en:'Widths of the year matrix in pixels, 50 to 800.',de:'Breiten der Jahresmatrix in Pixel, 50 bis 800.'},
 'set.topmin':{en:'Largest items from (€)',de:'Größte Einzelposten ab (€)'},
-'set.topminHint':{en:'The Flexible Payments view lists every booking from this amount upwards; 0 shows them all.',
-  de:'Die Flexible-Payments-Ansicht listet jede Buchung ab diesem Betrag; 0 zeigt alle.'},
+'set.topminHint':{en:'The Import Details view lists every booking from this amount upwards; 0 shows them all.',
+  de:'Die Ansicht Import Details listet jede Buchung ab diesem Betrag; 0 zeigt alle.'},
 'set.banks':{en:'Banks (B)',de:'Banken (B)'},
 'set.pays':{en:'Payment types (PT)',de:'Zahlungsarten (PT)'},
-'set.groups':{en:'Regular categories',de:'Regelmäßige Kategorien'},
-'set.kak':{en:'Flexible Payments categories',de:'Flexible-Payments-Kategorien'},
+'set.groups':{en:'Categories',de:'Kategorien'},
+'set.kak':{en:'Flexible items',de:'Flexible Posten'},
 'set.addBank':{en:'Add bank',de:'Bank hinzufügen'},
 'set.addPay':{en:'Add payment type',de:'Zahlungsart hinzufügen'},
 'set.addGroup':{en:'Add category',de:'Kategorie hinzufügen'},
 'set.groupsIn':{en:'Income categories',de:'Einnahme-Kategorien'},
-'set.groupsOut':{en:'Expense categories',de:'Ausgabe-Kategorien'},
+'set.groupsOut':{en:'Regular categories',de:'Reguläre Kategorien'},
+'set.groupsFlex':{en:'Flexible categories',de:'Flexible Kategorien'},
+'set.addGroupFlex':{en:'+ flexible category',de:'+ flexible Kategorie'},
+'set.noCatTip':{en:'Always there: items without a category are listed under it. It can be moved, but not renamed or deleted.',
+  de:'Steht immer da: Posten ohne Kategorie stehen darunter. Verschieben ja — umbenennen und löschen nein.'},
 'set.addGroupIn':{en:'+ income category',de:'+ Einnahme-Kategorie'},
-'set.addKak':{en:'Add Flexible Payments category',de:'Flexible-Payments-Kategorie hinzufügen'},
+'set.addKak':{en:'Add flexible item',de:'Flexiblen Posten hinzufügen'},
 'set.code':{en:'Code',de:'Kürzel'},
 'set.label':{en:'Label',de:'Bezeichnung'},
 'set.dragTip':{en:'Drag to sort',de:'Zum Sortieren ziehen'},
@@ -980,8 +1016,8 @@ const STR={
 'set.keepOne':{en:'At least one category must remain.',de:'Es muss mindestens eine Kategorie bleiben.'},
 'set.moveAsk':{en:'“{0}” contains {1} item(s). They will be moved to “{2}”. Continue?',
   de:'„{0}" enthält {1} Position(en). Sie werden nach „{2}" verschoben. Fortfahren?'},
-'set.dropKakAsk':{en:'Remove “{0}”? Plan and actual values, corrections and notes of this category will be deleted{1}. This can only be undone from a saved file.',
-  de:'„{0}" entfernen? Plan- und Ist-Werte, Korrekturen und Notizen dieser Kategorie werden gelöscht{1}. Das lässt sich nur über eine gespeicherte Datei rückgängig machen.'},
+'set.dropKakAsk':{en:'Remove “{0}”? Plan and actual values, corrections and notes of this item will be deleted{1}. This can only be undone from a saved file.',
+  de:'„{0}" entfernen? Plan- und Ist-Werte, Korrekturen und Notizen dieses Postens werden gelöscht{1}. Das lässt sich nur über eine gespeicherte Datei rückgängig machen.'},
 'set.dropKakTx':{en:', together with {0} imported booking(s)',de:', dazu {0} importierte Buchungen'},
 'set.saved':{en:'Settings saved.',de:'Einstellungen gespeichert.'},
 
@@ -989,148 +1025,15 @@ const STR={
 /* Das Fenster vor dem Fenster: woher die Datei kommt und welche
    Spalten darin stehen müssen. Es steht vor der Dateiauswahl —
    wer erst im Fehlerfall erfährt, dass eine Spalte fehlt, hat die
-   Datei schon gesucht. Die Spaltennamen sind die des deutschen
-   Fast-Budget-Exports und stehen genauso in parseFastBudget()
-   (js/csv.js); wer sie dort ändert, ändert sie hier mit. */
-'impInfo.title':{en:'Import Flexible Payments from Fast Budget',de:'Flexible Payments aus Fast Budget importieren'},
-'impInfo.sub':{en:'FINA reads the CSV export of the <b>Fast Budget</b> app. It fills the Flexible Payments of this file — the everyday spending per category and month.',
-  de:'FINA liest den CSV-Export der App <b>Fast Budget</b>. Er füllt die Flexible Payments dieser Datei — die alltäglichen Ausgaben je Kategorie und Monat.'},
-'impInfo.needTitle':{en:'These columns must be in the file',de:'Diese Spalten müssen in der Datei stehen'},
-'impInfo.need':{en:'The header row is found by the column <b>Hauptkategorie</b> — without it the file is refused. Export in German, the column names are read literally.',
-  de:'Die Kopfzeile wird an der Spalte <b>Hauptkategorie</b> erkannt — ohne sie wird die Datei abgewiesen. Exportiere auf Deutsch, die Spaltennamen werden wörtlich gelesen.'},
-'impInfo.colDate':{en:'the day, as 31.12.2026 — a row without a readable date is skipped',
-  de:'der Tag, als 31.12.2026 — eine Zeile ohne lesbares Datum wird übergangen'},
-'impInfo.colVal':{en:'the amount; “Wert” alone is also accepted. Expenses carry a minus.',
-  de:'der Betrag; „Wert" allein wird auch genommen. Ausgaben tragen ein Minus.'},
-'impInfo.colMain':{en:'becomes the Flexible Payments category — new ones are created',
-  de:'wird zur Flexible-Payments-Kategorie — neue werden angelegt'},
-'impInfo.optTitle':{en:'Taken along if present',de:'Wird mitgenommen, wenn vorhanden'},
-'impInfo.colCat':{en:'the subcategory, shown in the detail view',de:'die Unterkategorie, sichtbar in der Detailansicht'},
-'impInfo.colAcc':{en:'account',de:'Konto'},
-'impInfo.colNote':{en:'note on the booking',de:'Notiz zur Buchung'},
-'impInfo.rest':{en:'Semicolon and comma both work as separators, and lines above the header row are ignored. Only bookings from <b>{0}</b> are used — the year of this file. After choosing the file you will see which months it holds and what would be replaced; nothing is changed before you confirm that.',
-  de:'Semikolon und Komma gehen beide als Trennzeichen, und Zeilen über der Kopfzeile werden übergangen. Genommen werden nur Buchungen aus <b>{0}</b> — dem Jahr dieser Datei. Nach der Dateiwahl siehst du, welche Monate darin stehen und was ersetzt würde; geändert wird nichts, bevor du das bestätigst.'},
-'impInfo.pick':{en:'Choose CSV file',de:'CSV-Datei wählen'},
-'imp.noHeader':{en:'Column “Hauptkategorie” not found — is this a Fast Budget export?',
-  de:'Spalte „Hauptkategorie" nicht gefunden — ist das ein Fast-Budget-Export?'},
-'imp.noRows':{en:'No transactions found in the file.',de:'Keine Transaktionen in der Datei gefunden.'},
-'imp.noYear':{en:'No bookings from {0} in the file{1}.',de:'Keine Buchungen aus {0} in der Datei{1}.'},
-'imp.otherYears':{en:' — {0} row(s) are from other years',de:' — {0} Zeile(n) stammen aus anderen Jahren'},
-'imp.failed':{en:'Import failed: {0}',de:'Import fehlgeschlagen: {0}'},
-'imp.step1':{en:'CSV import — choose months',de:'CSV-Import — Monate wählen'},
-'imp.step1Sub':{en:'<b>{0}</b> read: {1} bookings from {2}, first on {3}, last on {4}. {5}Nothing has been changed yet — choose the months to take over.',
-  de:'<b>{0}</b> gelesen: {1} Buchungen aus {2}, erste am {3}, letzte am {4}. {5}Bisher ist nichts geändert — wähle die Monate, die übernommen werden sollen.'},
-'imp.skipped':{en:'{0} row(s) from other years are left out. ',de:'{0} Zeile(n) aus anderen Jahren bleiben außen vor. '},
-'imp.months':{en:'Months',de:'Monate'},
-'imp.notInFile':{en:'not in the file',de:'nicht in der Datei'},
-'imp.replaces':{en:'REPLACED',de:'ERSETZT'},
-'imp.replacesTip':{en:'This month already holds data',de:'In diesem Monat stehen schon Daten'},
-'imp.allFromFile':{en:'All from the file',de:'Alle aus der Datei'},
-'imp.chosen':{en:'{0} month(s) chosen',de:'{0} Monate gewählt'},
-'imp.chosenNone':{en:'no month chosen',de:'kein Monat gewählt'},
-'imp.step2':{en:'Confirm import',de:'Import bestätigen'},
-'imp.step2Sub':{en:'For {0} month(s) the Flexible Payments data will be <b>replaced, not added to</b>: the existing bookings, actual values and corrections of those months are deleted and the rows from the file put in their place. Plan values, notes, ticks and every other month stay untouched.',
-  de:'Für {0} Monate werden die Flexible-Payments-Daten <b>ersetzt, nicht ergänzt</b>: die bisherigen Buchungen, Ist-Werte und Korrekturen dieser Monate werden gelöscht und durch die Zeilen aus der Datei eingesetzt. Planwerte, Notizen, Haken und alle übrigen Monate bleiben unberührt.'},
-'imp.before':{en:'before',de:'bisher'},
-'imp.after':{en:'after',de:'danach'},
-'imp.noImportYet':{en:'no import — the Flexible Payments values come from planning',de:'kein Import — die Flexible-Payments-Werte stammen aus der Planung'},
-'imp.corrections':{en:' · {0} correction(s)',de:' · {0} Korrekturen'},
-'imp.newCats':{en:'New main categories will be created: {0}.',de:'Neu angelegt werden die Hauptkategorien: {0}.'},
-'imp.saveHint':{en:'The file on disk changes only when you click “Save data”.',de:'Die Datei auf der Festplatte ändert sich erst mit „Daten speichern".'},
-'imp.backToMonths':{en:'Back to month selection',de:'Zurück zur Monatswahl'},
-'imp.go':{en:'Replace and import',de:'Ersetzen und importieren'},
-'imp.done':{en:'{0} bookings taken over ({1}).',de:'{0} Buchungen übernommen ({1}).'},
-'imp.dropped':{en:' {0} row(s) from deselected months skipped.',de:' {0} Zeile(n) aus abgewählten Monaten übergangen.'},
-'imp.outside':{en:' {0} outside {1} skipped.',de:' {0} außerhalb {1} übersprungen.'},
-'imp.added':{en:' New main categories: {0}.',de:' Neue Hauptkategorien: {0}.'},
+   (Die Schlüssel des alten Fast-Budget-Imports sind seit 6.9.26
+   spät weg — samt js/csv.js und js/dialogs/csv-import.js.) */
 
 /* ── Import einer FINA-Tabelle ────────────────────────────────
-   Die Tabelle, aus der FINA entstanden ist: zwölf Monatsspalten,
-   davor die Kürzel, dazwischen Summenzeilen. Gelesen wird sie in
-   js/sheet.js, das Fenster steht in js/dialogs/sheet-import.js. */
+   (Der Tabellenimport — js/sheet.js, js/dialogs/sheet-import.js —
+   ist seit 6.9.26 spät weg, seine Schlüssel mit ihm.) */
 'shInfo.title':{en:'Import a FINA table (CSV)',de:'FINA-Tabelle einlesen (CSV)'},
-'shInfo.sub':{en:'The spreadsheet FINA grew out of: one row per item, twelve month columns, a few code columns in front. FINA reads its structure from the sum rows — it does not guess what it can add up.',
-  de:'Die Tabelle, aus der FINA entstanden ist: eine Zeile je Position, zwölf Monatsspalten, davor ein paar Spalten mit Kürzeln. FINA liest die Gliederung aus den Summenzeilen — geraten wird nichts, was sich rechnen lässt.'},
-'shInfo.needTitle':{en:'This must be in the file',de:'Das muss in der Datei stehen'},
-'shInfo.need':{en:'The header row is found by the twelve month names. Everything above it is ignored.',
-  de:'Die Kopfzeile wird an den zwölf Monatsnamen erkannt. Alles darüber wird übergangen.'},
-'shInfo.cMonths':{en:'Jan … Dec',de:'Jan … Dez'},
-'shInfo.colMonths':{en:'twelve columns in order, German or English, short or long',
-  de:'zwölf Spalten der Reihe nach, deutsch oder englisch, kurz oder lang'},
-'shInfo.cYear':{en:'2025',de:'2025'},
-'shInfo.colYear':{en:'the year stands above the column with the names — that column holds blocks, categories and items',
-  de:'das Jahr steht über der Spalte mit den Bezeichnungen — dort stehen Blöcke, Kategorien und Positionen'},
-'shInfo.cMark':{en:'/',de:'/'},
-'shInfo.colMark':{en:'in the narrow column behind each month it marks the sum rows — the blocks',
-  de:'in der schmalen Spalte hinter jedem Monat kennzeichnet er die Summenzeilen — die Blöcke'},
-'shInfo.optTitle':{en:'Taken along if present',de:'Wird mitgenommen, wenn vorhanden'},
-'shInfo.colBank':{en:'bank code — unknown codes are added to the list',de:'Kürzel der Bank — unbekannte Kürzel kommen in die Liste'},
-'shInfo.colPay':{en:'payment type',de:'Zahlungsart'},
-'shInfo.colDue':{en:'due date: A, M, E or a day of the month',de:'Fälligkeit: A, M, E oder ein Tag im Monat'},
-'shInfo.colEnd':{en:'last payment as 25-08. Anything else — “variable”, “monthly” — becomes a note on the item.',
-  de:'letzte Zahlung als 25-08. Alles andere — „Variabel", „mtl. kündbar" — wird zur Notiz der Position.'},
-'shInfo.rest':{en:'Semicolon and comma both work as separators. Column <code>P</code> — payments per year — is not taken over: the twelve monthly amounts say the same thing and say it exactly.',
-  de:'Semikolon und Komma gehen beide als Trennzeichen. Die Spalte <code>P</code> — Zahlungen im Jahr — wird nicht übernommen: die zwölf Monatsbeträge sagen dasselbe, und zwar genau.'},
-'shInfo.replace':{en:'A table is a whole household book, not an addition to one. It <b>replaces</b> what is in this file. You will see what disappears before anything is changed.',
-  de:'Eine Tabelle ist ein ganzes Haushaltsbuch und kein Nachtrag. Sie <b>ersetzt</b>, was in dieser Datei steht. Was dabei verschwindet, siehst du, bevor etwas geändert wird.'},
-'sheet.noMonths':{en:'No header row with twelve month names found — is this a FINA table?',
-  de:'Keine Kopfzeile mit zwölf Monatsnamen gefunden — ist das eine FINA-Tabelle?'},
-'sheet.noBlocks':{en:'No sum row found. In the narrow column behind each month a “/” marks the blocks — without it FINA cannot tell headings from items.',
-  de:'Keine Summenzeile gefunden. In der schmalen Spalte hinter jedem Monat kennzeichnet ein „/" die Blöcke — ohne ihn kann FINA Überschriften nicht von Positionen unterscheiden.'},
-'sheet.noteEnd':{en:'Deadline in the table: {0}',de:'Deadline in der Tabelle: {0}'},
-'sheet.kIn':{en:'Income',de:'Einnahmen'},
-'sheet.kFlex':{en:'Flexible Payments',de:'Flexible Payments'},
-'sheet.kOut':{en:'Regular costs',de:'Regelmäßige Kosten'},
-'sheet.kSkip':{en:'— do not import',de:'— nicht übernehmen'},
-'sheet.step1':{en:'FINA table — check',de:'FINA-Tabelle — prüfen'},
-'sheet.step1Sub':{en:'<b>{0}</b> read, year of the table: <b>{1}</b>. Nothing has been changed yet. Check that FINA read the structure the way you keep it — the sums say whether it did.',
-  de:'<b>{0}</b> gelesen, Jahr der Tabelle: <b>{1}</b>. Bisher ist nichts geändert. Prüfe, ob FINA die Gliederung so gelesen hat, wie du sie führst — ob es stimmt, sagen die Summen.'},
-'sheet.blocks':{en:'The sum rows of the table',de:'Die Summenzeilen der Tabelle'},
-'sheet.colBlock':{en:'Sum row',de:'Summenzeile'},
-'sheet.colKind':{en:'becomes',de:'wird zu'},
-'sheet.colSheet':{en:'Table',de:'Tabelle'},
-'sheet.colRead':{en:'FINA read',de:'FINA gelesen'},
-'sheet.colRows':{en:'Items',de:'Positionen'},
 'sheet.ok':{en:'MATCHES',de:'STIMMT'},
 'sheet.off':{en:'DIFFERS',de:'WEICHT AB'},
-'sheet.offTip':{en:'The rows FINA found add up to something else than the sum row of the table. Then a heading was not recognised — the numbers would be counted twice. Better cancel and look at the table.',
-  de:'Die gefundenen Zeilen ergeben etwas anderes als die Summenzeile der Tabelle. Dann wurde eine Überschrift nicht erkannt — die Zahlen stünden doppelt da. Lieber abbrechen und in die Tabelle sehen.'},
-'sheet.noRows':{en:'no rows below it',de:'keine Zeilen darunter'},
-'sheet.blocksHint':{en:'A sum row with nothing below it is the grand total — its numbers already stand in the other rows, so it is not imported.',
-  de:'Eine Summenzeile ohne Zeilen darunter ist die Gesamtsumme — ihre Zahlen stehen schon in den anderen, deshalb wird sie nicht übernommen.'},
-'sheet.struct':{en:'What FINA read',de:'Was FINA gelesen hat'},
-'sheet.toKind':{en:'→ {0}',de:'→ {0}'},
-'sheet.rowsN':{en:'{0} row(s)',de:'{0} Zeile(n)'},
-'sheet.loose':{en:'(rows without a heading of their own)',de:'(Zeilen ohne eigene Überschrift)'},
-'sheet.flexHint':{en:'FINA knows one level of Flexible Payments categories. The rows below a heading become the categories — that is where the numbers you compare stand.',
-  de:'FINA kennt eine Ebene von Flexible-Payments-Kategorien. Die Zeilen unter einer Überschrift werden zu den Kategorien — dort stehen die Zahlen, die man vergleicht.'},
-'sheet.options':{en:'Options',de:'Optionen'},
-'sheet.optYear':{en:'Set the accounting year to {0} (this file is kept for {1})',
-  de:'Abrechnungsjahr auf {0} setzen (diese Datei wird für {1} geführt)'},
-'sheet.optTick':{en:'Tick off the months that are over',de:'Abgeschlossene Monate abhaken'},
-'sheet.optTickHint':{en:'What is in the table has happened. Ticking it off means: this is how it was — every month before the current one, and all twelve in a year that is over. Without the tick everything comes in open.',
-  de:'Was in der Tabelle steht, ist geschehen. Abhaken heißt „so war es" — jeder Monat vor dem laufenden, in einem vergangenen Jahr alle zwölf. Ohne den Haken kommt alles offen herein.'},
-'sheet.willMake':{en:'This makes {0} items in {1} income and {2} expense categories, plus {3} Flexible Payments categories.',
-  de:'Daraus werden {0} Positionen in {1} Einnahme- und {2} Ausgabe-Kategorien, dazu {3} Flexible-Payments-Kategorien.'},
-'sheet.needKind':{en:'Assign at least one sum row.',de:'Mindestens eine Summenzeile zuordnen.'},
-'sheet.step2':{en:'Replace the household book',de:'Haushaltsbuch ersetzen'},
-'sheet.step2Sub':{en:'The table is a whole year. What is in this file now is <b>replaced, not added to</b> — items, categories, Flexible Payments and imported bookings.',
-  de:'Die Tabelle ist ein ganzes Jahr. Was jetzt in dieser Datei steht, wird <b>ersetzt, nicht ergänzt</b> — Positionen, Kategorien, Flexible Payments und importierte Buchungen.'},
-'sheet.what':{en:'What',de:'Was'},
-'sheet.rItems':{en:'Items',de:'Positionen'},
-'sheet.rTx':{en:'Imported bookings',de:'Importierte Buchungen'},
-'sheet.rBal':{en:'Balance correction',de:'Saldokorrektur'},
-'sheet.monthsN':{en:'{0} month(s) with an amount',de:'{0} Monat(e) mit Betrag'},
-'sheet.newCodes':{en:'New codes are added to the lists: {0}. They carry themselves as their label until you write it out in the settings.',
-  de:'Neu in die Listen kommen die Kürzel: {0}. Als Bezeichnung tragen sie zunächst sich selbst — ausschreiben kannst du sie in den Einstellungen.'},
-'sheet.keeps':{en:'Untouched: the opening balance, language and appearance. They are settings, they stand in one place each, and one click changes them.',
-  de:'Unberührt bleiben: der Anfangsbestand, Sprache und Darstellung. Das sind Einstellungen, sie stehen an je einer Stelle, und ein Griff ändert sie.'},
-'sheet.back':{en:'Back to checking',de:'Zurück zum Prüfen'},
-'sheet.go':{en:'Replace and import',de:'Ersetzen und importieren'},
-'sheet.done':{en:'{0} items in {1} categories taken over, plus {2} Flexible Payments categories.',
-  de:'{0} Positionen in {1} Kategorien übernommen, dazu {2} Flexible-Payments-Kategorien.'},
-'sheet.doneTick':{en:' Ticked off up to and including {0}.',de:' Abgehakt bis einschließlich {0}.'},
-'sheet.doneCodes':{en:' {0} new code(s) in the lists.',de:' {0} neue Kürzel in den Listen.'},
 
 /* ── Fälligkeit und Rhythmus ──────────────────────────────── */
 'due.A':{en:'Start of month',de:'Monatsanfang'},
@@ -1185,13 +1088,13 @@ const STR={
   de:'Markiere die Zeile mit den Spaltenbeschriftungen (Spalte {0}).'},
 'c2.how2':{en:'Mark the columns that matter for matching — every column header is a button.',
   de:'Markiere die Spalten, die für die Zuordnung zählen — jede Spaltenüberschrift ist ein Knopf.'},
-'c2.how3':{en:'Above each marked column, choose its FINA field: Date, Amount or Reference 1–4 (Date and Amount are required; the references rank like heading 1 to 4).',
-  de:'Wähle über jeder markierten Spalte ihren FINA-Bezug: Datum, Betrag oder Referenz 1–4 (Datum und Betrag müssen dabei sein; die Referenzen sind eine Rangfolge wie Überschrift 1 bis 4).'},
+'c2.how3':{en:'Above each marked column, choose its FINA field: Date, Amount or Reference 1–5 (Date and Amount are required; the five references are free fields, all alike).',
+  de:'Wähle über jeder markierten Spalte ihren FINA-Bezug: Datum, Betrag oder Referenz 1–5 (Datum und Betrag müssen dabei sein; die fünf Referenzen sind freie Felder, alle gleichrangig).'},
 'c2.preview':{en:'Preview: the first {0} of {1} rows',de:'Vorschau: die ersten {0} von {1} Zeilen'},
 'c2.splitTip':{en:'Drag to change how the two areas share the height · double-click: half and half',
   de:'Ziehen ändert die Aufteilung der beiden Flächen · Doppelklick: halb/halb'},
 'c2.chipEditTip':{en:'Double-click: back into the field to adjust',de:'Doppelklick: zurück ins Feld zum Anpassen'},
-'c2.mnApplyCrit':{en:'Assign CSV data by the remembered import criteria',de:'CSV-Daten nach gespeicherten Importkriterien zuordnen'},
+'c2.mnCritQ':{en:'Search by remembered criteria',de:'Suchen nach gemerkten Kriterien'},
 'c2.mnApplyCritTip':{en:'{0} remembered rule(s) for this entry — currently match {1} free row(s)',
   de:'{0} gemerkte Regel(n) für diesen Posten — treffen gerade {1} freie Zeile(n)'},
 'c2.mnApplyCritNone':{en:'The remembered rules for this entry match no free row right now',
@@ -1200,10 +1103,39 @@ const STR={
 'c2.mnAmtTip':{en:'Filters the amount column by the {0} different amount(s) this entry has in the book',
   de:'Filtert die Betragsspalte nach den {0} verschiedenen Beträgen, die dieser Posten im Buch führt'},
 'c2.mnAmtNone':{en:'This entry has no amounts in the book yet',de:'Dieser Posten führt im Buch noch keine Beträge'},
-'c2.mpTitle':{en:'Apply remembered criteria',de:'Gemerkte Importkriterien anwenden'},
-'c2.mpSub':{en:'These entries carry import criteria that match rows from “{0}” — untick what should stay out. Nothing is written to the book yet; that happens with “Finish” in the header.',
-  de:'Diese Posten tragen Importkriterien, die Zeilen aus „{0}“ treffen — nimm den Haken weg, wo nichts zugeordnet werden soll. Ins Buch geschrieben wird noch nichts, das tut erst „Fertig“ in der Kopfzeile.'},
+/* Das Wahl-Fenster der gemerkten Kriterien (umgebaut 6.9.26): vier
+   Sätze oben, die sagen, was hier geschieht; unter jedem Posten
+   seine Zeilen als Tabelle; der Stift am Posten. */
+'c2.mpTitle':{en:'Automatically assign with remembered criteria',de:'Automatisch zuordnen mit gemerkten Importkriterien'},
+'c2.mpHow1':{en:'Here you control the automatic assignment — ticked entries and rows are taken over.',
+  de:'Hier steuerst du die automatische Zuordnung — übernommen wird, was einen Haken trägt: Posten und Zeilen.'},
+'c2.mpHow2':{en:'The pencil at an entry opens it, so you can adjust its import criteria right there. The change applies to this list as soon as the window closes.',
+  de:'Der Stift an einem Posten öffnet ihn — dort kannst du seine Importkriterien gleich anpassen. Die Änderung wirkt auf diese Liste, sobald das Fenster zugeht.'},
+'c2.mpHow3':{en:'“{0}” carries out the assignment. Nothing is written to the book yet; that happens with “Finish”.',
+  de:'„{0}“ führt die Zuordnung durch. Ins Buch geschrieben wird noch nichts, das tut erst „Fertig“.'},
+'c2.mpHow4':{en:'“{0}” aborts this automatic assignment — nothing changes.',
+  de:'„{0}“ bricht diese automatische Zuordnung ab — es ändert sich nichts.'},
+'c2.mpEditTip':{en:'Open the entry and adjust its import criteria — the list here follows as soon as the window closes',
+  de:'Den Posten öffnen und seine Importkriterien anpassen — die Liste hier folgt, sobald das Fenster zugeht'},
+'c2.mpGone':{en:'No remembered criterion matches a free row any more.',
+  de:'Kein gemerktes Kriterium trifft mehr eine freie Zeile.'},
 'c2.mpRows':{en:'{0} row(s)',de:'{0} Zeile(n)'},
+'c2.pkHead':{en:'X',de:'X'},
+'c2.inBookTip':{en:'Already in the book from an earlier import — cannot be assigned again, neither by hand nor by a filter',
+  de:'Schon im Buch, aus einem früheren Import — lässt sich nicht noch einmal zuordnen, weder von Hand noch über einen Filter'},
+'c2.showOld':{en:'Show already assigned CSV entries',de:'Schon zugeordnete CSV-Zeilen zeigen'},
+'c2.hideOld':{en:'Hide already assigned CSV entries',de:'Schon zugeordnete CSV-Zeilen verbergen'},
+'c2.oldTip':{en:'{0} row(s) already assigned — {1} in the book from earlier imports, {2} in this import; shown grey with a cross in the column “X”',
+  de:'{0} Zeile(n) schon zugeordnet — {1} im Buch aus früheren Importen, {2} in diesem Import; grau mit Kreuz in der Spalte „X“'},
+'c2.noOld':{en:'No row of this file is assigned yet — neither in the book nor in this import',de:'Noch keine Zeile dieser Datei ist zugeordnet — weder im Buch noch in diesem Import'},
+'c2.asgTip':{en:'Assigned to “{0}” in this import — stays here grey; take it back via the ☰ at the target',
+  de:'In diesem Import „{0}“ zugeordnet — bleibt grau stehen; zurücknehmen über das ☰ am Ziel'},
+'c2.mpNew':{en:'{0} new row(s)',de:'{0} neue Zeile(n)'},
+'c2.mpOld':{en:'{0} already imported',de:'{0} schon importiert'},
+'c2.mpOldTip':{en:'Already in the book from an earlier import — cannot be imported again; this import changes nothing here',
+  de:'Schon im Buch, aus einem früheren Import — lässt sich nicht noch einmal importieren; dieser Import ändert daran nichts'},
+'c2.mpHowOld':{en:'Rows that are already in the book from an earlier import stand grey with a cross — they cannot be imported again, and this import changes nothing about them.',
+  de:'Zeilen, die aus einem früheren Import schon im Buch stehen, sind grau und tragen ein Kreuz — sie lassen sich nicht noch einmal importieren, und dieser Import ändert an ihnen nichts.'},
 'c2.mpNone':{en:'no row matches',de:'trifft keine Zeile'},
 /* Die Importkriterien im Posten- und im Kategorie-Fenster. */
 'icrit.title':{en:'Import criteria',de:'Importkriterien'},
@@ -1226,50 +1158,36 @@ const STR={
 'c2.meta':{en:'{0} rows · {1} columns · {2} · separator {3}',de:'{0} Zeilen · {1} Spalten · {2} · Trennzeichen {3}'},
 'c2.tab':{en:'tab',de:'Tabulator'},
 'c2.readFail':{en:'Could not read the CSV: {0}',de:'Konnte die CSV nicht lesen: {0}'},
-'c2.kindQ':{en:'What is in the file?',de:'Was steckt in der Datei?'},
-'c2.kindReg':{en:'Regular entries',de:'Reguläre Posten'},
-'c2.kindRegSub':{en:'Regular income or regular payments — things like rent, loan, Netflix subscription, electricity.',
-  de:'Regelmäßige Einnahmen oder regelmäßige Zahlungen — sowas wie Miete, Kredit, Netflix-Abo, Stromkosten usw.'},
-/* „Flexible Posten" wie „Reguläre Posten" daneben (5.9.26 spät, auf
-   Wunsch): der Knopf nennt die Art des Postens, der Bereich heißt
-   weiter „Flexible Payments" (g.flex, c2.blkFlex). */
-'c2.kindFlex':{en:'Flexible entries',de:'Flexible Posten'},
-'c2.kindFlexSub':{en:'Flexible payments — things like fuel, shopping, groceries, holidays.',
-  de:'Flexible Zahlungen — sowas wie Benzinkosten, Shopping, Einkauf, Urlaub usw.'},
-/* Der Kasten der gemerkten CSV-Struktur in Schritt 1 (5.9.26). Er
-   spricht von der **Struktur** der Datei und nicht von „Mapping":
-   das Wort klang nach der Zuordnung der Zeilen, und die kommt erst
-   in Schritt 3 — der zweite Satz sagt das ausdrücklich. */
-'c2.known':{en:'FINA remembers the CSV structure of this file type: “{0}”. It can take it over for you.',
-  de:'FINA erinnert sich an die CSV-Struktur dieser Datei-Art: „{0}“. Sie kann übernommen werden.'},
-'c2.knownNote':{en:'Reading the structure automatically does not assign anything to your entries yet — that happens in step 3.',
-  de:'Beim automatischen Lesen der Datenstruktur findet noch keine Zuordnung zu den Posten statt — die kommt in Schritt 3.'},
+/* Der Kasten der gemerkten CSV-Struktur in Schritt 1 (umgebaut
+   6.9.26; die Frage „Was steckt in der Datei?" mit den beiden
+   Art-Knöpfen ist heraus). Er spricht von der **Struktur** der Datei
+   und nicht von „Mapping": das Wort klang nach der Zuordnung der
+   Zeilen, und die kommt erst in Schritt 3 — der Hinweis unter den
+   Strukturen sagt das ausdrücklich. {0} in c2.known ist app.name:
+   hier stellt sich das Programm vor. */
+'c2.known':{en:'{0} remembers this file structure:',de:'{0} erinnert sich an diese Dateistruktur:'},
+'c2.knownNote':{en:'Preparing the CSV structure automatically does not assign any data from the CSV file without your explicit instruction. It only saves you the manual and tedious step of mapping the CSV structure to the FINA fields — those become relevant in step 3.',
+  de:'Die automatische Vorbereitung der CSV-Struktur ordnet ohne deine ausdrückliche Anweisung keine Daten aus der CSV-Datei zu. Sie erspart dir lediglich den mühsamen Handgriff, die CSV-Struktur den FINA-Feldern zuzuordnen — die werden in Schritt 3 gebraucht.'},
 'c2.knownApply':{en:'Prepare CSV structure automatically',de:'Automatisch CSV-Datenstruktur vorbereiten'},
-'c2.knownNew':{en:'Arrange CSV structure anew',de:'CSV-Datenstruktur neu anordnen'},
-/* Die Art gehört zur Struktur (5.9.26 spät): der Kasten sagt, welche
-   mitkommt, und die gesperrten Knöpfe sagen in der Sprechblase, wie
-   man sie wieder frei bekommt. */
-'c2.knownKind':{en:'Remembered with it: {0}.',de:'Mitgemerkt: {0}.'},
-'c2.kindLockTip':{en:'Set by the remembered CSV structure — “Arrange CSV structure anew” frees it.',
-  de:'Kommt aus der gemerkten CSV-Struktur — „CSV-Datenstruktur neu anordnen“ gibt sie frei.'},
-'c2.kApplied':{en:'Remembered assignment applied — check, then “Finish”.',
-  de:'Gemerkte Zuordnung angewendet — prüfen, dann „Fertig“.'},
+'c2.knownNew':{en:'Arrange CSV structure from scratch',de:'CSV-Datenstruktur von Grund auf neu anordnen'},
+'c2.knownPick':{en:'Continue with this structure',de:'Mit dieser Struktur weitermachen'},
+'c2.mapForgot':{en:'CSV structure “{0}” forgotten. Then “Save data”.',de:'CSV-Struktur „{0}“ vergessen. Danach „Daten speichern“.'},
 'c2.next':{en:'Continue',de:'Weiter'},
 'c2.nextTip':{en:'The column structure is already remembered — next comes the assignment of the rows.',
   de:'Die Spaltenstruktur ist schon gemerkt — weiter geht’s zur Zuordnung der Zeilen.'},
 'c2.back':{en:'‹ Back',de:'‹ Zurück'},
 'c2.needFile':{en:'Choose a CSV file first.',de:'Zuerst eine CSV-Datei wählen.'},
-'c2.needKind':{en:'Say first what is in the file.',de:'Zuerst sagen, was in der Datei steckt.'},
-'c2.nextKnown':{en:'FINA knows this file type — decide above first: prepare the CSV structure automatically, or arrange it anew.',
-  de:'FINA kennt diese Datei-Art — bitte zuerst oben entscheiden: die CSV-Datenstruktur automatisch vorbereiten oder neu anordnen.'},
+'c2.nextKnown':{en:'FINA knows this file type — decide below first: prepare the CSV structure automatically, or arrange it from scratch.',
+  de:'FINA kennt diese Datei-Art — bitte zuerst unten entscheiden: die CSV-Datenstruktur automatisch vorbereiten oder von Grund auf neu anordnen.'},
 'c2.selAll':{en:'Select all',de:'Alles wählen'},
 'c2.selNone':{en:'Deselect all',de:'Alles abwählen'},
 'c2.colsCnt':{en:'{0} of {1} columns selected',de:'{0} von {1} Spalten gewählt'},
 'c2.fDate':{en:'Date',de:'Datum'},
 'c2.fAmount':{en:'Amount',de:'Betrag'},
-/* Die vier Referenzen — die einzigen Felder neben Datum und Betrag
-   (5.9.26, C2_REFS in js/dialogs/csv2-wizard.js). Eine Rangfolge
-   wie Überschrift 1 · 2 · 3 · 4, deshalb nur die Nummer als Name. */
+/* Die fünf Referenzen (seit 6.9.26 spät; davor vier) — die einzigen Felder neben Datum und Betrag
+   (5.9.26, C2_REFS in js/dialogs/csv2-wizard.js). Gleichrangige
+   freie Felder (6.9.26; vorher als Rangfolge beschrieben), die
+   Nummer ist nur ihr Name. */
 'c2.fRef':{en:'Reference {0}',de:'Referenz {0}'},
 'impv.ref':{en:'Ref {0}',de:'Ref {0}'},
 'c2.info':{en:'{0} rows · {1} readable · {2} from the book year {3}',
@@ -1279,6 +1197,11 @@ const STR={
 'c2.missSub':{en:'Assign these FINA fields to a column first — without them no row has a month or a number:',
   de:'Ordne zuerst diese FINA-Felder einer Spalte zu — ohne sie hat keine Zeile einen Monat oder eine Zahl:'},
 'c2.okBtn':{en:'OK',de:'OK'},
+'c2.looseTitle':{en:'Selected columns without a FINA field',de:'Gewählte Spalten ohne FINA-Feld'},
+'c2.looseSub':{en:'These selected columns are not assigned to any FINA field. Only assigned columns go on to the next step. Deselect them now? You then stay in this step, check the columns and continue with the same button. Cancel keeps the selection — then you decide yourself which columns to deselect and which get a field.',
+  de:'Diese gewählten Spalten sind keinem FINA-Feld zugeordnet. In den nächsten Schritt kommen nur zugeordnete Spalten. Jetzt abwählen? Du bleibst dann in diesem Schritt, prüfst die Spalten und gehst über denselben Knopf weiter. Abbrechen lässt die Wahl stehen — dann entscheidest du selbst, welche Spalten du abwählst und welche ein Feld bekommen.'},
+'c2.looseBtn':{en:'Deselect',de:'Abwählen'},
+'c2.looseDone':{en:'{0} column(s) deselected — check the columns, then continue.',de:'{0} Spalte(n) abgewählt — prüfe die Spalten, dann weiter.'},
 'c2.noCols':{en:'At least one column must be selected.',de:'Wenigstens eine Spalte muss gewählt sein.'},
 'c2.noYear':{en:'No row from the book year {0} — there would be nothing to match.',
   de:'Keine Zeile aus dem Buchjahr {0} — da gäbe es nichts zuzuordnen.'},
@@ -1294,7 +1217,7 @@ const STR={
 'c2.mnNoSel':{en:'Nothing to assign yet — filter the rows below or mark them by hand',
   de:'Es ist noch nichts zuzuordnen — unten filtern oder von Hand markieren'},
 'c2.kTitle':{en:'Remembered criteria applied',de:'Gemerkte Importkriterien angewendet'},
-'c2.autoMap':{en:'Apply remembered criteria…',de:'Gemerkte Importkriterien anwenden…'},
+'c2.autoMap':{en:'Automatically assign with remembered criteria…',de:'Automatisch zuordnen mit gemerkten Importkriterien…'},
 'c2.autoMapTip':{en:'Assign in one go with the import criteria stored at your entries ({0} rules)',
   de:'Mit den an den Posten gemerkten Importkriterien in einem Zug zuordnen ({0} Regeln)'},
 'c2.autoMapDone':{en:'Already done — the remembered criteria have been applied',
@@ -1342,18 +1265,21 @@ const STR={
   de:'Ist der Import fertig, kannst du den Wizard schließen. Was zugeordnet ist, kommt ins Buch.'},
 'c2.closedNone':{en:'Wizard closed — nothing was assigned, so nothing was imported.',
   de:'Wizard geschlossen — es war nichts zugeordnet, also wurde nichts importiert.'},
-'c2.xUndoBtn':{en:'Reset import and close',de:'Import zurücksetzen und schließen'},
-'c2.xUndoTip':{en:'Throws away what was assigned in this window and closes the wizard. Nothing has been written to your book yet.',
-  de:'Wirft weg, was in diesem Fenster zugeordnet wurde, und schließt den Wizard. Ins Buch ist noch nichts geschrieben.'},
+/* Das ✕ rechts oben, je Schritt eine Sprechblase (6.9.26). */
 'c2.xClose':{en:'Close wizard',de:'Wizard schließen'},
+'c2.xClose2':{en:'Close the wizard right away. No entry assignment is carried out!',
+  de:'Wizard sofort schließen. Keine Postenzuordnung wird durchgeführt!'},
+'c2.xClose3':{en:'Close the wizard without assignment (!)',de:'Wizard ohne Zuordnung (!) schließen'},
 'c2.saveCols':{en:'Save columns and continue',de:'Spalten speichern und weiter'},
 'c2.saveColsTip':{en:'FINA remembers the column structure. Next comes the assignment of the rows.',
   de:'FINA merkt sich die Spaltenstruktur. Weiter geht’s zur Zuordnung der Zeilen.'},
 'c2.mapNameTitle':{en:'Save column structure',de:'Spaltenstruktur speichern'},
 'c2.mapNameSub':{en:'FINA remembers the columns of this file type under this name. The file name is suggested — you can change it.',
   de:'Unter diesem Namen merkt sich FINA die Spalten dieser Datei-Art. Vorgeschlagen ist der Name der Datei — du kannst ihn ändern.'},
-'c2.mapNameKnown':{en:'FINA already knows this file type as “{0}” (remembered {1}). Saving replaces the remembered structure; the import criteria at your entries stay.',
-  de:'FINA kennt diese Datei-Art schon als „{0}“ (gemerkt {1}). Speichern ersetzt die gemerkte Struktur; die Importkriterien an den Posten bleiben.'},
+'c2.mapNameKnown':{en:'FINA already knows this file type as “{0}” (remembered {1}). Saving replaces that structure — unless you keep it above. The import criteria at your entries stay either way.',
+  de:'FINA kennt diese Datei-Art schon als „{0}“ (gemerkt {1}). Speichern ersetzt diese Struktur — außer du behältst sie oben. Die Importkriterien an den Posten bleiben so oder so.'},
+'c2.mapNameKeep':{en:'Keep “{0}” and remember this as an additional structure',
+  de:'„{0}“ behalten und diese als weitere Struktur dazu merken'},
 'c2.mapNameEmpty':{en:'Please enter a name.',de:'Bitte einen Namen eingeben.'},
 'c2.mapNameTaken':{en:'Another CSV structure is already called “{0}”. Please choose a different name.',
   de:'Eine andere CSV-Struktur heißt schon „{0}“. Bitte einen anderen Namen wählen.'},
@@ -1365,7 +1291,7 @@ const STR={
 'c2.q':{en:'Quick filter — searches all columns…',de:'Schnellfilter — sucht in allen Spalten…'},
 'c2.qTip':{en:'Filters across all selected columns, on top of the column filters. Enter pins the entry as a filter line.',
   de:'Filtert über alle gewählten Spalten, zusätzlich zu den Spaltenfiltern. Enter heftet den Eintrag als Filterzeile an.'},
-'c2.opHas':{en:'Contains (among others)',de:'Enthält unter anderem'},
+'c2.opHas':{en:'Contains',de:'Enthält'},
 'c2.opNot':{en:'Does not contain',de:'Enthält nicht'},
 'c2.opOnly':{en:'Contains only this',de:'Enthält nur'},
 'c2.opStart':{en:'Starts with',de:'Fängt mit'},
@@ -1406,6 +1332,10 @@ const STR={
 'c2.mnWipe':{en:'Delete all imported data ({0} months)',de:'Alle importierten Daten löschen ({0} Monate)'},
 'c2.mnWipeAsk':{en:'Delete the imported data of “{0}”? {1} month(s) become empty and open again. Earlier imports wrote them; this cannot be undone.',
   de:'Die importierten Daten von „{0}“ löschen? {1} Monat(e) werden wieder leer und offen. Sie stammen aus früheren Importen; zurückholen lässt sich das nicht.'},
+'c2.wipeAskPend':{en:'Release the {1} row(s) this CSV import has assigned to “{0}”? They become free again; nothing has been written to the book yet.',
+  de:'Die {1} Zeile(n) lösen, die dieser CSV-Import „{0}“ zugeordnet hat? Sie werden wieder frei; im Buch steht davon noch nichts.'},
+'c2.wipeAlsoPend':{en:'The {0} row(s) this CSV import has assigned to it are released as well.',
+  de:'Auch die {0} Zeile(n), die dieser CSV-Import ihm zugeordnet hat, werden gelöst.'},
 'c2.mnWiped':{en:'“{0}”: {1} imported month(s) deleted. Then “Save data”.',
   de:'„{0}“: {1} importierte Monate gelöscht. Danach „Daten speichern".'},
 'c2.prevImp':{en:'from an earlier import',de:'aus einem früheren Import'},
@@ -1436,13 +1366,15 @@ const STR={
   de:'Nichts gefunden — dieser Filter trifft keine Zeile.'},
 'c2.emptyT':{en:'No targets — create one with “{0}”.',de:'Keine Ziele — lege mit „{0}“ eines an.'},
 'c2.blkIn':{en:'Income',de:'Einnahmen'},
-'c2.blkOut':{en:'Regular costs',de:'Regelmäßige Kosten'},
-'c2.blkFlex':{en:'Flexible Payments',de:'Flexible Payments'},
+'c2.blkOut':{en:'Regular',de:'Regulär'},
+'c2.blkFlex':{en:'Flexible',de:'Flexibel'},
 'c2.blkNew':{en:'Newly created',de:'Neu angelegt'},
 'c2.newTag':{en:'new',de:'neu'},
 'c2.gTotal':{en:'TOTAL',de:'GESAMT'},
 'c2.tNoTarget':{en:'Click a target above first — or create one with “{0}”.',
   de:'Erst oben ein Ziel anklicken — oder mit „{0}“ eines anlegen.'},
+'c2.tOnlyQ':{en:'The quick filter alone is not enough — set a column filter, or mark the rows and assign them once.',
+  de:'Der Schnellfilter allein reicht nicht — setze einen Spaltenfilter, oder markiere die Zeilen und ordne sie einmalig zu.'},
 'c2.tNoFlt':{en:'Filter first — a match without a filter would catch everything.',
   de:'Erst filtern — eine Zuordnung ohne Filter träfe alles.'},
 'c2.tNoHit':{en:'The filter matches no open row.',de:'Der Filter trifft keine offene Zeile.'},
@@ -1464,17 +1396,19 @@ const STR={
 'c2.autoLines':{en:'single rows from the file',de:'einzelne Zeilen aus der Datei'},
 'c2.autoMark':{en:'What is new is marked yellow: the entries above, and under each of them the rows just assigned to it. Yellow means found, but not in your book yet — that happens with “Finish”. What is already in your book stays grey.',
   de:'Was neu ist, steht gelb markiert: die Posten oben, und unter jedem von ihnen die Zeilen, die ihm gerade zugeordnet wurden. Gelb heißt gefunden, steht aber noch nicht im Buch — dorthin kommt es mit „Fertig". Was schon im Buch steht, bleibt grau.'},
-'c2.newCatT':{en:'New flexible category',de:'Neue flexible Kategorie'},
+/* Das Fenster „Neu anlegen" (6.9.26 ein Fenster für beide Arten):
+   in der Kategorienliste steht als dritte Gruppe der Weg zu einer
+   neuen flexiblen Kategorie. */
+'c2.newT':{en:'New entry',de:'Neuer Posten'},
+'c2.nFlexOpt':{en:'New flexible category (with this name)',de:'Neue flexible Kategorie (mit dieser Bezeichnung)'},
 'c2.nName':{en:'Name',de:'Bezeichnung'},
 /* Die Kategorie **im Buch**, in die der neue Posten kommt — die
    Datei selbst kennt keine Kategorie mehr, nur Referenzen (c2.fRef). */
 'c2.nGroup':{en:'Category',de:'Kategorie'},
 'c2.nBank':{en:'Bank',de:'Bank'},
 'c2.nPay':{en:'Payment type',de:'Zahlungsart'},
-'c2.nHint':{en:'The category decides whether it is income. “{0}” creates the entry in the table above — assign afterwards with “{1}”.',
-  de:'Die Kategorie entscheidet, ob es eine Einnahme ist. „{0}“ legt den Eintrag oben in der Tabelle an — zugeordnet wird danach mit „{1}“.'},
-'c2.nCatHint':{en:'“{0}” creates the category in the table above.',
-  de:'„{0}“ legt die Kategorie oben in der Tabelle an.'},
+'c2.nHint':{en:'The category decides whether it is income, a regular or a flexible item. “{0}” creates the entry in the table above — assign afterwards with “{1}”.',
+  de:'Die Kategorie entscheidet, ob es eine Einnahme, ein regulärer oder ein flexibler Posten ist. „{0}“ legt den Eintrag oben in der Tabelle an — zugeordnet wird danach mit „{1}“.'},
 'c2.save':{en:'Save',de:'Speichern'},
 'c2.nNoCat':{en:'Not saved without a category — it decides income or costs.',
   de:'Ohne Kategorie wird nicht gespeichert — sie entscheidet, ob Einnahme oder Kosten.'},

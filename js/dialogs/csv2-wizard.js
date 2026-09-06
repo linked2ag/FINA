@@ -1,15 +1,20 @@
 /* ══════════════════════════════════════════════════════════════
    FINA — der generische CSV-Import (Wizard im Popup).
 
-   Drei Schritte: 1 Datei & Art (kleines Fenster) · 2 Spalten &
-   Felder (das Fenster streckt sich fast auf die ganze Fläche) ·
-   3 Zuordnen (oben die Jahrestabelle aus dem Buch, unten die CSV
-   mit Filtern). „Anwenden“ schreibt ins offene Buch: reguläre
-   Posten bekommen ihre Monatsbeträge und das blaue Import-Siegel,
-   flexible Kosten laufen wie der Fast-Budget-Import in tx,
-   flexActual und flexSource. Die Zuordnung wird je Datei-Art in
-   state.csvMaps gemerkt (Fingerabdruck der Spaltenköpfe) — beim
-   nächsten Hochladen läuft sie von selbst.
+   Drei Schritte: 1 Datei (kleines Fenster) · 2 Spalten & Felder
+   (das Fenster streckt sich fast auf die ganze Fläche) · 3 Zuordnen
+   (oben die Jahrestabelle aus dem Buch — Einnahmen, Flexible
+   Payments, regelmäßige Kosten, gegliedert wie die Jahresmatrix —,
+   unten die CSV mit Filtern). „Fertig“ schreibt ins offene Buch:
+   reguläre Posten bekommen ihre Monatsbeträge und das blaue
+   Import-Siegel, flexible Kategorien laufen wie der
+   Fast-Budget-Import in tx, flexActual und flexSource. **Eine Art
+   der Datei gibt es seit 6.9.26 nicht mehr**: Importkriterien
+   gelten für reguläre wie für flexible Posten gleich, deshalb
+   stehen im dritten Schritt alle drei Bereiche, und was eine Zeile
+   bekommt, entscheidet allein ihr Ziel. Die Spaltenstruktur wird je
+   Datei-Art in state.csvMaps gemerkt (Fingerabdruck der
+   Spaltenköpfe) — beim nächsten Hochladen bietet Schritt 1 sie an.
 
    Entstanden aus dem Prototyp in _BusinessCenter/FRAMEWORK CSV
    Import; die Regeln von dort gelten weiter: Regeln laufen in
@@ -109,13 +114,25 @@ function c2Fp(header){
    nicht mit der Sprache wechseln. */
 function c2UseHeader(csv,hIdx){
   csv.hIdx=Math.max(0,Math.min(csv.recs.length-1,hIdx));
-  csv.header=csv.recs[csv.hIdx].map((h,i)=>h!==''?h:('Spalte '+(i+1)));
+  /* **So viele Spalten, wie die breiteste Zeile der Datei hat**
+     (6.9.26) — nicht so viele, wie die gewählte Beschriftungszeile
+     hat. Wer in Schritt 2 versehentlich eine Titelzeile mit einer
+     Zelle als Beschriftung wählt, sah bis dahin nur noch diese eine
+     Spalte, und die Datei schien geschrumpft. Die Spalten ohne
+     Beschriftung heißen „Spalte n". Der Fingerabdruck kommt weiter
+     allein aus den Zellen der Beschriftungszeile: bei einer
+     richtigen Wahl ist sie die breiteste, und eine schon gemerkte
+     Datei-Art wird weiter erkannt. */
+  const n=Math.max(...csv.recs.map(r=>r.length));
+  const raw=csv.recs[csv.hIdx].map((h,i)=>h!==''?h:('Spalte '+(i+1)));
+  csv.header=raw.slice();
+  while(csv.header.length<n)csv.header.push('Spalte '+(csv.header.length+1));
   csv.rows=csv.recs.slice(csv.hIdx+1).map(r=>{
-    const o=r.slice(0,csv.header.length);
-    while(o.length<csv.header.length)o.push('');
+    const o=r.slice(0,n);
+    while(o.length<n)o.push('');
     return o;
   });
-  csv.fp=c2Fp(csv.header);
+  csv.fp=c2Fp(raw);
   return csv;
 }
 
@@ -172,8 +189,8 @@ const C2_TRI='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 1.5l5.5 4.
    selbst ausrechnet (Summe der Spaltenbreiten aus Schritt 2). */
 const C2_PICKW=30;
 
-/* ── Die sechs Importfelder (5.9.26) ──────────────────────────
-   **Datum, Betrag, Referenz 1 bis 4 — und sonst nichts**, für
+/* ── Die sieben Importfelder (5.9.26, seit 6.9.26 spät sieben) ──
+   **Datum, Betrag, Referenz 1 bis 5 — und sonst nichts**, für
    reguläre wie für flexible Posten dieselben. Bis dahin trug der
    reguläre Import „Beschreibung" und der flexible „Hauptkategorie ·
    Unterkategorie · Beschreibung", und die beiden Arten liefen
@@ -186,11 +203,11 @@ const C2_PICKW=30;
    Spalte ohne Feld hätte dort keinen Namen, auf den sich ein
    Kriterium beziehen könnte.
 
-   Daraus folgt die Trennung in der Datei (Struktur v260905-3):
+   Daraus folgt die Trennung in der Datei (Struktur v260905,
+   ohne Art seit v260906):
    * **Die CSV-Struktur** (state.csvMaps, je Datei-Art) merkt sich
      allein, welche Spalte welches Feld trägt — nichts sonst. Sie
-     gilt für reguläre wie für flexible Importe; die Art wählt man
-     jedes Mal in Schritt 1.
+     gilt für reguläre wie für flexible Importe.
    * **Die Importkriterien** wohnen **am Posten** (it.impRules) und
      **an der flexiblen Kategorie** (state.kak[k].impRules), als
      Regeln aus Bedingungen über die sechs Felder. Sie hängen an
@@ -198,19 +215,22 @@ const C2_PICKW=30;
      und dieselben Regeln greifen — sofern die Felder verknüpft sind.
      Die Fenster der beiden zeigen sie als Block „Importkriterien".
 
-   **Die Referenzen sind eine Rangfolge**, wie Überschrift 1 · 2 · 3 ·
-   4: Referenz 1 ist die oberste Angabe zu einer Zeile, die weiteren
-   stehen darunter. Ins Buch wandern sie an den Quellzeilen eines
-   Posten (it.impRows[m][].r) und an den Buchungen der flexiblen
-   Kosten (tx[].r), als Liste in dieser Reihenfolge — leere Enden
-   werden abgeschnitten, eine Lücke in der Mitte bleibt (Referenz 2
-   muss Referenz 2 bleiben). Gezeigt werden sie in der
-   Importdaten-Liste der beiden Fenster (impSideRows in js/ui.js),
-   je Referenz eine Zeile; im Reiter „Import Details" steht Referenz
-   1 an der Stelle der früheren Unterkategorie (txSub/txNote in
-   js/calc.js). Ältere Zuordnungen mit main/cat/desc und mit Regeln
-   je Datei-Art übersetzt migrate() (js/state.js). */
-const C2_REFS=['ref1','ref2','ref3','ref4'];
+   **Die fünf Referenzen sind gleichrangig** (6.9.26; bis dahin
+   als Rangfolge wie Überschrift 1 bis 4 beschrieben): fünf freie
+   Felder, in die man legt, was zum Zuordnen taugt — Empfänger,
+   Verwendungszweck, Kategorie, Notiz —, und ein Kriterium nennt
+   eines davon. Die Nummer ist nur ihr Name. Ins Buch wandern sie an
+   den Quellzeilen eines Posten (it.impRows[m][].r) und an den
+   Buchungen der flexiblen Kosten (tx[].r), als Liste in dieser
+   Reihenfolge — leere Enden werden abgeschnitten, eine Lücke in der
+   Mitte bleibt (Referenz 2 muss Referenz 2 bleiben). Gezeigt werden
+   sie in der Importdaten-Liste der beiden Fenster (impSideRows in
+   js/ui.js), je Referenz eine Zeile; im Reiter „Import Details"
+   steht Referenz 1 an der Stelle der früheren Unterkategorie
+   (txSub/txNote in js/calc.js). Ältere Zuordnungen mit main/cat/desc
+   und mit Regeln je Datei-Art übersetzt migrate() (js/state.js). */
+/* Fünf seit 6.9.26 spät (Referenz 5 auf Lex' Wunsch); davor vier. */
+const C2_REFS=['ref1','ref2','ref3','ref4','ref5'];
 const C2_FIELDS=['date','amount'].concat(C2_REFS);
 function c2BlankF(){const f={date:-1,amount:-1};C2_REFS.forEach(k=>{f[k]=-1;});return f;}
 function c2Refs(row){
@@ -237,7 +257,6 @@ function c2FieldOf(ci){return C2_FIELDS.find(f=>W.f[f]===ci)||null;}
 function c2Host(tid){
   tid=String(tid||'');
   if(tid.indexOf('i:')===0)return state.fixed.find(x=>String(x.id)===tid.slice(2))||null;
-  if(tid.indexOf('k:')===0)return (state.kak&&state.kak[tid.slice(2)])||null;
   return null;
 }
 /* Eine Bedingung, wie sie in der Datei steht: Feld, Vergleichsart,
@@ -261,14 +280,14 @@ const C2_GUIDE={
     en:`<h4>Layout</h4>
       <p>This window shows your file as a table: the first rows, with the column names on top. Above the table stand three numbered steps and two buttons that select or deselect all columns. Every column name is a button. A chosen column gets a selection list for its FINA field above it. On the left, the column HDR marks the row that holds the column names.</p>
       <h4>What you do here</h4>
-      <p>You tell FINA which column holds which FINA field. There are six fields: Date, Amount and Reference 1 to 4. Date and Amount are required.</p>
-      <p>The references are a ranking, like heading 1 to 4: Reference 1 is the main note about a row, the others are details beneath it.</p>
+      <p>You tell FINA which column holds which FINA field. There are seven fields: Date, Amount and Reference 1 to 5. Date and Amount are required.</p>
+      <p>The five references are free fields, all alike. Put into them whatever helps with matching — payee, purpose, category, note. In step 3 you can filter and set criteria on each of them.</p>
       <h4>Step by step</h4>
       <ol>
         <li>Check the row with the column names. In the column HDR on the left, the filled circle marks it. Usually the first row is right; click another circle to change it.</li>
         <li>Click a column header to select the column. It turns orange, and a field list appears above it.</li>
         <li>In that list, choose the field: Date, Amount or a reference. FINA suggests a field when it recognises the header.</li>
-        <li>Repeat for every column you need. A column without a field is dropped on the way to step 3.</li>
+        <li>Repeat for every column you need. A selected column without a field does not go to step 3: when you continue, FINA names it and offers to deselect it. You then check the columns and continue again.</li>
       </ol>
       <h4>Then</h4>
       <p>Click “Save columns and continue”. FINA asks for a name and remembers the structure for this kind of file. Next time you upload such a file, “Prepare CSV structure automatically” fills this step in for you. You check it and click “Continue”.</p>
@@ -281,14 +300,14 @@ const C2_GUIDE={
     de:`<h4>Layout</h4>
       <p>Dieses Fenster zeigt deine Datei als Tabelle: die ersten Zeilen, oben die Spaltennamen. Über der Tabelle stehen drei nummerierte Schritte und zwei Knöpfe, die alle Spalten wählen oder abwählen. Jeder Spaltenname ist ein Knopf. Eine gewählte Spalte bekommt darüber eine Auswahlliste für ihr FINA-Feld. Links markiert die Spalte BZ die Zeile mit den Spaltennamen.</p>
       <h4>Was du hier tust</h4>
-      <p>Du sagst FINA, welche Spalte welches FINA-Feld trägt. Es gibt sechs Felder: Datum, Betrag und Referenz 1 bis 4. Datum und Betrag müssen sein.</p>
-      <p>Die Referenzen sind eine Rangfolge wie Überschrift 1 bis 4: Referenz 1 ist die wichtigste Angabe zu einer Zeile, die anderen stehen darunter.</p>
+      <p>Du sagst FINA, welche Spalte welches FINA-Feld trägt. Es gibt sieben Felder: Datum, Betrag und Referenz 1 bis 5. Datum und Betrag müssen sein.</p>
+      <p>Die fünf Referenzen sind freie Felder, alle gleichrangig. Lege hinein, was beim Zuordnen hilft — Empfänger, Verwendungszweck, Kategorie, Notiz. In Schritt 3 kannst du nach jedem davon filtern und Kriterien setzen.</p>
       <h4>Schritt für Schritt</h4>
       <ol>
         <li>Prüfe die Zeile mit den Spaltennamen. In der Spalte BZ links markiert sie der gefüllte Kreis. Meist ist die erste Zeile richtig; ein Klick auf einen anderen Kreis ändert es.</li>
         <li>Klicke auf eine Spaltenüberschrift, um die Spalte zu wählen. Sie wird orange, und darüber erscheint eine Feldliste.</li>
         <li>Wähle in dieser Liste das Feld: Datum, Betrag oder eine Referenz. FINA schlägt ein Feld vor, wenn es die Überschrift erkennt.</li>
-        <li>Wiederhole das für jede Spalte, die du brauchst. Eine Spalte ohne Feld fällt auf dem Weg zu Schritt 3 weg.</li>
+        <li>Wiederhole das für jede Spalte, die du brauchst. Eine gewählte Spalte ohne Feld kommt nicht in Schritt 3: beim Weitergehen nennt FINA sie und bietet an, sie abzuwählen. Du prüfst dann die Spalten und gehst noch einmal weiter.</li>
       </ol>
       <h4>Danach</h4>
       <p>Klicke auf „Spalten speichern und weiter“. FINA fragt nach einem Namen und merkt sich die Struktur für diese Art von Datei. Beim nächsten Mal füllt „Automatisch CSV-Datenstruktur vorbereiten“ diesen Schritt für dich aus. Du prüfst ihn und klickst auf „Weiter“.</p>
@@ -302,8 +321,8 @@ const C2_GUIDE={
     en:`<h4>Layout</h4>
       <p>The window has three areas, one above the other:</p>
       <ul>
-        <li><b>Entries</b> (top): the entries of your book with their twelve months — income and regular costs, or the flexible categories. The entry you click becomes the target and turns orange.</li>
-        <li><b>Assignment bar</b> (middle): the buttons that assign rows. From the left: the ☰ menu, “One-time assignment mode”, “Assign and remember”, “Create new and assign”. On the right, if entries carry import criteria: “Apply remembered criteria…”.</li>
+        <li><b>Entries</b> (top): the entries of your book with their twelve months, in three blocks like the year view — Income, Flexible, Regular costs. The entry you click becomes the target and turns orange.</li>
+        <li><b>Assignment bar</b> (middle): the buttons that assign rows. From the left: the ☰ menu, “One-time assignment mode”, “Assign and remember”, “Create new and assign”. On the right, if entries carry import criteria: “Automatically assign with remembered criteria…”.</li>
         <li><b>File rows</b> (bottom): the rows of your CSV file, one column per FINA field. Above the columns: a filter field per column, and above the table the quick filter across all fields.</li>
       </ul>
       <p>The grey bar between the areas can be dragged to change their heights.</p>
@@ -312,11 +331,11 @@ const C2_GUIDE={
       <h4>Assign with criteria</h4>
       <ol>
         <li>In Entries, click the entry that should receive the rows.</li>
-        <li>In File rows, narrow the rows down: type into a column filter, a fragment is enough. Or click a value in a row — it goes straight into the filter of its column.</li>
+        <li>In File rows, narrow the rows down: type into a column filter, a fragment is enough. Or click a value in a row — it goes straight into the filter of its column. The quick filter above the table only narrows the view; on its own it makes no rule.</li>
         <li>Press Enter to pin the criterion. The ☰ at the filter field sets how it compares: contains, starts with, exactly, and so on. Several criteria narrow down together.</li>
         <li>In the Assignment bar, click “Assign and remember”. The rows move to the entry, and the criteria are stored at the entry as its import criteria.</li>
       </ol>
-      <p>Assigned rows leave File rows. To see them, open the entry with the small arrow, or double-click its row.</p>
+      <p>Assigned rows stay in the file rows: grey, with a cross in the column “X”. The button “Hide already assigned CSV entries” takes them out of the table and brings them back. Under the target you see them when you expand it with the small arrow or double-click its row.</p>
       <h4>Assign by hand, once</h4>
       <p>Some rows fit no criterion — a one-off payment, a refund. You assign those by hand. Nothing is stored for the next import.</p>
       <ol>
@@ -327,7 +346,7 @@ const C2_GUIDE={
         <li>Click “One-time assignment mode” again to end the mode.</li>
       </ol>
       <h4>Remembered criteria</h4>
-      <p>Entries keep the import criteria from earlier imports. “Apply remembered criteria…” on the right of the Assignment bar shows which entries would receive rows now; you choose which ones. The ☰ at a single entry offers the same for that entry, plus “Search by amount”.</p>
+      <p>Entries keep the import criteria from earlier imports. “Automatically assign with remembered criteria…” on the right of the Assignment bar shows which entries would receive rows now, and under each entry the rows themselves. Rows already in the book from an earlier import stand grey with a cross and cannot be imported again. Untick an entry or a single row to leave it out; the pencil at an entry opens it, so you can adjust its criteria right there. The ☰ at a single entry offers “Search by remembered criteria”: the criteria go into the filter, you see the rows they match, and “Assign and remember” is the next click. Next to it: “Search by amount”.</p>
       <h4>The ☰ menu in the Assignment bar</h4>
       <ul>
         <li>“Cancel filter and show all unassigned CSV data” clears every filter.</li>
@@ -338,15 +357,15 @@ const C2_GUIDE={
         <li>Orange: the chosen target.</li>
         <li>Yellow: assigned in this run, not yet in the book.</li>
         <li>Blue: imported earlier, already in the book.</li>
-        <li>Grey: already in the book with the same amount — this import changes nothing there.</li>
+        <li>Grey: already in the book with the same amount — this import changes nothing there. File rows that are already assigned — in the book from an earlier import, or in this run — stay in the table grey with a cross in the column “X”; the button “Hide already assigned CSV entries” takes them out and brings them back.</li>
       </ul>
       <h4>Finishing</h4>
-      <p>“Finish” writes everything that is assigned into your book and stores the criteria. “Reset import and close” throws the current work away. Save your file afterwards.</p>`,
+      <p>“Finish” writes everything that is assigned into your book and stores the criteria. The ✕ at the top right closes the wizard without any assignment — the current work is thrown away. Save your file afterwards.</p>`,
     de:`<h4>Layout</h4>
       <p>Das Fenster hat drei Bereiche, untereinander:</p>
       <ul>
-        <li><b>Posten</b> (oben): die Posten deines Buches mit ihren zwölf Monaten — Einnahmen und regelmäßige Kosten, oder die flexiblen Kategorien. Der Posten, den du anklickst, wird zum Ziel und ist orange.</li>
-        <li><b>Zuordnungsleiste</b> (Mitte): die Knöpfe, die Zeilen zuordnen. Von links: das ☰-Menü, „Modus: Einmalige Zuordnung“, „Zuordnen und merken“, „Neu anlegen und zuordnen“. Rechts, wenn Posten Importkriterien tragen: „Gemerkte Importkriterien anwenden…“.</li>
+        <li><b>Posten</b> (oben): die Posten deines Buches mit ihren zwölf Monaten, in drei Blöcken wie in der Jahresansicht — Einnahmen, Flexible, Regelmäßige Kosten. Der Posten, den du anklickst, wird zum Ziel und ist orange.</li>
+        <li><b>Zuordnungsleiste</b> (Mitte): die Knöpfe, die Zeilen zuordnen. Von links: das ☰-Menü, „Modus: Einmalige Zuordnung“, „Zuordnen und merken“, „Neu anlegen und zuordnen“. Rechts, wenn Posten Importkriterien tragen: „Automatisch zuordnen mit gemerkten Importkriterien…“.</li>
         <li><b>Dateizeilen</b> (unten): die Zeilen deiner CSV-Datei, je FINA-Feld eine Spalte. Über den Spalten: je Spalte ein Filterfeld, und über der Tabelle der Schnellfilter über alle Felder.</li>
       </ul>
       <p>Den grauen Griff zwischen den Bereichen kannst du ziehen, um ihre Höhe zu ändern.</p>
@@ -355,11 +374,11 @@ const C2_GUIDE={
       <h4>Zuordnen mit Kriterien</h4>
       <ol>
         <li>Klicke unter Posten den Posten an, der die Zeilen bekommen soll.</li>
-        <li>Grenze unter Dateizeilen die Zeilen ein: tippe in ein Spaltenfilter, ein Teilstück genügt. Oder klicke auf einen Wert in einer Zeile — er steht sofort im Filter seiner Spalte.</li>
+        <li>Grenze unter Dateizeilen die Zeilen ein: tippe in ein Spaltenfilter, ein Teilstück genügt. Oder klicke auf einen Wert in einer Zeile — er steht sofort im Filter seiner Spalte. Der Schnellfilter über der Tabelle grenzt nur die Ansicht ein; allein ergibt er keine Regel.</li>
         <li>Drücke Enter, um das Kriterium anzuheften. Das ☰ am Filterfeld stellt ein, wie verglichen wird: enthält, fängt mit, genau, und so weiter. Mehrere Kriterien grenzen zusammen ein.</li>
         <li>Klicke in der Zuordnungsleiste auf „Zuordnen und merken“. Die Zeilen wandern zum Posten, und die Kriterien werden am Posten als seine Importkriterien gespeichert.</li>
       </ol>
-      <p>Zugeordnete Zeilen verschwinden aus den Dateizeilen. Sehen kannst du sie, wenn du den Posten mit dem kleinen Pfeil aufklappst oder auf seine Zeile doppelklickst.</p>
+      <p>Zugeordnete Zeilen bleiben in den Dateizeilen stehen: grau, mit einem Kreuz in der Spalte „X“. Der Knopf „Schon zugeordnete CSV-Zeilen verbergen“ nimmt sie aus der Tabelle und holt sie wieder. Unter dem Posten siehst du sie, wenn du ihn mit dem kleinen Pfeil aufklappst oder auf seine Zeile doppelklickst.</p>
       <h4>Von Hand zuordnen, einmalig</h4>
       <p>Manche Zeilen passen zu keinem Kriterium — eine einmalige Zahlung, eine Rückerstattung. Die ordnest du von Hand zu. Für den nächsten Import wird nichts gemerkt.</p>
       <ol>
@@ -370,7 +389,7 @@ const C2_GUIDE={
         <li>Klicke noch einmal auf „Modus: Einmalige Zuordnung“, um den Modus zu beenden.</li>
       </ol>
       <h4>Gemerkte Kriterien</h4>
-      <p>Posten behalten die Importkriterien aus früheren Importen. „Gemerkte Importkriterien anwenden…“ rechts in der Zuordnungsleiste zeigt, welche Posten jetzt Zeilen bekämen; du wählst aus. Das ☰ an einem einzelnen Posten bietet dasselbe für diesen Posten, dazu „Suchen nach Betrag“.</p>
+      <p>Posten behalten die Importkriterien aus früheren Importen. „Automatisch zuordnen mit gemerkten Importkriterien…“ rechts in der Zuordnungsleiste zeigt, welche Posten jetzt Zeilen bekämen, und unter jedem Posten die Zeilen selbst. Zeilen, die aus einem früheren Import schon im Buch stehen, sind grau und tragen ein Kreuz — sie lassen sich nicht noch einmal importieren. Nimm den Haken an einem Posten oder an einer einzelnen Zeile weg, wenn sie draußen bleiben soll; der Stift am Posten öffnet ihn, und du kannst seine Kriterien gleich dort anpassen. Das ☰ an einem einzelnen Posten bietet „Suchen nach gemerkten Kriterien“: die Kriterien stehen dann im Filter, du siehst die Zeilen, die sie treffen, und „Zuordnen und merken“ ist der nächste Klick. Daneben: „Suchen nach Betrag“.</p>
       <h4>Das ☰-Menü in der Zuordnungsleiste</h4>
       <ul>
         <li>„Filter zurücknehmen und alle nicht zugeordneten CSV-Daten zeigen“ leert alle Filter.</li>
@@ -381,10 +400,10 @@ const C2_GUIDE={
         <li>Orange: das gewählte Ziel.</li>
         <li>Gelb: in diesem Lauf zugeordnet, noch nicht im Buch.</li>
         <li>Blau: früher importiert, schon im Buch.</li>
-        <li>Grau: schon mit demselben Betrag im Buch — dieser Import ändert dort nichts.</li>
+        <li>Grau: schon mit demselben Betrag im Buch — dieser Import ändert dort nichts. Dateizeilen, die schon zugeordnet sind — im Buch aus einem früheren Import oder in diesem Lauf —, bleiben grau mit einem Kreuz in der Spalte „X“ in der Tabelle; der Knopf „Schon zugeordnete CSV-Zeilen verbergen“ nimmt sie heraus und holt sie wieder.</li>
       </ul>
       <h4>Zum Schluss</h4>
-      <p>„Fertig“ schreibt alles Zugeordnete ins Buch und speichert die Kriterien. „Import zurücksetzen und schließen“ wirft die aktuelle Arbeit weg. Speichere danach deine Datei.</p>`}
+      <p>„Fertig“ schreibt alles Zugeordnete ins Buch und speichert die Kriterien. Das ✕ rechts oben schließt den Wizard ohne Zuordnung — die aktuelle Arbeit ist dann weg. Speichere danach deine Datei.</p>`}
 };
 
 /* ── Der Arbeitsstand des Wizards — lebt nur, solange das Fenster
@@ -393,7 +412,7 @@ let W=null;
 
 /* ── Filter und Regeln ────────────────────────────────────────
    Ein Filter ist eine Liste von Bedingungen (terms): je Bedingung
-   ein **Feld** (f: 'date', 'amount', 'ref1' … 'ref4'; 'q' heißt
+   ein **Feld** (f: 'date', 'amount', 'ref1' … 'ref5'; 'q' heißt
    Schnellfilter über alle verknüpften Felder), eine Vergleichsart
    op (has · not · is · starts · ends · amt — das ☰-Menü am Feld)
    und der Wert. Bedingungen entstehen live beim Tippen (W.flt je
@@ -511,14 +530,22 @@ function c2Meta(){
    denn `c2ApplyRules()` baut die Zuordnung jedes Mal neu auf. */
 function c2ApplyRules(){
   W.asg=W.csv.rows.map(()=>-1);
+  const skip=W.skip||{};
   W.rules.forEach((r,ri)=>{
     if(r.pick){
-      r.pick.forEach(i=>{if(W.asg[i]<0&&W.meta[i]&&W.meta[i].in)W.asg[i]=ri;});
+      r.pick.forEach(i=>{if(W.asg[i]<0&&W.meta[i]&&W.meta[i].in&&!W.inBook.has(i))W.asg[i]=ri;});
       return;
     }
+    const tid=r.t&&r.t.tid;
     W.csv.rows.forEach((row,i)=>{
       if(W.asg[i]>=0)return;
       if(!W.meta[i].in)return;
+      /* Schon im Buch (c2ScanBook): bleibt liegen, für jede Regel. */
+      if(W.inBook.has(i))return;
+      /* Im Wahl-Fenster der gemerkten Kriterien einzeln abgewählt
+         (W.skip): die Zeile bleibt frei, als hätte die Regel sie
+         nicht getroffen — von Hand lässt sie sich weiter zuordnen. */
+      if(skip[tid+'|'+i])return;
       if(c2Match(row,r.terms))W.asg[i]=ri;
     });
   });
@@ -526,10 +553,11 @@ function c2ApplyRules(){
 
 function c2Hits(){
   const terms=c2LiveTerms();
-  const out={free:[],taken:[],own:[],off:[]};
+  const out={free:[],taken:[],own:[],off:[],book:[]};
   W.csv.rows.forEach((row,i)=>{
     if(!c2Match(row,terms))return;
-    if(!W.meta[i].in)out.off.push(i);
+    if(W.inBook.has(i))out.book.push(i);
+    else if(!W.meta[i].in)out.off.push(i);
     else if(W.asg[i]<0)out.free.push(i);
     else if(W.editRule!=null&&W.asg[i]===W.editRule)out.own.push(i);
     else out.taken.push(i);
@@ -576,7 +604,7 @@ function c2BookVal(i,income){
 function c2PendingRows(kind,ref){
   const out={};
   if(!W||!W.csv||W.step!==3||!W.rules.length)return out;
-  const tid=kind==='item'?('i:'+String(ref&&ref.id)):('k:'+ref);
+  const tid='i:'+String(ref&&ref.id);
   const two=n=>String(n).padStart(2,'0');
   W.csv.rows.forEach((row,i)=>{
     const ri=W.asg[i];
@@ -586,8 +614,10 @@ function c2PendingRows(kind,ref){
     const me=W.meta[i];
     if(!me||!me.in||!me.d)return;
     const d=me.d;
-    const v=W.kind==='reg'?c2BookVal(i,r.t.income):(W.neg?me.v:-me.v);
-    /* Die vier Referenzen, wie sie „Fertig" ins Buch schreibt
+    /* Dieselbe Rechnung für beide Arten: eine flexible Kategorie ist
+       ein Kostenziel (income:false) — siehe c2BookVal. */
+    const v=c2BookVal(i,r.t.income);
+    /* Die Referenzen, wie sie „Fertig" ins Buch schreibt
        (c2Refs) — die Liste zeigt sie je Referenz als Zeile; `txt`
        ist nur ihr Sortierschlüssel. */
     const rr=c2Refs(row);
@@ -622,18 +652,27 @@ function c2Buckets(){
   return {order:order,by:by};
 }
 
-/* ── Ziele: Posten (regulär) oder Hauptkategorien (flexibel).
-   Vorhandene kommen aus dem Buch, neue tragen 'n:'+Name. ── */
+/* ── Ziele: Posten (Einnahmen, regelmäßige Kosten) und die
+   Hauptkategorien der Flexible — **alle zusammen** (6.9.26;
+   bis dahin je nach Art die einen oder die anderen). Vorhandene
+   kommen aus dem Buch, neue tragen 'n:'+Name; `flex` sagt, ob ein
+   Ziel eine flexible Kategorie ist — daran hängt, was „Fertig"
+   damit tut (c2Apply). ── */
 function c2Targets(){
-  if(W.kind==='flex'){
-    return [[t('c2.blkFlex'),kakCats().map(n=>({tid:'k:'+n,name:n,income:false}))],
-            [t('c2.blkNew'),W.newT]];
-  }
   const it=state.fixed;
   return [
-    [t('c2.blkIn'),it.filter(x=>isIncome(x)).map(x=>({tid:'i:'+x.id,name:x.name,income:true}))],
-    [t('c2.blkOut'),it.filter(x=>!isIncome(x)).map(x=>({tid:'i:'+x.id,name:x.name,income:false}))],
+    [t('c2.blkIn'),it.filter(isIncome).map(x=>({tid:'i:'+x.id,name:x.name,income:true}))],
+    [t('c2.blkFlex'),it.filter(isFlex).map(x=>({tid:'i:'+x.id,name:x.name,income:false,flex:true,group:x.group}))],
+    [t('c2.blkOut'),it.filter(isCost).map(x=>({tid:'i:'+x.id,name:x.name,income:false}))],
     [t('c2.blkNew'),W.newT]];
+}
+/* Ist ein Ziel eine flexible Kategorie? Vorhandene am Schlüssel,
+   neue an ihrem Vermerk in W.newT. */
+function c2IsFlex(tid){
+  tid=String(tid||'');
+  if(tid.indexOf('i:')===0){const it=findItem(tid.slice(2));return !!(it&&isFlex(it));}
+  if(tid.indexOf('n:')===0){const nt=W.newT.find(x=>x.tid===tid);return !!(nt&&nt.flex);}
+  return false;
 }
 function c2Find(tid){
   for(const g of c2Targets()){const x=g[1].find(y=>y.tid===tid);if(x)return x;}
@@ -706,22 +745,39 @@ function c2Detail(open){
 
 /* ── Das Fenster ─────────────────────────────────────────────── */
 function openCsvWizard(){
-  W={step:1,kind:null,csv:null,cols:[],f:c2BlankF(),neg:true,
+  W={step:1,csv:null,cols:[],f:c2BlankF(),neg:true,
      meta:[],rules:[],newT:[],asg:[],flt:{},fltOp:{},chips:[],q:'',colw:{},colnat:{},open:{},
      target:'',editRule:null,ignoreMap:false,once:false,pick:{},
+     /* **Was schon im Buch steht** (6.9.26 abends): die Zeilen der
+        Datei, die als Quellzeile irgendwo im Buch stehen (c2ScanBook).
+        Sie tragen in der Spalte „X" ein Kreuz, stehen grau und lassen
+        sich nicht zuordnen — weder von Hand noch über einen Filter.
+        `showOld` sagt, ob sie in der Tabelle stehen (der Schalter in
+        der Zuordnungsleiste) — **und seit 6.9.26 spät ebenso die
+        Zeilen, die dieser Lauf zugeordnet hat**: die verschwanden bis
+        dahin aus der Tabelle, jetzt stehen sie genauso grau mit
+        Kreuz da, bis der Schalter sie verbirgt (c2Visible). */
+     inBook:new Set(),showOld:true,
      mapRules:null,autoDone:false,
      /* **Die Spalten kamen aus der gemerkten CSV-Struktur** (5.9.26,
         „Automatisch CSV-Datenstruktur vorbereiten" in Schritt 1):
-        die Art ist dann gesetzt und gesperrt, und Schritt 2 geht mit
-        „Weiter" in die Zuordnung, ohne nach einem Namen zu fragen —
-        gemerkt ist die Struktur ja schon. „CSV-Datenstruktur neu
-        anordnen" und eine neue Datei nehmen es zurück. */
+        Schritt 2 geht dann mit „Weiter" in die Zuordnung, ohne nach
+        einem Namen zu fragen — gemerkt ist die Struktur ja schon.
+        „CSV-Datenstruktur von Grund auf neu anordnen" und eine neue
+        Datei nehmen es zurück. */
      autoCols:false,
-     /* **Die Art kam aus der gemerkten Struktur** (5.9.26 spät):
-        dann darf sie nicht wie eine eigene Wahl weiterleben — „Neu
-        anordnen" und eine neue Datei nehmen sie mit zurück, eine
-        von Hand gewählte bleibt (Schritt-1-Handler in c2Wire). */
-     kindFromMap:false,
+     /* **Welche gemerkte Struktur gemeint ist** (6.9.26): der
+        Schlüssel in state.csvMaps — eine Datei-Art kann mehrere
+        tragen (c2MapsFor), und Schritt 1 lässt wählen. Leer heißt:
+        die erste, die es gibt (c2MapKey). */
+     mapKey:'',
+     /* **Zeilen, die eine gemerkte Regel auslassen soll** (6.9.26):
+        Schlüssel „ziel|zeile", gesetzt im Wahl-Fenster der gemerkten
+        Kriterien (c2MapPick), wenn dort ein einzelner Haken
+        weggenommen wird. c2ApplyRules übergeht sie — nur für
+        Regeln mit Bedingungen; eine Handauswahl trifft, was sie
+        nennt. */
+     skip:{},
      /* Ob die Anleitung rechts neben dem Schritt steht, und der
         Name, unter dem die Spalten gemerkt sind (c2AskMapName). */
      guide:false,mapName:'',
@@ -754,9 +810,9 @@ function openCsvWizard(){
 function c2Esc(){
   if(!W)return;
   /* **Im ersten Schritt schließt Escape.** Dort ist noch nichts
-     getan — eine Datei gewählt und eine Art angekreuzt, beides in
-     einem Klick wieder hergestellt; Escape und das ✕ meinen da
-     dasselbe. Ab dem zweiten Schritt hängt Arbeit im Fenster
+     getan — eine Datei gewählt, in einem Klick wieder hergestellt;
+     Escape und das ✕ meinen da dasselbe. Ab dem zweiten Schritt
+     hängt Arbeit im Fenster
      (Spalten, Felder, Regeln, Zuordnungen), und dann darf ein
      Tastendruck sie nicht wegwerfen. */
   if(W.step===1){c2Close();return;}
@@ -807,22 +863,23 @@ function c2Close(){
    das ✕ steht daneben. */
 function c2Nav(){
   const b=(a,cls,lab,dis,tip)=>`<button class="btn${cls}" data-c2="${a}"${dis?' disabled':''}${tip?` title="${esc(tip)}"`:''}>${lab}</button>`;
-  /* **Der erste Schritt geht von selbst weiter** — sobald Datei und
-     Art gewählt sind (c2Advance). **Seinen „Weiter"-Knopf hat er
-     trotzdem** (5.9.26; für ein paar Stunden war er heraus): er
-     steht an derselben Stelle wie in jedem Schritt, und er ist der
-     Weg nach vorn für den, der aus Schritt 2 zurückkommt. Sonst sagt
-     der Klick, was fehlt (c2WireNav) — oder dass zuerst der Kasten
-     über den Angaben zu beantworten ist, wenn FINA die Datei-Art
-     kennt.
+  /* **Der erste Schritt wartet auf „Weiter"** (6.9.26; bis dahin
+     ging er von selbst weiter, sobald die Art gewählt war — die
+     gibt es nicht mehr, und wer eine Datei gewählt hat, soll ihren
+     Namen und ihre Kennzahlen sehen, bevor es weitergeht). Der
+     Klick sagt, was fehlt (c2WireNav) — oder dass zuerst der Kasten
+     der gemerkten Struktur zu beantworten ist, wenn FINA die
+     Datei-Art kennt; dessen beide Knöpfe gehen selbst weiter.
      **Schwarz, sobald es weitergehen kann** (5.9.26; vorher orange):
      der Weg nach vorn ist in jedem Schritt derselbe schwarze Knopf
      — „Weiter", „Spalten speichern und weiter", „Fertig". */
-  if(W.step===1)return b('to2',c2Step1Ready()?' primary':'',t('c2.next'));
-  /* **Der Knopf nach vorn wird schwarz, sobald alles beisammen ist** —
-     mindestens eine Spalte, dazu Datum und Betrag als FINA-Bezug.
-     Vorher ist er ein gewöhnlicher Knopf: er sagt dann, dass noch
-     etwas fehlt, und das Fenster dahinter (c2Missing) sagt, was.
+  /* „Weiter" ist immer schwarz (6.9.26 abends): er ist der eine
+     Weg aus dem ersten Schritt; ohne Datei sagt er es selbst. */
+  if(W.step===1)return b('to2',' primary',t('c2.next'));
+  /* **Der Knopf nach vorn ist in Schritt 2 immer schwarz** (6.9.26;
+     bis dahin erst, sobald Datum und Betrag verknüpft waren): er ist
+     der eine Weg weiter, wie „Weiter" nach der automatischen
+     Vorbereitung. Fehlt noch etwas, sagt es der Klick (c2Missing).
      Nachgeführt wird er bei jedem Umbau der Tabelle (c2RefreshNav). */
   /* **Ganz links die Anleitung** (Schritt 2 und 3): gedrückt teilt
      sie das Fenster (c2GuidePanel). **Orange gefüllt, weiße
@@ -842,7 +899,7 @@ function c2Nav(){
   if(W.step===2){
     const same=W.autoCols&&c2ColsSame();
     return guide+b('to1','',t('c2.back'))
-      +b('to3',c2Step2Ready()?' primary':'',same?t('c2.next'):t('c2.saveCols'),false,same?t('c2.nextTip'):t('c2.saveColsTip'));
+      +b('to3',' primary',same?t('c2.next'):t('c2.saveCols'),false,same?t('c2.nextTip'):t('c2.saveColsTip'));
   }
   /* Die gemerkte Zuordnung wohnt seit 5.9.26 **nicht mehr hier**,
      sondern in der Leiste zwischen den beiden Flächen, links vor
@@ -852,64 +909,65 @@ function c2Nav(){
      **„Fertig" statt „Anwenden"** (5.9.26): aus Sicht des Nutzers
      ist der Import getan, sobald alles zugeordnet ist — der Knopf
      schließt ab und schreibt dabei ins Buch (c2Apply); die
-     Sprechblase sagt beides. **Ganz links „Import zurücksetzen und
-     schließen"**, noch vor der Anleitung — das frühere ✕ dieses
-     Schritts, jetzt mit Namen und im Bild der löschenden Knöpfe
-     (.delbtn), denn es wirft Arbeit weg; am äußersten Rand steht
-     es am weitesten weg von „Fertig", mit dem man es nicht
-     verwechseln soll. Ein ✕ am Rand gibt es in Schritt 3 deshalb
-     nicht mehr (c2Render); data-c2="close" ist dasselbe Merkmal
-     und wird in c2Wire mitverdrahtet. */
-  return b('close',' delbtn',t('c2.xUndoBtn'),false,t('c2.xUndoTip'))
-    +guide+b('to2','',t('c2.back'))
+     Sprechblase sagt beides. **Das Schließen ohne Zuordnung ist
+     wieder das ✕ ganz rechts oben** (6.9.26; vom 5.9. bis dahin
+     stand es als Knopf „Import zurücksetzen und schließen" ganz
+     links) — an derselben Stelle wie in jedem Schritt, mit einer
+     Sprechblase, die das Ausrufezeichen trägt (c2.xClose3). */
+  return guide+b('to2','',t('c2.back'))
     +b('apply',' primary',t('c2.finish'),false,t('c2.closeWizTip'));
 }
-function c2Step2Ready(){
-  return W.cols.length>0&&W.f.date>=0&&W.f.amount>=0;
+/* ── Die gemerkten Strukturen einer Datei-Art (6.9.26) ─────────
+   Der Schlüssel in state.csvMaps ist der Fingerabdruck der
+   Spaltenköpfe — und seit 6.9.26 kann eine Datei-Art **mehrere**
+   Strukturen tragen: die erste unter dem Fingerabdruck selbst, jede
+   weitere unter „fp#2", „fp#3" … (angelegt in c2AskMapName, wenn
+   man die bestehende behalten und diese dazu merken will). Ältere
+   Fassungen sehen nur die erste — und die liegt unter dem
+   Schlüssel, den sie kennen. Schritt 1 zeigt alle und lässt wählen
+   (W.mapKey); c2MapKey sagt, welche gerade gemeint ist. */
+function c2MapsFor(fp){
+  return Object.keys(state.csvMaps||{}).filter(k=>k===fp||k.indexOf(fp+'#')===0)
+    .map(k=>[k,state.csvMaps[k]]).filter(x=>x[1]&&typeof x[1]==='object');
+}
+function c2MapKey(){
+  if(!W||!W.csv)return '';
+  const keys=c2MapsFor(W.csv.fp).map(x=>x[0]);
+  if(W.mapKey&&keys.includes(W.mapKey))return W.mapKey;
+  return keys[0]||'';
+}
+function c2NextMapKey(fp){
+  let n=2;
+  while(state.csvMaps[fp+'#'+n])n++;
+  return fp+'#'+n;
 }
 /* **Wartet der Kasten der gemerkten CSV-Struktur noch auf eine
    Antwort?** FINA kennt die Datei-Art, und weder „Automatisch
-   vorbereiten" (W.autoCols) noch „Neu anordnen" (W.ignoreMap) ist
-   gedrückt. Solange das so ist, geht es aus Schritt 1 nicht weiter:
-   die Entscheidung gehört dem Nutzer. */
+   vorbereiten" (W.autoCols) noch „Von Grund auf neu anordnen"
+   (W.ignoreMap) ist gedrückt. Solange das so ist, geht es aus
+   Schritt 1 nicht weiter: die Entscheidung gehört dem Nutzer. */
 function c2MapPending(){
-  return !!(W.csv&&state.csvMaps[W.csv.fp])&&!W.ignoreMap&&!W.autoCols;
+  return !!(W.csv&&c2MapsFor(W.csv.fp).length)&&!W.ignoreMap&&!W.autoCols;
 }
-/* **Die Art, die mit der gemerkten CSV-Struktur kam** — oder null.
-   Gesetzt, sobald „Automatisch CSV-Datenstruktur vorbereiten"
-   gedrückt ist und die Struktur eine Art kennt (5.9.26 spät, auf
-   ausdrücklichen Wunsch; am Nachmittag war die Art für ein paar
-   Stunden aus der Struktur heraus): dann ist sie in Schritt 1
-   gesperrt — dieselbe Datei-Art füttert immer dieselben Posten,
-   und wer es einmal anders will, nimmt „CSV-Datenstruktur neu
-   anordnen". Eine Struktur ohne Art (gemerkt am Nachmittag des
-   5.9.26) sperrt nichts: die Art wird dann einmal gewählt und beim
-   Weitergehen nachgetragen (c2WireNav, to3). */
-function c2LockedKind(){
-  const m=W.autoCols&&W.csv&&state.csvMaps[W.csv.fp];
-  return (m&&(m.kind==='reg'||m.kind==='flex'))?m.kind:null;
-}
-/* Dieselbe Frage wie c2Advance, nur ohne zu gehen: Datei und Art
-   da, und kein Kasten der gemerkten Struktur, der zuerst eine
-   Antwort will. */
+/* Dieselbe Frage wie c2Advance, nur ohne zu gehen: Datei da, und
+   kein Kasten der gemerkten Struktur, der zuerst eine Antwort
+   will. */
 function c2Step1Ready(){
-  return !!(W.csv&&W.kind)&&!c2MapPending();
+  return !!W.csv&&!c2MapPending();
 }
-/* **Stehen Spalten, Felder und Art noch so da, wie FINA sie sich
-   für diese Datei-Art gemerkt hat?** Daran hängt in Schritt 2, ob
-   der Knopf „Weiter" heißt oder „Spalten speichern und weiter"
-   (c2Nav): was schon gemerkt ist, muss nicht noch einmal gemerkt
-   werden. Verglichen wird mit der Datei, nicht mit einem Merker —
-   wer eine Spalte umstellt und wieder zurückstellt, ist wieder
-   beim Gemerkten. */
+/* **Stehen Spalten und Felder noch so da, wie FINA sie sich für
+   diese Datei-Art gemerkt hat?** Daran hängt in Schritt 2, ob der
+   Knopf „Weiter" heißt oder „Spalten speichern und weiter" (c2Nav):
+   was schon gemerkt ist, muss nicht noch einmal gemerkt werden.
+   Verglichen wird mit der Datei, nicht mit einem Merker — wer eine
+   Spalte umstellt und wieder zurückstellt, ist wieder beim
+   Gemerkten. Bei mehreren Strukturen zählt die gewählte (c2MapKey). */
 function c2ColsSame(){
-  const m=W.csv&&state.csvMaps[W.csv.fp];
+  const m=W.csv&&state.csvMaps[c2MapKey()];
   if(!m)return false;
   /* Verglichen werden allein die Felder (5.9.26). Eine gewählte
-     Spalte ohne Feld zählt nicht — sie kommt ohnehin nicht nach
-     Schritt 3. Die Art gehört seit dem Abend zwar zur Struktur,
-     kann hier aber nicht abweichen: auf dem automatischen Weg ist
-     sie gesperrt (c2LockedKind), und nur der fragt hier nach. */
+     Spalte ohne Feld zählt nicht — sie hält der Knopf ohnehin auf,
+     bevor es nach Schritt 3 geht (c2LooseCols). */
   const mf=m.f||{};
   return C2_FIELDS.every(k=>+(W.f[k]==null?-1:W.f[k])===+(mf[k]==null?-1:mf[k]));
 }
@@ -923,20 +981,50 @@ function c2RefreshNav(){
   nav.querySelectorAll('.btn').forEach(b=>{b.tabIndex=0;});
   c2WireNav();
 }
-/* **Von Datei und Art aus geht es von selbst weiter.** Nur nicht,
-   solange FINA diese Datei-Art kennt und noch nicht gesagt ist, ob
-   die gemerkte CSV-Struktur übernommen oder neu angeordnet wird —
-   dieser Kasten steht über den beiden Angaben und will zuerst
-   beantwortet sein (c2MapPending). */
+/* Nach Schritt 2 — über „Weiter" oder über einen der beiden Knöpfe
+   im Kasten der gemerkten Struktur. Nicht, solange FINA diese
+   Datei-Art kennt und noch nicht gesagt ist, ob die gemerkte
+   CSV-Struktur übernommen oder neu angeordnet wird (c2MapPending). */
 function c2Advance(){
-  if(!W.csv||!W.kind)return false;
+  if(!W.csv)return false;
   if(c2MapPending())return false;
   W.step=2;c2Render();
   return true;
 }
 
+/* ── Welche Zeilen der Datei stehen schon im Buch? ────────────
+   (6.9.26 abends) Verglichen wird mit den Quellzeilen **aller**
+   Posten (impRows): derselbe Tag, derselbe Betrag ohne Vorzeichen
+   (das Vorzeichen hängt am Ziel, c2BookVal), dieselben Referenzen.
+   Wer trifft, ist schon importiert — c2ApplyRules lässt die Zeile
+   liegen, die Tabelle zeigt sie grau mit Kreuz, und der Schalter
+   „Schon zugeordnete CSV-Zeilen zeigen/verbergen" nimmt sie aus dem
+   Bild. Gerechnet wird beim Eintritt in Schritt 3 und vor jedem
+   Zeichnen dort: „Importdaten löschen" ändert das Buch, während der
+   Wizard offen steht. */
+function c2ScanBook(){
+  W.inBook=new Set();
+  if(!W.csv||!W.meta.length)return;
+  const keys=new Set();
+  (state.fixed||[]).concat(state.balance?[state.balance]:[]).forEach(it=>{
+    const rows=it.impRows||{};
+    Object.keys(rows).forEach(mk=>(rows[mk]||[]).forEach(r=>{
+      keys.add(String(r.d||'')+'|'+Math.round(Math.abs(+r.v||0)*100)+'|'+impRowText(r));
+    }));
+  });
+  if(!keys.size)return;
+  const two=n=>String(n).padStart(2,'0');
+  W.csv.rows.forEach((row,i)=>{
+    const me=W.meta[i]; if(!me||!me.d||isNaN(me.v))return;
+    const d=me.d;
+    const key=two(d.d)+'.'+two(d.m)+'.'+two(d.y%100)+'|'+Math.round(Math.abs(me.v)*100)+'|'+refsText(c2Refs(row));
+    if(keys.has(key))W.inBook.add(i);
+  });
+}
+
 function c2Render(){
   W.modal.querySelectorAll('.c2fpop').forEach(p=>p.remove());
+  if(W.step===3&&W.csv)c2ScanBook();
   /* **Der Zielbereich springt beim Filtern nicht.** Gefiltert wird
      unten, gelesen oben — und wer eine Zeile im Blick hat, während
      er den Filter eingrenzt, verlöre sie bei jedem Zeichen. Beide
@@ -949,12 +1037,14 @@ function c2Render(){
     <span class="c2steps">${steps.map((s,i)=>
       `<span class="c2stp${W.step===i+1?' on':(W.step>i+1?' ok':'')}">${i+1} ${esc(s)}</span>`).join('<i>›</i>')}</span>
     <span class="c2nav">${c2Nav()}</span>
-    ${W.step===3?'':`<button class="btn c2x" data-c2="close" title="${esc(t('c2.xClose'))}">✕</button>`}</div>`;
-  /* Das ✕ heißt „Wizard schließen" und steht in Schritt 1 und 2 —
-     dort geht nichts verloren, die Spalten sind mit dem Weitergehen
-     gespeichert. In Schritt 3 gibt es kein ✕: dort steht sein Weg
-     als Knopf mit Namen in der Knopfzeile, „Import zurücksetzen und
-     schließen" (c2Nav). */
+    <button class="btn c2x" data-c2="close" title="${esc(t(W.step===3?'c2.xClose3':(W.step===2?'c2.xClose2':'c2.xClose')))}">✕</button></div>`;
+  /* **Das ✕ steht in jedem Schritt ganz rechts oben** (6.9.26); nur
+     seine Sprechblase wechselt: in Schritt 1 „Wizard schließen", in
+     Schritt 2 „sofort schließen, keine Postenzuordnung", in Schritt
+     3 „ohne Zuordnung (!) schließen" — dort hängt Arbeit im Fenster,
+     und der Satz sagt, dass sie mitgeht. Geschlossen wird ohne
+     Rückfrage (c2Close); ins Buch ist bis „Fertig" nichts
+     geschrieben. */
   /* **Schritt 2 und 3 stehen in `.c2main`**, und daneben, wenn die
      Anleitung offen ist, ihr rechtes Viertel (`.c2gpanel`). Beide
      zusammen sind `.c2work`, die Fläche unter der Kopfzeile. Die
@@ -964,6 +1054,13 @@ function c2Render(){
   else W.box.innerHTML=head+`<div class="c2work"><div class="c2main">${W.step===2?c2Step2():c2Step3()}</div>${W.guide?c2GuidePanel():''}</div>`;
   c2Wire();
   tabThroughFields(W.box);
+  /* **Die Blockzeilen des Zielbereichs kleben unter dem Spaltenkopf**
+     (6.9.26, css/components.css .c2ttab tr.ghead): wie hoch der Kopf
+     ist, wird gemessen und als --c2headH an die Tabelle geschrieben
+     — geraten wäre es beim ersten Umbau falsch (dieselbe Bauform
+     wie --headH in sizeMatrix, js/app.js). */
+  const tt=W.box.querySelector('.c2ttab');
+  if(tt&&tt.tHead)tt.style.setProperty('--c2headH',tt.tHead.getBoundingClientRect().height+'px');
   /* Die Wizard-Knöpfe bleiben in der Tab-Reihenfolge: sie sind der
      Weg durch das Fenster, kein Beiwerk neben einem Feld — dieselbe
      Ausnahme, die eine Fußzeile (.row-end) ohnehin hat. */
@@ -973,66 +1070,60 @@ function c2Render(){
     now.forEach((el,i)=>{el.scrollTop=keep[i][0];el.scrollLeft=keep[i][1];});
 }
 
-/* ── Schritt 1: Datei & Art ──────────────────────────────────── */
+/* ── Schritt 1: die Datei ──────────────────────────────────────
+   (umgebaut 6.9.26) **Nur noch die Datei.** Die Frage „Was steckt
+   in der Datei?" mit den beiden Art-Knöpfen ist heraus:
+   Importkriterien gelten für reguläre wie für flexible Posten
+   gleich, und der dritte Schritt zeigt alle drei Bereiche wie die
+   Jahresmatrix — was eine Zeile bekommt, entscheidet ihr Ziel.
+
+   Unter dem Knopf steht die Datei mit ihren Kennzahlen (bis dahin
+   daneben, in einer Zeile). Kennt FINA die Datei-Art, folgt der
+   orange Kasten: der Satz, dass FINA sich erinnert; darunter die
+   gemerkten Strukturen als Zeilen — Name, Tag des Merkens, Stift,
+   ✕; bei mehreren ein Auswahlknopf davor (c2MapsFor, W.mapKey) —;
+   dann der Hinweis, dass die automatische Vorbereitung nichts
+   zuordnet, sondern nur den Handgriff Spalte→Feld erspart; und die
+   beiden Wege. **Der Stift öffnet dasselbe Fenster wie in den
+   Einstellungen** (openCsvStructure) — samt Namensfeld —, und was
+   dort gespeichert wird, steht sofort im Buch; man muss den Wizard
+   dafür nicht verlassen. **Das ✕ vergisst die Struktur** nach
+   Rückfrage; war es die letzte, verschwindet der Kasten, und
+   Schritt 1 sieht aus wie bei einer unbekannten Datei.
+
+   Zwei Wege: **„Automatisch CSV-Datenstruktur vorbereiten"**
+   (schwarz, der erste Griff) übernimmt Spalten und Felder aus der
+   gewählten Struktur und zeigt sie in Schritt 2 — nicht gleich
+   Schritt 3, man soll sehen, was übernommen wurde.
+   **„CSV-Datenstruktur von Grund auf neu anordnen"** fängt in
+   Schritt 2 leer an. */
 function c2Step1(){
   const c=W.csv
     ?`<b>${esc(W.csv.name)}</b> · ${t('c2.meta',W.csv.rows.length,W.csv.header.length,
         esc(W.csv.enc),W.csv.sep==='\t'?t('c2.tab'):'„'+W.csv.sep+'“')}`
     :t('c2.noFile');
-  const km=(W.csv&&!W.ignoreMap)?state.csvMaps[W.csv.fp]:null;
-  /* **Der Kasten der gemerkten CSV-Struktur** (umgebaut 5.9.26).
-     Genannt wird der **Name**, den der Nutzer selbst vergeben hat
-     (c2AskMapName), nicht das Datum und nicht mehr die Zahl der
-     Regeln: der Kasten handelt von der **Struktur** der Datei —
-     welche Spalten was sind —, und Regeln gehören zur Zuordnung
-     der Zeilen, die erst in Schritt 3 kommt. Genau das sagt der
-     zweite Satz daneben: beim automatischen Lesen der Struktur
-     wird noch nichts zugeordnet. Das Wort „Mapping" kommt hier
-     nicht mehr vor — es klang nach der Zuordnung der Zeilen, und
-     um die geht es hier gerade nicht.
-
-     Zwei Wege: **„Automatisch CSV-Datenstruktur vorbereiten"**
-     (schwarz, der erste Griff) übernimmt Spalten, Felder und Art
-     aus dem Gemerkten und zeigt sie in Schritt 2 — nicht mehr
-     gleich Schritt 3, man soll sehen, was übernommen wurde; die Art
-     ist dabei gesperrt. **„CSV-Datenstruktur neu anordnen"** fängt
-     in Schritt 2 leer an, mit wählbarer Art. */
-  const kmKind=km&&(km.kind==='reg'||km.kind==='flex')?t(km.kind==='reg'?'c2.kindReg':'c2.kindFlex'):'';
-  const kmH=km?`<div class="c2known">
-      <div class="c2knowncols">
-        <p>${t('c2.known',esc(km.file||km.date||'—'))}</p>
-        ${kmKind?`<p>${t('c2.knownKind',esc(kmKind))}</p>`:''}
-        <p>${t('c2.knownNote')}</p>
-      </div>
+  const maps=(W.csv&&!W.ignoreMap)?c2MapsFor(W.csv.fp):[];
+  const cur=c2MapKey();
+  const rows=maps.map(([k,m])=>`<div class="c2kmrow${k===cur?' on':''}">
+      ${maps.length>1?`<input type="radio" name="c2mk" data-c2mpk="${esc(k)}"${k===cur?' checked':''} title="${esc(t('c2.knownPick'))}">`:''}
+      <b class="n">${esc(m.file||'—')}</b>
+      <small>${esc(t('set.csvMapMeta',m.date||'—'))}</small>
+      <button type="button" class="pencil" data-c2mped="${esc(k)}" title="${esc(t('set.csvMapEdit'))}">&#9998;</button>
+      <button type="button" class="linkish" data-c2mpdel="${esc(k)}" title="${esc(t('set.csvMapDel'))}">&#10005;</button>
+    </div>`).join('');
+  const kmH=maps.length?`<div class="c2known">
+      <p>${t('c2.known',esc(t('app.name')))}</p>
+      <div class="c2kmlist">${rows}</div>
+      <p>${t('c2.knownNote')}</p>
       <div class="c2row">
         <button class="btn primary" data-c2="applyMap">${t('c2.knownApply')}</button>
         <button class="btn" data-c2="ignoreMap">${t('c2.knownNew')}</button>
       </div></div>`:'';
-  /* **Die Art gehört zur Struktur** (5.9.26 spät, auf ausdrücklichen
-     Wunsch; am Nachmittag war sie für ein paar Stunden draußen und
-     wurde jedes Mal gewählt): „Automatisch vorbereiten" bringt sie
-     mit und **sperrt** die beiden Knöpfe (c2LockedKind) — der
-     gewählte bleibt Tinte, der andere tritt zurück, und die
-     Sprechblase sagt, wie man sie wieder frei bekommt. Gesperrt
-     heißt aria-disabled und kein Klick, nicht `disabled`: ein
-     gesperrter Knopf soll seine Sprechblase noch zeigen. Eine Zeile
-     unter den Knöpfen gibt es nicht mehr — der automatische Weg
-     geht gleich nach Schritt 2, hier steht nur noch, wer
-     zurückkommt. */
-  const lock=c2LockedKind();
-  const kb=k=>`<button class="c2kind${W.kind===k?' sel':''}${lock?' klock':''}" data-c2kind="${k}"${lock?` aria-disabled="true" data-tip="${esc(t('c2.kindLockTip'))}"`:''}>`;
   return `<p class="subline">${t('c2.sub')}</p>
     <div class="c2grp">
-      <div class="c2row"><button class="btn" data-c2="pick">${t('c2.pick')}</button>
-        <span class="c2meta">${c}</span></div>
+      <button class="btn" data-c2="pick">${t('c2.pick')}</button>
+      <p class="c2meta c2filemeta">${c}</p>
       ${kmH}
-    </div>
-    <div class="c2grp">
-      <p class="c2lbl">${t('c2.kindQ')}</p>
-      <div class="c2kinds">
-        ${kb('reg')}${t('c2.kindReg')}<small>${t('c2.kindRegSub')}</small></button>
-        ${kb('flex')}${t('c2.kindFlex')}<small>${t('c2.kindFlexSub')}</small></button>
-      </div>
     </div>
     <input type="file" id="c2File" accept=".csv,.txt,text/csv,text/plain" hidden>`;
 }
@@ -1194,7 +1285,6 @@ function c2TopTable(){
   const symOf=(e,m,fromImport)=>{
     if(fromImport)return willOnce(e,m)?IMP1:IMP;
     if(e.raw)return paidAt(e.raw,m)?((e.raw.imp&&e.raw.imp[m-1])?(impOnceAt(e.raw,m)?IMP1:IMP):OK):'';
-    if(e.kk)return kakDone(e.kk,m)?(flexKind(e.kk,m)==='imp'?(flexImpOnce(e.kk,m)?IMP1:IMP):OK):'';
     return '';
   };
   /* Zeichen und Notizlampe stehen **rechts vom Betrag**, in einem
@@ -1238,9 +1328,8 @@ function c2TopTable(){
   };
   /* Steht in diesem Monat schon ein importierter Wert im Buch, und
      welcher? */
-  const impAt=(e,m)=>e.raw?!!(e.raw.imp&&e.raw.imp[m-1])
-    :(e.kk?flexKind(e.kk,m)==='imp':false);
-  const bookAt=(e,m)=>e.raw?(e.raw.amounts[m-1]||0):(e.kk?kakVal(e.kk,m):0);
+  const impAt=(e,m)=>e.raw?!!(e.raw.imp&&e.raw.imp[m-1]):false;
+  const bookAt=(e,m)=>e.raw?(e.raw.amounts[m-1]||0):0;
   /* **Ändert „Anwenden" an diesem Monat etwas?** Daran hängen hier
      alle Farben — und nicht daran, ob überhaupt etwas zugeordnet
      ist. Wer dieselbe Art Datei ein zweites Mal einliest, bekommt
@@ -1253,7 +1342,7 @@ function c2TopTable(){
      den grünen Haken hinterlassen, und mit der Marke als Bedingung
      stünden ihre Zeilen bei jedem weiteren Import auf Gelb, obwohl
      „Anwenden" keinen Betrag ändert. */
-  const doneAt=(e,m)=>e.raw?!!paidAt(e.raw,m):(e.kk?!!kakDone(e.kk,m):false);
+  const doneAt=(e,m)=>e.raw?!!paidAt(e.raw,m):false;
   const changes=(e,m)=>{
     const b=B.by[e.tid];
     if(!b||!b.cnt[m])return false;
@@ -1284,7 +1373,6 @@ function c2TopTable(){
      keine und bleiben ungefärbt — mehr weiß die Datei nicht. */
   const imped=e=>{
     if(e.raw&&e.raw.imp)return e.raw.imp.some(Boolean);
-    if(e.kk)return MONTHS.some((_,i)=>flexKind(e.kk,i+1)==='imp');
     return false;
   };
   /* **Was frühere Importe hinterlassen haben**, steht mit unter dem
@@ -1306,12 +1394,7 @@ function c2TopTable(){
       let rows=null;
       if(e.raw&&e.raw.impRows&&e.raw.impRows[m]&&e.raw.impRows[m].length)
         rows=e.raw.impRows[m];
-      else if(e.kk){
-        const tx=state.tx.filter(x=>x.m===m&&x.main===e.kk);
-        if(tx.length)rows=tx.map(x=>({d:x.d?x.d+'.'+m+'.':'',v:x.v,x:txText(x)}));
-      }
-      out.push({m:m,v:bookAt(e,m),rows:rows,
-        once:e.raw?impOnceAt(e.raw,m):(e.kk?flexImpOnce(e.kk,m):false)});
+      out.push({m:m,v:bookAt(e,m),rows:rows,once:e.raw?impOnceAt(e.raw,m):false});
     }
     return out;
   };
@@ -1425,38 +1508,51 @@ function c2TopTable(){
      Überschrift eine andere Zahl als ihre Posten. */
   const gsum=list=>sumOf(list.map(eff));
   const grow=(cls2,label)=>`<tr class="${cls2}"><td class="mapc"></td><td class="foldc"></td><td class="tn">${label}</td>`;
-  let body='';
-  if(W.kind==='reg'){
-    const fresh=W.newT.filter(x=>x.group).map(x=>({tid:x.tid,name:x.name,group:x.group,
-      bank:x.bank||'',pay:x.pay||'',due:x.due||'',end:null,amounts:Z(),income:x.income,isNew:true}));
-    const all=state.fixed.map(i=>({tid:'i:'+i.id,name:i.name,group:i.group,
-      bank:i.bank,pay:i.pay,due:i.dueDay,end:i.end,amounts:i.amounts,raw:i,
-      income:isIncome(i),isNew:false})).concat(fresh);
-    [[t('c2.blkIn'),'g-in','r-in',all.filter(e=>e.income)],
-     [t('c2.blkOut'),'g-out','r-out',all.filter(e=>!e.income)]]
-    .forEach(bl=>{
-      const list=bl[3];
-      if(!list.length)return;
-      body+=grow('ghead '+bl[1],esc(bl[0]))+numCells(gsum(list))+'</tr>';
-      const cats=[];
-      list.forEach(e=>{if(!cats.includes(e.group))cats.push(e.group);});
-      cats.forEach(c=>{
-        const sub=list.filter(e=>e.group===c);
-        if(cats.length>1)
-          body+=grow('gcat '+bl[1],esc(keyLabel(c)))+numCells(gsum(sub))+'</tr>';
-        sub.forEach(e=>{body+=trow(e,bl[2])+srcLines(e);});
-      });
+  /* **Drei Blöcke wie in der Jahresmatrix** (6.9.26): Einnahmen,
+     Flexible, Regelmäßige Kosten — jeder als eigener
+     `<tbody>`, mit einer Leerzeile davor (10 px, wie zwischen den
+     „Karten" der Matrix) und gerundeten Ecken (css/components.css,
+     .c2blk). Die Blockzeile trägt die Blockstufe -3, die
+     Kategoriezeile die Stufe -2 mit der 3-px-Kante, die Posten die
+     Stufe -1 — dieselbe Leiter wie dort. Bis dahin stand hier je nach
+     Art nur die eine Hälfte. */
+  /* Ein flexibler Posten ist seit 6.9.26 abends ein Posten wie jeder
+     andere (isFlex in js/calc.js) — dieselbe Zeile, dieselben Felder;
+     nur der Block, in dem er steht, ist ein anderer. */
+  const fresh=W.newT.map(x=>({tid:x.tid,name:x.name,group:x.group||(x.flex?NOCAT_FLEX:''),
+      bank:x.bank||'',pay:x.pay||'',due:x.due||'',end:null,amounts:Z(),
+      income:!!x.income,flex:!!x.flex,isNew:true}));
+  const all=state.fixed.map(i=>({tid:'i:'+i.id,name:i.name,group:i.group,
+    bank:i.bank,pay:i.pay,due:i.dueDay,end:i.end,amounts:i.amounts,raw:i,
+    income:isIncome(i),flex:isFlex(i),isNew:false})).concat(fresh.filter(e=>e.group));
+  const flexList=all.filter(e=>e.flex);
+  const NCOL=15;
+  const spacer=()=>`<tr class="spacer">${'<td></td>'.repeat(NCOL)}</tr>`;
+  const parts=[];
+  /* Alle drei Blöcke nach Kategorie (seit 6.9.26 auch der flexible,
+     und die Kategoriezeile steht immer — auch „… ohne Kategorie"
+     ist eine Auskunft), in der Reihenfolge der Einstellungen; eine
+     Kategorie, die dort nicht mehr steht, kommt hinten nach. */
+  const order=(bl)=>bl==='g-in'?incomeGroups():(bl==='g-flex'?flexGroups():costGroups());
+  [[t('c2.blkIn'),'g-in','r-in',all.filter(e=>e.income)],
+   [t('c2.blkFlex'),'g-flex','r-flex',flexList],
+   [t('c2.blkOut'),'g-out','r-out',all.filter(e=>!e.income&&!e.flex)]]
+  .forEach(bl=>{
+    const list=bl[3];
+    if(!list.length)return;
+    let body=grow('ghead '+bl[1],esc(bl[0]))+numCells(gsum(list))+'</tr>';
+    const cats=order(bl[1]).slice();
+    list.forEach(e=>{if(!cats.includes(e.group))cats.push(e.group);});
+    cats.forEach(c=>{
+      const sub=list.filter(e=>e.group===c);
+      if(!sub.length)return;
+      body+=grow('gcat '+bl[1],esc(keyLabel(c)))+numCells(gsum(sub))+'</tr>';
+      sub.forEach(e=>{body+=trow(e,bl[2])+srcLines(e);});
     });
-  }else{
-    const list=kakCats().map(k=>({tid:'k:'+k,name:k,kk:k,
-      amounts:MONTHS.map((_,x)=>kakVal(k,x+1)),isNew:false}))
-      .concat(W.newT.map(x=>({tid:x.tid,name:x.name,amounts:Z(),isNew:true})));
-    if(list.length){
-      body+=grow('ghead g-flex',esc(t('c2.blkFlex')))+numCells(gsum(list))+'</tr>';
-      list.forEach(e=>{body+=trow(e,'r-flex')+srcLines(e);});
-    }
-  }
-  if(!body)body=`<tr><td class="c2empty" colspan="15">${t('c2.emptyT',t('c2.newAssign'))}</td></tr>`;
+    parts.push(`<tbody class="c2blk">${spacer()}${body}</tbody>`);
+  });
+  const body=parts.length?parts.join('')
+    :`<tbody><tr><td class="c2empty" colspan="${NCOL}">${t('c2.emptyT',t('c2.newAssign'))}</td></tr></tbody>`;
   /* **Der Pfeil über der Pfeilspalte klappt alle.** Steht irgendwo
      einer offen, klappt er zu — ein Knopf, der immer aufklappt,
      ließe das Zuklappen als Weg über zwanzig einzelne Klicks
@@ -1475,13 +1571,13 @@ function c2TopTable(){
   return `<table class="c2ttab">
     <thead><tr><th class="mapc"></th><th class="foldc">${foldAllCell()}</th><th class="tn">${t('c2.tgt')}</th>
       ${MONTHS.map((m,i)=>`<th class="num${cm(i+1)}">${i+1===CUR?`<span class="c2now">${m}</span>`:m}</th>`).join('')}</tr></thead>
-    <tbody>${body}</tbody></table>`;
+    ${body}</table>`;
 }
 
 /* Die Spalten in Schritt 3, in der Reihenfolge der Felder: Datum,
-   Betrag, Referenz 1 bis 4 — **nur die verknüpften** (5.9.26). Eine
-   gewählte Spalte ohne Feld kommt nicht mit; c2GoStep3 wählt sie
-   beim Weitergehen ab. */
+   Betrag, Referenz 1 bis 5 — **nur die verknüpften** (5.9.26). Eine
+   gewählte Spalte ohne Feld kommt nicht mit; in Schritt 2 fragt
+   der Knopf danach (c2LooseCols), c2GoStep3 wählt sie ab. */
 function c2Order(){
   return C2_FIELDS.map(f=>W.f[f]).filter(i=>i>=0);
 }
@@ -1572,7 +1668,7 @@ function c2FitCols(){
   const ord=c2Order();
   const w={};ord.forEach(i=>{w[i]=c2ColW(i);});
   const flex=ord.filter(i=>i!==W.f.date&&i!==W.f.amount);
-  const avail=wrap.clientWidth-(W.once?C2_PICKW:0);
+  const avail=wrap.clientWidth-C2_PICKW;
   const base=ord.reduce((a,i)=>a+w[i],0);
   if(base<avail){
     const need={};let total=0;
@@ -1594,9 +1690,9 @@ function c2FitCols(){
     }
   }
   const cols=tb.querySelectorAll('colgroup col');
-  let ci=W.once?1:0;
+  let ci=1;
   ord.forEach(i=>{if(cols[ci])cols[ci].style.width=w[i]+'px';ci++;});
-  tb.style.width=(ord.reduce((a,i)=>a+w[i],0)+(W.once?C2_PICKW:0))+'px';
+  tb.style.width=(ord.reduce((a,i)=>a+w[i],0)+C2_PICKW)+'px';
 }
 
 /* **Welche Zeilen stehen gerade in der CSV-Tabelle?** Die Frage
@@ -1608,7 +1704,15 @@ function c2Visible(){
   const terms=c2LiveTerms(),out=[];
   for(let i=0;i<W.csv.rows.length;i++){
     const ri=W.asg[i];
-    if(ri>=0&&!(W.editRule!=null&&ri===W.editRule))continue;
+    /* **Zugeordnet ist zugeordnet** (6.9.26 spät): eine Zeile, die
+       schon im Buch steht, und eine, die dieser Lauf zugeordnet hat,
+       bleiben beide in der Tabelle — grau, mit Kreuz — und gehen nur
+       über den Schalter „… verbergen" hinaus. Bis dahin verschwand
+       die frisch zugeordnete Zeile sofort, und man sah nicht, was
+       man gerade getan hatte. Die Zeilen der Regel, die gerade
+       bearbeitet wird, stehen immer da (gelb). */
+    const editing=W.editRule!=null&&ri===W.editRule;
+    if(!W.showOld&&!editing&&(ri>=0||W.inBook.has(i)))continue;
     if(!c2Match(W.csv.rows[i],terms))continue;
     out.push(i);
   }
@@ -1618,7 +1722,7 @@ function c2Visible(){
    einmalige Zuordnung arbeitet. Wer markiert und danach den Filter
    enger zieht, hat die verschwundenen Zeilen damit abgewählt. */
 function c2Picked(){
-  return c2Visible().filter(i=>W.pick[i]&&W.meta[i].in&&W.asg[i]<0);
+  return c2Visible().filter(i=>W.pick[i]&&W.meta[i].in&&W.asg[i]<0&&!W.inBook.has(i));
 }
 
 function c2CsvBody(){
@@ -1630,25 +1734,40 @@ function c2CsvBody(){
     const ri=W.asg[i];
     if(shown>=500){hidden++;continue;}
     shown++;
-    const cls=!W.meta[i].in?'off':(ri>=0?'done':'');
+    const editing=ri>=0&&W.editRule!=null&&ri===W.editRule;
+    const cls=!W.meta[i].in?'off':(editing?'done':'');
     const tn=ri>=0?W.rules[ri].t.name:'';
     const tip=c=>ri>=0?esc(t('c2.rowTip',tn)+'\n'+row[c]):esc(row[c]);
     /* Im Markier-Modus steht vorn ein Kästchen — aber nur an
        Zeilen, die überhaupt zugeordnet werden können: eine schon
        zugeordnete oder eine außerhalb des Jahres wäre ein Angebot,
        das der Knopf danach nicht einlöst. */
-    const can=W.meta[i].in&&ri<0;
-    const box=W.once?`<td class="c2pk">${can
-      ?`<input type="checkbox" data-c2pick="${i}"${W.pick[i]?' checked':''}>`:''}</td>`:'';
+    /* **Die Spalte „X" steht immer** (6.9.26 abends): schon
+       importierte Zeilen (W.inBook) tragen darin ein graues Kreuz und
+       stehen grau — sie lassen sich weder markieren noch über einen
+       Filter zuordnen; im Markier-Modus trägt die Spalte an den
+       übrigen Zeilen das Kästchen. **Dasselbe Bild trägt eine Zeile,
+       die dieser Lauf zugeordnet hat** (6.9.26 spät, `asg`): grau
+       mit Kreuz, die Sprechblase nennt das Ziel. Nur sie bleibt
+       anklickbar — ein Klick öffnet ihre Regel (c2EditRule), eine
+       Handauswahl sagt dort, dass sie über das ☰ am Ziel
+       zurückgeht. Die Zeilen der Regel in Bearbeitung stehen gelb,
+       ohne Kreuz. */
+    const old=W.inBook.has(i);
+    const asg=ri>=0&&!editing;
+    const can=W.meta[i].in&&ri<0&&!old;
+    const box=`<td class="c2pk">${old?`<span class="c2mpold" title="${esc(t('c2.inBookTip'))}">&#10005;</span>`
+      :asg?`<span class="c2mpold" title="${esc(t('c2.asgTip',tn))}">&#10005;</span>`
+      :(W.once&&can?`<input type="checkbox" data-c2pick="${i}"${W.pick[i]?' checked':''}>`:'')}</td>`;
     /* **Die letzte Zelle ist leer und hat kein Maß.** Die Tabelle
        ist so breit wie die Summe ihrer Spalten; ist das weniger
        als die Fläche, streckte `min-width:100%` sonst jede Spalte
        anteilig — und die Breiten aus Schritt 2 wären wieder dahin.
        Die Füllspalte nimmt den Rest und lässt die anderen in Ruhe. */
-    out+=`<tr class="${cls}${W.once&&W.pick[i]&&can?' picked':''}" data-c2i="${i}"${ri>=0?` data-c2ri="${ri}"`:''}>`+box+
+    out+=`<tr class="${cls}${old?' inbook':''}${asg?' inbook asg':''}${W.once&&W.pick[i]&&can?' picked':''}" data-c2i="${i}"${ri>=0?` data-c2ri="${ri}"`:''}>`+box+
       ord.map(c=>`<td data-c2f="${c2FieldOf(c)}" title="${tip(c)}">${esc(row[c])}</td>`).join('')+'<td class="c2fill"></td></tr>';
   }
-  const span=W.cols.length+(W.once?1:0)+1;
+  const span=W.cols.length+2;
   if(hidden)out+=`<tr class="morerow"><td colspan="${span}">${t('c2.more',hidden)}</td></tr>`;
   if(!out)out=`<tr class="morerow"><td colspan="${span}">${t('c2.noneFound')}</td></tr>`;
   return out;
@@ -1694,10 +1813,21 @@ function c2RefreshAssign(){
 function c2RefreshBtns(){
   const bGo=W.box.querySelector('#c2Do'),bNew=W.box.querySelector('#c2New');
   if(!bGo)return;
-  const h=c2Hits(),on=c2LiveTerms().length>0,edit=W.editRule!=null;
+  const terms=c2LiveTerms(),on=terms.length>0,edit=W.editRule!=null;
+  /* Nur ein Spaltenfilter trägt eine Regel — der Schnellfilter
+     allein nicht (siehe c2DoAssign); der Knopf bleibt dann grau und
+     sagt in der Sprechblase, was fehlt. */
+  const cols=terms.some(tm=>tm.f!=='q');
+  /* **Der rote Punkt am ☰** (6.9.26): solange irgendein Filter etwas
+     trägt — Spaltenfeld, angeheftete Zeile oder Schnellfilter —,
+     sagt er, dass im Menü etwas wartet: „Filter zurücknehmen", dort
+     dann in Rot (c2AssignMenu). */
+  const dot=W.box.querySelector('#c2FDot');
+  if(dot)dot.hidden=!on;
+  const h=c2Hits();
   const n=h.free.length+(edit?h.own.length:0);
   const np=c2Picked().length;
-  const canFlt=!W.once&&on&&n>0&&!!W.target;
+  const canFlt=!W.once&&cols&&n>0&&!!W.target;
   const canPick=W.once&&np>0&&!!W.target;
   const can=W.once?canPick:canFlt,cnt=W.once?np:n;
   bGo.textContent=(W.once?t('c2.assignPick'):(edit?t('c2.adjust'):t('c2.doAssign')))
@@ -1709,14 +1839,18 @@ function c2RefreshBtns(){
      dann der nächste Handgriff. */
   bGo.classList.toggle('ready',can);
   bGo.title=can?(W.once?t('c2.pickHowTip'):t('c2.assignTip'))
-    :(!W.target&&cnt>0?t('c2.tNoTarget',t('c2.newAssign')):t('c2.mnNoSel'));
+    :(!W.once&&on&&!cols?t('c2.tOnlyQ')
+    :(!W.target&&cnt>0?t('c2.tNoTarget',t('c2.newAssign')):t('c2.mnNoSel')));
   /* **„Neu anlegen und zuordnen" ist nie gesperrt.** Ein neues
      Ziel lässt sich immer anlegen — was gerade markiert oder
      gefiltert ist, geht danach gleich an es; ist nichts gewählt,
      entsteht eben nur der Posten. Ein gesperrter Knopf stünde
      genau dann im Weg, wenn man mit dem neuen Ziel anfangen
      will. */
-  bNew.textContent=t('c2.newAssign')+(cnt>0?` (${cnt})`:'');
+  /* In Klammern nur, was nach dem Anlegen auch zugeordnet würde —
+     ein Schnellfilter allein zählt nicht. */
+  const cntNew=W.once?np:(cols?n:0);
+  bNew.textContent=t('c2.newAssign')+(cntNew>0?` (${cntNew})`:'');
   bNew.disabled=false;
   bNew.title=t('c2.newAssignTip');
 }
@@ -1753,7 +1887,7 @@ function c2Step3(){
      ist der Weg, die Auswahl einzugrenzen, bevor man markiert. */
   /* **Filter, Filterzeilen und Zellen sprechen vom Feld**, nicht von
      der Spalte (5.9.26): der Schlüssel ist 'date', 'amount' oder
-     'ref1'…'ref4' — genau das, was eine gemerkte Regel später sagt.
+     'ref1'…'ref5' — genau das, was eine gemerkte Regel später sagt.
      Jede Spalte in Schritt 3 trägt ein Feld (c2Order). */
   const fltCell=i=>{
     const f=c2FieldOf(i),op=W.fltOp[f]||'has';
@@ -1770,9 +1904,10 @@ function c2Step3(){
   const vis=W.once?c2Visible().filter(i=>W.meta[i].in&&W.asg[i]<0):[];
   const allOn=vis.length>0&&vis.every(i=>W.pick[i]);
   const pickHead=W.once?`<th class="c2pk"><input type="checkbox" data-c2pickall="${allOn?'0':'1'}"${allOn?' checked':''}
-    title="${esc(t(allOn?'c2.pickNone':'c2.pickAll',vis.length))}"></th>`:'';
+    title="${esc(t(allOn?'c2.pickNone':'c2.pickAll',vis.length))}"></th>`
+    :`<th class="c2pk c2pkx" title="${esc(t('c2.inBookTip'))}">${t('c2.pkHead')}</th>`;
   const chipRow=W.chips.some(tm=>tm.f!=='q')
-    ?`<tr class="c2chiprow">${W.once?'<th class="c2pk"></th>':''}${ord.map(i=>{
+    ?`<tr class="c2chiprow"><th class="c2pk"></th>${ord.map(i=>{
         const c=colChips(i);
         return `<th>${c?`<div class="c2fchips">${c}</div>`:''}</th>`;
       }).join('')}<th class="c2fill"></th></tr>`:'';
@@ -1792,10 +1927,17 @@ function c2Step3(){
      wenn alles angewendet ist: dass er einmal gedrückt wurde, ist
      die Auskunft, wegen der man ihn sucht. Ohne gemerkte Zuordnung
      gibt es ihn nicht. */
+  /* **Grau auch, wenn keine gemerkte Regel eine freie Zeile trifft**
+     (6.9.26): das Fenster dahinter zeigt nur Posten mit Treffern
+     (c2MapHits, c2MapPick) — träfe keine, ginge ein leeres Fenster
+     auf; die Sprechblase sagt es stattdessen hier. */
   let auto='';
-  if(W.mapRules&&W.mapRules.length)
-    auto=`<button class="btn primary" data-c2="autoMap" title="${esc(t('c2.autoMapTip',W.mapRules.length))}">${t('c2.autoMap')}</button>`;
-  else if(W.autoDone)
+  if(W.mapRules&&W.mapRules.length){
+    const hits=c2MapHits().filter(e=>e.hasNew).length;
+    auto=hits
+      ?`<button class="btn primary" data-c2="autoMap" title="${esc(t('c2.autoMapTip',W.mapRules.length))}">${t('c2.autoMap')}</button>`
+      :`<button class="btn" data-c2="autoMap" disabled title="${esc(t('c2.mpGone'))}">${t('c2.autoMap')}</button>`;
+  }else if(W.autoDone)
     auto=`<button class="btn" data-c2="autoMap" disabled title="${esc(t('c2.autoMapDone'))}">${t('c2.autoMap')}</button>`;
   /* **Zwischen den Flächen liegt ein Griff** (5.9.26, .c2split):
      Ziehen verschiebt die Teilung, ein Doppelklick stellt halb/halb
@@ -1807,8 +1949,12 @@ function c2Step3(){
     <div class="c2split" title="${esc(t('c2.splitTip'))}"></div>
     <div class="c2mid">
       <div class="c2row">
+        <!-- Der rote Punkt (6.9.26): solange irgendein Filter etwas
+             trägt, wartet im Menü „Filter zurücknehmen" — nachgeführt
+             in c2RefreshBtns, dieselbe Sprache wie #dirtyDot am
+             Hamburger der Kopfzeile. -->
         <button class="btn c2burger" id="c2Menu"
-          title="${esc(t('c2.menuTip'))}" aria-label="${esc(t('c2.menuTip'))}">&#9776;</button>
+          title="${esc(t('c2.menuTip'))}" aria-label="${esc(t('c2.menuTip'))}">&#9776;<span class="dirtydot" id="c2FDot" hidden></span></button>
         <!-- **Der Modus-Knopf steht zwischen ☰ und „Zuordnen"**
              (5.9.26; vorher ganz rechts): er entscheidet, was der
              Knopf daneben tut — merken oder einmalig —, und gehört
@@ -1819,6 +1965,15 @@ function c2Step3(){
         <button class="btn c2go" id="c2Do" data-c2="goAssign"></button>
         <button class="btn" id="c2New" data-c2="newTAssign"></button>
         <span class="c2spacer"></span>
+        <!-- Schon zugeordnete Zeilen zeigen oder verbergen (6.9.26
+             abends): **gedrückt (schwarz) sind sie ausgeblendet** —
+             der Knopf heißt dann „… zeigen" —, weiß stehen sie in
+             der Tabelle; gibt es keine, ist der Knopf grau. Gezählt
+             wird beides: was schon im Buch steht und was dieser Lauf
+             zugeordnet hat (6.9.26 spät). -->
+        ${(()=>{const nAsg=W.asg.filter(v=>v>=0).length,nOld=W.inBook.size,nAll=nOld+nAsg;
+          return `<button class="btn oldtog" id="c2Old" data-c2="toggleOld" aria-pressed="${!W.showOld}"${nAll?'':' disabled'}
+          title="${esc(nAll?t('c2.oldTip',nAll,nOld,nAsg):t('c2.noOld'))}">${t(W.showOld?'c2.hideOld':'c2.showOld')}</button>`;})()}
         ${auto}
       </div>
     </div>
@@ -1831,11 +1986,11 @@ function c2Step3(){
       <!-- tabindex: Escape gibt der Fläche den Fokus (c2Esc), und
            mit ihm rollen die Pfeiltasten die CSV. -->
       <div class="c2scroll" tabindex="-1">
-      <table class="c2tab c2csvtab" style="width:${ord.reduce((a,i)=>a+wOf(i),0)+(W.once?C2_PICKW:0)}px">
-        <colgroup>${W.once?`<col style="width:${C2_PICKW}px">`:''}${ord.map(i=>`<col style="width:${wOf(i)}px">`).join('')}<col></colgroup>
+      <table class="c2tab c2csvtab" style="width:${ord.reduce((a,i)=>a+wOf(i),0)+C2_PICKW}px">
+        <colgroup><col style="width:${C2_PICKW}px">${ord.map(i=>`<col style="width:${wOf(i)}px">`).join('')}<col></colgroup>
         <thead>
           <tr>${pickHead}${ord.map(colHead).join('')}<th class="c2fill"></th></tr>
-          <tr class="c2fltrow">${W.once?'<th class="c2pk"></th>':''}${ord.map(fltCell).join('')}<th class="c2fill"></th></tr>
+          <tr class="c2fltrow"><th class="c2pk"></th>${ord.map(fltCell).join('')}<th class="c2fill"></th></tr>
           ${chipRow}
         </thead>
         <tbody id="c2Body"></tbody>
@@ -1955,6 +2110,14 @@ function c2DoAssign(){
       if(!W.target){warn(t('c2.tNoTarget',t('c2.newAssign')));return;}
       const terms=c2LiveTerms();
       if(!terms.length){warn(t('c2.tNoFlt'));return;}
+      /* **Der Schnellfilter allein trägt keine Regel** (6.9.26): er
+         ist eine Sichthilfe über alle Felder und wird nie gemerkt
+         (c2StoreRules lässt 'q' weg). Eine Zuordnung, die nur aus
+         ihm bestand, kam ins Buch, ohne dass am Posten ein
+         Kriterium stünde — im Fenster gab es dann nichts zu ändern,
+         und beim nächsten Import fand sie nichts wieder. Wer ohne
+         Spaltenfilter zuordnen will, markiert die Zeilen einmalig. */
+      if(!terms.some(tm=>tm.f!=='q')){warn(t('c2.tOnlyQ'));return;}
       const h=c2Hits(),edit=W.editRule!=null;
       if(!h.free.length&&!(edit&&h.own.length)){
         warn(edit?t('c2.tNoHitEdit'):t('c2.tNoHit'));return;
@@ -1976,6 +2139,15 @@ function c2DoAssign(){
       let ri;
       if(edit){ri=W.editRule;W.rules[ri]={terms:terms,t:x};}
       else{W.rules.push({terms:terms,t:x});ri=W.rules.length-1;}
+      /* Kam die Regel über „Suchen nach gemerkten Kriterien" aus dem
+         Angebot der gemerkten (W.mapRules), steht sie dort nicht
+         noch einmal: sonst böte das Wahl-Fenster sie weiter an, und
+         c2StoreRules sähe sie doppelt. */
+      if(W.mapRules){
+        const key=c2RuleKey(W.rules[ri]);
+        W.mapRules=W.mapRules.filter(r=>c2RuleKey(r)!==key);
+        if(!W.mapRules.length){W.mapRules=null;W.autoDone=true;}
+      }
       c2ApplyRules();
       const n=W.asg.filter(v=>v===ri).length;
       /* Danach ist der Tisch wieder frei: Filter leer, kein Ziel
@@ -2007,11 +2179,16 @@ function c2AssignMenu(btn){
   const again=old&&old.dataset.tid==='assign';
   if(old)old.remove();
   if(again)return;
-  const item=(act,lab,tip)=>`<button data-do="${act}" title="${esc(tip)}">${esc(lab)}</button>`;
+  const item=(act,lab,tip,x)=>`<button data-do="${act}"${x||''} title="${esc(tip)}">${esc(lab)}</button>`;
+  /* „Filter zurücknehmen" **in Rot, solange ein Filter etwas trägt**
+     (6.9.26) — Spaltenfeld, angeheftete Zeile oder Schnellfilter:
+     derselbe Hinweis wie der rote Punkt am ☰ (c2RefreshBtns). Ohne
+     Filter ist der Eintrag grau: es gibt nichts zurückzunehmen. */
+  const on=c2LiveTerms().length>0;
   const pop=document.createElement('div');
   pop.className='c2fpop c2amenu';pop.dataset.tid='assign';
   pop.innerHTML=
-    item('clearFlt',t('c2.clearFlt'),t('c2.clearFlt'))+
+    item('clearFlt',t('c2.clearFlt'),t('c2.clearFlt'),on?' class="hot"':' disabled')+
     item('crit',t('c2.mnCrit'),t('c2.mnCritTip'));
   W.modal.appendChild(pop);
   const r=btn.getBoundingClientRect(),w=pop.offsetWidth,hh=pop.offsetHeight;
@@ -2028,9 +2205,9 @@ function c2AssignMenu(btn){
       e.stopPropagation();
       close();
       if(b.dataset.do==='clearFlt'){c2ClearFlt();return;}
-      /* Die Kriterien stehen an den Posten (impRules) — gezeigt wird,
-         was der nächste Import dieser Art von selbst anwendet. */
-      openImpRules(W.kind);
+      /* Die Kriterien stehen an den Posten (impRules) — alle, regulär
+         wie flexibel: der nächste Import wendet sie von selbst an. */
+      openImpRules('all');
     };
   });
   setTimeout(()=>{
@@ -2055,17 +2232,17 @@ const c2RuleKey=r=>String(r.t&&r.t.tid)+'|'+JSON.stringify((r.terms||[]).map(tm=
 
 /* Ein Ziel im Buch wiederfinden — über den **Namen**. Wer beim
    Import ein Ziel anlegt, führt es bis „Fertig" als „n:Name";
-   danach ist es ein Posten oder eine Kategorie mit diesem Namen. */
-function c2BookByName(nm){
+   danach ist es ein Posten oder eine Kategorie mit diesem Namen.
+   `flex` sagt, in welcher der beiden Listen gesucht wird. */
+function c2BookByName(nm,flex){
   const qn=String(nm||'').trim().toLowerCase();
-  if(W.kind==='flex'){
-    const k=kakCats().find(n=>n.trim().toLowerCase()===qn);
-    return k?{tid:'k:'+k,name:k,income:false}:null;
-  }
-  const it=state.fixed.find(x=>x.name.trim().toLowerCase()===qn);
-  return it?{tid:'i:'+it.id,name:it.name,income:isIncome(it)}:null;
+  const it=state.fixed.find(x=>x.name.trim().toLowerCase()===qn&&(flex?isFlex(x):!isFlex(x)));
+  return it?{tid:'i:'+it.id,name:it.name,income:isIncome(it),flex:isFlex(it)}:null;
 }
 
+/* Die Regeln **aller** Posten und aller flexiblen Kategorien — seit
+   6.9.26 beide zusammen, es gibt keine Art mehr, die eine Hälfte
+   ausschlösse. */
 function c2LoadMapRules(){
   const have=new Set(W.rules.map(c2RuleKey));
   const list=[];
@@ -2077,8 +2254,7 @@ function c2LoadMapRules(){
       if(!have.has(c2RuleKey(fresh)))list.push(fresh);
     });
   };
-  if(W.kind==='flex')kakCats().forEach(k=>{if(state.kak[k])add(state.kak[k],{tid:'k:'+k,name:k,income:false});});
-  else state.fixed.forEach(it=>add(it,{tid:'i:'+it.id,name:it.name,income:isIncome(it)}));
+  state.fixed.forEach(it=>add(it,{tid:'i:'+it.id,name:it.name,income:isIncome(it),flex:isFlex(it)}));
   W.mapRules=list.length?list:null;
   if(list.length)W.autoDone=false;
 }
@@ -2091,10 +2267,31 @@ function c2MapRulesFor(tid){
   (host.impRules||[]).forEach(r=>{
     const terms=c2CleanTerms(r&&r.terms);
     if(!terms.length)return;
-    const fresh={terms:terms,t:{tid:x.tid,name:x.name,income:!!x.income},fromMap:true,book:r};
+    const fresh={terms:terms,t:{tid:x.tid,name:x.name,income:!!x.income,flex:!!x.flex},fromMap:true,book:r};
     if(!have.has(c2RuleKey(fresh)))out.push(fresh);
   });
   return out;
+}
+
+/* ── Alles lösen, was in diesem Lauf auf ein Ziel zeigt ──────
+   (6.9.26) Für „Zuordnung dieser Datei zurücksetzen" im Zeilenmenü
+   und für „Alle Importdaten löschen" in den beiden Fenstern
+   (js/dialogs/item.js, js/dialogs/kakeibo-betraege.js), wenn sie
+   aus dem Wizard heraus offen sind: die Regeln und Handauswahlen,
+   die auf das Ziel zeigen, fallen aus W.rules, ihre Zeilen sind
+   wieder frei. Zurück kommt die Zahl der gelösten Zeilen; `dry`
+   zählt nur — für die Rückfrage, bevor etwas geschieht. Außerhalb
+   von Schritt 3 gibt es nichts zu lösen: 0. Die gemerkten
+   Kriterien am Posten bleiben — sie sind keine Importdaten. */
+function c2Unassign(tid,dry){
+  if(!W||W.step!==3||!W.csv)return 0;
+  const n=W.asg.filter(v=>v>=0&&W.rules[v]&&W.rules[v].t&&W.rules[v].t.tid===tid).length;
+  if(dry)return n;
+  const er=W.editRule!=null?W.rules[W.editRule]:null;
+  W.rules=W.rules.filter(r=>!(r.t&&r.t.tid===tid));
+  W.editRule=er&&W.rules.includes(er)?W.rules.indexOf(er):null;
+  c2ApplyRules();
+  return n;
 }
 
 function c2RowMenu(btn,tid){
@@ -2104,26 +2301,28 @@ function c2RowMenu(btn,tid){
   if(again)return;
   const x=c2Find(tid);
   const ri=W.rules.findIndex(r=>r.t.tid===tid);
-  /* **„CSV-Daten nach gespeicherten Importkriterien zuordnen"**
-     (5.9.26): hat die gemerkte Zuordnung dieser Datei-Art Regeln
-     für genau dieses Ziel, steht hier der Weg, sie **für diesen
-     einen Posten** anzuwenden — ohne das Wahl-Fenster über alle
-     (c2MapPick). In Rot, damit man ihn findet: er ist der Grund,
-     das Menü an einem Posten mit gemerkten Kriterien zu öffnen.
-     Dahinter steht, wie viele freie Zeilen die Regeln gerade
-     träfen; treffen sie keine, ist der Eintrag grau. Was schon in
-     W.rules steht, wird nicht noch einmal angeboten. */
+  /* **„Suchen nach gemerkten Kriterien"** (6.9.26; vom 5.9. bis
+     dahin „CSV-Daten nach gespeicherten Importkriterien zuordnen",
+     rot und mit sofortiger Zuordnung): trägt dieser Posten gemerkte
+     Kriterien, stellt der Eintrag sie **als Filter** ein — die
+     Zeilen, die sie treffen, stehen dann unten, der Posten ist das
+     Ziel, und „Zuordnen und merken" ist der nächste Klick. Dieselbe
+     Bauform wie „Suchen nach Betrag": erst sehen, was die Kriterien
+     treffen, dann zuordnen — bis dahin wurde ohne Blick auf die
+     Zeilen zugeordnet, und in Rot las sich der Eintrag wie eine
+     Warnung. Trägt der Posten mehrere Regeln, kommt die erste, die
+     gerade freie Zeilen trifft; ist sie zugeordnet, bietet das Menü
+     die nächste an (was schon in W.rules steht, kommt nicht noch
+     einmal — c2MapRulesFor). Die Sprechblase nennt, wie viele
+     Regeln es sind und wie viele freie Zeilen sie treffen. */
   const critRules=c2MapRulesFor(tid);
+  const hitsOf=r=>W.csv.rows.filter((row,i)=>W.asg[i]<0&&W.meta[i].in&&c2Match(row,r.terms)).length;
   const critHits=critRules.length
     ?W.csv.rows.filter((row,i)=>W.asg[i]<0&&W.meta[i].in&&critRules.some(r=>c2Match(row,r.terms))).length:0;
   const impMonths=()=>{
     if(tid.indexOf('i:')===0){
       const it=findItem(tid.slice(2));
       return it&&it.imp?it.imp.map((v,i)=>v?i+1:0).filter(Boolean):[];
-    }
-    if(tid.indexOf('k:')===0){
-      const k=tid.slice(2);
-      return MONTHS.map((_,i)=>flexKind(k,i+1)==='imp'?i+1:0).filter(Boolean);
     }
     return [];
   };
@@ -2134,7 +2333,7 @@ function c2RowMenu(btn,tid){
      Auf- und Zuklappen — dieses Menü ist jetzt der Weg ins
      Fenster. Ein Ziel, das es im Buch noch nicht gibt („n:…"),
      hat nichts zu öffnen. */
-  const canOpen=(tid.indexOf('i:')===0&&findItem(tid.slice(2)))||tid.indexOf('k:')===0;
+  const canOpen=tid.indexOf('i:')===0&&!!findItem(tid.slice(2));
   /* **„Suchen nach Betrag"** (5.9.26): die Beträge, die dieser
      Posten im Buch führt, als Filter auf die Betragsspalte der
      Datei — jeder verschiedene Betrag einmal, alle zusammen als
@@ -2148,7 +2347,6 @@ function c2RowMenu(btn,tid){
   const amts=()=>{
     let vals=[];
     if(tid.indexOf('i:')===0){const it=findItem(tid.slice(2));vals=it?it.amounts.slice():[];}
-    else if(tid.indexOf('k:')===0){const k=tid.slice(2);vals=MONTHS.map((_,i)=>kakVal(k,i+1));}
     const seen=new Set(),out=[];
     vals.forEach(v=>{
       const a=Math.round((+v||0)*100)/100;
@@ -2168,7 +2366,7 @@ function c2RowMenu(btn,tid){
      wiederholt, ist heraus. */
   pop.innerHTML=
     (canOpen?`<button data-do="open">${esc(t('c2.mnOpen'))}</button>`:'')+
-    (critRules.length?`<button data-do="crit1" class="hot"${critHits?'':' disabled'} title="${esc(critHits?t('c2.mnApplyCritTip',critRules.length,critHits):t('c2.mnApplyCritNone'))}">${esc(t('c2.mnApplyCrit'))}</button>`:'')+
+    (critRules.length?`<button data-do="critq" title="${esc(critHits?t('c2.mnApplyCritTip',critRules.length,critHits):t('c2.mnApplyCritNone'))}">${esc(t('c2.mnCritQ'))}</button>`:'')+
     (ri>=0?`<button data-do="edit">${esc(t('c2.mnEdit'))}</button>
             <button data-do="reset">${esc(t('c2.mnReset'))}</button>`:'')+
     (W.f.amount>=0&&canOpen?`<button data-do="amt"${amtList.length?'':' disabled'} title="${esc(amtList.length?t('c2.mnAmtTip',amtList.length):t('c2.mnAmtNone'))}">${esc(t('c2.mnAmt'))}</button>`:'')+
@@ -2194,25 +2392,21 @@ function c2RowMenu(btn,tid){
         if(tid.indexOf('i:')===0){
           const it=findItem(tid.slice(2));
           if(it)c2Detail(()=>editItem(it));
-        }else if(tid.indexOf('k:')===0)c2Detail(()=>editKak(tid.slice(2)));
+        }
         return;
       }
       if(what==='edit'){ c2EditRule(ri); return; }
-      if(what==='crit1'){
-        if(!critRules.length||!critHits)return;
-        const from=W.rules.length;
-        const keys=new Set(critRules.map(c2RuleKey));
-        W.rules=W.rules.concat(critRules);
-        /* Was hier angewendet wird, wartet nicht mehr im
-           Wahl-Fenster der gemerkten Zuordnung; ist dort nichts
-           mehr übrig, steht der Knopf in der Leiste grau. */
-        if(W.mapRules){
-          W.mapRules=W.mapRules.filter(r=>!keys.has(c2RuleKey(r)));
-          if(!W.mapRules.length){W.mapRules=null;W.autoDone=true;}
-        }
-        W.target='';W.editRule=null;
-        c2ApplyRules();c2Render();
-        toast(t('c2.tAssigned',W.asg.filter(v=>v>=from).length,x?x.name:tid));
+      if(what==='critq'){
+        if(!critRules.length)return;
+        const r=critRules.find(rr=>hitsOf(rr)>0)||critRules[0];
+        W.target=tid;W.editRule=null;
+        /* Die Regel ist die ganze Suche: was vorher im Filter
+           stand, gehörte einer anderen — Felder, Schnellfilter und
+           Zeilen fangen leer an, die Bedingungen der Regel stehen
+           als angeheftete Zeilen da, anpassbar wie jede. */
+        W.flt={};W.fltOp={};W.q='';
+        W.chips=r.terms.map(tm=>({f:tm.f,op:tm.op,val:tm.val}));
+        c2Render();
         return;
       }
       if(what==='amt'){
@@ -2227,10 +2421,8 @@ function c2RowMenu(btn,tid){
         return;
       }
       if(what==='reset'){
-        const n=W.asg.filter((v,i)=>v>=0&&W.rules[v].t.tid===tid).length;
-        W.rules=W.rules.filter(rr=>rr.t.tid!==tid);
-        W.editRule=null;
-        c2ApplyRules();c2Render();
+        const n=c2Unassign(tid);
+        c2Render();
         toast(t('c2.tUnmapped',x?x.name:tid,n));
         return;
       }
@@ -2241,13 +2433,6 @@ function c2RowMenu(btn,tid){
         const it=findItem(tid.slice(2));
         if(it)months.forEach(m=>{it.amounts[m-1]=0;it.paid[m-1]=false;it.imp[m-1]=false;
           if(it.impRows)delete it.impRows[m];});
-      }else if(tid.indexOf('k:')===0){
-        const k=tid.slice(2);
-        /* Dieselbe Hand wie „Importdaten löschen" im
-           Beträge-Fenster (wipeFlexImport in js/categories.js):
-           der Monat ist danach für diese Kategorie kein
-           importierter mehr, nicht bloß einer mit 0. */
-        months.forEach(m=>wipeFlexImport(k,m));
       }
       save();c2Render();render();
       toast(t('c2.mnWiped',x?x.name:tid,months.length));
@@ -2306,68 +2491,75 @@ function c2Wire(){
         try{
           W.csv=c2Parse(r.result,f.name);
           W.cols=[];W.f=c2BlankF();
-          W.rules=[];W.newT=[];W.asg=[];W.flt={};W.fltOp={};W.chips=[];W.q='';
+          W.rules=[];W.newT=[];W.asg=[];W.flt={};W.fltOp={};W.chips=[];W.q='';W.skip={};
           W.colw={};W.target='';W.editRule=null;W.ignoreMap=false;W.autoCols=false;
-          W.mapRules=null;W.autoDone=false;W.mapName='';
-          if(W.kindFromMap){W.kind=null;W.kindFromMap=false;}
+          W.mapRules=null;W.autoDone=false;W.mapName='';W.mapKey='';
         }catch(e){W.csv=null;warn(t('c2.readFail',e.message));}
+        /* **Kennt FINA die Datei-Art nicht, geht es gleich nach
+           Schritt 2** (6.9.26): dort gibt es etwas zu tun, in
+           Schritt 1 nicht mehr. Kennt FINA sie, hält Schritt 1 an —
+           der Kasten der gemerkten Struktur will zuerst eine
+           Antwort (c2MapPending, c2Advance). */
         if(!c2Advance())c2Render();
       };
       r.readAsArrayBuffer(f);
     };
-    /* Ein Klick auf die Art geht weiter — auch auf die schon
-       gewählte: wer aus Schritt 2 zurückkommt, findet so den Weg
-       wieder nach vorn, ohne einen eigenen Knopf dafür. */
-    box.querySelectorAll('[data-c2kind]').forEach(b=>{
-      b.onclick=()=>{
-        if(c2LockedKind())return;
-        const k=b.dataset.c2kind;
-        if(W.kind&&W.kind!==k&&W.rules.length){W.rules=[];W.newT=[];W.target='';W.asg=[];}
-        W.kind=k;W.kindFromMap=false;
-        if(!c2Advance())c2Render();
-      };
-    });
     /* **„Automatisch CSV-Datenstruktur vorbereiten"** (5.9.26; bis
        dahin „Mit gemerkter Zuordnung weiter", und das sprang gleich
-       in Schritt 3): die Feldverknüpfung kommt aus dem Gemerkten,
-       und es geht nach **Schritt 2** — dort sieht man, was
-       übernommen wurde, und kann es prüfen. Die gemerkten
-       Kriterien der Posten kommen erst beim Weitergehen von dort
-       (c2GoStep3): gelesen wird hier nur die Struktur, zugeordnet
-       wird nichts — genau, was der Kasten verspricht. **Die Art
-       kommt mit** (5.9.26 spät) und ist danach gesperrt
-       (c2LockedKind); deshalb geht es von hier **gleich** nach
-       Schritt 2, ohne dass in Schritt 1 noch etwas zu wählen wäre.
-       Nur eine Struktur ohne Art (vom Nachmittag) hält an: dann
-       wird die Art hier einmal gewählt, und der Klick darauf geht
-       weiter (c2Advance). */
+       in Schritt 3): die Feldverknüpfung kommt aus der gewählten
+       Struktur (c2MapKey), und es geht nach **Schritt 2** — dort
+       sieht man, was übernommen wurde, und kann es prüfen. Die
+       gemerkten Kriterien der Posten kommen erst beim Weitergehen
+       von dort (c2GoStep3): gelesen wird hier nur die Struktur,
+       zugeordnet wird nichts — genau, was der Kasten verspricht. */
     on('applyMap',()=>{
-      const m=state.csvMaps[W.csv.fp];
+      const key=c2MapKey(),m=state.csvMaps[key];
       if(!m)return;
-      W.mapName=m.file||'';
-      if(m.kind==='reg'||m.kind==='flex'){W.kind=m.kind;W.kindFromMap=true;}
+      W.mapKey=key;W.mapName=m.file||'';
       W.f=Object.assign(c2BlankF(),m.f||{});
       C2_FIELDS.forEach(f=>{if(W.f[f]>=W.csv.header.length)W.f[f]=-1;});
       W.cols=c2Order();
-      W.rules=[];W.newT=[];W.asg=[];W.target='';W.editRule=null;
+      W.rules=[];W.newT=[];W.asg=[];W.target='';W.editRule=null;W.skip={};
       W.mapRules=null;W.autoDone=false;
       W.autoCols=true;W.ignoreMap=false;
       if(!c2Advance())c2Render();
     });
-    /* **„CSV-Datenstruktur neu anordnen"**: Schritt 2 fängt leer an,
-       die Art ist wieder wählbar. Auch wer vorher „Automatisch"
-       gedrückt hatte und zurückkommt, fängt hier von vorn an —
-       „neu anordnen" heißt genau das. */
+    /* **„CSV-Datenstruktur von Grund auf neu anordnen"**: Schritt 2
+       fängt leer an. Auch wer vorher „Automatisch" gedrückt hatte
+       und zurückkommt, fängt hier von vorn an — „von Grund auf"
+       heißt genau das. */
     on('ignoreMap',()=>{
-      /* Eine Art, die aus der Struktur kam, geht mit zurück: „neu
-         anordnen" verspricht die Wahl (c2.kindLockTip), und mit der
-         alten Art im Zustand ginge es sonst ohne sie gleich nach
-         Schritt 2. Eine von Hand gewählte bleibt. */
-      if(W.kindFromMap){W.kind=null;W.kindFromMap=false;}
-      W.ignoreMap=true;W.autoCols=false;W.mapRules=null;W.autoDone=false;
+      W.ignoreMap=true;W.autoCols=false;W.mapRules=null;W.autoDone=false;W.mapKey='';
       W.cols=[];W.f=c2BlankF();
-      W.rules=[];W.newT=[];W.asg=[];W.target='';W.editRule=null;
+      W.rules=[];W.newT=[];W.asg=[];W.target='';W.editRule=null;W.skip={};
       if(!c2Advance())c2Render();
+    });
+    /* Die Zeilen der gemerkten Strukturen: Auswahlknopf (nur bei
+       mehreren), Stift, ✕ — siehe c2Step1. */
+    box.querySelectorAll('[data-c2mpk]').forEach(r=>{
+      r.onchange=()=>{
+        W.mapKey=r.dataset.c2mpk;
+        box.querySelectorAll('.c2kmrow').forEach(x=>x.classList.toggle('on',x.contains(r)));
+      };
+    });
+    box.querySelectorAll('[data-c2mped]').forEach(b=>{
+      b.onclick=()=>{
+        W.mapKey=b.dataset.c2mped;
+        openCsvStructure(b.dataset.c2mped,()=>{if(W&&W.step===1&&W.modal.isConnected)c2Render();});
+      };
+    });
+    box.querySelectorAll('[data-c2mpdel]').forEach(b=>{
+      b.onclick=()=>{
+        const k=b.dataset.c2mpdel,m=state.csvMaps[k]||{};
+        if(!confirm(t('set.csvMapDelAsk',m.file||k)))return;
+        delete state.csvMaps[k];
+        if(W.mapKey===k)W.mapKey='';
+        /* Was aus dieser Struktur übernommen war, gilt nicht mehr als
+           übernommen: Schritt 2 fragt dann wieder nach einem Namen. */
+        W.autoCols=false;
+        save();c2Render();
+        toast(t('c2.mapForgot',m.file||k));
+      };
     });
   }
 
@@ -2420,7 +2612,7 @@ function c2Wire(){
              gehört zur alten Datei-Art — im Namensfenster stünde er
              sonst als vergeben da. */
           W.ignoreMap=false;W.autoCols=false;W.mapRules=null;W.autoDone=false;
-          W.mapName='';W.kindFromMap=false;
+          W.mapName='';W.mapKey='';W.skip={};
           c2Render();
         };
       });
@@ -2628,6 +2820,9 @@ function c2Wire(){
       if(tr){c2EditRule(+tr.dataset.c2ri);return;}
       const td=e.target.closest('td[data-c2f]');
       if(!td)return;
+      /* Schon im Buch: schreibgeschützt — ein Klick füllt keinen
+         Filter (6.9.26 abends). */
+      if(td.closest('tr.inbook'))return;
       const val=td.getAttribute('title')||td.textContent;
       if(!val.trim())return;
       const ci=td.dataset.c2f;
@@ -2716,15 +2911,12 @@ function c2WireNav(){
   if(W.step===1){
     on('to2',()=>{
       if(!W.csv){warn(t('c2.needFile'));return;}
-      /* FINA kennt die Datei-Art, und der Kasten über den Angaben
+      /* FINA kennt die Datei-Art, und der Kasten unter der Datei
          wartet auf die Antwort — die Struktur automatisch
-         vorbereiten oder neu anordnen. Das kommt **vor** der Art:
-         der automatische Weg bringt sie mit, und „sag zuerst, was in
-         der Datei steckt" wäre dann die falsche Auskunft. Ein
-         „Weiter", das stillschweigend eins von beiden wählte, träfe
-         eine Entscheidung, die dem Nutzer gehört. */
+         vorbereiten oder von Grund auf neu anordnen. Ein „Weiter",
+         das stillschweigend eins von beiden wählte, träfe eine
+         Entscheidung, die dem Nutzer gehört. */
       if(c2MapPending()){warn(t('c2.nextKnown'));return;}
-      if(!W.kind){warn(t('c2.needKind'));return;}
       c2Advance();
     });
   }
@@ -2736,6 +2928,14 @@ function c2WireNav(){
       if(W.f.date<0)miss.push(t('c2.fDate'));
       if(W.f.amount<0)miss.push(t('c2.fAmount'));
       if(miss.length){c2Missing(miss);return;}
+      /* **Gewählte Spalten ohne Feld halten auf** (6.9.26): bis
+         dahin fielen sie auf dem Weg nach Schritt 3 still weg
+         (c2GoStep3). Jetzt fragt ein Fenster, ob sie abgewählt
+         werden sollen — Ja wählt sie ab und bleibt im Schritt,
+         damit man das Ergebnis sieht und dann erst weitergeht;
+         Abbrechen lässt alles stehen, und man räumt selbst auf. */
+      const loose=W.cols.filter(i=>!c2Order().includes(i));
+      if(loose.length){c2LooseCols(loose);return;}
       c2Meta();
       if(!W.meta.some(m=>m.in)){warn(t('c2.noYear',YEAR));return;}
       /* **Stehen die Spalten noch so da, wie sie gemerkt sind**
@@ -2743,14 +2943,7 @@ function c2WireNav(){
          weiter: der Knopf heißt dann „Weiter" (c2Nav), und ein
          Namensfenster für etwas, das schon gemerkt ist, wäre eine
          Frage ohne Antwortbedarf. */
-      if(W.autoCols&&c2ColsSame()){
-        /* Eine Struktur ohne Art (gemerkt am Nachmittag des 5.9.26)
-           bekommt hier die eben gewählte nachgetragen — still, ohne
-           Namensfrage: der Name steht ja schon. */
-        const m=state.csvMaps[W.csv.fp];
-        if(m&&m.kind!==W.kind){m.kind=W.kind;save();}
-        c2GoStep3();return;
-      }
+      if(W.autoCols&&c2ColsSame()){c2GoStep3();return;}
       /* Sonst erst der Name, dann der Schritt: Abbrechen im Fenster
          lässt alles stehen, Speichern legt die Spalten ab
          (c2SaveCols) und geht weiter. */
@@ -2760,6 +2953,7 @@ function c2WireNav(){
   if(W.step===3){
     on('to2',()=>{W.editRule=null;W.step=2;c2Render();});
     on('apply',c2Apply);
+    on('toggleOld',()=>{W.showOld=!W.showOld;c2Render();});
   }
   if(W.step>1)on('guide',()=>{W.guide=!W.guide;c2Render();});
 }
@@ -2772,114 +2966,309 @@ function c2WireNav(){
    steht, und zeichnen. Bis dahin standen diese vier Zeilen zweimal
    da, und der automatische Weg übersprang Schritt 2. */
 function c2GoStep3(){
-  /* **Nur verknüpfte Spalten kommen mit** (5.9.26): was in Schritt 2
-     gewählt, aber keinem Feld zugeordnet ist, wird hier abgewählt.
-     Die Kriterien in Schritt 3 beziehen sich auf Felder, und eine
-     Spalte ohne Feld hätte dort keinen Namen. */
+  /* **Nur verknüpfte Spalten kommen mit** (5.9.26): die Kriterien
+     in Schritt 3 beziehen sich auf Felder, und eine Spalte ohne
+     Feld hätte dort keinen Namen. Von Hand gewählte Spalten ohne
+     Feld hält seit 6.9.26 schon der Knopf in Schritt 2 auf
+     (c2LooseCols) — hier ist die Zeile nur noch das Netz für den
+     automatischen Weg aus Schritt 1. */
   W.cols=c2Order();
   c2Meta();
+  c2ScanBook();
   c2MeasureCols();
   c2LoadMapRules();
   c2ApplyRules();
   W.step=3;c2Render();
 }
 
-/* ── Die gemerkte Zuordnung anwenden — nach Wahl ──────────────
-   **Nichts wird von selbst zugeordnet** (5.9.26). Das Fenster
-   zeigt, welche Posten aus der gemerkten Zuordnung dieser Datei-Art
-   etwas bekämen — gegliedert wie der Zielbereich: Einnahmen und
-   regelmäßige Kosten je Kategorie, flexible Kosten in einem Block —,
-   jeder mit einem Kästchen, alle angekreuzt. Dahinter steht, wie
-   viele freie Zeilen seine Regeln gerade träfen. „Anwenden" ordnet
-   nur den angekreuzten zu; die übrigen Regeln bleiben in W.mapRules
-   liegen — der Knopf bleibt für sie schwarz, und c2StoreRules()
-   legt sie bei „Fertig" mit an den Posten ab, damit nichts verloren
-   geht.
+/* ── Automatisch zuordnen mit gemerkten Importkriterien — nach Wahl ──
+   **Nichts wird von selbst zugeordnet** (5.9.26). Das Fenster zeigt,
+   welche Posten aus den gemerkten Kriterien etwas bekämen —
+   gegliedert wie der Zielbereich und wie die Jahresmatrix: Einnahmen,
+   Flexible, Regelmäßige Kosten, in den Farben ihrer Geldart,
+   die Posten je Kategorie —, jeder mit einem Kästchen, alle
+   angekreuzt.
+
+   **Unter jedem Posten stehen seine Zeilen** (6.9.26): eine kleine
+   Tabelle mit den verknüpften FINA-Feldern (Datum, Betrag, die
+   Referenzen), je Zeile ein Kästchen. Abwählen geht auf zwei Ebenen —
+   der ganze Posten oder eine einzelne Zeile. Was einzeln abgewählt
+   ist, merkt sich W.skip; c2ApplyRules übergeht diese Zeilen, sie
+   bleiben frei. Das Kästchen des Postens folgt seinen Zeilen: keine
+   gewählt heißt aus, ein Teil heißt „teilweise" (indeterminate).
+
+   **Der Stift am Posten öffnet sein Fenster** — das gewohnte Posten-
+   bzw. Kategorie-Fenster mit dem Block „Importkriterien"; mit
+   offenem Wizard schreibt es in dessen Regeln (impCritCommitLive),
+   und sobald es zugeht, rechnet dieses Fenster die Treffer neu und
+   baut die Liste neu auf — die Änderung wirkt sofort, ohne dass man
+   hier herausmuss. Abgewähltes bleibt dabei abgewählt (`off` hängt
+   an Ziel und Zeilennummer, nicht an der Liste).
+
+   „Anwenden" ordnet nur den angekreuzten zu; die übrigen Regeln
+   bleiben in W.mapRules liegen — der Knopf bleibt für sie schwarz,
+   und c2StoreRules() legt sie bei „Fertig" mit an den Posten ab,
+   damit nichts verloren geht. „Abbrechen" tut nichts.
 
    Bis 30.8.26 lief die gemerkte Zuordnung ungefragt beim Weitergehen
    aus dem ersten Schritt, danach in einem Zug auf Knopfdruck; jetzt
-   sieht man vorher, wen es trifft, und kann einzelne auslassen. */
-function c2MapPick(){
-  const rules=W.mapRules||[];
-  if(!rules.length)return;
-  /* Wie viele freie Zeilen jede Regel träfe — in der Reihenfolge der
-     Regeln, die erste nimmt, wie beim Zuordnen selbst. */
-  const taken=W.asg.slice(),cnt=rules.map(()=>0);
-  rules.forEach((r,ri)=>{
+   sieht man vorher, wen es trifft — bis auf die Zeile genau. */
+/* Je Ziel die freien Zeilen, die seine gemerkten Regeln träfen — in
+   der Reihenfolge der Regeln, die erste nimmt, wie beim Zuordnen
+   selbst. **Nur Ziele mit Treffern** (6.9.26): ein Posten, dessen
+   Kriterien in dieser Datei nichts finden, hat im Wahl-Fenster
+   nichts zu suchen — bis dahin stand er mit „trifft keine Zeile" da,
+   und bei zwanzig solchen Posten war das die ganze Liste. Gebraucht
+   vom Wahl-Fenster (c2MapPick) und vom Knopf davor (c2Step3). */
+/* ── Welche Zeilen schon im Buch stehen ───────────────────────
+   (6.9.26) Für das Wahl-Fenster der gemerkten Kriterien: je Ziel
+   die Zeilen der Datei, die ein früherer Import schon geschrieben
+   hat. Erkannt werden sie an den **Quellzeilen** des Buches —
+   it.impRows[m] beim regulären Posten, state.tx bei der flexiblen
+   Kategorie —: derselbe Tag, derselbe Buchwert (c2BookVal), dieselben
+   Referenzen. Ältere Importe haben keine Quellzeilen; dann zählt
+   der Monat als Ganzes, wie beim Grau des Zielbereichs (changes in
+   c2TopTable): abgehakt im Buch und dieselbe Summe wie die Zeilen
+   hier — dann stehen sie alle schon drin.
+
+   **Im Fenster stehen sie grau mit einem Kreuz** statt eines
+   Kästchens: nichts zu entscheiden, sie lassen sich nicht noch
+   einmal importieren. **Mitgehen müssen sie trotzdem** (apply in
+   c2MapPick): „Anwenden" ersetzt einen Monat durch die Summe seiner
+   zugeordneten Zeilen — blieben die alten draußen, verlöre ein
+   Monat mit alten und neuen Zeilen seine alten. Für das Buch ist
+   das Mitgehen folgenlos, der Wert bleibt derselbe; im Zielbereich
+   stehen sie danach grau („ändert nichts"). */
+function c2OldRows(tid,rows){
+  const old=new Set();
+  /* Zuerst das, was schon die Tabelle unten weiß (W.inBook,
+     c2ScanBook): die Zeile steht als Quellzeile irgendwo im Buch. */
+  rows.forEach(i=>{if(W.inBook&&W.inBook.has(i))old.add(i);});
+  const it=tid.indexOf('i:')===0?findItem(tid.slice(2)):null;
+  if(!it)return old;
+  /* Ältere Importe ohne Quellzeilen: der Monat als Ganzes — abgehakt
+     im Buch und dieselbe Summe wie die Zeilen hier. */
+  const byM={};
+  rows.forEach(i=>{const d=W.meta[i]&&W.meta[i].d;if(d)(byM[d.m]=byM[d.m]||[]).push(i);});
+  Object.keys(byM).forEach(mk=>{
+    const m=+mk,list=byM[mk];
+    if(list.every(i=>old.has(i)))return;
+    if(it.impRows&&it.impRows[m]&&it.impRows[m].length)return;
+    if(!paidAt(it,m))return;
+    const sum=list.reduce((s,i)=>s+c2BookVal(i,isIncome(it)),0);
+    if(Math.round((sum-(it.amounts[m-1]||0))*100)===0)list.forEach(i=>old.add(i));
+  });
+  return old;
+}
+
+function c2MapHits(){
+  const list=W.mapRules||[];
+  const taken=W.asg.slice();
+  const byT={},order=[];
+  list.forEach((r,ri)=>{
     if(r.pick)return;
+    const tid=r.t.tid;
     W.csv.rows.forEach((row,i)=>{
       if(taken[i]>=0||!W.meta[i].in)return;
-      if(c2Match(row,r.terms)){taken[i]=1e6+ri;cnt[ri]++;}
+      if(!c2Match(row,r.terms))return;
+      taken[i]=1e6+ri;
+      if(!byT[tid]){byT[tid]={t:r.t,rows:[],hasNew:false};order.push(tid);}
+      byT[tid].rows.push(i);
+      /* Schon im Buch stehende Zeilen (c2ScanBook) zählen als
+         Treffer — das Wahl-Fenster zeigt sie grau neben den neuen —,
+         aber nur eine **neue** Zeile macht den Posten zu einem, der
+         etwas zu entscheiden hat (hasNew: der Knopf in der Leiste,
+         die Liste im Fenster). */
+      if(!W.inBook.has(i))byT[tid].hasNew=true;
     });
   });
-  const byT={},order=[];
-  rules.forEach((r,ri)=>{
-    const tid=r.t.tid;
-    if(!byT[tid]){byT[tid]={t:r.t,n:0};order.push(tid);}
-    byT[tid].n+=cnt[ri];
-  });
-  /* Kategorie und Geldart eines Ziels: aus dem Buch, bei einem noch
-     nicht angelegten aus W.newT. */
+  return order.map(tid=>byT[tid]);
+}
+function c2MapPick(){
+  if(!(W.mapRules||[]).length)return;
+  const ord=c2Order();
+  const m=document.createElement('div');
+  m.className='modal';
+  document.body.appendChild(m);
+  /* Abgewählt: Zeilen als „ziel|zeile", Posten ohne Zeilen als Ziel. */
+  const off=new Set(),entOff=new Set();
+  let ents=[];
+  /* Nur Ziele mit Treffern (c2MapHits). Neu gerechnet nach jedem
+     Fenster, das Kriterien ändert. */
+  /* **Nur Posten mit wenigstens einer neuen Zeile** (6.9.26 abends):
+     ein Posten, dessen Treffer alle schon im Buch stehen, hat hier
+     nichts zu entscheiden und steht nicht in der Liste. Bei einem
+     gemischten Posten stehen die alten Zeilen grau mit Kreuz neben
+     den neuen. */
+  const compute=()=>{
+    ents=c2MapHits();
+    ents.forEach(e=>{e.old=c2OldRows(e.t.tid,e.rows);});
+    ents=ents.filter(e=>e.rows.some(i=>!e.old.has(i)));
+  };
+  /* Kategorie eines Ziels: aus dem Buch, bei einem noch nicht
+     angelegten aus W.newT. */
   const groupOf=tid=>{
     if(tid.indexOf('i:')===0){const it=findItem(tid.slice(2));return it?it.group:'';}
     const nt=W.newT.find(x=>x.tid===tid);
     return nt&&nt.group?nt.group:'';
   };
-  const row=tid=>{
-    const b=byT[tid];
-    return `<label class="c2mprow"><input type="checkbox" data-c2mp="${esc(tid)}" checked>
-      <span class="n">${esc(b.t.name)}${tid.indexOf('n:')===0?`<i class="c2newtag">${t('c2.newTag')}</i>`:''}</span>
-      <span class="c${b.n?'':' none'}">${b.n?t('c2.mpRows',b.n):t('c2.mpNone')}</span></label>`;
+  /* Neu ist, was nicht schon im Buch steht (e.old, c2OldRows);
+     nur darüber wird entschieden. Ein Posten, dessen Zeilen alle
+     schon drin sind, hat nichts zu wählen — sein Kästchen ist
+     gesperrt, er steht grau. */
+  const newRows=e=>e.rows.filter(i=>!e.old.has(i));
+  const onRows=e=>newRows(e).filter(i=>!off.has(e.t.tid+'|'+i));
+  const entChecked=e=>e.rows.length?(newRows(e).length>0&&onRows(e).length>0):!entOff.has(e.t.tid);
+  const idOf=tid=>'c2mp_'+tid.replace(/[^a-z0-9]/gi,'_');
+  const entHtml=e=>{
+    const tid=e.t.tid,checked=entChecked(e);
+    const canEdit=tid.indexOf('n:')!==0;
+    const nn=newRows(e).length,no=e.old.size,stale=e.rows.length>0&&nn===0;
+    const cnt=nn?(no?t('c2.mpNew',nn)+' · '+t('c2.mpOld',no):t('c2.mpRows',nn))
+      :(no?t('c2.mpOld',no):t('c2.mpNone'));
+    const tab=e.rows.length?`<table class="c2mptab"><thead><tr><th class="ck"></th>${ord.map(ci=>{
+        const f=c2FieldOf(ci);
+        return `<th class="${f==='amount'?'amt':(f==='date'?'dt':'')}">${esc(c2FieldLabel(f))}</th>`;}).join('')}</tr></thead>
+      <tbody>${e.rows.map(i=>{
+        const row=W.csv.rows[i],k=tid+'|'+i,isOld=e.old.has(i),on=!isOld&&!off.has(k);
+        return `<tr class="${isOld?'old':(on?'':'off')}"><td class="ck">${isOld
+          ?`<span class="c2mpold" title="${esc(t('c2.mpOldTip'))}">&#10005;</span>`
+          :`<input type="checkbox" data-c2mpr="${esc(k)}"${on?' checked':''}>`}</td>${ord.map(ci=>{
+          const v=row[ci]==null?'':row[ci],f=c2FieldOf(ci);
+          return `<td class="${f==='amount'?'amt '+cls(W.meta[i].v):(f==='date'?'dt':'')}" title="${esc(v)}">${esc(v)}</td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`:'';
+    return `<div class="c2mpent${checked?'':' off'}${stale?' stale':''}" data-c2mpe="${esc(tid)}">
+      <div class="c2mprow"><input type="checkbox" id="${idOf(tid)}" data-c2mp="${esc(tid)}"${checked?' checked':''}${stale?' disabled':''}>
+        ${canEdit?`<button type="button" class="pencil" data-c2mped="${esc(tid)}" title="${esc(t('c2.mpEditTip'))}">&#9998;</button>`:'<span class="pencil ph"></span>'}
+        <label for="${idOf(tid)}" class="n">${esc(e.t.name)}${tid.indexOf('n:')===0?`<i class="c2newtag">${t('c2.newTag')}</i>`:''}</label>
+        <span class="c${(nn||!e.rows.length)?'':' none'}">${cnt}</span></div>
+      ${tab}</div>`;
   };
-  let body='';
-  if(W.kind==='reg'){
-    [[t('c2.blkIn'),'g-in',order.filter(tid=>byT[tid].t.income)],
-     [t('c2.blkOut'),'g-out',order.filter(tid=>!byT[tid].t.income)]].forEach(bl=>{
+  const draw=()=>{
+    const was=m.querySelector('.dbody'),st=was?was.scrollTop:0;
+    let body='';
+    /* Alle drei Blöcke nach Kategorie (seit 6.9.26 auch der
+       flexible), wie Zielbereich und Jahresmatrix. */
+    [[t('c2.blkIn'),'g-in',ents.filter(e=>!e.t.flex&&e.t.income)],
+     [t('c2.blkFlex'),'g-flex',ents.filter(e=>e.t.flex)],
+     [t('c2.blkOut'),'g-out',ents.filter(e=>!e.t.flex&&!e.t.income)]].forEach(bl=>{
       if(!bl[2].length)return;
       body+=`<div class="c2mpgrp ${bl[1]}"><p class="c2mph">${esc(bl[0])}</p>`;
       const cats=[];
-      bl[2].forEach(tid=>{const g=groupOf(tid);if(!cats.includes(g))cats.push(g);});
+      bl[2].forEach(e=>{const g=groupOf(e.t.tid);if(!cats.includes(g))cats.push(g);});
       cats.forEach(g=>{
-        const sub=bl[2].filter(tid=>groupOf(tid)===g);
-        if(cats.length>1||g)body+=`<p class="c2mpcat">${esc(g?keyLabel(g):'—')}</p>`;
-        body+=sub.map(row).join('');
+        const sub=bl[2].filter(e=>groupOf(e.t.tid)===g);
+        body+=`<p class="c2mpcat">${esc(g?keyLabel(g):'—')}</p>`;
+        body+=sub.map(entHtml).join('');
       });
       body+='</div>';
     });
-  }else{
-    body+=`<div class="c2mpgrp g-flex"><p class="c2mph">${esc(t('c2.blkFlex'))}</p>${order.map(row).join('')}</div>`;
-  }
-  const m=document.createElement('div');
-  m.className='modal';
-  m.innerHTML=`<div class="box narrow split c2mpbox">
-    <h3>${t('c2.mpTitle')}</h3>
-    <p class="subline">${t('c2.mpSub',esc(W.csv.name))}</p>
-    <div class="dbody c2mplist">${body}</div>
-    <div class="row-end c2mpend">
-      <button class="btn small" id="c2mpAll">${t('c2.selAll')}</button>
-      <button class="btn small" id="c2mpNone">${t('c2.selNone')}</button>
-      <span class="c2spacer"></span>
-      <button class="btn" id="c2mpCancel">${t('g.cancel')}</button>
-      <button class="btn primary" id="c2mpOk">${t('c2.apply')}</button></div></div>`;
-  document.body.appendChild(m);
-  tabThroughFields(m);
-  const boxes=()=>[...m.querySelectorAll('[data-c2mp]')];
+    if(!body)body=`<p class="note">${esc(t('c2.mpGone'))}</p>`;
+    m.innerHTML=`<div class="box split c2mpbox">
+      <h3>${t('c2.mpTitle')}</h3>
+      <ul class="c2mphow">
+        <li>${t('c2.mpHow1')}</li>
+        <li>${t('c2.mpHow2')}</li>
+        <li>${t('c2.mpHowOld')}</li>
+        <li>${t('c2.mpHow3',t('c2.apply'))}</li>
+        <li>${t('c2.mpHow4',t('g.cancel'))}</li>
+      </ul>
+      <div class="dbody c2mplist">${body}</div>
+      <div class="row-end c2mpend">
+        <button class="btn small" id="c2mpAll">${t('c2.selAll')}</button>
+        <button class="btn small" id="c2mpNone">${t('c2.selNone')}</button>
+        <span class="c2spacer"></span>
+        <button class="btn" id="c2mpCancel">${t('g.cancel')}</button>
+        <button class="btn primary" id="c2mpOk"${ents.length?'':' disabled'}>${t('c2.apply')}</button></div></div>`;
+    wire();
+    tabThroughFields(m);
+    const now=m.querySelector('.dbody');
+    if(now)now.scrollTop=st;
+  };
+  /* Das Kästchen des Postens nach seinen Zeilen richten — und die
+     Zeilen nach dem Kästchen; neu gezeichnet wird dabei nichts, die
+     Liste kann lang sein. */
+  const syncEnt=tid=>{
+    const e=ents.find(x=>x.t.tid===tid);
+    const root=m.querySelector(`[data-c2mpe="${CSS.escape(tid)}"]`);
+    if(!e||!root)return;
+    const cb=root.querySelector('[data-c2mp]');
+    const on=onRows(e).length,nn=newRows(e).length;
+    cb.checked=entChecked(e);
+    cb.indeterminate=nn>0&&on>0&&on<nn;
+    root.classList.toggle('off',!cb.checked);
+    root.querySelectorAll('[data-c2mpr]').forEach(r=>{
+      r.checked=!off.has(r.dataset.c2mpr);
+      r.closest('tr').classList.toggle('off',!r.checked);
+    });
+  };
   const close=()=>m.remove();
-  m.querySelector('#c2mpAll').onclick=()=>boxes().forEach(b=>{b.checked=true;});
-  m.querySelector('#c2mpNone').onclick=()=>boxes().forEach(b=>{b.checked=false;});
-  m.querySelector('#c2mpCancel').onclick=close;
-  m.querySelector('#c2mpOk').onclick=()=>{
-    const on=new Set(boxes().filter(b=>b.checked).map(b=>b.dataset.c2mp));
+  /* Der Stift: das Fenster des Postens über diesem — und sobald es
+     zugeht, Treffer und Liste neu (siehe oben). Der Zielbereich des
+     Wizards dahinter zeichnet sich mit, denn c2ApplyRules hat
+     inzwischen anders zugeordnet. */
+  const openDetail=tid=>{
+    const before=new Set(document.querySelectorAll('.modal'));
+    if(tid.indexOf('i:')===0){const it=findItem(tid.slice(2));if(it)editItem(it);}
+    const fresh=[...document.querySelectorAll('.modal')].find(x=>!before.has(x));
+    if(!fresh)return;
+    const obs=new MutationObserver(()=>{
+      if(fresh.isConnected)return;
+      obs.disconnect();
+      if(!m.isConnected)return;
+      compute();draw();
+      if(W&&W.modal&&W.modal.isConnected)c2Render();
+    });
+    obs.observe(document.body,{childList:true});
+  };
+  const apply=()=>{
+    const list=W.mapRules||[];
+    const chosen=new Set();
+    ents.forEach(e=>{
+      const tid=e.t.tid,on=entChecked(e);
+      /* Schon im Buch stehende Zeilen gehen immer mit (siehe
+         c2OldRows) — auch bei einem abgewählten Posten: dann nur
+         sie, und der Monat bleibt, wie er ist. Abgewählte neue
+         Zeilen bleiben frei (W.skip). */
+      if(!on&&!e.old.size)return;
+      chosen.add(tid);
+      newRows(e).forEach(i=>{if(!on||off.has(tid+'|'+i))W.skip[tid+'|'+i]=1;});
+    });
     close();
-    if(!on.size)return;
+    if(!chosen.size)return;
     const from=W.rules.length;
-    W.rules=W.rules.concat(rules.filter(r=>on.has(r.t.tid)));
-    W.mapRules=rules.filter(r=>!on.has(r.t.tid));
+    W.rules=W.rules.concat(list.filter(r=>chosen.has(r.t.tid)));
+    W.mapRules=list.filter(r=>!chosen.has(r.t.tid));
     if(!W.mapRules.length){W.mapRules=null;W.autoDone=true;}
     c2ApplyRules();c2Render();
     const nc=c2NewCount(from);
     c2AutoDone(nc.targets,nc.rows,t('c2.kTitle'));
   };
+  const wire=()=>{
+    m.querySelectorAll('[data-c2mp]').forEach(cb=>{cb.onchange=()=>{
+      const tid=cb.dataset.c2mp,e=ents.find(x=>x.t.tid===tid);
+      if(!e)return;
+      if(cb.checked){entOff.delete(tid);newRows(e).forEach(i=>off.delete(tid+'|'+i));}
+      else{entOff.add(tid);newRows(e).forEach(i=>off.add(tid+'|'+i));}
+      syncEnt(tid);
+    };});
+    m.querySelectorAll('[data-c2mpr]').forEach(cb=>{cb.onchange=()=>{
+      const k=cb.dataset.c2mpr,tid=k.slice(0,k.lastIndexOf('|'));
+      if(cb.checked)off.delete(k); else off.add(k);
+      syncEnt(tid);
+    };});
+    m.querySelectorAll('[data-c2mped]').forEach(b=>{b.onclick=e=>{
+      e.preventDefault();e.stopPropagation();openDetail(b.dataset.c2mped);
+    };});
+    m.querySelector('#c2mpAll').onclick=()=>{off.clear();entOff.clear();draw();};
+    m.querySelector('#c2mpNone').onclick=()=>{
+      ents.forEach(e=>{entOff.add(e.t.tid);e.rows.forEach(i=>off.add(e.t.tid+'|'+i));});
+      draw();
+    };
+    m.querySelector('#c2mpCancel').onclick=close;
+    m.querySelector('#c2mpOk').onclick=apply;
+  };
+  m._close=close;          /* auch für Escape (js/ui.js) */
+  compute();draw();
   m.querySelector('#c2mpOk').focus();
 }
 
@@ -2899,6 +3288,45 @@ function c2Missing(miss){
   m.querySelector('#c2MissOk').focus();
 }
 
+/* ── Gewählte Spalten ohne Feld (6.9.26) ───────────────────────
+   Das Gegenstück zu c2Missing: dort fehlt ein Feld, hier ist eine
+   Spalte zu viel. Bis 6.9.26 fiel sie auf dem Weg nach Schritt 3
+   still weg — man hatte sie orange gewählt und fand sie in der
+   Dateitabelle nicht wieder, ohne zu erfahren, warum.
+
+   Das Fenster nennt die Spalten beim Namen und bietet an, sie
+   abzuwählen. **Abwählen bleibt im Schritt**: man soll sehen, was
+   übrig ist, und dann erst über denselben Knopf weitergehen — ein
+   Fenster, das abwählt und zugleich den Schritt wechselt, nähme
+   die Prüfung vorweg, wegen der es aufging. **Abbrechen lässt alles
+   stehen**: wer die Spalte doch braucht, gibt ihr ein Feld; wer
+   eine andere weglassen will, wählt selbst. Die Felder bleiben
+   beim Abwählen unberührt — die Spalten hatten ja keins. */
+function c2LooseCols(loose){
+  const hd=W.csv.header||[];
+  const name=i=>hd[i]!=null&&hd[i]!==''?hd[i]:t('c2.colN',i+1);
+  const m=document.createElement('div');
+  m.className='modal';
+  m.innerHTML=`<div class="box narrow">
+    <h3>${t('c2.looseTitle')}</h3>
+    <p class="subline">${t('c2.looseSub')}</p>
+    <ul class="c2misslist">${loose.map(i=>`<li><b>${esc(name(i))}</b></li>`).join('')}</ul>
+    <div class="row-end"><button class="btn" id="c2LooseCancel">${t('g.cancel')}</button>
+      <button class="btn primary" id="c2LooseOk">${t('c2.looseBtn')}</button></div></div>`;
+  document.body.appendChild(m);
+  tabThroughFields(m);
+  const close=()=>m.remove();
+  m._close=close;
+  m.querySelector('#c2LooseCancel').onclick=close;
+  m.querySelector('#c2LooseOk').onclick=()=>{
+    close();
+    W.cols=W.cols.filter(i=>!loose.includes(i));
+    c2Render();
+    toast(t('c2.looseDone',loose.length));
+  };
+  m.querySelector('#c2LooseOk').focus();
+}
+
 /* ── Die Spalten merken, bevor es weitergeht (5.9.26) ─────────
    „Spalten speichern und weiter" fragt nach einem Namen — vorgeschlagen
    ist der Name der Datei, bei einer schon gemerkten Datei-Art deren
@@ -2915,15 +3343,22 @@ function c2Missing(miss){
    Zeilen, und man wüsste nicht, welche man vergisst. Der Name ist
    die Beschriftung (`file`), wiedererkannt wird am Fingerabdruck —
    wie in den Einstellungen. Abbrechen bleibt im Schritt. */
+/* **Eine zweite Struktur für dieselbe Datei-Art** (6.9.26): kennt
+   FINA die Datei-Art schon, steht unter dem Namen ein Haken „die
+   bisherige behalten und diese dazu merken". Ohne ihn ersetzt
+   Speichern die gewählte Struktur (c2MapKey); mit ihm kommt die
+   neue unter den nächsten freien Schlüssel (c2NextMapKey), und
+   Schritt 1 bietet beim nächsten Mal beide zur Wahl. */
 function c2AskMapName(done){
-  const fp=W.csv.fp,ex=state.csvMaps[fp];
+  const fp=W.csv.fp,curKey=c2MapKey(),ex=curKey?state.csvMaps[curKey]:null;
   const m=document.createElement('div');
   m.className='modal';
   m.innerHTML=`<div class="box narrow c2new">
     <h3>${t('c2.mapNameTitle')}</h3>
     <p class="subline">${t('c2.mapNameSub')}</p>
     <div class="dgrp"><div class="field"><label for="c2mName">${t('set.csvMapName')}</label>
-      <input type="text" id="c2mName" value="${esc(W.mapName||(ex&&ex.file)||W.csv.name)}"></div></div>
+      <input type="text" id="c2mName" value="${esc(W.mapName||(ex&&ex.file)||W.csv.name)}"></div>
+      ${ex?`<label class="c2mkeep"><input type="checkbox" id="c2mKeep"><span>${t('c2.mapNameKeep',esc(ex.file||'—'))}</span></label>`:''}</div>
     ${ex?`<p class="subline c2mapknown">${t('c2.mapNameKnown',esc(ex.file||'—'),esc(ex.date||'—'))}</p>`:''}
     <div class="row-end"><button class="btn" id="c2mCancel">${t('g.cancel')}</button>
       <button class="btn primary" id="c2mOk">${t('g.save')}</button></div></div>`;
@@ -2934,10 +3369,12 @@ function c2AskMapName(done){
   const ok=()=>{
     const name=nm.value.trim();
     if(!name){warn(t('c2.mapNameEmpty'));nm.focus();return;}
+    const keep=!!(ex&&m.querySelector('#c2mKeep').checked);
+    const key=keep?c2NextMapKey(fp):(curKey||fp);
     const q=name.toLowerCase();
-    const clash=Object.keys(state.csvMaps||{}).find(k=>k!==fp&&String((state.csvMaps[k]||{}).file||'').trim().toLowerCase()===q);
+    const clash=Object.keys(state.csvMaps||{}).find(k=>k!==key&&String((state.csvMaps[k]||{}).file||'').trim().toLowerCase()===q);
     if(clash){warn(t('c2.mapNameTaken',name));nm.focus();nm.select();return;}
-    c2SaveCols(name);
+    c2SaveCols(name,key);
     close();
     toast(t('c2.mapSaved',name));
     done();
@@ -2946,42 +3383,59 @@ function c2AskMapName(done){
   m.querySelector('#c2mOk').onclick=ok;
   nm.onkeydown=e=>{if(e.key==='Enter')ok();};
 }
-/* Spalten, Felder und Art unter dem Namen ablegen — der Eintrag wird
+/* Spalten und Felder unter dem Namen ablegen — der Eintrag wird
    ganz ersetzt; Regeln stehen nicht darin, sie wohnen an den Posten
    (c2StoreRules). Das Datum ist das des Merkens. */
-function c2SaveCols(name){
-  const fp=W.csv.fp,d=new Date();
-  W.mapName=name;
+function c2SaveCols(name,key){
+  const d=new Date();
+  key=key||c2MapKey()||W.csv.fp;
+  W.mapName=name;W.mapKey=key;
   /* **Nur die Struktur** (5.9.26): Name, Feldverknüpfung, die
-     Spaltenköpfe (für die Anzeige in den Einstellungen) — und seit
-     dem Abend die **Art** (Struktur v260905-4): beim nächsten
-     Hochladen dieser Datei-Art steht sie damit fest. Keine Regeln —
-     die wohnen an den Posten (c2StoreRules). */
-  state.csvMaps[fp]={
+     Spaltenköpfe (für die Anzeige in den Einstellungen). Keine Art
+     mehr (6.9.26, Struktur v260906) und keine Regeln — die wohnen
+     an den Posten (c2StoreRules). */
+  state.csvMaps[key]={
     date:d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear(),
-    file:name,kind:W.kind,f:Object.assign({},W.f),header:W.csv.header.slice()};
+    file:name,f:Object.assign({},W.f),header:W.csv.header.slice()};
   save();
 }
 
 /* ══ Eine gemerkte CSV-Struktur ändern (5.9.26 spät) ═══════════
    Hinter dem Stift in den Einstellungen (Import → Gemerkte
-   CSV-Strukturen). Links stehen die FINA-Felder — Datum, Betrag,
-   Referenz 1 bis 4 —, rechts je ein Auswahlmenü mit den Spalten der
-   Datei (aus `header`, sonst „Spalte n"); darüber die Art. Es ist
-   dasselbe, was Schritt 2 des Imports festlegt, nur ohne die Datei
-   — deshalb dieselben Regeln: ein Feld wohnt in einer Spalte (wer
-   eine belegte Spalte wählt, nimmt sie dem anderen Feld), und ohne
-   Datum und Betrag wird nicht gespeichert. Gearbeitet wird auf
-   einer Kopie, in die Datei kommt erst „Speichern"; `header` und
-   der Fingerabdruck bleiben, wie sie sind — sie sind die Datei-Art
-   selbst. `done` ist der Rückweg in die Einstellungen (reopen),
-   damit die Zeile dort die neue Art zeigt. */
-function openCsvStructure(fp,done){
-  const m=state.csvMaps[fp];
+   CSV-Strukturen) **und seit 6.9.26 hinter dem Stift im ersten
+   Schritt des Imports** — dasselbe Fenster an beiden Stellen. Oben
+   der Name (seit 6.9.26 hier änderbar, nicht nur in den
+   Einstellungen), darunter links die FINA-Felder — Datum, Betrag,
+   Referenz 1 bis 5 —, rechts je ein Auswahlmenü mit den Spalten der
+   Datei (aus `header`, sonst „Spalte n"). Es ist dasselbe, was
+   Schritt 2 des Imports festlegt, nur ohne die Datei — deshalb
+   dieselben Regeln: ein Feld wohnt in einer Spalte (wer eine belegte
+   Spalte wählt, nimmt sie dem anderen Feld), ohne Datum und Betrag
+   wird nicht gespeichert, und ein Name, den eine andere Struktur
+   schon trägt, auch nicht. Gearbeitet wird auf einer Kopie, ins
+   Buch kommt erst „Speichern" (dirty; die Datei bekommt es mit
+   „Daten speichern"); `header` und der Schlüssel bleiben, wie sie
+   sind — sie sind die Datei-Art selbst. `done` ist der Rückweg
+   (reopen der Einstellungen, c2Render im Wizard), damit die Zeile
+   dort den neuen Namen zeigt. Eine Art gibt es seit 6.9.26 nicht
+   mehr; ein altes `kind` fällt beim Speichern weg.
+
+   **Drei Blöcke und ein roter Knopf** (6.9.26 spät): der Name
+   allein, dann Datum und Betrag — die beiden Pflichtfelder —, dann
+   die fünf Referenzen; so sieht man, was fehlen darf und was nicht.
+   Unten links in der Fußzeile, bündig mit den Blöcken, steht „Diese
+   Struktur aus FINA löschen" in Rot wie die Löschknöpfe der
+   Importdaten (.delbtn); Abbrechen und Speichern bleiben rechts — der ✕ an der Zeile in den Einstellungen ist damit
+   weg, die Zeile selbst ist der Weg hierher. Gelöscht wird nach
+   Rückfrage, sofort im Buch (dirty), und `done` räumt die Zeile
+   weg; im Wizard verliert eine gelöschte Struktur zugleich ihre
+   Wahl (W.mapKey) und das, was aus ihr übernommen war. */
+function openCsvStructure(key,done){
+  const m=state.csvMaps[key];
   if(!m){ if(done)done(); return; }
   const hd=m.header||[];
   const f=Object.assign(c2BlankF(),m.f||{});
-  let kind=(m.kind==='reg'||m.kind==='flex')?m.kind:'';
+  let name=m.file||'';
   /* So viele Spalten, wie die Datei hat — oder wie die Verknüpfung
      nennt, falls eine ältere Struktur keine Spaltenköpfe kennt. */
   const nCols=Math.max(hd.length,...C2_FIELDS.map(k=>(f[k]|0)+1));
@@ -2992,22 +3446,32 @@ function openCsvStructure(fp,done){
   const opts=k=>`<option value="-1"${f[k]<0?' selected':''}>—</option>`
     +Array.from({length:nCols},(_,ci)=>`<option value="${ci}"${f[k]===ci?' selected':''}>${esc(colName(ci))}</option>`).join('');
   const close=()=>{ box.remove(); if(done)done(); };
+  const sel=k=>`<label for="cs_${k}">${esc(c2FieldLabel(k))}</label>
+        <select id="cs_${k}" data-csf="${k}">${opts(k)}</select>`;
   const draw=()=>{
     box.innerHTML=`<div class="box narrow csbox">
       <h3>${esc(t('cs.title'))}</h3>
-      <p class="subline">${esc(m.file||'—')} · ${esc(t('set.csvMapMeta',m.date||'—'))}</p>
+      <p class="subline">${esc(t('set.csvMapMeta',m.date||'—'))}</p>
       <div class="dgrp csgrid">
-        <label for="csKind">${esc(t('cs.kind'))}</label>
-        <select id="csKind">${kind?'':'<option value="" selected>—</option>'}
-          <option value="reg"${kind==='reg'?' selected':''}>${esc(t('c2.kindReg'))}</option>
-          <option value="flex"${kind==='flex'?' selected':''}>${esc(t('c2.kindFlex'))}</option></select>
-        ${C2_FIELDS.map(k=>`<label for="cs_${k}">${esc(c2FieldLabel(k))}</label>
-        <select id="cs_${k}" data-csf="${k}">${opts(k)}</select>`).join('')}
+        <label for="csName">${esc(t('set.csvMapName'))}</label>
+        <input type="text" id="csName" value="${esc(name)}">
       </div>
+      <div class="dgrp csgrid">${['date','amount'].map(sel).join('')}</div>
+      <div class="dgrp csgrid">${C2_REFS.map(sel).join('')}</div>
       <p class="errline" id="csErr" hidden></p>
-      <div class="row-end"><button class="btn" id="csCancel">${esc(t('g.cancel'))}</button>
+      <div class="row-end"><button class="btn delbtn" id="csDel">${esc(t('cs.del'))}</button>
+        <button class="btn" id="csCancel">${esc(t('g.cancel'))}</button>
         <button class="btn primary" id="csSave">${esc(t('g.save'))}</button></div></div>`;
-    box.querySelector('#csKind').onchange=e=>{ kind=e.target.value; };
+    box.querySelector('#csDel').onclick=()=>{
+      const nm=m.file||key;
+      if(!confirm(t('set.csvMapDelAsk',nm)))return;
+      delete state.csvMaps[key];
+      if(typeof W!=='undefined'&&W&&W.mapKey===key){W.mapKey='';W.autoCols=false;}
+      save();
+      close();
+      toast(t('c2.mapForgot',nm));
+    };
+    box.querySelector('#csName').oninput=e=>{ name=e.target.value; };
     box.querySelectorAll('[data-csf]').forEach(s=>{ s.onchange=()=>{
       const k=s.dataset.csf,ci=+s.value;
       if(ci>=0)C2_FIELDS.forEach(o=>{ if(o!==k&&f[o]===ci)f[o]=-1; });
@@ -3021,17 +3485,22 @@ function openCsvStructure(fp,done){
     }; });
     box.querySelector('#csCancel').onclick=close;
     box.querySelector('#csSave').onclick=()=>{
-      if(f.date<0||f.amount<0){
-        const err=box.querySelector('#csErr');
-        err.textContent=t('cs.need'); err.hidden=false;
-        return;
-      }
+      const err=box.querySelector('#csErr');
+      const nm=String(name||'').trim();
+      const fail=msg=>{ err.textContent=msg; err.hidden=false; };
+      if(!nm){ fail(t('c2.mapNameEmpty')); box.querySelector('#csName').focus(); return; }
+      const q=nm.toLowerCase();
+      const clash=Object.keys(state.csvMaps||{}).find(k=>k!==key&&String((state.csvMaps[k]||{}).file||'').trim().toLowerCase()===q);
+      if(clash){ fail(t('c2.mapNameTaken',nm)); box.querySelector('#csName').focus(); return; }
+      if(f.date<0||f.amount<0){ fail(t('cs.need')); return; }
       m.f=Object.assign({},f);
-      if(kind)m.kind=kind; else delete m.kind;
+      m.file=nm;
+      delete m.kind;
       save();
       close();
       toast(t('cs.saved'));
     };
+    box.querySelector('#csName').onkeydown=e=>{ if(e.key==='Enter')box.querySelector('#csSave').click(); };
     tabThroughFields(box);
   };
   box._close=close;          /* auch für Escape (js/ui.js) */
@@ -3058,8 +3527,15 @@ function c2GuidePanel(){
    Weg „Neu anlegen und zuordnen": erst der Posten, dann geht das,
    was gerade markiert oder gefiltert ist, an ihn. Ohne `done` ist
    es das gewohnte „+ Neu…". */
+/* **Ein Fenster für beide Arten** (6.9.26; bis dahin c2NewFlex für
+   die flexible Kategorie): in der Kategorienliste steht als dritte
+   Gruppe „Flexible" mit dem einen Eintrag „neue flexible
+   Kategorie" (C2_NEWFLEX). Wer ihn wählt, legt eine Kategorie an —
+   Bank, Zahlungsart und Fälligkeit sind dann gesperrt, eine
+   Kategorie hat sie nicht. Der Wert ist ein Tabulator plus Wort:
+   in einem Kategorienamen kommt kein Tabulator vor. */
+const C2_NEWFLEX='\tflex';
 function c2NewTarget(done){
-  if(W.kind==='flex'){c2NewFlex(done);return;}
   const bm=c2Bmap(),pm=c2Pmap();
   const opt=list=>list.map(g=>`<option value="${esc(g)}">${esc(keyLabel(g))}</option>`).join('');
   const codes=map=>Object.keys(map).map(c=>`<option value="${esc(c)}">${esc(map[c])} (${esc(c)})</option>`).join('');
@@ -3070,10 +3546,17 @@ function c2NewTarget(done){
      Kurzmeldung ab, und der Nutzer stand vor einem Knopf, der
      nichts tat. Jetzt steht über den Listen der Weg dorthin, wo
      Kategorien entstehen. */
+  /* Die flexiblen Kategorien stehen als eigene Gruppe in derselben
+     Liste (seit 6.9.26; vorher ein einzelner Eintrag „Neue flexible
+     Kategorie"): ihr Wert trägt den Vermerk C2_NEWFLEX vorn, damit
+     ein Name, der zufällig auch eine reguläre Kategorie ist, nicht
+     die Geldart wechselt. In der Reihenfolge der Bereiche. */
+  const optF=list=>list.map(g=>`<option value="${esc(C2_NEWFLEX+':'+g)}">${esc(keyLabel(g))}</option>`).join('');
   const groupSel=()=>{
-    const inc=incomeGroups(),out=(state.groups||[]);
+    const inc=incomeGroups(),out=(state.groups||[]),fl=flexGroups();
     return `<option value="">${t('item.blockPick')}</option>
       ${inc.length?`<optgroup label="${t('c2.blkIn')}">${opt(inc)}</optgroup>`:''}
+      ${fl.length?`<optgroup label="${t('c2.blkFlex')}">${optF(fl)}</optgroup>`:''}
       ${out.length?`<optgroup label="${t('c2.blkOut')}">${opt(out)}</optgroup>`:''}`;
   };
   /* **Der Weg zur Liste steht unter der Liste, je Bereich einer.**
@@ -3097,7 +3580,7 @@ function c2NewTarget(done){
      Eingabe, und die Auswahllisten können schrumpfen, statt das
      Fenster mit ihrem längsten Eintrag aufzuspreizen. */
   m.innerHTML=`<div class="box narrow c2new">
-    <h3>${t('menu.newOut')}</h3>
+    <h3>${t('c2.newT')}</h3>
     <div class="dgrp">
       <div class="field"><label for="c2nName">${t('c2.nName')}</label>
         <input type="text" id="c2nName"></div>
@@ -3126,6 +3609,11 @@ function c2NewTarget(done){
   tabThroughFields(m);
   const nm=m.querySelector('#c2nName');nm.focus();
   const close=()=>m.remove();
+  /* Ein flexibler Posten hat seit 6.9.26 abends dieselben Felder wie
+     jeder andere — Bank, Zahlungsart und Fälligkeit bleiben offen. */
+  const gSel=m.querySelector('#c2nGroup');
+  const syncFlex=()=>{};
+  gSel.onchange=syncFlex;
 
   /* Zurück aus den Einstellungen: die drei Listen werden neu
      gebaut, **gewählt bleibt, was gewählt war** — nur wenn es den
@@ -3143,6 +3631,7 @@ function c2NewTarget(done){
     const bm2=c2Bmap(),pm2=c2Pmap();
     keep(m.querySelector('#c2nBank'),`<option value="">—</option>${codes(bm2)}`);
     keep(m.querySelector('#c2nPay'),`<option value="">—</option>${codes(pm2)}`);
+    syncFlex();
   };
   /* Das Einstellungsfenster legt sich **über** dieses hier, ohne es
      zu schließen: gestapelt wird über die Reihenfolge im Dokument,
@@ -3157,9 +3646,15 @@ function c2NewTarget(done){
     if(!group){warn(t('c2.nNoCat'));return;}
     const ex=c2ByName(name);
     if(ex){W.target=ex.tid;close();c2Render();warn(t('c2.nDup',name));if(done)done();return;}
-    W.newT.push({tid:'n:'+name,name:name,income:incomeGroups().includes(group),group:group,
-      bank:m.querySelector('#c2nBank').value,pay:m.querySelector('#c2nPay').value,
-      due:m.querySelector('#c2nDue').value||''});
+    if(group.indexOf(C2_NEWFLEX)===0){
+      const fg=group.slice(C2_NEWFLEX.length+1);
+      W.newT.push({tid:'n:'+name,name:name,income:false,flex:true,group:flexGroups().includes(fg)?fg:NOCAT_FLEX,
+        bank:m.querySelector('#c2nBank').value,pay:m.querySelector('#c2nPay').value,
+        due:m.querySelector('#c2nDue').value||''});
+    }else
+      W.newT.push({tid:'n:'+name,name:name,income:incomeGroups().includes(group),group:group,
+        bank:m.querySelector('#c2nBank').value,pay:m.querySelector('#c2nPay').value,
+        due:m.querySelector('#c2nDue').value||''});
     W.target='n:'+name;
     close();c2Render();
     if(done)done();
@@ -3167,35 +3662,6 @@ function c2NewTarget(done){
   m.querySelector('#c2nCancel').onclick=close;
   m.querySelector('#c2nOk').onclick=ok;
   m.querySelectorAll('input').forEach(f=>{f.onkeydown=e=>{if(e.key==='Enter')ok();};});
-}
-
-/* Eine neue flexible Kategorie hat nur ihren Namen. */
-function c2NewFlex(done){
-  const m=document.createElement('div');
-  m.className='modal';
-  m.innerHTML=`<div class="box narrow c2new">
-    <h3>${t('c2.newCatT')}</h3>
-    <div class="dgrp"><div class="field"><label for="c2nName">${t('c2.nName')}</label>
-      <input type="text" id="c2nName"></div></div>
-    <p class="subline">${t('c2.nCatHint',t('c2.save'))}</p>
-    <div class="row-end"><button class="btn" id="c2nCancel">${t('g.cancel')}</button>
-      <button class="btn primary" id="c2nOk">${t('c2.save')}</button></div></div>`;
-  document.body.appendChild(m);
-  tabThroughFields(m);
-  const nm=m.querySelector('#c2nName');nm.focus();
-  const close=()=>m.remove();
-  const ok=()=>{
-    const name=nm.value.trim();
-    if(!name){nm.focus();return;}
-    const ex=c2ByName(name);
-    if(ex){W.target=ex.tid;warn(t('c2.nDup',name));}
-    else{W.newT.push({tid:'n:'+name,name:name,income:false});W.target='n:'+name;}
-    close();c2Render();
-    if(done)done();
-  };
-  m.querySelector('#c2nCancel').onclick=close;
-  m.querySelector('#c2nOk').onclick=ok;
-  nm.onkeydown=e=>{if(e.key==='Enter')ok();};
 }
 
 /* Flexible Kosten mit Kategoriespalte: je Wert eine Regel mit
@@ -3292,9 +3758,8 @@ function c2NewCount(from){
     const b=B.by[tid];
     if(!b.rows.length)return;
     const raw=tid.indexOf('i:')===0?state.fixed.find(x=>'i:'+x.id===tid):null;
-    const kk=tid.indexOf('k:')===0?tid.slice(2):null;
-    const doneAt=m=>raw?!!paidAt(raw,m):(kk?!!kakDone(kk,m):false);
-    const bookAt=m=>raw?(raw.amounts[m-1]||0):(kk?kakVal(kk,m):0);
+    const doneAt=m=>raw?!!paidAt(raw,m):false;
+    const bookAt=m=>raw?(raw.amounts[m-1]||0):0;
     const changes=m=>{
       if(!b.cnt[m])return false;
       if(!doneAt(m))return true;
@@ -3350,122 +3815,93 @@ function c2Apply(){
     toast(t('c2.closedNone'));
     return;
   }
-  if(W.kind==='reg'){
-    let nItems=0,nMonths=0;
-    B.order.forEach(tid=>{
-      const b=B.by[tid];
-      let it=null;
-      if(tid.indexOf('i:')===0){
-        const id=tid.slice(2);
-        it=state.fixed.find(x=>String(x.id)===id)||state.fixed.find(x=>x.name===b.t.name);
+  /* **Ein Weg für alle Ziele** (6.9.26 abends): ein flexibler Posten
+     ist ein Posten — Betrag, Pfeil und Quellzeilen je Monat, wie bei
+     Einnahmen und Kosten. Was ihn unterscheidet, steht daneben: die
+     Quelle des Monats (flexSource, das Etikett am Kartenkopf), und
+     der Reiter „Import Details" liest die Quellzeilen der flexiblen
+     Posten (flexTx in js/calc.js).
+
+     **Ergänzen statt ersetzen**, wo der Monat schon Quellzeilen hat:
+     schon importierte Zeilen werden nie wieder zugeordnet (W.inBook,
+     c2ScanBook), hier kommen also nur neue an — sie treten zu den
+     alten, der Betrag wächst um sie. Ohne Quellzeilen (ältere
+     Importe, von Hand eingetragene Werte) ersetzt der Import den
+     Monat, wie bisher. */
+  let nItems=0,nMonths=0,nFlexRows=0;
+  const flexMonths=new Set();
+  const hadTx=flexTx().length>0;
+  B.order.forEach(tid=>{
+    const b=B.by[tid];
+    let it=null;
+    if(tid.indexOf('i:')===0){
+      const id=tid.slice(2);
+      it=state.fixed.find(x=>String(x.id)===id)||state.fixed.find(x=>x.name===b.t.name);
+    }else{
+      /* Sicherheitsgurt gegen Zwillinge: heißt ein „neues" Ziel wie
+         ein vorhandener Posten, ist es dieser Posten. */
+      it=state.fixed.find(x=>x.name===b.t.name);
+    }
+    if(!it){
+      const nt=W.newT.find(x=>x.tid===tid)||b.t;
+      it=normalize({id:uid(),name:b.t.name,group:nt.group||(nt.flex?NOCAT_FLEX:''),amounts:Array(12).fill(0)});
+      it.bank=nt.bank||'';it.pay=nt.pay||'';it.dueDay=nt.due||'';
+      state.fixed.push(it);
+    }
+    nItems++;
+    for(let m=1;m<=12;m++){
+      if(!b.cnt[m])continue;
+      const rows=b.rows.filter(i=>W.meta[i].d.m===m).map(i=>{
+        const row=W.csv.rows[i],d=W.meta[i].d;
+        return {d:String(d.d).padStart(2,'0')+'.'+String(d.m).padStart(2,'0')+'.'+String(d.y%100).padStart(2,'0'),
+          v:c2BookVal(i,b.t.income),r:c2Refs(row)};
+      });
+      /* **1 gemerkt, 2 einmalig** (siehe impOnceAt in js/calc.js):
+         einmalig ist der Monat, sobald **eine** seiner Zeilen aus
+         einer nicht gemerkten Regel kam. */
+      const once=b.rows.some(i=>W.meta[i].d.m===m&&(W.rules[W.asg[i]]||{}).once);
+      const had=(it.imp&&it.imp[m-1]&&it.impRows&&it.impRows[m]&&it.impRows[m].length)?it.impRows[m]:null;
+      it.impRows=it.impRows||{};
+      if(had){
+        it.amounts[m-1]=Math.round(((it.amounts[m-1]||0)+b.months[m])*100)/100;
+        it.impRows[m]=had.concat(rows);
+        it.imp[m-1]=(once||it.imp[m-1]===2)?2:1;
       }else{
-        /* Sicherheitsgurt gegen Zwillinge: heißt ein „neues" Ziel
-           wie ein vorhandener Posten, ist es dieser Posten —
-           angelegt wird nur, was es wirklich noch nicht gibt
-           (dieselbe Versöhnung wie beim Anwenden der gemerkten
-           Zuordnung, siehe applyMap in c2Wire). */
-        it=state.fixed.find(x=>x.name===b.t.name);
-      }
-      if(!it){
-        const nt=W.newT.find(x=>x.tid===tid)||b.t;
-        it=normalize({id:uid(),name:b.t.name,group:nt.group||'',amounts:Array(12).fill(0)});
-        it.bank=nt.bank||'';it.pay=nt.pay||'';it.dueDay=nt.due||'';
-        state.fixed.push(it);
-      }
-      nItems++;
-      /* **Die Quellzeilen wandern mit ins Buch** (it.impRows, je
-         Monat eine Liste aus Datum, Betrag und den drei
-         Referenzen): ein Posten führt sonst nur seine zwölf
-         Summen, und beim nächsten Import stünde unter „aus einem
-         früheren Import" nichts als der Monat — die Buchungen, aus
-         denen er entstand, will man aber wiedersehen (srcLines in
-         c2TopTable). Bis 5.9.26 stand hier ein zusammengesetzter
-         Text aus allen übrigen Spalten (`x`); ältere Dateien tragen
-         ihn weiter, gelesen wird beides (impRowText). */
-      for(let m=1;m<=12;m++){
-        if(!b.cnt[m])continue;
         it.amounts[m-1]=b.months[m];
-        it.paid[m-1]=true;
-        /* **1 gemerkt, 2 einmalig** (siehe impOnceAt in js/calc.js).
-           Einmalig ist der Monat, sobald **eine** seiner Zeilen aus
-           einer nicht gemerkten Regel kam: der Wert als Ganzes käme
-           beim nächsten Import dann nicht mehr zustande, und genau
-           das sagt der rote Kreis. */
-        it.imp[m-1]=b.rows.some(i=>W.meta[i].d.m===m&&(W.rules[W.asg[i]]||{}).once)?2:1;
-        it.impRows=it.impRows||{};
-        it.impRows[m]=b.rows.filter(i=>W.meta[i].d.m===m).map(i=>{
-          const row=W.csv.rows[i],d=W.meta[i].d;
-          return {d:String(d.d).padStart(2,'0')+'.'+String(d.m).padStart(2,'0')+'.'+String(d.y%100).padStart(2,'0'),
-            v:c2BookVal(i,b.t.income),r:c2Refs(row)};
-        });
-        nMonths++;
+        it.impRows[m]=rows;
+        it.imp[m-1]=once?2:1;
       }
-    });
-    c2StoreRules();
-    save();c2Close();render();
-    toast(t('c2.doneReg',nItems,nMonths));
-  }else{
-    /* Die berührten Monate werden ersetzt — dieselbe Regel wie
-       applyImport() in js/csv.js, nur mit unseren Zeilen. */
-    const months=new Set();
-    W.csv.rows.forEach((row,i)=>{if(W.asg[i]>=0)months.add(W.meta[i].d.m);});
-    /* Gab es vorher keine Buchungen, stand „Fast Budget Details"
-       auf „nur Hauptkategorien" und der Knopf daneben war gesperrt
-       (afterLoad in js/state.js). Mit dem ersten Import gibt es
-       Unterkategorien — dann sollen sie auch zu sehen sein. Wer sie
-       später selbst abwählt, behält seine Wahl. Dieselbe Regel wie
-       im Fast-Budget-Import (js/dialogs/csv-import.js). */
-    const hadTx=state.tx.length>0;
-    const added=[];
-    B.order.forEach(tid=>{
-      const k=B.by[tid].t.name;
-      if(!state.kakCats.includes(k)){state.kakCats.push(k);state.kak[k]=blankKak(0);added.push(k);}
-    });
-    state.tx=state.tx.filter(x=>!months.has(x.m));
-    months.forEach(m=>{
-      state.kakCats.forEach(k=>{state.flexActual[m][k]=0;
-        if(state.kak[k]&&state.kak[k].override)state.kak[k].override[m-1]=null;});
-      state.flexSource[m]=W.csv.name;
-    });
-    let nTx=0;
-    W.csv.rows.forEach((row,i)=>{
-      const ri=W.asg[i];
-      if(ri==null||ri<0)return;
-      const d=W.meta[i].d,main=W.rules[ri].t.name;
-      const v=W.neg?W.meta[i].v:-W.meta[i].v;
-      /* Eine Buchung trägt seit 5.9.26 ihre vier Referenzen (r)
-         statt Unterkategorie, Konto und Beschreibung — die alten
-         Felder cat/acc/note schreibt der Import nicht mehr, ältere
-         Buchungen behalten sie (txSub/txNote in js/calc.js lesen
-         beides). */
-      const x={y:d.y,m:d.m,d:d.d,main:main,v:v,r:c2Refs(row)};
-      /* Nur gesetzt, wenn es zutrifft — ein `once:false` an jeder
-         Buchung bläht die Datei um ein Feld auf, das nichts sagt. */
-      if(W.rules[ri].once) x.once=1;
-      state.tx.push(x);
-      state.flexActual[d.m][main]=(state.flexActual[d.m][main]||0)+v;
-      nTx++;
-    });
-    months.forEach(m=>{state.kakCats.forEach(k=>{
-      state.flexActual[m][k]=Math.round((state.flexActual[m][k]||0)*100)/100;});});
+      it.paid[m-1]=true;
+      nMonths++;
+      if(isFlex(it)){flexMonths.add(m);nFlexRows+=rows.length;}
+    }
+  });
+  flexMonths.forEach(m=>{state.flexSource[m]=W.csv.name;});
+  if(flexMonths.size){
     state.lastImport=new Date().toLocaleString('de-DE');
+    /* Gab es vorher keine Buchungen, stand „Import Details" auf „nur
+       Hauptkategorien" (afterLoad in js/state.js). Mit dem ersten
+       Import gibt es Unterkategorien — dann sollen sie auch zu sehen
+       sein. Wer sie später selbst abwählt, behält seine Wahl. */
     if(!hadTx&&W.f.ref1>=0) ui.kakDetail=true;
-    c2StoreRules();
-    save();c2Close();render();
-    toast(t('c2.doneFlex',nTx,months.size));
   }
+  const msg=[t('c2.doneReg',nItems,nMonths)];
+  if(nFlexRows) msg.push(t('c2.doneFlex',nFlexRows,flexMonths.size));
+  c2StoreRules();
+  save();c2Close();render();
+  toast(msg.join(' '));
 }
 
 /* ── Die Kriterien am Posten ablegen ──────────────────────────
    (5.9.26; bis dahin c2Remember, das die Regeln je Datei-Art in
-   state.csvMaps schrieb.) Jeder Posten der gewählten Art bekommt
-   als Importkriterien genau die Regeln, die im Wizard auf ihn
-   zeigen — aus W.rules (angewendet) und W.mapRules (gemerkt, aber in
-   diesem Lauf nicht angewendet: sie sollen nicht verloren gehen,
-   nur weil man sie diesmal nicht gebraucht hat). Ein Posten, auf
-   den keine mehr zeigt, verliert seine: wer eine Zuordnung im
-   Wizard zurücksetzt, meint das so. Posten der **anderen** Art
-   bleiben unberührt — ihre Regeln waren nie im Wizard.
+   state.csvMaps schrieb.) Jeder Posten und jede flexible Kategorie
+   bekommt als Importkriterien genau die Regeln, die im Wizard auf
+   ihn zeigen — aus W.rules (angewendet) und W.mapRules (gemerkt,
+   aber in diesem Lauf nicht angewendet: sie sollen nicht verloren
+   gehen, nur weil man sie diesmal nicht gebraucht hat). Ein Posten,
+   auf den keine mehr zeigt, verliert seine: wer eine Zuordnung im
+   Wizard zurücksetzt, meint das so. Seit 6.9.26 stehen beide Arten
+   im Wizard, also werden auch beide geschrieben.
 
    **Einmalige Zuordnungen bleiben draußen** — das ist ihr ganzer
    Zweck —, ebenso Handauswahlen (pick) und der Schnellfilter
@@ -3479,29 +3915,32 @@ function c2Apply(){
    (aus W.newT); fehlt sie, fällt die Regel weg. */
 function c2StoreRules(){
   const by={};
+  const seen=new Set();
   W.rules.concat(W.mapRules||[]).forEach(r=>{
     if(!r||r.once||r.pick||!r.t||!r.t.tid)return;
     const terms=c2CleanTerms((r.terms||[]).filter(tm=>tm.f!=='q'));
     if(!terms.length)return;
+    /* Dieselbe Regel nur einmal je Ziel — sie kann zweimal hier
+       ankommen: aus dem Angebot der gemerkten (W.mapRules) und,
+       über „Suchen nach gemerkten Kriterien" und „Zuordnen und
+       merken", noch einmal aus W.rules. */
+    const key=c2RuleKey({t:r.t,terms:terms});
+    if(seen.has(key))return;
+    seen.add(key);
     (by[r.t.tid]=by[r.t.tid]||[]).push({terms:terms});
   });
   Object.keys(by).forEach(tid=>{
     if(tid.indexOf('n:')!==0)return;
-    const nm=tid.slice(2);
-    let x=c2BookByName(nm);
+    const nm=tid.slice(2),flex=c2IsFlex(tid);
+    let x=c2BookByName(nm,flex);
     if(!x){
-      if(W.kind==='flex'){
-        if(!state.kakCats.includes(nm))state.kakCats.push(nm);
-        state.kak[nm]=state.kak[nm]||blankKak(0);
-      }else{
-        const nt=W.newT.find(y=>y.tid===tid);
-        if(nt&&nt.group){
-          const it=normalize({id:uid(),name:nm,group:nt.group,amounts:Array(12).fill(0)});
-          it.bank=nt.bank||'';it.pay=nt.pay||'';it.dueDay=nt.due||'';
-          state.fixed.push(it);
-        }
+      const nt=W.newT.find(y=>y.tid===tid);
+      if(nt&&(nt.group||nt.flex)){
+        const it=normalize({id:uid(),name:nm,group:nt.group||NOCAT_FLEX,amounts:Array(12).fill(0)});
+        it.bank=nt.bank||'';it.pay=nt.pay||'';it.dueDay=nt.due||'';
+        state.fixed.push(it);
       }
-      x=c2BookByName(nm);
+      x=c2BookByName(nm,flex);
     }
     if(x)by[x.tid]=(by[x.tid]||[]).concat(by[tid]);
     delete by[tid];
@@ -3513,8 +3952,7 @@ function c2StoreRules(){
     if(rules.length)host.impRules=rules; else delete host.impRules;
     if(JSON.stringify(host.impRules||null)!==before)changed=true;
   };
-  if(W.kind==='flex')kakCats().forEach(k=>{if(state.kak[k])put(state.kak[k],'k:'+k);});
-  else state.fixed.forEach(it=>put(it,'i:'+it.id));
+  state.fixed.forEach(it=>put(it,'i:'+it.id));
   return changed;
 }
 
@@ -3540,7 +3978,7 @@ function openImpRules(kind,done){
      Import ruft es für seine Art, die Einstellungen (#impCrit) für
      alles. Gegliedert wird wie der Zielbereich des Imports —
      Einnahmen · Regelmäßige Kosten, darin je Kategorie, dann die
-     Flexible Payments —, damit man einen Posten dort findet, wo man
+     Flexible —, damit man einen Posten dort findet, wo man
      ihn im Import sieht. Die Regel-Blöcke bleiben eine flache Liste
      (`groups`, daran hängen die Kennungen gi.ri.ti); die Gliederung
      ist nur Überschrift. Die Bedingungen nennen FINA-Felder, nie
@@ -3548,12 +3986,14 @@ function openImpRules(kind,done){
   const all=kind==='all';
   const rulesOf=e=>(e.impRules||[]).map(r=>({terms:c2CleanTerms(r&&r.terms)})).filter(r=>r.terms.length);
   const mk=hosts=>hosts.map(h=>({name:h.name,e:h.e,cat:h.cat||'',rules:rulesOf(h.e)})).filter(g=>g.rules.length);
-  const regs=(all||kind==='reg')?(state.fixed||[]).map(it=>({name:it.name,e:it,income:isIncome(it),cat:it.group||''})):[];
-  const flex=(all||kind==='flex')?kakCats().map(k=>({name:k,e:state.kak[k]})).filter(h=>h.e):[];
+  const regs=(all||kind==='reg')?(state.fixed||[]).filter(it=>!isFlex(it)).map(it=>({name:it.name,e:it,income:isIncome(it),cat:it.group||''})):[];
+  const flex=(all||kind==='flex')?flexItems().map(it=>({name:it.name,e:it,cat:it.group||''})):[];
+  /* Reihenfolge wie Jahresmatrix und Wahl-Fenster (6.9.26):
+     Einnahmen · Flexible · Regelmäßige Kosten. */
   const sections=[
     {cls:'g-in',label:t('c2.blkIn'),groups:mk(regs.filter(h=>h.income))},
-    {cls:'g-out',label:t('c2.blkOut'),groups:mk(regs.filter(h=>!h.income))},
-    {cls:'g-flex',label:t('c2.blkFlex'),groups:mk(flex)}].filter(s=>s.groups.length);
+    {cls:'g-flex',label:t('c2.blkFlex'),groups:mk(flex)},
+    {cls:'g-out',label:t('c2.blkOut'),groups:mk(regs.filter(h=>!h.income))}].filter(s=>s.groups.length);
   const groups=[];
   sections.forEach(s=>s.groups.forEach(g=>groups.push(g)));
   if(!groups.length){ warn(t('cme.none')); if(done)done(); return; }
@@ -3576,30 +4016,40 @@ function openImpRules(kind,done){
     const was=box.querySelector('.dbody');
     const st=was?was.scrollTop:0;
     let body='';
-    const block=(g,gi)=>g.rules.map((r,ri)=>`<div class="dgrp cmerule">
-      <div class="cmehead"><span class="cmelab">${esc(t('cme.assigns'))}</span>
-        <b>${esc(g.name)}</b>
-        <button type="button" class="linkish cmedel" data-cmrule="${gi}.${ri}"
-          title="${esc(t('cme.delRule'))}">&#10005;</button></div>
+    /* **Dasselbe Bild wie das Wahl-Fenster der gemerkten Kriterien**
+       (6.9.26, c2MapPick): je Geldart ein Block in seiner Farbe
+       (.c2mpgrp), darin die Kategorien als Zwischenzeilen (.c2mpcat),
+       je Posten eine Zeile mit Name und Zahl seiner Regeln
+       (.c2mprow) — und darunter, wo dort die Zeilen der Datei
+       stehen, je Regel ein weißer Kasten mit ihren Bedingungen,
+       „+ Bedingung" links und „Diese Regel löschen" rechts. Bis
+       dahin: ein schmales Fenster, je Regel ein Block mit dem Posten
+       als Überschrift darin. Block- und Kategoriezeile kleben beim
+       Rollen (css/components.css). */
+    const rule=(gi,r,ri)=>`<div class="cmerule">
       ${r.terms.map((tm,ti)=>termRow(gi,ri,ti,tm)).join('')}
-      <button type="button" class="btn small" data-cmadd="${gi}.${ri}">${esc(t('cme.addTerm'))}</button>
-    </div>`).join('');
+      <div class="icbar"><button type="button" class="btn small" data-cmadd="${gi}.${ri}">${esc(t('cme.addTerm'))}</button>
+        <button type="button" class="btn small icdel" data-cmrule="${gi}.${ri}">${esc(t('cme.delRule'))}</button></div>
+    </div>`;
+    const ent=(g,gi)=>`<div class="c2mpent cmeent">
+      <div class="c2mprow"><span class="n">${esc(g.name)}</span><span class="c">${esc(t('cme.rules',g.rules.length))}</span></div>
+      ${g.rules.map((r,ri)=>rule(gi,r,ri)).join('')}</div>`;
     sections.forEach(s=>{
       const live=s.groups.filter(g=>g.rules.length);
       if(!live.length)return;
-      body+=`<p class="c2mph cmesec ${s.cls}">${esc(s.label)}</p>`;
+      body+=`<div class="c2mpgrp ${s.cls}"><p class="c2mph">${esc(s.label)}</p>`;
       /* Je Kategorie eine Zwischenzeile — nur, wo es mehr als eine
-         gibt oder sie einen Namen hat, wie im Fenster der gemerkten
-         Kriterien (c2MapPick). */
+         gibt oder sie einen Namen hat, wie im Wahl-Fenster. */
       const cats=[];
       live.forEach(g=>{if(!cats.includes(g.cat))cats.push(g.cat);});
       cats.forEach(c=>{
         if(cats.length>1||c)body+=`<p class="c2mpcat">${esc(c?keyLabel(c):'—')}</p>`;
-        live.filter(g=>g.cat===c).forEach(g=>{body+=block(g,groups.indexOf(g));});
+        live.filter(g=>g.cat===c).forEach(g=>{body+=ent(g,groups.indexOf(g));});
       });
+      body+='</div>';
     });
     if(!body)body=`<p class="note">${esc(t('cme.gone'))}</p>`;
-    box.innerHTML=`<div class="box narrow split cmebox">
+    box.innerHTML=`<div class="box split cmebox">
       <h3>${esc(t('cme.title'))}</h3>
       <p class="subline">${esc(t('cme.sub'))}</p>
       <div class="dbody">${body}</div>
@@ -3650,7 +4100,7 @@ function openImpRules(kind,done){
         if(rules.length)g.e.impRules=rules; else delete g.e.impRules;
       });
       save();
-      if(W&&W.step===3&&W.modal&&W.modal.isConnected&&(all||W.kind===kind)){c2LoadMapRules();c2ApplyRules();c2Render();}
+      if(W&&W.step===3&&W.modal&&W.modal.isConnected){c2LoadMapRules();c2ApplyRules();c2Render();}
       close();
       toast(t('cme.saved'));
     };
@@ -3673,14 +4123,15 @@ function openImpRules(kind,done){
    — wie Name, Beträge und Links. Wer abbricht, hinterlässt nichts,
    auch nach „Importkriterien löschen" nicht. Die Regeln wohnen am
    Posten selbst (it.impRules / kak[k].impRules, Struktur
-   v260905-3); ein anderes Ziel gibt es hier nicht zu wählen.
+   v260905); ein anderes Ziel gibt es hier nicht zu wählen.
 
    Dieselben Grenzen wie dort: eine Bedingung bleibt stehen (eine
    Regel ohne träfe jede Zeile), und ein leerer Wert hält das
    Speichern auf (impCritCheck). Neue Regeln entstehen hier nicht —
    dafür braucht es die Zeilen einer Datei, also den Wizard. */
-/* **Steht der Wizard im dritten Schritt, gilt sein Stand** für die
-   Posten seiner Art. Aus dem Wizard heraus öffnet „Posten öffnen"
+/* **Steht der Wizard im dritten Schritt, gilt sein Stand** für
+   jeden Posten und jede flexible Kategorie. Aus dem Wizard heraus
+   öffnet „Posten öffnen"
    das Fenster, und was dort gerade zugeordnet und gemerkt ist
    (W.rules) oder noch aus dem Buch wartet (W.mapRules), ist die
    Wahrheit dieser Sitzung — die Datei bekommt sie erst mit „Fertig"
@@ -3693,8 +4144,6 @@ function openImpRules(kind,done){
    impCritCommitLive(). */
 function impCritLive(tid){
   if(!W||W.step!==3||!W.csv)return null;
-  const mine=(W.kind==='flex')===(String(tid).indexOf('k:')===0);
-  if(!mine)return null;
   const rs=[];
   [W.rules,W.mapRules].forEach(list=>(list||[]).forEach(r=>{
     if(!r||!r.t||r.t.tid!==tid||r.once||r.pick)return;

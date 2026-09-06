@@ -705,7 +705,7 @@ einer laufenden Umfrage läuft auch im Browser.
   weg. Die Anleitung neben dem Wizard ist neu geschrieben (Aufbau der Bereiche → Zweck →
   Schritte) und kann als Vorlage für die große Anleitung dienen.
 - **CSV-Import, Schritt 1 — die Art gehört zur Struktur** (5.9.26 spät, Struktur
-  v260905-4): „Automatisch CSV-Datenstruktur vorbereiten" bringt die Art (reguläre oder
+  v260905): „Automatisch CSV-Datenstruktur vorbereiten" bringt die Art (reguläre oder
   flexible Posten) mit, sperrt die beiden Art-Knöpfe und springt gleich nach Schritt 2;
   die Zeile „Die CSV-Struktur ist vorbereitet …" ist weg. Der Knopf heißt „Flexible
   entries" / „Flexible Posten" (nicht mehr „Flexible Payments"). Die Anleitung neben dem
@@ -722,3 +722,36 @@ einer laufenden Umfrage läuft auch im Browser.
   Datei; ein Feld wohnt in einer Spalte, ohne Datum und Betrag kein Speichern.
   **„Importkriterien…"** zeigt die Kriterien aller Posten — Einnahmen · Regelmäßige Kosten
   (je Kategorie) · Flexible Payments —, Bedingungen auf FINA-Felder bezogen, dort änderbar.
+- ⚠ **Flexible Posten sind Posten** (6.9.26 abends): kein Beträge-Fenster mehr, keine
+  flexiblen Kategorien mit Planwerten, Haken und Korrekturen — ein flexibler Posten hat
+  dieselben Felder und dasselbe Fenster wie ein regulärer, erkennbar an seiner Kategorie aus
+  der dritten Liste. Absätze der Anleitung über „Flexible Payments"-Kategorien, das
+  Beträge-Fenster (Titel als Knopf, Schnelleingabe, Ø-Zeile), die Marke „korrigiert" und
+  die Annahme der Prognose je Kategorie sind damit **falsch**. Neu zu beschreiben: die drei
+  Bereiche **Einnahmen · Flexibel · Regulär** mit je einer festen Kategorie „N/A" (steht
+  immer, sortierbar, nicht umbenennbar), **ein** Menüeintrag „Neuer Eintrag" für alles, die
+  Kategorie im Fenster entscheidet über den Bereich.
+- ⚠ **Der Tabellenimport (FINA-Tabelle) ist weg** (6.9.26) — Absätze und Bilder dazu
+  streichen; in den Einstellungen gibt es den Knopf nicht mehr.
+- **CSV-Import** (6.9.26): keine „Art" der Datei mehr, Schritt 3 zeigt alle drei Bereiche;
+  die Spalte „X" markiert Zeilen, die schon im Buch stehen (grau, Kreuz, nicht zuordenbar),
+  in diesem Lauf zugeordnete Zeilen bleiben ebenso grau stehen, der Knopf „Schon
+  zugeordnete CSV-Zeilen verbergen/zeigen" schaltet beide; das Wahl-Fenster „Automatisch
+  zuordnen…" zeigt nur Posten mit neuen Zeilen; ein Import **ergänzt** einen Monat mit
+  Quellzeilen statt ihn zu ersetzen; **Referenz 5**; Schritt 2 fragt bei gewählten Spalten
+  ohne Feld, ob sie abgewählt werden sollen; mehrere Strukturen je Datei-Art; das ☰ der
+  Zuordnungsleiste trägt einen roten Punkt, solange ein Filter etwas trägt, und das
+  Zeilenmenü „Nach gemerkten Kriterien suchen".
+- **Einstellungen → Import** (6.9.26): drei Abschnitte (CSV-Daten · Importkriterien ·
+  gemerkte Strukturen), Knöpfe unter den Überschriften, jede Struktur ein Knopf über die
+  volle Breite; das Fenster „CSV-Struktur" mit drei Blöcken (Name · Datum/Betrag ·
+  Referenzen) und rotem „Diese Struktur aus FINA löschen" links in der Fußzeile. Der Bereich
+  „Flexible Posten" der Einstellungen ist weg, dafür die dritte Kategorienliste.
+- **Jahresansicht** (6.9.26): die drei Filtermenüs Bereich · Fälligkeit · Zahlungsstand
+  auch hier; die Monatsleiste streicht abgeschlossene Monate durch; der Rollbalken steht
+  unter der Matrix. **Zeitstrahl:** vor jedem Abschnitt sein Zeichen (die des
+  Fälligkeitsmenüs, die Monatseröffnung als Spiegelbild des Abschlusses). **Telefon:** die
+  Kennzahlen stehen Einnahmen · Saldo / Regulär · Flexibel.
+- **Menü** (6.9.26): Dateiname schwarz in einer Zeile, darunter der Stand (rot bei
+  Ungespeichertem), „Neuer Eintrag" schwarz, „Anleitung" orange, Trennlinien nach Hochladen,
+  CSV-Import, Sicherung und Schließen.

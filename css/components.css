@@ -79,9 +79,21 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    rechte wie eine Fortsetzung der linken. */
 .grouplists .field{border-left:4px solid var(--rule-strong);padding-left:12px}
 .grouplists .gl-in{border-left-color:var(--edge-in)}
+.grouplists .gl-flex{border-left-color:var(--edge-flex)}
 .grouplists .gl-out{border-left-color:var(--edge-out)}
 .grouplists .gl-in .listhead,.grouplists .gl-in>label{color:var(--ok)}
+.grouplists .gl-flex .listhead,.grouplists .gl-flex>label{color:var(--amber)}
 .grouplists .gl-out .listhead,.grouplists .gl-out>label{color:var(--seal)}
+/* Drei Listen nebeneinander (seit 6.9.26): Einnahmen · Flexibel ·
+   Regulär — die Regel schlägt das „zu zweit" der Formfenster
+   (.box.form .c3), im schmalen Fenster fallen sie untereinander. */
+.modal .box .grouplists.c3{grid-template-columns:1fr 1fr 1fr}
+@media (max-width:760px){.modal .box .grouplists.c3{grid-template-columns:1fr}}
+/* Der feste „ohne Kategorie"-Eintrag: eine Beschriftung, kein Feld
+   — gestrichelt eingefasst, damit man sieht, dass hier nichts zu
+   tippen ist; der Griff davor bleibt, verschieben darf man ihn. */
+.listrow.fixedrow .fixedname{display:block;padding:5px 7px;border:1px dashed var(--rule-strong);
+  border-radius:5px;color:var(--ink-2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Die Kategorieliste des Posten-Fensters trägt dieselben Farben:
    Einnahmen grün, Ausgaben rot. Die Beschriftung der Gruppe ist
    grau und kursiv — sie ist kein Eintrag, und wählen lässt sie
@@ -89,6 +101,7 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 .grouppick optgroup{color:var(--ink-2);font-style:italic;font-weight:600}
 .grouppick option.og-in{color:var(--ok);font-style:normal;font-weight:400}
 .grouppick option.og-out{color:var(--seal);font-style:normal;font-weight:400}
+.grouppick option.og-flex{color:var(--amber);font-style:normal;font-weight:400}
 
 /* ── Bezahlt-Siegel ───────────────────────────────────────────
    Die drei Zustände nach 3a: bezahlt = gefüllter grüner Kreis mit
@@ -832,6 +845,19 @@ body.gresize{user-select:none;cursor:col-resize}
    rote Löschknopf steht in einer eigenen Reihe, die gemerkten
    Strukturen mit Abstand darunter. */
 .impways{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+/* Die drei Abschnitte des Bereichs „Import" (6.9.26 abends, seit
+   6.9.26 spät untereinander): die Überschrift, darunter der Knopf —
+   in allen drei Abschnitten dieselbe Bauart (.btn), damit sie als
+   ein Bereich lesbar sind. Die gemerkten Strukturen stehen als
+   Knöpfe je Zeile, im Knopf hinter dem Namen klein „gemerkt am". */
+.impsec{margin-bottom:16px}
+.impsec .impline,.impmaps{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.impsec .impline>label,.impmaps>label{margin:0}
+/* Über die ganze Breite des Bereichs (6.9.26 spät): der Name
+   links, „gemerkt am" am rechten Rand. */
+.impmaps .btn.setmap{display:flex;width:100%;align-self:stretch;align-items:baseline;gap:10px;text-align:left}
+.impmaps .btn.setmap .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.impmaps .btn.setmap small{font-size:11px;font-weight:400;color:var(--ink-2)}
 .impmaps{margin-top:24px}
 @media(max-width:760px){
   .setlayout{grid-template-columns:1fr;gap:14px}
@@ -1034,7 +1060,14 @@ textarea.srvtext{width:100%;display:block}
    ein weggeschnittener Knopf wäre ein Weg, den es nicht mehr gibt.
    Der Rollbalken zeigt sich nur, wenn er gebraucht wird. */
 .c2row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;
-  overflow-x:auto;scrollbar-width:thin}
+  overflow-x:auto;scrollbar-width:thin;
+  /* Der rote Punkt am ☰ ragt 4 px über den Knopf hinaus, und ein
+     Rollrahmen schneidet auch nach oben ab (overflow-x:auto macht
+     die Senkrechte mit). Die Zeile greift deshalb 5 px nach oben in
+     das Polster von .c2mid hinein — Polster und Gegen-Rand heben
+     sich auf, die Zeile steht, wo sie stand, nur ihr Rahmen fängt
+     früher an, und der Punkt liegt darin. */
+  padding-top:5px;margin-top:-5px}
 .c2row .c2lbl{margin:0}
 .c2row>.btn{flex:0 0 auto;white-space:nowrap}
 .c2row .c2meta{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1079,7 +1112,7 @@ textarea.srvtext{width:100%;display:block}
    verschiedene Dinge; es ist beide Male derselbe Griff: „hier sind
    die Wege". Er steht ganz links, vor dem Ziel, auf das zugeordnet
    wird. Wer an `.burger` in css/layout.css dreht, dreht hier mit. */
-.btn.c2burger{display:flex;align-items:center;justify-content:center;
+.btn.c2burger{position:relative;display:flex;align-items:center;justify-content:center;
   width:28px;height:26px;padding:0;font-size:13px;line-height:1;border-radius:6px}
 /* Der gewählte Zielname trägt Orange: er ist die Wahl, an der
    alles Weitere hängt. Ohne Wahl steht dort ein Satz in Grau. */
@@ -1115,37 +1148,35 @@ textarea.srvtext{width:100%;display:block}
 .c2meta b{color:var(--ink)}
 .c2lbl{font-family:var(--font-data);font-size:9px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-2);margin:0 0 8px}
-.c2kinds{display:flex;gap:12px}
-/* Zwei große Knöpfe im Mac-Knopfbild — Verlauf, Rand, Schatten
-   wie .btn, nur größer: man soll sehen, dass man hier drückt. */
-.c2kind{flex:1;border:1px solid var(--rule);border-radius:8px;background:var(--grad-btn);
-  box-shadow:var(--sh-btn);cursor:pointer;padding:12px 14px;text-align:left;
-  font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--ink);
-  transition:background .15s,border-color .15s,box-shadow .15s}
-.c2kind:hover{background:var(--paper-2);border-color:var(--rule-strong)}
-.c2kind:active{box-shadow:none}
-.c2kind small{display:block;margin-top:4px;font-family:var(--font-ui);font-weight:400;
-  font-size:11.5px;line-height:1.45;color:var(--ink-2)}
-/* Auf Tinte steht klares Weiß und nicht das leicht grünliche
-   Papier: über dem dunklen Grund liest es sich sonst stumpf. */
-.c2kind.sel,.c2kind.sel:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
-.c2kind.sel small{color:#fff;opacity:.82}
-.c2known{margin-top:10px;padding:10px 12px;border-radius:8px;font-size:12px;
+/* ── Schritt 1 (umgebaut 6.9.26) ──────────────────────────────
+   Die beiden Art-Knöpfe („Reguläre Posten" / „Flexible Posten") sind
+   heraus — Importkriterien gelten für beide gleich. Die Datei steht
+   **unter** dem Knopf, mit Namen und Kennzahlen, und darf umbrechen:
+   neben dem Knopf war sie eine Zeile, die sich kürzte. */
+.c2filemeta{margin:8px 0 0;white-space:normal;line-height:1.5}
+.c2known{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:12px;
   background:var(--accent-soft);border:1px solid var(--accent)}
-/* **Zwei Sätze untereinander, darunter die beiden Knöpfe** (5.9.26):
-   erst, dass FINA sich an die CSV-Struktur erinnert, dann, dass
-   beim automatischen Lesen noch nichts zugeordnet wird. Beide in
-   Tinte — der zweite ist keine Nebensache, sondern die Antwort auf
-   die Frage, die man sich hier stellt. (Für ein paar Stunden
-   standen sie in zwei Spalten, der zweite grau.) */
-.c2knowncols{margin:0 0 10px}
-.c2knowncols p{margin:0 0 5px;line-height:1.45;color:var(--ink)}
-/* **Gesperrt** (die Art kam mit der gemerkten CSV-Struktur, c2Step1,
-   5.9.26 spät): der gewählte bleibt Tinte, der andere tritt zurück,
-   und kein Hover verspricht einen Klick. */
-.c2kind.klock{cursor:default;box-shadow:none}
-.c2kind.klock:not(.sel){opacity:.45}
-.c2kind.klock:not(.sel):hover{background:var(--grad-btn);border-color:var(--rule)}
+/* Im Kasten: der Satz, dass FINA sich erinnert; die gemerkten
+   Strukturen als weiße Zeilen (Name · Tag · Stift · ✕, bei mehreren
+   ein Auswahlknopf davor — die gewählte trägt den orangen Rand);
+   der Hinweis, dass die automatische Vorbereitung nichts zuordnet;
+   die beiden Wege. Alles in Tinte — der Hinweis ist keine
+   Nebensache, sondern die Antwort auf die Frage, die man sich hier
+   stellt. */
+.c2known>p{margin:0 0 8px;line-height:1.45;color:var(--ink)}
+.c2kmlist{margin:0 0 10px}
+.c2kmrow{display:flex;align-items:center;gap:8px;padding:5px 8px;margin:0 0 4px;
+  background:var(--paper-2);border:1px solid transparent;border-radius:6px;font-size:12.5px}
+.c2kmrow.on{border-color:var(--accent)}
+.c2kmrow input[type=radio]{margin:0;accent-color:var(--accent);flex:0 0 auto}
+.c2kmrow .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c2kmrow small{flex:0 0 auto;font-size:11px;color:var(--ink-2)}
+.c2kmrow .pencil{flex:0 0 auto;font-size:13px}
+.c2kmrow .linkish{flex:0 0 auto;text-decoration:none}
+/* „Bisherige behalten und diese dazu merken" im Namensfenster
+   (c2AskMapName): ein Haken unter dem Namensfeld. */
+.c2mkeep{display:flex;align-items:center;gap:8px;margin:8px 0 0;font-size:12px;cursor:pointer}
+.c2mkeep input{margin:0;accent-color:var(--accent)}
 /* **Der Spaltenkopf der CSV-Tabelle in Schritt 3 nennt das Feld**
    (Datum, Betrag, Referenz 1 …) und darunter klein die Spalte der
    Datei (5.9.26): die Kriterien beziehen sich auf das Feld. */
@@ -1208,7 +1239,13 @@ textarea.srvtext{width:100%;display:block}
    Zeile: sie läuft durch die ganze Tabelle, sonst risse die Spalte
    an der Beschriftungszeile auf. */
 .c2coltab tr.hrow td:not(.selc){background:var(--chrome)}
-.c2coltab tr.hrow td{font-weight:600}
+/* **Die gewählte Beschriftungszeile ist oben und unten rot
+   eingefasst** (6.9.26) — dieselbe Marke wie der laufende Monat:
+   zwei Linien als inset-Schatten, damit die Zeilen nicht rutschen.
+   So sieht man auf den ersten Blick, welche Zeile FINA als
+   Spaltennamen liest — auch wenn man versehentlich eine andere
+   gewählt hat. */
+.c2coltab tr.hrow td{font-weight:600;box-shadow:inset 0 1px 0 var(--seal),inset 0 -1px 0 var(--seal)}
 .c2coltab tr.hrow td.hpick,.c2coltab tr.prerow td.hpick{background:var(--paper)}
 .c2colbtn.on,.c2colbtn.on:hover{background:var(--accent);color:#fff;font-weight:600;
   border-color:var(--accent);box-shadow:none}
@@ -1324,26 +1361,17 @@ textarea.srvtext{width:100%;display:block}
 .c2marks .lamp{width:14px;height:14px}
 .c2marks .lamp svg{width:11px;height:11px}
 .c2mk{font-style:normal;line-height:0}
-/* ── Die Posten sind die Liste, die man liest ────────────────
-   Deshalb ist die Linie an einem Posten **schwarz** statt grau —
-   aber genauso dünn wie jede andere: ein Pixel. Bis 30.8.26 lagen
-   dort zwei Linien übereinander (der gefärbte `border-bottom` der
-   Zeile darüber und ein `inset`-Schatten der Zeile selbst), und
-   zusammen lasen sie sich als dicker Balken.
-
-   **Jede Grenze ist genau ein `border-bottom`.** Die Linie ÜBER
-   einem Posten gehört der Zeile darüber — sie wird über
-   `tr:has(+tr.c2trow)` schwarz gefärbt, statt eine zweite Linie
-   darunterzulegen. Die Linie UNTER einem zugeklappten Posten ist
-   sein eigener Rand.
-
-   **Aufgeklappt nur oben.** Dann stehen unter dem Posten seine
-   eigenen Zeilen, und die gehören zu ihm; sein unterer Rand bleibt
-   die feine graue Linie. Unten schließt erst die letzte
-   zugeordnete Zeile den Block — schwarz, denn auf sie folgt der
-   nächste Posten (dieselbe `:has`-Regel). */
-.c2ttab tr:has(+tr.c2trow) td{border-bottom-color:var(--ink)}
-.c2ttab tr.c2trow:not(.open) td{border-bottom-color:var(--ink)}
+/* ── Die Zeilen trennen sich wie in der Jahresmatrix (6.9.26) ──
+   Zwischen zwei Posten liegt die getönte Haarlinie ihres Bereichs
+   (siehe tr.r-in … weiter unten), nicht mehr Schwarz: der
+   Zielbereich soll aussehen wie die Jahresmatrix, und dort trennen
+   die Stufen der Blockfarbe, keine Linien. **Jede Grenze ist genau
+   ein `border-bottom`** — die Linie über einer Zeile gehört der
+   Zeile darüber. Eine schwarze Linie bleibt an **einer** Stelle:
+   unter der letzten zugeordneten Zeile eines aufgeklappten Postens,
+   denn auf sie folgt der nächste Posten, und ohne sie liefen seine
+   Zeilen in den nächsten hinein. */
+.c2ttab tr.c2src:has(+tr.c2trow) td{border-bottom-color:var(--ink)}
 .c2ttab tr.c2trow{cursor:pointer}
 /* **Grau: zugeordnet, aber es ändert sich nichts.** Eine gemerkte
    Zuordnung greift beim nächsten Einlesen derselben Datei-Art auf
@@ -1419,18 +1447,63 @@ textarea.srvtext{width:100%;display:block}
    bringt den 600er-Schnitt mit); die Größe bleibt dieselbe wie in
    jeder anderen Zeile. */
 .c2ttab tr.c2trow.sel td{font-weight:600}
-.c2ttab tr.ghead td{background:var(--paper-2)}
-.c2ttab tr.ghead td.tn{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+/* ── Drei Blöcke wie die Jahresmatrix (6.9.26) ────────────────
+   Einnahmen · Flexible Payments · Regelmäßige Kosten, jeder ein
+   eigener `tbody.c2blk` mit einer Leerzeile davor (10 px, wie
+   zwischen den „Karten" der Matrix) und gerundeten Ecken. Die
+   Rundung sitzt als `border-radius` an den vier Eckzellen — anders
+   als in der Matrix kleben hier im Rumpf keine Zeilen, also scheint
+   durch eine Ecke nichts hindurch. Dieselbe Farbleiter wie dort:
+   Blockzeile Stufe -3 mit der Kante als Linie darunter, Kategorie
+   Stufe -2 mit der 3-px-Kante links, Posten Stufe -1 mit der Stufe
+   -2 als Trennlinie. Der Grund unter allem ist `--paper`, wie die
+   Seite unter der Matrix.
+
+   **Die Blockzeilen kleben unter dem Spaltenkopf** (6.9.26), wie in
+   der Matrix: `top` ist die gemessene Höhe des Kopfes (--c2headH,
+   c2Render). Ein tbody begrenzt eine klebende Zeile nicht — die
+   drei Blockzeilen decken sich deshalb zu statt sich zu schieben,
+   die spätere über der früheren (gleiche Stufe, Reihenfolge im
+   Dokument), unter dem Kopf (Stufe 3 gegen 3/4 der Kopfzellen, der
+   Kopf steht davor). Die linken Zellen der Zeile kleben zusätzlich
+   nach links — eine Zelle darf in beiden Richtungen kleben.
+
+   **Und die Rundung oben sitzt seitdem nicht mehr als border-radius
+   an den Eckzellen**, sondern als gemalte Hintergrund-Schicht
+   (--cTL/--cTR, dieselbe Technik wie css/matrix.css): eine nur
+   beschnittene Ecke ließe geklebt die Zeilen hindurchscheinen, die
+   darunter wegrollen. Unten, wo nichts klebt, bleibt border-radius. */
+.c2top .c2scroll{background:var(--paper)}
+.c2ttab tr.spacer td{height:10px;padding:0;border-bottom:0;background:transparent}
+.c2ttab tbody.c2blk tr:last-child td:first-child{border-bottom-left-radius:8px}
+.c2ttab tbody.c2blk tr:last-child td:last-child{border-bottom-right-radius:8px}
+.c2ttab tbody.c2blk tr:last-child td{border-bottom:0}
+.c2ttab{
+  --cTL:radial-gradient(circle 8px at 100% 100%,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) top left/8px 8px no-repeat;
+  --cTR:radial-gradient(circle 8px at 0 100%,rgba(0,0,0,0) 7.4px,var(--paper) 7.9px) top right/8px 8px no-repeat}
+.c2ttab tr.ghead{position:sticky;top:var(--c2headH,0px);z-index:3;--cellbg:var(--paper-2)}
+.c2ttab tr.ghead td{background:var(--cellbg);padding-top:8px;padding-bottom:8px}
+.c2ttab tr.ghead td.tn{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ink)}
 .c2ttab tr.ghead td.num{font-weight:600}
-.c2ttab tr.ghead.g-in td{background:var(--bg-in-3)}
-.c2ttab tr.ghead.g-out td{background:var(--bg-out-3)}
-.c2ttab tr.ghead.g-flex td{background:var(--bg-flex-3)}
+.c2ttab tr.ghead.g-in{--cellbg:var(--bg-in-3)}
+.c2ttab tr.ghead.g-out{--cellbg:var(--bg-out-3)}
+.c2ttab tr.ghead.g-flex{--cellbg:var(--bg-flex-3)}
+.c2ttab tr.ghead.g-in td{border-bottom-color:var(--edge-in)}
+.c2ttab tr.ghead.g-out td{border-bottom-color:var(--edge-out)}
+.c2ttab tr.ghead.g-flex td{border-bottom-color:var(--edge-flex)}
+.c2ttab tr.ghead td.mapc{background:var(--cTL),var(--cellbg)}
+.c2ttab tr.ghead td.num:last-child{background:var(--cTR),var(--cellbg)}
 .c2ttab tr.gcat td{background:var(--paper-2);font-weight:600}
-.c2ttab tr.gcat.g-in td{background:var(--bg-in-2)}
-.c2ttab tr.gcat.g-out td{background:var(--bg-out-2)}
-.c2ttab tr.r-in td{background:var(--bg-in)}
-.c2ttab tr.r-out td{background:var(--bg-out)}
-.c2ttab tr.r-flex td{background:var(--bg-flex)}
+.c2ttab tr.gcat td.tn{font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.c2ttab tr.gcat.g-in td{background:var(--bg-in-2);border-bottom-color:var(--bg-in-3)}
+.c2ttab tr.gcat.g-out td{background:var(--bg-out-2);border-bottom-color:var(--bg-out-3)}
+.c2ttab tr.gcat.g-flex td{background:var(--bg-flex-2);border-bottom-color:var(--bg-flex-3)}
+.c2ttab tr.gcat.g-in td.mapc{box-shadow:inset 3px 0 0 var(--edge-in)}
+.c2ttab tr.gcat.g-out td.mapc{box-shadow:inset 3px 0 0 var(--edge-out)}
+.c2ttab tr.gcat.g-flex td.mapc{box-shadow:inset 3px 0 0 var(--edge-flex)}
+.c2ttab tr.r-in td{background:var(--bg-in);border-bottom-color:var(--bg-in-2)}
+.c2ttab tr.r-out td{background:var(--bg-out);border-bottom-color:var(--bg-out-2)}
+.c2ttab tr.r-flex td{background:var(--bg-flex);border-bottom-color:var(--bg-flex-2)}
 .c2ttab td.c2empty{font-family:var(--font-ui);color:var(--ink-2);white-space:normal;padding:12px}
 .c2newtag{font-style:normal;font-size:8px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--accent);margin-left:6px}
@@ -1664,12 +1737,16 @@ textarea.srvtext{width:100%;display:block}
 .c2fpop button.on{font-weight:600}
 .c2fpop button.on::before{-webkit-mask-image:var(--ic-check);mask-image:var(--ic-check)}
 .c2fpop [data-do="open"]::before{-webkit-mask-image:var(--ic-open);mask-image:var(--ic-open)}
-/* „CSV-Daten nach gespeicherten Importkriterien zuordnen" — in Rot,
-   auf ausdrücklichen Wunsch: der Eintrag soll ins Auge fallen. Die
-   Farbe sagt hier nicht „Vorsicht" (dafür steht .danger mit dem
-   Löschen), sondern „hier ist der Griff, den du suchst". */
-.c2fpop button.hot{color:var(--seal);font-weight:600}
-.c2fpop [data-do="crit1"]::before{-webkit-mask-image:var(--ic-list);mask-image:var(--ic-list)}
+/* „Suchen nach gemerkten Kriterien" trägt Tinte wie jeder Eintrag
+   (6.9.26; bis dahin rot und fett als „CSV-Daten nach gespeicherten
+   Importkriterien zuordnen" — Rot heißt in FINA „jetzt" oder
+   „Vorsicht", und beides war es nicht). Sein Zeichen: die Lupe
+   über einer Liste (--ic-critsearch in css/layout.css). */
+.c2fpop [data-do="critq"]::before{-webkit-mask-image:var(--ic-critsearch);mask-image:var(--ic-critsearch)}
+/* „Filter zurücknehmen" in Rot, solange ein Filter etwas trägt
+   (6.9.26, c2AssignMenu) — derselbe Hinweis wie der rote Punkt am
+   ☰ der Zuordnungsleiste: hier wartet etwas. */
+.c2fpop button.hot{color:var(--seal)}
 .c2fpop [data-do="edit"]::before{-webkit-mask-image:var(--ic-sliders);mask-image:var(--ic-sliders)}
 .c2fpop [data-do="reset"]::before{-webkit-mask-image:var(--ic-undo);mask-image:var(--ic-undo)}
 .c2fpop [data-do="amt"]::before{-webkit-mask-image:var(--ic-search);mask-image:var(--ic-search)}
@@ -1688,38 +1765,44 @@ textarea.srvtext{width:100%;display:block}
 .c2csvtab tr:not(.done) td[data-c2ci]{cursor:copy}
 .c2csvtab tr.morerow td{color:var(--ink-2);font-family:var(--font-ui);white-space:normal}
 
-/* ── Die Filterkriterien einer gemerkten Zuordnung ────────────
-   Je Regel ein Block: oben das Ziel, darunter ihre Bedingungen als
-   Zeilen — Spalte · Vergleichsart · Wert · ✕. Die drei Felder in
-   einem Raster, damit sie über alle Zeilen fluchten; der Wert
-   bekommt den Rest der Breite, weil dort das Lange steht. */
-.modal .box.cmebox{max-width:620px}
-.cmerule{padding:10px 12px}
-.cmehead{display:flex;align-items:baseline;gap:8px;margin:0 0 8px}
-.cmehead b{font-family:var(--font-display);font-size:13.5px;font-weight:600;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cmehead .cmelab{font-family:var(--font-data);font-size:8.5px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink-2);flex:0 0 auto}
-.cmehead .cmedel{margin-left:auto;flex:0 0 auto}
+/* ── Das Fenster „Importkriterien" (openImpRules) ─────────────
+   Je Regel ihre Bedingungen als Zeilen — Feld · Vergleichsart ·
+   Wert · ✕ (.cmerow, auch der Block „Importkriterien" der
+   Posten-Fenster nimmt sie). Die drei Felder in einem Raster, damit
+   sie über alle Zeilen fluchten; der Wert bekommt den Rest der
+   Breite, weil dort das Lange steht.
+
+   **Doppelt so breit wie bis dahin und im Bild des Wahl-Fensters**
+   (6.9.26): 1240 px statt 620, soweit das Browserfenster es
+   hergibt. Die Blöcke je Geldart, die Kategorie-Zwischenzeilen und
+   die Postenzeile kommen von .c2mpgrp/.c2mpcat/.c2mprow unten; je
+   Regel steht darunter ein weißer Kasten wie die Zeilentabelle dort
+   (.c2mptab), nur um 18 px eingerückt statt um Kästchen und Stift.
+   Unten im Kasten „+ Bedingung" links und „Diese Regel löschen"
+   rechts, wie im Block der Posten-Fenster (.icbar). */
+.modal .box.cmebox{max-width:1240px;width:calc(100vw - 40px)}
+.cmeent .cmerule{margin:2px 0 6px 18px;padding:8px 10px;background:var(--paper-2);
+  border:1px solid var(--rule);border-radius:6px}
+/* „Diese Regel löschen" schließt rechts mit dem Wertfeld ab, nicht
+   mit dem ✕ daneben: 22 px Spalte plus 6 px Fuge (.cmerow). */
+.cmerule .icbar{display:flex;align-items:center;gap:8px;margin-top:2px;padding-right:28px}
+.cmerule .icbar .icdel{margin-left:auto}
 .cmerow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr) 22px;
   gap:6px;align-items:center;margin-bottom:6px}
 .cmerow select,.cmerow input{width:100%;min-width:0;font-size:12px;padding:4px 6px}
-.cmerule .btn.small{margin-top:2px}
-/* Die Gliederung im Fenster „Importkriterien" (5.9.26 spät):
-   Einnahmen · Regelmäßige Kosten · Flexible Payments als
-   Mono-Versalien in der Kantenfarbe, darunter je Kategorie eine
-   Zwischenzeile (.c2mpcat, wie im Fenster der gemerkten Kriterien). */
-.c2mph.cmesec{margin:14px 0 6px}
-.cmebox .dbody>.c2mph.cmesec:first-child{margin-top:0}
-.cmesec.g-in{color:var(--edge-in)}
-.cmesec.g-out{color:var(--edge-out)}
-.cmesec.g-flex{color:var(--edge-flex)}
 /* Das Fenster einer gemerkten CSV-Struktur (openCsvStructure):
    links die FINA-Felder als Feldbeschriftung, rechts die Spalten
    der Datei zur Wahl. */
 .csgrid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;align-items:center;padding:10px 12px}
+/* Drei Blöcke untereinander (6.9.26 spät): Name · Pflichtfelder ·
+   Referenzen — die Beschriftungen aller drei stehen in einer Flucht,
+   dafür ist die linke Spalte fest breit statt „auto". */
+.csbox .dgrp.csgrid{grid-template-columns:96px minmax(0,1fr);margin-bottom:10px}
+/* Der rote Löschknopf steht links in der Fußzeile, bündig mit den
+   Blöcken darüber — Abbrechen und Speichern bleiben rechts. */
+.csbox .row-end .delbtn{margin-right:auto}
 .csgrid label{font-family:var(--font-data);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
-.csgrid select{width:100%;min-width:0}
+.csgrid select,.csgrid input{width:100%;min-width:0}
 
 /* ── Ergänzungen am CSV-Import vom 5.9.26 ─────────────────────── */
 /* Schritt 2: die Anweisung in drei Schritten, über der Leiste. */
@@ -1745,24 +1828,125 @@ textarea.srvtext{width:100%;display:block}
 /* Eine Filterzeile trägt einen Doppelklick — der Text darin soll
    sich dabei nicht markieren. */
 .c2fchip{user-select:none}
-/* Das Wahl-Fenster der gemerkten Zuordnung: je Geldart ein Block
-   wie der Zielbereich, darin die Kategorien und je Posten eine
-   Zeile mit Kästchen, Name und der Zahl der Zeilen, die er bekäme.
-   Die vier Knöpfe unten: „Alles wählen · Alles abwählen" links,
-   „Abbrechen · Anwenden" rechts. */
-.modal .box.c2mpbox{max-width:540px}
-.c2mpgrp{background:var(--paper);border-radius:8px;box-shadow:var(--sh-grp);padding:8px 12px;margin:0 0 10px}
-.c2mph{margin:0 0 4px;font-family:var(--font-data);font-size:9px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink-2)}
-.c2mpgrp.g-in .c2mph{color:var(--edge-in)}
-.c2mpgrp.g-out .c2mph{color:var(--edge-out)}
-.c2mpgrp.g-flex .c2mph{color:var(--edge-flex)}
-.c2mpcat{margin:6px 0 2px;font-size:11px;font-weight:600;color:var(--ink-2)}
-.c2mprow{display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:12.5px}
+/* Das Wahl-Fenster „Automatisch zuordnen mit gemerkten
+   Importkriterien" (umgebaut 6.9.26): breit, damit unter jedem
+   Posten seine Zeilen als Tabelle Platz haben. Je Geldart ein Block
+   in der Farbe seines Bereichs — Blockzeile Stufe -3 mit der Kante
+   darunter, Kategorie Stufe -2 mit der 3-px-Kante, Grund Stufe -1,
+   dieselbe Leiter wie Jahresmatrix und Zielbereich. Je Posten eine
+   Zeile: Kästchen · Stift · Name · Zahl der Zeilen; darunter die
+   Zeilen selbst, je eine mit Kästchen, in den verknüpften
+   FINA-Feldern. Abgewähltes tritt grau zurück. Die vier Knöpfe
+   unten: „Alles wählen · Alles abwählen" links, „Abbrechen ·
+   Anwenden" rechts. */
+.modal .box.c2mpbox{max-width:940px;width:calc(100vw - 40px)}
+.c2mphow{margin:0 0 12px;padding-left:20px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+.c2mphow li{margin:2px 0}
+/* **Blockzeile und Kategoriezeile kleben beim Rollen** (6.9.26), wie
+   in der Jahresmatrix: die Blockzeile oben an der Rollfläche des
+   Fensters, die Kategorie direkt darunter (top = Höhe der
+   Blockzeile: 8 + 14 + 8 + 1 px). Beide bleiben in ihrem Block —
+   der nächste schiebt sie hinaus. Dafür `overflow:clip` statt
+   `hidden`: hidden machte den Block zum Rollrahmen seiner klebenden
+   Zeilen, und die klebten dann an ihm statt an der Rollfläche;
+   clip rundet die Ecken genauso, ohne zu rollen. Gilt auch dem
+   Fenster „Importkriterien" (.cmebox), das dieselben Blöcke trägt. */
+.c2mpgrp{border-radius:8px;box-shadow:var(--sh-grp);padding:0 12px 6px;margin:0 0 10px;overflow:clip}
+/* **Die Rollfläche trägt oben kein Polster**, wo Blöcke kleben: Chrome
+   heftet eine klebende Zeile an die Innenkante des Polsters, nicht an
+   die Oberkante der Fläche — die Blockzeile stünde 12 px tiefer, und
+   darüber liefe Inhalt sichtbar durch. Den Abstand für den Schatten
+   des ersten Blocks trägt stattdessen dessen Außenabstand: der rollt
+   mit dem Inhalt und verschiebt die Klebekante nicht. */
+.modal .box.c2mpbox>.dbody,.modal .box.cmebox>.dbody{padding-top:0}
+.c2mpbox .dbody>.c2mpgrp:first-child,.cmebox .dbody>.c2mpgrp:first-child{margin-top:12px}
+.c2mpgrp.g-in{background:var(--bg-in)}
+.c2mpgrp.g-flex{background:var(--bg-flex)}
+.c2mpgrp.g-out{background:var(--bg-out)}
+/* **Die Blockzeile rundet oben, auch wenn sie klebt** (6.9.26): wie
+   in der Jahresmatrix malt sie die beiden oberen Ecken als
+   Hintergrund-Schichten — je Ecke ein 8×8-Stück, das außerhalb des
+   Viertelkreises den Grund des Fensters (--paper-2) malt, darunter
+   die Blockfarbe (--hbg, gesetzt am Block). Ein border-radius täte
+   es nur in Ruhe: geklebt schienen durch die beschnittene Ecke die
+   Zeilen hindurch, die darunter wegrollen. In Ruhe decken sich die
+   gemalten Ecken mit der Rundung des Blocks (overflow:clip). Die
+   Technik steht in css/matrix.css (--cTL/--cTR am .matrix). */
+.c2mph{margin:0 -12px 6px;padding:8px 12px;font-family:var(--font-data);font-size:10.5px;
+  line-height:14px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ink);
+  border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:2;
+  --cTL:radial-gradient(circle 8px at 100% 100%,rgba(0,0,0,0) 7.4px,var(--paper-2) 7.9px) top left/8px 8px no-repeat;
+  --cTR:radial-gradient(circle 8px at 0 100%,rgba(0,0,0,0) 7.4px,var(--paper-2) 7.9px) top right/8px 8px no-repeat;
+  background:var(--cTL),var(--cTR),var(--hbg,var(--paper-2))}
+.c2mpgrp.g-in{--hbg:var(--bg-in-3)}
+.c2mpgrp.g-flex{--hbg:var(--bg-flex-3)}
+.c2mpgrp.g-out{--hbg:var(--bg-out-3)}
+.c2mpgrp.g-in .c2mph{border-color:var(--edge-in)}
+.c2mpgrp.g-flex .c2mph{border-color:var(--edge-flex)}
+.c2mpgrp.g-out .c2mph{border-color:var(--edge-out)}
+.c2mpcat{margin:8px -12px 4px;padding:4px 12px;font-family:var(--font-data);font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ink);
+  position:sticky;top:31px;z-index:1}
+.c2mpgrp.g-in .c2mpcat{background:var(--bg-in-2);box-shadow:inset 3px 0 0 var(--edge-in)}
+.c2mpgrp.g-out .c2mpcat{background:var(--bg-out-2);box-shadow:inset 3px 0 0 var(--edge-out)}
+.c2mpgrp.g-flex .c2mpcat{background:var(--bg-flex-2);box-shadow:inset 3px 0 0 var(--edge-flex)}
+.c2mpent{margin:2px 0 8px}
+.c2mpent.off .c2mprow .n,.c2mpent.off .c2mprow .c{color:var(--ink-2)}
+.c2mprow{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12.5px}
 .c2mprow input{margin:0;accent-color:var(--accent);flex:0 0 auto}
-.c2mprow .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Der Stift zwischen Kästchen und Namen — nur an Posten, die es im
+   Buch gibt; wo keiner steht, hält ein leerer Platzhalter die
+   Flucht. */
+.c2mprow .pencil{flex:0 0 auto;width:18px;height:18px;font-size:13px}
+.c2mprow .pencil.ph{visibility:hidden;cursor:default}
+.c2mprow .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-weight:600;cursor:pointer}
 .c2mprow .c{flex:0 0 auto;font-family:var(--font-data);font-size:10.5px;color:var(--ink-2)}
 .c2mprow .c.none{color:var(--rule-strong)}
+/* Die Zeilen unter einem Posten: eine kleine weiße Tabelle, um
+   Kästchen und Stift eingerückt (13 + 8 + 18 + 8 = 47 px), damit
+   sie unter dem Namen anfängt. Feste Spaltenmaße für Kästchen,
+   Datum und Betrag, der Rest teilt sich die Breite. */
+.c2mptab{width:calc(100% - 47px);margin:0 0 2px 47px;table-layout:fixed;border-collapse:separate;
+  border-spacing:0;background:var(--paper-2);border:1px solid var(--rule);border-radius:6px;
+  font-family:var(--font-data);font-size:10.5px}
+.c2mptab th,.c2mptab td{padding:3px 7px;border-bottom:1px solid var(--rule);text-align:left;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c2mptab thead th{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
+  font-weight:400;background:var(--paper)}
+.c2mptab tr:last-child td{border-bottom:0}
+.c2mptab th.ck,.c2mptab td.ck{width:24px;padding:0 4px;text-align:center}
+.c2mptab td.ck input{margin:0;accent-color:var(--accent);vertical-align:middle}
+.c2mptab th.dt,.c2mptab td.dt{width:76px}
+.c2mptab th.amt,.c2mptab td.amt{width:84px;text-align:right}
+.c2mptab td.amt.pos{color:var(--ok)}
+.c2mptab td.amt.neg{color:var(--seal)}
+.c2mptab tr.off td{color:var(--ink-2);opacity:.55}
+/* Schon im Buch (6.9.26, c2OldRows): die Zeile grau, statt des
+   Kästchens ein graues Kreuz, das nichts tut — nichts zu
+   entscheiden. Ein Posten, dessen Zeilen alle schon drin sind,
+   steht mit gesperrtem Kästchen ebenso grau. */
+.c2mptab tr.old td{color:var(--ink-2)}
+/* Auch der Betrag: die Vorzeichenfarbe (td.amt.pos/.neg) ist
+   spezifischer und ließe ihn sonst allein rot oder grün stehen. */
+.c2mptab tr.old td.amt.pos,.c2mptab tr.old td.amt.neg{color:var(--ink-2)}
+.c2mptab td.ck .c2mpold{display:inline-block;color:var(--rule-strong);font-size:11px;line-height:1;cursor:default}
+.c2mpent.stale .c2mprow .n,.c2mpent.stale .c2mprow .c{color:var(--ink-2)}
+/* ── Die Spalte „X" der CSV-Tabelle (6.9.26 abends) ────────────
+   Immer da: schon importierte Zeilen (W.inBook) tragen darin das
+   graue Kreuz und stehen grau, im Markier-Modus tragen die übrigen
+   das Kästchen. Der Kopf nennt die Spalte „X". */
+.c2csvtab th.c2pk.c2pkx{font-size:9px;letter-spacing:.08em;color:var(--ink-2);text-align:center;padding:4px 0}
+.c2csvtab td.c2pk .c2mpold{display:inline-block;color:var(--rule-strong);font-size:11px;line-height:1;cursor:default}
+.c2csvtab tr.inbook td,.c2csvtab tr.inbook:hover td{color:var(--ink-2);background:var(--shade);cursor:default}
+/* In diesem Lauf zugeordnet (6.9.26 spät): dasselbe Grau, aber
+   anklickbar — der Klick öffnet die Regel (c2EditRule). */
+.c2csvtab tr.asg td{cursor:pointer}
+/* Der Schalter „Schon zugeordnete CSV-Zeilen zeigen/verbergen":
+   gedrückt schwarz wie der Modus-Knopf — dann stehen sie da. */
+.c2row .btn.oldtog[aria-pressed="true"],.c2row .btn.oldtog[aria-pressed="true"]:hover{
+  background:var(--ink);border-color:var(--ink);color:#fff}
+.c2row .btn.oldtog:disabled{background:none;color:var(--ink-2)}
 /* Die Importkriterien unter den Monaten eines Posten-Fensters:
    dieselben Zeilen wie im Fenster „Filterkriterien" (.cmerow),
    ohne Dateiname darüber; mehrere Regeln trennt eine Haarlinie. */

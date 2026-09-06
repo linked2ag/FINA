@@ -43,12 +43,13 @@ header{margin:0 -12px}
 .burger{width:44px;height:44px;border-radius:8px}
 .burger .bars{gap:4px}
 .burger .bars i{width:16px;height:2px}
-.tools.open{width:min(270px,calc(100vw - 24px))}
+.tools.open{min-width:min(270px,calc(100vw - 24px));width:max-content;max-width:calc(100vw - 24px)}
 .tools .btn{padding:11px 14px;font-size:14px}
 .tools .menufile:not([hidden]){display:block;padding:9px 14px;
   font-family:var(--font-data);font-size:11px;font-weight:600;color:var(--ink-2);
-  border-bottom:1px solid var(--hairline);white-space:normal;overflow-wrap:anywhere}
-.tools .menufile.warnpath{color:var(--seal)}
+  border-bottom:1px solid var(--rule-strong);white-space:normal;overflow-wrap:anywhere}
+.tools .menufile.warnpath{color:var(--ink)}
+.tools .menufile:not([hidden]){white-space:nowrap;color:var(--ink)}
 /* „Daten speichern" und „CSV-Import" gibt es auf dem Telefon
    nicht: ohne File System Access schriebe jedes Speichern eine
    neue Datei in den Download-Ordner, und importiert wird am
@@ -61,12 +62,9 @@ header{margin:0 -12px}
    weiter, dass es Ungespeichertes gibt; gespeichert wird am
    Schreibtisch. */
 .tools #btnSave,.tools #btnImportCsv{display:none}
-/* Der CSV-Import schließt am Schreibtisch die erste Gruppe ab —
-   „Daten hochladen" und er stehen dort zusammen (.mi-sep in
-   css/layout.css). Auf dem Telefon fehlt er, also übernimmt das
-   Hochladen den Trenner: sonst liefe es ohne Kante in die
-   Dateigruppe darunter. */
-.tools #btnLoad{border-bottom:1px solid var(--hairline)}
+/* „Daten hochladen" trägt seit 6.9.26 spät überall seine eigene
+   Linie (.mi-sep in fina-online.html) — der frühere Sonderfall fürs
+   Telefon, wo der CSV-Import fehlt, ist damit erledigt. */
 /* Die Ansichtsreiter oben entfallen — dieselben Reiter stehen
    unten am Daumen (.mtabs). Das display setzt renderChrome()
    inline (dort steht die Weiche); die Regel hier ist der doppelte
@@ -166,16 +164,21 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
 .mfmenu .mi.mi-top{border-top-color:var(--rule-strong)}
 
 /* ── Die Kennzahl-Kacheln ─────────────────────────────────────
-   Zwei Spalten mit 1px-Fugen auf --rule, darunter die SALDO-Zeile
-   über beide. Sie scrollen mit — klebend nähmen sie der Liste
-   dauerhaft ein Drittel des Bildschirms. Monat und Prognose
-   benutzen dieselben Kacheln. */
+   Zwei Spalten mit 1px-Fugen auf --rule. Sie scrollen mit —
+   klebend nähmen sie der Liste dauerhaft ein Drittel des
+   Bildschirms. Monat und Prognose benutzen dieselben Kacheln.
+   **Im Monat sind es seit 6.9.26 dieselben vier wie am
+   Schreibtisch** — Einnahmen, Flexible, regelmäßige Kosten, Saldo
+   (t-sal, violett wie dort); „Noch offen" ist heraus. Die
+   SALDO-Zeile über beide Spalten (.msal) trägt nur noch die
+   Prognose. */
 .mkpi{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
   border:1px solid var(--rule);margin:0 0 12px}
 .mkpi .mk{display:block;background:var(--paper-2);padding:8px 10px;min-width:0}
 .mkpi .mk.t-in{background:var(--bg-in)}
 .mkpi .mk.t-flex{background:var(--bg-flex)}
 .mkpi .mk.t-out{background:var(--bg-out)}
+.mkpi .mk.t-sal{background:var(--bg-sal)}
 .mkpi .mk .lab{display:block;font-family:var(--font-data);font-size:9px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-2)}
 .mkpi .mk .val{display:block;font-family:var(--font-data);font-size:17px;font-weight:600;
@@ -251,7 +254,8 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
    mit .card.sec-* und gewänne sonst die Spezifität): Tönung, Kante
    und Ränder trägt jetzt die Zeile. */
 .view-monat .card .ledger tr.group td,
-.view-monat .card.sec-in .ledger tr.group td,.view-monat .card.sec-out .ledger tr.group td{
+.view-monat .card.sec-in .ledger tr.group td,.view-monat .card.sec-out .ledger tr.group td,
+.view-monat .card.sec-flex .ledger tr.group td{
   background:transparent!important;border:0;box-shadow:none!important}
 .view-monat .card .ledger tr.group td:nth-child(1),
 .view-monat .card .ledger tr.group td:nth-child(3){display:none}
@@ -263,6 +267,13 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
 .view-monat .card.sec-in .ledger tr.group{background:var(--bg-in-2);
   box-shadow:inset 5px 0 0 var(--edge-in);
   border-top:1px solid var(--edge-in);border-bottom:1px solid var(--edge-in)}
+/* Die Kategoriezeile der flexiblen Posten (seit 6.9.26) trägt
+   dasselbe Bild: css/ledger.css gibt es ihren Zellen, hier gehört
+   es der Zeile — ohne diese Regel stand sie ohne Kante und Tönung
+   zwischen den beiden anderen. */
+.view-monat .card.sec-flex .ledger tr.group{background:var(--bg-flex-2);
+  box-shadow:inset 5px 0 0 var(--edge-flex);
+  border-top:1px solid var(--edge-flex);border-bottom:1px solid var(--edge-flex)}
 
 /* Die Saldokorrektur: Titel, Betrag, Stift — eine Zeile. */
 .view-monat .card.sec-bal{padding:0}

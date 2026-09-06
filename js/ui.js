@@ -69,7 +69,7 @@ function closeModal(box){
    Dokument steht. Ein Balken, den man erst suchen muss, ist keiner.
 
    Deshalb steht er außerhalb: `scrollRail(id)` liefert ein eigenes
-   Element, das über der Tabelle sitzt und sie führt. Innen liegt
+   Element, das neben der Tabelle sitzt und sie führt. Innen liegt
    ein Streifen von genau der Breite der Tabelle — dadurch hat der
    Balken dieselbe Länge und dasselbe Verhältnis wie der, den die
    Tabelle selbst hätte. Die Prognose verbirgt ihren eigenen
@@ -78,10 +78,14 @@ function closeModal(box){
    weiter vom Browser selbst.
 
    Wo die Leiste steht, entscheidet die Ansicht: in der Jahresmatrix
-   in der Knopfleiste, die ohnehin oben klebt — damit steht sie auch
-   nach tausend Zeilen noch im Bild und wird von syncMatrixHead()
-   von selbst mitgemessen. In der Prognose steht sie in der Karte
-   direkt über der Tabelle.
+   **unter** der Fläche (seit 6.9.26; bis dahin in der Knopfleiste,
+   die oben klebt) — im Bild bleibt sie trotzdem nach tausend
+   Zeilen, denn die Fläche ist nur so hoch, wie darüber Platz ist,
+   und sizeMatrix() zieht die Leiste dabei mit ab. Damit das Maß
+   stimmt, muss vorher feststehen, ob die Leiste überhaupt da ist
+   (.off): syncMatrixHead() ruft deshalb fitRails() vor
+   sizeMatrix(). In der Prognose steht sie in der Karte direkt
+   über der Tabelle.
 
    Beide Richtungen werden verdrahtet. Nach einem Zug an der Leiste
    wird sie 180 ms lang **nicht** nachgeführt: eine Tabelle, die
@@ -297,10 +301,10 @@ function linkIcon(links,kind,key){
    (MAX_LINKS), und zehn Zeilen passen auf jeden Bildschirm —
    deshalb rollt hier nichts. */
 function openLinkList(kind,key){
-  const o=kind==='kak'?(state.kak&&state.kak[key]):findItem(key);
+  const o=findItem(key);
   const l=(o&&o.links)||[];
   if(!l.length) return;
-  const name=kind==='kak'?keyLabel(key):(o.name||'');
+  const name=o.name||'';
   const box=document.createElement('div');
   box.className='modal';
   box.innerHTML=`<div class="box narrow">
@@ -553,7 +557,6 @@ function bindTitle(btn,get,set,txt,taken,isNew){
    matrix nennt sie `lab`), damit die Regel nicht an der Stellung
    der Zelle hängt. */
 const dblItem=id=>` data-dbledit="${esc(id)}"`;
-const dblKak=k=>` data-dblkedit="${esc(k)}"`;
 
 /* ── Sofort-Tooltip ───────────────────────────────────────────
    Der Browser zeigt title= erst nach etwa einer Sekunde. Alles
@@ -749,7 +752,7 @@ function draftOf(kind,key){
 function noteTarget(kind,key){
   const d=draftOf(kind,key);
   if(d) return d.obj;
-  return kind==='kak'?state.kak[key]:findItem(key);
+  return findItem(key);
 }
 function noteOf(kind,key,m){
   const tg=noteTarget(kind,key);
@@ -805,7 +808,7 @@ function openNote(kind,key,m,done){
   /* Ein Entwurf hat noch keinen Namen im Zustand — der steht im
      Namensfeld des Fensters, das ihn angemeldet hat. */
   const draft=draftOf(kind,key);
-  const name=draft?draft.label():(kind==='kak'?key:target.name);
+  const name=draft?draft.label():target.name;
   const box=document.createElement('div');
   box.className='modal'; box.style.zIndex=70;
   box.innerHTML=`<div class="box" style="max-width:680px">
@@ -893,14 +896,6 @@ function impSideData(kind,ref){
           const p=String(r.d||'').split('.');
           return {d:r.d||'',dn:(+p[2]||0)*10000+(+p[1]||0)*100+(+p[0]||0),v:r.v,r:r.r||null,txt:impRowText(r)};
         }))});
-    }
-  }else if(kind==='kak'&&ref){
-    for(let m=1;m<=12;m++){
-      if(flexKind(ref,m)!=='imp')continue;
-      out.push({m:m,sum:kakVal(ref,m),once:flexImpOnce(ref,m),
-        rows:sorted(state.tx.filter(x=>x.m===m&&x.main===ref).map(x=>({
-          d:x.d?two(x.d)+'.'+two(x.m)+'.'+two(x.y%100):'',
-          dn:(x.y%100)*10000+x.m*100+(x.d||0),v:x.v,r:x.r||null,txt:txText(x)})))});
     }
   }
   /* Aus dem Wizard geöffnet (c2Detail): was diese Datei dem Ziel
@@ -1000,6 +995,29 @@ function impSideRows(data,ask){
         :(x.txt?`<p class="imprd">${esc(x.txt)}</p>`:''))+`</div>`).join('')
     +`</div>`).join('')+`</div>`;
 }
+/* ── Die Rückfrage vor „Alle Importdaten löschen" ─────────────
+   (6.9.26) Drei Fälle, ein Satz: Monate im Buch, schwebende Zeilen
+   des offenen Wizards, oder beides. `pend` ist die Zahl der Zeilen,
+   die dieser Lauf dem Ziel zugeordnet hat — trocken gezählt über
+   impPendingCount (c2Unassign in js/dialogs/csv2-wizard.js). */
+function impWipeAsk(name,months,pend){
+  if(!months)return t('c2.wipeAskPend',name,pend);
+  return t('c2.mnWipeAsk',name,months)+(pend?' '+t('c2.wipeAlsoPend',pend):'');
+}
+/* Was der offene Import dem Ziel zugeordnet hat — 0 außerhalb des
+   Wizards. `tid` wie im Wizard: 'i:<id>' oder 'k:<name>'. */
+function impPendingCount(tid){
+  return typeof c2Unassign==='function'?c2Unassign(tid,true):0;
+}
+/* Dasselbe Fenster frisch öffnen — aus dem Wizard heraus so, dass
+   der Wizard beim Schließen neu zeichnet (c2Detail); sonst
+   gewöhnlich. Ohne diesen Umweg hinge das neu geöffnete Fenster
+   nicht mehr am Wizard, und was man darin ändert, käme im
+   Zielbereich erst beim nächsten Zeichnen an. */
+function impReopen(open){
+  if(typeof c2Detail==='function'&&typeof W!=='undefined'&&W&&W.step===3)c2Detail(open);
+  else open();
+}
 /* `ask` ist der Monat, dessentwegen das Fenster aufging (der
    focusMonth der beiden Dialoge) — oder nichts. */
 function impSideWire(modal,kind,ref,ask){
@@ -1018,11 +1036,14 @@ function impSideWire(modal,kind,ref,ask){
     return;
   }
   if(!btn){if(del)del.remove();return;}
-  /* „Importdaten löschen" braucht etwas im Buch — steht in der
-     Liste nur Schwebendes aus dem Wizard (nw), gibt es nichts zu
-     löschen, und der Knopf bleibt weg. */
-  const hasBook=data.some(g=>!g.nw);
-  if(del&&!hasBook)del.remove();
+  /* **„Alle Importdaten löschen" steht, sobald die Liste etwas
+     zeigt** (6.9.26) — auch wenn es nur Schwebendes aus dem offenen
+     Wizard ist (nw). Bis dahin brauchte der Knopf etwas im Buch;
+     wer aus dem Wizard heraus eine falsche Zuordnung sah, fand hier
+     keinen Weg, sie loszuwerden. Was der Knopf löst, entscheiden
+     die Fenster selbst (impDel in js/dialogs/item.js und
+     js/dialogs/kakeibo-betraege.js): das Buch, die schwebende
+     Zuordnung oder beides — siehe impWipeAsk unten. */
   const aside=document.createElement('aside');
   aside.className='impside';
   /* **Die Liste steht in denselben drei Zeilen wie das Fenster**
