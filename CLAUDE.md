@@ -2899,7 +2899,13 @@ der Jahresmatrix und der Erklärsatz über dem Zeitstrahl.
 Bildschirmrand: sie bleibt offen, während man in der Tabelle weiterarbeitet. Derselbe
 orange Knopf `#btnGuide` klappt sie auf und wieder zu (`toggleGuide()`), `aria-pressed`
 sagt, ob sie offen ist. Auf und zu geht sie animiert — von rechts herein, nach rechts
-hinaus (siehe „Bewegung").
+hinaus (siehe „Bewegung") —, **und die Seite schrumpft mit** (Lex, 7.9.26): das Polster
+von `.wrap` geht in derselben Zeit und Kurve über (`transition:padding-right` in
+`css/components.css`, die eine Stelle, an der bewusst ein Maß bewegt wird), beim Ziehen am
+Griff ohne Übergang; `transitionend` ruft `syncMatrixHead()`. **Die Bilder der Anleitung
+laden faul** (`loading="lazy" decoding="async"` in `gshot`): mit allen zwölf Bildern auf
+einmal stand das erste Öffnen 230 ms lang — gemessen mit Electron offscreen (siehe
+„Prüfen").
 
 Die Breite steht in der CSS-Variablen `--guidew` — beim ersten Öffnen ein Drittel des
 Fensters, **mindestens aber so breit, dass die drei Reiter in eine Zeile passen**

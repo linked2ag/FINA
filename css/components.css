@@ -572,6 +572,7 @@ html{scrollbar-gutter:stable}
   .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout,
   .guidepanel.closing,.c2gghostwrap{display:none}
   .guidepanel,.c2gpanel.slidein{animation:none}
+  .wrap{transition:none}
   .modal .box{transition:none!important;clip-path:none!important;transform:none!important}
   .modal .box .swapfade{transition:none}
 }
@@ -682,6 +683,16 @@ html{scrollbar-gutter:stable}
   display:flex;flex-direction:column;background:var(--paper-2);border-left:2px solid var(--ink);
   box-shadow:-14px 0 26px -20px rgba(0,0,0,.7)}
 body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
+/* **Die Seite schrumpft mit** (Lex, 7.9.26): das Polster rechts geht
+   in derselben Zeit und Kurve über wie die Fahrt des Bereichs
+   (fina-impin .28s), statt schlagartig zu springen. Das ist die eine
+   Stelle, an der bewusst ein Maß und nicht nur transform bewegt
+   wird — die Ansicht muss wirklich schmaler werden, und ein Sprung
+   sah aus wie ein Fehler. Beim Ziehen am Griff (body.gresize) kein
+   Übergang: das Polster soll dem Zeiger folgen, nicht nachlaufen.
+   Am Ende des Übergangs misst syncMatrixHead() neu (guide.js). */
+.wrap{transition:padding-right .28s cubic-bezier(.4,0,.2,1)}
+body.gresize .wrap{transition:none}
 /* Der Griff greift über die Kante hinaus, damit er auch dann zu
    fassen ist, wenn die Maus schon knapp daneben steht. */
 .guidepanel .ghandle,.c2gpanel .ghandle{position:absolute;left:-4px;top:0;bottom:0;width:9px;cursor:col-resize;

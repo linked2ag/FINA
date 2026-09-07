@@ -34,7 +34,7 @@
    Größe in einem neuen Reiter — im schmalen Seitenbereich ist eine
    Jahresmatrix sonst nur ein Muster. */
 const gshot=(file,cap)=>`<figure class="gshot">
-  <a href="doc/img/${file}.png" target="_blank" rel="noopener"><img src="doc/img/${file}.png" alt="${esc(cap)}"></a>
+  <a href="doc/img/${file}.png" target="_blank" rel="noopener"><img src="doc/img/${file}.png" alt="${esc(cap)}" loading="lazy" decoding="async"></a>
   <figcaption>${cap}</figcaption></figure>`;
 
 /* ── Die Bausteine der Anleitung (7.9.26) ─────────────────────
@@ -1000,6 +1000,13 @@ function guideLangOnOpen(){
 }
 
 function guideMax(){ return Math.max(GUIDE_MIN,Math.round(window.innerWidth*0.66)); }
+
+/* Das Polster der Seite geht beim Öffnen und Schließen weich über
+   (css/components.css, .wrap) — die Leisten und Rollflächen sind erst
+   am Ende richtig zu messen. */
+document.addEventListener('transitionend',e=>{
+  if(e.propertyName==='padding-right'&&e.target.classList&&e.target.classList.contains('wrap')&&typeof syncMatrixHead==='function') syncMatrixHead();
+});
 
 /* ── Die Reiter brechen nie um (Lex, 7.9.26) ──────────────────
    Beim ersten Öffnen ist der Bereich so breit, dass alle drei
