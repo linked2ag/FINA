@@ -274,136 +274,201 @@ function c2CleanTerms(terms){
    in js/i18n.js, nach demselben Vorbild: es sind Absätze, keine
    Beschriftungen. Gewählt wird die Sprache der Oberfläche. Wer
    einen Absatz ergänzt, schreibt ihn in beiden Sprachen und im Ton
-   der Anleitung: kurze Sätze, ein Gedanke je Absatz. */
+   der Anleitung: kurze Sätze, ein Gedanke je Absatz.
+
+   **Seit dem 7.9.26 nach der Vorlage `_BusinessCenter/DESIGN/260907
+   Guide für Wizard (von GPT).html`**: zuerst „Kurz erklärt" — die
+   drei Bereiche des Fensters in drei Zeilen —, dann die Tabelle
+   „Was möchtest du tun?" (wenn du … dann wähle …), dann je Weg
+   seine Schritte, ein Tipp als Merksatz (.gcall), zum Schluss die
+   Farben und „Abschließen oder abbrechen". Die Knopfnamen stehen
+   wörtlich so, wie sie in js/i18n.js stehen. Kein „Oben: …
+   Darunter: …". */
 const C2_GUIDE={
   2:{
-    en:`<h4>Layout</h4>
-      <p>This window shows your file as a table: the first rows, with the column names on top. Above the table stand three numbered steps and two buttons that select or deselect all columns. Every column name is a button. A chosen column gets a selection list for its FINA field above it. On the left, the column HDR marks the row that holds the column names.</p>
-      <h4>What you do here</h4>
-      <p>You tell FINA which column holds which FINA field. There are seven fields: Date, Amount and Reference 1 to 5. Date and Amount are required.</p>
-      <p>The five references are free fields, all alike. Put into them whatever helps with matching — payee, purpose, category, note. In step 3 you can filter and set criteria on each of them.</p>
+    en:`<h4>At a glance</h4>
+      <p>You tell FINA which column of your file holds which FINA field. There are seven fields: <b>Date</b>, <b>Amount</b> and <b>Reference 1 to 5</b>. Date and Amount are required.</p>
+      <ol>
+        <li><b>Column HDR (left):</b> the filled circle marks the row with the column names. Usually the first row is right.</li>
+        <li><b>Column names (top):</b> every name is a button. A chosen column turns orange and gets a field list above it.</li>
+        <li><b>Field list:</b> Date, Amount or a reference. FINA suggests a field when it recognises the header.</li>
+      </ol>
+      <p>Two buttons above the table select or deselect all columns.</p>
+      <h4>What would you like to do?</h4>
+      <table class="gtab"><tr><th>If you want to …</th><th>then …</th></tr>
+        <tr><td>bring a new kind of file into FINA</td><td>choose the columns, give each its field, press <b>“Save columns and continue”</b></td></tr>
+        <tr><td>check a structure FINA has prepared for you</td><td>look over the fields, press <b>“Continue”</b></td></tr>
+        <tr><td>match on payee, purpose or category later</td><td>give those columns a <b>Reference</b> field</td></tr>
+        <tr><td>correct the header row</td><td>click another circle in the column HDR</td></tr>
+      </table>
       <h4>Step by step</h4>
       <ol>
-        <li>Check the row with the column names. In the column HDR on the left, the filled circle marks it. Usually the first row is right; click another circle to change it.</li>
-        <li>Click a column header to select the column. It turns orange, and a field list appears above it.</li>
-        <li>In that list, choose the field: Date, Amount or a reference. FINA suggests a field when it recognises the header.</li>
-        <li>Repeat for every column you need. A selected column without a field does not go to step 3: when you continue, FINA names it and offers to deselect it. You then check the columns and continue again.</li>
+        <li>Check the row with the column names. Click another circle in HDR to change it.</li>
+        <li>Click a column name to select the column.</li>
+        <li>In the list above it choose the field. Date and Amount first, then the references.</li>
+        <li>Repeat for every column you need. The five references are free fields, all alike: payee, purpose, category, note — whatever helps with matching in step 3.</li>
+        <li>Press <b>“Save columns and continue”</b>. FINA asks for a name and remembers the structure for this kind of file.</li>
       </ol>
-      <h4>Then</h4>
-      <p>Click “Save columns and continue”. FINA asks for a name and remembers the structure for this kind of file. Next time you upload such a file, “Prepare CSV structure automatically” fills this step in for you. You check it and click “Continue”.</p>
+      <div class="gcall"><b>Tip</b><p>A selected column without a field does not go to step 3. When you continue, FINA names it and offers to deselect it.</p></div>
       <h4>Good to know</h4>
       <ul>
         <li>The structure is only about columns and fields. Which rows go to which entry is decided in step 3.</li>
         <li>Costs with a minus are recognised on their own.</li>
+        <li>Next time you upload such a file, <b>“Prepare CSV structure automatically”</b> fills this step in for you.</li>
         <li>The ✕ at the top closes the wizard. Nothing is written to your book before the last step.</li>
       </ul>`,
-    de:`<h4>Layout</h4>
-      <p>Dieses Fenster zeigt deine Datei als Tabelle: die ersten Zeilen, oben die Spaltennamen. Über der Tabelle stehen drei nummerierte Schritte und zwei Knöpfe, die alle Spalten wählen oder abwählen. Jeder Spaltenname ist ein Knopf. Eine gewählte Spalte bekommt darüber eine Auswahlliste für ihr FINA-Feld. Links markiert die Spalte BZ die Zeile mit den Spaltennamen.</p>
-      <h4>Was du hier tust</h4>
-      <p>Du sagst FINA, welche Spalte welches FINA-Feld trägt. Es gibt sieben Felder: Datum, Betrag und Referenz 1 bis 5. Datum und Betrag müssen sein.</p>
-      <p>Die fünf Referenzen sind freie Felder, alle gleichrangig. Lege hinein, was beim Zuordnen hilft — Empfänger, Verwendungszweck, Kategorie, Notiz. In Schritt 3 kannst du nach jedem davon filtern und Kriterien setzen.</p>
+    de:`<h4>Kurz erklärt</h4>
+      <p>Du sagst FINA, welche Spalte deiner Datei welches FINA-Feld trägt. Es gibt sieben Felder: <b>Datum</b>, <b>Betrag</b> und <b>Referenz 1 bis 5</b>. Datum und Betrag müssen sein.</p>
+      <ol>
+        <li><b>Spalte HDR (links):</b> der gefüllte Kreis markiert die Zeile mit den Spaltennamen. Meist ist die erste Zeile richtig.</li>
+        <li><b>Spaltennamen (oben):</b> jeder Name ist ein Knopf. Eine gewählte Spalte wird orange und bekommt darüber eine Feldliste.</li>
+        <li><b>Feldliste:</b> Datum, Betrag oder eine Referenz. FINA schlägt ein Feld vor, wenn es die Überschrift erkennt.</li>
+      </ol>
+      <p>Zwei Knöpfe über der Tabelle wählen alle Spalten oder wählen sie ab.</p>
+      <h4>Was möchtest du tun?</h4>
+      <table class="gtab"><tr><th>Wenn du …</th><th>dann …</th></tr>
+        <tr><td>eine neue Art von Datei in FINA holen willst</td><td>wähle die Spalten, gib jeder ihr Feld, drücke <b>„Spalten speichern und weiter“</b></td></tr>
+        <tr><td>eine Struktur prüfen willst, die FINA für dich vorbereitet hat</td><td>sieh die Felder durch, drücke <b>„Weiter“</b></td></tr>
+        <tr><td>später nach Empfänger, Zweck oder Kategorie zuordnen willst</td><td>gib diesen Spalten ein <b>Referenz</b>-Feld</td></tr>
+        <tr><td>die Beschriftungszeile ändern willst</td><td>klicke in der Spalte HDR auf einen anderen Kreis</td></tr>
+      </table>
       <h4>Schritt für Schritt</h4>
       <ol>
-        <li>Prüfe die Zeile mit den Spaltennamen. In der Spalte BZ links markiert sie der gefüllte Kreis. Meist ist die erste Zeile richtig; ein Klick auf einen anderen Kreis ändert es.</li>
-        <li>Klicke auf eine Spaltenüberschrift, um die Spalte zu wählen. Sie wird orange, und darüber erscheint eine Feldliste.</li>
-        <li>Wähle in dieser Liste das Feld: Datum, Betrag oder eine Referenz. FINA schlägt ein Feld vor, wenn es die Überschrift erkennt.</li>
-        <li>Wiederhole das für jede Spalte, die du brauchst. Eine gewählte Spalte ohne Feld kommt nicht in Schritt 3: beim Weitergehen nennt FINA sie und bietet an, sie abzuwählen. Du prüfst dann die Spalten und gehst noch einmal weiter.</li>
+        <li>Prüfe die Zeile mit den Spaltennamen. Ein Klick auf einen anderen Kreis in HDR ändert sie.</li>
+        <li>Klicke auf einen Spaltennamen, um die Spalte zu wählen.</li>
+        <li>Wähle in der Liste darüber das Feld. Erst Datum und Betrag, dann die Referenzen.</li>
+        <li>Wiederhole das für jede Spalte, die du brauchst. Die fünf Referenzen sind freie Felder, alle gleichrangig: Empfänger, Verwendungszweck, Kategorie, Notiz — was in Schritt 3 beim Zuordnen hilft.</li>
+        <li>Drücke <b>„Spalten speichern und weiter“</b>. FINA fragt nach einem Namen und merkt sich die Struktur für diese Art von Datei.</li>
       </ol>
-      <h4>Danach</h4>
-      <p>Klicke auf „Spalten speichern und weiter“. FINA fragt nach einem Namen und merkt sich die Struktur für diese Art von Datei. Beim nächsten Mal füllt „Automatisch CSV-Datenstruktur vorbereiten“ diesen Schritt für dich aus. Du prüfst ihn und klickst auf „Weiter“.</p>
+      <div class="gcall"><b>Tipp</b><p>Eine gewählte Spalte ohne Feld kommt nicht in Schritt 3. Beim Weitergehen nennt FINA sie und bietet an, sie abzuwählen.</p></div>
       <h4>Gut zu wissen</h4>
       <ul>
-        <li>Die Struktur betrifft nur Spalten und Felder. Welche Zeilen zu welchem Posten gehören, entscheidest du in Schritt 3.</li>
+        <li>Die Struktur betrifft nur Spalten und Felder. Welche Zeilen zu welchem Eintrag gehören, entscheidest du in Schritt 3.</li>
         <li>Kosten mit Minus erkennt FINA von selbst.</li>
+        <li>Beim nächsten Mal füllt <b>„Automatisch CSV-Datenstruktur vorbereiten“</b> diesen Schritt für dich aus.</li>
         <li>Das ✕ oben schließt den Wizard. Ins Buch geschrieben wird erst im letzten Schritt.</li>
       </ul>`},
   3:{
-    en:`<h4>Layout</h4>
-      <p>The window has three areas, one above the other:</p>
-      <ul>
-        <li><b>Entries</b> (top): the entries of your book with their twelve months, in three blocks like the year view — Income, Flexible, Regular. The entry you click becomes the target and turns orange. A click on a block row folds the block; “Expand all” / “Collapse all” at the right of the heading does it for all three.</li>
-        <li><b>Assignment bar</b> (middle): the buttons that assign rows. From the left: the ☰ menu, “One-time assignment mode”, “Assign and remember”, “Create new and assign”. On the right, if entries carry import criteria: “Automatically assign with remembered criteria…”.</li>
-        <li><b>File rows</b> (bottom): the rows of your CSV file, one column per FINA field. Above the columns: a filter field per column, and above the table the quick filter across all fields.</li>
-      </ul>
-      <p>The grey bar between the areas can be dragged to change their heights.</p>
-      <h4>What you do here</h4>
-      <p>You tell FINA which rows of the file belong to which entry. There are two ways: with criteria, which FINA stores at the entry for the next import — or by hand, once.</p>
-      <h4>Assign with criteria</h4>
+    en:`<p>In this step you assign the rows of your CSV file to the matching entries of your book. You can assign <b>once</b>, or save the assignment as a rule <b>for future imports</b>.</p>
+      <h4>At a glance</h4>
       <ol>
-        <li>In Entries, click the entry that should receive the rows.</li>
-        <li>In File rows, narrow the rows down: type into a column filter, a fragment is enough. Or click a value in a row — it goes straight into the filter of its column. The ☰ at the filter field sets how it compares: contains, does not contain, starts with, ends with, exactly, amount. The quick filter above the table only narrows the view; on its own it makes no rule.</li>
-        <li>Press Enter to pin the criterion. Several criteria narrow down together.</li>
-        <li>In the Assignment bar, click “Assign and remember for next time”. The rows move to the entry, and the criteria are stored at the entry as its import criteria.</li>
+        <li><b>Entries (top):</b> choose the entry in your book. The chosen entry is highlighted in orange. A click on a block row folds the block; <b>“Expand all”</b> / <b>“Collapse all”</b> at the right of the heading does it for all three.</li>
+        <li><b>Assignment bar (middle):</b> choose a one-time assignment, save a rule, or create a new entry.</li>
+        <li><b>File rows (bottom):</b> here you see, filter and assign the transactions of the imported file.</li>
       </ol>
-      <p>Assigned rows stay in the file rows: grey, with a cross in the column “X”. The button “Hide already assigned CSV entries” takes them out of the table and brings them back. Under the target you see them when you expand it with the small arrow or double-click its row.</p>
-      <h4>Assign by hand, once</h4>
-      <p>Some rows fit no criterion — a one-off payment, a refund. You assign those by hand. Nothing is stored for the next import.</p>
+      <p>Drag the grey bar between the areas if you need more room for one of them.</p>
+      <h4>What would you like to do?</h4>
+      <table class="gtab"><tr><th>If you want to …</th><th>then choose …</th></tr>
+        <tr><td>have recurring transactions recognised automatically next time</td><td><b>“Assign and remember for next time”</b></td></tr>
+        <tr><td>assign one unusual transaction</td><td><b>“One-time assignment mode”</b></td></tr>
+        <tr><td>create a suitable entry first</td><td><b>“Create new and assign”</b></td></tr>
+        <tr><td>review the rules FINA has remembered</td><td><b>“Automatically assign with remembered criteria…”</b></td></tr>
+      </table>
+      <h4>Assign recurring transactions and remember them</h4>
       <ol>
-        <li>In the Assignment bar, click “One-time assignment mode”. The button stays dark while the mode is on, and a tick column appears in File rows.</li>
-        <li>Tick the rows. A click anywhere on a row ticks it. The quick filter still narrows the list; the column filters are off in this mode.</li>
-        <li>In Entries, click the target.</li>
-        <li>Click “Assign once”. A window lists the rows — confirm.</li>
-        <li>Click “One-time assignment mode” again to end the mode.</li>
+        <li>Click the matching <b>entry</b> at the top.</li>
+        <li>Narrow the <b>file rows</b> down. Type a fragment into a column filter, or click a value in a row: it goes straight into the filter of its column. The ☰ at the filter field sets how it compares: contains, does not contain, starts with, ends with, amount. The quick filter above the table only helps you find rows; it is not saved.</li>
+        <li>Press <b>Enter</b> to pin each criterion. Several criteria narrow down together.</li>
+        <li>Click <b>“Assign and remember for next time”</b>.</li>
       </ol>
-      <h4>Remembered criteria</h4>
-      <p>Entries keep the import criteria from earlier imports. “Automatically assign with remembered criteria…” on the right of the Assignment bar shows which entries would receive rows now, and under each entry the rows themselves. Rows already in the book from an earlier import stand grey with a cross and cannot be imported again. Untick an entry or a single row to leave it out; the pencil at an entry opens it, so you can adjust its criteria right there. The ☰ at a single entry offers “Search by remembered criteria”: the criteria go into the filter, you see the rows they match, and “Assign and remember” is the next click. Next to it: “Search by amount”.</p>
-      <h4>The ☰ menu in the Assignment bar</h4>
-      <ul>
-        <li>“Cancel filter and show all unassigned CSV data” clears every filter.</li>
-        <li>“Show all remembered import criteria” lists the criteria of every entry; you can change them there.</li>
-      </ul>
-      <h4>Colours</h4>
-      <ul>
-        <li>Orange: the chosen target.</li>
-        <li>Yellow: assigned in this run, not yet in the book.</li>
-        <li>Light blue: imported earlier, already in the book.</li>
-        <li>Grey: already in the book — this import changes nothing there. In File rows, grey with a cross in the column “X” means the row is assigned, from an earlier import or in this run.</li>
-      </ul>
-      <h4>Finishing</h4>
-      <p>“Finish” writes everything that is assigned into your book and stores the criteria. The ✕ at the top right closes the wizard without any assignment — the current work is thrown away. Save your file afterwards.</p>`,
-    de:`<h4>Layout</h4>
-      <p>Das Fenster hat drei Bereiche, untereinander:</p>
-      <ul>
-        <li><b>Posten</b> (oben): die Posten deines Buches mit ihren zwölf Monaten, in drei Blöcken wie in der Jahresansicht — Einnahmen, Flexibel, Regulär. Der Posten, den du anklickst, wird zum Ziel und ist orange. Ein Klick auf eine Blockzeile klappt den Block zu; „Alle aufklappen“ / „Alle zuklappen“ rechts in der Kopfzeile tut es für alle drei.</li>
-        <li><b>Zuordnungsleiste</b> (Mitte): die Knöpfe, die Zeilen zuordnen. Von links: das ☰-Menü, „Modus: Einmalige Zuordnung“, „Zuordnen und merken“, „Neu anlegen und zuordnen“. Rechts, wenn Posten Importkriterien tragen: „Automatisch zuordnen mit gemerkten Importkriterien…“.</li>
-        <li><b>Dateizeilen</b> (unten): die Zeilen deiner CSV-Datei, je FINA-Feld eine Spalte. Über den Spalten: je Spalte ein Filterfeld, und über der Tabelle der Schnellfilter über alle Felder.</li>
-      </ul>
-      <p>Den grauen Griff zwischen den Bereichen kannst du ziehen, um ihre Höhe zu ändern.</p>
-      <h4>Was du hier tust</h4>
-      <p>Du sagst FINA, welche Zeilen der Datei zu welchem Posten gehören. Dafür gibt es zwei Wege: mit Kriterien, die FINA sich am Posten für den nächsten Import merkt — oder von Hand, einmalig.</p>
-      <h4>Zuordnen mit Kriterien</h4>
+      <p>FINA stores the criteria at the entry and can propose matching transactions in the next import.</p>
+      <div class="gcall"><b>Tip</b><p>Before you save, check that only the intended rows are visible. A rule that is too wide catches similar transactions.</p></div>
+      <h4>Assign single transactions once</h4>
       <ol>
-        <li>Klicke unter Posten den Posten an, der die Zeilen bekommen soll.</li>
-        <li>Grenze unter Dateizeilen die Zeilen ein: tippe in ein Spaltenfilter, ein Teilstück genügt. Oder klicke auf einen Wert in einer Zeile — er steht sofort im Filter seiner Spalte. Das ☰ am Filterfeld stellt ein, wie verglichen wird: enthält, enthält nicht, fängt mit, endet mit, genau, Betrag. Der Schnellfilter über der Tabelle grenzt nur die Ansicht ein; allein ergibt er keine Regel.</li>
-        <li>Drücke Enter, um das Kriterium anzuheften. Mehrere Kriterien grenzen zusammen ein.</li>
-        <li>Klicke in der Zuordnungsleiste auf „Zuordnen und merken für die Zukunft“. Die Zeilen wandern zum Posten, und die Kriterien werden am Posten als seine Importkriterien gespeichert.</li>
+        <li>Switch on <b>“One-time assignment mode”</b>. The button stays dark while the mode is on, and a tick column appears in the file rows.</li>
+        <li>Tick the rows. A click anywhere on a row ticks it.</li>
+        <li>Choose the <b>target entry</b> at the top.</li>
+        <li>Click <b>“Assign once”</b> and confirm the summary.</li>
+        <li>Switch the mode off again.</li>
       </ol>
-      <p>Zugeordnete Zeilen bleiben in den Dateizeilen stehen: grau, mit einem Kreuz in der Spalte „X“. Der Knopf „Schon zugeordnete CSV-Zeilen verbergen“ nimmt sie aus der Tabelle und holt sie wieder. Unter dem Posten siehst du sie, wenn du ihn mit dem kleinen Pfeil aufklappst oder auf seine Zeile doppelklickst.</p>
-      <h4>Von Hand zuordnen, einmalig</h4>
-      <p>Manche Zeilen passen zu keinem Kriterium — eine einmalige Zahlung, eine Rückerstattung. Die ordnest du von Hand zu. Für den nächsten Import wird nichts gemerkt.</p>
+      <p>No rule is saved for this assignment.</p>
+      <h4>Review and apply remembered rules</h4>
       <ol>
-        <li>Klicke in der Zuordnungsleiste auf „Modus: Einmalige Zuordnung“. Der Knopf bleibt dunkel, solange der Modus läuft, und unter Dateizeilen erscheint eine Spalte mit Kästchen.</li>
-        <li>Hake die Zeilen ab. Ein Klick irgendwo auf die Zeile genügt. Der Schnellfilter grenzt die Liste weiter ein; die Spaltenfilter sind in diesem Modus aus.</li>
-        <li>Klicke unter Posten das Ziel an.</li>
-        <li>Klicke auf „Einmalig zuordnen“. Ein Fenster zeigt die Zeilen — bestätige.</li>
-        <li>Klicke noch einmal auf „Modus: Einmalige Zuordnung“, um den Modus zu beenden.</li>
+        <li>Click <b>“Automatically assign with remembered criteria…”</b>.</li>
+        <li>Check the proposed entries and transactions.</li>
+        <li>Untick entries or rows that should not be taken over.</li>
+        <li>Adjust criteria with the pencil at an entry if needed.</li>
       </ol>
-      <h4>Gemerkte Kriterien</h4>
-      <p>Posten behalten die Importkriterien aus früheren Importen. „Automatisch zuordnen mit gemerkten Importkriterien…“ rechts in der Zuordnungsleiste zeigt, welche Posten jetzt Zeilen bekämen, und unter jedem Posten die Zeilen selbst. Zeilen, die aus einem früheren Import schon im Buch stehen, sind grau und tragen ein Kreuz — sie lassen sich nicht noch einmal importieren. Nimm den Haken an einem Posten oder an einer einzelnen Zeile weg, wenn sie draußen bleiben soll; der Stift am Posten öffnet ihn, und du kannst seine Kriterien gleich dort anpassen. Das ☰ an einem einzelnen Posten bietet „Suchen nach gemerkten Kriterien“: die Kriterien stehen dann im Filter, du siehst die Zeilen, die sie treffen, und „Zuordnen und merken“ ist der nächste Klick. Daneben: „Suchen nach Betrag“.</p>
-      <h4>Das ☰-Menü in der Zuordnungsleiste</h4>
+      <p>The ☰ at a single entry also offers <b>“Search by remembered criteria”</b> and <b>“Search by amount”</b>.</p>
+      <h4>Already assigned rows</h4>
       <ul>
-        <li>„Filter zurücknehmen und alle nicht zugeordneten CSV-Daten zeigen“ leert alle Filter.</li>
-        <li>„Alle gemerkten Importkriterien zeigen“ listet die Kriterien aller Posten; dort kannst du sie ändern.</li>
+        <li><b>Yellow:</b> assigned in this import, not yet in your book.</li>
+        <li><b>Light blue:</b> taken over in an earlier import.</li>
+        <li><b>Grey with ×:</b> already assigned; it cannot be imported again.</li>
       </ul>
-      <h4>Farben</h4>
+      <p><b>“Hide already assigned CSV entries”</b> takes these rows out of the table and brings them back.</p>
+      <h4>More in the ☰ menu</h4>
       <ul>
-        <li>Orange: das gewählte Ziel.</li>
-        <li>Gelb: in diesem Lauf zugeordnet, noch nicht im Buch.</li>
-        <li>Hellblau: früher importiert, schon im Buch.</li>
-        <li>Grau: schon im Buch — dieser Import ändert dort nichts. Unter Dateizeilen heißt Grau mit einem Kreuz in der Spalte „X“: Die Zeile ist zugeordnet, aus einem früheren Import oder in diesem Lauf.</li>
+        <li><b>“Cancel filter and show all unassigned CSV data”</b> clears every filter.</li>
+        <li><b>“Show all remembered import criteria”</b> opens an overview of all rules for editing.</li>
       </ul>
-      <h4>Zum Schluss</h4>
-      <p>„Fertig“ schreibt alles Zugeordnete ins Buch und speichert die Kriterien. Das ✕ rechts oben schließt den Wizard ohne Zuordnung — die aktuelle Arbeit ist dann weg. Speichere danach deine Datei.</p>`}
+      <p>Is the window too narrow for the assignment bar? Then its buttons move into this menu, one after the other: first <b>“Automatically assign with remembered criteria…”</b>, then <b>“Hide already assigned CSV entries”</b>, then <b>“One-time assignment mode”</b>. <b>“Assign and remember for next time”</b> (or <b>“Assign once”</b>) and <b>“Create new and assign”</b> always stay in sight.</p>
+      <h4>Finish or cancel</h4>
+      <ul>
+        <li><b>“Finish”</b> writes every assignment into your book and stores the new rules.</li>
+        <li><b>✕</b> closes the wizard without taking over the current assignments.</li>
+      </ul>
+      <p>Save your file afterwards, so the changes stay.</p>`,
+    de:`<p>In diesem Schritt ordnest du die Zeilen deiner CSV-Datei den passenden Einträgen in deinem Buch zu. Du kannst <b>einmalig</b> zuordnen, oder die Zuordnung als Regel <b>für spätere Importe merken</b>.</p>
+      <h4>Kurz erklärt</h4>
+      <ol>
+        <li><b>Einträge (oben):</b> wähle den Eintrag in deinem Buch. Der gewählte Eintrag ist orange hervorgehoben. Ein Klick auf eine Blockzeile klappt den Block zu; <b>„Alle aufklappen“</b> / <b>„Alle zuklappen“</b> rechts in der Kopfzeile tut es für alle drei.</li>
+        <li><b>Zuordnungsleiste (Mitte):</b> wähle einmalige Zuordnung, Regel merken oder neuen Eintrag anlegen.</li>
+        <li><b>Dateizeilen (unten):</b> hier siehst, filterst und ordnest du die Umsätze der importierten Datei zu.</li>
+      </ol>
+      <p>Ziehe den grauen Griff zwischen den Bereichen, wenn du für einen mehr Platz brauchst.</p>
+      <h4>Was möchtest du tun?</h4>
+      <table class="gtab"><tr><th>Wenn du …</th><th>dann wähle …</th></tr>
+        <tr><td>wiederkehrende Umsätze künftig automatisch erkennen lassen willst</td><td><b>„Zuordnen und merken für die Zukunft“</b></td></tr>
+        <tr><td>einen einzelnen, ungewöhnlichen Umsatz zuordnen willst</td><td><b>„Modus: Einmalige Zuordnung“</b></td></tr>
+        <tr><td>noch keinen passenden Eintrag hast</td><td><b>„Neu anlegen und zuordnen“</b></td></tr>
+        <tr><td>gemerkte Regeln prüfen willst</td><td><b>„Automatisch zuordnen mit gemerkten Importkriterien…“</b></td></tr>
+      </table>
+      <h4>Wiederkehrende Umsätze zuordnen und merken</h4>
+      <ol>
+        <li>Klicke oben auf den passenden <b>Eintrag</b>.</li>
+        <li>Grenze die <b>Dateizeilen</b> ein. Tipp ein Teilstück in einen Spaltenfilter, oder klicke auf einen Wert in einer Zeile: er steht sofort im Filter seiner Spalte. Das ☰ am Filterfeld legt fest, wie verglichen wird: enthält, enthält nicht, fängt mit, endet mit, Betrag. Der Schnellfilter über der Tabelle hilft nur beim Finden; er wird nicht gemerkt.</li>
+        <li>Drücke <b>Enter</b>, um jedes Kriterium anzuheften. Mehrere Kriterien grenzen zusammen ein.</li>
+        <li>Klicke auf <b>„Zuordnen und merken für die Zukunft“</b>.</li>
+      </ol>
+      <p>FINA speichert die Kriterien am Eintrag und kann passende Umsätze beim nächsten Import vorschlagen.</p>
+      <div class="gcall"><b>Tipp</b><p>Prüfe vor dem Merken, ob nur die gewünschten Zeilen sichtbar sind. Eine zu breite Regel erfasst ähnliche Umsätze.</p></div>
+      <h4>Einzelne Umsätze einmalig zuordnen</h4>
+      <ol>
+        <li>Schalte <b>„Modus: Einmalige Zuordnung“</b> ein. Der Knopf bleibt dunkel, solange der Modus läuft, und in den Dateizeilen erscheint eine Spalte mit Kästchen.</li>
+        <li>Hake die Zeilen ab. Ein Klick irgendwo auf die Zeile genügt.</li>
+        <li>Wähle oben den <b>Zieleintrag</b>.</li>
+        <li>Klicke auf <b>„Einmalig zuordnen“</b> und bestätige die Zusammenfassung.</li>
+        <li>Schalte den Modus wieder aus.</li>
+      </ol>
+      <p>Für diese Zuordnung wird keine Regel gemerkt.</p>
+      <h4>Gemerkte Regeln prüfen und anwenden</h4>
+      <ol>
+        <li>Klicke auf <b>„Automatisch zuordnen mit gemerkten Importkriterien…“</b>.</li>
+        <li>Prüfe die vorgeschlagenen Einträge und Umsätze.</li>
+        <li>Nimm den Haken bei Einträgen oder Zeilen weg, die nicht übernommen werden sollen.</li>
+        <li>Passe Kriterien bei Bedarf über den Stift am Eintrag an.</li>
+      </ol>
+      <p>Das ☰ an einem einzelnen Eintrag bietet außerdem <b>„Suchen nach gemerkten Kriterien“</b> und <b>„Suchen nach Betrag“</b>.</p>
+      <h4>Schon zugeordnete Zeilen</h4>
+      <ul>
+        <li><b>Gelb:</b> in diesem Import zugeordnet, noch nicht im Buch.</li>
+        <li><b>Hellblau:</b> in einem früheren Import übernommen.</li>
+        <li><b>Grau mit ×:</b> schon zugeordnet; kein erneuter Import möglich.</li>
+      </ul>
+      <p><b>„Schon zugeordnete CSV-Zeilen verbergen“</b> nimmt diese Zeilen aus der Tabelle und holt sie wieder.</p>
+      <h4>Mehr im ☰-Menü</h4>
+      <ul>
+        <li><b>„Filter zurücknehmen und alle nicht zugeordneten CSV-Daten zeigen“</b> leert alle Filter.</li>
+        <li><b>„Alle gemerkten Importkriterien zeigen“</b> öffnet eine Übersicht aller Regeln zum Bearbeiten.</li>
+      </ul>
+      <p>Ist das Fenster für die Zuordnungsleiste zu schmal? Dann wandern ihre Knöpfe in dieses Menü, einer nach dem anderen: erst <b>„Automatisch zuordnen mit gemerkten Importkriterien…“</b>, dann <b>„Schon zugeordnete CSV-Zeilen verbergen“</b>, dann <b>„Modus: Einmalige Zuordnung“</b>. <b>„Zuordnen und merken für die Zukunft“</b> (oder <b>„Einmalig zuordnen“</b>) und <b>„Neu anlegen und zuordnen“</b> bleiben immer zu sehen.</p>
+      <h4>Abschließen oder abbrechen</h4>
+      <ul>
+        <li><b>„Fertig“</b> übernimmt alle Zuordnungen ins Buch und speichert die neuen Regeln.</li>
+        <li><b>✕</b> schließt den Wizard, ohne die aktuellen Zuordnungen zu übernehmen.</li>
+      </ul>
+      <p>Speichere danach deine Datei, damit die Änderungen bleiben.</p>`}
 };
 
 /* ── Der Arbeitsstand des Wizards — lebt nur, solange das Fenster
@@ -781,6 +846,13 @@ function openCsvWizard(){
      /* Ob die Anleitung rechts neben dem Schritt steht, und der
         Name, unter dem die Spalten gemerkt sind (c2AskMapName). */
      guide:false,mapName:'',
+     /* Die Anleitung daneben hat ihre eigene Sprache und Breite
+        (7.9.26, wie der Guide der Anwendung): gLang fängt bei der
+        Sprache der Oberfläche an und wird im Kopf der Anleitung
+        umgeschaltet; guideW ist die am Griff gezogene Breite in px,
+        0 heißt „ein Drittel des Fensters" (c2GuideWidth). Beides
+        lebt nur, solange das Fenster offen ist. */
+     gLang:(state&&state.lang==='de')?'de':'en',guideW:0,
      /* Wie die beiden Flächen des dritten Schritts die Höhe teilen
         (Anteil des Zielbereichs). Jedes Öffnen fängt bei halb/halb
         an — der Wert lebt nur in W und nie in der Datei. */
@@ -1903,6 +1975,7 @@ function c2RefreshBtns(){
      ein Schnellfilter allein zählt nicht. */
   const cntNew=W.once?np:(cols?n:0);
   bNew.textContent=t('c2.newAssign')+(cntNew>0?` (${cntNew})`:'');
+  c2FitBar();
   bNew.disabled=false;
   bNew.title=t('c2.newAssignTip');
 }
@@ -1987,10 +2060,10 @@ function c2Step3(){
   if(W.mapRules&&W.mapRules.length){
     const hits=c2MapHits().filter(e=>e.hasNew).length;
     auto=hits
-      ?`<button class="btn primary" data-c2="autoMap" title="${esc(t('c2.autoMapTip',W.mapRules.length))}">${t('c2.autoMap')}</button>`
-      :`<button class="btn" data-c2="autoMap" disabled title="${esc(t('c2.mpGone'))}">${t('c2.autoMap')}</button>`;
+      ?`<button class="btn primary" data-c2="autoMap" data-c2fit="auto" title="${esc(t('c2.autoMapTip',W.mapRules.length))}">${t('c2.autoMap')}</button>`
+      :`<button class="btn" data-c2="autoMap" data-c2fit="auto" disabled title="${esc(t('c2.mpGone'))}">${t('c2.autoMap')}</button>`;
   }else if(W.autoDone)
-    auto=`<button class="btn" data-c2="autoMap" disabled title="${esc(t('c2.autoMapDone'))}">${t('c2.autoMap')}</button>`;
+    auto=`<button class="btn" data-c2="autoMap" data-c2fit="auto" disabled title="${esc(t('c2.autoMapDone'))}">${t('c2.autoMap')}</button>`;
   /* **Zwischen den Flächen liegt ein Griff** (5.9.26, .c2split):
      Ziehen verschiebt die Teilung, ein Doppelklick stellt halb/halb
      wieder her. Der Anteil steht in W.split und wird als flex-grow
@@ -2012,7 +2085,7 @@ function c2Step3(){
              Knopf daneben tut — merken oder einmalig —, und gehört
              deshalb unmittelbar davor. Weiß in Ruhe, schwarz,
              solange der Modus läuft (.onceb in css/components.css). -->
-        <button class="btn onceb" id="c2Once" data-c2="assignOnce" aria-pressed="false"
+        <button class="btn onceb" id="c2Once" data-c2="assignOnce" data-c2fit="once" aria-pressed="false"
           title="${esc(t('c2.assignOnceTip'))}">${t('c2.assignOnce')}</button>
         <button class="btn c2go" id="c2Do" data-c2="goAssign"></button>
         <button class="btn" id="c2New" data-c2="newTAssign"></button>
@@ -2024,7 +2097,7 @@ function c2Step3(){
              wird beides: was schon im Buch steht und was dieser Lauf
              zugeordnet hat (6.9.26 spät). -->
         ${(()=>{const nAsg=W.asg.filter(v=>v>=0).length,nOld=W.inBook.size,nAll=nOld+nAsg;
-          return `<button class="btn oldtog" id="c2Old" data-c2="toggleOld" aria-pressed="${!W.showOld}"${nAll?'':' disabled'}
+          return `<button class="btn oldtog" id="c2Old" data-c2="toggleOld" data-c2fit="old" aria-pressed="${!W.showOld}"${nAll?'':' disabled'}
           title="${esc(nAll?t('c2.oldTip',nAll,nOld,nAsg):t('c2.noOld'))}">${t(W.showOld?'c2.hideOld':'c2.showOld')}</button>`;})()}
         ${auto}
       </div>
@@ -2226,6 +2299,42 @@ function c2DoAssign(){
    Gebaut wie das Zeilenmenü darüber (c2RowMenu): dieselbe
    Sprechblase, dieselbe Art zu schließen. */
 function c2ClearFlt(){W.flt={};W.fltOp={};W.chips=[];W.q='';W.editRule=null;c2Render();}
+/* ── Die Zuordnungsleiste passt sich dem Fenster an (7.9.26) ──
+   Ist die Leiste breiter als ihre Zeile, gab es bis dahin einen
+   Rollbalken quer über den Knöpfen. Jetzt ziehen sich Knöpfe ins
+   ☰-Menü zurück — gemessen, nicht geraten, wie fitHeaderBtns() in
+   js/app.js: die natürlichen Breiten der Kinder (flex:0 0 auto,
+   nowrap) gegen die Breite der Zeile. Zuerst geht „Automatisch
+   zuordnen…", dann „Schon zugeordnete…", dann der Modus-Knopf;
+   „Zuordnen und merken" (bzw. „Einmalig zuordnen") und „Neu
+   anlegen und zuordnen" bleiben immer stehen (Lex). Was im Menü
+   steckt, sagt W.inMenu; c2AssignMenu baut daraus Einträge, die den
+   versteckten Knopf drücken — eine Verdrahtung, kein Zwilling.
+   Gerufen nach jedem Neuzeichnen (c2RefreshBtns, dort ändern sich
+   auch die Beschriftungen mit den Zählern), beim Ziehen der
+   Anleitung (c2GuideWidth) und beim Fenster-Resize. */
+const C2_FIT_ORDER=['auto','old','once'];
+function c2FitBar(){
+  const row=W&&W.box&&W.box.querySelector('.c2mid .c2row'); if(!row)return;
+  const btn=k=>row.querySelector(`[data-c2fit="${k}"]`);
+  C2_FIT_ORDER.forEach(k=>{const b=btn(k);if(b)b.hidden=false;});
+  W.inMenu=[];
+  const gap=parseFloat(getComputedStyle(row).columnGap)||10;
+  const need=()=>{
+    let w=0,n=0;
+    for(const c of row.children){
+      if(c.hidden||c.classList.contains('c2spacer'))continue;
+      w+=c.getBoundingClientRect().width;n++;
+    }
+    return w+Math.max(0,n-1)*gap;
+  };
+  for(const k of C2_FIT_ORDER){
+    if(need()<=row.clientWidth+0.5)break;
+    const b=btn(k);if(!b)continue;
+    b.hidden=true;W.inMenu.push(k);
+  }
+}
+
 function c2AssignMenu(btn){
   const old=W.modal.querySelector('.c2fpop');
   const again=old&&old.dataset.tid==='assign';
@@ -2239,7 +2348,17 @@ function c2AssignMenu(btn){
   const on=c2LiveTerms().length>0;
   const pop=document.createElement('div');
   pop.className='c2fpop c2amenu';pop.dataset.tid='assign';
+  /* Die Knöpfe, die aus der Leiste hierher ausgewichen sind
+     (c2FitBar): derselbe Text, derselbe Stand — gedrückt fett,
+     gesperrt grau —, und der Klick drückt den versteckten Knopf. */
+  const moved=(W.inMenu||[]).map(k=>{
+    const b=W.box.querySelector(`[data-c2fit="${k}"]`); if(!b)return '';
+    const pressed=b.getAttribute('aria-pressed')==='true';
+    return item('fit-'+k,b.textContent.trim(),b.title||b.textContent.trim(),
+      (b.disabled?' disabled':'')+(pressed?' class="on"':''));
+  }).join('');
   pop.innerHTML=
+    moved+(moved?'<div class="c2msep"></div>':'')+
     item('clearFlt',t('c2.clearFlt'),t('c2.clearFlt'),on?' class="hot"':' disabled')+
     item('crit',t('c2.mnCrit'),t('c2.mnCritTip'));
   W.modal.appendChild(pop);
@@ -2256,6 +2375,11 @@ function c2AssignMenu(btn){
     b.onclick=e=>{
       e.stopPropagation();
       close();
+      if(b.dataset.do.startsWith('fit-')){
+        const hb=W.box.querySelector(`[data-c2fit="${b.dataset.do.slice(4)}"]`);
+        if(hb)hb.click();
+        return;
+      }
       if(b.dataset.do==='clearFlt'){c2ClearFlt();return;}
       /* Die Kriterien stehen an den Posten (impRules) — alle, regulär
          wie flexibel: der nächste Import wendet sie von selbst an. */
@@ -3019,7 +3143,22 @@ function c2WireNav(){
     on('apply',c2Apply);
     on('toggleOld',()=>{W.showOld=!W.showOld;c2Render();});
   }
-  if(W.step>1)on('guide',()=>{W.guide=!W.guide;c2Render();});
+  if(W.step>1){
+    on('guide',()=>{if(W.guide)c2GuideGhost();W.guide=!W.guide;W.guideAnim=W.guide;c2Render();});
+    /* Der Kopf der Anleitung (c2GuidePanel): Sprache, eigener
+       Reiter, Griff. Der neue Reiter wird im Klick geöffnet, sonst
+       hielte der Browser ihn für ungefragt; hält er ihn trotzdem
+       auf, bleibt die Anleitung stehen. */
+    box.querySelectorAll('[data-c2="glang"]').forEach(b=>{b.onclick=()=>{W.gLang=b.dataset.l==='de'?'de':'en';c2Render();};});
+    on('gfull',()=>{
+      const html=c2GuideDoc();
+      const w=window.open('','_blank');
+      if(!w){warn(t('guide.fullBlocked'));return;}
+      w.document.open();w.document.write(html);w.document.close();
+      c2GuideGhost();W.guide=false;c2Render();
+    });
+    c2GuideHandle(box.querySelector('[data-c2="ghandle"]'));
+  }
 }
 
 /* **Der eine Weg in den dritten Schritt** (5.9.26) — ob mit oder
@@ -3571,18 +3710,137 @@ function openCsvStructure(key,done){
   draw();
 }
 
-/* Das rechte Viertel: die Anleitung zum Schritt (C2_GUIDE oben). Sie
-   trägt `.guide`, damit Absätze und Überschriften aussehen wie im
-   Guide der Anwendung; zu geht sie am ✕ oder am Knopf, der sie
-   geöffnet hat. */
+/* Die Anleitung neben dem Schritt (C2_GUIDE oben). Sie trägt
+   `.guide`, damit Absätze und Überschriften aussehen wie im Guide
+   der Anwendung — und seit dem 7.9.26 auch dessen Kopf: die
+   Sprachwahl EN · DE (nur für die Anleitung, die Oberfläche bleibt,
+   wie sie ist), der Pfeil in einen eigenen Reiter des Browsers und
+   das ✕. Links der Griff, mit dem sich die Breite ziehen lässt
+   (c2GuideHandle); mindestens ein Drittel des Fensters. Der Kopf
+   steht fest, nur der Rumpf (.c2gbody) rollt. */
 function c2GuidePanel(){
   const g=C2_GUIDE[W.step];
   if(!g)return '';
-  const lang=(state&&state.lang==='de')?'de':'en';
-  return `<aside class="c2gpanel guide">
+  const lang=W.gLang==='de'?'de':'en';
+  const langs=LANGS.map(([k])=>`<button class="glang" data-c2="glang" data-l="${k}"
+      aria-pressed="${k===lang}">${k.toUpperCase()}</button>`).join('');
+  /* Ohne gezogene Breite genau ein Drittel des Fensters — als Maß
+     in px, denn ein Prozentwert bezöge sich auf die Fläche im
+     Fenster, und die ist um das Polster schmaler. */
+  const w=` style="flex-basis:${W.guideW||Math.round(window.innerWidth/3)}px"`;
+  /* Herein fährt sie nur, wenn sie gerade geöffnet wurde (W.guideAnim,
+     gesetzt am Knopf) — nicht bei jedem Neuzeichnen des Schritts. */
+  const anim=W.guideAnim?' slidein':''; W.guideAnim=false;
+  return `<aside class="c2gpanel guide${anim}"${w}>
+    <div class="ghandle" data-c2="ghandle" role="separator" aria-orientation="vertical" tabindex="0"
+      title="${esc(t('app.guideDrag'))}" aria-label="${esc(t('app.guideDrag'))}"></div>
     <div class="c2ghead"><b>${esc(t('app.guide'))}</b>
-      <button class="btn c2gx" data-c2="guide" title="${esc(t('c2.guideOff'))}">✕</button></div>
-    ${g[lang]}</aside>`;
+      <span class="gact">
+        <span class="glangs" role="group" aria-label="${esc(t('guide.lang'))}"
+          data-tip="${esc(t('guide.lang'))}">${langs}</span>
+        <button class="btn small gfull" data-c2="gfull" aria-label="${esc(t('guide.full'))}"
+          data-tip="${esc(t('guide.fullTip'))}">${EXPAND_SVG}</button>
+        <button class="btn c2gx" data-c2="guide" title="${esc(t('c2.guideOff'))}">✕</button>
+      </span></div>
+    <div class="c2gbody">${g[lang]}</div></aside>`;
+}
+
+/* Die Anleitung geht zu: c2Render() baut das Fenster neu, und das
+   Feld ist dann schon weg. Ein Geist an seiner Stelle fährt nach
+   rechts hinaus (fina-impout) — in einem Rahmen mit overflow:hidden,
+   damit er an der Kante des Fensters verschwindet statt darüber
+   hinaus. Dieselbe Regel wie überall (CLAUDE.md „Bewegung"). */
+function c2GuideGhost(){
+  const p=W&&W.box&&W.box.querySelector('.c2gpanel'); if(!p)return;
+  const r=p.getBoundingClientRect();
+  const wrap=document.createElement('div'); wrap.className='c2gghostwrap';
+  wrap.style.cssText=`top:${r.top}px;left:${r.left}px;width:${r.width}px;height:${r.height}px`;
+  const g=ghostOf(p,'c2gpanel guide c2gghost');
+  g.style.cssText='position:absolute;inset:0;margin:0';
+  wrap.appendChild(g);
+  document.body.appendChild(wrap);
+  const done=()=>wrap.remove();
+  g.addEventListener('animationend',done); setTimeout(done,700);
+}
+/* Die Breite der Anleitung: mindestens ein Drittel des Fensters
+   (Lex, 7.9.26), höchstens zwei Drittel des Wizard-Fensters — der
+   Schritt daneben soll bedienbar bleiben. Gesetzt wird am Element,
+   nicht per Neuaufbau: beim Ziehen kämen sonst dreißig Neuaufbauten
+   je Sekunde. */
+function c2GuideWidth(w){
+  const panel=W&&W.box&&W.box.querySelector('.c2gpanel'); if(!panel)return;
+  const min=Math.round(window.innerWidth/3);
+  const max=Math.max(min,Math.round(W.box.clientWidth*0.66));
+  W.guideW=Math.min(Math.max(Math.round(w),min),max);
+  panel.style.flexBasis=W.guideW+'px';
+  c2FitBar();
+}
+/* Der Griff: ziehen mit der Maus, Pfeiltasten in Schritten —
+   dieselbe Mechanik wie bindGuideHandle in js/dialogs/guide.js.
+   Gemessen wird von der rechten Kante der Anleitung aus. */
+function c2GuideHandle(h){
+  if(!h)return;
+  const panel=h.parentElement;
+  const move=e=>c2GuideWidth(panel.getBoundingClientRect().right-e.clientX);
+  const up=()=>{
+    document.body.classList.remove('gresize');
+    removeEventListener('pointermove',move);removeEventListener('pointerup',up);
+  };
+  h.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    document.body.classList.add('gresize');
+    addEventListener('pointermove',move);addEventListener('pointerup',up);
+  });
+  h.addEventListener('keydown',e=>{
+    const step=e.shiftKey?80:24,cur=panel.getBoundingClientRect().width;
+    if(e.key==='ArrowLeft'){c2GuideWidth(cur+step);e.preventDefault();}
+    else if(e.key==='ArrowRight'){c2GuideWidth(cur-step);e.preventDefault();}
+  });
+}
+/* Wird das Fenster kleiner oder größer, gilt das Drittel neu. */
+addEventListener('resize',()=>{
+  if(!W||!W.modal||!W.modal.isConnected)return;
+  if(W.guide&&W.guideW)c2GuideWidth(W.guideW);
+  c2FitBar();
+});
+
+/* Die Anleitung des Wizards über die ganze Seite — derselbe Weg
+   wie guideDoc() in js/dialogs/guide.js: eine vollständige Seite in
+   einen neuen Reiter, mit <base> auf die Anwendung, damit die
+   Stylesheets gefunden werden; beide Schritte hintereinander, oben
+   die klebende Zeile mit den Sprungmarken, kein Skript. Gebaut in
+   der Sprache der Anleitung (W.gLang) — t() liest state.lang,
+   deshalb steht die für die Dauer des Aufbaus darauf. */
+function c2GuideDoc(){
+  const was=state.lang; state.lang=W.gLang;
+  try{
+    const title=`FINA Book — ${t('app.guide')} — ${t('c2.title')}`;
+    const steps=[[2,'c2.steps2'],[3,'c2.steps3']];
+    const nav=steps.map(([n,k])=>`<a href="#g-${n}">${n} ${esc(t(k))}</a>`).join('');
+    const parts=steps.map(([n,k])=>
+      `<section id="g-${n}"><h2>${t('c2.title')} — ${n} ${esc(t(k))}</h2>${C2_GUIDE[n][W.gLang]}</section>`).join('');
+    return `<!DOCTYPE html>
+<html lang="${W.gLang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="${esc(location.href)}">
+<title>${esc(title)}</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="icon" href="icon.png" sizes="any">
+</head>
+<body id="g-top">
+<main class="guide gpage">
+  <h1>${esc(title)}</h1>
+  <nav class="gnav">${nav}</nav>
+  ${parts}
+</main>
+<a class="gtop" href="#g-top" aria-label="${esc(t('guide.top'))}" title="${esc(t('guide.top'))}">&#8593;</a>
+</body>
+</html>`;
+  }finally{state.lang=was;}
 }
 
 /* ── Neues Ziel — das gewöhnliche Eintragsfenster: EINE

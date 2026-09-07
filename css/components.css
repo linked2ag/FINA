@@ -563,7 +563,9 @@ html{scrollbar-gutter:stable}
 @media (prefers-reduced-motion:reduce){
   .modal,.modal .box,.modalghost,.modalghost .box,.dropmenu.popin,.tools.open,.c2fpop,
   #view.in-left,#view.in-right,.foldin,.foldin-row{animation:none}
-  .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout{display:none}
+  .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout,
+  .guidepanel.closing,.c2gghostwrap{display:none}
+  .guidepanel,.c2gpanel.slidein{animation:none}
   .modal .box{transition:none!important;clip-path:none!important;transform:none!important}
   .modal .box .swapfade{transition:none}
 }
@@ -665,18 +667,23 @@ html{scrollbar-gutter:stable}
    Bereich und Seitenrand nie auseinanderlaufen. Der Bereich liegt
    unter den Fenstern (z-index 45 gegen 50) — ein Fenster deckt
    ihn also zu. */
+/* Herein von rechts, hinaus nach rechts (7.9.26) — dieselben
+   Keyframes wie die Importdaten am Posten-Fenster (fina-impin/-out).
+   .closing setzt closeGuide() in js/dialogs/guide.js. */
+.guidepanel{animation:fina-impin .28s cubic-bezier(.4,0,.2,1)}
+.guidepanel.closing{animation:fina-impout .22s ease-in forwards;pointer-events:none}
 .guidepanel{position:fixed;top:0;right:0;bottom:0;width:var(--guidew,33vw);z-index:45;
   display:flex;flex-direction:column;background:var(--paper-2);border-left:2px solid var(--ink);
   box-shadow:-14px 0 26px -20px rgba(0,0,0,.7)}
 body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
 /* Der Griff greift über die Kante hinaus, damit er auch dann zu
    fassen ist, wenn die Maus schon knapp daneben steht. */
-.guidepanel .ghandle{position:absolute;left:-4px;top:0;bottom:0;width:9px;cursor:col-resize;
+.guidepanel .ghandle,.c2gpanel .ghandle{position:absolute;left:-4px;top:0;bottom:0;width:9px;cursor:col-resize;
   background:transparent;border:0;padding:0}
-.guidepanel .ghandle::after{content:"";position:absolute;left:3px;top:50%;width:3px;height:46px;
+.guidepanel .ghandle::after,.c2gpanel .ghandle::after{content:"";position:absolute;left:3px;top:50%;width:3px;height:46px;
   margin-top:-23px;border-radius:2px;background:var(--rule-strong)}
-.guidepanel .ghandle:hover::after,.guidepanel .ghandle:focus-visible::after{background:var(--accent)}
-.guidepanel .ghandle:focus-visible{outline:none}
+.guidepanel .ghandle:hover::after,.guidepanel .ghandle:focus-visible::after,.c2gpanel .ghandle:hover::after,.c2gpanel .ghandle:focus-visible::after{background:var(--accent)}
+.guidepanel .ghandle:focus-visible,.c2gpanel .ghandle:focus-visible{outline:none}
 .guidepanel .ghead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
   padding:16px 18px 10px;background:var(--paper);flex:0 0 auto}
 .guidepanel .ghead h3{font-family:var(--font-display);font-size:20px;margin:0}
@@ -687,7 +694,7 @@ body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
    gewählte steht dunkel — dieselbe Sprache wie die Filterknöpfe.
    Sie schalten **nur** die Anleitung um; die Sprache der Oberfläche
    steht in den Einstellungen. */
-.guidepanel .gact{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.guidepanel .gact,.c2gpanel .gact{display:flex;align-items:center;gap:10px;flex:0 0 auto}
 /* Der Pfeil aus dem Kasten steht zwischen der Sprachwahl und dem
    Kreuz: er nimmt die Anleitung mit, das Kreuz lässt sie zurück.
    Ein Symbol statt eines Wortes — im Kopf ist die Zeile schmal, und
@@ -695,24 +702,24 @@ body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
 /* Das Polster ist um ein Pixel höher als am Kreuz daneben: dort
    trägt ein Schriftzeichen die Höhe, hier ein 13-px-Symbol — beide
    Knöpfe sollen gleich hoch sein. */
-.guidepanel .gfull{display:inline-grid;place-items:center;padding:5px 8px}
-.guidepanel .gfull svg{width:13px;height:13px;stroke:currentColor;fill:none;
+.guidepanel .gfull,.c2gpanel .gfull{display:inline-grid;place-items:center;padding:5px 8px}
+.guidepanel .gfull svg,.c2gpanel .gfull svg{width:13px;height:13px;stroke:currentColor;fill:none;
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* Der Trennstrich ist eine **Fuge**, kein Rand am zweiten Knopf:
    als border-left war DE genau ein Pixel breiter als EN, und bei
    zwei Kürzeln nebeneinander sieht man das. Dieselbe Bauart wie
    die Kennzahlenleisten (.kpi, .anarow) — die 1px-Lücke lässt den
    Grund des Rahmens durchscheinen, beide Knöpfe bleiben gleich. */
-.guidepanel .glangs{display:flex;gap:1px;background:var(--rule-strong);
+.guidepanel .glangs,.c2gpanel .glangs{display:flex;gap:1px;background:var(--rule-strong);
   border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
 /* Deckender Grund statt transparent: sonst schiene die Fuge durch
    die Knöpfe selbst hindurch. Der Kopf der Anleitung steht auf
    --paper (siehe .guidepanel .ghead). */
-.guidepanel .glang{background:var(--paper);border:0;cursor:pointer;padding:3px 7px;
+.guidepanel .glang,.c2gpanel .glang{background:var(--paper);border:0;cursor:pointer;padding:3px 7px;
   font-family:var(--font-data);font-size:10px;letter-spacing:.1em;color:var(--ink-2);line-height:1.5}
-.guidepanel .glang:hover{background:var(--shade);color:var(--ink)}
-.guidepanel .glang[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
-.guidepanel .glang:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
+.guidepanel .glang:hover,.c2gpanel .glang:hover{background:var(--shade);color:var(--ink)}
+.guidepanel .glang[aria-pressed="true"],.c2gpanel .glang[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
+.guidepanel .glang:focus-visible,.c2gpanel .glang:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
 /* Zwei Wege durch dieselbe Anleitung: der Weg für Anfänger und
    die Beschreibung. Die orange Linie liegt am gewählten Reiter,
    nicht am Kopf darüber — sie soll sagen, wo man gerade liest. */
@@ -806,6 +813,76 @@ body.gresize{user-select:none;cursor:col-resize}
 .guide p,.guide li{font-size:14px;line-height:1.55;margin:0 0 8px}
 .guide ul,.guide ol{margin:0 0 8px;padding-left:20px}
 .guide li{margin-bottom:5px}
+
+/* ── Die Bausteine der Anleitung (7.9.26) ───────────────────────
+   Nach der Vorlage _BusinessCenter/DESIGN/260907 Guide für FINA
+   (von GPT).html, gebaut in js/dialogs/guide.js (gcall, gstep,
+   gcard, gfeat, gver). Alle Farben kommen aus css/tokens.css —
+   die Anleitung soll aussehen wie die Anwendung, die sie erklärt:
+   Orange heißt „hier ist etwas zu tun", die Kärtchen der Bereiche
+   tragen ihre Kante, die neueste Version die gelbe Marke. */
+.guide h3{font-family:var(--font-display);font-weight:700;font-size:17px;line-height:1.25;margin:0 0 4px}
+.guide h3.gtitle{font-size:22px;letter-spacing:-.01em;margin:16px 0 4px}
+.guide .glead{font-size:15px;line-height:1.5;margin:6px 0 2px;color:var(--ink)}
+.guide .gend{margin-top:14px}
+/* Der Merksatz: eine orange Kante links, der Grund eine Spur
+   Orange auf Papier. Der Titel steht als eigene Zeile darüber. */
+.guide .gcall{border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+  background:color-mix(in srgb,var(--accent) 8%,var(--paper-2));padding:10px 14px;margin:16px 0}
+.guide .gcall>b{display:block;margin-bottom:2px}
+.guide .gcall p{margin:0}
+.guide .gcall p+p{margin-top:6px}
+/* Nummerierte Schritte: die Zahl im Kreis links, der Text rechts;
+   zwischen zwei Schritten eine Haarlinie. */
+.guide .gsteps{margin-top:6px}
+.guide .gstep{display:grid;grid-template-columns:32px 1fr;gap:12px;padding:16px 0;border-top:1px solid var(--rule)}
+.guide .gstep:first-child{border-top:0}
+.guide .gnum{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--font-data);font-size:13px;font-weight:600;color:var(--accent-2);
+  background:color-mix(in srgb,var(--accent) 14%,var(--paper-2));margin-top:-2px}
+.guide .gstep .gshot{margin-bottom:4px}
+/* Die Kärtchen der vier Bereiche — weiß mit der Kante ihrer
+   Geldart, wie die Karten der Monatsansicht. */
+.guide .gcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.guide .gcard{background:#fff;border:1px solid var(--hairline);border-radius:8px;box-shadow:var(--sh-card);padding:11px 13px 10px}
+.guide .gcard h3{font-size:15px}
+.guide .gcard p{font-size:13px;color:var(--ink-2);margin:0}
+.guide .gcard.t-in{border-left:3px solid var(--edge-in)}
+.guide .gcard.t-out{border-left:3px solid var(--edge-out)}
+.guide .gcard.t-flex{border-left:3px solid var(--edge-flex)}
+.guide .gcard.t-bal{border-left:3px solid var(--edge-bal)}
+/* Je Funktion ein Block: der Titel mit seiner Unterzeile, dann der
+   Text. Im schmalen Seitenbereich untereinander, auf der ganzen
+   Seite nebeneinander (siehe .gpage unten). */
+.guide .gfeat{padding:18px 0;border-top:1px solid var(--rule)}
+.guide .gfh p{font-size:13px;color:var(--ink-2);margin:0 0 8px}
+.guide .gfb>p:last-child,.guide .gfb>ul:last-child,.guide .gfb>ol:last-child{margin-bottom:0}
+.guide .gfb .gshot{margin-bottom:0}
+.gpage .gfeat{display:grid;grid-template-columns:150px 1fr;gap:18px}
+.gpage .gfh p{margin-bottom:0}
+/* Die Versionen: je eine Karte, die neueste mit gelber Kante und
+   gelber Marke (.pill, siehe oben). Die Nummer ist eine Marke in
+   Mono-Versalien, die Häkchenliste trägt statt Punkten ein grünes
+   Häkchen — dieselbe Farbe wie ein abgehakter Betrag. */
+.guide .gvers{margin-top:12px}
+.guide .gver{background:#fff;border:1px solid var(--rule);border-radius:8px;padding:12px 14px 10px;margin:0 0 12px}
+.guide .gver.cur{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 6%,#fff)}
+.guide .gver h3{margin:8px 0 4px}
+.guide .gver>p{color:var(--ink-2)}
+.guide .gtag{display:inline-block;font-family:var(--font-data);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--accent-2);background:var(--chrome);
+  border-radius:4px;padding:2px 7px}
+.guide .gver .pill{margin-left:6px;border-radius:4px;padding:2px 7px;font-weight:600;
+  background:color-mix(in srgb,var(--amber) 16%,#fff)}
+.guide .gcheck{list-style:none;padding:0;margin:8px 0 0}
+.guide .gcheck li{position:relative;padding-left:20px;margin-bottom:4px}
+.guide .gcheck li::before{content:"\2713";position:absolute;left:0;top:0;color:var(--ok);font-weight:700}
+.guide .gcheck li:last-child{margin-bottom:0}
+/* Die Tabelle „Wenn du … dann wähle …" der Wizard-Anleitung. */
+.guide table.gtab{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:13px}
+.guide .gtab th,.guide .gtab td{text-align:left;vertical-align:top;padding:5px 8px 5px 0;border-bottom:1px solid var(--rule)}
+.guide .gtab th{font-family:var(--font-data);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-weight:500}
+.guide .gtab tr:last-child td{border-bottom:0}
 :is(.modal,.modalghost,.boxslide) h3{font-family:var(--font-display);font-weight:700;font-size:19px;margin:0 0 4px}
 :is(.modal,.modalghost,.boxslide) .subline{font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
 .row-end{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:16px;flex-wrap:wrap}
@@ -1205,7 +1282,9 @@ textarea.srvtext{width:100%;display:block}
    ein weggeschnittener Knopf wäre ein Weg, den es nicht mehr gibt.
    Der Rollbalken zeigt sich nur, wenn er gebraucht wird. */
 .c2row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;
-  overflow-x:auto;scrollbar-width:thin;
+  /* Kein Rollbalken mehr (7.9.26): passt die Leiste nicht, ziehen
+     sich ihre Knöpfe ins ☰-Menü zurück (c2FitBar). */
+  overflow:hidden;
   /* Der rote Punkt am ☰ ragt 4 px über den Knopf hinaus, und ein
      Rollrahmen schneidet auch nach oben ab (overflow-x:auto macht
      die Senkrechte mit). Die Zeile greift deshalb 5 px nach oben in
@@ -1952,6 +2031,12 @@ textarea.srvtext{width:100%;display:block}
 .c2fpop [data-do="wipe"]::before{-webkit-mask-image:var(--ic-trash);mask-image:var(--ic-trash)}
 .c2fpop [data-do="clearFlt"]::before{-webkit-mask-image:var(--ic-clear);mask-image:var(--ic-clear)}
 .c2fpop [data-do="crit"]::before{-webkit-mask-image:var(--ic-list);mask-image:var(--ic-list)}
+/* Die aus der Leiste ausgewichenen Knöpfe (c2FitBar) und die Linie
+   darunter, die sie von den festen Einträgen trennt. */
+.c2fpop [data-do="fit-once"]::before{-webkit-mask-image:var(--ic-check);mask-image:var(--ic-check)}
+.c2fpop [data-do="fit-old"]::before{-webkit-mask-image:var(--ic-all);mask-image:var(--ic-all)}
+.c2fpop [data-do="fit-auto"]::before{-webkit-mask-image:var(--ic-critsearch);mask-image:var(--ic-critsearch)}
+.c2fpop .c2msep{height:1px;background:var(--rule);margin:4px 0}
 /* Der weiße Streifen, der beim Zuordnen von der CSV unter sein
    Ziel fliegt. */
 .c2ghost{position:fixed;z-index:400;background:var(--paper);border:1px solid var(--rule-strong);
@@ -2187,11 +2272,32 @@ textarea.srvtext{width:100%;display:block}
    Polster der Anleitung, kein gap: der zählte sonst zum Rest. */
 .c2work{flex:1 1 auto;min-height:0;display:flex}
 .c2main{flex:1 1 0;min-width:0;min-height:0;display:flex;flex-direction:column}
-.c2gpanel{flex:0 0 25%;min-width:0;min-height:0;overflow:auto;border-left:1px solid var(--rule);padding:0 4px 24px 16px}
-.c2gpanel .c2ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 2px}
+/* **Seit dem 7.9.26 ein Drittel statt eines Viertels**, und die
+   Breite lässt sich am Griff ziehen (c2GuideHandle, mindestens ein
+   Drittel des Fensters). Das Feld ist eine Spalte: der Kopf mit
+   Sprachwahl, Pfeil und ✕ steht fest, nur der Rumpf (.c2gbody)
+   rollt — sonst wäre der Griff am linken Rand mit dem Inhalt
+   weggerollt (ein absolut gesetztes Kind eines rollenden Elements
+   wird mit abgeschnitten). Griff, Sprachwahl und Pfeil tragen
+   dieselben Klassen wie im Guide der Anwendung (.ghandle, .glangs,
+   .gfull, Regeln bei .guidepanel oben). */
+/* Herein von rechts beim Öffnen (.slidein, c2GuidePanel), hinaus
+   als Geist in einem beschnittenen Rahmen (c2GuideGhost) — die
+   Fläche darunter (.c2work) schneidet die Fahrt an der Fensterkante
+   ab. Der Geist steht über dem Fenster (z-index wie .modalghost). */
+.c2work{overflow:hidden}
+.c2gpanel.slidein{animation:fina-impin .28s cubic-bezier(.4,0,.2,1)}
+.c2gghostwrap{position:fixed;z-index:50;overflow:hidden;pointer-events:none}
+.c2gghost{animation:fina-impout .22s ease-in forwards;background:var(--paper-2)}
+.c2gpanel{position:relative;display:flex;flex-direction:column;flex:0 0 33.34%;min-width:0;min-height:0;
+  border-left:1px solid var(--rule);padding:0 0 0 16px}
+.c2gpanel .c2ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 2px;flex:0 0 auto}
 .c2gpanel .c2ghead b{font-family:var(--font-display);font-size:17px}
 .c2gpanel .c2gx{padding:2px 9px}
-.c2gpanel>h4:first-of-type{border-top:0;padding-top:0;margin-top:8px}
+.c2gpanel .gact{gap:8px}
+.c2gpanel .c2gbody{flex:1 1 auto;min-height:0;overflow:auto;padding:0 4px 24px 0}
+.c2gpanel .c2gbody>h4:first-of-type{border-top:0;padding-top:0;margin-top:8px}
+.c2gpanel .c2gbody>p:first-child{margin-top:8px}
 .c2gpanel p,.c2gpanel li{font-size:13px}
 /* Der Anleitungs-Knopf ist orange gefüllt (.accent); gedrückt eine
    Stufe dunkler, damit man sieht, dass die Anleitung offen ist. */

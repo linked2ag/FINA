@@ -22,20 +22,28 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen, aber keine Textstelle
 
-- **Die Bildschirmfotos in `doc/img/` sind vom 8. August 2026** und zeigen das Chrome von
-  vor dem Mac-Redesign: Kopfzeile mit Knopfreihe, Filter als Knopfreihe, „Neu…"-Knöpfe in
-  den Karten, das alte Wortzeichen. Die Anleitung zeigt seit 6.9.26 nur noch Bilder, deren
-  Gegenstand es noch gibt (`welcome`, `set-general`, `set-groups`, `item-dialog`,
-  `month-out`, `month-bal`, `year-left`, `forecast`, `ui-analytics`, `ui-waterfall`,
-  `flex-view`); `legend`, `flex-dialog`, `set-lists`, `month`, `month-in`, `month-flex`,
-  `month-slim`, `ui-header`, `ui-kpi`, `item-quick`, `item-months`, `year`, `flexible`,
-  `guide` liegen ungenutzt in `doc/img/`. Neue Abzüge nur auf ausdrückliche Bitte
-  (`doc/make-shots.py`; `flex-dialog` zeigt ein Fenster, das es nicht mehr gibt, `legend`
-  ist aus `SHOTS` heraus).
+- **Die Bildschirmfotos in `doc/img/` sind vom 7. September 2026** und zeigen den Stand
+  26.9.6 (Mac-Chrome, ein Fenster für alle Posten, Wizard-Schritt 3). Die Anleitung zeigt
+  `welcome`, `set-general`, `set-groups`, `item-dialog`, `item-flex`, `month-page`,
+  `month-slim`, `year-left`, `forecast`, `item-months`, `csv-step3`,
+  `ui-filter`; `legend` (alt, nicht mehr in `SHOTS`), `set-lists`, `month`, `month-in`,
+  `month-flex`, `month-out`, `month-bal`, `ui-header`, `ui-kpi`, `ui-analytics`,
+  `ui-waterfall`, `item-quick`, `year`, `flexible`, `guide` liegen ungenutzt oder dienen
+  README und Startseite. Neue Abzüge nur auf ausdrückliche Bitte (`doc/make-shots.py`).
 - **Das Impressum fehlt** (Anschrift offen) — sobald es da ist, gehört ein Satz in „Was
   FINA kann", Abschnitt „Speichern und Sicherheit", neben der Datenschutzerklärung.
 
 ## Zuletzt eingearbeitet
+
+Am 7. September 2026, **alle drei Reiter und die Wizard-Anleitung neu gebaut** nach den
+beiden Vorlagen in `_BusinessCenter/DESIGN/260907 Guide für FINA (von GPT).html` und
+`… Guide für Wizard (von GPT).html`: nummerierte Schritte mit je einem Bild (außer
+„Speichern"), ein Merksatz „Die einfache Regel", vier Kärtchen für die Bereiche, je
+Funktion ein Block mit Titel und Text, im Reiter „Was ist neu" je Version eine Karte mit
+Überschrift, Satz und Häkchenliste (die neueste gelb als „Aktuelle Version"). Die
+Wizard-Anleitung beginnt mit „Kurz erklärt" und der Tabelle „Was möchtest du tun?". Die
+Bausteine heißen `gcall` · `gstep` · `gcard` · `gfeat` · `gver` (`js/dialogs/guide.js`),
+ihre Regeln stehen in `css/components.css`. Alle Bilder neu aus `fina-demo-en.json`.
 
 Am 6. September 2026 (spät), **beide Reiter neu geschrieben**, beide Sprachen — nach dem
 Vorbild der ChatGPT-Produktseite: zuerst, was man bekommt (drei Fragen, die FINA

@@ -1308,7 +1308,9 @@ const STR={
 'c2.care':{en:'Maintain {0} in Settings…',de:'{0} in den Einstellungen pflegen…'},
 'year.paidTip':{en:'Settled — you ticked this month off',de:'Erledigt — diesen Monat hast du abgehakt'},
 'year.estTip':{en:'Estimated — not confirmed yet',de:'Geschätzt — noch nicht bestätigt'},
-'c2.hrowCol':{en:'HDR',de:'BZ'},
+/* HDR in beiden Sprachen (Lex, 7.9.26) — wie B · PT · DD · LP ein
+   Kürzel, das nicht mit der Sprache wechselt. */
+'c2.hrowCol':{en:'HDR',de:'HDR'},
 'c2.hrowTip':{en:'Which row holds the column labels — click a circle to choose it. Everything above it is skipped.',
   de:'Welche Zeile die Spaltenbeschriftungen trägt — mit einem Klick auf einen Kreis wählen. Alles darüber wird übersprungen.'},
 'c2.hrowIs':{en:'These are the column labels',de:'Das sind die Spaltenbeschriftungen'},

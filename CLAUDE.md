@@ -414,6 +414,17 @@ trägt sie dort ein.
 * **Die Filterzeile wechselt ihre Farbe mit Übergang**: `render()` merkt `fbWasOn`, setzt für
   ein Bild `.was-on/.was-off` (`layout.css`, `!important`) und nimmt sie wieder — nicht
   beim Ansichtswechsel.
+* **Die beiden Anleitungen** (seit 7.9.26) — der Bereich `.guidepanel` und das Feld
+  `.c2gpanel` im Wizard — fahren von rechts herein und nach rechts hinaus, mit den
+  Keyframes der Importdaten (`fina-impin/-impout`). Der Bereich fährt selbst hinaus:
+  `closeGuide()` nimmt ihm die Kennung (`guideOpen()` sagt sofort „zu"), gibt ihm
+  `.closing` und `inert`, und er entfernt sich per `animationend` plus Uhr. Das Feld im
+  Wizard geht mit `c2Render()` verloren, deshalb ein Geist (`c2GuideGhost()`) in einem
+  `.c2gghostwrap` mit `overflow:hidden` an der Fensterkante; `.c2work` ist dafür ebenfalls
+  `overflow:hidden`. Beides im Sammelblock für `prefers-reduced-motion`. **Aus dem
+  ☰-Menü heraus klappt erst das Menü zu, dann fährt die Anleitung** (Lex, 7.9.26): der
+  Handler von `#btnGuide` in `js/app.js` wartet die 260 ms von `shut()` ab, wenn das Menü
+  beim Klick `open` trägt; sonst deckte das zuklappende Menü den Anfang der Fahrt zu.
 * **Native `<select>`-Listen lassen sich nicht animieren** — der Browser zeichnet sie. Dafür
   bräuchte es eigene Listen; das ist bewusst nicht gebaut.
 
@@ -2755,7 +2766,8 @@ und migriert wird beim Lesen (`migrate()`).
   Radio): **„Automatisch CSV-Datenstruktur vorbereiten"** bringt die Felder mit und geht
   nach Schritt 2 (`W.autoCols`), **„CSV-Datenstruktur von Grund auf neu anordnen"** fängt
   leer an. Eine unbekannte Datei springt gleich nach Schritt 2. „Weiter" ist schwarz.
-* **Schritt 2:** die Beschriftungszeile (Spalte HDR/BZ), die Spalten (jeder Spaltenkopf
+* **Schritt 2:** die Beschriftungszeile (Spalte **HDR**, seit 7.9.26 in beiden Sprachen — ein
+  Kürzel wie B · PT · DD · LP), die Spalten (jeder Spaltenkopf
   ein Knopf), über jeder gewählten Spalte ihr Feld. „Spalten speichern und weiter" prüft
   erst Datum und Betrag (`c2Missing`), dann **gewählte Spalten ohne Feld** (`c2LooseCols`,
   6.9.26): ein Fenster nennt sie und bietet „Abwählen" an — das bleibt im Schritt, damit man
@@ -2773,7 +2785,14 @@ und migriert wird beim Lesen (`migrate()`).
   rotem Punkt, solange ein Filter etwas trägt · „Modus: Einmalige Zuordnung" · „Zuordnen
   und merken" · „Neu anlegen und zuordnen" · rechts der Schalter „Schon zugeordnete
   CSV-Zeilen verbergen/zeigen" (`W.showOld`) und „Automatisch zuordnen mit gemerkten
-  Importkriterien…"), unten die Dateizeilen mit Filter je Feld und Schnellfilter. **Die
+  Importkriterien…"; **passt die Leiste nicht in die Zeile, ziehen sich ihre Knöpfe ins
+  ☰-Menü zurück** — `c2FitBar()`, gemessen wie `fitHeaderBtns()`, seit 7.9.26: erst
+  „Automatisch zuordnen…", dann „Schon zugeordnete…", dann der Modus-Knopf, markiert mit
+  `data-c2fit`; „Zuordnen und merken" bzw. „Einmalig zuordnen" und „Neu anlegen und
+  zuordnen" bleiben immer stehen (Lex). `W.inMenu` sagt, was im Menü steckt;
+  `c2AssignMenu()` baut daraus Einträge zuoberst, die den versteckten Knopf drücken. Ein
+  Rollbalken quer über die Knöpfe — bis dahin `overflow-x:auto` an `.c2row` — war Lex
+  „hässlich"), unten die Dateizeilen mit Filter je Feld und Schnellfilter. **Die
   Spalte „X" steht immer**: Zeilen, die schon im Buch stehen (`W.inBook`, `c2ScanBook()`
   über Datum · Betrag · Referenzen), stehen grau mit Kreuz, schreibgeschützt und nie wieder
   zuordenbar — **und ebenso Zeilen, die dieser Lauf zugeordnet hat** (`asg`, 6.9.26 spät;
@@ -2785,9 +2804,22 @@ und migriert wird beim Lesen (`migrate()`).
   importiert", Grau „schon im Buch" (siehe „Die Farbsprache"). Ein einzelner Buchstabe
   ohne Fokus geht in den Schnellfilter (`c2Keys()`).
 * **Die Anleitung daneben** (`C2_GUIDE`, Knopf „Anleitung" ganz links in Schritt 2 und 3)
-  teilt das Fenster; die Texte stehen in der Datei, nicht in `js/i18n.js`, und beginnen je
-  Schritt mit **„Layout"** — grob, was im Fenster steht —, dann Zweck, dann nummerierte
-  Schritte. Kein „Oben: … Darunter: …" (das fand Lex schrecklich).
+  teilt das Fenster; die Texte stehen in der Datei, nicht in `js/i18n.js`. **Seit 7.9.26
+  nach der Vorlage `_BusinessCenter/DESIGN/260907 Guide für Wizard (von GPT).html`**:
+  zuerst „Kurz erklärt" (die drei Bereiche des Fensters in drei Zeilen), dann die Tabelle
+  „Was möchtest du tun?" (`.gtab`: wenn du … dann wähle …), je Weg seine Schritte, ein
+  Tipp als Merksatz (`.gcall`), die Farben, „Abschließen oder abbrechen" — und unter „Mehr
+  im ☰-Menü" der Satz, dass schmale Fenster Knöpfe der Leiste dorthin verlagern. Die
+  Knopfnamen stehen wörtlich so wie in `js/i18n.js`. Kein „Oben: … Darunter: …" (das fand
+  Lex schrecklich). **Das Feld trägt denselben Kopf wie der Guide der Anwendung**
+  (`c2GuidePanel()`): EN · DE (`W.gLang`, Vorgabe die Sprache der Oberfläche, schaltet nur
+  die Anleitung um), der Pfeil in einen eigenen Reiter (`c2GuideDoc()`, beide Schritte
+  hintereinander, `.guide.gpage`, schließt das Feld) und das ✕; links der Griff
+  (`c2GuideHandle()`, `.ghandle`) — **mindestens ein Drittel des Fensters** (`W.guideW`,
+  `c2GuideWidth()`, Vorgabe genau ein Drittel in px), höchstens zwei Drittel des
+  Wizard-Fensters. Der Kopf steht fest, nur `.c2gbody` rollt. Herein fährt es von rechts
+  (`.slidein`, nur beim Öffnen — `W.guideAnim`), hinaus als Geist in einem beschnittenen
+  Rahmen (`c2GuideGhost()`, `.c2gghostwrap`), siehe „Bewegung".
 * **Das Fenster „Importkriterien"** (`openImpRules('all',done)`, `.cmebox` 1240 px) zeigt
   je Regel einen weißen Block — Posten oben, Bedingungen als Zeilen Feld · Vergleichsart
   („Enthält" …) · Wert · „Diese Regel löschen" —, gegliedert wie der Zielbereich mit
@@ -2840,7 +2872,8 @@ der Jahresmatrix und der Erklärsatz über dem Zeitstrahl.
 `js/dialogs/guide.js` hängt die Anleitung als `<aside class="guidepanel">` rechts an den
 Bildschirmrand: sie bleibt offen, während man in der Tabelle weiterarbeitet. Derselbe
 orange Knopf `#btnGuide` klappt sie auf und wieder zu (`toggleGuide()`), `aria-pressed`
-sagt, ob sie offen ist.
+sagt, ob sie offen ist. Auf und zu geht sie animiert — von rechts herein, nach rechts
+hinaus (siehe „Bewegung").
 
 Die Breite steht in der CSS-Variablen `--guidew` — beim ersten Öffnen ein Drittel des
 Fensters, danach das, was am Griff (`.ghandle`) gezogen wurde, begrenzt auf 300 px bis zwei
@@ -2919,6 +2952,19 @@ drei Einschüben wird deshalb zu drei Sätzen; Gedankenstriche, die einen Nebens
 werden zu Punkten. Das gilt für **alle drei Reiter** und für **beide Sprachen** — wer einen
 Absatz ergänzt, schreibt ihn in diesem Ton, sonst fällt er auf.
 
+**Die Bausteine der Anleitung** (seit 7.9.26, nach der Vorlage
+`_BusinessCenter/DESIGN/260907 Guide für FINA (von GPT).html`): `gcall` (der Merksatz mit
+oranger Kante), `gstep` (nummerierter Schritt mit Kreis), `gcard` (Kärtchen eines Bereichs
+mit seiner Kante, `.t-in/-out/-flex/-bal`), `gfeat` (je Funktion ein Block: Titel und
+Unterzeile, dann Text — auf der ganzen Seite nebeneinander, im Bereich untereinander) und
+`gver` (eine Version als Karte). Die Regeln stehen in `css/components.css` unter „Die
+Bausteine der Anleitung"; die Wizard-Anleitung nutzt `.gcall` und `.gtab` mit. „Schritt
+für Schritt" hat sieben Schritte mit je einem Bild — nur „Speichern" ohne —, darüber
+„In etwa 30 Minuten startklar" und „Die einfache Regel"; „Was FINA kann" fängt mit den
+drei Fragen an, dann vier Kärtchen, dann die Blöcke, am Ende „Was FINA nicht ist".
+**„Import Details" kommt dort nicht mehr vor** (Lex, 7.9.26: den Reiter soll es so nicht
+mehr geben), und von den Mac-/Windows-Apps steht in keinem Reiter mehr etwas.
+
 **Drei Reiter, drei Fragen.** `GUIDE` in `js/dialogs/guide.js` hat drei Zweige mit je einer
 englischen und einer deutschen Fassung: `steps` führt einen Anfänger einmal von oben nach
 unten durch das Anlegen des Buches und endet mit dem Monatsrhythmus; `product` beschreibt,
@@ -2927,16 +2973,19 @@ was die Anwendung kann; `news` ist die Versionsliste und steht als letzter. Gew�
 braucht einen Zweig in `GUIDE`, eine Zeile in `GUIDE_TABS` und einen Schlüssel in
 `js/i18n.js`.
 
-**Im Reiter „Was ist neu" steht je Punkt eine Zeile.** Nur die **größeren funktionalen**
-Änderungen bekommen einen eigenen Punkt, und der sagt in einem Satz, was der Nutzer jetzt
-tun kann — kein Warum, keine Begründung, keine Aufzählung von Einzelheiten. Alles Übrige —
-Kosmetik, kleine Anpassungen, behobene Fehler — wird zu **einem** Punkt am Ende
-zusammengefasst: „Bugfixing und kosmetische Anpassungen." Eine Versionsliste wird gelesen,
-solange sie sich überfliegen lässt.
+**Im Reiter „Was ist neu" ist jede Version eine Karte** (`gver`, seit 7.9.26): die Nummer
+als Marke (`.gtag`), eine Überschrift, die in einem Satz sagt, was der Nutzer davon hat,
+ein Satz dazu (bei älteren Versionen entfällt er) und eine Häkchenliste (`ul.gcheck`) — je
+Punkt eine Zeile. Nur die **größeren funktionalen** Änderungen bekommen einen eigenen
+Punkt, und der sagt, was der Nutzer jetzt tun kann — kein Warum, keine Begründung, keine
+Aufzählung von Einzelheiten. Alles Übrige — Kosmetik, kleine Anpassungen, behobene Fehler —
+wird zu **einem** Punkt am Ende zusammengefasst: „Bugfixing und kosmetische Anpassungen."
+Eine Versionsliste wird gelesen, solange sie sich überfliegen lässt.
 
-**Die Marke an der neuesten Fassung ist gelb** (`.guide .pill`, `--amber`): Schrift wie
-Rahmen. Rot wäre eine Warnung, Grün eine Bestätigung — Gelb zieht den Blick, ohne etwas zu
-behaupten.
+**Die neueste Fassung ist gelb** (`.gver.cur`, `--amber`): Rahmen und Grund der Karte, und
+die Marke „Aktuelle Version" / „Current version" (`.pill`) neben der Nummer — das vierte
+Argument von `gver`, nur die oberste trägt es. Rot wäre eine Warnung, Grün eine Bestätigung
+— Gelb zieht den Blick, ohne etwas zu behaupten.
 
 **Der Reiter wächst nach oben:** die neueste Fassung zuoberst. Die Nummer ist
 das Datum — `Jahr.Monat.Tag`, also `26.8.4` für den 4. August 2026, **dieselbe Form wie

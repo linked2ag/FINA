@@ -1280,7 +1280,19 @@ addEventListener('mouseup',ev=>{
 document.getElementById('btnSettings').onclick=()=>openSettings();
 /* Die Anleitung ist ein Bereich, kein Fenster: derselbe Knopf
    klappt sie auf und wieder zu. */
-document.getElementById('btnGuide').onclick=()=>toggleGuide();
+/* **Aus dem Menü heraus klappt erst das Menü zu, dann fährt die
+   Anleitung** (Lex, 7.9.26): der Klick auf einen Eintrag schließt
+   das Menü animiert (shut(), .closing, 260 ms), und die Anleitung
+   wartet so lange — sonst führen beide zugleich, und das Menü
+   deckte den Anfang der Fahrt zu. Dieser Handler läuft vor dem
+   Schließen (onclick am Knopf vor dem Listener an .tools), das Menü
+   trägt hier also noch `open`. Ohne offenes Menü — Tastengriff,
+   Knopf außerhalb — sofort. */
+document.getElementById('btnGuide').onclick=()=>{
+  const tools=document.getElementById('hdrTools');
+  const fromMenu=tools&&(tools.classList.contains('open')||tools.classList.contains('closing'));
+  if(fromMenu) setTimeout(toggleGuide,270); else toggleGuide();
+};
 document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();

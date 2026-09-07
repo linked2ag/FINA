@@ -27,7 +27,7 @@
    diese Nummer tragen. Versionen entstehen dort nur auf Zuruf; die
    Webseite läuft ihnen voraus, und die Apps hinterher (siehe
    „Die zwei Veröffentlichungskanäle" in der Planung). */
-const VERSION='26.9.6';
+const VERSION='26.9.7';
 /* Wie lange die Maus auf einem Element stehen muss, bis seine
    Sprechblase (data-tip, title) erscheint — der eine Wert für alle
    Hinweise (tipLater in js/ui.js) — eine halbe Sekunde. */
