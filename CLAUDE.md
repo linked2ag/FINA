@@ -436,8 +436,9 @@ trägt sie dort ein.
   `.c2gghostwrap` mit `overflow:hidden` an der Fensterkante; `.c2work` ist dafür ebenfalls
   `overflow:hidden`. Beides im Sammelblock für `prefers-reduced-motion`. **Aus dem
   ☰-Menü heraus klappt erst das Menü zu, dann fährt die Anleitung** (Lex, 7.9.26): der
-  Handler von `#btnGuide` in `js/app.js` wartet die 260 ms von `shut()` ab, wenn das Menü
-  beim Klick `open` trägt; sonst deckte das zuklappende Menü den Anfang der Fahrt zu.
+  Handler von `#btnGuide` in `js/app.js` wartet die 260 ms von `shut()` **plus eine halbe
+  Sekunde Ruhe** ab (`GUIDE_AFTER_MENU`), wenn das Menü beim Klick `open` trägt; sonst
+  deckte das zuklappende Menü den Anfang der Fahrt zu.
 * **Native `<select>`-Listen lassen sich nicht animieren** — der Browser zeichnet sie. Dafür
   bräuchte es eigene Listen; das ist bewusst nicht gebaut.
 

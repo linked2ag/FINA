@@ -1234,17 +1234,20 @@ document.getElementById('btnSettings').onclick=()=>openSettings();
    klappt sie auf und wieder zu. */
 /* **Aus dem Menü heraus klappt erst das Menü zu, dann fährt die
    Anleitung** (Lex, 7.9.26): der Klick auf einen Eintrag schließt
-   das Menü animiert (shut(), .closing, 260 ms), und die Anleitung
-   wartet so lange — sonst führen beide zugleich, und das Menü
-   deckte den Anfang der Fahrt zu. Dieser Handler läuft vor dem
+   das Menü animiert (shut(), .closing, 260 ms), dann bleibt es
+   **eine halbe Sekunde ruhig** (GUIDE_AFTER_MENU), und erst dann
+   fährt die Anleitung herein — sonst führen beide zugleich, und das
+   Menü deckte den Anfang der Fahrt zu. Dieser Handler läuft vor dem
    Schließen (onclick am Knopf vor dem Listener an .tools), das Menü
    trägt hier also noch `open`. Ohne offenes Menü — Tastengriff,
    Knopf außerhalb — sofort. */
 document.getElementById('btnGuide').onclick=()=>{
   const tools=document.getElementById('hdrTools');
   const fromMenu=tools&&(tools.classList.contains('open')||tools.classList.contains('closing'));
-  if(fromMenu) setTimeout(toggleGuide,270); else toggleGuide();
+  if(fromMenu) setTimeout(toggleGuide,GUIDE_AFTER_MENU); else toggleGuide();
 };
+/* 260 ms Zuklappen des Menüs plus eine halbe Sekunde Ruhe. */
+const GUIDE_AFTER_MENU=260+500;
 document.getElementById('btnLoad').onclick=()=>loadData();
 document.getElementById('btnSave').onclick=()=>saveData();
 document.getElementById('btnBackup').onclick=()=>saveBackup();
