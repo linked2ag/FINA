@@ -1075,6 +1075,17 @@ body.gresize{user-select:none;cursor:col-resize}
    Positionsfenster (.dgrp; bis 23.8.26 grau auf --chrome, seither
    hebt der Schatten die Box ab, nicht die Farbe). */
 .setpanes{min-width:0}
+/* **Nur der Bereich rechts rollt** (Lex, 7.9.26): das Menü links und
+   die Überschrift bleiben stehen. Der Rumpf (.dbody) rollt hier nicht
+   mehr selbst, sondern gibt seine Höhe an das Raster weiter
+   (minmax(0,1fr), sonst wüchse die Zeile mit dem Inhalt), und die
+   Spalte der Bereiche wird zur Rollfläche. Ihr Polster und der
+   Gegen-Rand halten den Schatten des Blocks (--sh-grp) vor der
+   Rollkante — dieselbe Überlegung wie am Rumpf selbst (oben). */
+:is(.modal,.modalghost,.boxslide) .box.setbox>.dbody{overflow:hidden;display:flex;flex-direction:column;padding-bottom:0}
+.setbox .setlayout{flex:1 1 auto;min-height:0;grid-template-rows:minmax(0,1fr);margin-bottom:0}
+.setbox .setpanes{align-self:stretch;min-height:0;overflow-y:auto;scrollbar-width:thin;
+  padding:2px 14px 26px 2px;margin:-2px -14px 0 -2px}
 .setpane{background:var(--paper-2);border:1px solid var(--hairline);border-radius:8px;
   box-shadow:var(--sh-grp);padding:12px 14px 4px}
 .setpane>.note:first-of-type{margin-top:-2px}

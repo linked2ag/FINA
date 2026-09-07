@@ -2716,7 +2716,10 @@ Lesen da, nicht nur zur Orientierung.
 ## Das Einstellungsfenster
 
 Links ein Menü, rechts der gewählte Bereich (`js/dialogs/settings.js`). Gebaut werden
-**immer alle** Bereiche, umgeschaltet wird nur `hidden`. Das ist Absicht: `collect()` liest
+**immer alle** Bereiche, umgeschaltet wird nur `hidden`. **Rollt nur der Bereich rechts**
+(Lex, 7.9.26): der Rumpf `.dbody` rollt im Einstellungsfenster nicht selbst, das Raster
+`.setlayout` bekommt seine Höhe (`minmax(0,1fr)`), und `.setpanes` ist die Rollfläche —
+Menü und Überschrift bleiben stehen (`css/components.css`, Abschnitt „Einstellungen"). Das ist Absicht: `collect()` liest
 die Felder aller Bereiche, und Getipptes überlebt so den Wechsel. Der gewählte Bereich
 steht in `setPane` — einer Modulvariablen, nicht im Zustand: das Fenster baut sich bei
 „+", Entfernen und Sortieren komplett neu auf, und ohne `setPane` landete man dabei jedes
