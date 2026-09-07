@@ -276,6 +276,16 @@ income, regular and flexible entries, built in blocks from top to bottom:</p>
 <p><b>${t('item.dup')}</b> opens a copy of what is typed, without ticks and notes.</p>
 ${gshot('item-months','The twelve months: amount, tick, note lamp')}`)}
 
+${gfeat('Search, filter, notes','Try without risk',`
+<p>Filters never change your file. They only decide which rows you see. Search by name, amount,
+category or payment state. While a filter is on, the filter row is yellow, and every number on
+screen follows what is shown: card totals, category rows, the analytics line.</p>
+<p><b>${t('flt.options')}</b> next to the search field says where the search looks. The
+<b>✕</b> or Escape takes every filter back.</p>
+<p>The small lamp is a note. Next to a name it belongs to the entry, inside a month to that
+month only. A lit lamp has a note; point at it to read it.</p>
+${gshot('ui-filter','A filter at work: the row turns yellow, the cards show only the hits')}`)}
+
 ${gfeat('CSV import','Take over transactions faster',`
 <p>Open <b>☰ → ${t('menu.csv')}</b>. The import wizard leads you through three steps:
 <b>${t('c2.steps1')}</b>, <b>${t('c2.steps2')}</b> and <b>${t('c2.steps3')}</b>.</p>
@@ -291,16 +301,6 @@ ${gfeat('CSV import','Take over transactions faster',`
 <p>What FINA has learned, structures and criteria, is under <b>${t('app.settings')}</b> →
 <b>${t('set.navImport')}</b>.</p>
 ${gshot('csv-step3','Step 3 of the import: entries above, file rows below, the guide beside it')}`)}
-
-${gfeat('Search, filter, notes','Try without risk',`
-<p>Filters never change your file. They only decide which rows you see. Search by name, amount,
-category or payment state. While a filter is on, the filter row is yellow, and every number on
-screen follows what is shown: card totals, category rows, the analytics line.</p>
-<p><b>${t('flt.options')}</b> next to the search field says where the search looks. The
-<b>✕</b> or Escape takes every filter back.</p>
-<p>The small lamp is a note. Next to a name it belongs to the entry, inside a month to that
-month only. A lit lamp has a note; point at it to read it.</p>
-${gshot('ui-filter','A filter at work: the row turns yellow, the cards show only the hits')}`)}
 
 ${gfeat('On the phone','For looking things up',`
 <p>Below 700 px FINA builds a layout of its own: the month as a card list with large circles,
@@ -407,6 +407,17 @@ Einnahmen, reguläre und flexible Einträge dasselbe, in Blöcken von oben nach 
 <p><b>${t('item.dup')}</b> öffnet eine Kopie des Getippten, ohne Haken und Notizen.</p>
 ${gshot('item-months','Die zwölf Monate: Betrag, Haken, Notizlampe')}`)}
 
+${gfeat('Suchen, filtern, Notizen','Ohne Risiko ausprobieren',`
+<p>Filter ändern nie deine Datei. Sie entscheiden nur, welche Zeilen du siehst. Suche nach Name,
+Betrag, Kategorie oder Zahlungsstatus. Solange ein Filter greift, ist die Filterzeile gelb, und
+jede Zahl auf dem Schirm folgt dem, was gezeigt wird: Kartensummen, Kategoriezeilen, die
+Auswertungszeile.</p>
+<p><b>${t('flt.options')}</b> neben dem Suchfeld sagt, worin die Suche sucht. Das <b>✕</b>
+oder Escape nimmt jeden Filter zurück.</p>
+<p>Die kleine Lampe ist eine Notiz. Neben einem Namen gehört sie zum Eintrag, in einem Monat nur
+zu diesem Monat. Eine leuchtende Lampe hat eine Notiz; zeig darauf, um sie zu lesen.</p>
+${gshot('ui-filter','Ein Filter greift: die Zeile wird gelb, die Karten zeigen nur die Treffer')}`)}
+
 ${gfeat('CSV-Import','Umsätze schneller übernehmen',`
 <p>Öffne <b>☰ → ${t('menu.csv')}</b>. Der Import-Assistent führt dich durch drei Schritte:
 <b>${t('c2.steps1')}</b>, <b>${t('c2.steps2')}</b> und <b>${t('c2.steps3')}</b>.</p>
@@ -422,17 +433,6 @@ ${gfeat('CSV-Import','Umsätze schneller übernehmen',`
 <p>Was FINA gelernt hat, Strukturen und Kriterien, steht unter <b>${t('app.settings')}</b> →
 <b>${t('set.navImport')}</b>.</p>
 ${gshot('csv-step3','Schritt 3 des Imports: oben die Einträge, unten die Dateizeilen, daneben die Anleitung')}`)}
-
-${gfeat('Suchen, filtern, Notizen','Ohne Risiko ausprobieren',`
-<p>Filter ändern nie deine Datei. Sie entscheiden nur, welche Zeilen du siehst. Suche nach Name,
-Betrag, Kategorie oder Zahlungsstatus. Solange ein Filter greift, ist die Filterzeile gelb, und
-jede Zahl auf dem Schirm folgt dem, was gezeigt wird: Kartensummen, Kategoriezeilen, die
-Auswertungszeile.</p>
-<p><b>${t('flt.options')}</b> neben dem Suchfeld sagt, worin die Suche sucht. Das <b>✕</b>
-oder Escape nimmt jeden Filter zurück.</p>
-<p>Die kleine Lampe ist eine Notiz. Neben einem Namen gehört sie zum Eintrag, in einem Monat nur
-zu diesem Monat. Eine leuchtende Lampe hat eine Notiz; zeig darauf, um sie zu lesen.</p>
-${gshot('ui-filter','Ein Filter greift: die Zeile wird gelb, die Karten zeigen nur die Treffer')}`)}
 
 ${gfeat('Auf dem Telefon','Zum Nachsehen',`
 <p>Unter 700 px baut FINA ein eigenes Layout: der Monat als Kartenliste mit großen Kreisen, das
@@ -494,6 +494,9 @@ pictures show the current FINA.</p>
   <li>The assignment bar of the import no longer scrolls: when the window is narrow, its
       buttons move into the ☰ menu, except “${t('c2.assign')}” and “${t('c2.newAssign')}”.</li>
   <li>The column that marks the header row is called HDR in both languages.</li>
+  <li>The tab “${t('view.kakeibo')}” is gone. Imported rows stay with their entry: open it
+      and press “${t('impv.show')}”.</li>
+  <li>Switching views runs smoothly now, without the jump at the start.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`,'Current version')}
 
@@ -712,6 +715,9 @@ diese. Die Bilder zeigen das heutige FINA.</p>
   <li>Die Zuordnungsleiste des Imports rollt nicht mehr: ist das Fenster schmal, wandern ihre
       Knöpfe ins ☰-Menü, außer „${t('c2.assign')}“ und „${t('c2.newAssign')}“.</li>
   <li>Die Spalte, die die Beschriftungszeile markiert, heißt in beiden Sprachen HDR.</li>
+  <li>Der Reiter „${t('view.kakeibo')}“ ist weg. Importierte Zeilen bleiben bei ihrem
+      Eintrag: öffnen und „${t('impv.show')}“ drücken.</li>
+  <li>Der Ansichtswechsel läuft jetzt flüssig, ohne den Sprung am Anfang.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`,'Aktuelle Version')}
 
@@ -1189,7 +1195,7 @@ function fillGuide(el){
     return `<div class="ghandle" id="gHandle" role="separator" aria-orientation="vertical"
       tabindex="0" title="${t('app.guideDrag')}" aria-label="${t('app.guideDrag')}"></div>
     <div class="ghead">
-      <div><h3>${t('app.guide')} — FINA</h3></div>
+      <div><h3>${t('app.guide')}</h3></div>
       <span class="gact">
         <span class="glangs" role="group" aria-label="${esc(t('guide.lang'))}"
           data-tip="${esc(t('guide.lang'))}">${langs}</span>

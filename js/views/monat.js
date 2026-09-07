@@ -1041,11 +1041,9 @@ function viewMonat(){
   const secHead=(fk,folded,titleHtml,totHtml,extraHtml='')=>
     `<div class="sechead"${openAll?'':` data-secfold="${fk}" data-hk="fold:${fk}"`}>${foldBtn(fk,folded,openAll)}<h2 style="margin:0">${titleHtml}</h2>
       ${mob?totHtml:`${extraHtml}${totHtml}`}</div>`;
-  /* Der Sprung in die Auswertung nur, wenn es sie gibt: den Reiter
-     „Transactions" bringt erst der Import mit (hasImport in
-     js/calc.js). Auf dem Telefon führt die Reiterleiste unten hin. */
-  const flexExtra=(!mob&&hasImport())?`<button class="headlink" data-kview="${m}"
-    title="${t('month.openEvalTip',MONTHS_LONG[m-1])}">${t('month.openEval')}</button>`:'';
+  /* Der Sprung in die Auswertung („Import Details") ist seit 7.9.26
+     weg — die Ansicht gibt es nicht mehr. */
+  const flexExtra='';
 
   const cardIn=!showIn?'':`<div class="card sec-in${fIn?' folded':''}" data-fk="card:in">
     ${secHead('in',fIn,

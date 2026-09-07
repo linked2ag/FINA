@@ -85,11 +85,6 @@ Zahlungsstand. Nach jedem Haken springt die Schreibmarke dorthin zurück.
 
 ![Monatsansicht](doc/img/month.png)
 
-**Flexible Payments** — was die alltäglichen Kategorien im gewählten Zeitraum kosten,
-rechts die größten Einzelposten aus dem CSV-Import.
-
-![Flexible Payments](doc/img/flexible.png)
-
 **Forecast** — wie das Jahr ausgeht: die Hochrechnung Monat für Monat und rechts die
 Annahme je Flexible-Payments-Kategorie.
 
@@ -140,8 +135,8 @@ js/
   csv.js                CSV-Import aus Fast Budget
   sheet.js              CSV-Import einer FINA-Tabelle (ein ganzes Jahr)
   ui.js                 Kurzmeldung, Fensterschließen, Notizlampe
-  views/                je Ansicht eine Datei: jahr · monat · prognose · kakeibo
-  dialogs/              item · kakeibo-betraege · settings · csv-import · sheet-import · guide
+  views/                je Ansicht eine Datei: jahr · monat · prognose · willkommen
+  dialogs/              item · settings · csv2-wizard · umfrage · guide
   app.js                zeichnet, verdrahtet die Klicks, startet — wird zuletzt geladen
 
 doc/

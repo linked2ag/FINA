@@ -1303,15 +1303,38 @@ function settleMenus(pending){
    sie über den rechten Rand — die Klasse viewslide am
    Wurzelelement unterdrückt so lange den waagerechten Rollbalken.
    dir>0 heißt: die neue kommt von rechts. */
-let viewSlideT=0, viewGhostTop=0, viewGhostBottom=0;
+let viewSlideT=0, viewGhostTop=0, viewGhostBottom=0, viewGhost=null;
 const VIEW_MS=460;
+/* **Die alte Ansicht wird selbst zum Geist** (7.9.26; bis dahin eine
+   Kopie per ghostOf): eine Kopie einer ganzen Jahresmatrix — tausende
+   Knoten, samt Rollstellungen — kostete vor dem ersten Bild ein
+   Vielfaches dessen, was der Wechsel selbst braucht, und genau dieses
+   Bild fehlte dann am Anfang der Fahrt. Jetzt bekommt der alte
+   #view-Knoten Kennung und Klicks genommen und bleibt als .viewghost
+   an seiner Stelle stehen; render() zeichnet in einen frischen Knoten
+   daneben (siehe dort). Zurück kommt der frische Knoten; der Geist
+   entfernt sich am Ende der Fahrt (slideViewIn) selbst. */
 function slideViewOut(vbox,dir){
   const r=vbox.getBoundingClientRect(); viewGhostTop=r.top; viewGhostBottom=Math.min(r.bottom,innerHeight);
-  const g=ghostOf(vbox,'viewghost stay',{top:r.top,left:r.left,width:r.width,height:Math.min(r.height,innerHeight-r.top)});
-  setTimeout(()=>g.remove(),VIEW_MS+30);
+  const fresh=document.createElement('div'); fresh.id='view';
+  vbox.parentNode.insertBefore(fresh,vbox);
+  vbox.removeAttribute('id'); vbox.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+  vbox.className='viewghost stay'; vbox.setAttribute('inert','');
+  vbox.style.cssText=`position:fixed;top:${r.top}px;left:${r.left}px;right:auto;bottom:auto;width:${r.width}px;height:${Math.min(r.height,innerHeight-r.top)}px;margin:0`;
+  if(viewGhost) viewGhost.remove();
+  viewGhost=vbox;
+  setTimeout(()=>{ if(viewGhost===vbox){ vbox.remove(); viewGhost=null; } },VIEW_MS+700);
+  return fresh;
 }
+/* **Erst ein gemaltes Bild, dann die Fahrt** (7.9.26): die neue Ansicht
+   steht zuerst still neben dem Fenster (.pre-right/.pre-left, dieselbe
+   Lage wie das erste Bild der Animation). Der Browser malt sie dort
+   einmal — Stil, Umbruch, Raster der ganzen Ansicht, bei einer
+   Jahresmatrix 100 bis 200 ms —, und erst dann, zwei Bilder später,
+   fängt die Animation an. Vorher lag dieses Malen **im** ersten Bild
+   der Fahrt: sie sprang um genau diese Zeit vor und ruckelte. */
 function slideViewIn(vbox,dir){
-  vbox.classList.remove('in-left','in-right');
+  vbox.classList.remove('in-left','in-right','pre-left','pre-right');
   /* Die hereinfahrende Ansicht deckt die alte ganz zu: sie trägt
      dafür den Seitengrund und ist mindestens so hoch wie der Geist
      darunter (bis zum unteren Fensterrand) — sonst schienen die
@@ -1326,11 +1349,22 @@ function slideViewIn(vbox,dir){
      der Kopie — nicht weiter, sonst wüchse die Seite für die Dauer
      der Fahrt. */
   vbox.style.setProperty('--viewfill',Math.max(0,viewGhostBottom-vbox.getBoundingClientRect().bottom)+'px');
-  void vbox.offsetWidth;
-  vbox.classList.add(dir>0?'in-right':'in-left');
   document.documentElement.classList.add('viewslide');
-  clearTimeout(viewSlideT);
-  viewSlideT=setTimeout(()=>{ document.documentElement.classList.remove('viewslide'); vbox.classList.remove('in-left','in-right'); },VIEW_MS+30);
+  vbox.classList.add(dir>0?'pre-right':'pre-left');
+  const g=viewGhost;
+  const done=()=>{
+    document.documentElement.classList.remove('viewslide');
+    vbox.classList.remove('in-left','in-right','pre-left','pre-right');
+    vbox.style.removeProperty('--viewtop'); vbox.style.removeProperty('--viewgap'); vbox.style.removeProperty('--viewfill');
+    if(g&&g===viewGhost){ g.remove(); viewGhost=null; }
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(!vbox.isConnected||!vbox.classList.contains(dir>0?'pre-right':'pre-left')) return;
+    vbox.classList.remove('pre-left','pre-right');
+    vbox.classList.add(dir>0?'in-right':'in-left');
+    clearTimeout(viewSlideT);
+    viewSlideT=setTimeout(done,VIEW_MS+30);
+  }));
 }
 /* ── Ein Fenster ändert seine Größe weich (seit 6.9.26) ──────────
    Ein Schritt im Import, ein anderer Bereich der Einstellungen: der

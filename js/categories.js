@@ -80,5 +80,4 @@ function wipeAllImports(){
   state.lastImport=null;
   /* Ohne Buchungen gibt es keine Unterkategorien mehr — dieselbe
      Antwort wie beim Öffnen einer Datei ohne Import (afterLoad). */
-  ui.kakDetail=false;
 }

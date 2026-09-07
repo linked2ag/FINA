@@ -463,7 +463,9 @@ function render(){
      gäbe es einen Reiter weniger als Ansichten: keiner wäre
      ausgewählt. Dann tritt die Prognose an ihre Stelle, der
      Nachbar in der Reihe. */
-  if(ui.view==='kakeibo'&&!hasImport()) ui.view='prognose';
+  /* Die Ansicht „Import Details" gibt es seit 7.9.26 nicht mehr — eine
+     alte Wahl landet in der Prognose. */
+  if(ui.view==='kakeibo') ui.view='prognose';
 
   const sx=window.scrollX, sy=window.scrollY;
   const ysOld=document.getElementById('yearScroll');
@@ -475,14 +477,14 @@ function render(){
   const mTop=msOld?msOld.scrollTop:null;
 
   renderChrome();
-  const vbox=document.getElementById('view');
+  let vbox=document.getElementById('view');
   /* Ein Wechsel der Ansicht (nicht ein bloßes Neuzeichnen) geht
      seitwärts: die alte fährt als Geist hinaus, die neue kommt von
      der anderen Seite — in der Richtung der Reiter (slideViewOut /
      slideViewIn in js/ui.js). */
   const vix=k=>VIEWS.findIndex(v=>v[0]===k);
   const slide=(!ui.welcome&&lastView&&lastView!==ui.view)?(vix(ui.view)>vix(lastView)?1:-1):0;
-  if(slide) slideViewOut(vbox,slide);
+  if(slide) vbox=slideViewOut(vbox,slide);
   /* Offene Aufklappmenüs gehen mit dem Zeichnen — ein Menü, das
      danach nicht mehr dasteht, klappt als Geist zu (js/ui.js). */
   const menus=snapMenus(vbox);
@@ -500,7 +502,7 @@ function render(){
      die Tabellen der anderen Ansichten zu erwischen. */
   vbox.className=ui.welcome?'':('view-'+ui.view);
   vbox.innerHTML= ui.welcome ? viewWelcome()
-    : ({monat:viewMonat,prognose:viewPrognose,kakeibo:viewKakeibo,jahr:viewJahr})[ui.view]();
+    : ({monat:viewMonat,prognose:viewPrognose,jahr:viewJahr})[ui.view]();
   if(slide) slideViewIn(vbox,slide);
   settleMenus(menus);
   if(folds) foldPlay(vbox,folds);
@@ -797,12 +799,6 @@ function wire(){
      wer filtert, stellt meist mehr als eins ein. */
   document.querySelectorAll('[data-mfilters]').forEach(b=>b.onclick=()=>{
     ui.mFilters=!ui.mFilters; render(); });
-  /* Wechsel zwischen Haupt- und Unterkategorien: rechts stehen
-     danach wieder die größten Einzelposten, nicht die Auswahl
-     einer Zeile, die es so vielleicht gar nicht mehr gibt. */
-  document.querySelectorAll('[data-kd]').forEach(b=>b.onclick=()=>{
-    if(b.disabled) return;
-    ui.kakDetail=b.dataset.kd==='1'; ui.kakPick=null; render();});
   /* Sprung aus der Jahresmatrix in einen Monat: das Suchfeld gibt
      es dort auch, und es trägt dasselbe Wort — also bleibt der
      Fokus darin, sofern etwas darin steht. */
@@ -822,37 +818,6 @@ function wire(){
     const sel=mEl&&mEl.querySelector('.mtab[aria-selected="true"]');
     if(sel) mEl.scrollLeft=sel.offsetLeft-(mEl.clientWidth-sel.offsetWidth)/2;
   }
-
-  /* Kakeibo: Auswahl der rechten Spalte — eine Kategorie oder,
-     ohne Auswahl, die größten Einzelposten. */
-  document.querySelectorAll('[data-kpick]').forEach(b=>b.onclick=()=>{
-    const [main,sub]=b.dataset.kpick.split('|');
-    ui.kakPick=(ui.kakPick&&ui.kakPick.main===main&&(ui.kakPick.sub||'')===(sub||''))
-      ?null:{main,sub:sub||''};
-    render();
-    /* Auf dem Telefon gibt es die rechte Karte nicht — die Wahl
-       öffnet ihre Buchungen als Fenster (openKakTx in
-       js/views/kakeibo.js). Das Abwählen nicht: es heißt zumachen. */
-    if(isMobile()&&ui.kakPick) openKakTx();
-  });
-  document.querySelectorAll('[data-ktop]').forEach(b=>b.onclick=()=>{ui.kakPick=null;render();});
-  /* Die Buchungsliste als Fenster — der Knopf der mobilen
-     Transactions-Ansicht (viewKakeibo baut dort keine rechte
-     Karte). */
-  document.querySelectorAll('[data-txlist]').forEach(b=>b.onclick=()=>openKakTx());
-  document.querySelectorAll('[data-kmonth]').forEach(b=>b.onclick=()=>{
-    if(b.disabled) return;
-    const d=b.dataset.kmonth;
-    if(d==='jahr') ui.scope='jahr';
-    /* Zurück ins Jetzt — aus dem ganzen Jahr wie aus jedem
-       anderen Monat. */
-    else if(d==='cur'){ ui.month=CUR; ui.scope='monat'; }
-    else { ui.month=Math.min(12,Math.max(1,ui.month+(d==='next'?1:-1))); ui.scope='monat'; }
-    render();
-  });
-  document.querySelectorAll('[data-kview]').forEach(b=>b.onclick=()=>{
-    ui.month=+b.dataset.kview; ui.scope='monat'; ui.view='kakeibo'; ui.kakPick=null; render();
-  });
 
   /* Die beiden Wege der Begrüßungsseite. */
   document.querySelectorAll('[data-wload]').forEach(b=>b.onclick=()=>loadData());
@@ -890,7 +855,6 @@ function wire(){
     if(!cell) return null;
     if(cell.dataset.m) return +cell.dataset.m;
     if(cell.matches('td.amt')) return ui.month;
-    if(cell.matches('td.num')&&ui.view==='kakeibo') return ui.scope==='monat'?ui.month:null;
     return null;
   };
   const dblOpen=(sel,open)=>document.querySelectorAll(sel).forEach(tr=>tr.ondblclick=ev=>{
@@ -959,18 +923,6 @@ function wire(){
      Monats (data-dbledit an der Zelle) und der Anfangsbestand
      (data-opening). Die Annahme der Flexible Payments wird im
      Fenster der Kategorie gepflegt. */
-
-  /* Kakeibo: CSV-Import und Zeitraum (Ganzes Jahr oder ein Monat) */
-  const km=document.getElementById('kMonth');
-  if(km) km.onchange=()=>{
-    if(km.value==='jahr') ui.scope='jahr';
-    else { ui.scope='monat'; ui.month=+km.value; }
-    render();
-  };
-  /* Derselbe Weg wie über die Kopfzeile: erst das Fenster mit den
-     Spalten, dann die Dateiauswahl. */
-  const imp=document.getElementById('btnImportK');
-  if(imp) imp.onclick=()=>openCsvWizard();
 
   /* Zum Schluss: Tab springt in der Ansicht nur noch von Feld zu
      Feld. Die Kopfzeile bleibt außen vor — über sie erreicht man
@@ -1041,7 +993,7 @@ function wire(){
    keine Reiter) und ein offenes Fenster — dort wird gerade
    getippt, und die Ansicht darunter zu wechseln nähme dem Fenster
    den Boden. */
-const VIEW_KEYS={m:'monat',y:'jahr',f:'prognose',i:'kakeibo'};
+const VIEW_KEYS={m:'monat',y:'jahr',f:'prognose'};
 /* Der Buchstabe zu einer Ansicht — für die Sprechblase am Reiter
    (renderChrome). Groß geschrieben, wie man ihn auf der Taste
    sieht. */

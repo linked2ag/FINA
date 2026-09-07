@@ -478,16 +478,21 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
    (z 2, nur solange sie die Klasse trägt) — beides unter der
    Kopfzeile (z 40). */
 .viewghost{position:fixed;overflow:hidden;pointer-events:none;z-index:1}
-#view.in-left,#view.in-right{position:relative;z-index:2;will-change:transform;background:var(--paper)}
+#view.in-left,#view.in-right,#view.pre-left,#view.pre-right{position:relative;z-index:2;will-change:transform;background:var(--paper)}
+/* Die Ruhelage vor der Fahrt (slideViewIn): dieselbe Stelle wie das
+   erste Bild der Animation, ohne Animation — der Browser malt die
+   Ansicht dort einmal, dann fährt sie. */
+#view.pre-right{transform:translateX(100%)}
+#view.pre-left{transform:translateX(-100%)}
 /* Über und unter der Ansicht deckt je ein Streifen im Seitengrund,
    was von der Kopie darunter sonst hervorsähe: oben die Lücke, wenn
    die neue Ansicht tiefer anfängt als die alte, unten alles bis zum
    Fensterrand. Beide absolut — eine Mindesthöhe an der Ansicht
    machte die Seite für die Dauer der Fahrt länger, der Rollbalken
    kam und ging, und das sah wie ein Ruck am Ende aus. */
-#view.in-left::before,#view.in-right::before{content:'';position:absolute;left:0;right:0;
+#view.in-left::before,#view.in-right::before,#view.pre-left::before,#view.pre-right::before{content:'';position:absolute;left:0;right:0;
   top:calc(-1 * var(--viewgap,0px));height:var(--viewgap,0px);background:var(--paper)}
-#view.in-left::after,#view.in-right::after{content:'';position:absolute;left:0;right:0;
+#view.in-left::after,#view.in-right::after,#view.pre-left::after,#view.pre-right::after{content:'';position:absolute;left:0;right:0;
   top:100%;height:var(--viewfill,0px);background:var(--paper)}
 /* Die klebenden Leisten der Ansicht kleben an der Seite und tragen
    als `top` die Höhe der Kopfzeile; im Geist — einem eigenen
@@ -563,6 +568,7 @@ html{scrollbar-gutter:stable}
 @media (prefers-reduced-motion:reduce){
   .modal,.modal .box,.modalghost,.modalghost .box,.dropmenu.popin,.tools.open,.c2fpop,
   #view.in-left,#view.in-right,.foldin,.foldin-row{animation:none}
+  #view.pre-left,#view.pre-right{transform:none}
   .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout,
   .guidepanel.closing,.c2gghostwrap{display:none}
   .guidepanel,.c2gpanel.slidein{animation:none}
@@ -2294,7 +2300,9 @@ textarea.srvtext{width:100%;display:block}
 .c2gghostwrap{position:fixed;z-index:50;overflow:hidden;pointer-events:none}
 .c2gghost{animation:fina-impout .22s ease-in forwards;background:var(--paper-2)}
 .c2gpanel{position:relative;display:flex;flex-direction:column;flex:0 0 33.34%;min-width:0;min-height:0;
-  border-left:1px solid var(--rule);padding:0 0 0 16px}
+  /* Kante und Schatten links wie am Guide der Anwendung (.guidepanel;
+     Lex, 7.9.26). */
+  border-left:2px solid var(--ink);box-shadow:-14px 0 26px -20px rgba(0,0,0,.7);padding:0 0 0 16px}
 .c2gpanel .c2ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 2px;flex:0 0 auto}
 .c2gpanel .c2ghead b{font-family:var(--font-display);font-size:17px}
 .c2gpanel .c2gx{padding:2px 9px}

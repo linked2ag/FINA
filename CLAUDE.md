@@ -376,6 +376,19 @@ trägt sie dort ein.
   `#view .card > .sechead` — Geister ausgenommen — und sucht `.monthscroll` statt
   `#monthScroll`, denn der Geist hat keine IDs. Ein bloßes Neuzeichnen derselben Ansicht
   (Tippen, Filtern) bewegt nichts.
+  **Seit 7.9.26 ruckelt der Wechsel nicht mehr**, und zwar aus zwei Gründen, beide in
+  `slideViewOut/-In`: (1) **Die alte Ansicht wird selbst zum Geist** — sie verliert
+  Kennung, Klicks und die IDs ihrer Kinder und bleibt als `.viewghost` fest an ihrer
+  Stelle; `render()` zeichnet in einen frischen `#view`-Knoten, den `slideViewOut()`
+  zurückgibt. Eine Kopie per `ghostOf()` einer ganzen Jahresmatrix kostete vor dem ersten
+  Bild 100 bis 200 ms. (2) **Erst ein gemaltes Bild, dann die Fahrt**: die neue Ansicht
+  steht zuerst still neben dem Fenster (`.pre-right/.pre-left`, dieselbe Lage wie das erste
+  Bild der Animation, `will-change` schon gesetzt), zwei `requestAnimationFrame` später
+  bekommt sie die Animationsklasse. Der Browser malt und rastert die ganze Ansicht so,
+  bevor sie sich bewegt — vorher lag das im ersten Bild der Fahrt, und sie sprang um
+  genau diese Zeit vor. Gemessen mit Electron offscreen (echte Zeit, siehe „Prüfen"):
+  vorher Bildabstände von 183 und 100 ms, nachher 17 ms durchgehend. Der Geist entfernt
+  sich am Ende der Fahrt (und per Uhr) selbst.
 * **Die Pille der Ansichtswahl gleitet** (`.vpill` hinter den `.vtab`, `renderChrome()`):
   die alte Lage wird vor `innerHTML` gemessen, die Pille steht sofort neu und fährt per
   `transform: translateX() scaleX()` von der alten herüber — `left/width` zu bewegen setzte
@@ -900,6 +913,18 @@ Wer einen weiteren Schnitt braucht, legt die `.woff2` daneben und schreibt eine 
 Anleitung über dasselbe `tokens.css` versorgt.
 
 ## Welche Reiter es gibt
+
+**Seit 7.9.26 gibt es drei Reiter: Monat · Jahr · Prognose.** Die Ansicht „Import
+Details" (`ui.view='kakeibo'`, `js/views/kakeibo.js`) ist auf Lex' Wunsch **ganz heraus**
+— auch mit importierten Zeilen im Buch wird sie nicht gezeigt. Die Datei ist gelöscht,
+`VIEWS` in `js/config.js` kennt sie nicht mehr, `render()` schickt eine alte Wahl in die
+Prognose, der Sprung „Auswertung öffnen" am Flexibel-Kopf der Monatsansicht ist weg, der
+Tastengriff I auch, ebenso `ui.scope`, `ui.kakPick`, `ui.kakDetail`. Was von den
+Quellzeilen zu sehen ist, steht im Posten-Fenster („Importdaten zeigen"). `flexTx()`,
+`flexKind()` und `hasImport()` in `js/calc.js` bleiben — der Import-Bereich der
+Einstellungen fragt danach. **Die beiden folgenden Absätze und der Abschnitt „Woher ein
+Wert eines flexiblen Posten stammt" beschreiben den Stand davor** und gelten nur noch als
+Geschichte.
 
 `VIEWS` in `js/config.js` ist die Reihenfolge der Reiter — und die Liste selbst hängt am
 Zustand: **„Import Details" erscheint nur, wenn einmal importiert wurde**
@@ -3443,6 +3468,14 @@ wurde der Umbau vom 6.9.26 mit drei echten und vier künstlichen Altdateien gepr
 drei, die nur dort schiefgehen können: schreibt „Daten speichern" wirklich in dieselbe
 Datei zurück, kommt die Rückfrage beim Schließen (und lässt sich beides, abbrechen *und*
 schließen), und sehen die Schriften **ohne Netzverbindung** richtig aus.
+
+**Bewegung misst man mit echter Zeit, nicht mit `--virtual-time-budget`.** Headless
+Chrome mit Zeitbudget friert die Uhr während des JavaScripts ein — `performance.now()`
+meldet 0 ms, `requestAnimationFrame` kommt im 16-ms-Takt, gleich was der Hauptfaden tut.
+Für Bildabstände nimmt man das Electron aus `desktop/node_modules` mit einem versteckten
+Fenster und `offscreen:true` (`backgroundThrottling:false`, `setFrameRate(60)`), lädt die
+Wegwerfseite und liest über `executeJavaScript` aus, was die Seite in ein Attribut
+geschrieben hat. So wurde der Ansichtswechsel am 7.9.26 untersucht.
 
 **Ohne Fenster prüfen geht auch, und oft genauer.** Die gebaute App lässt sich mit
 `--remote-debugging-port=…` starten und über das DevTools-Protokoll ausfragen — Maße,

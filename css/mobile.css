@@ -378,8 +378,6 @@ body.mobile .progtable{--progleadw:78px}
    mehr kleben: die rollende Karte wäre sein Bezugsrahmen, und ihr
    top-Maß schöbe ihn mitten in die Zeilen (dasselbe Fehlerbild
    wie bei overflow:hidden an den Monatskarten, siehe oben). */
-.view-kakeibo .card{overflow-x:auto}
-.view-kakeibo .card>.sechead{position:static}
 
 /* ── Fenster ──────────────────────────────────────────────────
    Dieselben Fenster, nur bis an den Rand: auf 390 px ist jedes

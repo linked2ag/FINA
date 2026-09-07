@@ -4201,11 +4201,6 @@ function c2Apply(){
   flexMonths.forEach(m=>{state.flexSource[m]=W.csv.name;});
   if(flexMonths.size){
     state.lastImport=new Date().toLocaleString('de-DE');
-    /* Gab es vorher keine Buchungen, stand „Import Details" auf „nur
-       Hauptkategorien" (afterLoad in js/state.js). Mit dem ersten
-       Import gibt es Unterkategorien — dann sollen sie auch zu sehen
-       sein. Wer sie später selbst abwählt, behält seine Wahl. */
-    if(!hadTx&&W.f.ref1>=0) ui.kakDetail=true;
   }
   const msg=[t('c2.doneReg',nItems,nMonths)];
   if(nFlexRows) msg.push(t('c2.doneFlex',nFlexRows,flexMonths.size));

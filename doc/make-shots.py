@@ -43,7 +43,6 @@ if(p.get('wel')) ui.welcome=true;
 if(p.get('lang')) state.lang=p.get('lang');
 ui.view=p.get('v')||'jahr';
 if(p.get('m')) ui.month=+p.get('m');
-if(p.get('scope')) ui.scope=p.get('scope');
 /* `all=1` heißt: nichts ausgeblendet. Die Beispieldatei kann die
    abgerechneten Monate versteckt haben — auf einem Abzug, der
    zwölf Monate nebeneinander zeigen soll, wäre das der falsche
@@ -170,7 +169,6 @@ SHOTS = [
     # Guide-Seite zeigt Zahlenzeile und Zeitstrahl in diesem einen
     # Bild und braucht kein zweites daneben.
     ('month-slim',  'v=monat&m=8&ana=1&fold=&only=%23view', 880),
-    ('flexible',    'v=kakeibo&scope=jahr',               1500, 1180),
     # Nur der Inhalt (#view, als %23 — ein rohes „#" wäre die
     # Sprungmarke): auf der Guide-Seite steckt das Bild in einem
     # nachgebauten App-Fenster (.shotwin), und die echte Kopfzeile

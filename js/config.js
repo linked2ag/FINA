@@ -86,9 +86,11 @@ const SURVEY_WS='cmt5umr7u0jt901yrl3k09sxi';
    etwa nach dem Trennen der Datei —, wird in render() (js/app.js)
    weitergeschickt. */
 Object.defineProperty(window,'VIEWS',{get:()=>{
-  const v=[['monat',t('view.monat')],['jahr',t('view.jahr')],['prognose',t('view.prognose')]];
-  if(hasImport()) v.push(['kakeibo',t('view.kakeibo')]);
-  return v;
+  /* **„Import Details" gibt es nicht mehr** (Lex, 7.9.26): auch mit
+     importierten Zeilen im Buch wird die Ansicht nicht gezeigt. Die
+     Quellzeilen bleiben an den Posten (impRows, „Importdaten
+     zeigen" im Posten-Fenster). */
+  return [['monat',t('view.monat')],['jahr',t('view.jahr')],['prognose',t('view.prognose')]];
 }});
 
 /* Auswahl im Posten-Fenster: Wiederholung und Fälligkeit. */

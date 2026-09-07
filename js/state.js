@@ -21,7 +21,7 @@ let state=null;
 /* mFilters ist das Filtermenü der mobilen Monatsansicht (der
    Knopf vor dem Suchfeld): offen oder zu — Anzeige wie ana, nicht
    in der Datei. Auf dem Schreibtisch wird es nie gelesen. */
-let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',secFilter:'alle',scope:'monat',kakPick:null,
+let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',secFilter:'alle',
   q:'',qFocus:false,ana:false,mFilters:false,welcome:true,hideSettled:false,hideDone:false};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────
@@ -346,30 +346,9 @@ function migrateKak(s){
 }
 
 /* Einmal beim Öffnen einer Datei: was die Ansicht daraus macht.
-   Ohne importierte Buchungen gibt es keine Unterkategorien — dann
-   startet die Flexible-Payments-Ansicht bei den Hauptkategorien,
-   sonst stünde man vor einer Gliederung, die es nicht gibt.
-   Danach entscheidet der Nutzer; deshalb steht das hier und nicht
-   in der View, die bei jedem Zeichnen läuft. */
+   (Die Vorgaben der Ansicht „Import Details" — Unterkategorien,
+   Zeitraum, Auswahl rechts — sind mit ihr am 7.9.26 gegangen.) */
 function afterLoad(){
-  ui.kakDetail=!!(state&&typeof flexTx==='function'&&flexTx().length);
-  /* Der Reiter „Fast Budget Details" fängt beim **ganzen Jahr** an
-     und rechts bei den **größten Einzelposten** — das ist die
-     Bedeutung von `ui.kakPick=null` (siehe js/views/kakeibo.js).
-
-     Eine vorgewählte Kategorie wäre in beiden Fassungen die falsche
-     Antwort: die erste der Liste steht dort, weil sie zuerst
-     angelegt wurde, und die teuerste sagt nur, was die linke Spalte
-     ohnehin schon zeigt. Wer den Reiter öffnet, will die einzelnen
-     Buchungen sehen, die am meisten ausmachen; welche Kategorie das
-     ist, liest er daran ab. Ein Klick auf einen Pfeil links
-     wechselt in die Kategorie.
-
-     Ein einzelner Monat wäre die engere Sicht — hier wird
-     verglichen, und verglichen wird über das Jahr. */
-  ui.scope='jahr';
-  ui.kakPick=null;
-
   /* Womit man begrüßt wird. Mit Datei fängt man im laufenden
      Monat an — das ist die Ansicht, in der gearbeitet wird:
      abhaken, nachtragen, nachsehen, was noch offen ist. Ohne
