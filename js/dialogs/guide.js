@@ -995,9 +995,34 @@ function guideLangOnOpen(){
 
 function guideMax(){ return Math.max(GUIDE_MIN,Math.round(window.innerWidth*0.66)); }
 
+/* ── Die Reiter brechen nie um (Lex, 7.9.26) ──────────────────
+   Beim ersten Öffnen ist der Bereich so breit, dass alle drei
+   Beschriftungen in eine Zeile passen — mindestens aber ein
+   Drittel des Fensters (guideTabsNeed, gemessen an den Reitern,
+   nicht geraten). Zieht der Nutzer ihn danach schmaler, wird eine
+   Beschriftung **rechts abgeschnitten** (nowrap, ellipsis in
+   css/components.css) statt umzubrechen, und der volle Name steht
+   in der Sprechblase — nur dort, wo wirklich etwas fehlt
+   (syncGuideTabs setzt data-tip je Reiter). */
+function guideTabsNeed(){
+  const box=document.getElementById('guidePanel'); if(!box) return 0;
+  /* Die Reiter teilen die Zeile zu gleichen Teilen (flex:1) — der
+     breiteste bestimmt also, was alle drei zusammen brauchen. */
+  const bs=[...box.querySelectorAll('.gtabs button')];
+  return bs.length?Math.max(...bs.map(b=>b.scrollWidth+4))*bs.length:0;
+}
+function syncGuideTabs(){
+  const box=document.getElementById('guidePanel'); if(!box) return;
+  box.querySelectorAll('.gtabs button').forEach(b=>{
+    if(b.scrollWidth>b.clientWidth+1) b.dataset.tip=b.textContent.trim();
+    else delete b.dataset.tip;
+  });
+}
+
 function setGuideWidth(w){
   guideW=Math.min(Math.max(Math.round(w),GUIDE_MIN),guideMax());
   document.documentElement.style.setProperty('--guidew',guideW+'px');
+  syncGuideTabs();
   /* Die Seite ist jetzt schmaler: die mitlaufenden Leisten, die
      Spaltenköpfe der Jahresmatrix und die Rollleisten über den
      Tabellen müssen neu gemessen werden. */
@@ -1015,7 +1040,7 @@ function openGuide(){
   document.body.appendChild(el);
   fillGuide(el);
   document.body.classList.add('guideon');
-  setGuideWidth(guideW||window.innerWidth/3);
+  setGuideWidth(guideW||Math.max(window.innerWidth/3,guideTabsNeed()));
   syncGuideBtn();
   el.querySelector('#gClose').focus();
 }
@@ -1184,6 +1209,7 @@ function fillGuide(el){
   box.querySelectorAll('[data-gtab]').forEach(b=>b.onclick=()=>guideTo(b.dataset.gtab));
   box.querySelectorAll('[data-glang]').forEach(b=>b.onclick=()=>guideLangTo(b.dataset.glang));
   bindGuideHandle(box.querySelector('#gHandle'));
+  syncGuideTabs();
   const nb=box.querySelector('.gbody'); if(nb) nb.scrollTop=y;
   /* Der Weg zurück nach oben. Er zeigt sich erst, wenn es etwas
      zurückzurollen gibt — ein Knopf, der nichts täte, soll auch

@@ -726,7 +726,11 @@ body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
 .guidepanel .gtabs{display:flex;background:var(--paper);border-bottom:1px solid var(--rule);flex:0 0 auto}
 .guidepanel .gtabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;padding:9px 10px;
   font-family:var(--font-data);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--ink-2);cursor:pointer;line-height:1.3}
+  color:var(--ink-2);cursor:pointer;line-height:1.3;
+  /* Nie zweizeilig (Lex, 7.9.26): wird der Bereich zu schmal, ist die
+     Beschriftung rechts abgeschnitten, und die Sprechblase nennt den
+     vollen Namen (syncGuideTabs in js/dialogs/guide.js). */
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .guidepanel .gtabs button:hover{color:var(--ink);background:rgba(0,0,0,.04)}
 .guidepanel .gtabs button[aria-selected="true"]{color:var(--ink);font-weight:600;
   border-bottom-color:var(--accent);background:var(--paper-2)}

@@ -2876,8 +2876,12 @@ sagt, ob sie offen ist. Auf und zu geht sie animiert — von rechts herein, nach
 hinaus (siehe „Bewegung").
 
 Die Breite steht in der CSS-Variablen `--guidew` — beim ersten Öffnen ein Drittel des
-Fensters, danach das, was am Griff (`.ghandle`) gezogen wurde, begrenzt auf 300 px bis zwei
-Drittel. Dieselbe Variable macht die Seite schmaler (`body.guideon .wrap`); überdeckt wird
+Fensters, **mindestens aber so breit, dass die drei Reiter in eine Zeile passen**
+(`guideTabsNeed()`, gemessen; Lex, 7.9.26), danach das, was am Griff (`.ghandle`) gezogen
+wurde, begrenzt auf 300 px bis zwei Drittel. **Die Reiter brechen nie um**: zu schmal
+gezogen ist die Beschriftung rechts abgeschnitten (`nowrap`, `text-overflow:ellipsis`), und
+`syncGuideTabs()` hängt den vollen Namen als `data-tip` an — nur an Reiter, denen wirklich
+etwas fehlt. Dieselbe Variable macht die Seite schmaler (`body.guideon .wrap`); überdeckt wird
 nichts. Der Wert lebt nur in der Sitzung (`guideW`), nicht im Zustand und nicht in der
 Datei. Jede Änderung der Breite ruft `syncMatrixHead()` — die mitlaufenden Leisten sind
 sonst falsch gemessen.
