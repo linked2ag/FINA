@@ -1081,8 +1081,12 @@ body.gresize{user-select:none;cursor:col-resize}
    (minmax(0,1fr), sonst wüchse die Zeile mit dem Inhalt), und die
    Spalte der Bereiche wird zur Rollfläche. Ihr Polster und der
    Gegen-Rand halten den Schatten des Blocks (--sh-grp) vor der
-   Rollkante — dieselbe Überlegung wie am Rumpf selbst (oben). */
-:is(.modal,.modalghost,.boxslide) .box.setbox>.dbody{overflow:hidden;display:flex;flex-direction:column;padding-bottom:0}
+   Rollkante — dieselbe Überlegung wie am Rumpf selbst (oben).
+   `overflow:clip` und nicht `hidden`: ein hidden-Rumpf ist weiter
+   ein Rollrahmen, den focus() oder scrollIntoView() verschieben
+   können — dann stünde das Menü halb über dem Rand, ohne einen Weg
+   zurück. Ein geclippter Rumpf rollt nie. */
+:is(.modal,.modalghost,.boxslide) .box.setbox>.dbody{overflow:clip;display:flex;flex-direction:column;padding-bottom:0}
 .setbox .setlayout{flex:1 1 auto;min-height:0;grid-template-rows:minmax(0,1fr);margin-bottom:0}
 .setbox .setpanes{align-self:stretch;min-height:0;overflow-y:auto;scrollbar-width:thin;
   padding:2px 14px 26px 2px;margin:-2px -14px 0 -2px}

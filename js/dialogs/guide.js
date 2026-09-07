@@ -496,7 +496,9 @@ pictures show the current FINA.</p>
   <li>The column that marks the header row is called HDR in both languages.</li>
   <li>The tab “${t('view.kakeibo')}” is gone. Imported rows stay with their entry: open it
       and press “${t('impv.show')}”.</li>
-  <li>Switching views runs smoothly now, without the jump at the start.</li>
+  <li>Switching views runs smoothly now, without the jump at the start. The page shrinks
+      along with the guide instead of jumping.</li>
+  <li>In the settings only the section on the right scrolls; the menu on the left stays.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`,'Current version')}
 
@@ -717,7 +719,9 @@ diese. Die Bilder zeigen das heutige FINA.</p>
   <li>Die Spalte, die die Beschriftungszeile markiert, heißt in beiden Sprachen HDR.</li>
   <li>Der Reiter „${t('view.kakeibo')}“ ist weg. Importierte Zeilen bleiben bei ihrem
       Eintrag: öffnen und „${t('impv.show')}“ drücken.</li>
-  <li>Der Ansichtswechsel läuft jetzt flüssig, ohne den Sprung am Anfang.</li>
+  <li>Der Ansichtswechsel läuft jetzt flüssig, ohne den Sprung am Anfang. Die Seite
+      schrumpft mit der Anleitung mit, statt zu springen.</li>
+  <li>In den Einstellungen rollt nur der Bereich rechts; das Menü links bleibt stehen.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`,'Aktuelle Version')}
 
