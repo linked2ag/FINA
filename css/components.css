@@ -537,17 +537,20 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
    die übrigen Wege, damit der Anlauf zu sehen ist. */
 .viewbody.in-left{animation:fina-inL .46s cubic-bezier(.75,0,.15,1)}
 .viewbody.in-right{animation:fina-inR .46s cubic-bezier(.75,0,.15,1)}
-/* ── Die Knöpfe der Leiste fallen (Lex, 8.9.26) ─────────
+/* ── Die Knöpfe der Leiste wechseln nach oben (Lex, 8.9.26) ──
    Die Leiste selbst — Papierbahn, Haarlinie, Schatten — bleibt in
    jeder Ansicht dieselbe und bleibt deshalb stehen. Was in ihr
-   steht, wechselt: das Alte fällt nach unten hinaus, das Neue
-   fällt von oben herein, und weil die Kopfzeile darüber deckt,
-   kommt es unter ihr hervor.
+   steht, wechselt: **beides nach oben** — das Alte fährt nach oben
+   hinaus, das Neue kommt von oben herein, und weil die Kopfzeile
+   darüber deckt, verschwindet das eine unter ihr und das andere
+   kommt darunter hervor. Nach unten hinaus lief es einen Tag lang
+   (Lex, 8.9.26 spät: es soll wieder nach oben gehen): der Weg nach
+   unten führte über die Ansicht, für die gerade Platz gemacht wird.
 
    Nacheinander, nicht zugleich: das Alte ist in 200 ms draußen,
    das Neue fängt 100 ms später an (backwards hält es bis dahin
    unsichtbar). Bewegt werden nur transform und opacity. */
-@keyframes fina-barout{to{transform:translateY(14px);opacity:0}}
+@keyframes fina-barout{to{transform:translateY(-14px);opacity:0}}
 @keyframes fina-barin{from{transform:translateY(-14px);opacity:0}}
 .viewghost>.stickybar.viewtop>*{animation:fina-barout .2s ease-in forwards}
 #view>.stickybar.viewtop.barin>*{animation:fina-barin .28s cubic-bezier(.4,0,.2,1) .1s backwards}

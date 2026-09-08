@@ -421,10 +421,20 @@ trägt sie dort ein.
   ist; sie trägt dafür die Klasse `viewtop`. Sie steht in beiden Ansichten an derselben
   Stelle, und eine Bahn, die quer über den Bildschirm zieht, sagt über den Wechsel
   nichts. **Sie bleibt stehen; nur ihr Inhalt
-  wechselt**: das Alte fällt nach unten hinaus (`fina-barout`, 200 ms, im Geist), das
-  Neue fällt von oben herein (`fina-barin`, 280 ms nach 100 ms Wartezeit, `backwards`
-  hält es bis dahin unsichtbar) — und weil die Kopfzeile darüber deckt, kommt es unter
-  ihr hervor. Nacheinander und nicht zugleich.
+  wechselt, und zwar nach oben**: das Alte fährt nach oben hinaus (`fina-barout`,
+  200 ms, im Geist), das Neue kommt von oben herein (`fina-barin`, 280 ms nach 100 ms
+  Wartezeit, `backwards` hält es bis dahin unsichtbar) — weil die Kopfzeile darüber
+  deckt, verschwindet das eine unter ihr und das andere kommt darunter hervor.
+  Nacheinander und nicht zugleich. **Nach unten hinaus lief es einen Tag lang** (Lex,
+  8.9.26 spät: es soll wieder nach oben gehen) — der Weg nach unten führte über die
+  Ansicht, für die gerade Platz gemacht wird.
+  **Die Filterzeile liegt eine Stufe über der zweiten Leiste** (`z-index:31` gegen 30):
+  beide trugen dieselbe, und weil die zweite später im Dokument steht, malte sie über die
+  erste — die Aufklappmenüs der Filterzeile fuhren dahinter auf, und zu sehen war nur,
+  was unten hervorschaute. Ein höherer `z-index` am Menü selbst hilft dagegen nicht: eine
+  Leiste ist mit `position:sticky` und ihrer Stufe ein eigener Stapelraum, aus dem kein
+  Kind herausreicht. Übereinander liegen die beiden nie — die zweite klebt genau unter
+  der ersten —, die Stufe sagt also nur, wer über wen malt.
   **Monatsleiste, Auswertung und die Kennzahlen der Prognose gehören nicht dazu** (Lex,
   8.9.26 spät): sie sind Inhalt der Ansicht und sollen mitfahren, nicht von oben
   hereinfallen. Im Monat stehen sie deshalb in einer **zweiten** Leiste (`.anasub`,
