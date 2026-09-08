@@ -233,6 +233,46 @@ function txText(x){
 }
 function impRowText(r){return r&&r.r?refsText(r.r):((r&&r.x)||'');}
 
+/* ── Wie eine Referenz heißt ──────────────────────────────────
+   (8.9.26) Referenz 1 bis 5 sind fünf freie Felder, und wer sie
+   füllt, darf sie benennen — „Empfänger" statt „Referenz 2".
+   Benannt wird an der **Importzuordnung** (csvMaps[…].rn, siehe
+   js/dialogs/csv2-wizard.js); von dort wandert der Name **beim
+   Import** ins Buch und bleibt dort stehen:
+
+   * `state.impNames` ist die Namenstafel des Buches — je Satz
+     einmal `{f:Name der Zuordnung, d:Tag, r:{ref1:…}}`,
+   * `impRows[m][i].n` sagt, welcher Satz für diese Quellzeile gilt.
+
+   **Eine Zeile behält damit den Namen, unter dem sie hereinkam**
+   (Lex, 8.9.26: „Man hat diese Namen gewählt und wird wissen, was
+   damit gemeint war"). Wer später umbenennt, ändert, was der
+   nächste Import mitbringt — nicht, was schon im Buch steht. Zwei
+   Importe mit verschiedenen Namen stehen deshalb an demselben
+   Posten nebeneinander, jeder mit seiner Beschriftung.
+
+   Ohne Umbenennung gibt es weder Tafel noch Stempel, und alles
+   heißt wie zuvor „Ref 1" … „Ref 5". `inline` ist der Weg für die
+   Zeilen, die der offene Import erst noch bringt (c2PendingRows):
+   sie tragen ihre Namen direkt bei sich, im Buch steht ja noch
+   nichts. */
+function refNames(n,inline){
+  if(inline)return inline;
+  const s=(state.impNames||{})[n];
+  return (s&&s.r)||null;
+}
+function refLabel(i,n,inline){
+  const r=refNames(n,inline),v=r&&r['ref'+(i+1)];
+  return v?String(v):t('impv.ref',i+1);
+}
+/* Woher der Name kommt — für die Sprechblase an der Beschriftung.
+   Leer, wo nichts benannt wurde: dann gibt es nichts zu erklären. */
+function refSource(n,inline){
+  if(inline)return '';
+  const s=(state.impNames||{})[n];
+  return s&&s.f?t('impv.refFrom',s.f,s.d||'—'):'';
+}
+
 /* Wie weit ist das Jahr gelaufen? Im laufenden Jahr bis zum
    heutigen Monat, in einem vergangenen bis Dezember, in einem
    künftigen noch gar nicht. CUR allein reicht dafür nicht: dort

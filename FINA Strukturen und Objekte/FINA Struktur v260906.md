@@ -2,9 +2,12 @@
 
 **Stand:** 6. September 2026 · veröffentlicht am Abend als Fassung der Anwendung `26.9.6` (`VERSION` in `js/config.js`)
 
-**Fortgeschrieben am 8. September 2026** (Fassung `26.9.8`): ein einzelnes neues Feld,
-`guideOpen`. Keine eigene Fassung dieser Datei — alte Dateien werden dabei nicht
-umgebaut, das fehlende Feld bekommt beim Lesen seine Vorgabe (Regel 2 unten).
+**Fortgeschrieben am 8. September 2026** (Fassung `26.9.8`): zuerst ein einzelnes neues
+Feld, `guideOpen`. Am Abend desselben Tages die **eigenen Namen der Referenzfelder** —
+`impNames` im Buch, `n` an einer Quellzeile, `rn` an einer gemerkten CSV-Struktur. Keine
+eigene Fassung dieser Datei (Regel 2 unten): alte Dateien werden nicht umgebaut, alle vier
+Felder fehlen dort einfach, und dann heißen die Referenzen wie immer „Ref 1" … „Ref 5".
+Wer nie etwas benennt, hat auch in einer neuen Datei keins davon stehen.
 
 **Vorgängerin:** `FINA Struktur v260905.md` – die Fassung, die als 26.9.5 draußen ist. Was sich seit ihr geändert hat, steht unten unter „Der Weg zu dieser Fassung".
 
@@ -74,6 +77,7 @@ neues Buch sie anlegt (`emptyState()` in `js/state.js`).
 | `updateCheck` | Dürfen die Mac-/Windows-Apps nach einer neueren Fassung fragen? | `true` | … `true` |
 | `surveys{}` | Vermerke zu Umfragen, Schlüssel = Kennung der Umfrage. Siehe 7. | | … leer |
 | `csvMaps{}` | Gemerkte CSV-Strukturen, Schlüssel = Fingerabdruck der Spaltenköpfe (eine zweite Struktur derselben Datei-Art: `fingerabdruck#2`, `#3` …). **Nur die Feldverknüpfung** – keine Art, keine Regeln. Siehe 6. | | … leer |
+| `impNames{}` | **Neu am Abend des 8.9.26.** Die Namenstafel: unter welchen Namen Referenzfelder einmal ins Buch kamen. Schlüssel `"1"`, `"2"` …, Wert `{f, d, r}` – `f` der Name der Importzuordnung, `d` der Tag der Übernahme, `r` die Namen selbst (`{ref1:"Empfänger"}`, nur die gesetzten). Eine Quellzeile zeigt über `n` darauf (siehe 2). **Wer nie umbenennt, hat das Feld nicht.** Namenssätze, auf die keine Zeile mehr zeigt, entfernt `migrate()` beim Öffnen; ist die Tafel danach leer, fällt sie ganz weg. | `{"1":{"f":"Sparkasse","d":"8.9.2026","r":{"ref1":"Empfänger"}}}` | … das Feld fehlt |
 
 **Was `migrate()` außerdem löscht** (Felder, die FINA selbst einmal angelegt hat und die
 niemand mehr liest): `hideSettled`, `created`, `flexCollapsed` (nach dem Übertrag).
@@ -111,7 +115,7 @@ Einträgen, Stelle 0 = Januar).
 | `paid[12]` | Ist der Monat abgehakt („so war es")? | `[true,true,false,…]` |
 | `imp[12]` | Kam der Betrag aus einem CSV-Import? `false`/`0` nein · `1` ja, Zuordnung gemerkt · `2` ja, einmalige Zuordnung (roter Kreis) | `[1,1,0,…]` |
 | `notes[12]` | Notiz je Monat (die Lampe in der Monatskachel) | `["","Nachzahlung",…]` |
-| `impRows{}` | **Nur bei importierten Monaten.** Schlüssel = Monat 1–12, Wert = Liste der Quellzeilen `{d, v, r}`: Datum als Text `"TT.MM.JJ"`, Betrag, und `r[]` = die **Referenzen** der Zeile in ihrer Rangfolge (Referenz 1 bis 4; leere Enden fehlen, eine Lücke in der Mitte bleibt als `""`). Aus ihnen ist `amounts[m]` entstanden. **Ältere Zeilen** (bis 5.9.26 vormittags) tragen statt `r` einen Text `x` aus allen übrigen Spalten; gelesen wird beides (`impRowText()` in `js/calc.js`). | `{"3":[{"d":"05.03.26","v":-850,"r":["Hausverwaltung","Miete März"]}]}` |
+| `impRows{}` | **Nur bei importierten Monaten.** Schlüssel = Monat 1–12, Wert = Liste der Quellzeilen `{d, v, r}` – seit dem Abend des 8.9.26 dazu `n`, sofern die Referenzen benannt waren (die Kennung eines Satzes in `impNames`, siehe 1; ohne `n` heißen sie „Ref 1" … „Ref 5"): Datum als Text `"TT.MM.JJ"`, Betrag, und `r[]` = die **Referenzen** der Zeile in ihrer Rangfolge (Referenz 1 bis 4; leere Enden fehlen, eine Lücke in der Mitte bleibt als `""`). Aus ihnen ist `amounts[m]` entstanden. **Ältere Zeilen** (bis 5.9.26 vormittags) tragen statt `r` einen Text `x` aus allen übrigen Spalten; gelesen wird beides (`impRowText()` in `js/calc.js`). | `{"3":[{"d":"05.03.26","v":-850,"r":["Hausverwaltung","Miete März"]}]}` |
 
 **Ältere Feldnamen**, die `migrate()` umbaut: `status[]` (`"booked"` → `paid`) und
 `booked[]` → `paid`; `unclear[]` → `estimated`; `url` → erster Eintrag in `links`.
@@ -182,6 +186,7 @@ mehreren Strukturen einer Datei-Art lässt Schritt 1 wählen. Regeln stehen hier
 | `file` | Die Beschriftung – beim ersten Merken der Dateiname, danach der Name aus dem Namensfenster des Imports; im Stift-Fenster (Einstellungen und Schritt 1 des Imports) änderbar. Über alle Strukturen hinweg nur einmal vergeben. | `"umsaetze.csv"` |
 | `f{}` | Welche Spalte welches FINA-Feld trägt: `{date, amount, ref1, ref2, ref3, ref4, ref5}`, je Spaltennummer oder `-1` (`ref5` seit 6.9.26 spät; eine ältere Struktur ohne `ref5` bekommt beim Öffnen `-1`). **Es gibt nur diese sechs Felder.** | `{"date":0,"amount":4,"ref1":3,"ref2":-1,"ref3":-1,"ref4":-1}` |
 | `header[]` | Die Spaltenköpfe der Datei – damit das Stift-Fenster in den Einstellungen die Spalten beim Namen nennen kann statt „Spalte 4" | `["Buchungstag","…"]` |
+| `rn{}` | **Neu am Abend des 8.9.26.** Die eigenen Namen der Referenzfelder dieser Zuordnung, nur die gesetzten und höchstens 24 Zeichen lang. Sie sind eine **Beschriftung, keine Kennung**: gespeichert und verglichen wird weiter `ref1` … `ref5`, die Importkriterien hängen also nicht daran. Benannt wird mit dem Stift – in Schritt 2 des Imports neben der Feldwahl und im Fenster der Zuordnung vor jeder Referenzzeile. **Der Name gilt dem nächsten Import:** beim Anwenden wandert er als Satz in `impNames`, und was schon im Buch steht, behält seinen alten. Ohne Umbenennung fehlt das Feld. | `{"ref1":"Empfänger","ref2":"Verwendungszweck"}` |
 
 **Ältere Einträge** (bis 5.9.26 nachmittags) trugen dazu `cols[]`, `rules[]` und
 `newT[]`, und `f` kannte `main`, `cat`, `desc` statt der Referenzen; Einträge vom Abend

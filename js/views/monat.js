@@ -168,6 +168,46 @@ function fltDrop(id,kind,label,cur,opts){
         data-${kind}="${esc(v)}" data-ic="${ic}"${tp?` data-tip="${esc(tp)}"`:''}>${v==='alle'?t('flt.all'):l}</button>`).join('')}</span>`:''}</span>`;
 }
 
+/* ── Alle Filter in einem Menü ────────────────────────────────
+   (8.9.26) Reicht die Breite der Seite nicht für die Knopfreihe,
+   rücken **alle** Filterknöpfe hierher zusammen — das ✕, die
+   Filteroptionen und die drei Aufklappmenüs —, und das ☰ tritt an
+   die Stelle des ✕, gleich rechts neben dem Suchfeld. Gemessen
+   wird das in fitFilterBar() (js/app.js), das Suchfeld bleibt
+   immer stehen. Gebaut wird das Menü **immer**; welches von beiden
+   man sieht, entscheidet die Klasse .fbnarrow an der Zeile.
+
+   **Alles oder nichts, nicht einer nach dem anderen** (anders als
+   die Knöpfe der Kopfzeile, fitHeaderBtns): die Knöpfe der
+   Filterzeile tun alle dasselbe, und ein Menü, in dem mal zwei und
+   mal vier Gruppen stehen, sähe bei jeder Fensterbreite anders aus.
+
+   **Es bleibt beim Wählen offen** — wie das mobile Filtermenü und
+   aus demselben Grund: hier stehen alle drei Fragen beieinander,
+   und wer die eine setzt, setzt oft gleich die nächste (mShut in
+   js/app.js). Der **rote Punkt** oben rechts sagt, was der rote
+   Punkt am Hamburger der Kopfzeile sagt: hier drin steckt etwas —
+   also nur, solange die Knöpfe nicht ohnehin daneben stehen. */
+function fltMenuAll(){
+  const open=ui.fltMenu==='all';
+  const anyOn=!!queryQ()||ui.secFilter!=='alle'||ui.dueFilter!=='alle'||ui.filter!=='alle';
+  const custom=QFIELDS.some(k=>!qField(k))||qAll();
+  const grp=(lab,list,kind,cur)=>`<span class="mghead">${esc(lab)}</span>`+
+    list.map(([v,l,tp,ic])=>`<button class="mi${cur===v?' sel':''}" role="menuitemradio" aria-checked="${cur===v}"
+      data-${kind}="${esc(v)}" data-ic="${ic}"${tp?` data-tip="${esc(tp)}"`:''}>${v==='alle'?t('flt.all'):l}</button>`).join('');
+  return `<span class="fltdrop fbmenu">
+    <button class="btn small fbmenubtn" data-fltmenu="all" aria-expanded="${open}" aria-haspopup="menu"
+      aria-label="${esc(t('flt.allFilters'))}" data-tip="${esc(t('flt.allFiltersTip'))}"
+      >&#9776;<span class="dirtydot"${anyOn?'':' hidden'}></span></button>
+    ${open?`<span class="dropmenu${ui.menuDrawn==='all'?'':' popin'}" data-dm="all" role="menu">
+      <button class="mi mi-sep" data-qclear="1"${anyOn?'':' disabled'}>${t('g.clearFilter')}</button>
+      ${grp(t('month.fSec'),FLT_SEC(),'secfilter',ui.secFilter)}
+      ${grp(t('flt.due'),FLT_DUE(),'duefilter',ui.dueFilter)}
+      ${grp(t('flt.state'),FLT_PAY(),'filter',ui.filter)}
+      <button class="mi mi-top" data-qfields="1" aria-pressed="${custom}">${t('flt.options')}</button>
+    </span>`:''}</span>`;
+}
+
 /* ── Die Monatsleiste ─────────────────────────────────────────
    Zwölf Kürzel: erledigt = grün und durchgestrichen, der gewählte
    als **schwarze** Pille (seit 23.8.26; vorher eine dunkle
@@ -231,9 +271,14 @@ function anaBar(m,sel,selAny){
      wenn sie offen steht — dieselben Zeichen wie der Klapp-Pfeil
      der Karten (foldBtn). Nur die erste Kachel trägt ihn: ein Pfeil
      je Kachel sähe nach vier Klappen aus, es ist aber eins. */
+  /* **Die vier Zahlen zählen sich um** (Lex, 8.9.26): sie zeigen,
+     was gerade zu sehen ist, und beim Filtern springen sie sonst
+     von 1.800,00 auf 100,00. `data-num` ist der Schlüssel der
+     Kachel (ihre Geldart), `data-v` der Zielwert — animiert wird
+     in animNums() (js/ui.js), gerufen am Ende von wire(). */
   const arrow=`<span class="anaarrow" aria-hidden="true">${tri(open)}</span>`;
   const cell=(c,lab,val,vc,tip,first)=>`<span class="anak${c?' '+c:''}"${tip?` data-tip="${esc(tip)}"`:''}
-      >${first?arrow:''}<span class="lab">${lab}</span><span class="val ${vc}">${eur(val)}</span></span>`;
+      >${first?arrow:''}<span class="lab">${lab}</span><span class="val ${vc}" data-num="${c}" data-v="${val}">${eur(val)}</span></span>`;
   /* Die Zahlenzeile trägt keine Überschrift mehr („Auswertung" —
      mit dem Mac-Redesign gestrichen): sie ist EIN eingefasster
      Kasten aus vier Kacheln in den Bereichsfarben; dass sie sich
@@ -263,6 +308,7 @@ function anaBar(m,sel,selAny){
          etwas ausgeblendet wird; sonst bleibt sie hell. -->
     <div class="filterbar fbrow${(!!queryQ()||ui.filter!=='alle'||ui.dueFilter!=='alle'||ui.secFilter!=='alle')?' on':''}">
       ${filterField('flttop')}
+      ${fltMenuAll()}
       ${fltOptionsBtn()}
       ${fltDrop('sec','secfilter',t('month.fSec'),ui.secFilter,FLT_SEC())}
       ${fltDrop('due','duefilter',t('flt.due'),ui.dueFilter,FLT_DUE())}
@@ -336,7 +382,7 @@ function mobileTop(m,sel,sums){
      ein Bereichsfilter, der nur dort gesetzt worden sein kann. */
   const anyOn=!!(ui.q||'').trim()||nFlt>0||ui.secFilter!=='alle';
   const tile=(c,lab,val,vc)=>`<span class="mk${c?' '+c:''}"><span class="lab">${lab}</span
-    ><span class="val ${vc}">${eur(val)}</span></span>`;
+    ><span class="val ${vc}" data-num="${c}" data-v="${val}">${eur(val)}</span></span>`;
   return `<div class="stickybar msearch">
     <!-- Der Filterknopf steht RECHTS vom Suchfeld (seit 23.8.26;
          vorher links): er steht damit genau unter dem ☰ der

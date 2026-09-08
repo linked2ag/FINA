@@ -129,16 +129,27 @@ const STR={
    Menü hat zwei Wege, die etwas hereinholen, und sie unterscheiden
    sich allein darin — das Buch selbst als JSON, Umsätze als CSV.
    Geschrieben wird sie in jeder Sprache so, wie man sie dort
-   schreibt: „JSON-Datei" mit Bindestrich, „JSON file" ohne. */
-'app.load':{en:'Load data (JSON file)',de:'Daten hochladen (JSON-Datei)'},
-'app.loadTip':{en:'Open a JSON file and show its contents',de:'JSON-Datei öffnen und ihren Inhalt anzeigen'},
+   schreibt: „JSON-Datei" mit Bindestrich, „JSON file" ohne.
+
+   **Und die JSON-Datei heißt „lokale Datenbank"** (Lex, 8.9.26):
+   sie ist die einzige Ablage, die FINA hat — alles steht darin,
+   und beim Öffnen richtet sich die Anwendung nach ihr. „Datei"
+   sagt nur, wie es auf der Platte liegt; „lokale Datenbank" sagt,
+   was es ist, und das Wort „lokal" sagt zugleich das Wichtigste
+   darüber: sie bleibt auf dem eigenen Rechner. Wo der Dateityp
+   genannt wird, steht er weiter in Klammern dahinter. */
+'app.load':{en:'Open local database (JSON file)',de:'Lokale Datenbank öffnen (JSON-Datei)'},
+'app.loadTip':{en:'Open a local database (JSON file) and show its contents',
+  de:'Lokale Datenbank (JSON-Datei) öffnen und ihren Inhalt anzeigen'},
 'app.save':{en:'Save data',de:'Daten speichern'},
-'app.saveTip':{en:'Write the current state into the JSON file',de:'Aktuellen Stand in die JSON-Datei schreiben'},
+'app.saveTip':{en:'Write the current state into the local database (JSON file)',
+  de:'Aktuellen Stand in die lokale Datenbank (JSON-Datei) schreiben'},
 'app.backup':{en:'Save backup',de:'Sicherung speichern'},
 'app.backupTip':{en:'Download a dated copy — the file you are working on stays as it is',
   de:'Eine Kopie mit Datum herunterladen — die Datei, in der du arbeitest, bleibt, wie sie ist'},
-'app.unlink':{en:'Close data',de:'Daten schließen'},
-'app.unlinkTip':{en:'Clear the view and let go of the file',de:'Ansicht leeren und die Datei loslassen'},
+'app.unlink':{en:'Close local database',de:'Lokale Datenbank schließen'},
+'app.unlinkTip':{en:'Clear the view and let go of the local database',
+  de:'Ansicht leeren und die lokale Datenbank loslassen'},
 /* Der Import steht in der Kopfzeile, nicht mehr im Reiter: den
    Reiter gibt es erst nach dem ersten Import (siehe hasImport()
    in js/calc.js), der Knopf muss vorher erreichbar sein. */
@@ -267,13 +278,19 @@ const STR={
    gewählten Wert („Fälligkeit: Alle"), das Menü darunter die
    Werte — es bleibt beim Wählen offen. */
 'flt.options':{en:'Filter options…',de:'Filteroptionen…'},
+/* Das ☰ der Filterzeile: reicht die Breite nicht, stehen alle
+   Filter darin (fltMenuAll in js/views/monat.js, gemessen in
+   fitFilterBar in js/app.js). */
+'flt.allFilters':{en:'Filters',de:'Filter'},
+'flt.allFiltersTip':{en:'All filters — area, due date, payment state, and the filter options',
+  de:'Alle Filter — Bereich, Fälligkeit, Zahlungsstatus und die Filteroptionen'},
 'flt.all':{en:'All',de:'Alle'},
 'flt.due':{en:'Due date',de:'Fälligkeit'},
 'flt.state':{en:'Payment state',de:'Zahlungsstatus'},
 'flt.btnTip':{en:'Choose which parts of a row the filter searches',
   de:'Wählen, welche Teile einer Zeile der Filter durchsucht'},
-'flt.sub':{en:'The word you type is looked for only in the parts ticked here — in the month view as in the year view. The choice is kept in the JSON file.',
-  de:'Das getippte Wort wird nur in den hier angekreuzten Teilen gesucht — in der Monatsansicht wie in der Jahresansicht. Die Wahl steht in der JSON-Datei.'},
+'flt.sub':{en:'The word you type is looked for only in the parts ticked here — in the month view as in the year view. The choice is kept in the local database (JSON file).',
+  de:'Das getippte Wort wird nur in den hier angekreuzten Teilen gesucht — in der Monatsansicht wie in der Jahresansicht. Die Wahl steht in der lokalen Datenbank (JSON-Datei).'},
 'flt.fName':{en:'Item name',de:'Bezeichnung der Position'},
 'flt.fNameHint':{en:'The name of a regular or a flexible item',
   de:'Der Name eines regulären oder eines flexiblen Postens'},
@@ -351,7 +368,8 @@ const STR={
 'store.loadAsk':{en:'There are unsaved changes. Open another file anyway? The current one will be lost.',
   de:'Es gibt ungespeicherte Änderungen. Trotzdem eine andere Datei öffnen? Der jetzige Stand geht dabei verloren.'},
 'store.started':{en:'Empty book started — save it when you are ready.',de:'Leeres Buch angelegt — speichern, wenn du so weit bist.'},
-'store.unlinked':{en:'File closed. Use “Load data” to open one.',de:'Verbindung getrennt. Über „Daten hochladen" kannst du eine Datei öffnen.'},
+'store.unlinked':{en:'Local database closed. Use “Open local database” to open one.',
+  de:'Verbindung getrennt. Über „Lokale Datenbank öffnen" kannst du eine öffnen.'},
 'store.readFail':{en:'The file could not be read.',de:'Datei konnte nicht gelesen werden.'},
 'store.fileKind':{en:'FINA data',de:'FINA Daten'},
 
@@ -429,9 +447,9 @@ const STR={
 'wel.title':{en:'Your money. Your plan.',de:'Dein Geld. Dein Plan.'},
 'wel.lead':{en:'No account. No cloud. Your data stays on your computer.',
   de:'Kein Konto. Keine Cloud. Deine Daten bleiben auf deinem Rechner.'},
-'wel.open':{en:'Open your file',de:'Vorhandene Datei öffnen'},
-'wel.openHint':{en:'Pick your saved FINA file and carry on.',
-  de:'Deine gespeicherte FINA-Datei wählen und weitermachen.'},
+'wel.open':{en:'Open your local database',de:'Lokale Datenbank öffnen'},
+'wel.openHint':{en:'Pick your saved FINA local database and carry on.',
+  de:'Deine gespeicherte lokale FINA-Datenbank wählen und weitermachen.'},
 'wel.new':{en:'Start from scratch',de:'Neu anfangen'},
 'wel.privacy':{en:'Privacy',de:'Datenschutz'},
 'wel.newHint':{en:'An empty book. Pick the year, off you go.',
@@ -871,8 +889,8 @@ const STR={
 
 /* ── Einstellungen ────────────────────────────────────────── */
 'set.title':{en:'Settings',de:'Einstellungen'},
-'set.sub':{en:'Everything here is stored in the JSON file: language, accounting year, column widths and the lists. The file decides how the app looks when you load it.',
-  de:'Alles hier steht in der JSON-Datei: Sprache, Abrechnungsjahr, Spaltenbreiten und die Listen. Beim Laden richtet sich die Anwendung nach der Datei.'},
+'set.sub':{en:'Everything here is stored in your local database (the JSON file): language, accounting year, column widths and the lists. It decides how the app looks when you load it.',
+  de:'Alles hier steht in deiner lokalen Datenbank (der JSON-Datei): Sprache, Abrechnungsjahr, Spaltenbreiten und die Listen. Beim Laden richtet sich die Anwendung danach.'},
 /* Das Fenster ist in Bereiche geteilt: links das Menü, rechts
    der gewählte Bereich. Die Menüpunkte sind zugleich seine
    Überschrift. */
@@ -1116,8 +1134,8 @@ const STR={
 'c2.mnApplyCritNone':{en:'The remembered rules for this entry match no free row right now',
   de:'Die gemerkten Regeln für diesen Posten treffen gerade keine freie Zeile'},
 'c2.mnAmt':{en:'Search by amount',de:'Suchen nach Betrag'},
-'c2.mnAmtTip':{en:'Filters the amount column by the {0} different amount(s) this entry has in the book',
-  de:'Filtert die Betragsspalte nach den {0} verschiedenen Beträgen, die dieser Posten im Buch führt'},
+'c2.mnAmtTip':{en:'Writes the amount this entry has in the book into the quick filter ({0} different one(s) — the most frequent is taken)',
+  de:'Schreibt den Betrag, den dieser Posten im Buch führt, in den Schnellfilter ({0} verschiedene — genommen wird der häufigste)'},
 'c2.mnAmtNone':{en:'This entry has no amounts in the book yet',de:'Dieser Posten führt im Buch noch keine Beträge'},
 /* Das Wahl-Fenster der gemerkten Kriterien (umgebaut 6.9.26): vier
    Sätze oben, die sagen, was hier geschieht; unter jedem Posten
@@ -1164,6 +1182,17 @@ const STR={
 'icrit.pendTip':{en:'Comes from the open CSV import — assigned and remembered there, but not yet in the file. The import writes it.',
   de:'Kommt aus dem offenen CSV-Import — dort zugeordnet und gemerkt, aber noch nicht in der Datei. Geschrieben wird sie mit dem Import.'},
 'c2.title':{en:'CSV Import',de:'CSV-Import'},
+/* ── Der Hinweis auf die Kopfzeile (8.9.26) ───────────────────
+   Er steht in Schritt 1 unter dem Beschreibungssatz, im Bild des
+   Merksatzes der Anleitung (.gcall). Nötig ist er, weil FINA drei
+   Dinge aus der Beschriftungszeile liest: die Namen der Spalten,
+   den Fingerabdruck, an dem die Datei-Art wiedererkannt wird
+   (c2Fp), und die Erkennung der Felder. Fehlt sie, nimmt
+   c2UseHeader() die erste Buchung dafür — und die ist dann keine
+   Buchung mehr. Gemerkt wird das erst hinterher. */
+'c2.needHead':{en:'The CSV file needs a header row.',de:'Die CSV-Datei braucht eine Kopfzeile.'},
+'c2.needHeadSub':{en:'FINA reads the column names from it and recognises the file next time. Without one, FINA takes the first transaction as the header row — and that transaction is not imported.',
+  de:'Aus ihr liest FINA die Namen der Spalten und erkennt die Datei beim nächsten Mal wieder. Fehlt sie, nimmt FINA die erste Buchung als Kopfzeile — diese Buchung wird dann nicht eingelesen.'},
 'c2.sub':{en:'Reads any CSV — bank statement, card export, tracker. Encoding, separator and header row are detected automatically. Nothing changes until you press “Finish”.',
   de:'Liest jede CSV — Kontoauszug, Kartenexport, Tracker. Kodierung, Trennzeichen und Kopfzeile erkennt der Import selbst. Geändert wird erst, wenn du „Fertig“ drückst.'},
 'c2.steps1':{en:'File',de:'Datei'},
@@ -1206,6 +1235,25 @@ const STR={
    Nummer ist nur ihr Name. */
 'c2.fRef':{en:'Reference {0}',de:'Referenz {0}'},
 'impv.ref':{en:'Ref {0}',de:'Ref {0}'},
+/* ── Ein Referenzfeld benennen (8.9.26) ───────────────────────
+   Der Stift steht am Feld — in Schritt 2 des Imports neben der
+   Feldwahl und im Fenster der Importzuordnung vor jeder
+   Referenzzeile. Der Name gehört der **Zuordnung**: er wird mit
+   ihr gemerkt und beim nächsten Import wieder verwendet. Was
+   schon im Buch steht, behält seinen alten Namen — siehe
+   refLabel() in js/calc.js. */
+'c2.renTitle':{en:'Name this reference field',de:'Referenzfeld benennen'},
+'c2.renSub':{en:'The name belongs to this import mapping. It is remembered and used again at the next import. What is already in your book keeps the name it came in with.',
+  de:'Der Name gehört zu dieser Importzuordnung. Er wird gemerkt und beim nächsten Import wieder verwendet. Was schon im Buch steht, behält den Namen, unter dem es hereinkam.'},
+'c2.renField':{en:'FINA field',de:'FINA-Feld'},
+'c2.renCol':{en:'Column in the file',de:'Spalte in der Datei'},
+'c2.renName':{en:'Your name',de:'Dein Name'},
+'c2.renHint':{en:'Leave it empty and the field is called “{0}” again.',
+  de:'Leer lassen: das Feld heißt wieder „{0}“.'},
+'c2.renTip':{en:'Name this reference field',de:'Dieses Referenzfeld benennen'},
+'c2.renTaken':{en:'“{0}” is already the name of another reference field here.',
+  de:'„{0}“ trägt hier schon ein anderes Referenzfeld.'},
+'impv.refFrom':{en:'Named in “{0}”, taken over on {1}',de:'Benannt in „{0}“, übernommen am {1}'},
 'c2.info':{en:'{0} rows · {1} readable · {2} from the book year {3}',
   de:'{0} Zeilen · {1} lesbar · {2} aus dem Buchjahr {3}'},
 'c2.infoOther':{en:' · {0} from other years (stay grey)',de:' · {0} aus anderen Jahren (bleiben grau)'},

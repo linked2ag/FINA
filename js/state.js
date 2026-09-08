@@ -713,5 +713,25 @@ function migrate(s){
      sonst schriebe `stateJson()` es bei jedem Speichern wieder
      hinaus. */
   delete s.created;
+  /* ── Der Kehrbesen der Namenstafel (8.9.26) ──────────────────
+     `impNames` hält die eigenen Namen der Referenzfelder, unter
+     denen Quellzeilen einmal hereinkamen (refLabel in js/calc.js).
+     Zeigt keine Zeile mehr auf einen Satz — der Import wurde
+     gelöscht, der Posten oder der Monat —, fällt er hier heraus:
+     eine Stelle, an der ohnehin still geflickt wird, statt vier
+     Stellen, an die man beim Löschen denken müsste. Ist die Tafel
+     leer, verschwindet sie ganz; eine Datei ohne jede Umbenennung
+     trägt das Feld also gar nicht erst. */
+  if(s.impNames&&typeof s.impNames==='object'){
+    const used=new Set();
+    (s.fixed||[]).concat(s.balance?[s.balance]:[]).forEach(it=>{
+      const rows=(it&&it.impRows)||{};
+      Object.keys(rows).forEach(mk=>(rows[mk]||[]).forEach(r=>{
+        if(r&&r.n!=null&&r.n!=='')used.add(String(r.n));
+      }));
+    });
+    Object.keys(s.impNames).forEach(k=>{ if(!used.has(String(k)))delete s.impNames[k]; });
+    if(!Object.keys(s.impNames).length)delete s.impNames;
+  }
   return s;
 }

@@ -203,13 +203,14 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-position:center;mask-position:center;
   -webkit-mask-size:15px 15px;mask-size:15px 15px}
-/* **„Neuer Eintrag" ist der nächste Handgriff** (6.9.26 spät) und
-   trägt deshalb Tinte mit weißer Schrift — wie jeder schwarze
-   Knopf in FINA, der sagt „hier geht es weiter". Gewöhnliche
-   Schriftstärke: die Füllung hebt ihn genug hervor. Das Zeichen
-   davor nimmt die Schriftfarbe an und wird damit weiß. */
-.tools .mi-new{background:var(--ink);color:#fff}
-.tools .mi-new:hover{background:#333}
+/* **„Neuer Eintrag" ist ein Eintrag wie jeder andere** (Lex,
+   8.9.26). Vom 6.9. bis dahin trug er Tinte mit weißer Schrift —
+   „hier geht es weiter" —, nur steht er in einem Menü aus acht
+   Wegen, und eine schwarze Fläche darin liest sich als Anweisung.
+   Herausgehoben ist er jetzt durch seinen **Platz**: allein
+   zwischen zwei Linien, zwischen dem Hereinholen der Zahlen und
+   dem Speichern. Sein Zeichen (Plus im Kreis) bleibt, siehe
+   .tools .mi-new::before weiter unten. */
 /* **Die Anleitung steht in Orange mit weißer Schrift** (6.9.26
    spät; davor oranger Text auf Weiß): Orange heißt „hier kann man
    handeln", und als Fläche fällt es unter neun Einträgen auf.
@@ -644,6 +645,31 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .anabar .filterbar.on .fbgroup,.yearbar .ybrow.on .fbgroup{border-left-color:rgba(122,53,11,.38)}
 .anabar .filterbar .btn.small{padding:4px 10px;font-size:11.5px}
 .fltbox.flttop{flex:0 1 230px;width:230px;min-width:140px}
+
+/* ── Reicht die Breite nicht, wandern alle Filter ins ☰ ───────
+   (8.9.26) Gebaut werden immer beide — die Knopfreihe und das Menü
+   (fltMenuAll in js/views/monat.js) —, gezeigt wird eins davon.
+   Welches, entscheidet fitFilterBar() in js/app.js an der
+   gemessenen Breite; hier steht nur, was dann zu sehen ist.
+
+   **Das ☰ tritt an die Stelle des ✕**: es steht im HTML gleich
+   dahinter, und weil das ✕ verschwindet, rückt es genau auf dessen
+   Platz — rechts neben dem Suchfeld, das immer stehen bleibt. */
+.fbrow .fbmenu{display:none}
+.fbrow.fbnarrow .fbmenu{display:inline-flex}
+.fbrow.fbnarrow .fltclear,
+.fbrow.fbnarrow .fltopts,
+.fbrow.fbnarrow .fltdrop:not(.fbmenu){display:none}
+/* Der Knopf trägt sein Zeichen mittig und den roten Punkt in der
+   oberen rechten Ecke — dieselbe Marke wie am Hamburger der
+   Kopfzeile (.dirtydot oben), und sie sagt dasselbe: hier drin
+   steckt etwas. Sichtbar ist sie nur eingeklappt, denn nur dann
+   steckt wirklich etwas darin. */
+.fbmenubtn{position:relative;padding:4px 10px;font-size:13px;line-height:16px}
+/* Alle drei Gruppen untereinander sind vierzehn Einträge — auf
+   einem niedrigen Fenster reicht das über den unteren Rand hinaus.
+   Dann rollt das Menü in sich; die Zeile darunter bleibt sichtbar. */
+.fbmenu .dropmenu{max-height:min(70vh,540px);overflow:auto}
 
 /* ── Die Aufklappmenüs der Filterzeile ────────────────────────
    Der Knopf nennt Gruppe und gewählten Wert, das Menü darunter

@@ -589,9 +589,10 @@ function viewJahr(){
      herein (wrapViewBody in js/ui.js). Im Monat trägt die
      Filterzeile dieselbe Klasse; es ist dieselbe Bahn. */
   return `<div class="sechead yearbar stickybar viewtop" id="yearBar">
-      <div class="ybrow${filtered?' on':''}">
+      <div class="ybrow fbrow${filtered?' on':''}">
       <span class="fbgroup">
         ${filterField('fltyear')}
+        ${fltMenuAll()}
         ${fltOptionsBtn()}
       </span>
       ${fltDrop('sec','secfilter',t('month.fSec'),ui.secFilter,FLT_SEC())}

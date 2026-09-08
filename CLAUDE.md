@@ -85,15 +85,18 @@ Abschnitt.**
   Dateiname steht seit
   22.8.26 **nur noch im Menü** (`#menuFile` zuoberst; `.filepath` bleibt im HTML, ist
   aber per CSS verborgen). **Alle Aktionsknöpfe
-  wohnen im Menü dahinter** (`#hdrTools`, auf jeder Breite), seit 6.9.26 in dieser
-  Ordnung und mit diesen Linien (`.mi-sep`): „Daten hochladen (JSON-Datei)" ‖ „Daten
-  importieren (CSV-Datei)" (`#btnImportCsv` → `openCsvWizard()`; hieß bis 8.9.26
-  „CSV importieren" — **die Dateiart steht seit dann bei beiden in Klammern dahinter**,
-  in jeder Sprache so geschrieben, wie man sie dort schreibt) ‖ Speichern · Sicherung ‖
-  Trennen ‖ Neuer Eintrag (`#mNewOut`,
-  **schwarz mit weißer Schrift** — der nächste Handgriff; verdrahtet bei den festen
-  Schaltflächen in `js/app.js`) ‖ Einstellungen ‖ Anleitung (**orange Fläche mit weißer
-  Schrift**, `.tools #btnGuide`). **Der Menükopf hat zwei Zeilen** (`renderStatus()` in
+  wohnen im Menü dahinter** (`#hdrTools`, auf jeder Breite), seit dem Abend des 8.9.26 in
+  dieser Ordnung und mit diesen Linien (`.mi-sep`): „Lokale Datenbank öffnen (JSON-Datei)" ·
+  „Daten importieren (CSV-Datei)" (`#btnImportCsv` → `openCsvWizard()`; **die Dateiart steht
+  bei beiden in Klammern dahinter**, in jeder Sprache so geschrieben, wie man sie dort
+  schreibt) ‖ Neuer Eintrag ‖ Speichern · Sicherung ‖ Schließen ‖ Einstellungen ‖ Anleitung
+  (**orange Fläche mit weißer Schrift**, `.tools #btnGuide`).
+  **Öffnen und Importieren stehen ohne Linie beieinander** (Lex, 8.9.26): beide holen Zahlen
+  herein, das eine die ganze lokale Datenbank, das andere eine CSV-Spalte. **„Neuer Eintrag"
+  (`#mNewOut`) steht dazwischen und dem Speichern** — allein zwischen zwei Linien, in der
+  Reihenfolge, in der man arbeitet; er trug vom 6. bis zum 8.9.26 Tinte mit weißer Schrift
+  und ist seitdem ein Eintrag wie jeder andere: eine schwarze Fläche in einem Menü aus acht
+  Wegen liest sich als Anweisung. Sein Plus im Kreis bleibt (`.tools .mi-new::before`). **Der Menükopf hat zwei Zeilen** (`renderStatus()` in
   `js/storage.js`, `.menufile`): oben der Dateiname in Tinte und in **einer** Zeile — das
   Menü wird so breit, wie der Name es braucht (`.tools{min-width:230px;width:max-content}`,
   begrenzt auf das Fenster, Rest mit „…") —, darunter der Stand: rot „ungespeicherte
@@ -462,6 +465,15 @@ trägt sie dort ein.
   `.kpibar>.anahead{margin-top:0}`). Grund ist überall derselbe: ein **Außenabstand**
   des ersten Kindes fällt durch die Leiste hindurch nach oben, und die Leiste fängt dann
   tiefer an, als sie klebt.
+* **Das erste Bild blendet ein** (Lex, 8.9.26). Beim Öffnen der Anwendung fährt nichts:
+  es gibt keine vorige Ansicht, aus der etwas herausfahren könnte. Die ganze Seite blendet
+  stattdessen ein — Kopfzeile, Ansicht und Statuszeile zusammen, denn sie kommen zusammen
+  (`body.pagein`, Keyframe `fina-pagein`, 340 ms). Gesetzt wird die Klasse am Anfang von
+  `render()` beim allerersten Zeichnen (`firstPaint` in `js/app.js`) und fällt per
+  `animationend` **und** per Uhr wieder ab; `ui.enter` wird dabei ausdrücklich
+  zurückgesetzt, sonst führe eine Ansicht zusätzlich von rechts herein. Bewegt wird allein
+  die Deckkraft — ohne Animation (`prefers-reduced-motion`) steht die Seite sofort da, und
+  zwar sichtbar: der Ruhezustand ist volle Deckkraft.
 * **Ein Buch, das aufgeht, fliegt herein** (Lex, 8.9.26). `ui.enter` ist der Merker
   dafür — 1 heißt „von rechts" (Datei geladen, leer angefangen), -1 „von links" (Datei
   getrennt, die Begrüßung kommt zurück). Gesetzt wird er dort, wo ein Buch betreten
@@ -931,6 +943,22 @@ Gebaut wird das in Block 3 von `js/landing.js`, das Bild dazu in `css/landing.cs
 
 Ein neuer Ausschnitt braucht `data-pan` am Kasten, `.panview` um den Inhalt und ein leeres
 `.panmap` daneben; `data-pan-y="8"` sagt, wo er senkrecht aufsetzt.
+
+## Die JSON-Datei heißt „lokale Datenbank"
+
+**Nach außen ist die Datei des Nutzers seine „lokale Datenbank" / „local database"**
+(Lex, 8.9.26); der Dateityp steht nur noch in Klammern dahinter: „Lokale Datenbank öffnen
+(JSON-Datei)" / „Open local database (JSON file)". Deutsch mit Bindestrich, Englisch ohne.
+FINA hat keine andere Ablage — alles steht in dieser einen Datei, und beim Öffnen richtet
+sich die Anwendung nach ihr; „Datei" sagt nur, wie es auf der Platte liegt, „lokale
+Datenbank" sagt, was es ist, und „lokal" sagt zugleich das Verkaufsargument.
+
+Umgestellt sind `app.load`, `app.loadTip`, `app.saveTip`, `app.unlink`, `app.unlinkTip`,
+`store.unlinked`, `flt.sub`, `set.sub` und die Begrüßungskarte (`wel.open`,
+`wel.openHint`). **Noch nicht umgestellt** (mit Lex zu klären): die übrigen Kurzmeldungen
+`store.*`, die Verkaufsseiten und `datenschutz.html` — dort steht Rechtstext, jeder Satz
+einzeln. **In Code, Kommentaren und Strukturdokumenten bleibt es bei „JSON-Datei"**: dort
+ist der Dateityp gemeint und kein Name.
 
 ## Die Anwendung heißt FINA Buch / FINA Book
 
@@ -1533,6 +1561,20 @@ Monatsleiste · Auswertung (`anaBar()`). Die Filterzeile dockt oben an der Kopfz
 Auswertung steht direkt über den Karten, die sie zusammenfasst; zwischen den drei
 Stücken liegen je 10 px — so viel, wie die Bereiche voneinander haben.
 
+**Die vier Zahlen zählen sich um, statt zu springen** (Lex, 8.9.26): wer tippt oder einen
+Bereich wählt, sieht dort andere Summen — 1.800,00 im einen Bild und 100,00 im nächsten
+sagte nicht, dass es dieselbe Zahl ist, die gerade kleiner wird. `animNums()` in `js/ui.js`
+(gerufen am Ende von `wire()`) dreht sie in 360 ms weich herunter; die Kachel trägt dafür
+`data-num` (ihre Geldart als Schlüssel) und `data-v` (den Zielwert), gesetzt in `cell()`
+und in `tile()` der mobilen Leiste. **Angefangen wird bei dem, was gerade dasteht** —
+`numShown` hält den angezeigten Stand und wird in jedem Bild nachgeführt: wer schnell
+tippt, zeichnet bei jedem Zeichen neu, und die nächste Zahl läuft dort weiter, wo die
+vorige unterwegs war. **Nicht animiert wird der Wechsel des Bildes** (anderer Monat,
+andere Ansicht, frisch geöffnetes Buch — `numScope`): dort ist es keine Änderung derselben
+Zahl. Dass hier ausnahmsweise Text bewegt wird und nicht `transform`/`opacity`, geht: die
+Kacheln stehen in einem Raster aus gleich breiten Spalten, die Zahl darin darf also
+beliebig lang werden, ohne dass sich etwas verschiebt.
+
 **Es sind zwei `.stickybar` und nicht eine** (Lex, 8.9.26): die Filterzeile allein ist der
 **Top-Bereich** (`viewtop`) und bleibt beim Ansichtswechsel stehen; Monatsleiste und
 Auswertung stehen in einer zweiten Leiste (`.anasub`), die unter ihr klebt und mit der
@@ -2128,6 +2170,25 @@ ist, und ein zweiter Klick nimmt ihn zurück (`toggleFilter()` in `wire()` — e
 auf `alle`). Die Erklärung hängt als `data-tip` daran; das Suchfeld trägt zusätzlich
 `data-tiphover`, seine Sprechblase kommt also **nur von der Maus**. Beim Fokus stünde sie
 die ganze Zeit daneben, denn der Fokus kehrt immer wieder dorthin zurück (siehe unten).
+
+**Reicht die Breite nicht, rücken alle Filter in ein ☰** (Lex, 8.9.26): das ✕, die
+Filteroptionen und die drei Aufklappmenüs verschwinden auf einmal, und das ☰
+(`fltMenuAll()` in `js/views/monat.js`) tritt an die Stelle des ✕ — gleich rechts vom
+Suchfeld, das immer stehen bleibt. **Alles oder nichts**, anders als die Knöpfe der
+Kopfzeile: sie tun hier alle dasselbe, und ein Menü, in dem mal zwei und mal vier Gruppen
+stehen, sähe bei jeder Breite anders aus. Das Menü **bleibt beim Wählen offen** (wie das
+mobile Filtermenü — alle drei Fragen stehen beieinander, `mShut()` in `wire()`), und der
+**rote Punkt** oben rechts (`.dirtydot`) sagt, was er am Hamburger der Kopfzeile sagt:
+hier drin steckt etwas. Gebaut wird das Menü immer, gezeigt wird eins von beiden —
+`.fbnarrow` an der Zeile entscheidet (`css/layout.css`).
+**Gemessen, nicht geraten:** `fitFilterBar()` in `js/app.js` gibt der Zeile für einen
+Augenblick `width:max-content` ohne Umbruch und liest ihren Bedarf; das Suchfeld darf
+nämlich schrumpfen, und eine Zeile, in der es schon gequetscht steht, „passte" sonst
+weiter. Gerufen wird sie aus `syncMatrixHead()` — damit zählt **die Anleitung von selbst
+mit**: sie macht die Seite schmaler, und dieselbe Funktion läuft, wenn sie auf-, zugeht
+oder gezogen wird. Nachgemessen (deutsch): die Jahresleiste klappt bei rund 1200 px ein,
+die Monatsleiste bei rund 750 px, mit offener Anleitung schon in einem 1500 px breiten
+Fenster. Der Zustand lebt in `ui.fltMenu==='all'` — Sitzung, nie Datei.
 
 **Rechts vom Feld steht `data-qclear`**, das Gegenstück zum Tippen: es setzt `ui.q`,
 `ui.secFilter`, `ui.filter` und `ui.dueFilter` in einem Zug zurück und ist gesperrt, solange
@@ -2898,7 +2959,25 @@ und migriert wird beim Lesen (`migrate()`).
 
 * **Sieben Importfelder:** Datum, Betrag, Referenz 1 bis 5 (`C2_FIELDS`, `C2_REFS`; die
   fünfte seit 6.9.26). Die Referenzen sind gleichrangige freie Felder; im Buch stehen sie
-  als Liste `r` an den Quellzeilen. Eine **Art** der Datei gibt es nicht mehr — Kriterien
+  als Liste `r` an den Quellzeilen.
+* **Ein Referenzfeld darf einen eigenen Namen tragen** (Lex, 8.9.26): der **Stift** neben
+  der Feldwahl in Schritt 2 und vor jeder Referenzzeile im Fenster der Importzuordnung
+  öffnet dasselbe kleine Fenster (`c2RenameRef()`), leer heißt wieder „Referenz n",
+  höchstens 24 Zeichen, je Zuordnung nur einmal vergeben. Datum und Betrag bleiben, wie
+  sie heißen — ihre Bedeutung steht in FINA fest. **In Schritt 3 wird nicht umbenannt**;
+  dort steht der Name groß und der Kopf aus der CSV-Datei klein darunter.
+  **Der Name ist eine Beschriftung, niemals ein Schlüssel** — gespeichert und verglichen
+  wird weiter `ref1` … `ref5`, die Importkriterien hängen also nicht daran (dasselbe
+  Verhältnis wie `keyLabel()` zu den festen Kategorie-Schlüsseln, Regel 3). Er wohnt an
+  der Zuordnung (`csvMaps[…].rn`, Arbeitskopie `W.rn`) und **wandert beim Import ins
+  Buch**: `c2NameId()` legt in `state.impNames` einen Satz an (oder findet einen mit
+  denselben Namen), und jede Quellzeile trägt seine Kennung als `n`. **Eine Zeile behält
+  damit den Namen, unter dem sie hereinkam** — wer später umbenennt oder die Zuordnung
+  löscht, ändert nur, was der nächste Import mitbringt; zwei Importe mit verschiedenen
+  Namen stehen an demselben Posten nebeneinander. Gelesen wird das über `refLabel()` und
+  `refSource()` in `js/calc.js` (die Liste im Posten-Fenster, `impSideRows` in
+  `js/ui.js`); ohne Umbenennung gibt es weder Tafel noch Stempel, und die Datei sieht aus
+  wie zuvor. Verwaiste Namenssätze nimmt `migrate()` beim Öffnen heraus. Eine **Art** der Datei gibt es nicht mehr — Kriterien
   gelten für alle drei Bereiche, der Import zeigt alle Ziele zusammen.
 * **Struktur und Kriterien sind getrennt.** Die **Struktur** (`state.csvMaps[key]` =
   `{date, file, f, header}`) ist die Feldverknüpfung je Datei-Art; Schlüssel ist der
@@ -2907,7 +2986,11 @@ und migriert wird beim Lesen (`migrate()`).
   Posten (`impRules[]`, je Regel `{terms:[{f,op,val}]}`) und nennen **Felder, nie
   Spalten**. `migrate()` übersetzt die älteren Formen (Regeln je Datei-Art, `kind`,
   `main`/`cat`/`desc`) — siehe das Strukturdokument.
-* **Schritt 1:** Datei wählen. Kennt FINA die Datei-Art, steht der orange Kasten
+* **Schritt 1:** Datei wählen. Unter dem Beschreibungssatz steht der Hinweis, dass die
+  CSV-Datei **eine Kopfzeile braucht** (`c2.needHead`, im Bild des Merksatzes der
+  Anleitung `.gcall` — keine Alarmfarbe, siehe „Die Farbsprache"): FINA liest daraus die
+  Namen der Spalten, den Fingerabdruck der Datei-Art und die Erkennung der Felder; fehlt
+  sie, nimmt `c2UseHeader()` die erste Buchung dafür, und die ist dann keine Buchung mehr. Kennt FINA die Datei-Art, steht der orange Kasten
   (`.c2known`) mit je Struktur einer Zeile (Name · Tag · Stift · ✕, bei mehreren ein
   Radio): **„Automatisch CSV-Datenstruktur vorbereiten"** bringt die Felder mit und geht
   nach Schritt 2 (`W.autoCols`), **„CSV-Datenstruktur von Grund auf neu anordnen"** fängt

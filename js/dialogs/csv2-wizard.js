@@ -302,6 +302,10 @@ const C2_PICKW=30;
    und mit Regeln je Datei-Art übersetzt migrate() (js/state.js). */
 /* Fünf seit 6.9.26 spät (Referenz 5 auf Lex' Wunsch); davor vier. */
 const C2_REFS=['ref1','ref2','ref3','ref4','ref5'];
+/* So lang darf ein eigener Name werden. Er steht im Spaltenkopf
+   des dritten Schritts und in der schmalen Liste des
+   Posten-Fensters — was darüber hinausgeht, liest dort niemand. */
+const C2_NAME_MAX=24;
 const C2_FIELDS=['date','amount'].concat(C2_REFS);
 function c2BlankF(){const f={date:-1,amount:-1};C2_REFS.forEach(k=>{f[k]=-1;});return f;}
 function c2Refs(row){
@@ -313,13 +317,89 @@ function c2Refs(row){
    Filterzeilen, im Kopf der CSV-Tabelle, in den Kriterien-Fenstern
    und in den Einstellungen. 'q' ist der Schnellfilter über alle
    Felder; er wird nie gemerkt. */
-function c2FieldLabel(f){
+/* **Ein Referenzfeld darf einen eigenen Namen tragen** (8.9.26):
+   er steht an der Importzuordnung (csvMaps[…].rn) und im Wizard in
+   der Arbeitskopie W.rn. Wer nichts benennt, arbeitet weiter mit
+   Referenz 1 bis 5 — dann steht in der Datei auch nichts davon.
+   `rn` ausdrücklich mitzugeben braucht nur, wer die Namen einer
+   **anderen** Zuordnung zeigt (das Strukturfenster). */
+function c2RefName(f,rn){
+  const set=(rn===undefined)?((typeof W!=='undefined'&&W)?W.rn:null):rn;
+  const v=set&&set[f];
+  return v?String(v):'';
+}
+function c2FieldLabel(f,rn){
   if(f==='date')return t('c2.fDate');
   if(f==='amount')return t('c2.fAmount');
   if(f==='q')return t('c2.allCols');
   const n=C2_REFS.indexOf(f);
-  return n>=0?t('c2.fRef',n+1):String(f);
+  if(n<0)return String(f);
+  return c2RefName(f,rn)||t('c2.fRef',n+1);
 }
+/* Nur die gesetzten Namen, und nur für Referenzen — so wandert
+   kein leerer Eintrag in die Datei. Ist keiner gesetzt, kommt
+   nichts zurück und das Feld `rn` entfällt ganz. */
+function c2CleanNames(rn){
+  const out={};
+  C2_REFS.forEach(f=>{const v=String((rn&&rn[f])||'').trim();if(v)out[f]=v.slice(0,C2_NAME_MAX);});
+  return Object.keys(out).length?out:null;
+}
+/* ── Ein Referenzfeld benennen ────────────────────────────────
+   (8.9.26) Der Stift steht an zwei Stellen, und beide öffnen
+   dieses Fenster: in Schritt 2 neben der Feldwahl über einer
+   Spalte, und im Fenster der Importzuordnung vor jeder
+   Referenzzeile. Geschrieben wird in das übergebene Namensobjekt —
+   im Wizard ist das W.rn (gemerkt wird es mit den Spalten), im
+   Strukturfenster dessen Arbeitskopie (gemerkt mit „Speichern").
+
+   **Leer heißt: wieder Referenz n.** Ein leerer Name löscht den
+   Eintrag; ein Name, den hier schon ein anderes Referenzfeld
+   trägt, wird abgewiesen — in der Liste eines Postens stünden
+   sonst zwei Zeilen mit derselben Beschriftung, und man wüsste
+   nicht mehr, welche welche ist. */
+function c2RenameRef(field,col,rn,done){
+  const n=C2_REFS.indexOf(field);
+  if(n<0)return;
+  const fallback=t('c2.fRef',n+1);
+  const box=document.createElement('div');
+  box.className='modal';
+  box.innerHTML=`<div class="box narrow c2renbox">
+    <h3>${esc(t('c2.renTitle'))}</h3>
+    <p class="subline">${esc(t('c2.renSub'))}</p>
+    <div class="dgrp csgrid">
+      <label>${esc(t('c2.renField'))}</label><b class="csval">${esc(fallback)}</b>
+      ${col?`<label>${esc(t('c2.renCol'))}</label><b class="csval">${esc(col)}</b>`:''}
+      <label for="c2rnVal">${esc(t('c2.renName'))}</label>
+      <input type="text" id="c2rnVal" maxlength="${C2_NAME_MAX}"
+        value="${esc(rn[field]||'')}" placeholder="${esc(fallback)}">
+    </div>
+    <p class="subline">${esc(t('c2.renHint',fallback))}</p>
+    <p class="errline" id="c2rnErr" hidden></p>
+    <div class="row-end">
+      <button class="btn" id="c2rnCancel">${esc(t('g.cancel'))}</button>
+      <button class="btn primary" id="c2rnOk">${esc(t('item.apply'))}</button></div></div>`;
+  document.body.appendChild(box);
+  tabThroughFields(box);
+  const inp=box.querySelector('#c2rnVal'),err=box.querySelector('#c2rnErr');
+  const ok=()=>{
+    const v=inp.value.trim().slice(0,C2_NAME_MAX);
+    const clash=C2_REFS.find(f=>f!==field&&String(rn[f]||'').trim().toLowerCase()===v.toLowerCase());
+    if(v&&clash){
+      err.textContent=t('c2.renTaken',v);err.hidden=false;
+      inp.focus();inp.select();
+      return;
+    }
+    if(v)rn[field]=v; else delete rn[field];
+    closeModal(box);
+    if(done)done();
+  };
+  box.querySelector('#c2rnOk').onclick=ok;
+  box.querySelector('#c2rnCancel').onclick=()=>closeModal(box);
+  box.onclick=ev=>{if(ev.target===box)closeModal(box);};
+  inp.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();ok();}};
+  inp.focus();inp.select();
+}
+
 /* Welches Feld eine Spalte der offenen Datei trägt — oder nichts. */
 function c2FieldOf(ci){return C2_FIELDS.find(f=>W.f[f]===ci)||null;}
 /* Der Posten oder die flexible Kategorie hinter einem Ziel — dort
@@ -770,10 +850,64 @@ function c2PendingRows(kind,ref){
     /* `once` wandert mit: die Vorschau in den Monatskacheln soll
        denselben Kreis zeigen, den „Anwenden" hinterlässt — rot,
        wenn die Zuordnung nicht gemerkt wird. */
+    /* `rl` sind die Namen, mit denen dieser Lauf stempeln wird —
+       im Buch steht noch nichts, die Liste des Posten-Fensters
+       kann sie also nur hier her bekommen (refLabel, js/calc.js). */
     (out[d.m]=out[d.m]||[]).push({d:two(d.d)+'.'+two(d.m)+'.'+two(d.y%100),
-      dn:(d.y%100)*10000+d.m*100+(d.d||0),v:v,r:rr,txt:refsText(rr),nw:1,once:!!r.once});
+      dn:(d.y%100)*10000+d.m*100+(d.d||0),v:v,r:rr,rl:c2CleanNames(W.rn),
+      txt:refsText(rr),nw:1,once:!!r.once});
   });
   return out;
+}
+
+/* Schreibt die Datei ihre Beträge mit Tausenderpunkt? Gelesen an
+   den ersten 200 gefüllten Zellen der Betragsspalte. Gebraucht wird
+   es allein für „Suchen nach Betrag" (c2RowMenu): der Schnellfilter
+   vergleicht Text, und „1234,56" findet in einer Datei mit
+   „1.234,56" nichts. */
+function c2AmtGrouped(){
+  const ci=W&&W.csv?W.f.amount:-1;
+  if(ci==null||ci<0)return false;
+  const rx=/\d\.\d{3}(?:\D|$)/;
+  let seen=0;
+  for(let i=0;i<W.csv.rows.length&&seen<200;i++){
+    const v=String(W.csv.rows[i][ci]==null?'':W.csv.rows[i][ci]).trim();
+    if(!v)continue;
+    seen++;
+    if(rx.test(v))return true;
+  }
+  return false;
+}
+function c2QAmount(v){
+  const a=Math.abs(Math.round((+v||0)*100)/100);
+  return c2AmtGrouped()?nf.format(a):a.toFixed(2).replace('.',',');
+}
+
+/* ── Der Namenssatz, mit dem dieser Lauf stempelt ─────────────
+   (8.9.26) Sind die Referenzfelder dieser Importzuordnung benannt,
+   bekommt jede Quellzeile, die ins Buch geht, die Kennung eines
+   Satzes in `state.impNames` — damit behält sie ihre Beschriftung,
+   auch wenn die Zuordnung später umbenannt oder gelöscht wird
+   (refLabel in js/calc.js).
+
+   **Gleiche Namen, gleicher Satz**: bringt ein Lauf dieselben
+   Namen wie ein vorhandener Satz, zeigen seine Zeilen dorthin —
+   sonst wüchse die Tafel mit jedem Import. Ohne eine einzige
+   Umbenennung entsteht gar nichts, und in der Datei steht weder
+   Tafel noch Stempel. */
+function c2NameId(){
+  const rn=c2CleanNames(W.rn);
+  if(!rn)return '';
+  const same=(a,b)=>C2_REFS.every(f=>String((a||{})[f]||'')===String((b||{})[f]||''));
+  const tbl=state.impNames||{};
+  const hit=Object.keys(tbl).find(k=>tbl[k]&&same(tbl[k].r,rn));
+  if(hit)return hit;
+  let n=1;while(tbl[String(n)])n++;
+  const d=new Date();
+  state.impNames=tbl;
+  tbl[String(n)]={f:W.mapName||(W.csv&&W.csv.name)||'',
+    d:d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear(),r:rn};
+  return String(n);
 }
 
 /* Je Ziel die zugeordneten Zeilen und Monatssummen. */
@@ -917,6 +1051,12 @@ function openCsvWizard(){
         tragen (c2MapsFor), und Schritt 1 lässt wählen. Leer heißt:
         die erste, die es gibt (c2MapKey). */
      mapKey:'',
+     /* **Die eigenen Namen der Referenzfelder** (8.9.26): die
+        Arbeitskopie dessen, was an der Importzuordnung steht
+        (csvMaps[…].rn). Gemerkt wird sie mit den Spalten
+        (c2SaveCols), ins Buch wandert sie beim Anwenden
+        (c2Apply → state.impNames). */
+     rn:{},
      /* **Zeilen, die eine gemerkte Regel auslassen soll** (6.9.26):
         Schlüssel „ziel|zeile", gesetzt im Wahl-Fenster der gemerkten
         Kriterien (c2MapPick), wenn dort ein einzelner Haken
@@ -1298,7 +1438,13 @@ function c2Step1(){
         <button class="btn primary" data-c2="applyMap">${t('c2.knownApply')}</button>
         <button class="btn" data-c2="ignoreMap">${t('c2.knownNew')}</button>
       </div></div>`:'';
+  /* **Der Hinweis steht vor der Dateiwahl**, nicht danach: gelesen
+     werden soll er, bevor man die Datei sucht. Das Bild ist das des
+     Merksatzes der Anleitung (.gcall) — orange Kante, leichte
+     Tönung, erste Zeile fett. Keine Alarmfarbe: Rot heißt in FINA
+     „jetzt", Neongelb „hier wird gefiltert", Cyan „importiert". */
   return `<p class="subline">${t('c2.sub')}</p>
+    <div class="gcall c2needhead"><b>${esc(t('c2.needHead'))}</b><p>${esc(t('c2.needHeadSub'))}</p></div>
     <div class="c2grp">
       <button class="btn" data-c2="pick">${t('c2.pick')}</button>
       <p class="c2meta c2filemeta">${c}</p>
@@ -1318,6 +1464,17 @@ function c2FOpts(i){
   fields.forEach(f=>{if(W.f[f[0]]===i)cur=f[0];});
   return '<option value=""'+(cur===''?' selected':'')+'>—</option>'+
     fields.map(f=>`<option value="${f[0]}"${cur===f[0]?' selected':''}>${esc(f[1])}</option>`).join('');
+}
+
+/* **Der Stift steht links vor der Feldwahl** (8.9.26) — und nur,
+   wenn die Spalte ein Referenzfeld trägt: Datum und Betrag haben
+   in FINA eine feste Bedeutung, an der Fälligkeit, Vorzeichen und
+   alle Summen hängen; ein zweiter Name dafür sagte nichts Neues.
+   Eine Spalte ohne Feld hat nichts zu benennen. */
+function c2FieldPick(i){
+  const f=c2FieldOf(i),ref=C2_REFS.includes(f);
+  return `<span class="c2fpick">${ref?`<button type="button" class="pencil c2renbtn" data-c2ren="${esc(f)}"
+      title="${esc(t('c2.renTip'))}" aria-label="${esc(t('c2.renTip'))}">&#9998;</button>`:''}<select data-c2f="${i}">${c2FOpts(i)}</select></span>`;
 }
 
 function c2InfoLine(){
@@ -1343,7 +1500,7 @@ function c2ColsTable(){
   return `<table class="c2tab c2coltab">
     <thead>
       <tr class="c2maprow"><th class="hpick"></th>${W.csv.header.map((c,i)=>
-        `<th${W.cols.includes(i)?' class="selcol"':''}>${W.cols.includes(i)?`<select data-c2f="${i}">${c2FOpts(i)}</select>`:''}</th>`).join('')}</tr>
+        `<th${W.cols.includes(i)?' class="selcol"':''}>${W.cols.includes(i)?c2FieldPick(i):''}</th>`).join('')}</tr>
       <tr><th class="hpick" title="${esc(t('c2.hrowTip'))}">${t('c2.hrowCol')}</th>${W.csv.header.map((c,i)=>{
         const on=W.cols.includes(i);
         return `<th class="c2pick${on?' selcol':''}"><button class="c2colbtn${on?' on':''}"
@@ -2655,16 +2812,27 @@ function c2RowMenu(btn,tid){
      Fenster. Ein Ziel, das es im Buch noch nicht gibt („n:…"),
      hat nichts zu öffnen. */
   const canOpen=tid.indexOf('i:')===0&&!!findItem(tid.slice(2));
-  /* **„Suchen nach Betrag"** (5.9.26): die Beträge, die dieser
-     Posten im Buch führt, als Filter auf die Betragsspalte der
-     Datei — jeder verschiedene Betrag einmal, alle zusammen als
-     **eine** Filterzeile mit „einer von" (c2Term, op amt). Mehrere
-     Zeilen gingen nicht: Filterzeilen gelten zusammen, und keine
-     Zeile hat zugleich 500 und 520. **Mit Vorzeichen**, wie der
-     Posten es im Buch führt: Kosten mit Minus, Einnahmen mit Plus —
-     so steht es auch im Kontoauszug. Der Posten wird dabei als Ziel
-     gewählt; der Filter steht als Zeile da, man kann ihn anpassen,
-     und „Zuordnen und merken" macht daraus die Regel. */
+  /* **„Suchen nach Betrag"** (5.9.26; seit 8.9.26 in den
+     Schnellfilter statt in die Betragsspalte — Lex: „um schnell zu
+     filtern"): der Betrag, den dieser Posten im Buch führt, wandert
+     als Text oben in den Schnellfilter, und der Posten wird als Ziel
+     gewählt. Von dort ist es ein Griff weiter — tippen, ergänzen,
+     zurücknehmen —, während eine angeheftete Filterzeile erst wieder
+     weggeklickt werden musste.
+
+     **Ein Betrag, nicht fünf**: der Schnellfilter ist ein Text und
+     kein „einer von". Führt der Posten mehrere verschiedene Beträge,
+     kommt der **häufigste** (bei Gleichstand der größere) — das ist
+     der wiederkehrende, und um den geht es. Wie viele es sind, sagt
+     die Sprechblase am Menüeintrag.
+
+     **Ohne Vorzeichen und in der Schreibweise der Datei**: der
+     Schnellfilter vergleicht Text über alle verknüpften Felder
+     (c2Term, 'q'), nicht Zahlen. Ob die Datei „1.234,56" oder
+     „1234,56" schreibt, liest c2AmtGrouped() an ihrer Betragsspalte
+     ab — sonst fände der Filter bei vierstelligen Beträgen nichts.
+     Das Vorzeichen bleibt weg: manche Dateien führen es vorn,
+     manche hinten. */
   const amts=()=>{
     let vals=[];
     if(tid.indexOf('i:')===0){const it=findItem(tid.slice(2));vals=it?it.amounts.slice():[];}
@@ -2675,6 +2843,17 @@ function c2RowMenu(btn,tid){
       seen.add(a);out.push(a);
     });
     return out;
+  };
+  /* Der Betrag, der in den Schnellfilter geht: der häufigste der
+     zwölf Monate, bei Gleichstand der größere. */
+  const amtTop=()=>{
+    let vals=[];
+    if(tid.indexOf('i:')===0){const it=findItem(tid.slice(2));vals=it?it.amounts.slice():[];}
+    const cnt=new Map();
+    vals.forEach(v=>{const a=Math.round((+v||0)*100)/100;if(!a)return;cnt.set(a,(cnt.get(a)||0)+1);});
+    let best=0,bn=0;
+    cnt.forEach((n,a)=>{ if(n>bn||(n===bn&&Math.abs(a)>Math.abs(best))){best=a;bn=n;} });
+    return best;
   };
   const amtList=W.f.amount>=0&&canOpen?amts():[];
   const pop=document.createElement('div');
@@ -2733,11 +2912,7 @@ function c2RowMenu(btn,tid){
       if(what==='amt'){
         if(!amtList.length)return;
         W.target=tid;W.editRule=null;
-        /* Eine frühere Betragszeile derselben Spalte wird ersetzt,
-           nicht gestapelt — zwei „einer von" derselben Spalte
-           träfen nur noch die Schnittmenge. */
-        W.chips=W.chips.filter(c=>!(c.f==='amount'&&c.op==='amt'));
-        W.chips.push({f:'amount',op:'amt',val:amtList.map(v=>nf.format(v)).join(' | ')});
+        W.q=c2QAmount(amtTop());
         c2Render();
         return;
       }
@@ -2812,7 +2987,7 @@ function c2Wire(){
       r.onload=()=>{
         try{
           W.csv=c2Parse(r.result,f.name);
-          W.cols=[];W.f=c2BlankF();
+          W.cols=[];W.f=c2BlankF();W.rn={};
           W.rules=[];W.newT=[];W.asg=[];W.flt={};W.fltOp={};W.chips=[];W.q='';W.skip={};
           W.colw={};W.target='';W.editRule=null;W.ignoreMap=false;W.autoCols=false;
           W.mapRules=null;W.autoDone=false;W.mapName='';W.mapKey='';
@@ -2839,6 +3014,7 @@ function c2Wire(){
       if(!m)return;
       W.mapKey=key;W.mapName=m.file||'';
       W.f=Object.assign(c2BlankF(),m.f||{});
+      W.rn=Object.assign({},m.rn||{});
       C2_FIELDS.forEach(f=>{if(W.f[f]>=W.csv.header.length)W.f[f]=-1;});
       W.cols=c2Order();
       W.rules=[];W.newT=[];W.asg=[];W.target='';W.editRule=null;W.skip={};
@@ -2852,7 +3028,7 @@ function c2Wire(){
        heißt genau das. */
     on('ignoreMap',()=>{
       W.ignoreMap=true;W.autoCols=false;W.mapRules=null;W.autoDone=false;W.mapKey='';
-      W.cols=[];W.f=c2BlankF();
+      W.cols=[];W.f=c2BlankF();W.rn={};
       W.rules=[];W.newT=[];W.asg=[];W.target='';W.editRule=null;W.skip={};
       if(!c2Advance())c2Render();
     });
@@ -2936,6 +3112,17 @@ function c2Wire(){
           W.ignoreMap=false;W.autoCols=false;W.mapRules=null;W.autoDone=false;
           W.mapName='';W.mapKey='';W.skip={};
           c2Render();
+        };
+      });
+      /* Der Stift an einer Referenzspalte: benennen und neu
+         zeichnen — der Name steht sofort in der Auswahl darüber
+         und, eine Zeile weiter, in jedem Kopf des dritten
+         Schritts. Gemerkt wird er mit den Spalten (c2SaveCols). */
+      wrap.querySelectorAll('[data-c2ren]').forEach(b=>{
+        b.onclick=e=>{
+          e.stopPropagation();
+          const f=b.dataset.c2ren,ci=W.f[f];
+          c2RenameRef(f,ci>=0?W.csv.header[ci]:'',W.rn,redraw);
         };
       });
       wrap.querySelectorAll('[data-c2f]').forEach(sel=>{
@@ -3742,9 +3929,13 @@ function c2SaveCols(name,key){
      Spaltenköpfe (für die Anzeige in den Einstellungen). Keine Art
      mehr (6.9.26, Struktur v260906) und keine Regeln — die wohnen
      an den Posten (c2StoreRules). */
+  const rn=c2CleanNames(W.rn);
   state.csvMaps[key]={
     date:d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear(),
     file:name,f:Object.assign({},W.f),header:W.csv.header.slice()};
+  /* Nur, wenn wirklich benannt wurde — ein leeres `rn` gehört
+     nicht in die Datei. */
+  if(rn)state.csvMaps[key].rn=rn;
   save();
 }
 
@@ -3783,6 +3974,9 @@ function openCsvStructure(key,done){
   if(!m){ if(done)done(); return; }
   const hd=m.header||[];
   const f=Object.assign(c2BlankF(),m.f||{});
+  /* Arbeitskopie der eigenen Namen — übernommen wird sie mit
+     „Speichern", wie die Spalten und der Name der Zuordnung. */
+  const rn=Object.assign({},m.rn||{});
   let name=m.file||'';
   /* So viele Spalten, wie die Datei hat — oder wie die Verknüpfung
      nennt, falls eine ältere Struktur keine Spaltenköpfe kennt. */
@@ -3794,8 +3988,17 @@ function openCsvStructure(key,done){
   const opts=k=>`<option value="-1"${f[k]<0?' selected':''}>—</option>`
     +Array.from({length:nCols},(_,ci)=>`<option value="${ci}"${f[k]===ci?' selected':''}>${esc(colName(ci))}</option>`).join('');
   const close=()=>{ box.remove(); if(done)done(); };
-  const sel=k=>`<label for="cs_${k}">${esc(c2FieldLabel(k))}</label>
+  /* **Eine Referenzzeile trägt ihren eigenen Namen und davor den
+     Stift** (8.9.26): benannt wird für den **nächsten** Import —
+     was schon im Buch steht, behält seine Beschriftung (refLabel
+     in js/calc.js). Datum und Betrag bekommen keinen Stift: ihre
+     Bedeutung steht fest. */
+  const sel=k=>{
+    const ref=C2_REFS.includes(k);
+    return `<label for="cs_${k}"${ref?' class="csren"':''}>${ref?`<button type="button" class="pencil c2renbtn" data-csren="${esc(k)}"
+        title="${esc(t('c2.renTip'))}" aria-label="${esc(t('c2.renTip'))}">&#9998;</button>`:''}<span>${esc(c2FieldLabel(k,rn))}</span></label>
         <select id="cs_${k}" data-csf="${k}">${opts(k)}</select>`;
+  };
   const draw=()=>{
     box.innerHTML=`<div class="box narrow csbox">
       <h3>${esc(t('cs.title'))}</h3>
@@ -3820,6 +4023,12 @@ function openCsvStructure(key,done){
       toast(t('c2.mapForgot',nm));
     };
     box.querySelector('#csName').oninput=e=>{ name=e.target.value; };
+    box.querySelectorAll('[data-csren]').forEach(b=>{
+      b.onclick=()=>{
+        const k=b.dataset.csren,ci=f[k];
+        c2RenameRef(k,ci>=0?colName(ci):'',rn,draw);
+      };
+    });
     box.querySelectorAll('[data-csf]').forEach(s=>{ s.onchange=()=>{
       const k=s.dataset.csf,ci=+s.value;
       if(ci>=0)C2_FIELDS.forEach(o=>{ if(o!==k&&f[o]===ci)f[o]=-1; });
@@ -3843,6 +4052,13 @@ function openCsvStructure(key,done){
       if(f.date<0||f.amount<0){ fail(t('cs.need')); return; }
       m.f=Object.assign({},f);
       m.file=nm;
+      const clean=c2CleanNames(rn);
+      if(clean)m.rn=clean; else delete m.rn;
+      /* **Und die offene Zuordnung geht mit**: wer aus Schritt 1
+         heraus umbenennt, arbeitet gerade mit dieser Struktur —
+         bliebe W.rn stehen, stempelte der Lauf mit den alten
+         Namen. */
+      if(typeof W!=='undefined'&&W&&W.mapKey===key)W.rn=Object.assign({},clean||{});
       delete m.kind;
       save();
       close();
@@ -4298,6 +4514,10 @@ function c2Apply(){
   let nItems=0,nMonths=0,nFlexRows=0;
   const flexMonths=new Set();
   const hadTx=flexTx().length>0;
+  /* Einmal für den ganzen Lauf: unter welchem Namenssatz die
+     Referenzen dieser Zeilen im Buch stehen (c2NameId). Leer, wenn
+     nichts benannt ist — dann bleibt alles wie bisher. */
+  const nameId=c2NameId();
   B.order.forEach(tid=>{
     const b=B.by[tid];
     let it=null;
@@ -4320,8 +4540,12 @@ function c2Apply(){
       if(!b.cnt[m])continue;
       const rows=b.rows.filter(i=>W.meta[i].d.m===m).map(i=>{
         const row=W.csv.rows[i],d=W.meta[i].d;
-        return {d:String(d.d).padStart(2,'0')+'.'+String(d.m).padStart(2,'0')+'.'+String(d.y%100).padStart(2,'0'),
+        const o={d:String(d.d).padStart(2,'0')+'.'+String(d.m).padStart(2,'0')+'.'+String(d.y%100).padStart(2,'0'),
           v:c2BookVal(i,b.t.income),r:c2Refs(row)};
+        /* Der Name, unter dem die Zeile hereinkam — nur, wenn
+           benannt wurde (c2NameId). */
+        if(nameId)o.n=nameId;
+        return o;
       });
       /* **1 gemerkt, 2 einmalig** (siehe impOnceAt in js/calc.js):
          einmalig ist der Monat, sobald **eine** seiner Zeilen aus

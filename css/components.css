@@ -439,6 +439,18 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
 @keyframes fina-fadeout{from{opacity:1}to{opacity:0}}
 @keyframes fina-dropin{from{opacity:0;transform:translateY(-40px)}to{opacity:1;transform:none}}
 @keyframes fina-dropout{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-40px)}}
+/* ── Das erste Bild blendet ein ───────────────────────────────
+   (Lex, 8.9.26) Beim Öffnen der Anwendung fährt nichts: es gibt
+   keine vorige Ansicht, aus der etwas herausfahren könnte, und
+   eine Seite, die von der Seite hereinschösse, käme aus dem
+   Nichts. Sie blendet stattdessen als Ganzes ein — Kopfzeile,
+   Ansicht und Statuszeile zusammen, denn sie kommen zusammen.
+
+   Die Klasse setzt render() beim allerersten Zeichnen und nimmt
+   sie danach wieder (js/app.js); bewegt wird allein die
+   Deckkraft. */
+@keyframes fina-pagein{from{opacity:0}to{opacity:1}}
+body.pagein{animation:fina-pagein .34s ease-out}
 .modal{animation:fina-fade .22s ease-out}
 .modal .box{animation:fina-dropin .22s ease-out}
 .modal.noanim,.modal.noanim .box{animation:none}
@@ -608,6 +620,7 @@ html{scrollbar-gutter:stable}
   .viewbody.in-left,.viewbody.in-right,.foldin,.foldin-row{animation:none}
   .viewghost>.stickybar.viewtop>*,#view>.stickybar.viewtop.barin>*{animation:none}
   .viewbody.pre-left,.viewbody.pre-right{transform:none}
+  body.pagein{animation:none}
   .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout,
   .guidepanel.closing,.c2gghostwrap{display:none}
   .guidepanel,.c2gpanel.slidein{animation:none}
@@ -891,11 +904,18 @@ body.gresize{user-select:none;cursor:col-resize}
 .guide .gend{margin-top:14px}
 /* Der Merksatz: eine orange Kante links, der Grund eine Spur
    Orange auf Papier. Der Titel steht als eigene Zeile darüber. */
-.guide .gcall{border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+/* **Denselben Merksatz trägt Schritt 1 des CSV-Imports** (8.9.26,
+   der Hinweis auf die Kopfzeile): dasselbe Bild, damit es nicht
+   zwei Sorten Hinweis gibt. Wer eine weitere Stelle baut, hängt
+   ihre Klasse hier ein statt eine eigene Regel zu schreiben. */
+:is(.guide,.c2box) .gcall{border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
   background:color-mix(in srgb,var(--accent) 8%,var(--paper-2));padding:10px 14px;margin:16px 0}
-.guide .gcall>b{display:block;margin-bottom:2px}
-.guide .gcall p{margin:0}
-.guide .gcall p+p{margin-top:6px}
+:is(.guide,.c2box) .gcall>b{display:block;margin-bottom:2px}
+:is(.guide,.c2box) .gcall p{margin:0}
+:is(.guide,.c2box) .gcall p+p{margin-top:6px}
+/* Im Wizard sitzt er zwischen Beschreibungssatz und Dateiwahl und
+   hält denselben Abstand wie die Blöcke darunter. */
+.c2needhead{margin:12px 0}
 /* Nummerierte Schritte: die Zahl im Kreis links, der Text rechts;
    zwischen zwei Schritten eine Haarlinie. */
 .guide .gsteps{margin-top:6px}
@@ -1512,6 +1532,29 @@ textarea.srvtext{width:100%;display:block}
   font-family:var(--font-ui);font-size:11.5px;
   padding:3px 5px;border:1px solid var(--rule);border-radius:5px;
   background:var(--paper);color:var(--ink)}
+/* **Der Stift vor der Feldwahl** (8.9.26): er benennt ein
+   Referenzfeld — nur dort steht er, Datum und Betrag haben ihren
+   festen Namen. Die Auswahl behält ihre volle Breite (`min-width`
+   oben), der Stift steht davor und schrumpft nicht mit. */
+.c2fpick{display:flex;align-items:center;gap:4px}
+.c2fpick .c2renbtn{flex:0 0 16px}
+.c2fpick select{min-width:96px}
+/* Im Fenster der Importzuordnung steht er **vor** der Beschriftung
+   der Zeile. Die linke Spalte ist dafür etwas breiter als früher
+   (96 px) — und zwar in allen drei Blöcken, damit die
+   Beschriftungen in einer Flucht bleiben. Ein eigener Name darf
+   umbrechen: er kann 24 Zeichen lang sein, und abgeschnitten
+   sagte er weniger als in zwei Zeilen. */
+/* **Alle Beschriftungen fangen an derselben Stelle an**: die
+   21 px links sind die Rinne, in der bei den Referenzen ihr Stift
+   steht (16 px Knopf plus 5 px Fuge). Name, Datum und Betrag haben
+   keinen — sie halten die Rinne trotzdem frei, sonst stünden ihre
+   Wörter allein weiter links. */
+.csbox .csgrid label{padding-left:21px}
+.csgrid label.csren{display:flex;align-items:flex-start;gap:5px;white-space:normal;padding-left:0}
+.csgrid label.csren>span{min-width:0;overflow-wrap:anywhere;padding-top:1px}
+.csgrid label.csren .c2renbtn{flex:0 0 16px;margin-top:-2px}
+.csbox .csval{font-size:12.5px}
 /* Jeder Spaltenkopf ist ein Knopf im Mac-Knopfbild — man soll
    sehen, dass man hier drücken kann. Gewählt trägt der Knopf das
    kräftige Orange mit klarem Weiß darauf; die ganze Spalte trägt
@@ -2159,8 +2202,11 @@ textarea.srvtext{width:100%;display:block}
 .csgrid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;align-items:center;padding:10px 12px}
 /* Drei Blöcke untereinander (6.9.26 spät): Name · Pflichtfelder ·
    Referenzen — die Beschriftungen aller drei stehen in einer Flucht,
-   dafür ist die linke Spalte fest breit statt „auto". */
-.csbox .dgrp.csgrid{grid-template-columns:96px minmax(0,1fr);margin-bottom:10px}
+   dafür ist die linke Spalte fest breit statt „auto".
+   **Seit 8.9.26 etwas breiter** (96 → 124 px): vor den Referenzen
+   steht ihr Stift, und sie tragen den Namen, den der Nutzer ihnen
+   gegeben hat. */
+.csbox .dgrp.csgrid{grid-template-columns:124px minmax(0,1fr);margin-bottom:10px}
 /* Der rote Löschknopf steht links in der Fußzeile, bündig mit den
    Blöcken darüber — Abbrechen und Speichern bleiben rechts. */
 .csbox .row-end .delbtn{margin-right:auto}

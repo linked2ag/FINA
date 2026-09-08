@@ -867,6 +867,71 @@ function openNote(kind,key,m,done){
   ta.focus();
 }
 
+/* ── Zahlen, die sich umdrehen ────────────────────────────────
+   (Lex, 8.9.26) Die vier Kacheln der Auswertung zeigen, was gerade
+   zu sehen ist: wer tippt oder einen Bereich wählt, sieht dort
+   andere Summen. Bis dahin sprangen sie — 1.800,00 stand im einen
+   Bild da und 100,00 im nächsten, und man konnte nicht sehen, dass
+   es dieselbe Zahl ist, die gerade kleiner wird. Jetzt dreht sie
+   sich herunter.
+
+   **Nichts wird dabei neu gesetzt.** Die Kacheln stehen in einem
+   Raster aus gleich breiten Spalten (.anarow, css/layout.css) —
+   die Zahl darin darf also beliebig lang werden, ohne dass sich
+   etwas verschiebt. Bewegt wird nur der Text in der Zelle.
+
+   **Angefangen wird bei dem, was gerade dasteht** — nicht beim
+   letzten Zielwert: wer schnell tippt, zeichnet die Ansicht bei
+   jedem Zeichen neu, und die nächste Zahl soll dort weiterlaufen,
+   wo die vorige unterwegs war. Deshalb hält `numShown` den
+   **angezeigten** Stand und wird in jedem Bild nachgeführt.
+
+   **Nicht animiert wird der Wechsel des Bildes**: anderer Monat,
+   andere Ansicht, frisch geöffnetes Buch. Dort ist es keine
+   Änderung derselben Zahl, sondern eine andere Zahl — und die
+   Ansicht fährt ohnehin gerade herein. Erkannt wird das an
+   `numScope`. */
+const NUM_MS=360;
+let numShown=Object.create(null),numScope='';
+function animNums(){
+  const scope=(typeof ui==='undefined')?'':(ui.view+':'+ui.month+':'+(ui.welcome?'w':''));
+  const fresh=scope!==numScope;
+  numScope=scope;
+  const soft=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('#view [data-num]').forEach(el=>{
+    const k=el.dataset.num,to=+el.dataset.v;
+    if(!k||isNaN(to))return;
+    const from=numShown[k];
+    numShown[k]=to;
+    if(fresh||from==null||from===to||!soft)return;
+    countTo(el,from,to,k);
+  });
+}
+/* Eine Zahl von `from` nach `to` drehen. Weich am Ende
+   (ease-out) — sie kommt zur Ruhe, statt anzuhalten. Der letzte
+   Schritt setzt den Zielwert selbst und nicht das Ergebnis der
+   Rechnung: ein Rundungsrest von einem Cent wäre in einer Kachel,
+   die Geld nennt, ein Fehler. */
+function countTo(el,from,to,k){
+  const t0=performance.now();
+  const step=now=>{
+    if(!el.isConnected)return;          /* neu gezeichnet — der Nachfolger zählt weiter */
+    /* **Nach unten festgeklemmt**: der Zeitstempel des ersten
+       Bildes liegt vor dem Start (der Browser gibt den Anfang des
+       Bildes, nicht den Augenblick des Aufrufs) — ohne die Klemme
+       wäre der Anteil negativ, und die Zahl spränge im ersten Bild
+       über ihren Anfangswert hinaus. */
+    const p=Math.min(1,Math.max(0,(now-t0)/NUM_MS));
+    const e=1-Math.pow(1-p,3);
+    const v=p>=1?to:from+(to-from)*e;
+    numShown[k]=v;
+    el.textContent=eur(v);
+    if(p<1)requestAnimationFrame(step);
+  };
+  el.textContent=eur(from);
+  requestAnimationFrame(step);
+}
+
 /* ── Die importierten Daten im Fenster ────────────────────────
    Das Posten- und das Beträge-Fenster können rechts eine Liste
    aufklappen, die zeigt, was der CSV-Import an dieser Position
@@ -913,7 +978,11 @@ function impSideData(kind,ref){
       out.push({m:i+1,sum:ref.amounts[i]||0,once:ref.imp[i]===2,
         rows:sorted(src.map(r=>{
           const p=String(r.d||'').split('.');
-          return {d:r.d||'',dn:(+p[2]||0)*10000+(+p[1]||0)*100+(+p[0]||0),v:r.v,r:r.r||null,txt:impRowText(r)};
+          /* `n` ist der Namenssatz, unter dem die Zeile hereinkam
+             (refLabel in js/calc.js) — ohne ihn heißen die
+             Referenzen wie immer „Ref 1" … „Ref 5". */
+          return {d:r.d||'',dn:(+p[2]||0)*10000+(+p[1]||0)*100+(+p[0]||0),v:r.v,r:r.r||null,
+            n:r.n,txt:impRowText(r)};
         }))});
     }
   }
@@ -1009,8 +1078,19 @@ function impSideRows(data,ask){
       /* Je Referenz eine Zeile, mit ihrer Nummer davor — nur die,
          in denen etwas steht. Ohne Referenzen (ältere Importe) der
          eine zusammengesetzte Text. */
+      /* **Die Beschriftung ist die, unter der die Zeile hereinkam**
+         (8.9.26): wurden die Referenzen in der Importzuordnung
+         benannt, steht hier ihr Name statt „Ref 1" — und zwar je
+         Zeile, denn an einem Posten können Zeilen aus zwei Importen
+         mit verschiedenen Namen zusammenstehen (refLabel und
+         refSource in js/calc.js). Woher der Name kommt, sagt die
+         Sprechblase. */
       +(x.r&&x.r.some(Boolean)
-        ?x.r.map((v,i)=>v?`<p class="imprd ref"><span class="rl">${esc(t('impv.ref',i+1))}</span>${esc(v)}</p>`:'').join('')
+        ?x.r.map((v,i)=>{
+            if(!v)return '';
+            const src=refSource(x.n,x.rl);
+            return `<p class="imprd ref"><span class="rl"${src?` data-tip="${esc(src)}"`:''}>${esc(refLabel(i,x.n,x.rl))}</span>${esc(v)}</p>`;
+          }).join('')
         :(x.txt?`<p class="imprd">${esc(x.txt)}</p>`:''))+`</div>`).join('')
     +`</div>`).join('')+`</div>`;
 }

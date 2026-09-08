@@ -78,6 +78,25 @@ Damit sind **alle** Punkte abgearbeitet, die seit dem 11. August aufgelaufen war
   Klappen der Blockzeilen und „Alle aufklappen / Alle zuklappen", die sechs
   Vergleichsarten und die genauen Knopfnamen; die Farbliste ist entdoppelt.
 
+## Offen seit dem Abend des 8.9.26 (Fassung 26.9.8, zweiter Stand des Tages)
+
+Nur „Was ist neu" ist nachgezogen. Für **„Was FINA kann"** fehlen:
+
+- **Eigene Namen für die Referenzfelder** — der Stift in Schritt 2 des Imports und im
+  Fenster der Importzuordnung; der Name gilt dem nächsten Import, was im Buch steht,
+  behält seinen. ⚠ Der Absatz über den CSV-Import spricht noch von „Referenz 1 bis 5" als
+  festen Namen.
+- **Die Filterzeile im schmalen Fenster**: alle Filter rücken in ein ☰ neben dem Suchfeld,
+  roter Punkt, solange einer greift.
+- **Die lokale Datenbank** — ⚠ überall dort, wo die Anleitung „Datei" für das Buch sagt,
+  heißt es in der Oberfläche jetzt „lokale Datenbank"; die Knopfnamen im Text
+  („Daten hochladen", „Daten schließen") stimmen nicht mehr.
+- Kleinkram ohne eigenen Absatz: die Zahlen der Auswertung zählen sich um, die Seite
+  blendet beim Öffnen ein, „Suchen nach Betrag" schreibt in den Schnellfilter.
+
+Für **„Schritt für Schritt"**: der neue Kasten „Diese Anleitung ging von selbst auf" steht
+schon darin; sonst ist nichts nachzuziehen — die sieben Schritte sind unberührt.
+
 Die Historie der früheren Durchgänge (4. bis 11. August 2026) und die Punkteliste vom
 11. August bis 6. September stehen in der Git-Geschichte dieser Datei; sie werden hier
 nicht mehr mitgeführt.

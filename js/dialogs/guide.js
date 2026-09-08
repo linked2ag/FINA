@@ -65,6 +65,11 @@ en:()=>`
 <h3 class="gtitle">Up and running in about 30 minutes</h3>
 <p class="glead">You need no prior knowledge. Set up your year once. After that you keep your
 book in a few minutes a month. Everything else is in <b>${t('guide.tabProduct')}</b>.</p>
+${gcall('This guide opened by itself',`<p>You can switch that off: <b>☰ → ${t('app.settings')}
+→ ${t('set.navView')}</b>, the tick <b>${t('set.guide')}</b>.</p>
+<p>That choice is kept in your <b>local database</b> — the JSON file that holds your book,
+together with everything else you set. Whenever you open that local database, FINA follows
+what stands in it.</p>`)}
 ${gcall('The simple rule',`<p>A contract is <b>regular</b>. What you spend day to day is
 <b>flexible</b>. Money that comes in is <b>income</b>. The category you pick decides which
 of the three an entry belongs to.</p>`)}
@@ -131,6 +136,11 @@ de:()=>`
 <p class="glead">Du brauchst kein Vorwissen. Richte dein Jahr einmal ein. Danach pflegst du
 dein Buch in wenigen Minuten pro Monat. Alles Weitere steht in
 <b>${t('guide.tabProduct')}</b>.</p>
+${gcall('Diese Anleitung ging von selbst auf',`<p>Das lässt sich abschalten: <b>☰ →
+${t('app.settings')} → ${t('set.navView')}</b>, der Haken <b>${t('set.guide')}</b>.</p>
+<p>Diese Wahl steht in deiner <b>lokalen Datenbank</b> — der JSON-Datei, in der dein Buch
+liegt, zusammen mit allem anderen, was du einstellst. Wann immer du diese lokale Datenbank
+öffnest, richtet sich FINA nach dem, was darin steht.</p>`)}
 ${gcall('Die einfache Regel',`<p>Ein Vertrag ist <b>regulär</b>. Was du im Alltag ausgibst,
 ist <b>flexibel</b>. Geld, das hereinkommt, ist eine <b>Einnahme</b>. Die Kategorie, die du
 wählst, entscheidet, zu welchem der drei Bereiche ein Eintrag gehört.</p>`)}
@@ -502,10 +512,11 @@ en:()=>`
 <p class="glead">The most important changes of the last versions — without technical
 details, and with what they mean for you.</p>
 <div class="gvers">
-${gver('26.9.8','The guide opens with your book, and the import fills itself in',`
-<p>The guide now stands beside your table from the moment you open a file — you can turn
-that off. In the CSV import every column you pick gets its field on the spot. And switching
-views is calmer: the filter row stays where it is.</p>
+${gver('26.9.8','Your own names in the import — and your file is a local database',`
+<p>Reference fields can carry the names you give them, and they keep them. The guide stands
+beside your table from the moment you open a file. In the CSV import every column you pick
+gets its field on the spot. And your JSON file has a name now: it is your <b>local
+database</b>.</p>
 <ul class="gcheck">
   <li>New tick <b>“${t('set.guide')}”</b> under <b>${t('app.settings')}</b> →
       <b>${t('set.navView')}</b>: the guide opens with every file and beside the steps of
@@ -524,6 +535,22 @@ views is calmer: the filter row stays where it is.</p>
   <li><b>Esc</b> now clears one thing at a time: an open menu, then the search field, then
       the other filters. The <b>✕</b> still clears everything at once.</li>
   <li>“${t('app.load')}” and “${t('menu.csv')}” say which kind of file they mean.</li>
+  <li><b>Give your reference fields a name.</b> The pencil beside the field in step 2 of the
+      import, or in front of a reference in the <b>CSV structure</b> window: “Reference 2”
+      becomes “Payee”. The name belongs to that import mapping, is remembered and used again
+      next time — and rows that are already in your book keep the name they came in with. So
+      two imports with different names stand side by side on the same entry, each with its
+      own labels.</li>
+  <li><b>Your file is your local database.</b> The menu opens and closes it under that name,
+      and <b>${t('menu.newOut')}</b> now sits between bringing numbers in and saving them —
+      plain, no longer black.</li>
+  <li>Is the window too narrow for the filter row? Then <b>all filters move into one ☰</b>
+      next to the search field, with a red dot while a filter is on. The row stays one line
+      high — with the guide open too.</li>
+  <li>The four numbers of the analytics row <b>count up and down</b> while you filter,
+      instead of jumping.</li>
+  <li>“Search by amount” in the ☰ of an entry now writes the amount into the quick filter.
+      And step 1 of the import says it plainly: the CSV file needs a header row.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`,'Current version')}
 
@@ -750,10 +777,11 @@ de:()=>`
 <p class="glead">Die wichtigsten Änderungen der letzten Versionen — ohne technische Details
 und mit dem, was sie für dich bedeuten.</p>
 <div class="gvers">
-${gver('26.9.8','Die Anleitung geht mit dem Buch auf, der Import füllt sich selbst aus',`
-<p>Die Anleitung steht jetzt neben deiner Tabelle, sobald du eine Datei öffnest — und du
-kannst das abschalten. Im CSV-Import bekommt jede Spalte, die du wählst, sofort ihr Feld.
-Und der Ansichtswechsel ist ruhiger: die Filterzeile bleibt stehen.</p>
+${gver('26.9.8','Eigene Namen im Import — und deine Datei ist eine lokale Datenbank',`
+<p>Referenzfelder dürfen die Namen tragen, die du ihnen gibst, und sie behalten sie. Die
+Anleitung steht neben deiner Tabelle, sobald du eine Datei öffnest. Im CSV-Import bekommt
+jede Spalte, die du wählst, sofort ihr Feld. Und deine JSON-Datei hat jetzt einen Namen:
+sie ist deine <b>lokale Datenbank</b>.</p>
 <ul class="gcheck">
   <li>Neuer Haken <b>„${t('set.guide')}“</b> unter <b>${t('app.settings')}</b> →
       <b>${t('set.navView')}</b>: die Anleitung geht mit jeder Datei auf und steht neben
@@ -775,6 +803,23 @@ Und der Ansichtswechsel ist ruhiger: die Filterzeile bleibt stehen.</p>
   <li><b>Esc</b> nimmt jetzt eins nach dem anderen zurück: ein offenes Menü, dann das
       Suchfeld, dann die übrigen Filter. Das <b>✕</b> nimmt weiter alles auf einmal.</li>
   <li>„${t('app.load')}“ und „${t('menu.csv')}“ sagen, welche Art von Datei sie meinen.</li>
+  <li><b>Benenne deine Referenzfelder selbst.</b> Der Stift neben dem Feld in Schritt 2 des
+      Imports oder vor einer Referenz im Fenster <b>CSV-Struktur</b>: aus „Referenz 2“ wird
+      „Empfänger“. Der Name gehört zu dieser Importzuordnung, wird gemerkt und beim nächsten
+      Mal wieder verwendet — und was schon im Buch steht, behält den Namen, unter dem es
+      hereinkam. Zwei Importe mit verschiedenen Namen stehen deshalb an demselben Posten
+      nebeneinander, jeder mit seiner Beschriftung.</li>
+  <li><b>Deine Datei ist deine lokale Datenbank.</b> Das Menü öffnet und schließt sie unter
+      diesem Namen, und <b>${t('menu.newOut')}</b> steht jetzt zwischen dem Hereinholen der
+      Zahlen und dem Speichern — schlicht, nicht mehr schwarz.</li>
+  <li>Ist das Fenster zu schmal für die Filterzeile? Dann rücken <b>alle Filter in ein
+      ☰</b> neben dem Suchfeld zusammen, mit rotem Punkt, solange ein Filter greift. Die
+      Zeile bleibt eine Zeile hoch — auch mit offener Anleitung.</li>
+  <li>Die vier Zahlen der Auswertung <b>zählen sich um</b>, während du filterst, statt zu
+      springen.</li>
+  <li>„Suchen nach Betrag“ im ☰ eines Postens schreibt den Betrag jetzt in den
+      Schnellfilter. Und Schritt 1 des Imports sagt es deutlich: die CSV-Datei braucht eine
+      Kopfzeile.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`,'Aktuelle Version')}
 

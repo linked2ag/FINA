@@ -86,7 +86,8 @@
            Tooltips über data-ttip (siehe renderChrome). Öffnen und
            Schließen: js/app.js, unten bei den festen Schaltflächen.
            Reihenfolge mit Trennern (.mi-sep schließt eine Gruppe ab):
-           Datei ‖ Neu anlegen ‖ Einstellungen ‖ Anleitung. -->
+           Öffnen · Importieren ‖ Neuer Eintrag ‖ Speichern ·
+           Sicherung ‖ Schließen ‖ Einstellungen ‖ Anleitung. -->
       <div class="tools" id="hdrTools" data-tipside="1">
         <!-- Der Dateiname steht als Menükopf immer zuoberst (css:
              .menufile, gefüllt in renderStatus) — man sieht, an
@@ -104,11 +105,27 @@
              den Umfrage-Knopf davor: er steht dann als erstes im
              Menü, so wie er draußen als erstes in der Zeile
              stünde. -->
-        <button class="btn mi-sep" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
+        <!-- **Öffnen und Importieren stehen ohne Linie
+             beieinander** (Lex, 8.9.26): beide holen Zahlen herein,
+             das eine die ganze lokale Datenbank, das andere eine
+             CSV-Spalte — eine Gruppe, ein Gedanke. Die Linie
+             darunter schließt sie ab. -->
+        <button class="btn" id="btnLoad" data-t="app.load" data-ttip="app.loadTip"></button>
         <!-- Derselbe Weg wie der Bereich „Import" der Einstellungen
              (#impFast): erst das Fenster, das sagt, was die Datei
              braucht, dann die Dateiauswahl. -->
         <button class="btn mi-sep" id="btnImportCsv" data-t="menu.csv" data-ttip="menu.csvTip"></button>
+        <!-- Der eine Weg, etwas anzulegen (Regel 1: verdrahtet in
+             js/app.js unten). **Er steht zwischen dem Hereinholen
+             und dem Sichern** und allein zwischen zwei Linien (Lex,
+             8.9.26): dort, wo man ihn im Ablauf braucht — erst die
+             Zahlen, dann der neue Posten, dann speichern. Er trug
+             bis dahin Tinte mit weißer Schrift; jetzt ist er ein
+             Eintrag wie jeder andere, und was ihn heraushebt, sind
+             die beiden Linien. Der Eintrag geht ohne Vorauswahl auf;
+             Einnahmen, flexible und reguläre Posten stehen dort in
+             derselben Auswahlliste. -->
+        <button class="btn mi-new mi-sep" id="mNewOut" data-t="menu.newOut"></button>
         <!-- Die Dateigruppe: sichern und schließen. „Daten
              speichern" steht hier nur, solange nichts zu speichern
              ist — sobald es etwas gibt, holt fitHeaderBtns() den
@@ -118,15 +135,10 @@
              Datei her (js/storage.js). -->
         <!-- Sichern und Schließen sind seit 6.9.26 spät getrennt:
              eine Linie unter der Sicherung, das Schließen steht
-             allein — es ist der eine Eintrag, der die Datei loslässt. -->
+             allein — es ist der eine Eintrag, der die lokale
+             Datenbank loslässt. -->
         <button class="btn mi-sep" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
         <button class="btn mi-sep" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
-        <!-- Der eine Weg, etwas anzulegen (Regel 1: verdrahtet in
-             js/app.js unten) — schwarz mit weißer Schrift als der
-             nächste Handgriff (css: .tools .mi-new). Der Eintrag
-             geht ohne Vorauswahl auf; Einnahmen, flexible und
-             reguläre Posten stehen dort in derselben Auswahlliste. -->
-        <button class="btn mi-new mi-sep" id="mNewOut" data-t="menu.newOut"></button>
         <button class="btn mi-sep" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
         <!-- Der einzige farbige Eintrag — seit 6.9.26 spät eine
              orange Fläche mit weißer Schrift: er klappt die Anleitung

@@ -449,9 +449,78 @@ function sizeMatrix(){
   if(bar) box.style.height=(h+bar)+'px';
 }
 
+/* ── Passt die Filterzeile in eine Zeile? ─────────────────────
+   (8.9.26) Suchfeld · ✕ · Filteroptionen · Bereich · Fälligkeit ·
+   Zahlungsstatus — in einem schmalen Fenster bricht das um, und
+   eine Leiste, die oben klebt, kostet dann dauerhaft eine zweite
+   Zeile. Passt es nicht, rücken **alle** Filter in ein Menü
+   zusammen (fltMenuAll in js/views/monat.js): das ☰ tritt an die
+   Stelle des ✕, das Suchfeld bleibt stehen.
+
+   **Gemessen, nicht geraten** — wie in der Kopfzeile
+   (fitHeaderBtns): die Beschriftungen sind in beiden Sprachen
+   verschieden lang („Payment state: All" gegen „Zahlungsstatus:
+   Bezahlt"), und in der Jahresansicht stehen zwei weitere Knöpfe
+   daneben. Eine feste Zahl im Stylesheet liefe in der einen
+   Sprache zu früh und in der anderen zu spät.
+
+   **Und die Anleitung zählt mit**, ohne dass hier etwas davon
+   steht: sie macht die Seite schmaler (body.guideon .wrap), und
+   `clientWidth` der Zeile ist danach kleiner. Gerufen wird von
+   syncMatrixHead() — also beim Zeichnen, beim Größenwechsel des
+   Fensters und immer, wenn die Anleitung auf-, zugeht oder gezogen
+   wird (js/dialogs/guide.js).
+
+   **Gemessen wird im breiten Zustand**: die Klasse fällt weg, die
+   natürlichen Breiten werden gezählt, danach wird sie neu gesetzt —
+   alles in einem Zug, also vor dem nächsten Bild. Dadurch kann es
+   nicht hin- und herspringen: entschieden wird immer an derselben
+   Frage. */
+/* Merkt sich die Inline-Stile, die gleich für einen Augenblick
+   überschrieben werden, und gibt sie auf Zuruf zurück. */
+function st0(el){
+  const k=['width','flexBasis','flexWrap','flexShrink','maxWidth'];
+  const old=k.map(n=>el.style[n]);
+  return ()=>k.forEach((n,i)=>{el.style[n]=old[i];});
+}
+function fitFilterBar(){
+  document.querySelectorAll('#view .fbrow').forEach(row=>{
+    if(!row.querySelector('.fbmenu'))return;
+    row.classList.remove('fbnarrow');
+    const avail=row.clientWidth;
+    /* **Gemessen wird, was die Zeile wirklich braucht** — nicht,
+       was sie gerade einnimmt: das Suchfeld darf schrumpfen
+       (.fltbox.flttop, flex 0 1 230px bis hinunter auf 140), und
+       eine Zeile, in der es schon gequetscht steht, „passt" sonst
+       weiter. Für einen Augenblick bekommt die Zeile deshalb
+       `max-content` und keinen Umbruch: dann steht jedes Kind auf
+       seiner eigenen Breite, und die Summe ist der Bedarf. Danach
+       fällt beides wieder ab — alles in einem Zug, also vor dem
+       nächsten Bild.
+
+       Das ☰ zählt dabei nicht mit: im breiten Zustand steht es auf
+       display:none, und es tritt ohnehin an die Stelle des ✕, das
+       dann verschwindet. */
+    const st=st0(row);
+    row.style.width='max-content';row.style.flexBasis='auto';
+    row.style.flexWrap='nowrap';row.style.flexShrink='0';row.style.maxWidth='none';
+    const need=row.getBoundingClientRect().width;
+    st(); /* zurück, bevor irgendetwas gemalt wird */
+    const narrow=need>avail+0.5;
+    row.classList.toggle('fbnarrow',narrow);
+    /* Wird das Fenster wieder breit, während das Menü offen steht,
+       ist es mit seinem Knopf verschwunden — dann soll es auch
+       nicht beim nächsten Zeichnen wieder aufgehen. */
+    if(!narrow&&ui.fltMenu==='all')ui.fltMenu=null;
+  });
+}
+
 /* Der volle Weg nach jeder Änderung, die Höhen verschiebt:
    Zeichnen, Größenwechsel, die Breite der Anleitung. */
 function syncMatrixHead(){
+  /* **Zuerst die Filterzeile**: ob sie eine Zeile hoch ist oder
+     zwei, entscheidet, wo die Leisten darunter kleben. */
+  fitFilterBar();
   syncStickyTops();
   /* Erst die Rollleisten: ob die der Jahresmatrix da ist (.off),
      entscheidet mit, wie hoch die Fläche werden darf — sie steht
@@ -472,7 +541,31 @@ function syncMatrixHead(){
 addEventListener('resize',()=>{ syncMatrixHead(); fitHeaderBtns(); });
 
 /* Zeichnet alles neu und hält dabei die Scrollposition. */
+/* Ob das erste Bild schon stand. Sitzung, nicht Zustand: es geht
+   um das Öffnen der Anwendung, nicht um das Öffnen eines Buches. */
+let firstPaint=true;
+
 function render(){
+  /* ── Das erste Bild blendet ein ─────────────────────────────
+     (Lex, 8.9.26) Beim Öffnen der Anwendung soll nichts fahren,
+     sondern die ganze Seite einblenden: es gibt keine vorige
+     Ansicht, aus der etwas herausfahren könnte. `ui.enter` wird
+     dabei ausdrücklich zurückgesetzt — käme die Anwendung je mit
+     einem gesetzten Merker herein (ein Buch, das beim Start schon
+     offen ist), führe die Ansicht sonst zusätzlich von rechts
+     herein. Die Klasse fällt am Ende der Bewegung wieder ab, und
+     zur Sicherheit per Uhr: ohne Bewegung (prefers-reduced-motion)
+     endet keine. */
+  if(firstPaint){
+    firstPaint=false;
+    ui.enter=0;
+    const b=document.body;
+    b.classList.add('pagein');
+    const off=()=>b.classList.remove('pagein');
+    b.addEventListener('animationend',off,{once:true});
+    setTimeout(off,700);
+  }
+
   /* „Fast Budget Details" gibt es nur mit Import (siehe
      VIEWS in js/config.js). Steht die Ansicht trotzdem noch —
      nach dem Trennen der Datei, nach einer Datei ohne Buchungen —,
@@ -751,6 +844,13 @@ function wire(){
      dort „fertig, nichts filtern". */
   const mShut=(b,all)=>{
     if(b.closest('.mfmenu')){ if(all) ui.mFilters=false; }
+    /* **Das gesammelte Menü bleibt offen** (8.9.26, .fbmenu):
+       darin stehen alle drei Fragen beieinander, und wer die eine
+       setzt, setzt oft gleich die nächste — dieselbe Regel wie im
+       mobilen Filtermenü. „Alle" heißt auch hier „fertig". Die
+       einzelnen Aufklappmenüs gehen weiter bei jeder Wahl zu:
+       sie stellen je **eine** Frage. */
+    if(b.closest('.fbmenu')){ if(all) ui.fltMenu=null; return; }
     if(b.closest('.fltdrop')) ui.fltMenu=null;
   };
   document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{
@@ -1015,6 +1115,11 @@ function wire(){
      Tabelle darunter ist eine andere geworden. */
   bindRails();
   syncMatrixHead();
+  /* Die vier Zahlen der Auswertung drehen sich um, statt zu
+     springen (animNums in js/ui.js) — sie zeigen, was der Filter
+     gerade übrig lässt. Nach syncMatrixHead: die Zeile steht dann
+     an ihrer endgültigen Stelle. */
+  animNums();
   /* Welches Menü jetzt offen gezeichnet ist — beim nächsten
      Zeichnen fährt es dann nicht noch einmal an (fltDrop und das
      mobile Filtermenü in js/views/monat.js lesen es). */
