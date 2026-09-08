@@ -146,17 +146,39 @@ function c2Parse(buf,name){
   return csv;
 }
 
-/* Betrag lesen — deutsches und englisches Format, Währungszeichen,
-   nachgestelltes Minus. parseGermanNumber reicht hier nicht: der
-   Kontoauszug schreibt „-73,25“, mancher Export „12.34-“. */
+/* ── Betrag lesen ────────────────────────────────────────────
+   Was Kontoauszüge und Tabellenprogramme an Geld schreiben, und
+   das ist mehr, als man denkt (8.9.26 erweitert):
+
+     -73,25 · 73,25- · (73,25)     Minus vorn, hinten, in Klammern
+     1.234,56 · 1,234.56           deutsche und englische Tausender
+     1'234.56 · 1 234,56           Schweizer Hochkomma, schmales
+                                   Leerzeichen (auch geschütztes)
+     12,34 € · EUR 12,34 · $12.34  Zeichen und Kürzel, vorn wie hinten
+     −12,34 · –12,34               Unicode-Minus und Gedankenstrich
+
+   `parseGermanNumber` reicht dafür nicht. **Erkannt wird nur, was
+   auch gerechnet werden kann**: dieselbe Funktion liest die Spalte
+   beim Import und entscheidet in Schritt 2, ob eine Spalte das
+   Betragsfeld bekommt (c2ColKind). Wer ein Format ergänzt, ergänzt
+   damit beides. */
+const C2_CUR=/€|\$|£|¥|₣|\bEUR\b|\bUSD\b|\bCHF\b|\bGBP\b|\bJPY\b|\bPLN\b|\bCZK\b|\bSEK\b|\bNOK\b|\bDKK\b|\bHUF\b|\bRON\b/gi;
 function c2Amount(s){
   if(s==null)return NaN;
-  let x=String(s).replace(/[€$£\s]/g,'').replace(/EUR|USD|CHF|GBP/gi,'');
+  /* Erst die Hülle: Währung, alle Arten von Leerzeichen (auch
+     geschützte und schmale — Excel schreibt sie als Tausender),
+     das Schweizer Hochkomma. */
+  let x=String(s).replace(C2_CUR,'').replace(/[\s   ']/g,'').replace(/’/g,'');
   if(!x||!/\d/.test(x))return NaN;
   let neg=false;
+  /* Klammern heißen Minus — so schreibt es jede Tabellenkalkulation
+     im englischen Raum. */
+  if(/^\(.*\)$/.test(x)){neg=true;x=x.slice(1,-1);}
+  x=x.replace(/[−–—]/g,'-');    /* Unicode-Minus, Gedankenstriche */
   if(/-$/.test(x)){neg=true;x=x.slice(0,-1);}
   if(x[0]==='-'){neg=true;x=x.slice(1);}
   if(x[0]==='+')x=x.slice(1);
+  if(!/^[\d.,]+$/.test(x))return NaN;
   if(/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(x))      x=x.replace(/\./g,'').replace(',','.');
   else if(/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(x)) x=x.replace(/,/g,'');
   else                                          x=x.replace(',','.');
@@ -164,17 +186,66 @@ function c2Amount(s){
   return isNaN(v)?NaN:(neg?-v:v);
 }
 
-/* Datum lesen: 24.08.26 · 24.08.2026 · 2026-08-24 · 8/24/2026;
-   zweistellige Jahre heißen 20xx. */
+/* ── Datum lesen ─────────────────────────────────────────────
+   Die gängigen Schreibweisen (8.9.26 erweitert):
+
+     24.08.2026 · 24.08.26 · 24.8.26      Punkt (deutsch)
+     2026-08-24 · 2026-08-24T10:15:00     ISO, mit und ohne Uhrzeit
+     2026/08/24 · 24-08-2026              Jahr vorn mit Schrägstrich,
+                                          Tag vorn mit Strich
+     08/24/2026 · 24/08/2026              Schrägstrich (siehe unten)
+     20260824                             kompakt, achtstellig
+     24. Aug 2026 · 24 August 2026        Monatsname hinter dem Tag
+     Aug 24, 2026 · August 24 2026        Monatsname vor dem Tag
+
+   Zweistellige Jahre heißen 20xx.
+
+   **Beim Schrägstrich ist die Reihenfolge nicht zu sehen**:
+   `03/04/2026` ist in den USA der 4. März und in Europa der
+   3. April. Steht die erste Zahl über 12, kann sie nur der Tag
+   sein (Tag zuerst); steht die zweite über 12, nur umgekehrt.
+   Bleibt es zweideutig, gilt **Monat zuerst** — so hat FINA es
+   immer gelesen, und ein stiller Wechsel verschöbe die Buchungen
+   alter Importe. Wer es anders braucht, ändert das Datum im
+   Posten-Fenster.
+
+   Wie beim Betrag gilt: **erkannt wird nur, was auch gelesen
+   werden kann** — dieselbe Funktion entscheidet in Schritt 2, ob
+   eine Spalte das Datumsfeld bekommt (c2ColKind). */
+const C2_MON={jan:1,january:1,januar:1,feb:2,february:2,februar:2,mar:3,march:3,mrz:3,'mär':3,maerz:3,'märz':3,
+  apr:4,april:4,may:5,mai:5,jun:6,june:6,juni:6,jul:7,july:7,juli:7,aug:8,august:8,
+  sep:9,sept:9,september:9,oct:10,october:10,okt:10,oktober:10,nov:11,november:11,dec:12,december:12,dez:12,dezember:12};
+function c2Mon(w){const k=String(w||'').toLowerCase().replace(/\.$/,'');return C2_MON[k]||0;}
+function c2Yr(y){return +y<100?2000+ +y:+y;}
 function c2Date(s){
   if(!s)return null;
   const t2=String(s).trim();
-  let m=t2.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})\b/);
-  if(m)return c2DOk(+m[3]<100?2000+ +m[3]:+m[3],+m[2],+m[1]);
-  m=t2.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\b/);
+  /* `(?!\d)` und nicht `\b`: nach dem Datum darf alles stehen, nur
+     keine weitere Ziffer — sonst risse `2026-08-24T10:15:00` ab,
+     weil zwischen `4` und `T` keine Wortgrenze liegt. */
+  let m=t2.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})(?!\d)/);
+  if(m)return c2DOk(c2Yr(m[3]),+m[2],+m[1]);
+  m=t2.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?!\d)/);
   if(m)return c2DOk(+m[1],+m[2],+m[3]);
-  m=t2.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})\b/);
-  if(m)return c2DOk(+m[3]<100?2000+ +m[3]:+m[3],+m[1],+m[2]);
+  m=t2.match(/^(\d{1,2})-(\d{1,2})-(\d{2,4})(?!\d)/);
+  if(m)return c2DOk(c2Yr(m[3]),+m[2],+m[1]);
+  m=t2.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?!\d)/);
+  if(m){
+    const a=+m[1],b=+m[2],y=c2Yr(m[3]);
+    if(a>12)return c2DOk(y,b,a);                 /* nur der Tag kann über 12 stehen */
+    if(b>12)return c2DOk(y,a,b);
+    return c2DOk(y,a,b);                          /* zweideutig: Monat zuerst */
+  }
+  /* 24. Aug 2026 · 24 August 2026 */
+  m=t2.match(/^(\d{1,2})\.?\s+([A-Za-zÄÖÜäöü]{3,10})\.?,?\s+(\d{2,4})(?!\d)/);
+  if(m&&c2Mon(m[2]))return c2DOk(c2Yr(m[3]),c2Mon(m[2]),+m[1]);
+  /* Aug 24, 2026 · August 24 2026 */
+  m=t2.match(/^([A-Za-zÄÖÜäöü]{3,10})\.?\s+(\d{1,2})\.?,?\s+(\d{2,4})(?!\d)/);
+  if(m&&c2Mon(m[1]))return c2DOk(c2Yr(m[3]),c2Mon(m[1]),+m[2]);
+  /* 20260824 — nur mit glaubhaftem Jahr, sonst wäre jede
+     achtstellige Zahl ein Datum. */
+  m=t2.match(/^(19|20)(\d{2})(\d{2})(\d{2})$/);
+  if(m)return c2DOk(+(m[1]+m[2]),+m[3],+m[4]);
   return null;
 }
 function c2DOk(y,m,d){return(m>=1&&m<=12&&d>=1&&d<=31)?{y:y,m:m,d:d}:null;}
@@ -291,8 +362,9 @@ const C2_GUIDE={
       <ol>
         <li><b>Column HDR (left):</b> the filled circle marks the row with the column names. Usually the first row is right.</li>
         <li><b>Column names (top):</b> every name is a button. A chosen column turns orange and gets a field list above it.</li>
-        <li><b>Field list:</b> Date, Amount or a reference. FINA suggests a field when it recognises the header.</li>
+        <li><b>Field list:</b> Date, Amount or a reference. You can change the field at any time.</li>
       </ol>
+      <p><b>Every column you select gets a field right away.</b> A column of dates becomes <b>Date</b>, a column of amounts becomes <b>Amount</b>, and every other column gets the next free reference: the first one you pick becomes Reference 1, the second Reference 2. Deselect a column and its reference is free again — the next column you pick takes it.</p>
       <p>Two buttons above the table select or deselect all columns.</p>
       <h4>What would you like to do?</h4>
       <table class="gtab"><tr><th>If you want to …</th><th>then …</th></tr>
@@ -304,8 +376,8 @@ const C2_GUIDE={
       <h4>Step by step</h4>
       <ol>
         <li>Check the row with the column names. Click another circle in HDR to change it.</li>
-        <li>Click a column name to select the column.</li>
-        <li>In the list above it choose the field. Date and Amount first, then the references.</li>
+        <li>Click a column name to select the column. FINA gives it a field on the spot.</li>
+        <li>Check the field in the list above it, and change it if you want it elsewhere.</li>
         <li>Repeat for every column you need. The five references are free fields, all alike: payee, purpose, category, note — whatever helps with matching in step 3.</li>
         <li>Press <b>“Save columns and continue”</b>. FINA asks for a name and remembers the structure for this kind of file.</li>
       </ol>
@@ -313,17 +385,21 @@ const C2_GUIDE={
       <h4>Good to know</h4>
       <ul>
         <li>The structure is only about columns and fields. Which rows go to which entry is decided in step 3.</li>
-        <li>Costs with a minus are recognised on their own.</li>
+        <li>Costs with a minus are recognised on their own. So are the usual ways of writing a date (24.08.2026 · 2026-08-24 · 08/24/2026 · 24 Aug 2026) and an amount (-73,25 · 1.234,56 · 1,234.56 · (73,25) · 12,34 €).</li>
+        <li>A column of plain numbers without decimals — a document number, an account number — is not taken for an amount. It gets a reference.</li>
+        <li>Two date columns? The second one gets a reference: a field lives in one column only.</li>
         <li>Next time you upload such a file, <b>“Prepare CSV structure automatically”</b> fills this step in for you.</li>
         <li>The ✕ at the top closes the wizard. Nothing is written to your book before the last step.</li>
+        <li>This guide opens by itself. The tick <b>“Open the guide alongside”</b> in the settings, under <b>Appearance</b>, turns that off.</li>
       </ul>`,
     de:`<h4>Kurz erklärt</h4>
       <p>Du sagst FINA, welche Spalte deiner Datei welches FINA-Feld trägt. Es gibt sieben Felder: <b>Datum</b>, <b>Betrag</b> und <b>Referenz 1 bis 5</b>. Datum und Betrag müssen sein.</p>
       <ol>
         <li><b>Spalte HDR (links):</b> der gefüllte Kreis markiert die Zeile mit den Spaltennamen. Meist ist die erste Zeile richtig.</li>
         <li><b>Spaltennamen (oben):</b> jeder Name ist ein Knopf. Eine gewählte Spalte wird orange und bekommt darüber eine Feldliste.</li>
-        <li><b>Feldliste:</b> Datum, Betrag oder eine Referenz. FINA schlägt ein Feld vor, wenn es die Überschrift erkennt.</li>
+        <li><b>Feldliste:</b> Datum, Betrag oder eine Referenz. Du kannst das Feld jederzeit ändern.</li>
       </ol>
+      <p><b>Jede Spalte, die du wählst, bekommt sofort ein Feld.</b> Eine Spalte mit Datumsangaben wird <b>Datum</b>, eine Spalte mit Beträgen wird <b>Betrag</b>, und jede andere Spalte bekommt die nächste freie Referenz: die erste, die du wählst, wird Referenz 1, die zweite Referenz 2. Wählst du eine Spalte wieder ab, ist ihre Referenz wieder frei — die nächste Spalte bekommt sie.</p>
       <p>Zwei Knöpfe über der Tabelle wählen alle Spalten oder wählen sie ab.</p>
       <h4>Was möchtest du tun?</h4>
       <table class="gtab"><tr><th>Wenn du …</th><th>dann …</th></tr>
@@ -335,8 +411,8 @@ const C2_GUIDE={
       <h4>Schritt für Schritt</h4>
       <ol>
         <li>Prüfe die Zeile mit den Spaltennamen. Ein Klick auf einen anderen Kreis in HDR ändert sie.</li>
-        <li>Klicke auf einen Spaltennamen, um die Spalte zu wählen.</li>
-        <li>Wähle in der Liste darüber das Feld. Erst Datum und Betrag, dann die Referenzen.</li>
+        <li>Klicke auf einen Spaltennamen, um die Spalte zu wählen. FINA gibt ihr sofort ein Feld.</li>
+        <li>Prüfe das Feld in der Liste darüber und ändere es, wenn du es woanders haben willst.</li>
         <li>Wiederhole das für jede Spalte, die du brauchst. Die fünf Referenzen sind freie Felder, alle gleichrangig: Empfänger, Verwendungszweck, Kategorie, Notiz — was in Schritt 3 beim Zuordnen hilft.</li>
         <li>Drücke <b>„Spalten speichern und weiter“</b>. FINA fragt nach einem Namen und merkt sich die Struktur für diese Art von Datei.</li>
       </ol>
@@ -344,9 +420,12 @@ const C2_GUIDE={
       <h4>Gut zu wissen</h4>
       <ul>
         <li>Die Struktur betrifft nur Spalten und Felder. Welche Zeilen zu welchem Eintrag gehören, entscheidest du in Schritt 3.</li>
-        <li>Kosten mit Minus erkennt FINA von selbst.</li>
+        <li>Kosten mit Minus erkennt FINA von selbst. Ebenso die gängigen Schreibweisen für ein Datum (24.08.2026 · 2026-08-24 · 08/24/2026 · 24. Aug 2026) und für einen Betrag (-73,25 · 1.234,56 · 1,234.56 · (73,25) · 12,34 €).</li>
+        <li>Eine Spalte aus glatten Zahlen ohne Nachkommastellen — eine Belegnummer, eine Kontonummer — hält FINA nicht für einen Betrag. Sie bekommt eine Referenz.</li>
+        <li>Zwei Datumsspalten? Die zweite bekommt eine Referenz: ein Feld wohnt nur in einer Spalte.</li>
         <li>Beim nächsten Mal füllt <b>„Automatisch CSV-Datenstruktur vorbereiten“</b> diesen Schritt für dich aus.</li>
         <li>Das ✕ oben schließt den Wizard. Ins Buch geschrieben wird erst im letzten Schritt.</li>
+        <li>Diese Anleitung geht von selbst auf. Der Haken <b>„Anleitung mit aufschlagen“</b> in den Einstellungen, unter <b>Darstellung</b>, schaltet das ab.</li>
       </ul>`},
   3:{
     en:`<p>In this step you assign the rows of your CSV file to the matching entries of your book. You can assign <b>once</b>, or save the assignment as a rule <b>for future imports</b>.</p>
@@ -408,7 +487,8 @@ const C2_GUIDE={
         <li><b>“Finish”</b> writes every assignment into your book and stores the new rules.</li>
         <li><b>✕</b> closes the wizard without taking over the current assignments.</li>
       </ul>
-      <p>Save your file afterwards, so the changes stay.</p>`,
+      <p>Save your file afterwards, so the changes stay.</p>
+      <p>This guide opens by itself with every import. The tick <b>“Open the guide alongside”</b> in the settings, under <b>Appearance</b>, turns that off.</p>`,
     de:`<p>In diesem Schritt ordnest du die Zeilen deiner CSV-Datei den passenden Einträgen in deinem Buch zu. Du kannst <b>einmalig</b> zuordnen, oder die Zuordnung als Regel <b>für spätere Importe merken</b>.</p>
       <h4>Kurz erklärt</h4>
       <ol>
@@ -468,7 +548,8 @@ const C2_GUIDE={
         <li><b>„Fertig“</b> übernimmt alle Zuordnungen ins Buch und speichert die neuen Regeln.</li>
         <li><b>✕</b> schließt den Wizard, ohne die aktuellen Zuordnungen zu übernehmen.</li>
       </ul>
-      <p>Speichere danach deine Datei, damit die Änderungen bleiben.</p>`}
+      <p>Speichere danach deine Datei, damit die Änderungen bleiben.</p>
+      <p>Diese Anleitung geht bei jedem Import von selbst auf. Der Haken <b>„Anleitung mit aufschlagen“</b> in den Einstellungen, unter <b>Darstellung</b>, schaltet das ab.</p>`}
 };
 
 /* ── Der Arbeitsstand des Wizards — lebt nur, solange das Fenster
@@ -844,8 +925,16 @@ function openCsvWizard(){
         nennt. */
      skip:{},
      /* Ob die Anleitung rechts neben dem Schritt steht, und der
-        Name, unter dem die Spalten gemerkt sind (c2AskMapName). */
-     guide:false,mapName:'',
+        Name, unter dem die Spalten gemerkt sind (c2AskMapName).
+
+        **Aufgeschlagen fängt sie an, solange die Datei es sagt**
+        (8.9.26): state.guideOpen, derselbe Haken, der auch die
+        Anleitung neben der Ansicht aufschlägt (Einstellungen →
+        Darstellung). Zu sehen ist sie erst ab Schritt 2 — Schritt 1
+        ist eine Dateiauswahl und braucht keine. Der Knopf
+        „Anleitung" schlägt sie wie immer auf und zu; geschrieben
+        wird dabei nichts. */
+     guide:!(state&&state.guideOpen===false),mapName:'',
      /* Die Anleitung daneben hat ihre eigene Sprache und Breite
         (7.9.26, wie der Guide der Anwendung): gLang fängt bei der
         Sprache der Oberfläche an und wird im Kopf der Anleitung
@@ -1295,30 +1384,86 @@ function c2Step2(){
     <div class="c2scroll" id="c2ColsWrap">${c2ColsTable()}</div>`;
 }
 
-/* Beim Wählen einer Spalte ihr Feld raten — nur, wenn das Feld
-   noch frei ist; der Nutzer behält das letzte Wort. */
-function c2GuessCol(i){
-  const H=W.csv.header[i],probe=W.csv.rows.slice(0,60);
-  let dates=0,nums=0;
+/* ── Was in einer Spalte steht ───────────────────────────────
+   `c2ColKind(i)` sieht sich die ersten 60 Zeilen an und sagt
+   `'date'`, `'amount'` oder `null`. Gelesen wird mit **denselben**
+   Funktionen, die auch importieren (c2Date, c2Amount): was hier
+   als Datum erkannt wird, kann der Import auch lesen.
+
+   **Eine Zahl ist noch kein Betrag.** Kontonummern, Belegnummern
+   und Kennungen sind ebenfalls Ziffern; ein Geldbetrag hat fast
+   immer Nachkommastellen, ein Vorzeichen oder ein Währungszeichen.
+   Danach wird gefragt (`c2Money`) — es sei denn, die Überschrift
+   sagt ohnehin „Betrag", dann genügt die blanke Zahl.
+
+   Gezählt wird über die **gefüllten** Zellen: eine Spalte, die nur
+   in jeder dritten Zeile etwas trägt, ist trotzdem eine
+   Datumsspalte, wenn alles darin ein Datum ist. */
+const C2_HDATE=/^(buchung(stag|sdatum)?|wertstellung|valuta(tag|datum)?|datum|date|booking ?date|value ?date|transaction ?date|zeitpunkt)$/i;
+/* „Saldo" steht hier mit Absicht **nicht**: der laufende Kontostand
+   ist Geld, aber nicht der Betrag der Buchung. Er wird trotzdem als
+   Betragsspalte erkannt, wenn seine Werte danach aussehen — nur
+   bevorzugt wird er nicht. */
+const C2_HAMT=/betrag|wert|amount|summe|umsatz|soll|haben|value|debit|credit/i;
+/* Sieht der Wert nach Geld aus — nicht bloß nach einer Zahl?
+   (C2_CUR trägt /g und ist damit in `test` zustandsbehaftet;
+   fürs Prüfen deshalb dieselbe Liste ohne Flag.) */
+const C2_CUR1=new RegExp(C2_CUR.source,'i');
+function c2Money(s){
+  const x=String(s==null?'':s);
+  if(isNaN(c2Amount(x)))return false;
+  return /[.,]\d{1,2}\s*$/.test(x)||/[-+()−–]/.test(x)||C2_CUR1.test(x);
+}
+function c2ColKind(i){
+  const H=String(W.csv.header[i]||'');
+  const probe=W.csv.rows.slice(0,60);
+  let n=0,dates=0,nums=0,money=0;
   probe.forEach(r=>{
-    const c=r[i];if(c==='')return;
-    if(c2Date(c))dates++;
-    else if(!isNaN(c2Amount(c)))nums++;
+    const c=r[i]==null?'':String(r[i]).trim();
+    if(c==='')return;
+    n++;
+    if(c2Date(c)){dates++;return;}
+    if(!isNaN(c2Amount(c))){nums++;if(c2Money(c))money++;}
   });
+  if(C2_HDATE.test(H.trim()))return 'date';
+  if(n&&dates>=n*0.7)return 'date';
+  /* Mit passender Überschrift genügt die blanke Zahl, ohne sie
+     müssen die Werte wie Geld aussehen. */
+  if(n&&nums>=n*0.7&&(C2_HAMT.test(H)||money>=n*0.7))return 'amount';
+  return null;
+}
+
+/* ── Jede gewählte Spalte bekommt ein Feld (Lex, 8.9.26) ─────
+   Bis dahin bekam nur ein Feld, dessen **Überschrift** danach
+   klang; alles andere blieb leer, und der Nutzer stellte es von
+   Hand ein. Jetzt gilt: **wer eine Spalte wählt, bekommt ein
+   Feld** — und zwar
+
+     * das **Datumsfeld**, wenn in der Spalte Datumsangaben stehen
+       (oder die Überschrift „Buchungstag", „Datum", „Date" … heißt),
+     * das **Betragsfeld**, wenn dort Geldbeträge stehen,
+     * sonst die **nächste freie Referenz**, in der Reihenfolge, in
+       der gewählt wird: die erste Textspalte wird Referenz 1, die
+       zweite Referenz 2.
+
+   **Frei wird eine Referenz beim Abwählen** (der Klick-Handler in
+   c2Wire setzt das Feld zurück): wer Referenz 1 abwählt und
+   danach eine andere Spalte wählt, bekommt wieder Referenz 1 —
+   die Nummern rutschen nach, statt Löcher zu lassen.
+
+   Belegt heißt belegt: ein Feld wird nie überschrieben. Ist das
+   Datumsfeld schon vergeben und man wählt eine zweite Datumsspalte
+   (Buchung und Wertstellung stehen oft nebeneinander), bekommt sie
+   eine Referenz. Sind alle sieben Felder vergeben, bleibt die
+   Spalte ohne — sie lässt sich trotzdem wählen, und „Weiter" fragt
+   dann, ob sie abgewählt werden soll (c2LooseCols). */
+function c2GuessCol(i){
   const free=f=>W.f[f]<0||!W.cols.includes(W.f[f]);
-  if(free('date')&&(dates>probe.length/3||/^buchungstag$|^datum$|^date$/i.test(H))){W.f.date=i;return;}
-  if(free('amount')&&(/^wert \(eur\)$|^betrag$|^amount$/i.test(H)||(nums>probe.length/2&&/betrag|wert|amount|summe|umsatz/i.test(H)))){W.f.amount=i;return;}
-  /* **Eine Textspalte bekommt die nächste freie Referenz** — in der
-     Reihenfolge, in der die Spalten gewählt werden: die erste
-     gewählte Textspalte ist Referenz 1. Bei „Alles wählen" ist das
-     die Reihenfolge der Datei. Textspalte heißt: eine, deren Name
-     nach Kategorie, Empfänger, Verwendungszweck oder Notiz klingt;
-     Kontonummern und Kürzel bleiben ohne Feld — man kann sie
-     trotzdem zum Filtern wählen. Mehr als drei bekommen nichts. */
-  if(/haupt|main ?cat|kategorie|category|beguenstigt|begünstigt|empf|auftraggeber|zahlungspflichtig|payee|von\/zu|verwendungszweck|purpose|notiz|memo|beschreib|description|zweck|buchungstext|text/i.test(H)){
-    const f=C2_REFS.find(free);
-    if(f){W.f[f]=i;return;}
-  }
+  const kind=c2ColKind(i);
+  if(kind==='date'&&free('date')){W.f.date=i;return;}
+  if(kind==='amount'&&free('amount')){W.f.amount=i;return;}
+  const f=C2_REFS.find(free);
+  if(f)W.f[f]=i;
 }
 
 /* ── Schritt 3: Zuordnen ─────────────────────────────────────

@@ -86,8 +86,11 @@ Abschnitt.**
   22.8.26 **nur noch im Menü** (`#menuFile` zuoberst; `.filepath` bleibt im HTML, ist
   aber per CSS verborgen). **Alle Aktionsknöpfe
   wohnen im Menü dahinter** (`#hdrTools`, auf jeder Breite), seit 6.9.26 in dieser
-  Ordnung und mit diesen Linien (`.mi-sep`): Hochladen ‖ CSV-Import (`#btnImportCsv` →
-  `openCsvWizard()`) ‖ Speichern · Sicherung ‖ Trennen ‖ Neuer Eintrag (`#mNewOut`,
+  Ordnung und mit diesen Linien (`.mi-sep`): „Daten hochladen (JSON-Datei)" ‖ „Daten
+  importieren (CSV-Datei)" (`#btnImportCsv` → `openCsvWizard()`; hieß bis 8.9.26
+  „CSV importieren" — **die Dateiart steht seit dann bei beiden in Klammern dahinter**,
+  in jeder Sprache so geschrieben, wie man sie dort schreibt) ‖ Speichern · Sicherung ‖
+  Trennen ‖ Neuer Eintrag (`#mNewOut`,
   **schwarz mit weißer Schrift** — der nächste Handgriff; verdrahtet bei den festen
   Schaltflächen in `js/app.js`) ‖ Einstellungen ‖ Anleitung (**orange Fläche mit weißer
   Schrift**, `.tools #btnGuide`). **Der Menükopf hat zwei Zeilen** (`renderStatus()` in
@@ -167,9 +170,10 @@ Abschnitt.**
   Statuspunkte sind weg, die Zählung steht
   in der Sprechblase. Der Monatskopf der Jahresmatrix (`.mhead.now`) behält seine
   gefüllte rote Pille — dort gibt es keine Auswahl, die dem Rot widersprechen könnte.
-  Gebaut wird sie in `monthTabs()` (`js/views/monat.js`) und steckt in der `.stickybar`
-  der Ansicht — am Schreibtisch in `anaBar()`, auf dem Telefon in `mobileTop()`; sie klebt
-  also mit Auswertung und Filterzeile oben mit. Verdrahtet ist sie über `data-mtab`
+  Gebaut wird sie in `monthTabs()` (`js/views/monat.js`) und steckt in einer `.stickybar`
+  der Ansicht — am Schreibtisch seit 8.9.26 in der **zweiten** (`.anasub` in `anaBar()`,
+  zusammen mit der Auswertung), auf dem Telefon in `mobileTop()`; sie klebt also unter
+  der Filterzeile und fährt beim Ansichtswechsel mit (siehe „Bewegung"). Verdrahtet ist sie über `data-mtab`
   (Regel 1) — **nicht** `data-m`, das gehört den Monatszellen der Jahresmatrix
   (`dblMonth`). `renderChrome()` rührt sie nicht mehr an, `#months` ist aus
   `fina-online.html` verschwunden; die Kopfzeile ist damit in jeder Ansicht gleich hoch.
@@ -197,10 +201,13 @@ Abschnitt.**
   die **Einstellungen im Bereich „Filter"** — `openSettings('filter')` in `wire()`; das
   eigene Fenster `js/dialogs/filter-fields.js` ist weg) · drei Aufklappmenüs
   Bereich/Fälligkeit/Zahlungsstatus
-  (`fltDrop()` in `js/views/monat.js`). Ob ein Menü offen ist, sagt `ui.fltMenu`
-  (Sitzung, nie Datei); **es bleibt nur bei spezifischen Werten offen** — „Alle" schließt
-  es (seit 23.8.26, `mShut()` in `wire()`; vorher blieb es bei jeder Wahl offen): „Alle"
-  heißt „fertig, nichts filtern", danach gibt es dort nichts mehr einzustellen. **Der
+  (`fltDrop()` in `js/views/monat.js`; seit 6.9.26 stehen dieselben drei in der
+  Jahresleiste). Ob ein Menü offen ist, sagt `ui.fltMenu`
+  (Sitzung, nie Datei); **es geht bei jeder Wahl zu** (Lex, 8.9.26; seit 23.8.26 tat es
+  das nur bei „Alle", davor gar nicht — `mShut()` in `wire()`): jedes dieser Menüs stellt
+  **eine** Frage, und ist sie beantwortet, gibt es darin nichts mehr einzustellen.
+  **Was gewählt ist, steht am Knopf** — `fltDrop()` schreibt „Fälligkeit: Monatsende"
+  hinein —, man sieht es also auch bei geschlossenem Menü. **Der
   gewählte „Alle"-Eintrag trägt Tinte statt Orange** (`.mi.sel[data-…="alle"]` in
   `css/layout.css`, gilt auch im mobilen Menü): Orange heißt „hier wird ausgeblendet",
   und genau das tut „Alle" nicht. Die Einträge tragen die
@@ -210,8 +217,11 @@ Abschnitt.**
   **Das mobile Filtermenü (`.mfmenu`) benutzt dieselben Listen** `FLT_DUE`/`FLT_PAY` und
   ist seit 23.8.26 dasselbe Bild wie die Aufklappmenüs — eine weiße Karte als Overlay
   unter der Suchzeile (`css/mobile.css`); **nur die Überschriften** von Fälligkeit und
-  Zahlungsstand stehen rechtsbündig, die Werte links wie jeder Eintrag. **Es bleibt nur bei diesen Werten offen**: „Alle", „Filter zurücknehmen"
-  und „Filteroptionen…" schließen es, ebenso Escape und der Klick daneben (`wire()` und
+  Zahlungsstand stehen rechtsbündig, die Werte links wie jeder Eintrag. **Es bleibt bei
+  einem spezifischen Wert offen** — anders als die Aufklappmenüs des Schreibtischs, und
+  mit Absicht: dort stehen Fälligkeit und Zahlungsstand in **einem** Menü, und wer das
+  eine setzt, will oft gleich das andere. Zu geht es bei „Alle", „Filter zurücknehmen"
+  und „Filteroptionen…", ebenso mit Escape und dem Klick daneben (`wire()` und
   die globalen Handler in `js/app.js`). Ein eigenes ✕ hat die mobile Suchzeile nicht
   mehr — das Zurücknehmen steckt im Menü —, und der ☰-Knopf **leuchtet orange, sobald
   irgendein Filter greift** (`.mfbtn.on`): er ist auf dem Telefon das, was am
@@ -365,10 +375,11 @@ trägt sie dort ein.
   `visibility:hidden`, bis das Fenster zu Ende gefallen ist (260 ms).
 * **Ansichten** wechseln seitwärts über die volle Breite in Reiterrichtung
   (`slideViewOut(vbox,dir)` / `slideViewIn(vbox,dir)` um `innerHTML` in `render()`,
-  `VIEW_MS=460`; Richtung aus der Reihenfolge in `VIEWS`, nur bei `lastView!==ui.view`
-  und nicht auf der Begrüßungsseite). **Die alte Ansicht bleibt stehen und wird
-  überlagert** (Lex, 6.9.26 spät; bis dahin fuhr sie zur Seite hinaus): `#view.in-left /
-  .in-right` mit `--paper`-Grund, Keyframes `fina-inL/-inR`,
+  `VIEW_MS=460`; Richtung aus der Reihenfolge in `VIEWS`, bei `lastView!==ui.view` —
+  und seit 8.9.26 zusätzlich, wenn ein Buch aufgeht (siehe „Ein Buch, das aufgeht,
+  fliegt herein"). **Die alte Ansicht bleibt stehen und wird
+  überlagert** (Lex, 6.9.26 spät; bis dahin fuhr sie zur Seite hinaus):
+  `.viewbody.in-left / .in-right` mit `--paper`-Grund, Keyframes `fina-inL/-inR`,
   `cubic-bezier(.75,0,.15,1)` — langsam an, schnell über die alte Ansicht, zum Ende weich
   aus. `--viewgap` / `--viewfill` sind Deckstreifen (`::before/::after`),
   `html.viewslide{overflow-x:hidden}`, `html{scrollbar-gutter:stable}` (sonst rückten die
@@ -389,6 +400,65 @@ trägt sie dort ein.
   genau diese Zeit vor. Gemessen mit Electron offscreen (echte Zeit, siehe „Prüfen"):
   vorher Bildabstände von 183 und 100 ms, nachher 17 ms durchgehend. Der Geist entfernt
   sich am Ende der Fahrt (und per Uhr) selbst.
+  **Am Ende der Fahrt werden die Bildschichten der Rollflächen einmal neu gebaut**
+  (`restick()` in `js/ui.js`, gerufen aus `done()`; seit 7.9.26): unter Windows standen
+  in Chrome nach einem Wechsel in die Jahresansicht die beiden roten Linien des
+  laufenden Monats in der **Blockzeile** um ein Gerätepixel neben denen der Posten
+  darunter, und ein zweiter Klick auf denselben Reiter — bei dem nichts fährt — rückte
+  sie zurecht. Im Layout stehen sie exakt untereinander (nachgemessen: dieselbe linke
+  Kante); der Versatz entsteht erst beim Rastern. Solange die Ansicht hereinfährt, trägt
+  ihr Rumpf (`.viewbody`) nämlich `will-change:transform` und ist eine eigene Schicht, und die
+  klebenden Zeilen darin bekommen ihre eigene — die Posten daneben nicht, die kleben
+  nicht. Bei einer Bildschirmskalierung von 125 % ist der Weg von `translateX(100%)` ein
+  Bruchteil eines Gerätepixels, und jede Schicht rundet ihre Lage für sich. `restick()`
+  setzt deshalb `will-change` an jede Rollfläche der Ansicht und nimmt es im nächsten
+  Bild wieder — **und zur Sicherheit per Uhr**, denn ein Bild kommt nicht immer (siehe
+  `visibilitychange` bei den Menüs); zu sehen ist davon nichts, es bewegt sich nichts.
+  Ein Rollstoß um ein Pixel täte dasselbe, wäre aber für ein Bild lang zu sehen. Wer
+  eine weitere Rollfläche mit klebenden Zeilen baut, trägt ihre Klasse dort ein.
+* **Der Top-Bereich fährt nicht mit** (Lex, 8.9.26). **Der Top-Bereich ist die
+  Filterzeile** — die Bahn, die an der Kopfzeile andockt und in Monat und Jahr dieselbe
+  ist; sie trägt dafür die Klasse `viewtop`. Sie steht in beiden Ansichten an derselben
+  Stelle, und eine Bahn, die quer über den Bildschirm zieht, sagt über den Wechsel
+  nichts. **Sie bleibt stehen; nur ihr Inhalt
+  wechselt**: das Alte fällt nach unten hinaus (`fina-barout`, 200 ms, im Geist), das
+  Neue fällt von oben herein (`fina-barin`, 280 ms nach 100 ms Wartezeit, `backwards`
+  hält es bis dahin unsichtbar) — und weil die Kopfzeile darüber deckt, kommt es unter
+  ihr hervor. Nacheinander und nicht zugleich.
+  **Monatsleiste, Auswertung und die Kennzahlen der Prognose gehören nicht dazu** (Lex,
+  8.9.26 spät): sie sind Inhalt der Ansicht und sollen mitfahren, nicht von oben
+  hereinfallen. Im Monat stehen sie deshalb in einer **zweiten** Leiste (`.anasub`,
+  gebaut in `anaBar()`) **innerhalb** des Rumpfes; sie klebt unter der Filterzeile. Die
+  Prognose hat gar keinen Top-Bereich — dort fährt die ganze Ansicht. Auf dem Telefon
+  ebenso: `mobileTop()` trägt kein `viewtop`.
+  **Dafür steht alles unter dem Top-Bereich in einem eigenen Kasten**:
+  `wrapViewBody(vbox)`
+  in `js/ui.js` hängt nach jedem `innerHTML` die Geschwister der `.stickybar.viewtop` in
+  ein `.viewbody`, und **nur dieses** fährt; ohne `viewtop` steckt die ganze Ansicht
+  darin. Gehängt wird bei **jedem** Zeichnen, nicht nur
+  beim Wechsel — ein Kasten, den es mal gibt und mal nicht, verschöbe die Ansicht in dem
+  Bild, in dem er dazukommt; er trägt `display:flow-root`, damit die Außenabstände
+  seiner Kinder in ihm bleiben, ob er gerade fährt oder nicht. Die Knoten werden
+  **verschoben**, nicht neu gebaut: ein zweites `innerHTML` kostete die ganze
+  Jahresmatrix noch einmal. `#view` selbst trägt während der Fahrt nur `.sliding`
+  (`position:relative;z-index:2`) und **keinen Grund** — der Geist soll darunter stehen
+  bleiben, bis der Rumpf über ihn fährt; die beiden Deckstreifen `--viewgap` /
+  `--viewfill` sitzen am `.viewbody`. Eine Ansicht ohne Leiste (die Begrüßungsseite, die
+  Prognose auf dem Telefon) steckt ganz im `.viewbody`.
+  **Die Polster der Leisten stehen dafür an einer Stelle** (`css/layout.css`): die
+  Filterzeile schließt ohne Polster ab (`.anabar.viewtop{padding-bottom:0}`), die zweite
+  Leiste bringt die 10 px als eigenes Polster mit (`.anabar.anasub{padding-top:10px}`,
+  `.anasub>.months{margin-top:0}`), und die Prognose ebenso (`.kpibar`,
+  `.kpibar>.anahead{margin-top:0}`). Grund ist überall derselbe: ein **Außenabstand**
+  des ersten Kindes fällt durch die Leiste hindurch nach oben, und die Leiste fängt dann
+  tiefer an, als sie klebt.
+* **Ein Buch, das aufgeht, fliegt herein** (Lex, 8.9.26). `ui.enter` ist der Merker
+  dafür — 1 heißt „von rechts" (Datei geladen, leer angefangen), -1 „von links" (Datei
+  getrennt, die Begrüßung kommt zurück). Gesetzt wird er dort, wo ein Buch betreten
+  wird (`loadData()`, `startEmpty()`, `unlinkData()` in `js/storage.js`, dazu der
+  Rückfallweg `#fileJson` in `js/app.js`), **verbraucht einmal in `render()`**. Ohne ihn
+  gäbe es keine Fahrt: von der Begrüßungsseite her ist `lastView` leer, und beide Seiten
+  wechselten schlagartig.
 * **Die Pille der Ansichtswahl gleitet** (`.vpill` hinter den `.vtab`, `renderChrome()`):
   die alte Lage wird vor `innerHTML` gemessen, die Pille steht sofort neu und fährt per
   `transform: translateX() scaleX()` von der alten herüber — `left/width` zu bewegen setzte
@@ -1450,9 +1520,14 @@ steht es in `aria-expanded`. Gebaut wird sie in `anaBar()` / `timeline()` in
 
 **Die Leiste hat drei Stücke, und die Auswertung ist das letzte:** Filterzeile ·
 Monatsleiste · Auswertung (`anaBar()`). Die Filterzeile dockt oben an der Kopfzeile an, die
-Auswertung steht direkt über den Karten, die sie zusammenfasst. Alles zusammen steckt in
-einer `.stickybar` und bleibt beim Scrollen unter der Kopfzeile stehen; zwischen den drei
+Auswertung steht direkt über den Karten, die sie zusammenfasst; zwischen den drei
 Stücken liegen je 10 px — so viel, wie die Bereiche voneinander haben.
+
+**Es sind zwei `.stickybar` und nicht eine** (Lex, 8.9.26): die Filterzeile allein ist der
+**Top-Bereich** (`viewtop`) und bleibt beim Ansichtswechsel stehen; Monatsleiste und
+Auswertung stehen in einer zweiten Leiste (`.anasub`), die unter ihr klebt und mit der
+Ansicht mitfährt — sie sind Inhalt und nicht Kopfzeile (siehe „Bewegung"). Beide bleiben
+beim Scrollen unter der Kopfzeile stehen; ihre `top`-Maße stapelt `syncStickyTops()`.
 
 **Womit sie aufgeht, sagt die Datei** — `state.anaOpen`, ein Haken im Einstellungsfenster
 unter „Darstellung" (`#sAna`, `set.ana`). Von Haus aus ist er aus: die Leiste nimmt oben
@@ -2047,16 +2122,30 @@ die ganze Zeit daneben, denn der Fokus kehrt immer wieder dorthin zurück (siehe
 **Rechts vom Feld steht `data-qclear`**, das Gegenstück zum Tippen: es setzt `ui.q`,
 `ui.secFilter`, `ui.filter` und `ui.dueFilter` in einem Zug zurück und ist gesperrt, solange
 keiner davon gilt. Die beiden Knöpfe der Jahresansicht rührt es **nicht** an — sie stehen
-rechts und außerhalb der Filtergruppe, und sie filtern auch nicht. **Escape tut dasselbe** (Handler in `js/app.js`),
-aber nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.js`).
+rechts und außerhalb der Filtergruppe, und sie filtern auch nicht.
+
+**Escape nimmt Schicht für Schicht zurück** (Lex, 8.9.26; bis dahin räumte es alles auf
+einmal weg wie das ✕). Jeder Druck nimmt **genau eine** Schicht — Handler unten in
+`js/app.js`:
+
+1. ein offenes Filtermenü geht zu (`ui.fltMenu`, auf dem Telefon `ui.mFilters`);
+2. steht etwas im Suchfeld, wird **nur** das Feld geleert;
+3. ist es leer, gehen Bereich, Fälligkeit und Zahlungsstand zurück auf „alle".
+
+Der Schnitt zwischen 2 und 3 hat einen Grund: der Suchbegriff ist das, was man beim
+Tippen gerade in der Hand hat, die drei Aufklappmenüs sind eine Einstellung, die man
+vorher getroffen hat — wer sich vertippt, soll nicht nebenbei den Bereich verlieren.
+**Alles auf einmal nimmt weiterhin das ✕** (`data-qclear`); dort steht es auch dran. Und
+alles nur, wenn kein Fenster offen ist: dort gehört Escape dem Fenster (`js/ui.js`).
 
 **Ein Druck, eine Wirkung.** Der Handler des Fensters hängt am *Dokument*, der des Filters am
 *Fenster* — er läuft also danach, und das Fenster ist da schon aus dem DOM: eine Abfrage auf
 `.modal` allein genügt nicht, sie ginge ins Leere und der Filter wäre nebenbei mit weg.
 Deshalb **verbraucht das Fenster den Druck** (`preventDefault()` in `js/ui.js`), und der
 Filter-Handler lässt `defaultPrevented` liegen. Bei zwei Fenstern übereinander schließt jedes
-Escape genau eins; erst wenn keins mehr steht, nimmt der nächste Druck den Filter zurück.
-Gefiltert nichts und kein Fenster offen, bleibt Escape unangetastet beim Browser.
+Escape genau eins; erst wenn keins mehr steht, nimmt der nächste Druck die oberste
+Filterschicht zurück. Gefiltert nichts und kein Fenster offen, bleibt Escape unangetastet
+beim Browser.
 
 **Drei Wege führen ins Feld**, alle drei als Handler unten in `js/app.js`:
 
@@ -2735,15 +2824,33 @@ die sagen, womit eine Datei aufgeht**:
 |---|---|---|
 | „Monat mit aufgeklappter Auswertung öffnen" (`#sAna`) | `state.anaOpen` | `ui.ana` |
 | „Jahr mit ausgeblendeten abgeschlossenen Monaten öffnen" (`#sHideDone`, seit 30.8.26) | `state.hideDoneMonths` | `ui.hideDone` |
+| „Anleitung mit aufschlagen" (`#sGuide`, seit 8.9.26) | `state.guideOpen` | — gelesen in `render()`, siehe unten |
 
-**Beides sind Vorgaben und keine Schalter**: was sie tun, steht in „Die Auswertung über der
+**Der dritte gilt zwei Anleitungen**, und das sagt auch sein Satz daneben
+(`set.guideHint`): dem Bereich neben der Ansicht **und** dem Feld neben den Schritten des
+CSV-Imports (`W.guide` in `openCsvWizard()`, `js/dialogs/csv2-wizard.js`). **Vorgabe ist
+ja** — wer FINA zum ersten Mal öffnet, soll die Anleitung nicht suchen müssen; `migrate()`
+gibt einer Datei ohne die Angabe deshalb `true` und nicht `false`. Gelesen wird er
+**nicht** in `afterLoad()`, sondern in `render()` am Anfang, wenn `ui.enter>0` steht (also
+beim Öffnen eines Buches, siehe „Bewegung"): der Bereich macht die Seite schmaler, und
+eine Ansicht, die vorher gemessen wurde, spränge um seine Breite. Aufgeschlagen wird über
+`openGuideSnap()` (`js/dialogs/guide.js`) — dasselbe wie `openGuide()`, nur ohne den
+Übergang des Seitenpolsters (`body.gsnap`): die Ansicht fliegt gerade herein und bräche
+sonst 280 ms lang in jedem Bild neu um. **Auf dem Telefon geht er von selbst nie auf**
+(`isMobile()` in `render()` und in `applyGeneral()`): dort macht der Bereich die Seite
+nicht schmaler, sondern legt sich darüber — er stünde vor dem Buch, das man gerade
+geöffnet hat.
+
+**Alle drei sind Vorgaben und keine Schalter**: was sie tun, steht in „Die Auswertung über der
 Monatsansicht" und in „Die Leiste der Jahresansicht". Die Sätze daneben (`set.anaHint`,
 `set.hideDoneHint`) sagen genau das, sonst suchte man hier den Weg zum Auf- und Zuklappen.
 
 **Geändert wirkt sofort, ungeändert nicht** (`applyGeneral()`): steht der Haken anders als
 im Zustand, wird `ui.…` mitgezogen — ein Haken, der erst beim nächsten Laden etwas tut,
 sieht kaputt aus. Sonst bleibt die Anzeige, wie sie ist; sonst risse ein Speichern in den
-Einstellungen zu, was man vorher von Hand aufgeklappt hat.
+Einstellungen zu, was man vorher von Hand aufgeklappt hat. Für die Anleitung heißt
+dasselbe: gesetzt schlägt sie auf der Stelle auf, weggenommen geht sie zu — ein offenes
+Fenster darüber bleibt dabei stehen.
 
 ### Der Bereich „Import"
 
@@ -2804,6 +2911,33 @@ und migriert wird beim Lesen (`migrate()`).
   mit dem Haken „bisherige behalten und diese dazu merken") und `c2SaveCols()`; kam die
   Struktur aus dem Gemerkten und steht noch so da (`c2ColsSame()`), heißt der Knopf nur
   „Weiter". Nach Schritt 3 kommen nur verknüpfte Spalten mit (`c2GoStep3()`).
+  **Jede gewählte Spalte bekommt sofort ein Feld** (Lex, 8.9.26; bis dahin nur eine,
+  deren **Überschrift** danach klang — alles andere blieb leer und wurde von Hand
+  gestellt). `c2GuessCol(i)` fragt dafür `c2ColKind(i)`: **Datum**, wenn in der Spalte
+  Datumsangaben stehen, **Betrag** bei Geldbeträgen, **sonst die nächste freie Referenz**
+  — in der Reihenfolge, in der gewählt wird (erste Textspalte = Referenz 1, zweite =
+  Referenz 2). **Beim Abwählen wird die Referenz frei** und rutscht nach: wer Referenz 1
+  abwählt und eine andere Spalte wählt, bekommt wieder Referenz 1. Belegt bleibt belegt
+  — eine zweite Datumsspalte (Buchung und Wertstellung stehen oft nebeneinander) bekommt
+  eine Referenz; sind alle sieben Felder vergeben, bleibt die Spalte ohne, und „Weiter"
+  fragt über `c2LooseCols`.
+  **Erkannt wird über den Inhalt, nicht über den Namen** — `c2ColKind()` liest die ersten
+  60 Zeilen mit **denselben** Funktionen, die auch importieren (`c2Date`, `c2Amount`):
+  was hier als Datum durchgeht, kann der Import auch lesen. Gezählt wird über die
+  gefüllten Zellen, 70 % entscheiden; die Überschrift ist nur eine Abkürzung
+  (`C2_HDATE`, `C2_HAMT`). **Eine Zahl ist noch kein Betrag** (`c2Money`): Beleg- und
+  Kontonummern sind ebenfalls Ziffern, deshalb zählt nur, was Nachkommastellen, ein
+  Vorzeichen oder ein Währungszeichen trägt — es sei denn, die Überschrift sagt ohnehin
+  „Betrag". „Saldo" steht in `C2_HAMT` ausdrücklich **nicht**: der laufende Kontostand ist
+  Geld, aber nicht der Betrag der Buchung.
+  **Gelesen werden die gängigen Formate** (8.9.26 erweitert): beim Datum `24.08.2026` ·
+  `24.08.26` · `2026-08-24` (auch mit Uhrzeit) · `2026/08/24` · `24-08-2026` ·
+  `08/24/2026` · `20260824` · `24. Aug 2026` · `Aug 24, 2026`; beim Betrag `-73,25` ·
+  `73,25-` · `(73,25)` · `1.234,56` · `1,234.56` · `1'234.56` · `1 234,56` · `12,34 €` ·
+  `EUR 12,34` · `−12,34`. **Beim Schrägstrich bleibt es bei „Monat zuerst"**, wenn die
+  Reihenfolge nicht zu sehen ist (`03/04/2026`): steht die erste Zahl über 12, ist sie
+  der Tag, steht die zweite über 12, umgekehrt — sonst gilt, was FINA immer gelesen hat.
+  Ein stiller Wechsel verschöbe die Buchungen alter Importe.
 * **Schritt 3:** oben alle drei Bereiche wie die Jahresmatrix (`tbody.c2blk`, Kategorien
   als klebende Zeilen, Ziel per Klick orange; **die Blockzeile klappt ihren Block** mit
   einem Klick — `data-c2blk`, `W.blkFold`, seit 6.9.26 spät —, und rechts in der Kopfzelle
@@ -2833,7 +2967,12 @@ und migriert wird beim Lesen (`migrate()`).
   importiert", Grau „schon im Buch" (siehe „Die Farbsprache"). Ein einzelner Buchstabe
   ohne Fokus geht in den Schnellfilter (`c2Keys()`).
 * **Die Anleitung daneben** (`C2_GUIDE`, Knopf „Anleitung" ganz links in Schritt 2 und 3)
-  teilt das Fenster; die Texte stehen in der Datei, nicht in `js/i18n.js`. **Seit 7.9.26
+  teilt das Fenster; die Texte stehen in der Datei, nicht in `js/i18n.js`.
+  **Aufgeschlagen fängt sie an** (seit 8.9.26), solange die Datei es sagt: `W.guide`
+  kommt in `openCsvWizard()` aus `state.guideOpen` — derselbe Haken, der die Anleitung
+  neben der Ansicht aufschlägt (Einstellungen → Darstellung). Zu sehen ist sie erst ab
+  Schritt 2; Schritt 1 ist eine Dateiauswahl und baut das Feld gar nicht
+  (`c2Render()`). **Seit 7.9.26
   nach der Vorlage `_BusinessCenter/DESIGN/260907 Guide für Wizard (von GPT).html`**:
   zuerst „Kurz erklärt" (die drei Bereiche des Fensters in drei Zeilen), dann die Tabelle
   „Was möchtest du tun?" (`.gtab`: wenn du … dann wähle …), je Weg seine Schritte, ein
@@ -2923,6 +3062,15 @@ sonst falsch gemessen.
 
 `renderChrome()` ruft `renderGuide()` — die Funktion tut nichts mehr (siehe unten). Escape
 schließt den Bereich nicht: das gehört den Fenstern.
+
+**Sie geht von selbst auf** (seit 8.9.26), sooft ein Buch aufgeht — und das sagt die
+Datei: `state.guideOpen`, ein Haken im Einstellungsfenster unter „Darstellung"
+(`#sGuide`, `set.guide`; Vorgabe **ja**, siehe „Der Bereich „Darstellung""). Derselbe
+Haken schlägt die Anleitung neben dem CSV-Import auf. Wer ihn wegnimmt, sieht beide nur
+noch, wenn er den Knopf drückt. Gerufen wird `openGuideSnap()` in `render()`, solange
+`ui.enter>0` steht — **vor** dem Zeichnen und ohne den Übergang des Seitenpolsters, und
+auf dem Telefon gar nicht. Auf der Begrüßungsseite bleibt der Bereich weg: dort gibt es
+noch keine Datei, die es sagen könnte.
 
 **Die Anleitung hat ihre eigene Sprache.** `gLang` (Modulvariable, Vorgabe `'en'`) steht
 neben `state.lang` und wird im Kopf des Bereichs umgeschaltet — zwei Kürzel EN · DE links
@@ -3232,6 +3380,11 @@ nirgends sonst.
 aus `state.hideDoneMonths` (seit 30.8.26, siehe „Die Leiste der Jahresansicht"). Dieselbe
 Bauform, derselbe Grund — und `ui.hideSettled` wird daneben wie eh auf `false` gesetzt.
 
+**Die dritte Vorgabe derselben Art steht ausdrücklich nicht hier**: ob die Anleitung sich
+dazustellt (`state.guideOpen`). Sie ändert die **Breite der Seite**, und `afterLoad()`
+läuft, bevor `ui.welcome` feststeht — gelesen wird sie deshalb am Anfang von `render()`,
+solange `ui.enter>0` steht (siehe „Der Bereich „Darstellung"").
+
 Dort steht auch, **womit man begrüßt wird**: mit Datei der laufende Monat
 (`ui.view='monat'`, `ui.month=CUR`), ohne Datei die Jahresansicht. Der Unterschied ist der
 Zweck der beiden Ansichten — im Monat wird gearbeitet, im Jahr angelegt, und ein leerer
@@ -3286,6 +3439,22 @@ Umbau wieder falsch.
 Eine neue mitlaufende Leiste braucht deshalb nur die Klasse. Weil gemessen und nicht
 geraten wird, rücken die Kartenköpfe darunter von selbst nach, wenn die Auswertung
 aufgeklappt wird.
+
+**Der Top-Bereich einer Ansicht ist ihr erstes Element und trägt `viewtop`** — seit
+8.9.26 ist das eine Bedingung und keine Gewohnheit: `wrapViewBody()` (`js/ui.js`) erkennt
+ihn daran und hängt alles danach in den `.viewbody`, der beim Wechsel allein fährt (siehe
+„Bewegung"). Wer eine Ansicht baut, deren erstes Element **kein** `.stickybar.viewtop`
+ist, bekommt keinen stehenden Top-Bereich — dann fährt die ganze Ansicht, wie es vorher
+überall war (Prognose, Telefon). **Weitere Leisten dürfen darunter stehen**, aber im
+Rumpf: die Monatsansicht hat zwei (Filterzeile · Monatsleiste mit Auswertung).
+
+**Sie stapeln sich, und gemessen wird der Reihe nach.** `syncStickyTops()` läuft über
+`#view > .stickybar` und `#view > .viewbody > .stickybar` in dieser Ordnung und gibt
+jeder als `top` die Unterkante der davor; was am Ende herauskommt, ist zugleich die
+Stelle, an der die Kartenköpfe kleben. **`--barh` wird davor gesetzt**: die Filterzeile
+ist `min-height:var(--barh)` hoch, und stand der Wert noch auf dem Maß der
+Begrüßungsseite — deren Kopfzeile ist ohne Reiter niedriger —, maß die Schleife eine
+Leiste, die gleich danach wuchs, und die zweite klebte um die Differenz zu hoch.
 
 Zwei Dinge gehören dazu: ein **deckender Hintergrund** und ein **Polster statt Rand** nach
 unten. Ein Rand ist durchsichtig — dort schiene der Inhalt durch, der darunter wegscrollt.

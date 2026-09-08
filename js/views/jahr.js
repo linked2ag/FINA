@@ -584,7 +584,11 @@ function viewJahr(){
      ist, sieht nach verschwundenen Zeilen aus. Dieselben Knöpfe,
      dieselbe Verdrahtung: wire() in js/app.js hängt sie am Dokument
      an, nicht an der Ansicht. */
-  return `<div class="sechead yearbar stickybar" id="yearBar">
+  /* `viewtop`: diese Leiste ist der Top-Bereich und bleibt beim
+     Ansichtswechsel stehen — nur ihr Inhalt fällt hinaus und
+     herein (wrapViewBody in js/ui.js). Im Monat trägt die
+     Filterzeile dieselbe Klasse; es ist dieselbe Bahn. */
+  return `<div class="sechead yearbar stickybar viewtop" id="yearBar">
       <div class="ybrow${filtered?' on':''}">
       <span class="fbgroup">
         ${filterField('fltyear')}

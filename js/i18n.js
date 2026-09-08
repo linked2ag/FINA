@@ -125,7 +125,12 @@ const STR={
    zur Startseite ist (renderChrome in js/app.js). */
 'app.homeTip':{en:'Back to the FINA page',de:'Zurück zur FINA-Seite'},
 'app.sub':{en:'{0}',de:'{0}'},
-'app.load':{en:'Load data',de:'Daten hochladen'},
+/* **Die Dateiart steht in Klammern dahinter** (Lex, 8.9.26): das
+   Menü hat zwei Wege, die etwas hereinholen, und sie unterscheiden
+   sich allein darin — das Buch selbst als JSON, Umsätze als CSV.
+   Geschrieben wird sie in jeder Sprache so, wie man sie dort
+   schreibt: „JSON-Datei" mit Bindestrich, „JSON file" ohne. */
+'app.load':{en:'Load data (JSON file)',de:'Daten hochladen (JSON-Datei)'},
 'app.loadTip':{en:'Open a JSON file and show its contents',de:'JSON-Datei öffnen und ihren Inhalt anzeigen'},
 'app.save':{en:'Save data',de:'Daten speichern'},
 'app.saveTip':{en:'Write the current state into the JSON file',de:'Aktuellen Stand in die JSON-Datei schreiben'},
@@ -145,7 +150,10 @@ const STR={
 /* ── Das Hamburger-Menü (Mac-Redesign 22.8.26) ────────────────
    Alle Aktionsknöpfe stecken im Menü hinter dem ☰-Knopf; die
    drei „Neu…"-Wege tragen dort die Farbe ihrer Geldart. */
-'menu.csv':{en:'Import CSV',de:'CSV importieren'},
+/* Hieß bis 8.9.26 „Import CSV" / „CSV importieren". Jetzt nennt der
+   Eintrag zuerst, was er tut, und danach die Dateiart — dieselbe
+   Form wie „Daten hochladen (JSON-Datei)" darüber. */
+'menu.csv':{en:'Import data (CSV file)',de:'Daten importieren (CSV-Datei)'},
 'menu.csvTip':{en:'Read any CSV — bank statement, card export, tracker. Nothing is changed until you press “Apply”',
   de:'Jede CSV einlesen — Kontoauszug, Kartenexport, Tracker. Geändert wird erst, wenn du „Anwenden“ drückst'},
 'menu.newFlex':{en:'New flexible entry',de:'Neuer flexibler Eintrag'},
@@ -981,6 +989,12 @@ const STR={
   de:'Jahr mit ausgeblendeten abgeschlossenen Monaten öffnen'},
 'set.hideDoneHint':{en:'Applies when a file is opened. The button in the year view hides and shows them as always — that choice holds until you close the file.',
   de:'Gilt beim Öffnen einer Datei. Der Knopf in der Jahresansicht blendet sie wie immer aus und wieder ein — diese Wahl gilt, bis die Datei geschlossen wird.'},
+/* Der dritte Haken derselben Art: ob die Anleitung sich dazustellt.
+   Sie tut es an zwei Stellen — neben der Ansicht und neben den
+   Schritten des CSV-Imports —, und der Satz daneben sagt beides. */
+'set.guide':{en:'Open the guide alongside',de:'Anleitung mit aufschlagen'},
+'set.guideHint':{en:'Applies when a file is opened, and to the guide beside the CSV import. The button “Guide” opens and closes it as always — that choice holds until you close the file.',
+  de:'Gilt beim Öffnen einer Datei und für die Anleitung neben dem CSV-Import. Der Knopf „Anleitung" klappt sie wie immer auf und zu — diese Wahl gilt, bis die Datei geschlossen wird.'},
 'set.labw':{en:'Item column',de:'Positionsspalte'},
 'set.monw':{en:'Month columns',de:'Monatsspalten'},
 'set.widthHint':{en:'Widths of the year matrix in pixels, 50 to 800.',de:'Breiten der Jahresmatrix in Pixel, 50 bis 800.'},

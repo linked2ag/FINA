@@ -302,6 +302,15 @@ ${gfeat('CSV import','Take over transactions faster',`
 <b>${t('set.navImport')}</b>.</p>
 ${gshot('csv-step3','Step 3 of the import: entries above, file rows below, the guide beside it')}`)}
 
+${gfeat('This guide','Beside your work, or off',`
+<p>The guide stands beside the table and stays there while you work. <b>${t('app.guide')}</b>
+in the ☰ menu opens and closes it. Drag its left edge to make it wider. EN · DE switches its
+own language, and the arrow in its head opens it as a full page in a new tab.</p>
+<p>It <b>opens by itself</b>: with every file you open, and beside the steps of the CSV
+import. If you would rather open it yourself, take the tick <b>${t('set.guide')}</b> away
+under <b>${t('app.settings')}</b> → <b>${t('set.navView')}</b>. Then it stays closed until
+you press the button.</p>`)}
+
 ${gfeat('On the phone','For looking things up',`
 <p>Below 700 px FINA builds a layout of its own: the month as a card list with large circles,
 the year as twelve month cards, the forecast with its chart to swipe. The view is chosen at
@@ -434,6 +443,16 @@ ${gfeat('CSV-Import','Umsätze schneller übernehmen',`
 <b>${t('set.navImport')}</b>.</p>
 ${gshot('csv-step3','Schritt 3 des Imports: oben die Einträge, unten die Dateizeilen, daneben die Anleitung')}`)}
 
+${gfeat('Diese Anleitung','Neben der Arbeit — oder aus',`
+<p>Die Anleitung steht neben der Tabelle und bleibt dort, während du weiterarbeitest.
+<b>${t('app.guide')}</b> im ☰-Menü klappt sie auf und zu. An ihrer linken Kante ziehst du sie
+breiter. EN · DE schaltet ihre eigene Sprache um, und der Pfeil im Kopf öffnet sie als ganze
+Seite in einem neuen Reiter.</p>
+<p>Sie geht <b>von selbst auf</b>: bei jeder Datei, die du öffnest, und neben den Schritten
+des CSV-Imports. Wenn du sie lieber selbst aufschlägst, nimm unter
+<b>${t('app.settings')}</b> → <b>${t('set.navView')}</b> den Haken <b>${t('set.guide')}</b>
+weg. Dann bleibt sie zu, bis du den Knopf drückst.</p>`)}
+
 ${gfeat('Auf dem Telefon','Zum Nachsehen',`
 <p>Unter 700 px baut FINA ein eigenes Layout: der Monat als Kartenliste mit großen Kreisen, das
 Jahr als zwölf Monatskarten, die Prognose mit ihrer Grafik zum Wischen. Die Ansicht wählst du
@@ -483,6 +502,31 @@ en:()=>`
 <p class="glead">The most important changes of the last versions — without technical
 details, and with what they mean for you.</p>
 <div class="gvers">
+${gver('26.9.8','The guide opens with your book, and the import fills itself in',`
+<p>The guide now stands beside your table from the moment you open a file — you can turn
+that off. In the CSV import every column you pick gets its field on the spot. And switching
+views is calmer: the filter row stays where it is.</p>
+<ul class="gcheck">
+  <li>New tick <b>“${t('set.guide')}”</b> under <b>${t('app.settings')}</b> →
+      <b>${t('set.navView')}</b>: the guide opens with every file and beside the steps of
+      the CSV import. Take the tick away and it only opens when you press the button.</li>
+  <li>In step 2 of the import, <b>every column you select gets a field right away</b>: dates
+      become Date, amounts become Amount, everything else takes the next free reference —
+      and a reference is free again as soon as you deselect its column.</li>
+  <li>The import reads the usual ways of writing a date (24.08.2026 · 2026-08-24 ·
+      08/24/2026 · 24 Aug 2026) and an amount (-73,25 · 1.234,56 · 1,234.56 · (73,25) ·
+      12,34 €). A plain number without decimals is not taken for an amount.</li>
+  <li>When a view changes, the filter row stays put and only swaps its buttons; the month
+      bar, the analytics and the table slide in beside it. Opening a file brings the month
+      in from the right.</li>
+  <li>A filter menu closes as soon as you choose something — what you chose stays on the
+      button.</li>
+  <li><b>Esc</b> now clears one thing at a time: an open menu, then the search field, then
+      the other filters. The <b>✕</b> still clears everything at once.</li>
+  <li>“${t('app.load')}” and “${t('menu.csv')}” say which kind of file they mean.</li>
+  <li>Bug fixing and cosmetic touch-ups.</li>
+</ul>`,'Current version')}
+
 ${gver('26.9.7','A guide you can read in half an hour',`
 <p>All three tabs of this guide are rebuilt: numbered steps with a picture each, cards for
 the four areas, one block per function, and every version as a card like this one. The
@@ -500,7 +544,7 @@ pictures show the current FINA.</p>
       along with the guide instead of jumping.</li>
   <li>In the settings only the section on the right scrolls; the menu on the left stays.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
-</ul>`,'Current version')}
+</ul>`)}
 
 ${gver('26.9.6','One kind of entry, a smarter import, and everything moves',`
 <p>Flexible entries are now entries like any other: same window, same fields, one
@@ -706,6 +750,34 @@ de:()=>`
 <p class="glead">Die wichtigsten Änderungen der letzten Versionen — ohne technische Details
 und mit dem, was sie für dich bedeuten.</p>
 <div class="gvers">
+${gver('26.9.8','Die Anleitung geht mit dem Buch auf, der Import füllt sich selbst aus',`
+<p>Die Anleitung steht jetzt neben deiner Tabelle, sobald du eine Datei öffnest — und du
+kannst das abschalten. Im CSV-Import bekommt jede Spalte, die du wählst, sofort ihr Feld.
+Und der Ansichtswechsel ist ruhiger: die Filterzeile bleibt stehen.</p>
+<ul class="gcheck">
+  <li>Neuer Haken <b>„${t('set.guide')}“</b> unter <b>${t('app.settings')}</b> →
+      <b>${t('set.navView')}</b>: die Anleitung geht mit jeder Datei auf und steht neben
+      den Schritten des CSV-Imports. Nimmst du den Haken weg, kommt sie nur noch auf
+      Knopfdruck.</li>
+  <li>In Schritt 2 des Imports bekommt <b>jede gewählte Spalte sofort ein Feld</b>:
+      Datumsangaben werden Datum, Beträge werden Betrag, alles andere bekommt die nächste
+      freie Referenz — und eine Referenz ist wieder frei, sobald du ihre Spalte
+      abwählst.</li>
+  <li>Der Import liest die gängigen Schreibweisen für ein Datum (24.08.2026 · 2026-08-24 ·
+      08/24/2026 · 24. Aug 2026) und für einen Betrag (-73,25 · 1.234,56 · 1,234.56 ·
+      (73,25) · 12,34 €). Eine glatte Zahl ohne Nachkommastellen hält FINA nicht für einen
+      Betrag.</li>
+  <li>Beim Ansichtswechsel bleibt die Filterzeile stehen und tauscht nur ihre Knöpfe;
+      Monatsleiste, Auswertung und Tabelle fahren daneben herein. Beim Öffnen einer Datei
+      kommt der Monat von rechts.</li>
+  <li>Ein Filtermenü geht zu, sobald du etwas wählst — was du gewählt hast, steht am
+      Knopf.</li>
+  <li><b>Esc</b> nimmt jetzt eins nach dem anderen zurück: ein offenes Menü, dann das
+      Suchfeld, dann die übrigen Filter. Das <b>✕</b> nimmt weiter alles auf einmal.</li>
+  <li>„${t('app.load')}“ und „${t('menu.csv')}“ sagen, welche Art von Datei sie meinen.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>`,'Aktuelle Version')}
+
 ${gver('26.9.7','Eine Anleitung, die man in einer halben Stunde liest',`
 <p>Alle drei Reiter dieser Anleitung sind neu gebaut: nummerierte Schritte mit je einem
 Bild, Kärtchen für die vier Bereiche, je Funktion ein Block, und jede Version als Karte wie
@@ -723,7 +795,7 @@ diese. Die Bilder zeigen das heutige FINA.</p>
       schrumpft mit der Anleitung mit, statt zu springen.</li>
   <li>In den Einstellungen rollt nur der Bereich rechts; das Menü links bleibt stehen.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
-</ul>`,'Aktuelle Version')}
+</ul>`)}
 
 ${gver('26.9.6','Eine Art von Eintrag, ein klügerer Import, und alles bewegt sich',`
 <p>Flexible Einträge sind jetzt Einträge wie alle anderen: dasselbe Fenster, dieselben Felder,
@@ -1080,6 +1152,23 @@ function closeGuide(){
 }
 
 function toggleGuide(){ guideOpen()?closeGuide():openGuide(); }
+
+/* ── Aufgeschlagen, ohne dass die Seite dabei wandert ─────────
+   Beim Öffnen eines Buches (render() in js/app.js, ui.enter) stellt
+   sich die Anleitung dazu — und die Ansicht fliegt im selben Zug
+   von rechts herein. Ginge das Polster der Seite dabei über
+   (.wrap, 280 ms), bräche die ganze Ansicht in jedem Bild dieser
+   Fahrt neu um, und genau das ruckelt. Hier steht die Seite noch
+   gar nicht: das Polster darf also gleich stimmen.
+
+   Der Bereich selbst fährt trotzdem von rechts herein — er kommt
+   aus derselben Richtung wie die Ansicht. */
+function openGuideSnap(){
+  document.body.classList.add('gsnap');
+  openGuide();
+  document.body.getBoundingClientRect();
+  requestAnimationFrame(()=>document.body.classList.remove('gsnap'));
+}
 
 /* Reiter wechseln. Öffnet den Bereich, falls er zu ist — so
    kommt man von überall her auf einen bestimmten Reiter. */

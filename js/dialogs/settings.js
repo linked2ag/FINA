@@ -267,6 +267,14 @@ function openSettings(where,done){
             <label class="checkrow">
               <input type="checkbox" id="sHideDone" ${state.hideDoneMonths?'checked':''}>
               <span class="clab">${t('set.hideDone')}</span><span class="chint">${t('set.hideDoneHint')}</span></label>
+            <!-- Der dritte Haken derselben Art: er sagt, ob die
+                 Anleitung sich dazustellt — neben der Ansicht,
+                 sobald das Buch aufgeht, und neben den Schritten
+                 des CSV-Imports. Vorgabe ist ja; wer den Haken
+                 wegnimmt, öffnet sie nur noch selbst. -->
+            <label class="checkrow">
+              <input type="checkbox" id="sGuide" ${state.guideOpen===false?'':'checked'}>
+              <span class="clab">${t('set.guide')}</span><span class="chint">${t('set.guideHint')}</span></label>
           </div>`)}
 
         ${pane('filter',t('flt.title'),t('flt.sub'),`
@@ -482,6 +490,17 @@ function openSettings(where,done){
     const hdm=box.querySelector('#sHideDone').checked;
     if(hdm!==!!state.hideDoneMonths) ui.hideDone=hdm;
     state.hideDoneMonths=hdm;
+    /* Dieselbe Regel für die Anleitung: **geändert heißt jetzt so.**
+       Wer den Haken setzt, bekommt sie auf der Stelle zu sehen; wer
+       ihn wegnimmt, wird sie los. Ungeändert bleibt sie, wie sie
+       ist — sonst risse ein Speichern in den Einstellungen den
+       Bereich zu, den man vorher von Hand aufgeklappt hat. */
+    const gop=box.querySelector('#sGuide').checked;
+    if(gop!==(state.guideOpen!==false)){
+      if(gop){ if(!isMobile()) openGuide(); }   /* auf dem Telefon deckt er die Seite zu */
+      else if(guideOpen()) closeGuide();
+    }
+    state.guideOpen=gop;
     /* ── Worin der Suchbegriff sucht (Bereich „Filter") ─────────
        Eine leere Wahl wird nicht übernommen: ein Suchbegriff, der
        nirgends sucht, fände nie etwas. Das Speichern weist sie

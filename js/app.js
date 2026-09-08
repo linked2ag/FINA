@@ -332,23 +332,39 @@ function renderChrome(){
 function syncStickyTops(){
   const h=document.querySelector('header'); if(!h) return;
   const top=h.offsetHeight;
-  /* Nur die lebende Ansicht — nicht die Geister (.viewghost), die
-     beim Wechsel noch daneben stehen: die tragen keine Kennungen
-     mehr, und ein Kartenkopf darin bekäme hier das Maß der Seite
-     statt der Null seiner Rollfläche (js/ui.js, ghostOf). */
-  document.querySelectorAll('#view .stickybar').forEach(el=>{ el.style.top=top+'px'; });
   /* Dasselbe Maß ist zugleich die Höhe der Kopfzeile — und die
      Filterzeile darunter soll genau so hoch sein. Sie bekommt es
      als --barh; gemessen und nicht geraten, damit sie mitwächst,
-     wenn oben etwas dazukommt (css/layout.css). */
+     wenn oben etwas dazukommt (css/layout.css).
+
+     **Zuerst, vor dem Messen der Leisten**: die Filterzeile ist
+     `min-height:var(--barh)` hoch, ihre Höhe hängt also an diesem
+     Wert. Stand er noch auf dem Maß der Begrüßungsseite — deren
+     Kopfzeile ist ohne Reiter niedriger —, maß die Schleife darunter
+     eine Leiste, die gleich danach wuchs, und die zweite klebte um
+     die Differenz zu hoch. */
   document.documentElement.style.setProperty('--barh',top+'px');
+
+  /* **Die Leisten stapeln sich** (seit 8.9.26): die Monatsansicht
+     hat zwei — die Filterzeile als Top-Bereich, darunter
+     Monatsleiste und Auswertung im Rumpf (anaBar in
+     js/views/monat.js). Jede klebt unter der davor; gemessen und
+     nicht geraten, wie überall hier. Das Ergebnis ist zugleich die
+     Unterkante aller Leisten und damit die Stelle, an der die
+     Kartenköpfe darunter kleben.
+
+     Nur die lebende Ansicht — nicht die Geister (.viewghost), die
+     beim Wechsel noch daneben stehen: die tragen keine Kennungen
+     mehr, und ein Kartenkopf darin bekäme hier das Maß der Seite
+     statt der Null seiner Rollfläche (js/ui.js, ghostOf). */
+  let base=top;
+  document.querySelectorAll('#view > .stickybar, #view > .viewbody > .stickybar')
+    .forEach(el=>{ el.style.top=base+'px'; base+=el.offsetHeight; });
 
   /* Darunter die Köpfe der Karten: sie kleben unter der Leiste
      der Ansicht (Auswertung und Filterzeile im Monat, Bedienleiste
      in den Flexible Payments). Auch diese Höhen sind je Ansicht
      verschieden — gemessen statt geraten, wie oben. */
-  const bar=document.querySelector('#view > .stickybar');
-  const base=top+(bar?bar.offsetHeight:0);
   /* Rollt die Monatsansicht in ihrer eigenen Fläche (#monthScroll),
      richtet sich sticky an DIESER Fläche aus, nicht am Fenster —
      die Köpfe kleben dann an ihrer Oberkante, also top 0. */
@@ -467,6 +483,25 @@ function render(){
      alte Wahl landet in der Prognose. */
   if(ui.view==='kakeibo') ui.view='prognose';
 
+  /* ── Die Anleitung stellt sich dazu ───────────────────────────
+     Ob sie das tut, sagt die Datei (state.guideOpen, gepflegt in
+     den Einstellungen unter „Darstellung"; Vorgabe: ja). Sie ist
+     eine Vorgabe fürs Öffnen wie die Auswertung des Monats und die
+     abgeschlossenen Monate des Jahres — danach entscheidet der
+     Knopf, und zwar nur für diese Sitzung.
+
+     **Vor dem Zeichnen**, und das ist der Grund für die Stelle: der
+     Bereich macht die Seite schmaler (--guidew), und eine Ansicht,
+     die vorher gemessen wurde, spränge um seine Breite. Auf der
+     Begrüßungsseite bleibt er weg — dort gibt es noch keine Datei,
+     die es sagen könnte.
+
+     **Auf dem Telefon von selbst nie.** Dort macht der Bereich die
+     Seite nicht schmaler, sondern legt sich darüber
+     (css/mobile.css) — aufgeschlagen stünde er vor dem Buch, das
+     man gerade geöffnet hat. Der Knopf im Menü bleibt, wie er ist. */
+  if(ui.enter>0&&!ui.welcome&&!isMobile()&&state&&state.guideOpen!==false&&!guideOpen()) openGuideSnap();
+
   const sx=window.scrollX, sy=window.scrollY;
   const ysOld=document.getElementById('yearScroll');
   const yTop=ysOld?ysOld.scrollTop:null, yLeft=ysOld?ysOld.scrollLeft:null;
@@ -483,7 +518,15 @@ function render(){
      der anderen Seite — in der Richtung der Reiter (slideViewOut /
      slideViewIn in js/ui.js). */
   const vix=k=>VIEWS.findIndex(v=>v[0]===k);
-  const slide=(!ui.welcome&&lastView&&lastView!==ui.view)?(vix(ui.view)>vix(lastView)?1:-1):0;
+  /* **Ein Buch, das aufgeht, fliegt herein** (Lex, 8.9.26):
+     `ui.enter` setzt js/storage.js, wo ein Buch betreten wird —
+     Datei laden, leer anfangen (1, von rechts) und Datei trennen
+     (-1, die Begrüßung kommt von links zurück). Ohne den Merker
+     gäbe es keine Fahrt: von der Begrüßungsseite her ist `lastView`
+     leer, und beide Seiten wechselten schlagartig. Verbraucht wird
+     er hier, einmal. */
+  const slide=ui.enter||((!ui.welcome&&lastView&&lastView!==ui.view)?(vix(ui.view)>vix(lastView)?1:-1):0);
+  ui.enter=0;
   if(slide) vbox=slideViewOut(vbox,slide);
   /* Offene Aufklappmenüs gehen mit dem Zeichnen — ein Menü, das
      danach nicht mehr dasteht, klappt als Geist zu (js/ui.js). */
@@ -503,6 +546,12 @@ function render(){
   vbox.className=ui.welcome?'':('view-'+ui.view);
   vbox.innerHTML= ui.welcome ? viewWelcome()
     : ({monat:viewMonat,prognose:viewPrognose,jahr:viewJahr})[ui.view]();
+  /* Alles unter der klebenden Leiste steht in einem eigenen Kasten:
+     nur der fährt beim Wechsel, die Leiste bleibt stehen
+     (wrapViewBody in js/ui.js). Gehängt wird bei jedem Zeichnen —
+     ein Kasten, den es mal gibt und mal nicht, verschöbe die
+     Ansicht in dem Bild, in dem er dazukommt. */
+  wrapViewBody(vbox);
   if(slide) slideViewIn(vbox,slide);
   settleMenus(menus);
   if(folds) foldPlay(vbox,folds);
@@ -686,26 +735,34 @@ function wire(){
      und der helle Grund sagt: gilt gerade nicht. */
   const toggleFilter=(key,val)=>{ ui[key]=(ui[key]===val&&val!=='alle')?'alle':val;
     keepQFocus(); render(); };
-  /* „Alle" schließt das Menü — im mobilen Filtermenü **und** in
-     den Aufklappmenüs des Schreibtischs (seit 23.8.26; vorher
-     blieben die fltDrop-Menüs bei jeder Wahl offen): „Alle" ist die
-     Antwort „fertig, nichts filtern", danach gibt es dort nichts
-     mehr einzustellen. Ein spezifischer Wert lässt das Menü offen —
-     wer filtert, stellt meist mehr als eins ein. */
-  const mShut=b=>{
-    if(b.closest('.mfmenu')) ui.mFilters=false;
+  /* ── Wann ein Filtermenü zugeht ──────────────────────────────
+     **Ein Aufklappmenü des Schreibtischs geht bei jeder Wahl zu**
+     (Lex, 8.9.26; seit 23.8.26 tat es das nur bei „Alle", davor gar
+     nicht): jedes dieser Menüs stellt **eine** Frage — Bereich,
+     Fälligkeit oder Zahlungsstand —, und ist sie beantwortet, gibt
+     es darin nichts mehr einzustellen. Was gewählt ist, steht danach
+     am Knopf selbst (`fltDrop` in js/views/monat.js schreibt
+     „Fälligkeit: Monatsende" hinein), man sieht es also auch bei
+     geschlossenem Menü.
+
+     **Das mobile Filtermenü bleibt offen**, außer bei „Alle": dort
+     stehen Fälligkeit und Zahlungsstand in **einem** Menü, und wer
+     das eine setzt, will oft gleich das andere. „Alle" heißt auch
+     dort „fertig, nichts filtern". */
+  const mShut=(b,all)=>{
+    if(b.closest('.mfmenu')){ if(all) ui.mFilters=false; }
     if(b.closest('.fltdrop')) ui.fltMenu=null;
   };
   document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{
-    if(b.dataset.filter==='alle') mShut(b);
+    mShut(b,b.dataset.filter==='alle');
     toggleFilter('filter',b.dataset.filter);
   });
   document.querySelectorAll('[data-duefilter]').forEach(b=>b.onclick=()=>{
-    if(b.dataset.duefilter==='alle') mShut(b);
+    mShut(b,b.dataset.duefilter==='alle');
     toggleFilter('dueFilter',b.dataset.duefilter);
   });
   document.querySelectorAll('[data-secfilter]').forEach(b=>b.onclick=()=>{
-    if(b.dataset.secfilter==='alle') mShut(b);
+    mShut(b,b.dataset.secfilter==='alle');
     toggleFilter('secFilter',b.dataset.secfilter);
   });
   /* Der Zeitstrahl filtert wie die Knöpfe darunter: ein Abschnitt
@@ -717,9 +774,8 @@ function wire(){
   /* Die Aufklappmenüs der Filterzeile (fltDrop in js/views/monat.js):
      der Knopf öffnet und schließt sein Menü, die Einträge darin sind
      die gewohnten data-filter/-duefilter/-secfilter und oben schon
-     verdrahtet — sie lassen das Menü beim Wählen offen, denn
-     ui.fltMenu bleibt gesetzt und render() baut es offen wieder auf.
-     Zu geht es mit einem Klick daneben oder mit Escape (beides
+     verdrahtet — sie nehmen das Menü beim Wählen mit zu (mShut).
+     Zu geht es auch mit einem Klick daneben oder mit Escape (beides
      unten bei den globalen Handlern). */
   document.querySelectorAll('[data-fltmenu]').forEach(b=>b.onclick=()=>{
     ui.fltMenu=ui.fltMenu===b.dataset.fltmenu?null:b.dataset.fltmenu;
@@ -1086,11 +1142,24 @@ addEventListener('keydown',ev=>{
   ui.q=(ui.q||'')+ev.key; ui.qFocus='end'; render();
 });
 
-/* ── Escape nimmt den Filter zurück ──────────────────────────
-   Dieselbe Wirkung wie der Knopf rechts vom Suchfeld: Suchbegriff,
-   Zahlungsstand und Fälligkeit auf einmal. Escape heißt überall
-   „zurück" — im Fenster schließt es, in der Liste nimmt es den
-   Filter weg.
+/* ── Escape nimmt den Filter zurück, Schicht für Schicht ─────
+   Escape heißt überall „eine Schicht zurück", und **jeder Druck
+   nimmt genau eine** (Lex, 8.9.26; bis dahin räumte er Suchbegriff
+   und die drei Filter auf einmal weg):
+
+     1. ein offenes Filtermenü geht zu — es ist die oberste Schicht,
+        auf dem Telefon ebenso das Menü hinter dem ☰;
+     2. steht etwas im Suchfeld, wird **nur** das Feld geleert;
+     3. ist es leer, gehen Bereich, Fälligkeit und Zahlungsstand
+        zurück auf „alle".
+
+   Der Grund für den Schnitt zwischen 2 und 3: der Suchbegriff ist
+   das, was man beim Tippen gerade in der Hand hat, die drei
+   Aufklappmenüs sind eine Einstellung, die man vorher getroffen
+   hat. Wer sich vertippt, will nicht nebenbei den Bereich
+   verlieren, den er sich eingestellt hat. Beides auf einmal nimmt
+   weiterhin der Knopf rechts vom Suchfeld (data-qclear) — dort
+   steht es auch dran.
 
    **Nur, wenn kein Fenster offen ist.** Dort gehört Escape dem
    Fenster (js/ui.js), und es schließt es; den Filter dabei
@@ -1109,21 +1178,22 @@ addEventListener('keydown',ev=>{
 addEventListener('keydown',ev=>{
   if(ev.key!=='Escape'||ev.defaultPrevented) return;
   if(ui.welcome||document.querySelector('.modal')) return;
-  /* Ein offenes Filtermenü geht zuerst zu — Escape heißt überall
-     „eine Schicht zurück", und das Menü ist die oberste. Auf dem
-     Telefon gilt dasselbe für das Filtermenü hinter dem ☰. */
   if(ui.fltMenu){ ev.preventDefault(); ui.fltMenu=null; render(); return; }
   if(ui.mFilters){ ev.preventDefault(); ui.mFilters=false; render(); return; }
-  if(!(ui.q||'').trim()&&ui.filter==='alle'&&ui.dueFilter==='alle'&&ui.secFilter==='alle') return;
   if(!document.querySelector('[data-q]')) return;
+  /* Zuerst das Suchfeld. Der Fokus bleibt darin — wer den Begriff
+     wegwirft, tippt meistens gleich den nächsten. */
+  if((ui.q||'').trim()){ ev.preventDefault(); ui.q=''; ui.qFocus='all'; render(); return; }
+  if(ui.filter==='alle'&&ui.dueFilter==='alle'&&ui.secFilter==='alle') return;
   ev.preventDefault();
-  ui.q=''; ui.filter='alle'; ui.dueFilter='alle'; ui.secFilter='alle'; ui.qFocus='all'; render();
+  ui.filter='alle'; ui.dueFilter='alle'; ui.secFilter='alle'; ui.qFocus='all'; render();
 });
 
 /* Ein Klick neben ein offenes Filtermenü schließt es — derselbe
    Weg wie beim Hamburger-Menü der Kopfzeile. Die Einträge selbst
-   liegen in .fltdrop und schließen nicht: das Menü bleibt beim
-   Wählen offen. Trifft der Klick das Suchfeld, soll er nicht im
+   liegen in .fltdrop und schließen es seit 8.9.26 ohnehin beim
+   Wählen (mShut in wire); dieser Handler ist der Weg für alles
+   daneben. Trifft der Klick das Suchfeld, soll er nicht im
    Neuzeichnen untergehen: der Fokus kommt dann gleich dorthin
    zurück, wo er eben hinwollte. */
 document.addEventListener('click',ev=>{
@@ -1278,7 +1348,7 @@ document.getElementById('fileJson').onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=()=>{ try{ state=migrate(JSON.parse(r.result)); fileName=f.name; fileHandle=null; dirty=false;
-      afterLoad(); ui.welcome=false; render(); toast(t('store.loaded',f.name)+oldNote()); }
+      afterLoad(); ui.welcome=false; ui.enter=1; render(); toast(t('store.loaded',f.name)+oldNote()); }
     catch(err){ warn(t('store.readFail')); } };
   r.readAsText(f,'utf-8'); e.target.value='';
 };

@@ -521,7 +521,14 @@ function viewPrognose(){
       <div class="thint">${chips}</div></div>`;
   }
   return `
-  <div class="stickybar anabar">
+  <!-- Dieselbe Leiste wie im Monat, nur mit den Kennzahlen als
+       einzigem Stück: .kpibar trägt die 10 px Luft darüber als
+       eigenes Polster statt als Außenabstand der Kachelzeile. Der
+       Außenabstand fiel durch die Leiste hindurch nach oben, und
+       die Leiste fing damit 10 px tiefer an als die der beiden
+       anderen Ansichten — beim Wechsel sprang sie um genau dieses
+       Maß, seit sie stehen bleibt (css/layout.css). -->
+  <div class="stickybar anabar kpibar">
     <div class="anahead">
       <span class="anarow">
         ${cell('t-in',t('prog.kpiIncome',from),incRest,'pos')}

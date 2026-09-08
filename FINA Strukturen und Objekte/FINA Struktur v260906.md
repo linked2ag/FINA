@@ -2,6 +2,10 @@
 
 **Stand:** 6. September 2026 · veröffentlicht am Abend als Fassung der Anwendung `26.9.6` (`VERSION` in `js/config.js`)
 
+**Fortgeschrieben am 8. September 2026** (Fassung `26.9.8`): ein einzelnes neues Feld,
+`guideOpen`. Keine eigene Fassung dieser Datei — alte Dateien werden dabei nicht
+umgebaut, das fehlende Feld bekommt beim Lesen seine Vorgabe (Regel 2 unten).
+
 **Vorgängerin:** `FINA Struktur v260905.md` – die Fassung, die als 26.9.5 draußen ist. Was sich seit ihr geändert hat, steht unten unter „Der Weg zu dieser Fassung".
 
 ## Wozu diese Datei
@@ -64,6 +68,7 @@ neues Buch sie anlegt (`emptyState()` in `js/state.js`).
 | `folded{}` | Zugeklappte Bereiche der **Monatsansicht**: `{in, flex, out}` je wahr/falsch | `{"in":false,"flex":true,"out":false}` | … alles offen; ein altes `flexCollapsed` wandert nach `folded.flex` |
 | `foldedYear{}` | Dasselbe für die **Jahresmatrix** | | … alles offen |
 | `anaOpen` | Vorgabe fürs Öffnen: Monat mit aufgeklappter Auswertung? | `false` | … `false` |
+| `guideOpen` | **Neu in 26.9.8 (8.9.26).** Vorgabe fürs Öffnen: schlägt sich die Anleitung dazu auf — neben der Ansicht **und** neben den Schritten des CSV-Imports? | `true` | … `true` (die Anleitung geht auf; sie ist die Vorgabe und nicht das Erbe einer alten Fassung) |
 | `filterFields{}` | Worin das Suchfeld sucht: `{name, note, amount, total, meta}` je wahr/falsch. Mindestens eins bleibt wahr. | | … alles wahr |
 | `qHidden` | Sucht das Suchfeld auch in ausgeblendeten Posten? | `false` | … `false` |
 | `updateCheck` | Dürfen die Mac-/Windows-Apps nach einer neueren Fassung fragen? | `true` | … `true` |

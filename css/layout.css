@@ -571,6 +571,26 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    selbst keine obere Haarlinie: die Kopfzeile bringt ihre eigene
    mit, zwei nebeneinander läsen sich als Doppelstrich. */
 .stickybar.anabar{padding-top:0}
+/* ── Zwei Leisten im Monat (Lex, 8.9.26) ──────────────────────
+   Der **Top-Bereich** ist allein die Filterzeile: sie dockt an der
+   Kopfzeile an und bleibt beim Ansichtswechsel stehen. Sie schließt
+   ohne Polster ab — die Luft darunter bringt die zweite Leiste mit.
+   Monatsleiste und Auswertung sind die zweite Leiste; sie gehören
+   zur Ansicht und fahren mit ihr. Die 10 px zwischen beiden sind
+   ihr Polster und nicht mehr der Außenabstand der Monatsleiste: ein
+   Außenabstand fiele durch die Leiste hindurch nach oben und ließe
+   sie 10 px tiefer anfangen, als sie klebt. */
+.stickybar.anabar.viewtop{padding-bottom:0}
+.stickybar.anabar.anasub{padding-top:10px}
+.anasub>.months{margin-top:0}
+/* Die Leiste der Prognose besteht aus einem einzigen Stück, den
+   Kennzahlen. Deren Abstand nach oben (.anabar .anahead) fiele
+   durch die Leiste hindurch nach oben und ließe sie 10 px tiefer
+   anfangen als die Leisten von Monat und Jahr — seit sie beim
+   Wechsel stehen bleibt (8.9.26), spränge sie um dieses Maß.
+   Dieselbe Luft, nur als Polster der Leiste. */
+.stickybar.anabar.kpibar{padding-top:10px}
+.kpibar>.anahead{margin-top:0}
 .yearbar .ybrow .btn.small{padding:4px 10px;font-size:11.5px}
 /* Die beiden Ausblenden-Knöpfe stehen abgesetzt am rechten Rand.
    Sie filtern nicht: sie räumen ab, was fertig ist — der eine die

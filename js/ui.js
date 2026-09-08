@@ -1290,19 +1290,24 @@ function settleMenus(pending){
 }
 
 /* ── Die neue Ansicht fährt über die alte (seit 6.9.26) ──────────
-   Monat · Jahr · Prognose · Import Details stehen in dieser Reihe
-   (VIEWS). Wer nach rechts wechselt, sieht die neue Ansicht von
-   rechts über die alte fahren; nach links umgekehrt. **Die alte
-   bleibt stehen** und wird überlagert (Lex, 6.9.26 spät; bis dahin
-   fuhr sie zur Seite hinaus). Aufgerufen in render() **vor** dem
-   Ersetzen von #view: der Geist der alten Ansicht legt sich genau
-   über ihre Fläche, unbewegt und unter der neuen (z-index in
-   css/components.css); #view bekommt danach die Klasse fürs
+   Monat · Jahr · Prognose stehen in dieser Reihe (VIEWS). Wer nach
+   rechts wechselt, sieht die neue Ansicht von rechts über die alte
+   fahren; nach links umgekehrt. **Die alte bleibt stehen** und wird
+   überlagert (Lex, 6.9.26 spät; bis dahin fuhr sie zur Seite
+   hinaus). Aufgerufen in render() **vor** dem Ersetzen von #view:
+   der Geist der alten Ansicht legt sich genau über ihre Fläche,
+   unbewegt und unter der neuen (z-index in css/components.css);
+   der Rumpf der neuen (.viewbody) bekommt danach die Klasse fürs
    Hereinkommen und liegt so lange darüber. Beides fällt am Ende
    der Fahrt wieder ab. Solange die neue von der Seite kommt, ragt
    sie über den rechten Rand — die Klasse viewslide am
    Wurzelelement unterdrückt so lange den waagerechten Rollbalken.
-   dir>0 heißt: die neue kommt von rechts. */
+   dir>0 heißt: die neue kommt von rechts.
+
+   **Die klebende Leiste fährt nicht mit** (Lex, 8.9.26): sie steht
+   in jeder Ansicht an derselben Stelle und bleibt stehen; nur ihr
+   Inhalt wechselt, nach unten hinaus und von oben herein
+   (wrapViewBody weiter unten). */
 let viewSlideT=0, viewGhostTop=0, viewGhostBottom=0, viewGhost=null;
 const VIEW_MS=460;
 /* **Die alte Ansicht wird selbst zum Geist** (7.9.26; bis dahin eine
@@ -1326,45 +1331,135 @@ function slideViewOut(vbox,dir){
   setTimeout(()=>{ if(viewGhost===vbox){ vbox.remove(); viewGhost=null; } },VIEW_MS+700);
   return fresh;
 }
-/* **Erst ein gemaltes Bild, dann die Fahrt** (7.9.26): die neue Ansicht
-   steht zuerst still neben dem Fenster (.pre-right/.pre-left, dieselbe
-   Lage wie das erste Bild der Animation). Der Browser malt sie dort
-   einmal — Stil, Umbruch, Raster der ganzen Ansicht, bei einer
-   Jahresmatrix 100 bis 200 ms —, und erst dann, zwei Bilder später,
-   fängt die Animation an. Vorher lag dieses Malen **im** ersten Bild
-   der Fahrt: sie sprang um genau diese Zeit vor und ruckelte. */
+/* ── Der Top-Bereich bleibt stehen, der Rumpf fährt (Lex, 8.9.26) ──
+   **Der Top-Bereich ist die Filterzeile** — die Bahn, die an der
+   Kopfzeile andockt und in Monat und Jahr dieselbe ist
+   (`.stickybar.viewtop`). Sie steht in beiden Ansichten an
+   derselben Stelle und soll beim Wechsel **nicht** mitfahren — eine
+   Bahn, die quer über den Bildschirm zieht, sagt über den Wechsel
+   nichts. Deshalb wird alles **unter** ihr in einen eigenen Kasten
+   gehängt (.viewbody), und nur der fährt; die Leiste tauscht
+   stattdessen ihren Inhalt (siehe css/components.css, fina-barin /
+   fina-barout).
+
+   **Monatsleiste, Auswertung und die Kennzahlen der Prognose
+   gehören nicht dazu** (Lex, 8.9.26 spät): sie sind Inhalt der
+   Ansicht und fahren mit. Im Monat stehen sie deshalb in einer
+   zweiten Leiste (`.anasub`) **innerhalb** des Rumpfes, in der
+   Prognose gibt es gar keinen Top-Bereich — dort fährt die ganze
+   Ansicht.
+
+   Gehängt wird bei **jedem** Zeichnen, nicht nur beim Wechsel: ein
+   Kasten, den es mal gibt und mal nicht, verschöbe die Ansicht in
+   dem Bild, in dem er dazukommt. Er trägt dafür `display:flow-root`
+   — so bleiben die Außenabstände seiner Kinder in ihm, ob er gerade
+   fährt oder nicht.
+
+   Verschoben werden die Knoten, nicht neu gebaut: innerHTML ein
+   zweites Mal kostete die ganze Jahresmatrix noch einmal. */
+function viewTopBar(vbox){
+  const first=vbox.firstElementChild;
+  return (first&&first.classList&&first.classList.contains('viewtop'))?first:null;
+}
+function wrapViewBody(vbox){
+  const bar=viewTopBar(vbox);
+  const body=document.createElement('div'); body.className='viewbody';
+  let n=bar?bar.nextSibling:vbox.firstChild;
+  while(n){ const next=n.nextSibling; body.appendChild(n); n=next; }
+  vbox.appendChild(body);
+  return body;
+}
+
+/* **Erst ein gemaltes Bild, dann die Fahrt** (7.9.26): der Rumpf der
+   neuen Ansicht steht zuerst still neben dem Fenster
+   (.pre-right/.pre-left, dieselbe Lage wie das erste Bild der
+   Animation). Der Browser malt ihn dort einmal — Stil, Umbruch,
+   Raster der ganzen Ansicht, bei einer Jahresmatrix 100 bis 200 ms
+   —, und erst dann, zwei Bilder später, fängt die Animation an.
+   Vorher lag dieses Malen **im** ersten Bild der Fahrt: sie sprang
+   um genau diese Zeit vor und ruckelte. */
 function slideViewIn(vbox,dir){
-  vbox.classList.remove('in-left','in-right','pre-left','pre-right');
-  /* Die hereinfahrende Ansicht deckt die alte ganz zu: sie trägt
-     dafür den Seitengrund und ist mindestens so hoch wie der Geist
-     darunter (bis zum unteren Fensterrand) — sonst schienen die
-     beiden Ansichten für einen Moment ineinander. */
-  const top=vbox.getBoundingClientRect().top;
-  /* Fängt die neue Ansicht tiefer an als die alte (die Ansichten
-     haben verschieden viel Luft nach oben), bliebe darüber ein
-     Streifen des Geistes zu sehen — der ::before-Streifen deckt ihn. */
-  vbox.style.setProperty('--viewtop',top+'px');
-  vbox.style.setProperty('--viewgap',Math.max(0,top-viewGhostTop)+'px');
-  /* Der Streifen unter der Ansicht reicht genau bis zur Unterkante
+  const bar=viewTopBar(vbox);
+  const vb=vbox.querySelector(':scope>.viewbody')||wrapViewBody(vbox);
+  vbox.classList.add('sliding');
+  vb.classList.remove('in-left','in-right','pre-left','pre-right');
+  /* Der fahrende Rumpf deckt den Geist ganz zu: er trägt dafür den
+     Seitengrund und reicht mit seinen beiden Streifen bis an die
+     Leiste über ihm und bis zur Unterkante der Kopie. */
+  const rb=vb.getBoundingClientRect();
+  /* Fällt zwischen Leiste und Rumpf ein Außenabstand durch (die
+     Auswertungszeile der Prognose bringt einen mit), bliebe dort
+     ein Streifen des Geistes stehen — der ::before-Streifen deckt
+     ihn. Ohne Leiste — die Begrüßungsseite — zählt der Anfang der
+     Kopie. */
+  const above=bar?bar.getBoundingClientRect().bottom:viewGhostTop;
+  vb.style.setProperty('--viewgap',Math.max(0,rb.top-above)+'px');
+  /* Der Streifen unter dem Rumpf reicht genau bis zur Unterkante
      der Kopie — nicht weiter, sonst wüchse die Seite für die Dauer
      der Fahrt. */
-  vbox.style.setProperty('--viewfill',Math.max(0,viewGhostBottom-vbox.getBoundingClientRect().bottom)+'px');
+  vb.style.setProperty('--viewfill',Math.max(0,viewGhostBottom-rb.bottom)+'px');
   document.documentElement.classList.add('viewslide');
-  vbox.classList.add(dir>0?'pre-right':'pre-left');
+  vb.classList.add(dir>0?'pre-right':'pre-left');
+  /* Die Leiste fährt nicht, sie tauscht: ihr Inhalt fällt von oben
+     herein, während der Inhalt der alten im Geist nach unten
+     hinausfällt (css/components.css). */
+  if(bar) bar.classList.add('barin');
   const g=viewGhost;
   const done=()=>{
     document.documentElement.classList.remove('viewslide');
-    vbox.classList.remove('in-left','in-right','pre-left','pre-right');
-    vbox.style.removeProperty('--viewtop'); vbox.style.removeProperty('--viewgap'); vbox.style.removeProperty('--viewfill');
+    vbox.classList.remove('sliding');
+    vb.classList.remove('in-left','in-right','pre-left','pre-right');
+    vb.style.removeProperty('--viewgap'); vb.style.removeProperty('--viewfill');
+    if(bar) bar.classList.remove('barin');
     if(g&&g===viewGhost){ g.remove(); viewGhost=null; }
+    restick(vbox);
   };
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    if(!vbox.isConnected||!vbox.classList.contains(dir>0?'pre-right':'pre-left')) return;
-    vbox.classList.remove('pre-left','pre-right');
-    vbox.classList.add(dir>0?'in-right':'in-left');
+    if(!vb.isConnected||!vb.classList.contains(dir>0?'pre-right':'pre-left')) return;
+    vb.classList.remove('pre-left','pre-right');
+    vb.classList.add(dir>0?'in-right':'in-left');
     clearTimeout(viewSlideT);
     viewSlideT=setTimeout(done,VIEW_MS+30);
   }));
+}
+/* ── Nach der Fahrt kleben die Zeilen wieder gerade ────────
+   Windows, Chrome: nach einem Wechsel in die Jahresansicht standen
+   die beiden roten Linien des laufenden Monats in der Blockzeile um
+   ein Gerätepixel neben denen der Posten darunter. Ein zweiter Klick
+   auf denselben Reiter rückte sie zurecht — dabei fährt nichts,
+   und genau das ist der Hinweis.
+
+   Der Grund liegt nicht in der Tabelle. Solange die neue Ansicht
+   hereinfährt, trägt ihr Rumpf (.viewbody) `will-change:transform`
+   (css/components.css) und ist damit eine eigene Bildschicht; die
+   klebenden Zeilen darin bekommen ihre eigene. Der Weg von
+   `translateX(100%)` ist bei einer Bildschirmskalierung von 125 %
+   ein Bruchteil eines Gerätepixels, und jede Schicht rundet ihre
+   Lage für sich. Am Ende fällt die Verschiebung weg — das einmal
+   gerasterte Bild der klebenden Zeile bleibt aber stehen.
+
+   Deshalb werden die Schichten am Ende der Fahrt einmal neu gebaut:
+   `will-change` an die Rollfläche, im nächsten Bild wieder weg.
+   **Zu sehen ist davon nichts** — es bewegt sich nichts, es wird nur
+   neu gezeichnet. Ein Rollstoß um ein Pixel täte dasselbe, wäre
+   aber für ein Bild lang zu sehen. Wer eine weitere Rollfläche mit
+   klebenden Zeilen baut, trägt ihre Klasse hier ein. */
+function restick(root){
+  if(!root||!root.querySelectorAll) return;
+  root.querySelectorAll('.yearscroll,.monthscroll,.scroll').forEach(sc=>{
+    sc.style.willChange='transform';
+    sc.getBoundingClientRect();
+    /* Weg muss es wieder — eine Fläche, die dauerhaft `will-change`
+       trägt, behält ihre Schicht und wäre nebenbei der Bezugsrahmen
+       für alles fest Gesetzte darin. Genommen wird es im nächsten
+       Bild; **und zur Sicherheit per Uhr**, denn ein Bild kommt
+       nicht immer: hält Chrome die Seite für verdeckt (ein Klick
+       aus einem anderen Programm heraus), bleibt
+       requestAnimationFrame stehen — dasselbe, wogegen der
+       visibilitychange-Handler weiter unten hilft. */
+    const off=()=>{ sc.style.willChange=''; };
+    requestAnimationFrame(off); setTimeout(off,120);
+  });
 }
 /* ── Ein Fenster ändert seine Größe weich (seit 6.9.26) ──────────
    Ein Schritt im Import, ein anderer Bereich der Einstellungen: der

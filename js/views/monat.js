@@ -245,8 +245,17 @@ function anaBar(m,sel,selAny){
      wie in der Jahresansicht, und in beiden Ansichten fängt die
      Ansicht damit mit derselben Bahn an. Darunter die Monate, und
      erst dann die Zahlen: die Auswertung fasst zusammen, was in den
-     Karten steht, und steht deshalb direkt über ihnen. */
-  return `<div class="stickybar anabar">
+     Karten steht, und steht deshalb direkt über ihnen.
+
+     **Es sind zwei Leisten und nicht eine** (Lex, 8.9.26): der
+     **Top-Bereich** ist allein die Filterzeile — die Bahn, die an
+     der Kopfzeile andockt und in Monat und Jahr dieselbe ist. Sie
+     trägt `viewtop` und bleibt beim Ansichtswechsel stehen
+     (wrapViewBody in js/ui.js). Monatsleiste und Auswertung
+     gehören zur Ansicht und nicht nach oben: sie stehen in einer
+     zweiten Leiste (`anasub`), fahren mit der Ansicht mit und
+     kleben unter der ersten (syncStickyTops in js/app.js). */
+  return `<div class="stickybar anabar viewtop">
     <!-- Die Filterzeile: Suchfeld · ✕ · Filteroptionen · drei
          Aufklappmenüs (Bereich, Fälligkeit, Zahlungsstatus) — vom
          Groben ins Feine. Greift einer der Filter, färbt sich die
@@ -259,9 +268,14 @@ function anaBar(m,sel,selAny){
       ${fltDrop('due','duefilter',t('flt.due'),ui.dueFilter,FLT_DUE())}
       ${fltDrop('pay','filter',t('flt.state'),ui.filter,FLT_PAY())}
     </div>
-    <!-- Darunter die Monatsleiste: sie klebt mit der Leiste oben
-         mit, und zwischen ihr und der Filterzeile liegt so viel
-         Luft, wie die Bereiche voneinander haben. -->
+  </div>
+  <!-- Die zweite Leiste: Monatsleiste und Auswertung. Sie klebt
+       unter der Filterzeile, gehört aber zur Ansicht — beim
+       Wechsel fährt sie mit, sie fällt nicht von oben herein. Der
+       Abstand zur Filterzeile ist ihr Polster (css/layout.css,
+       .anasub), nicht mehr der Außenabstand der Monatsleiste: ein
+       Außenabstand fiele durch die Leiste hindurch nach oben. -->
+  <div class="stickybar anabar anasub">
     ${monthTabs()}
     <button class="anahead" data-ana="1" data-hk="ana" aria-expanded="${open}" aria-label="${esc(t('month.ana'))}"
       data-tip="${esc(open?t('month.anaClose'):t('month.anaOpen'))}">

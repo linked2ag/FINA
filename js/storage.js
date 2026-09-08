@@ -132,6 +132,9 @@ async function loadData(){
       state=migrate(JSON.parse(txt));
       fileHandle=h; fileName=h.name; dirty=false;
       afterLoad(); ui.welcome=false;
+      /* Das Buch geht auf: die Ansicht fliegt von rechts herein
+         (ui.enter, verbraucht in render() — siehe js/app.js). */
+      ui.enter=1;
       render(); toast(t('store.loaded',fileName)+oldNote());
     } else {
       document.getElementById('fileJson').click();
@@ -185,6 +188,9 @@ function unlinkData(){
      einzige Seite, die es zu sehen gibt — sonst stünde man wieder
      vor einer leeren Matrix. */
   ui.welcome=true;
+  /* Und der Weg zurück ist derselbe rückwärts: die Begrüßung kommt
+     von links herein, so wie das Buch von rechts kam. */
+  ui.enter=-1;
   render();
   toast(t('store.unlinked'));
 }
@@ -196,6 +202,7 @@ function startEmpty(){
   fileHandle=null; fileName=''; dirty=false;
   state=emptyState(); afterLoad();
   ui.welcome=false;
+  ui.enter=1;
   render();
   toast(t('store.started'));
 }

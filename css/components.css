@@ -466,11 +466,22 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
 .dropmenu.popout,.c2fpop.popout{pointer-events:none;transform-origin:top;animation:fina-menuout .18s ease-in forwards}
 /* ── Die Ansicht wechselt seitwärts (seit 6.9.26) ─────────────
    Der Geist der alten Ansicht (.viewghost, fest über ihrer Fläche,
-   gebaut in slideViewOut in js/ui.js) fährt ein Stück zur Seite
-   und blendet aus; #view kommt mit .in-left/.in-right von der
-   anderen Seite. Ein Zehntel der Breite, nicht die ganze: über
-   1600 px ist ein voller Weg eine Fahrt, kein Wechsel. Die Zahl
-   steht an den vier Keyframes. */
+   gebaut in slideViewOut in js/ui.js) bleibt stehen; der Rumpf der
+   neuen (.viewbody) kommt von der anderen Seite darüber.
+
+   **Der Top-Bereich fährt seit 8.9.26 nicht mehr mit** (Lex): die
+   Filterzeile, die an der Kopfzeile andockt (`.stickybar.viewtop`),
+   steht in Monat und Jahr an derselben Stelle, und eine Bahn, die
+   quer über den Bildschirm zieht, sagt über den Wechsel nichts. Sie
+   bleibt deshalb stehen: nur ihr **Inhalt** fällt nach unten hinaus
+   und der neue von oben herein. Deshalb hängt die Fahrt am Rumpf
+   und nicht mehr an #view (wrapViewBody in js/ui.js).
+
+   **Monatsleiste, Auswertung und die Kennzahlen der Prognose
+   gehören nicht dazu** (Lex, 8.9.26 spät): sie sind Inhalt der
+   Ansicht und fahren mit — im Monat als zweite Leiste (.anasub)
+   im Rumpf, in der Prognose hat die Ansicht gar keinen
+   Top-Bereich. */
 @keyframes fina-inL{from{transform:translateX(-100%)}}
 @keyframes fina-inR{from{transform:translateX(100%)}}
 /* Der Geist der alten Ansicht steht still unter der neuen: er liegt
@@ -478,21 +489,31 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
    (z 2, nur solange sie die Klasse trägt) — beides unter der
    Kopfzeile (z 40). */
 .viewghost{position:fixed;overflow:hidden;pointer-events:none;z-index:1}
-#view.in-left,#view.in-right,#view.pre-left,#view.pre-right{position:relative;z-index:2;will-change:transform;background:var(--paper)}
+/* #view selbst trägt **keinen** Grund: der Geist soll darunter
+   stehen bleiben, bis der Rumpf über ihn fährt. Gedeckt wird nur,
+   was die neue Ansicht wirklich schon malt — ihre Leiste und ihr
+   fahrender Rumpf. */
+#view.sliding{position:relative;z-index:2}
+.viewbody{display:flow-root}
+.viewbody.in-left,.viewbody.in-right,.viewbody.pre-left,.viewbody.pre-right{
+  position:relative;z-index:1;will-change:transform;background:var(--paper)}
 /* Die Ruhelage vor der Fahrt (slideViewIn): dieselbe Stelle wie das
    erste Bild der Animation, ohne Animation — der Browser malt die
    Ansicht dort einmal, dann fährt sie. */
-#view.pre-right{transform:translateX(100%)}
-#view.pre-left{transform:translateX(-100%)}
-/* Über und unter der Ansicht deckt je ein Streifen im Seitengrund,
-   was von der Kopie darunter sonst hervorsähe: oben die Lücke, wenn
-   die neue Ansicht tiefer anfängt als die alte, unten alles bis zum
-   Fensterrand. Beide absolut — eine Mindesthöhe an der Ansicht
-   machte die Seite für die Dauer der Fahrt länger, der Rollbalken
-   kam und ging, und das sah wie ein Ruck am Ende aus. */
-#view.in-left::before,#view.in-right::before,#view.pre-left::before,#view.pre-right::before{content:'';position:absolute;left:0;right:0;
+.viewbody.pre-right{transform:translateX(100%)}
+.viewbody.pre-left{transform:translateX(-100%)}
+/* Über und unter dem Rumpf deckt je ein Streifen im Seitengrund,
+   was von der Kopie darunter sonst hervorsähe: oben die Lücke
+   zwischen der Leiste und ihm (ein Außenabstand, der durchfällt),
+   unten alles bis zum Fensterrand. Beide absolut — eine
+   Mindesthöhe am Rumpf machte die Seite für die Dauer der Fahrt
+   länger, der Rollbalken kam und ging, und das sah wie ein Ruck am
+   Ende aus. */
+.viewbody.in-left::before,.viewbody.in-right::before,.viewbody.pre-left::before,.viewbody.pre-right::before{
+  content:'';position:absolute;left:0;right:0;
   top:calc(-1 * var(--viewgap,0px));height:var(--viewgap,0px);background:var(--paper)}
-#view.in-left::after,#view.in-right::after,#view.pre-left::after,#view.pre-right::after{content:'';position:absolute;left:0;right:0;
+.viewbody.in-left::after,.viewbody.in-right::after,.viewbody.pre-left::after,.viewbody.pre-right::after{
+  content:'';position:absolute;left:0;right:0;
   top:100%;height:var(--viewfill,0px);background:var(--paper)}
 /* Die klebenden Leisten der Ansicht kleben an der Seite und tragen
    als `top` die Höhe der Kopfzeile; im Geist — einem eigenen
@@ -514,8 +535,22 @@ input:disabled{background:transparent;color:var(--ink-2);cursor:not-allowed;
 /* Langsam an, schnell über die alte Ansicht, zum Ende weich aus
    (Lex, 6.9.26): eine S-Kurve mit sanftem Anfang — etwas länger als
    die übrigen Wege, damit der Anlauf zu sehen ist. */
-#view.in-left{animation:fina-inL .46s cubic-bezier(.75,0,.15,1)}
-#view.in-right{animation:fina-inR .46s cubic-bezier(.75,0,.15,1)}
+.viewbody.in-left{animation:fina-inL .46s cubic-bezier(.75,0,.15,1)}
+.viewbody.in-right{animation:fina-inR .46s cubic-bezier(.75,0,.15,1)}
+/* ── Die Knöpfe der Leiste fallen (Lex, 8.9.26) ─────────
+   Die Leiste selbst — Papierbahn, Haarlinie, Schatten — bleibt in
+   jeder Ansicht dieselbe und bleibt deshalb stehen. Was in ihr
+   steht, wechselt: das Alte fällt nach unten hinaus, das Neue
+   fällt von oben herein, und weil die Kopfzeile darüber deckt,
+   kommt es unter ihr hervor.
+
+   Nacheinander, nicht zugleich: das Alte ist in 200 ms draußen,
+   das Neue fängt 100 ms später an (backwards hält es bis dahin
+   unsichtbar). Bewegt werden nur transform und opacity. */
+@keyframes fina-barout{to{transform:translateY(14px);opacity:0}}
+@keyframes fina-barin{from{transform:translateY(-14px);opacity:0}}
+.viewghost>.stickybar.viewtop>*{animation:fina-barout .2s ease-in forwards}
+#view>.stickybar.viewtop.barin>*{animation:fina-barin .28s cubic-bezier(.4,0,.2,1) .1s backwards}
 /* Solange die neue Ansicht von der Seite kommt, ragt sie über den
    rechten Rand: kein Rollbalken dafür (gesetzt in slideViewIn). */
 html.viewslide{overflow-x:hidden}
@@ -567,8 +602,9 @@ html{scrollbar-gutter:stable}
 @media (prefers-reduced-motion:reduce){.impside.impin,.impside.impout{animation:none}}
 @media (prefers-reduced-motion:reduce){
   .modal,.modal .box,.modalghost,.modalghost .box,.dropmenu.popin,.tools.open,.c2fpop,
-  #view.in-left,#view.in-right,.foldin,.foldin-row{animation:none}
-  #view.pre-left,#view.pre-right{transform:none}
+  .viewbody.in-left,.viewbody.in-right,.foldin,.foldin-row{animation:none}
+  .viewghost>.stickybar.viewtop>*,#view>.stickybar.viewtop.barin>*{animation:none}
+  .viewbody.pre-left,.viewbody.pre-right{transform:none}
   .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout,
   .guidepanel.closing,.c2gghostwrap{display:none}
   .guidepanel,.c2gpanel.slidein{animation:none}
@@ -693,6 +729,10 @@ body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
    Am Ende des Übergangs misst syncMatrixHead() neu (guide.js). */
 .wrap{transition:padding-right .28s cubic-bezier(.4,0,.2,1)}
 body.gresize .wrap{transition:none}
+/* Und beim Öffnen eines Buches gar keiner: die Ansicht fliegt
+   gerade herein und bräche sonst in jedem Bild neu um
+   (openGuideSnap in js/dialogs/guide.js). */
+body.gsnap .wrap{transition:none}
 /* Der Griff greift über die Kante hinaus, damit er auch dann zu
    fassen ist, wenn die Maus schon knapp daneben steht. */
 .guidepanel .ghandle,.c2gpanel .ghandle{position:absolute;left:-4px;top:0;bottom:0;width:9px;cursor:col-resize;

@@ -22,7 +22,14 @@ let state=null;
    Knopf vor dem Suchfeld): offen oder zu — Anzeige wie ana, nicht
    in der Datei. Auf dem Schreibtisch wird es nie gelesen. */
 let ui={month:CUR,view:'jahr',filter:'alle',dueFilter:'alle',secFilter:'alle',
-  q:'',qFocus:false,ana:false,mFilters:false,welcome:true,hideSettled:false,hideDone:false};
+  q:'',qFocus:false,ana:false,mFilters:false,welcome:true,hideSettled:false,hideDone:false,
+  /* **Ein Buch ist gerade aufgegangen** (8.9.26): 1 heißt „von
+     rechts hereinfliegen" (Datei geladen, leer angefangen), -1 „von
+     links" (Datei getrennt, die Begrüßung kommt zurück). Gesetzt
+     wird der Merker in js/storage.js, verbraucht einmal in render()
+     — er entscheidet über die Fahrt der Ansicht und darüber, ob die
+     Anleitung sich dazustellt. */
+  enter:0};
 
 /* ── Worauf sich das Suchfeld bezieht ─────────────────────────
    Der Nutzer stellt im Fenster hinter dem Hamburger-Knopf ein,
@@ -232,6 +239,14 @@ function emptyState(){
        danach entscheidet der Klick auf die Leiste, und der gilt nur
        für diese Sitzung. */
     anaOpen:!!(state&&state.anaOpen),
+    /* Ob die Anleitung sich dazustellt, sobald das Buch aufgeht —
+       und ob der CSV-Import seine mitbringt. Auch das ist eine
+       Gewohnheit beim Lesen und keine Angabe über Geld: sie
+       überlebt das Trennen der Datei. **Vorgabe ist ja** — wer FINA
+       zum ersten Mal öffnet, soll die Anleitung nicht suchen
+       müssen; wer sie nicht mehr braucht, nimmt den Haken in den
+       Einstellungen unter „Darstellung" weg. */
+    guideOpen:(state&&state.guideOpen===false)?false:true,
     /* Worin das Suchfeld sucht, ist keine Angabe über Geld, sondern
        eine Gewohnheit beim Lesen — sie überlebt das Trennen der
        Datei, anders als die vier Listen. */
@@ -542,6 +557,11 @@ function migrate(s){
   /* Ältere Dateien kennen den Schalter für die Auswertung nicht —
      dann fängt sie zugeklappt an, genau wie bisher. */
   s.anaOpen=!!s.anaOpen;
+  /* Die Anleitung stellt sich dazu, solange niemand widersprochen
+     hat: eine Datei ohne die Angabe bekommt deshalb `true` und
+     nicht `false` — sie ist die Vorgabe und nicht das Erbe einer
+     alten Fassung. */
+  s.guideOpen=s.guideOpen!==false;
   /* Die zugeklappten Bereiche. Ältere Dateien kennen nur den einen
      Schalter der Flexible Payments (flexCollapsed) — er wandert in
      das neue Feld, die beiden anderen Karten fangen offen an. Die
