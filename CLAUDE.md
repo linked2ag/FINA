@@ -2181,7 +2181,12 @@ Kopfzeile: sie tun hier alle dasselbe, und ein Menü, in dem mal zwei und mal vi
 stehen, sähe bei jeder Breite anders aus. Das Menü **bleibt beim Wählen offen** (wie das
 mobile Filtermenü — alle drei Fragen stehen beieinander, `mShut()` in `wire()`), und der
 **rote Punkt** oben rechts (`.dirtydot`) sagt, was er am Hamburger der Kopfzeile sagt:
-hier drin steckt etwas. Gebaut wird das Menü immer, gezeigt wird eins von beiden —
+hier drin steckt etwas. **Und zwar nur, was wirklich darin steckt** (Lex, 9.9.26):
+Bereich, Fälligkeit, Zahlungsstand — der Suchbegriff zählt seitdem **nicht** mit
+(`menuOn` neben `anyOn` in `fltMenuAll()`, `js/views/monat.js`; das Menü steht in beiden
+Ansichten). Er steht im Feld daneben, sichtbar, und ein Punkt dafür schickte einen ins
+Menü, in dem nichts zu finden ist. „Filter zurücknehmen" hängt weiter an `anyOn` — es
+nimmt das Suchfeld mit weg. Gebaut wird das Menü immer, gezeigt wird eins von beiden —
 `.fbnarrow` an der Zeile entscheidet (`css/layout.css`).
 **Gemessen, nicht geraten:** `fitFilterBar()` in `js/app.js` gibt der Zeile für einen
 Augenblick `width:max-content` ohne Umbruch und liest ihren Bedarf; das Suchfeld darf

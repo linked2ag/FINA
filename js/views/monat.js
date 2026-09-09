@@ -190,7 +190,15 @@ function fltDrop(id,kind,label,cur,opts){
    also nur, solange die Knöpfe nicht ohnehin daneben stehen. */
 function fltMenuAll(){
   const open=ui.fltMenu==='all';
-  const anyOn=!!queryQ()||ui.secFilter!=='alle'||ui.dueFilter!=='alle'||ui.filter!=='alle';
+  /* **Der rote Punkt gilt dem, was im Menü steckt** (Lex, 9.9.26):
+     Bereich, Fälligkeit, Zahlungsstand. Der Suchbegriff zählt
+     **nicht** mit — er steht im Feld daneben, sichtbar, und ein
+     Punkt dafür schickte einen ins Menü, in dem nichts zu finden
+     ist. `anyOn` bleibt daneben stehen: „Filter zurücknehmen" nimmt
+     auch das Suchfeld weg und ist deshalb schon dann zu haben, wenn
+     dort etwas steht. */
+  const menuOn=ui.secFilter!=='alle'||ui.dueFilter!=='alle'||ui.filter!=='alle';
+  const anyOn=!!queryQ()||menuOn;
   const custom=QFIELDS.some(k=>!qField(k))||qAll();
   const grp=(lab,list,kind,cur)=>`<span class="mghead">${esc(lab)}</span>`+
     list.map(([v,l,tp,ic])=>`<button class="mi${cur===v?' sel':''}" role="menuitemradio" aria-checked="${cur===v}"
@@ -198,7 +206,7 @@ function fltMenuAll(){
   return `<span class="fltdrop fbmenu">
     <button class="btn small fbmenubtn" data-fltmenu="all" aria-expanded="${open}" aria-haspopup="menu"
       aria-label="${esc(t('flt.allFilters'))}" data-tip="${esc(t('flt.allFiltersTip'))}"
-      ><span class="fbmi" aria-hidden="true">&#9776;</span><span class="dirtydot"${anyOn?'':' hidden'}></span></button>
+      ><span class="fbmi" aria-hidden="true">&#9776;</span><span class="dirtydot"${menuOn?'':' hidden'}></span></button>
     ${open?`<span class="dropmenu${ui.menuDrawn==='all'?'':' popin'}" data-dm="all" role="menu">
       <button class="mi mi-sep" data-qclear="1"${anyOn?'':' disabled'}>${t('g.clearFilter')}</button>
       ${grp(t('month.fSec'),FLT_SEC(),'secfilter',ui.secFilter)}
