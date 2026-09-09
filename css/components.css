@@ -686,6 +686,8 @@ html{scrollbar-gutter:stable}
   .brand .sub.yearin,.status.statin,.status.statout{animation:none}
   .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout,
   .guidepanel.closing,.c2gghostwrap,#view>.stickybar.viewtop>.topghost{display:none}
+  .c2big :is(.c2head,.c2bar,.c2guideto,.c2avail,.c2mid,.c2qbar),
+  .c2big .c2scroll>*{transition:none}
   .guidepanel,.c2gpanel.slidein{animation:none}
   .wrap{transition:none}
   .modal .box{transition:none!important;clip-path:none!important;transform:none!important}
@@ -2301,8 +2303,17 @@ textarea.srvtext{width:100%;display:block}
 
 /* ── Ergänzungen am CSV-Import vom 5.9.26 ─────────────────────── */
 /* Schritt 2: die Anweisung in drei Schritten, über der Leiste. */
-.c2howto{margin:0 0 10px;padding-left:22px;font-size:12.5px;line-height:1.5;color:var(--ink)}
-.c2howto li{margin:1px 0}
+/* ── Die zwei Zeilen über der Spaltentabelle (Lex, 9.9.26) ────
+   Oben der Verweis auf die Anleitung, in der Akzentfarbe — sie
+   heißt in FINA „hier kann man handeln", und genau das ist der
+   Satz: er zeigt auf den Knopf daneben. Darunter, was die Datei
+   hergibt. **Diese Zeile bricht nicht um**: sie steht über einer
+   Tabelle, die ohnehin rollt, und zwei Zeilen Auskunft schöben sie
+   bei jedem schmalen Fenster nach unten. Reicht der Platz nicht,
+   endet sie mit „…". */
+.c2guideto{margin:0 0 6px;font-size:12.5px;line-height:1.5;color:var(--accent);font-weight:600}
+.c2avail{margin:0 0 8px;font-size:12px;color:var(--ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* **Die Spaltenknöpfe und die Beschriftungszeile sind lesbar**:
    die Knöpfe standen in 9-px-Versalien mit Sperrung — das sieht
    nach Kontoauszug aus, liest sich aber nicht. Die Schrift bleibt
@@ -2492,8 +2503,30 @@ textarea.srvtext{width:100%;display:block}
    unten). Deshalb braucht sie einen deckenden Grund (--paper-2, wie
    das Fenster) und eine Stufe über den klebenden Köpfen der
    Tabellen (die stehen auf z-index 3). */
-.c2work{flex:1 1 auto;min-height:0;display:flex;position:relative;--c2gw:0px}
+.c2work{flex:1 1 auto;min-height:0;display:flex}
 .c2main{flex:1 1 0;min-width:0;min-height:0;display:flex;flex-direction:column}
+/* **Das Maß hängt an der Box** und nicht an der Arbeitsfläche: die
+   Anleitung geht seit dem 9.9.26 über die **ganze Höhe** des
+   Fensters (Lex) — auch neben der Kopfzeile vorbei —, und deren
+   Knöpfe hängen mit daran. Null heißt „keine Anleitung"; jede
+   Regel darunter tut dann nichts. */
+:is(.modal,.modalghost,.boxslide) .box.c2big{position:relative;--c2gw:0px}
+/* **Was nicht rollt, endet an ihrer Kante** — die Knöpfe rechts
+   oben, die Knopfzeile von Schritt 2, die Zuordnungsleiste, die
+   Zeile des Schnellfilters. Sie fahren mit ihr nach links und
+   wieder nach rechts, in derselben Länge und Kurve wie sie selbst.
+   Das ist die zweite Stelle in FINA, an der bewusst ein Maß bewegt
+   wird (die erste ist das Polster der Seite neben der Anleitung der
+   Anwendung, css oben) — und aus demselben Grund: es gibt keine
+   andere Art, Platz zu machen. Beim Ziehen am Griff bleibt der
+   Übergang weg (.gdrag), sonst liefe die Kopfzeile der Hand
+   hinterher. */
+.c2big .c2head,
+.c2big .c2main :is(.c2bar,.c2guideto,.c2avail,.c2mid,.c2qbar){padding-right:var(--c2gw)}
+.c2big .c2main .c2scroll>*{margin-right:var(--c2gw)}
+.c2big:not(.gdrag) :is(.c2head,.c2bar,.c2guideto,.c2avail,.c2mid,.c2qbar){
+  transition:padding-right .92s cubic-bezier(.16,.7,.3,1)}
+.c2big:not(.gdrag) .c2scroll>*{transition:margin-right .92s cubic-bezier(.16,.7,.3,1)}
 /* **Der Scrollraum unter der Anleitung** (Lex, 9.9.26): „alle
    Spalten sollen trotzdem erreichbar sein, seitlich wie
    senkrecht". Es ist ein **Außenabstand der Tabelle** und kein
@@ -2503,7 +2536,6 @@ textarea.srvtext{width:100%;display:block}
    schmaler; genau der Sprung, der hier weg soll. Ein Außenabstand
    zählt zum Rollbereich, ohne die Tabelle selbst anzufassen. Ohne
    offene Anleitung ist --c2gw null, und die Regel tut nichts. */
-.c2work.guideon .c2main .c2scroll>*{margin-right:var(--c2gw)}
 /* **Bedient wird nur, was zu sehen ist.** Die Zeilen mit Knöpfen
    und Feldern rollen nicht — was von ihnen unter der Anleitung
    läge, wäre schlicht weg. Sie enden deshalb an ihrer Kante: die
@@ -2513,7 +2545,6 @@ textarea.srvtext{width:100%;display:block}
    mit. Für die Leiste zählt das doppelt: c2FitBar() misst
    `row.clientWidth`, und der ist damit von selbst die sichtbare
    Breite. */
-.c2work.guideon .c2main :is(.c2bar,.c2howto,.c2meta,.c2mid,.c2qbar){padding-right:var(--c2gw)}
 /* **Seit dem 7.9.26 ein Drittel statt eines Viertels**, und die
    Breite lässt sich am Griff ziehen (c2GuideHandle, mindestens ein
    Drittel des Fensters). Das Feld ist eine Spalte: der Kopf mit
@@ -2530,24 +2561,25 @@ textarea.srvtext{width:100%;display:block}
 .c2work{overflow:hidden}
 .c2gpanel.slidein{animation:fina-impin .92s cubic-bezier(.16,.7,.3,1)}
 .c2gghostwrap{position:fixed;z-index:50;overflow:hidden;pointer-events:none}
-.c2gghost{animation:fina-impout .22s ease-in forwards;background:var(--paper-2)}
+/* **Hinaus in derselben Länge und Kurve wie herein** (Lex,
+   9.9.26): mit ihr fahren die Knöpfe der Kopfzeile und die Tabelle
+   zurück (--c2gw), und drei verschiedene Längen liefen
+   auseinander. Dieselbe Regel wie beim Guide der Anwendung. */
+.c2gghost{animation:fina-impout .92s cubic-bezier(.16,.7,.3,1) forwards;background:var(--paper-2)}
 .c2gpanel{position:absolute;top:0;right:0;bottom:0;width:33.34%;z-index:20;
   background:var(--paper-2);display:flex;flex-direction:column;min-width:0;min-height:0;
-  /* Kante und Schatten links wie am Guide der Anwendung (.guidepanel;
-     Lex, 7.9.26). **Und oben eine zweite Kante** (Lex, 9.9.26): über
-     dem Feld steht die Knopfzeile des Wizards — Anleitung, ‹ Zurück,
-     „Spalten speichern und weiter", ✕. Ohne Linie lief die
-     Überschrift „Anleitung" ohne Absatz unter diesen Knöpfen weiter,
-     und man sah nicht, wo das Fenster aufhört und die Anleitung
-     anfängt. Sie sitzt am Feld und nicht an der Knopfzeile: die geht
-     über die ganze Breite, die Linie soll nur über der Anleitung
-     stehen. Dieselbe Stärke und Farbe wie die Kante links — es ist
-     dieselbe Einfassung, nur um die Ecke. */
-  border-left:2px solid var(--ink);border-top:2px solid var(--ink);
-  box-shadow:-14px 0 26px -20px rgba(0,0,0,.7);padding:10px 0 0 16px}
+  /* Kante und Schatten links wie am Guide der Anwendung
+     (.guidepanel; Lex, 7.9.26). **Eine obere Kante trägt sie
+     nicht mehr** (Lex, 9.9.26): sie stand über dem Feld, solange
+     die Knopfzeile des Wizards darüber lief — jetzt geht das Feld
+     über die ganze Höhe, und über ihm ist nichts als der
+     Fensterrand. Das obere Polster ist dafür das des Fensters
+     (14 px), damit ihr Kopf auf einer Linie mit den Knöpfen
+     daneben steht. */
+  border-left:2px solid var(--ink);
+  box-shadow:-14px 0 26px -20px rgba(0,0,0,.7);padding:14px 0 0 16px}
 .c2gpanel .c2ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 2px;flex:0 0 auto}
 .c2gpanel .c2ghead b{font-family:var(--font-display);font-size:17px}
-.c2gpanel .c2gx{padding:2px 9px}
 .c2gpanel .gact{gap:8px}
 .c2gpanel .c2gbody{flex:1 1 auto;min-height:0;overflow:auto;padding:0 4px 24px 0}
 .c2gpanel .c2gbody>h4:first-of-type{border-top:0;padding-top:0;margin-top:8px}
@@ -2555,7 +2587,16 @@ textarea.srvtext{width:100%;display:block}
 .c2gpanel p,.c2gpanel li{font-size:13px}
 /* Der Anleitungs-Knopf ist orange gefüllt (.accent); gedrückt eine
    Stufe dunkler, damit man sieht, dass die Anleitung offen ist. */
-.c2nav .c2gbtn[aria-pressed="true"]{background:var(--accent-2);border-color:var(--accent-2)}
+/* **Der Anleitungs-Knopf ist ein Schalter** (Lex, 9.9.26): weiß
+   mit oranger Schrift, solange die Anleitung zu ist — gedrückt
+   trägt er die Farbe gefüllt und weiße Schrift. Bis dahin war er
+   immer gefüllt und sagte damit nicht, ob die Anleitung gerade
+   steht. Es ist dieselbe Sprache wie überall in FINA: Orange heißt
+   „hier kann man handeln", die Füllung heißt „gilt gerade". */
+.c2nav .c2gbtn{background:#fff;border-color:var(--accent);color:var(--accent)}
+.c2nav .c2gbtn:hover{background:var(--accent-soft);border-color:var(--accent);color:#fff}
+.c2nav .c2gbtn[aria-pressed="true"]{background:var(--accent-2);border-color:var(--accent-2);color:#fff}
+.c2nav .c2gbtn[aria-pressed="true"]:hover{background:var(--accent);border-color:var(--accent)}
 
 /* Das Eintragsfenster des Wizards und die Fehlt-Liste. Die Felder
    tragen die gewöhnliche Bauform (.dgrp/.cols/.field); eigen ist

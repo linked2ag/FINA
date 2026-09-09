@@ -2997,7 +2997,17 @@ und migriert wird beim Lesen (`migrate()`).
   leer an. Eine unbekannte Datei springt gleich nach Schritt 2. „Weiter" ist schwarz.
 * **Schritt 2:** die Beschriftungszeile (Spalte **HDR**, seit 7.9.26 in beiden Sprachen — ein
   Kürzel wie B · PT · DD · LP), die Spalten (jeder Spaltenkopf
-  ein Knopf), über jeder gewählten Spalte ihr Feld. „Spalten speichern und weiter" prüft
+  ein Knopf), über jeder gewählten Spalte ihr Feld.
+  **Darüber stehen zwei Zeilen** (Lex, 9.9.26): ein Satz in der Akzentfarbe, der auf die
+  Anleitung zeigt (`c2.howGuide`, `.c2guideto`), und darunter in **einer** Zeile, was die
+  Datei hergibt — Spalten mit Überschrift und Zeilen zum Einlesen (`c2.avail`,
+  `.c2avail`; sie bricht nie um, bei zu wenig Platz endet sie mit „…"). Nur wenn lesbare
+  Zeilen **außerhalb** des Buchjahrs liegen, hängt die Warnung `c2.infoOther` daran —
+  eine Auskunft, keine Regel. Die drei nummerierten Schritte im Fenster
+  (`c2.how1`…`how3`), die Zählung `c2.colsCnt` und der Vorschau-Hinweis `c2.preview` sind
+  **weg**: sie sagten in vier Zeilen dasselbe wie die Anleitung daneben. **Und die Knöpfe
+  „Alles wählen" · „Alles abwählen" ebenso** — gewählt wird an den Spaltenköpfen, und
+  seit dem 8.9.26 bringt jede gewählte Spalte ihr Feld schon mit. „Spalten speichern und weiter" prüft
   erst Datum und Betrag (`c2Missing`), dann **gewählte Spalten ohne Feld** (`c2LooseCols`,
   6.9.26): ein Fenster nennt sie und bietet „Abwählen" an — das bleibt im Schritt, damit man
   das Ergebnis sieht; „Abbrechen" lässt alles stehen. Danach der Name (`c2AskMapName()`,
@@ -3060,19 +3070,31 @@ und migriert wird beim Lesen (`migrate()`).
   importiert", Grau „schon im Buch" (siehe „Die Farbsprache"). Ein einzelner Buchstabe
   ohne Fokus geht in den Schnellfilter (`c2Keys()`).
 * **Die Anleitung daneben** (`C2_GUIDE`, Knopf „Anleitung" ganz links in Schritt 2 und 3)
-  **liegt über dem Schritt, sie teilt das Fenster nicht mehr** (Lex, 9.9.26; bis dahin war
-  sie eine zweite Spalte in `.c2work`): ging sie auf, wurde der Schritt daneben
-  schlagartig ein Drittel schmaler, ging sie zu, sprang er ebenso schlagartig auf — und
-  das schon im ersten Bild, während sie selbst noch fuhr. `.c2main` bleibt jetzt immer so
-  breit wie das Fenster, `.c2gpanel` ist absolut an dessen rechter Kante (`css/components.css`).
-  **Was darunter liegt, holt man mit dem Rollbalken hervor:** `--c2gw` am `.c2work` sagt,
-  wie breit die Anleitung steht, und die Tabellen in den Rollflächen bekommen so viel
-  **Außenabstand** rechts — kein Polster der Rollfläche, das verkleinerte deren
-  Inhaltsfläche, und die Tabellen mit `min-width:100%` würden schmaler; genau der Sprung,
-  der weg soll. **Die Zeilen mit Knöpfen und Feldern enden dagegen an ihrer Kante**
-  (`.c2bar`, `.c2mid`, `.c2qbar` — sie rollen nicht, verdeckt wären sie schlicht weg);
-  weil `.c2mid` das Polster trägt, misst `c2FitBar()` mit `row.clientWidth` von selbst die
-  sichtbare Breite. Die Texte stehen in der Datei, nicht in `js/i18n.js`.
+  **liegt über allem und geht über die ganze Höhe des Fensters** (Lex, 9.9.26; bis dahin
+  war sie eine zweite Spalte in `.c2work` und fing unter der Knopfzeile an): ging sie auf,
+  wurde der Schritt daneben schlagartig ein Drittel schmaler, ging sie zu, sprang er
+  ebenso schlagartig auf — und das schon im ersten Bild, während sie selbst noch fuhr.
+  Jetzt hängt `.c2gpanel` absolut an der **Box** (`top:0;right:0;bottom:0`), und nichts
+  darunter ändert dabei seine Breite.
+  **Ein ✕ trägt sie nicht mehr:** auf und zu geht sie allein über den Knopf „Anleitung"
+  in der Kopfzeile, und der sagt, woran er ist — zu ist sie, steht er weiß mit oranger
+  Schrift, offen trägt er die Farbe gefüllt (`.c2gbtn`).
+  **Ein Maß trägt alles: `--c2gw` an der Box.** Kopfzeile und Bedienzeilen hängen mit
+  ihrem Polster daran (`.c2head`, `.c2bar`, `.c2guideto`, `.c2avail`, `.c2mid`,
+  `.c2qbar` — sie rollen nicht, verdeckt wären sie schlicht weg), die Tabellen in den
+  Rollflächen mit ihrem **Außenabstand** (kein Polster der Rollfläche: das verkleinerte
+  deren Inhaltsfläche, und die Tabellen mit `min-width:100%` würden schmaler — genau der
+  Sprung, der weg soll). Was unter der Anleitung liegt, holt der Rollbalken hervor.
+  Weil `.c2mid` das Polster trägt, misst `c2FitBar()` mit `row.clientWidth` von selbst
+  die sichtbare Breite.
+  **Beim Auf- und Zugehen fährt alles mit** (`C2_GUIDE_MS`, 920 ms, dieselbe Kurve wie
+  die Fahrt des Feldes): `--c2gw` bekommt einen Übergang, die Knöpfe der Kopfzeile
+  gleiten nach links und wieder nach rechts — und weil der Rollbereich dabei schrumpft,
+  **zieht der Browser einen Rollstand, der zu weit rechts steht, von selbst mit**
+  (nachgemessen: 585 → 335 → 85). Gesetzt wird das Maß im **nächsten Bild**
+  (`c2GuideToggle`, `W.gwait`): ein Übergang braucht einen Zustand, von dem aus er
+  losläuft. Beim Ziehen am Griff bleibt er weg (`.gdrag`). Die Texte stehen in der Datei,
+  nicht in `js/i18n.js`.
   **Aufgeschlagen fängt sie an** (seit 8.9.26), solange die Datei es sagt: `W.guide`
   kommt in `openCsvWizard()` aus `state.guideOpen` — derselbe Haken, der die Anleitung
   neben der Ansicht aufschlägt (Einstellungen → Darstellung). Zu sehen ist sie erst ab

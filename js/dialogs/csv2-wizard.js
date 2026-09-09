@@ -445,7 +445,6 @@ const C2_GUIDE={
         <li><b>Field list:</b> Date, Amount or a reference. You can change the field at any time.</li>
       </ol>
       <p><b>Every column you select gets a field right away.</b> A column of dates becomes <b>Date</b>, a column of amounts becomes <b>Amount</b>, and every other column gets the next free reference: the first one you pick becomes Reference 1, the second Reference 2. Deselect a column and its reference is free again — the next column you pick takes it.</p>
-      <p>Two buttons above the table select or deselect all columns.</p>
       <h4>What would you like to do?</h4>
       <table class="gtab"><tr><th>If you want to …</th><th>then …</th></tr>
         <tr><td>bring a new kind of file into FINA</td><td>choose the columns, give each its field, press <b>“Save columns and continue”</b></td></tr>
@@ -480,7 +479,6 @@ const C2_GUIDE={
         <li><b>Feldliste:</b> Datum, Betrag oder eine Referenz. Du kannst das Feld jederzeit ändern.</li>
       </ol>
       <p><b>Jede Spalte, die du wählst, bekommt sofort ein Feld.</b> Eine Spalte mit Datumsangaben wird <b>Datum</b>, eine Spalte mit Beträgen wird <b>Betrag</b>, und jede andere Spalte bekommt die nächste freie Referenz: die erste, die du wählst, wird Referenz 1, die zweite Referenz 2. Wählst du eine Spalte wieder ab, ist ihre Referenz wieder frei — die nächste Spalte bekommt sie.</p>
-      <p>Zwei Knöpfe über der Tabelle wählen alle Spalten oder wählen sie ab.</p>
       <h4>Was möchtest du tun?</h4>
       <table class="gtab"><tr><th>Wenn du …</th><th>dann …</th></tr>
         <tr><td>eine neue Art von Datei in FINA holen willst</td><td>wähle die Spalten, gib jeder ihr Feld, drücke <b>„Spalten speichern und weiter“</b></td></tr>
@@ -1182,12 +1180,14 @@ function c2Nav(){
      der eine Weg weiter, wie „Weiter" nach der automatischen
      Vorbereitung. Fehlt noch etwas, sagt es der Klick (c2Missing).
      Nachgeführt wird er bei jedem Umbau der Tabelle (c2RefreshNav). */
-  /* **Ganz links die Anleitung** (Schritt 2 und 3): gedrückt teilt
-     sie das Fenster (c2GuidePanel). **Orange gefüllt, weiße
-     Schrift** (.accent) — sie soll ins Auge fallen, nicht wie ein
-     Weg unter vielen aussehen; gedrückt eine Stufe dunkler
-     (.c2gbtn[aria-pressed] in css/components.css). */
-  const guide=`<button class="btn accent c2gbtn" data-c2="guide" aria-pressed="${W.guide?'true':'false'}" title="${esc(t('c2.guideTip'))}">${esc(t('app.guide'))}</button>`;
+  /* **Ganz links die Anleitung** (Schritt 2 und 3) — und sie ist
+     der **einzige** Weg auf und zu, seit das Feld daneben kein ✕
+     mehr trägt (Lex, 9.9.26). Deshalb sagt der Knopf, woran er
+     ist: zu ist die Anleitung, steht er weiß mit oranger Schrift,
+     offen trägt er die Farbe gefüllt (.c2gbtn in
+     css/components.css). */
+  const guide=`<button class="btn c2gbtn" data-c2="guide" aria-pressed="${W.guide?'true':'false'}"
+      title="${esc(W.guide?t('c2.guideOff'):t('c2.guideTip'))}">${esc(t('app.guide'))}</button>`;
   /* **„Spalten speichern und weiter"** (5.9.26): der Knopf sagt, was
      er tut — FINA merkt sich die Spalten unter einem Namen, den ein
      Fenster vorher erfragt (c2AskMapName), und erst dann geht es in
@@ -1374,13 +1374,14 @@ function c2Render(swap){
     W.box.classList.toggle('c2big',W.step>1);
     if(W.step===1)W.box.innerHTML=head+`<div class="swapfade">${c2Step1()}</div>`;
     else{
-      /* Die Anleitung liegt über dem Schritt und nimmt ihm keinen
-         Platz weg (css: .c2gpanel). Wie breit sie ist, steht als
-         --c2gw an der Fläche — daraus holen sich die Rollflächen
-         darunter ihr Polster rechts, damit die verdeckten Spalten
-         erreichbar bleiben. */
-      const gw=W.guide?c2GuidePx():0;
-      W.box.innerHTML=head+`<div class="c2work swapfade${W.guide?' guideon':''}" style="--c2gw:${gw}px"><div class="c2main">${W.step===2?c2Step2():c2Step3()}</div>${W.guide?c2GuidePanel():''}</div>`;
+      /* Die Anleitung liegt über allem und nimmt nichts weg (css:
+         .c2gpanel). Sie hängt an der **Box** und nicht an der
+         Arbeitsfläche: sie geht seit dem 9.9.26 über die ganze
+         Höhe des Fensters, also auch neben der Kopfzeile vorbei
+         (Lex). Wie breit sie steht, sagt --c2gw an derselben Box —
+         daraus holen sich die Kopfzeile und die Bedienzeilen ihr
+         Polster rechts und die Tabellen ihren Weg zum Rollen. */
+      W.box.innerHTML=head+`<div class="c2work swapfade"><div class="c2main">${W.step===2?c2Step2():c2Step3()}</div></div>`+(W.guide?c2GuidePanel():'');
     }
   };
   /* `swap` erzwingt den Dreischritt auch ohne Schrittwechsel — beim
@@ -1388,6 +1389,20 @@ function c2Render(swap){
      der gemerkten Struktur. */
   if(swap||(W.drawnStep&&W.drawnStep!==W.step)) boxSwap(W.box,build); else build();
   W.drawnStep=W.step;
+  /* **Steht die Anleitung schon beim Zeichnen**, bekommt die Box
+     ihr Maß auf der Stelle und ohne Übergang: beim ersten Öffnen
+     des Wizards (state.guideOpen sagt es, siehe openCsvWizard) und
+     bei jedem gewöhnlichen Neuzeichnen mit offener Anleitung.
+     Ausgenommen ist allein der Klick auf den Knopf — der setzt es
+     im nächsten Bild, damit es fahren kann (c2GuideToggle setzt
+     dafür W.gwait). Und ebenso andersherum: liegt keine Anleitung
+     mehr da, fällt das Maß auf null. */
+  const gwWant=W.guide?c2GuidePx()+'px':'0px';
+  if(!W.gwait&&W.box.style.getPropertyValue('--c2gw')!==gwWant){
+    W.box.classList.add('gdrag');
+    W.box.style.setProperty('--c2gw',gwWant);
+    requestAnimationFrame(()=>W.box&&W.box.classList.remove('gdrag'));
+  }
   c2Wire();
   tabThroughFields(W.box);
   /* **Die Blockzeilen des Zielbereichs kleben unter dem Spaltenkopf**
@@ -1495,15 +1510,17 @@ function c2FieldPick(i){
       title="${esc(t('c2.renTip'))}" aria-label="${esc(t('c2.renTip'))}">&#9998;</button>`:''}<select data-c2f="${i}">${c2FOpts(i)}</select></span>`;
 }
 
-function c2InfoLine(){
-  if(W.f.date<0||W.f.amount<0)return '';
+/* Wie viele lesbare Zeilen **nicht** ins Buchjahr fallen. Die
+   Zeile über der Tabelle nennt sonst nur, was die Datei hergibt
+   (c2Step2); das hier ist eine Warnung und steht deshalb nur da,
+   wenn es sie gibt: solche Zeilen bleiben im dritten Schritt grau
+   und lassen sich nicht zuordnen. Ohne Datum und Betrag ist die
+   Frage nicht zu beantworten — dann kommt nichts. */
+function c2OtherYears(){
+  if(W.f.date<0||W.f.amount<0)return 0;
   c2Meta();
   const readable=W.meta.filter(m=>m.d&&!isNaN(m.v)).length;
-  const inY=W.meta.filter(m=>m.in).length;
-  let s=t('c2.info',W.csv.rows.length,readable,inY,YEAR);
-  const other=readable-inY;
-  if(other)s+=t('c2.infoOther',other);
-  return s;
+  return readable-W.meta.filter(m=>m.in).length;
 }
 
 /* Die Vorschau zeigt die Datensätze **ab dem ersten** — auch die
@@ -1543,19 +1560,23 @@ function c2ColsTable(){
    alles auf einmal erklärte — in der Reihenfolge, in der man es
    tut, liest es sich als Liste. Die Vorschau-Zeile (die ersten 40
    Datensätze) steht als Auskunft in der Leiste daneben. */
+/* ── Über der Tabelle stehen zwei Zeilen ─────────────────────
+   (Lex, 9.9.26) Bis dahin standen dort die drei Schritte als
+   nummerierte Liste, darunter „Alles wählen" · „Alles abwählen"
+   und drei Zählungen. Die Liste sagte in vier Zeilen dasselbe wie
+   die Anleitung daneben, nur gedrängter — und sie stand in jedem
+   Fenster, auch bei dem, der sie längst kennt. Jetzt zeigt **ein**
+   Satz in der Akzentfarbe dorthin (`.c2guideto`), und darunter
+   steht in **einer** Zeile, was die Datei hergibt: die Spalten mit
+   Überschrift und die Zeilen zum Einlesen. Sie bricht nicht um —
+   ist das Fenster zu schmal, endet sie mit „…" (css: `.c2avail`).
+   Die beiden Knöpfe sind weg: gewählt wird an den Spaltenköpfen,
+   und seit dem 8.9.26 bringt jede gewählte Spalte ihr Feld schon
+   mit. */
 function c2Step2(){
-  return `<ol class="c2howto">
-      <li>${t('c2.how1',t('c2.hrowCol'))}</li>
-      <li>${t('c2.how2')}</li>
-      <li>${t('c2.how3')}</li>
-    </ol>
-    <div class="c2bar">
-      <button class="btn" data-c2="selAll">${t('c2.selAll')}</button>
-      <button class="btn" data-c2="selNone">${t('c2.selNone')}</button>
-      <span class="c2meta" id="c2Cnt">${t('c2.colsCnt',W.cols.length,W.csv.header.length)}</span>
-      <span class="c2meta" id="c2Info">${c2InfoLine()}</span>
-      <span class="c2meta">${t('c2.preview',Math.min(40,W.csv.rows.length),W.csv.rows.length)}</span>
-    </div>
+  return `<p class="c2guideto">${esc(t('c2.howGuide',t('app.guide')))}</p>
+    <div class="c2avail">${esc(t('c2.avail',W.csv.header.length,W.csv.rows.length))}${
+      c2OtherYears()?esc(t('c2.infoOther',c2OtherYears())):''}</div>
     <div class="c2scroll" id="c2ColsWrap">${c2ColsTable()}</div>`;
 }
 
@@ -3090,10 +3111,9 @@ function c2Wire(){
       wrap.innerHTML=c2ColsTable();
       rewire();
       wrap.scrollLeft=sl;wrap.scrollTop=st;
-      const cc=box.querySelector('#c2Cnt');
-      if(cc)cc.textContent=t('c2.colsCnt',W.cols.length,W.csv.header.length);
-      const inf=box.querySelector('#c2Info');
-      if(inf)inf.innerHTML=c2InfoLine();
+      /* Nachzuführen ist über der Tabelle nichts mehr: die Zeile
+         darüber nennt seit dem 9.9.26, was die **Datei** hergibt,
+         und das ändert sich beim Wählen einer Spalte nicht. */
       c2RefreshNav();
     };
     const rewire=()=>{
@@ -3162,8 +3182,6 @@ function c2Wire(){
       });
     };
     rewire();
-    on('selAll',()=>{W.cols=W.csv.header.map((h,i)=>i);W.cols.forEach(i=>c2GuessCol(i));c2Render();});
-    on('selNone',()=>{W.cols=[];W.f=c2BlankF();c2Render();});
   }
 
   c2WireNav();
@@ -3498,7 +3516,7 @@ function c2WireNav(){
     on('toggleOld',()=>{W.showOld=!W.showOld;c2Render();});
   }
   if(W.step>1){
-    on('guide',()=>{if(W.guide)c2GuideGhost();W.guide=!W.guide;W.guideAnim=W.guide;c2Render();});
+    on('guide',c2GuideToggle);
     /* Der Kopf der Anleitung (c2GuidePanel): Sprache, eigener
        Reiter, Griff. Der neue Reiter wird im Klick geöffnet, sonst
        hielte der Browser ihn für ungefragt; hält er ihn trotzdem
@@ -3509,7 +3527,7 @@ function c2WireNav(){
       const w=window.open('','_blank');
       if(!w){warn(t('guide.fullBlocked'));return;}
       w.document.open();w.document.write(html);w.document.close();
-      c2GuideGhost();W.guide=false;c2Render();
+      c2GuideToggle();
     });
     c2GuideHandle(box.querySelector('[data-c2="ghandle"]'));
   }
@@ -4101,6 +4119,10 @@ function openCsvStructure(key,done){
    das ✕. Links der Griff, mit dem sich die Breite ziehen lässt
    (c2GuideHandle); mindestens ein Drittel des Fensters. Der Kopf
    steht fest, nur der Rumpf (.c2gbody) rollt. */
+/* Wie lange die Anleitung fährt — herein wie hinaus, und genauso
+   lange fahren die Knöpfe und die Tabelle (css: .c2gpanel.slidein,
+   .c2gghost, der Übergang an --c2gw). Eine Zahl, drei Stellen. */
+const C2_GUIDE_MS=920;
 function c2GuidePanel(){
   const g=C2_GUIDE[W.step];
   if(!g)return '';
@@ -4125,7 +4147,6 @@ function c2GuidePanel(){
           data-tip="${esc(t('guide.lang'))}">${langs}</span>
         <button class="btn small gfull" data-c2="gfull" aria-label="${esc(t('guide.full'))}"
           data-tip="${esc(t('guide.fullTip'))}">${EXPAND_SVG}</button>
-        <button class="btn c2gx" data-c2="guide" title="${esc(t('c2.guideOff'))}">✕</button>
       </span></div>
     <div class="c2gbody">${g[lang]}</div></aside>`;
 }
@@ -4145,8 +4166,46 @@ function c2GuideGhost(){
   wrap.appendChild(g);
   document.body.appendChild(wrap);
   const done=()=>wrap.remove();
-  g.addEventListener('animationend',done); setTimeout(done,700);
+  g.addEventListener('animationend',done); setTimeout(done,C2_GUIDE_MS+500);
 }
+/* ── Auf und zu, und alles fährt mit ────────────────────────
+   (Lex, 9.9.26) Die Anleitung geht nur noch über den Knopf in der
+   Kopfzeile auf und zu — ein eigenes ✕ trägt sie nicht mehr. Beim
+   Auf- und Zugehen sollen die Knöpfe rechts oben **mitfahren**,
+   und die Tabelle darunter ebenso: steht sie ganz rechts, hat sie
+   ihre letzten Spalten unter der Anleitung hervorgeholt, und die
+   müssen mit ihr zurückweichen.
+
+   Beides macht **das eine Maß --c2gw an der Box**: Kopfzeile und
+   Bedienzeilen hängen mit ihrem Polster daran, die Tabellen mit
+   ihrem Außenabstand (css). Es bekommt einen Übergang in derselben
+   Länge und Kurve wie die Fahrt des Feldes — und weil der
+   Rollbereich dabei schrumpft, zieht der Browser einen Rollstand,
+   der zu weit rechts steht, von selbst mit. Gesetzt wird es im
+   **nächsten Bild**: ein Übergang braucht einen Zustand, von dem
+   aus er losläuft, und im selben Zug gesetzt stünde das Maß sofort
+   am Ziel. */
+function c2GuideToggle(){
+  const open=!W.guide;
+  if(!open)c2GuideGhost();
+  W.guide=open;
+  W.guideAnim=open;
+  W.gwait=true;          /* c2Render soll das Maß nicht vorwegnehmen */
+  c2Render();
+  W.gwait=false;
+  /* Der Ausgangszustand steht: beim Öffnen null (die Box trägt das
+     Maß noch nicht), beim Schließen die alte Breite — sie überlebt
+     das Neuzeichnen, denn `innerHTML` rührt die Box selbst nicht
+     an. */
+  W.box.classList.remove('gdrag');
+  requestAnimationFrame(()=>{
+    W.box.style.setProperty('--c2gw',open?c2GuidePx()+'px':'0px');
+    /* Am Ende der Fahrt sitzen die Knöpfe neu — dann erst zählt,
+       was noch in die Zuordnungsleiste passt. */
+    setTimeout(()=>{if(W&&W.modal&&W.modal.isConnected)c2FitBar();},C2_GUIDE_MS);
+  });
+}
+
 /* Die Breite der Anleitung: mindestens ein Drittel des Fensters
    (Lex, 7.9.26), höchstens zwei Drittel des Wizard-Fensters — der
    Schritt daneben soll bedienbar bleiben. Gesetzt wird am Element,
@@ -4158,10 +4217,11 @@ function c2GuideWidth(w){
   const max=Math.max(min,Math.round(W.box.clientWidth*0.66));
   W.guideW=Math.min(Math.max(Math.round(w),min),max);
   panel.style.width=W.guideW+'px';
-  /* Dasselbe Maß an die Fläche: daraus rechnen die Rollflächen ihr
-     Polster rechts (css: --c2gw). */
-  const work=panel.parentElement;
-  if(work)work.style.setProperty('--c2gw',W.guideW+'px');
+  /* Dasselbe Maß an die Box: daraus rechnen Kopfzeile, Bedienzeilen
+     und Rollflächen (css: --c2gw). Beim Ziehen ohne Übergang — der
+     gehört dem Auf- und Zugehen, nicht der Hand am Griff. */
+  W.box.classList.add('gdrag');
+  W.box.style.setProperty('--c2gw',W.guideW+'px');
   c2FitBar();
 }
 /* Wie breit die Anleitung steht: das am Griff gezogene Maß, sonst
@@ -4180,6 +4240,9 @@ function c2GuideHandle(h){
   const move=e=>c2GuideWidth(panel.getBoundingClientRect().right-e.clientX);
   const up=()=>{
     document.body.classList.remove('gresize');
+    /* Der Übergang gehört dem Auf- und Zugehen; beim Ziehen war er
+       abgeschaltet (c2GuideWidth) und gilt ab jetzt wieder. */
+    if(W&&W.box)W.box.classList.remove('gdrag');
     removeEventListener('pointermove',move);removeEventListener('pointerup',up);
   };
   h.addEventListener('pointerdown',e=>{

@@ -1131,13 +1131,19 @@ const STR={
    das Wahl-Fenster der gemerkten Zuordnung. */
 'c2.opAmt':{en:'Amount is one of',de:'Betrag ist einer von'},
 'c2.opAmtS':{en:'amount:',de:'Betrag:'},
-'c2.how1':{en:'Mark the row that holds the column labels (column {0}).',
-  de:'Markiere die Zeile mit den Spaltenbeschriftungen (Spalte {0}).'},
-'c2.how2':{en:'Mark the columns that matter for matching — every column header is a button.',
-  de:'Markiere die Spalten, die für die Zuordnung zählen — jede Spaltenüberschrift ist ein Knopf.'},
-'c2.how3':{en:'Above each marked column, choose its FINA field: Date, Amount or Reference 1–5 (Date and Amount are required; the five references are free fields, all alike).',
-  de:'Wähle über jeder markierten Spalte ihren FINA-Bezug: Datum, Betrag oder Referenz 1–5 (Datum und Betrag müssen dabei sein; die fünf Referenzen sind freie Felder, alle gleichrangig).'},
-'c2.preview':{en:'Preview: the first {0} of {1} rows',de:'Vorschau: die ersten {0} von {1} Zeilen'},
+/* Statt der drei Schritte im Fenster (bis 9.9.26 `c2.how1`…`how3`,
+   samt `c2.colsCnt` und `c2.preview` — alle vier sind heraus, die
+   Anleitung daneben sagt es ausführlicher): ein Satz in der
+   Akzentfarbe, der genau dorthin zeigt. {0} ist der Name des
+   Knopfes, mit dem sie aufgeht — steht dort ein anderes Wort,
+   wandert es mit. */
+'c2.howGuide':{en:'How this step works is explained in “{0}”.',
+  de:'Wie dieser Schritt geht, steht in „{0}“.'},
+/* Was die Datei hergibt, in einer Zeile und ohne Umbruch (Lex,
+   9.9.26): die Spalten, die eine Überschrift tragen, und die
+   Zeilen, die eingelesen werden können. */
+'c2.avail':{en:'{0} columns with a header · {1} rows to read in',
+  de:'{0} Spalten mit Überschrift · {1} Zeilen zum Einlesen'},
 'c2.splitTip':{en:'Drag to change how the two areas share the height · double-click: half and half',
   de:'Ziehen ändert die Aufteilung der beiden Flächen · Doppelklick: halb/halb'},
 'c2.chipEditTip':{en:'Double-click: back into the field to adjust',de:'Doppelklick: zurück ins Feld zum Anpassen'},
@@ -1245,7 +1251,6 @@ const STR={
   de:'FINA kennt diese Datei-Art — bitte zuerst unten entscheiden: die CSV-Datenstruktur automatisch vorbereiten oder von Grund auf neu anordnen.'},
 'c2.selAll':{en:'Select all',de:'Alles wählen'},
 'c2.selNone':{en:'Deselect all',de:'Alles abwählen'},
-'c2.colsCnt':{en:'{0} of {1} columns selected',de:'{0} von {1} Spalten gewählt'},
 'c2.fDate':{en:'Date',de:'Datum'},
 'c2.fAmount':{en:'Amount',de:'Betrag'},
 /* Die fünf Referenzen (seit 6.9.26 spät; davor vier) — die einzigen Felder neben Datum und Betrag
@@ -1273,8 +1278,6 @@ const STR={
 'c2.renTaken':{en:'“{0}” is already the name of another reference field here.',
   de:'„{0}“ trägt hier schon ein anderes Referenzfeld.'},
 'impv.refFrom':{en:'Named in “{0}”, taken over on {1}',de:'Benannt in „{0}“, übernommen am {1}'},
-'c2.info':{en:'{0} rows · {1} readable · {2} from the book year {3}',
-  de:'{0} Zeilen · {1} lesbar · {2} aus dem Buchjahr {3}'},
 'c2.infoOther':{en:' · {0} from other years (stay grey)',de:' · {0} aus anderen Jahren (bleiben grau)'},
 'c2.missTitle':{en:'Field assignment incomplete',de:'Feldzuordnung unvollständig'},
 'c2.missSub':{en:'Assign these FINA fields to a column first — without them no row has a month or a number:',
