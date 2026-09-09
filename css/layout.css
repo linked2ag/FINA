@@ -231,14 +231,15 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    zwischen zwei Linien, zwischen dem Hereinholen der Zahlen und
    dem Speichern. Sein Zeichen (Plus im Kreis) bleibt, siehe
    .tools .mi-new::before weiter unten. */
-/* **Die Anleitung steht in Orange mit weißer Schrift** (6.9.26
-   spät; davor oranger Text auf Weiß): Orange heißt „hier kann man
-   handeln", und als Fläche fällt es unter neun Einträgen auf.
-   Offen (aria-pressed) eine Stufe dunkler. Die Regeln überstimmen
-   .btn.guidebtn aus css/components.css über die Kennung. */
-.tools #btnGuide.guidebtn{background:var(--accent);color:#fff;font-weight:500}
-.tools #btnGuide.guidebtn:hover{background:var(--accent-2);color:#fff}
-.tools #btnGuide.guidebtn[aria-pressed="true"]{background:var(--accent-2);color:#fff}
+/* **Die Anleitung steht in Orange auf hellem Grund** (Lex, 9.9.26;
+   vom 6.9.26 bis dahin umgekehrt — orange Fläche mit weißer
+   Schrift): Orange heißt „hier kann man handeln", und im Menü
+   tragen Einträge diese Farbe als **Text**, so wie es der Eintrag
+   „Neuer Eintrag" seit dem 8.9.26 aus demselben Grund tut — eine
+   gefüllte Fläche in einer Liste aus acht Wegen liest sich als
+   Anweisung. Dass die Anleitung gerade steht, sagt der getönte
+   Grund bei `aria-pressed`. Es gilt damit wieder `.btn.guidebtn`
+   aus css/components.css; hier steht keine Überschreibung mehr. */
 /* Im Menü ist die Umfrage ein Eintrag wie jeder andere: keine
    Füllung, kein eigenes Orange. Dass sie wartet, sagt der rote
    Punkt am Hamburger — zwei Signale für dieselbe Sache machen

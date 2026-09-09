@@ -90,7 +90,9 @@ Abschnitt.**
   „Daten importieren (CSV-Datei)" (`#btnImportCsv` → `openCsvWizard()`; **die Dateiart steht
   bei beiden in Klammern dahinter**, in jeder Sprache so geschrieben, wie man sie dort
   schreibt) ‖ Neuer Eintrag ‖ Speichern · Sicherung ‖ Schließen ‖ Einstellungen ‖ Anleitung
-  (**orange Fläche mit weißer Schrift**, `.tools #btnGuide`).
+  (**orange Schrift auf hellem Grund**, `.btn.guidebtn`; vom 6.9.26 bis 9.9.26 umgekehrt
+  als orange Fläche mit weißer Schrift — im Menü tragen Einträge ihre Farbe als Text, wie
+  „Neuer Eintrag" daneben, und dass die Anleitung gerade steht, sagt der getönte Grund).
   **Öffnen und Importieren stehen ohne Linie beieinander** (Lex, 8.9.26): beide holen Zahlen
   herein, das eine die ganze lokale Datenbank, das andere eine CSV-Spalte. **„Neuer Eintrag"
   (`#mNewOut`) steht dazwischen und dem Speichern** — allein zwischen zwei Linien, in der

@@ -851,7 +851,15 @@ body.gsnap .wrap{transition:none}
 /* Das Polster ist um ein Pixel höher als am Kreuz daneben: dort
    trägt ein Schriftzeichen die Höhe, hier ein 13-px-Symbol — beide
    Knöpfe sollen gleich hoch sein. */
-.guidepanel .gfull,.c2gpanel .gfull{display:inline-grid;place-items:center;padding:5px 8px}
+/* **Der Sprung in den eigenen Reiter und das ✕ sind gleich groß**
+   (Lex, 9.9.26): sie stehen nebeneinander im Kopf der Anleitung
+   und tun beide etwas mit dem Fenster — zwei Maße nebeneinander
+   sähen aus, als wäre eins wichtiger. Ein festes Maß und kein
+   Polster: der eine trägt ein 13-px-Bild, der andere ein Zeichen,
+   und aus Polster plus Inhalt käme nie dieselbe Zahl heraus. */
+.guidepanel .gfull,.guidepanel #gClose,.c2gpanel .gfull{
+  display:inline-grid;place-items:center;padding:0;width:31px;height:25px;
+  font-size:13px;line-height:1}
 .guidepanel .gfull svg,.c2gpanel .gfull svg{width:13px;height:13px;stroke:currentColor;fill:none;
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* Der Trennstrich ist eine **Fuge**, kein Rand am zweiten Knopf:
