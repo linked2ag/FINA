@@ -2584,12 +2584,17 @@ textarea.srvtext{width:100%;display:block}
      Fensterrand. Das obere Polster ist dafür das des Fensters
      (14 px), damit ihr Kopf auf einer Linie mit den Knöpfen
      daneben steht. */
+  /* **Rechts so viel Luft wie oben** (Lex, 9.9.26): die Knöpfe im
+     Kopf standen an der Kante, während über ihnen 14 px Platz war
+     — in einer Ecke fällt ein ungleicher Abstand sofort auf. Das
+     Polster sitzt am Feld und nicht am Rumpf, damit Kopf und Text
+     dieselbe Kante haben. */
   border-left:2px solid var(--ink);
-  box-shadow:-14px 0 26px -20px rgba(0,0,0,.7);padding:14px 0 0 16px}
+  box-shadow:-14px 0 26px -20px rgba(0,0,0,.7);padding:14px 14px 0 16px}
 .c2gpanel .c2ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 2px;flex:0 0 auto}
 .c2gpanel .c2ghead b{font-family:var(--font-display);font-size:17px}
 .c2gpanel .gact{gap:8px}
-.c2gpanel .c2gbody{flex:1 1 auto;min-height:0;overflow:auto;padding:0 4px 24px 0}
+.c2gpanel .c2gbody{flex:1 1 auto;min-height:0;overflow:auto;padding:0 0 24px 0}
 .c2gpanel .c2gbody>h4:first-of-type{border-top:0;padding-top:0;margin-top:8px}
 .c2gpanel .c2gbody>p:first-child{margin-top:8px}
 .c2gpanel p,.c2gpanel li{font-size:13px}
