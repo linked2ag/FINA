@@ -240,13 +240,17 @@ function emptyState(){
        für diese Sitzung. */
     anaOpen:!!(state&&state.anaOpen),
     /* Ob die Anleitung sich dazustellt, sobald das Buch aufgeht —
-       und ob der CSV-Import seine mitbringt. Auch das ist eine
-       Gewohnheit beim Lesen und keine Angabe über Geld: sie
-       überlebt das Trennen der Datei. **Vorgabe ist ja** — wer FINA
-       zum ersten Mal öffnet, soll die Anleitung nicht suchen
-       müssen; wer sie nicht mehr braucht, nimmt den Haken in den
-       Einstellungen unter „Darstellung" weg. */
-    guideOpen:(state&&state.guideOpen===false)?false:true,
+       und ob der CSV-Import seine mitbringt. **Ein frisch
+       angefangenes Buch bekommt immer ja** (Lex, 9.9.26), auch wenn
+       im vorigen der Haken weg war: die Anleitung führt durch das
+       Anlegen, und genau davor steht, wer neu anfängt. Bis dahin
+       erbte das leere Buch die Gewohnheit des alten — wer eine
+       Datei mit weggenommenem Haken schloss und „Neu anfangen"
+       drückte, bekam keine Anleitung und fand keinen Grund dafür;
+       erst ein Neuladen der Seite half. Wer sie nicht mehr braucht,
+       nimmt den Haken in den Einstellungen unter „Darstellung"
+       wieder weg — das gilt dann für dieses Buch. */
+    guideOpen:true,
     /* Worin das Suchfeld sucht, ist keine Angabe über Geld, sondern
        eine Gewohnheit beim Lesen — sie überlebt das Trennen der
        Datei, anders als die vier Listen. */

@@ -138,7 +138,15 @@ const STR={
    was es ist, und das Wort „lokal" sagt zugleich das Wichtigste
    darüber: sie bleibt auf dem eigenen Rechner. Wo der Dateityp
    genannt wird, steht er weiter in Klammern dahinter. */
-'app.load':{en:'Open local database (JSON file)',de:'Lokale Datenbank öffnen (JSON-Datei)'},
+/* ── Die Menüeinträge sind Befehle (Lex, 9.9.26) ──────────────
+   Auf Deutsch steht das Verb **vorn**: „Öffne lokale Datenbank",
+   nicht „Lokale Datenbank öffnen". Ein Menüeintrag ist das, was
+   man dem Programm sagt, und im Deutschen fängt ein Befehl mit dem
+   Verb an — nachgestellt liest er sich wie eine Überschrift. Auf
+   Englisch steht das Verb ohnehin vorn, dort ändert sich nichts.
+   Die Dateiart bleibt in Klammern dahinter (siehe „Die JSON-Datei
+   heißt lokale Datenbank" in CLAUDE.md). */
+'app.load':{en:'Open local database (JSON file)',de:'Öffne lokale Datenbank (JSON-Datei)'},
 'app.loadTip':{en:'Open a local database (JSON file) and show its contents',
   de:'Lokale Datenbank (JSON-Datei) öffnen und ihren Inhalt anzeigen'},
 'app.save':{en:'Save data',de:'Daten speichern'},
@@ -147,7 +155,7 @@ const STR={
 'app.backup':{en:'Save backup',de:'Sicherung speichern'},
 'app.backupTip':{en:'Download a dated copy — the file you are working on stays as it is',
   de:'Eine Kopie mit Datum herunterladen — die Datei, in der du arbeitest, bleibt, wie sie ist'},
-'app.unlink':{en:'Close local database',de:'Lokale Datenbank schließen'},
+'app.unlink':{en:'Close local database',de:'Schließe lokale Datenbank'},
 'app.unlinkTip':{en:'Clear the view and let go of the local database',
   de:'Ansicht leeren und die lokale Datenbank loslassen'},
 /* Der Import steht in der Kopfzeile, nicht mehr im Reiter: den
@@ -164,7 +172,7 @@ const STR={
 /* Hieß bis 8.9.26 „Import CSV" / „CSV importieren". Jetzt nennt der
    Eintrag zuerst, was er tut, und danach die Dateiart — dieselbe
    Form wie „Daten hochladen (JSON-Datei)" darüber. */
-'menu.csv':{en:'Import data (CSV file)',de:'Daten importieren (CSV-Datei)'},
+'menu.csv':{en:'Import data (CSV file)',de:'Importiere Daten (CSV-Datei)'},
 'menu.csvTip':{en:'Read any CSV — bank statement, card export, tracker. Nothing is changed until you press “Apply”',
   de:'Jede CSV einlesen — Kontoauszug, Kartenexport, Tracker. Geändert wird erst, wenn du „Anwenden“ drückst'},
 'menu.newFlex':{en:'New flexible entry',de:'Neuer flexibler Eintrag'},
@@ -369,7 +377,7 @@ const STR={
   de:'Es gibt ungespeicherte Änderungen. Trotzdem eine andere Datei öffnen? Der jetzige Stand geht dabei verloren.'},
 'store.started':{en:'Empty book started — save it when you are ready.',de:'Leeres Buch angelegt — speichern, wenn du so weit bist.'},
 'store.unlinked':{en:'Local database closed. Use “Open local database” to open one.',
-  de:'Verbindung getrennt. Über „Lokale Datenbank öffnen" kannst du eine öffnen.'},
+  de:'Verbindung getrennt. Über „Öffne lokale Datenbank" kannst du eine öffnen.'},
 'store.readFail':{en:'The file could not be read.',de:'Datei konnte nicht gelesen werden.'},
 'store.fileKind':{en:'FINA data',de:'FINA Daten'},
 
@@ -445,8 +453,13 @@ const STR={
    hinein. Sie steht am Anfang und wieder nach dem Trennen der
    Datei (js/views/willkommen.js). */
 'wel.title':{en:'Your money. Your plan.',de:'Dein Geld. Dein Plan.'},
-'wel.lead':{en:'No account. No cloud. Your data stays on your computer.',
-  de:'Kein Konto. Keine Cloud. Deine Daten bleiben auf deinem Rechner.'},
+/* „…oder wo auch immer du sie hinlegst" (Lex, 9.9.26): FINA legt
+   die Datei nicht irgendwohin — der Nutzer wählt beim Speichern
+   selbst, wo sie liegt, und das darf auch ein Stick oder ein
+   eigener Ordner in der Cloud sein. „Bleibt auf deinem Rechner"
+   allein klang nach einer Einschränkung, die es gar nicht gibt. */
+'wel.lead':{en:'No account. No cloud. Your data stays on your computer — or wherever you choose to keep it.',
+  de:'Kein Konto. Keine Cloud. Deine Daten bleiben auf deinem Rechner — oder wo auch immer du sie hinlegst.'},
 'wel.open':{en:'Open your local database',de:'Lokale Datenbank öffnen'},
 'wel.openHint':{en:'Pick your saved FINA local database and carry on.',
   de:'Deine gespeicherte lokale FINA-Datenbank wählen und weitermachen.'},
@@ -1191,8 +1204,14 @@ const STR={
    c2UseHeader() die erste Buchung dafür — und die ist dann keine
    Buchung mehr. Gemerkt wird das erst hinterher. */
 'c2.needHead':{en:'The CSV file needs a header row.',de:'Die CSV-Datei braucht eine Kopfzeile.'},
-'c2.needHeadSub':{en:'FINA reads the column names from it and recognises the file next time. Without one, FINA takes the first transaction as the header row — and that transaction is not imported.',
-  de:'Aus ihr liest FINA die Namen der Spalten und erkennt die Datei beim nächsten Mal wieder. Fehlt sie, nimmt FINA die erste Buchung als Kopfzeile — diese Buchung wird dann nicht eingelesen.'},
+/* Der zweite Satz sagt, was ohne Kopfzeile **nicht geht** — die
+   Zuordnung der Spalten und das Wiedererkennen der Datei —, und
+   nicht mehr, was FINA dann ersatzweise täte (Lex, 9.9.26): das
+   war eine technische Auskunft über einen Notbehelf, und wer sie
+   las, wusste danach immer noch nicht, dass die Kopfzeile Pflicht
+   ist. Kurz und in Du-Form wie der Rest des Wizards. */
+'c2.needHeadSub':{en:'FINA reads the column names from it: without a header row it cannot tell which column is which, and it will not recognise the file next time. So a header row is a must.',
+  de:'Aus ihr liest FINA die Namen der Spalten: ohne Kopfzeile weiß FINA nicht, welche Spalte was ist, und erkennt die Datei beim nächsten Mal nicht wieder. Eine Kopfzeile ist deshalb Pflicht.'},
 'c2.sub':{en:'Reads any CSV — bank statement, card export, tracker. Encoding, separator and header row are detected automatically. Nothing changes until you press “Finish”.',
   de:'Liest jede CSV — Kontoauszug, Kartenexport, Tracker. Kodierung, Trennzeichen und Kopfzeile erkennt der Import selbst. Geändert wird erst, wenn du „Fertig“ drückst.'},
 'c2.steps1':{en:'File',de:'Datei'},

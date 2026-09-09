@@ -77,9 +77,9 @@ of the three an entry belongs to.</p>`)}
 <div class="gsteps">
 ${gstep(1,'Start a book',`
 <p>With no file open you see two buttons. <b>${t('wel.new')}</b> begins an empty book. Do you
-already have a FINA file? Then press <b>${t('wel.open')}</b>. Top right you choose the
+already have a FINA local database? Then press <b>${t('wel.open')}</b>. Top right you choose the
 language. One book holds exactly one calendar year.</p>
-${gshot('welcome','The first screen: open a file, or start from scratch')}`)}
+${gshot('welcome','The first screen: open your local database, or start from scratch')}`)}
 
 ${gstep(2,'Year, language and opening balance',`
 <p>Open the menu <b>☰</b> at the top right and press <b>${t('app.settings')}</b>. In
@@ -148,9 +148,9 @@ wählst, entscheidet, zu welchem der drei Bereiche ein Eintrag gehört.</p>`)}
 <div class="gsteps">
 ${gstep(1,'Ein Buch anfangen',`
 <p>Ohne Datei siehst du zwei Knöpfe. <b>${t('wel.new')}</b> beginnt ein leeres Buch. Hast du
-schon eine FINA-Datei? Dann wähle <b>${t('wel.open')}</b>. Oben rechts wählst du die Sprache.
+schon eine lokale FINA-Datenbank? Dann wähle <b>${t('wel.open')}</b>. Oben rechts wählst du die Sprache.
 Ein Buch steht immer für genau ein Kalenderjahr.</p>
-${gshot('welcome','Die erste Seite: Datei öffnen oder neu anfangen')}`)}
+${gshot('welcome','Die erste Seite: lokale Datenbank öffnen oder neu anfangen')}`)}
 
 ${gstep(2,'Jahr, Sprache und Anfangsbestand',`
 <p>Öffne das Menü <b>☰</b> oben rechts und drücke <b>${t('app.settings')}</b>. Unter
@@ -1165,7 +1165,9 @@ function setGuideWidth(w){
 
 function guideOpen(){ return !!document.getElementById('guidePanel'); }
 
-function openGuide(){
+/* `quiet` wie bei closeGuide(): beim Öffnen eines Buches soll der
+   Fokus bleiben, wo er ist. */
+function openGuide(quiet){
   if(guideOpen()) return;
   guideLangOnOpen();
   const el=document.createElement('aside');
@@ -1176,7 +1178,7 @@ function openGuide(){
   document.body.classList.add('guideon');
   setGuideWidth(guideW||Math.max(window.innerWidth/3,guideTabsNeed()));
   syncGuideBtn();
-  el.querySelector('#gClose').focus();
+  if(!quiet) el.querySelector('#gClose').focus();
 }
 
 /* Zu geht der Bereich animiert (7.9.26): er fährt nach rechts
@@ -1185,35 +1187,32 @@ function openGuide(){
    Kennung fällt sofort ab: guideOpen() sagt damit schon „zu", und
    ein neues Öffnen während der Fahrt legt einen frischen Bereich
    über den hinausfahrenden. */
-function closeGuide(){
+/* `quiet` heißt: nicht von Hand ausgelöst. Dann bleibt der Fokus,
+   wo er ist — beim Öffnen eines Buches setzt ihn wire() ins
+   Suchfeld, und ein Sprung auf einen Knopf im geschlossenen Menü
+   nähme ihn wieder weg (Lex, 9.9.26). */
+function closeGuide(quiet){
   const el=document.getElementById('guidePanel'); if(!el) return;
   el.removeAttribute('id'); el.classList.add('closing'); el.setAttribute('inert','');
   const done=()=>el.remove();
-  el.addEventListener('animationend',done); setTimeout(done,400);
+  el.addEventListener('animationend',done); setTimeout(done,1200);
   document.body.classList.remove('guideon');
   syncGuideBtn();
   if(typeof syncMatrixHead==='function') syncMatrixHead();
-  const b=document.getElementById('btnGuide'); if(b) b.focus();
+  if(!quiet){ const b=document.getElementById('btnGuide'); if(b) b.focus(); }
 }
 
 function toggleGuide(){ guideOpen()?closeGuide():openGuide(); }
 
-/* ── Aufgeschlagen, ohne dass die Seite dabei wandert ─────────
-   Beim Öffnen eines Buches (render() in js/app.js, ui.enter) stellt
-   sich die Anleitung dazu — und die Ansicht fliegt im selben Zug
-   von rechts herein. Ginge das Polster der Seite dabei über
-   (.wrap, 280 ms), bräche die ganze Ansicht in jedem Bild dieser
-   Fahrt neu um, und genau das ruckelt. Hier steht die Seite noch
-   gar nicht: das Polster darf also gleich stimmen.
-
-   Der Bereich selbst fährt trotzdem von rechts herein — er kommt
-   aus derselben Richtung wie die Ansicht. */
-function openGuideSnap(){
-  document.body.classList.add('gsnap');
-  openGuide();
-  document.body.getBoundingClientRect();
-  requestAnimationFrame(()=>document.body.classList.remove('gsnap'));
-}
+/* Hier stand bis 9.9.26 `openGuideSnap()`: die Anleitung stellte
+   sich **zugleich** mit dem hereinfliegenden Buch dazu, und damit
+   die Ansicht während der Fahrt nicht in jedem Bild neu umbrach,
+   sprang das Polster der Seite ohne Übergang (body.gsnap). Jetzt
+   kommt sie erst, wenn das Buch steht (GUIDE_AFTER_ENTER in
+   js/app.js) — nacheinander statt übereinander, und das Polster
+   darf wieder weich mitgehen. Die Klasse `gsnap` bleibt in
+   css/components.css: sie ist der Weg, das Polster einmal
+   springen zu lassen, wenn ihn je wieder jemand braucht. */
 
 /* Reiter wechseln. Öffnet den Bereich, falls er zu ist — so
    kommt man von überall her auf einen bestimmten Reiter. */

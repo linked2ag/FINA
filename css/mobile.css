@@ -86,6 +86,23 @@ header{margin:0 -12px}
    Alle drei tragen das Mac-Knopfbild der Kopfzeile (--grad-btn,
    --sh-btn); die Liste verliert dafür ihr Browserkleid
    (appearance:none) und zentriert ihre Beschriftung. */
+/* ── Die Statuszeile bleibt hier im Fluss ────────────────────
+   Am Schreibtisch klebt sie seit 9.9.26 fest am unteren Rand
+   (css/layout.css). Auf dem Telefon nicht: dort steht dort schon
+   die Ansichtswahl (.mtabs, fest und 60 px hoch), und zwei feste
+   Leisten übereinander nähmen einem Bildschirm, auf dem FINA
+   ohnehin nur zum Nachsehen da ist, über hundert Pixel weg. Sie
+   steht deshalb wie früher am Ende der Seite — wer sie braucht,
+   rollt hin. `--statush` bleibt dabei null (syncStickyTops fragt,
+   ob sie wirklich fest steht), das Polster von .wrap ist hier
+   ohnehin ein eigenes. */
+.status{position:static;margin-top:14px;padding:10px 0 0;background:none;z-index:auto}
+/* Und sie fährt hier nicht: im Fluss wäre eine Verschiebung nach
+   unten keine Leiste, die weggeht, sondern ein Absatz, der
+   verrutscht. renderStatus() schaltet sie deshalb auf dem Telefon
+   ohne Umweg um; die Regel hier ist der doppelte Boden. */
+.status.statin,.status.statout{animation:none}
+
 body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;
   gap:8px;align-items:center;
   padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));
@@ -121,9 +138,12 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
   background:var(--grad-btn);border:1px solid var(--rule);color:var(--ink);
   border-radius:8px;box-shadow:var(--sh-btn);font-size:16px;padding:0}
 .mfbtn[aria-expanded="true"]{background:var(--shade)}
-/* Gefiltert heißt auf dem Telefon dasselbe wie am Schreibtisch:
-   Neongelb mit dunkler Schrift (--flt, siehe css/tokens.css). */
-.mfbtn.on{background:var(--flt);border-color:var(--rule-strong);color:var(--ink)}
+/* Gefiltert heißt auf dem Telefon dasselbe wie am Schreibtisch —
+   und das ist seit 9.9.26 das weiche Orange und nicht mehr das
+   Neongelb (Lex; siehe .filterbar.on in css/layout.css). Der Knopf
+   ist hier das, was dort die ganze Bahn ist. */
+.mfbtn.on{background:var(--accent-soft);border-color:var(--rule-strong);color:var(--ink);
+  transition:background-color .5s ease-out,border-color .5s ease-out}
 .mfbadge{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:8px;
   background:var(--seal);color:var(--paper-2);font-family:var(--font-data);font-size:9.5px;
   font-weight:600;line-height:16px;padding:0 3px}

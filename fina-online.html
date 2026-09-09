@@ -87,7 +87,7 @@
            Schließen: js/app.js, unten bei den festen Schaltflächen.
            Reihenfolge mit Trennern (.mi-sep schließt eine Gruppe ab):
            Öffnen · Importieren ‖ Neuer Eintrag ‖ Speichern ·
-           Sicherung ‖ Schließen ‖ Einstellungen ‖ Anleitung. -->
+           Sicherung · Schließen ‖ Einstellungen ‖ Anleitung. -->
       <div class="tools" id="hdrTools" data-tipside="1">
         <!-- Der Dateiname steht als Menükopf immer zuoberst (css:
              .menufile, gefüllt in renderStatus) — man sieht, an
@@ -126,18 +126,19 @@
              Einnahmen, flexible und reguläre Posten stehen dort in
              derselben Auswahlliste. -->
         <button class="btn mi-new mi-sep" id="mNewOut" data-t="menu.newOut"></button>
-        <!-- Die Dateigruppe: sichern und schließen. „Daten
-             speichern" steht hier nur, solange nichts zu speichern
-             ist — sobald es etwas gibt, holt fitHeaderBtns() den
-             Knopf neben den Hamburger. -->
+        <!-- Die Dateigruppe: sichern, eine Kopie danebenlegen und
+             die lokale Datenbank wieder loslassen — drei Schritte
+             am Ende der Arbeit, in dieser Reihenfolge und ohne
+             Linie dazwischen (Lex, 9.9.26; „Schließen" stand für
+             einen Tag oben beim Öffnen und für einen weiteren
+             allein zwischen zwei Linien). „Daten speichern" steht
+             hier nur, solange nichts zu speichern ist — sobald es
+             etwas gibt, holt fitHeaderBtns() den Knopf neben den
+             Hamburger. -->
         <button class="btn" id="btnSave" data-t="app.save" data-ttip="app.saveTip"></button>
         <!-- Eine Kopie mit Zeitstempel im Namen, neben der laufenden
              Datei her (js/storage.js). -->
-        <!-- Sichern und Schließen sind seit 6.9.26 spät getrennt:
-             eine Linie unter der Sicherung, das Schließen steht
-             allein — es ist der eine Eintrag, der die lokale
-             Datenbank loslässt. -->
-        <button class="btn mi-sep" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
+        <button class="btn" id="btnBackup" data-t="app.backup" data-ttip="app.backupTip"></button>
         <button class="btn mi-sep" id="btnUnlink" data-t="app.unlink" data-ttip="app.unlinkTip"></button>
         <button class="btn mi-sep" id="btnSettings" data-t="app.settings" data-ttip="app.settingsTip"></button>
         <!-- Der einzige farbige Eintrag — seit 6.9.26 spät eine

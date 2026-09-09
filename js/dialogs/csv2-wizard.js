@@ -1266,11 +1266,21 @@ function c2Step1Ready(){
 function c2ColsSame(){
   const m=W.csv&&state.csvMaps[c2MapKey()];
   if(!m)return false;
-  /* Verglichen werden allein die Felder (5.9.26). Eine gewählte
-     Spalte ohne Feld zählt nicht — sie hält der Knopf ohnehin auf,
-     bevor es nach Schritt 3 geht (c2LooseCols). */
+  /* Verglichen werden die Felder (5.9.26) **und die eigenen Namen
+     der Referenzfelder** (Lex, 9.9.26). Eine gewählte Spalte ohne
+     Feld zählt nicht — sie hält der Knopf ohnehin auf, bevor es
+     nach Schritt 3 geht (c2LooseCols).
+
+     Die Namen gehören mit dazu, weil sie mit der Struktur gemerkt
+     werden (`rn` in state.csvMaps, siehe c2SaveCols). Wer eine
+     Referenz umbenennt, hat die Struktur geändert — der Knopf muss
+     dann wieder „Spalten speichern und weiter" heißen und nicht
+     bloß „Weiter", sonst fiele die Umbenennung beim nächsten Mal
+     unbemerkt wieder weg. */
   const mf=m.f||{};
-  return C2_FIELDS.every(k=>+(W.f[k]==null?-1:W.f[k])===+(mf[k]==null?-1:mf[k]));
+  if(!C2_FIELDS.every(k=>+(W.f[k]==null?-1:W.f[k])===+(mf[k]==null?-1:mf[k])))return false;
+  const mr=m.rn||{}, wr=W.rn||{};
+  return C2_REFS.every(k=>(wr[k]||'')===(mr[k]||''));
 }
 /* Nur die Knopfreihe der Kopfzeile neu bauen — Schritt 2 zeichnet
    bei jedem Klick auf eine Spalte nur seine Tabelle neu (redraw in

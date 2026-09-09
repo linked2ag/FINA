@@ -184,13 +184,13 @@ SHOTS = [
     ('month-page',  'v=monat&m=8&fold=',                  1200, 760),
     # Ein greifender Filter: die Zeile leuchtet, die Karten zeigen nur
     # die Treffer, „(n ausgeblendet)" steht an den Köpfen.
-    ('ui-filter',   'v=monat&m=8&q=insurance&fold=&only=%23view', 1200, 520),
+    ('ui-filter',   'v=monat&m=8&q=insurance&fold=&only=%23view', 1200, 290),
     # Der CSV-Import in Schritt 3 mit der Anleitung daneben.
     ('csv-step3',   'v=jahr&csv=1&chip=Groceries&guide2=1', 1500, 1000),
-    ('ui-kpi',      'v=monat&m=8&only=.stickybar',        1200),
+    ('ui-kpi',      'v=monat&m=8&only=.anasub',           1200),
     # Die Auswertung, aufgeklappt: Zahlenzeile, Zeitstrahl, Filter.
     ('welcome',     'wel=1&only=.welcome',                1200),
-    ('ui-analytics','v=monat&m=8&ana=1&only=.stickybar',  1400),
+    ('ui-analytics','v=monat&m=8&ana=1&only=.anasub',     1400),
     ('ui-waterfall','v=monat&m=8&ana=1&only=.tline',      1400),
     ('set-general', 'dlg=settings&pane=general',          1100),
     ('set-lists',   'dlg=settings&pane=banks',            1100),

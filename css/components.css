@@ -253,8 +253,28 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
   background:none;border:0;border-radius:0;box-shadow:none}
 .fltfield .fltq:focus{outline:none;border:0}
 /* In der Jahresansicht steht das Feld neben der Überschrift und
-   richtet sich nach keiner Spalte. */
-.fltbox.fltyear{flex:0 0 auto;width:264px}
+   richtet sich nach keiner Spalte. **Schrumpfen darf es trotzdem**
+   (Lex, 9.9.26): es stand mit `flex:0 0 auto` starr auf 264 px, und
+   in der Jahresleiste kommen rechts zwei lange Knöpfe dazu
+   („Abgeschlossene Monate ausblenden", „Erledigte Posten
+   ausblenden"). Reichte die Breite nicht, half auch das ☰ nicht
+   mehr — die Zeile brach auf zwei Zeilen um. */
+.fltbox.fltyear{flex:0 1 264px;width:264px;min-width:140px}
+/* ── Und das Schrumpfen geht weich (Lex, 9.9.26) ───────────────
+   Die zweite Stelle nach dem Seitenpolster der Anleitung, an der
+   bewusst ein **Maß** bewegt wird und nicht nur transform: das Feld
+   muss wirklich schmaler werden, dafür gibt es keine Verschiebung,
+   die dasselbe täte. Teuer ist es nicht — neu gesetzt wird eine
+   Zeile aus einer Handvoll Knöpfen, nicht die Seite.
+
+   Die Breite selbst rechnet fitFilterBar() (js/app.js) und schreibt
+   sie als Inline-Maß. `nofx` schaltet den Übergang für die Dauer
+   der Messung ab: dort wird das Feld kurz auf seine natürliche
+   Breite zurückgesetzt, und dieser Sprung soll nicht zu sehen
+   sein. */
+.fbrow .fltbox{transition:width .56s cubic-bezier(.4,0,.2,1),flex-basis .56s cubic-bezier(.4,0,.2,1)}
+.fbrow .fltbox.nofx{transition:none}
+@media (prefers-reduced-motion:reduce){.fbrow .fltbox{transition:none}}
 /* Rechts vom Feld der Knopf, der den Filter zurücknimmt. Etwas
    kleiner ist das Kreuz: es ist ein Zeichen, keine Beschriftung. */
 .fltclear{flex:0 0 auto;padding:0 8px;font-size:11.5px;line-height:1;
@@ -559,13 +579,55 @@ body.pagein{animation:fina-pagein .34s ease-out}
    (Lex, 8.9.26 spät: es soll wieder nach oben gehen): der Weg nach
    unten führte über die Ansicht, für die gerade Platz gemacht wird.
 
-   Nacheinander, nicht zugleich: das Alte ist in 200 ms draußen,
-   das Neue fängt 100 ms später an (backwards hält es bis dahin
-   unsichtbar). Bewegt werden nur transform und opacity. */
+   Nacheinander, nicht zugleich: das Alte ist in 400 ms draußen,
+   das Neue fängt danach an (backwards hält es bis dahin
+   unsichtbar). **Beide Wege sind gleich lang** (Lex, 9.9.26; das
+   Hereinkommen dauerte 280 ms): es ist dieselbe Strecke von 14 px,
+   und zwei Zeiten dafür lasen sich als zwei verschiedene
+   Bewegungen. **Und beide noch einmal doppelt so langsam** (Lex,
+   9.9.26 spät: 200 → 400 ms je Richtung). Die Kurven bleiben
+   verschieden — was geht, zieht an (ease-in), was kommt, klingt
+   aus. Bewegt werden nur transform und opacity.
+
+   **Und das Alte fährt in der neuen Leiste aus** (Lex, 9.9.26):
+   `.topghost` ist der Inhalt der alten Leiste, in slideViewIn
+   hierher umgehängt und absolut über den neuen gelegt. Im Geist
+   der alten Ansicht lag er eine Stufe tiefer als die neue,
+   deckende Bahn — er fuhr also aus, ohne dass es jemand sah, und
+   für den Betrachter verschwand er einfach. Absolut gesetzt, damit
+   die Höhe der Leiste am neuen Inhalt hängt und nicht für die
+   Dauer der Fahrt an beiden. */
 @keyframes fina-barout{to{transform:translateY(-14px);opacity:0}}
 @keyframes fina-barin{from{transform:translateY(-14px);opacity:0}}
 .viewghost>.stickybar.viewtop>*{animation:fina-barout .2s ease-in forwards}
-#view>.stickybar.viewtop.barin>*{animation:fina-barin .28s cubic-bezier(.4,0,.2,1) .1s backwards}
+/* ── Die Bahn bleibt stehen, es fahren nur die Knöpfe (Lex, 9.9.26) ──
+   Grund, Haarlinie und Farbe der Bahn sitzen **am Kind** (`.fbrow` —
+   im Monat `.filterbar`, im Jahr `.ybrow`), nicht am klebenden
+   Wrapper. Ließ man dieses Kind als Ganzes ausblenden, blendete die
+   Bahn mit weg: 200 ms lang stand dort nacktes Papier, die alten
+   Knöpfe schwebten über nichts, und der neue Inhalt fiel in eine
+   Lücke statt in eine Bahn — genau das sah falsch aus
+   (nachgemessen an Bildern des Wechsels Monat→Jahr).
+
+   Bewegt werden deshalb **die Kinder der Bahn**, nicht die Bahn.
+   Und der Geist des alten Inhalts legt seine eigene Bahn ab
+   (durchsichtig, ohne Linie und Schatten): sichtbar ist von ihm nur,
+   was in der Bahn stand — die Bahn darunter ist die neue, und die
+   steht die ganze Zeit. */
+/* Der Geist trägt die Klassen seiner alten Leiste (js/ui.js), damit
+   die Nachfahren-Regeln der Bahn greifen — hier wird ihm alles
+   genommen, was er als Leiste mitbrächte: er klebt nicht, er hat
+   kein eigenes Polster und keinen eigenen Grund. */
+#view>.stickybar.viewtop>.topghost{position:absolute;left:0;right:0;top:0;z-index:1;
+  pointer-events:none;margin:0;padding:0;background:none;border:0;box-shadow:none;
+  animation:fina-barout .4s ease-in forwards}
+#view>.stickybar.viewtop>.topghost>.fbrow{background:transparent;border-color:transparent;
+  box-shadow:none;transition:none}
+#view>.stickybar.viewtop.barin>.fbrow>*{animation:fina-barin .4s cubic-bezier(.16,.7,.3,1) .2s backwards}
+/* Fährt wirklich etwas hinaus, wartet das Neue dessen 200 ms ab —
+   sonst bliebe es bei den 100 ms: eine Wartezeit, hinter der nichts
+   steht, liest sich als Hänger. */
+#view>.stickybar.viewtop.barin.barswap>.fbrow>*{animation-delay:.4s}
 /* Solange die neue Ansicht von der Seite kommt, ragt sie über den
    rechten Rand: kein Rollbalken dafür (gesetzt in slideViewIn). */
 html.viewslide{overflow-x:hidden}
@@ -618,11 +680,12 @@ html{scrollbar-gutter:stable}
 @media (prefers-reduced-motion:reduce){
   .modal,.modal .box,.modalghost,.modalghost .box,.dropmenu.popin,.tools.open,.c2fpop,
   .viewbody.in-left,.viewbody.in-right,.foldin,.foldin-row{animation:none}
-  .viewghost>.stickybar.viewtop>*,#view>.stickybar.viewtop.barin>*{animation:none}
+  .viewghost>.stickybar.viewtop>*,#view>.stickybar.viewtop.barin>.fbrow>*{animation:none}
   .viewbody.pre-left,.viewbody.pre-right{transform:none}
   body.pagein{animation:none}
+  .brand .sub.yearin,.status.statin,.status.statout{animation:none}
   .modalghost,.viewghost,.boxslide,.foldghost,.tools.closing,.dropmenu.popout,.c2fpop.popout,
-  .guidepanel.closing,.c2gghostwrap{display:none}
+  .guidepanel.closing,.c2gghostwrap,#view>.stickybar.viewtop>.topghost{display:none}
   .guidepanel,.c2gpanel.slidein{animation:none}
   .wrap{transition:none}
   .modal .box{transition:none!important;clip-path:none!important;transform:none!important}
@@ -729,21 +792,32 @@ html{scrollbar-gutter:stable}
 /* Herein von rechts, hinaus nach rechts (7.9.26) — dieselben
    Keyframes wie die Importdaten am Posten-Fenster (fina-impin/-out).
    .closing setzt closeGuide() in js/dialogs/guide.js. */
-.guidepanel{animation:fina-impin .28s cubic-bezier(.4,0,.2,1)}
-.guidepanel.closing{animation:fina-impout .22s ease-in forwards;pointer-events:none}
+/* **Langsam und weich** (Lex, 9.9.26): 0,28 s mit einer Kurve, die
+   sofort losgeht, sah ruckartig aus — der Bereich stand da, ehe man
+   ihn kommen sah. Jetzt 0,92 s auf einer rein ausklingenden Kurve
+   (Lex, 9.9.26: noch einmal doppelt so langsam) — der Bereich ist
+   breit, und was breit ist, darf sich Zeit lassen.
+   **Das Polster der Seite muss dieselben zwei Werte tragen**, sonst
+   laufen Bereich und Seitenrand auseinander (siehe .wrap unten). */
+.guidepanel{animation:fina-impin .92s cubic-bezier(.16,.7,.3,1)}
+/* Hinaus in derselben Länge und Kurve wie herein: das Polster der
+   Seite geht mit (.wrap, .92s), und zwei verschiedene Längen ließen
+   Bereich und Seitenrand auseinanderlaufen — der Bereich wäre weg,
+   während die Seite noch breiter würde. */
+.guidepanel.closing{animation:fina-impout .92s cubic-bezier(.16,.7,.3,1) forwards;pointer-events:none}
 .guidepanel{position:fixed;top:0;right:0;bottom:0;width:var(--guidew,33vw);z-index:45;
   display:flex;flex-direction:column;background:var(--paper-2);border-left:2px solid var(--ink);
   box-shadow:-14px 0 26px -20px rgba(0,0,0,.7)}
 body.guideon .wrap{padding-right:calc(24px + var(--guidew,33vw))}
 /* **Die Seite schrumpft mit** (Lex, 7.9.26): das Polster rechts geht
    in derselben Zeit und Kurve über wie die Fahrt des Bereichs
-   (fina-impin .28s), statt schlagartig zu springen. Das ist die eine
+   (fina-impin .92s), statt schlagartig zu springen. Das ist die eine
    Stelle, an der bewusst ein Maß und nicht nur transform bewegt
    wird — die Ansicht muss wirklich schmaler werden, und ein Sprung
    sah aus wie ein Fehler. Beim Ziehen am Griff (body.gresize) kein
    Übergang: das Polster soll dem Zeiger folgen, nicht nachlaufen.
    Am Ende des Übergangs misst syncMatrixHead() neu (guide.js). */
-.wrap{transition:padding-right .28s cubic-bezier(.4,0,.2,1)}
+.wrap{transition:padding-right .92s cubic-bezier(.16,.7,.3,1)}
 body.gresize .wrap{transition:none}
 /* Und beim Öffnen eines Buches gar keiner: die Ansicht fliegt
    gerade herein und bräche sonst in jedem Bild neu um
@@ -1537,8 +1611,20 @@ textarea.srvtext{width:100%;display:block}
    festen Namen. Die Auswahl behält ihre volle Breite (`min-width`
    oben), der Stift steht davor und schrumpft nicht mit. */
 .c2fpick{display:flex;align-items:center;gap:4px}
-.c2fpick .c2renbtn{flex:0 0 16px}
+.c2fpick .c2renbtn{flex:0 0 20px}
 .c2fpick select{min-width:96px}
+/* ── Der Umbenennen-Stift trägt die Akzentfarbe (Lex, 9.9.26) ──
+   Er stand als gedecktes Grau zwischen lauter Beschriftungen und
+   wurde übersehen — dabei ist er hier der einzige Weg, einem
+   Referenzfeld einen eigenen Namen zu geben. Orange heißt in FINA
+   „hier kann man handeln" (siehe „Die Farbsprache" in CLAUDE.md),
+   und genau das ist er. Etwas größer als der Stift einer
+   Tabellenzeile: er steht allein, nicht in einer Flucht mit Lampe
+   und Beleglink. Beim Überfahren die dunklere Stufe und ein
+   blasser Grund — dieselbe Sprache wie jeder Knopf der Leiste. */
+.c2renbtn{color:var(--accent);width:20px;height:20px;font-size:17px;border-radius:4px}
+.c2renbtn:hover,.c2renbtn:focus-visible{color:var(--accent-2);background:var(--accent-soft)}
+.c2renbtn:focus-visible{outline:2px solid var(--accent-2);outline-offset:1px}
 /* Im Fenster der Importzuordnung steht er **vor** der Beschriftung
    der Zeile. Die linke Spalte ist dafür etwas breiter als früher
    (96 px) — und zwar in allen drei Blöcken, damit die
@@ -1546,14 +1632,14 @@ textarea.srvtext{width:100%;display:block}
    umbrechen: er kann 24 Zeichen lang sein, und abgeschnitten
    sagte er weniger als in zwei Zeilen. */
 /* **Alle Beschriftungen fangen an derselben Stelle an**: die
-   21 px links sind die Rinne, in der bei den Referenzen ihr Stift
-   steht (16 px Knopf plus 5 px Fuge). Name, Datum und Betrag haben
+   25 px links sind die Rinne, in der bei den Referenzen ihr Stift
+   steht (20 px Knopf plus 5 px Fuge). Name, Datum und Betrag haben
    keinen — sie halten die Rinne trotzdem frei, sonst stünden ihre
    Wörter allein weiter links. */
-.csbox .csgrid label{padding-left:21px}
+.csbox .csgrid label{padding-left:25px}
 .csgrid label.csren{display:flex;align-items:flex-start;gap:5px;white-space:normal;padding-left:0}
 .csgrid label.csren>span{min-width:0;overflow-wrap:anywhere;padding-top:1px}
-.csgrid label.csren .c2renbtn{flex:0 0 16px;margin-top:-2px}
+.csgrid label.csren .c2renbtn{flex:0 0 20px;margin-top:-4px}
 .csbox .csval{font-size:12.5px}
 /* Jeder Spaltenkopf ist ein Knopf im Mac-Knopfbild — man soll
    sehen, dass man hier drücken kann. Gewählt trägt der Knopf das
@@ -2411,13 +2497,22 @@ textarea.srvtext{width:100%;display:block}
    Fläche darunter (.c2work) schneidet die Fahrt an der Fensterkante
    ab. Der Geist steht über dem Fenster (z-index wie .modalghost). */
 .c2work{overflow:hidden}
-.c2gpanel.slidein{animation:fina-impin .28s cubic-bezier(.4,0,.2,1)}
+.c2gpanel.slidein{animation:fina-impin .92s cubic-bezier(.16,.7,.3,1)}
 .c2gghostwrap{position:fixed;z-index:50;overflow:hidden;pointer-events:none}
 .c2gghost{animation:fina-impout .22s ease-in forwards;background:var(--paper-2)}
 .c2gpanel{position:relative;display:flex;flex-direction:column;flex:0 0 33.34%;min-width:0;min-height:0;
   /* Kante und Schatten links wie am Guide der Anwendung (.guidepanel;
-     Lex, 7.9.26). */
-  border-left:2px solid var(--ink);box-shadow:-14px 0 26px -20px rgba(0,0,0,.7);padding:0 0 0 16px}
+     Lex, 7.9.26). **Und oben eine zweite Kante** (Lex, 9.9.26): über
+     dem Feld steht die Knopfzeile des Wizards — Anleitung, ‹ Zurück,
+     „Spalten speichern und weiter", ✕. Ohne Linie lief die
+     Überschrift „Anleitung" ohne Absatz unter diesen Knöpfen weiter,
+     und man sah nicht, wo das Fenster aufhört und die Anleitung
+     anfängt. Sie sitzt am Feld und nicht an der Knopfzeile: die geht
+     über die ganze Breite, die Linie soll nur über der Anleitung
+     stehen. Dieselbe Stärke und Farbe wie die Kante links — es ist
+     dieselbe Einfassung, nur um die Ecke. */
+  border-left:2px solid var(--ink);border-top:2px solid var(--ink);
+  box-shadow:-14px 0 26px -20px rgba(0,0,0,.7);padding:10px 0 0 16px}
 .c2gpanel .c2ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 2px;flex:0 0 auto}
 .c2gpanel .c2ghead b{font-family:var(--font-display);font-size:17px}
 .c2gpanel .c2gx{padding:2px 9px}

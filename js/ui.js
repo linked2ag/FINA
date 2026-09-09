@@ -1390,6 +1390,19 @@ function settleMenus(pending){
    (wrapViewBody weiter unten). */
 let viewSlideT=0, viewGhostTop=0, viewGhostBottom=0, viewGhost=null;
 const VIEW_MS=460;
+/* Der Top-Bereich der **alten** Ansicht, gemerkt in slideViewOut und
+   in slideViewIn ausgeräumt: sein Inhalt fährt in der neuen Leiste
+   nach oben hinaus (siehe topGhost weiter unten). */
+let viewGhostBar=null;
+const BAR_OUT_MS=400;
+/* Und so lange braucht das Neue, nachdem das Alte draußen ist.
+   **Zusammen sind das 800 ms und damit länger als die Fahrt der
+   Ansicht** (VIEW_MS=460): die Klassen `barin`/`barswap` dürfen
+   deshalb nicht mit ihr abfallen, sonst bräche der Übergang der
+   Leiste mitten im Bild ab und der neue Inhalt spränge an seinen
+   Platz. Sie bekommen ihre eigene Uhr (barSwapT). */
+const BAR_IN_MS=400;
+let barSwapT=0;
 /* **Die alte Ansicht wird selbst zum Geist** (7.9.26; bis dahin eine
    Kopie per ghostOf): eine Kopie einer ganzen Jahresmatrix — tausende
    Knoten, samt Rollstellungen — kostete vor dem ersten Bild ein
@@ -1401,6 +1414,10 @@ const VIEW_MS=460;
    entfernt sich am Ende der Fahrt (slideViewIn) selbst. */
 function slideViewOut(vbox,dir){
   const r=vbox.getBoundingClientRect(); viewGhostTop=r.top; viewGhostBottom=Math.min(r.bottom,innerHeight);
+  /* Der Top-Bereich der alten Ansicht wird gleich gebraucht: hat
+     die neue auch einen, zieht slideViewIn seinen Inhalt dort
+     hinüber — im Geist wäre er von der neuen Leiste zugedeckt. */
+  viewGhostBar=viewTopBar(vbox);
   const fresh=document.createElement('div'); fresh.id='view';
   vbox.parentNode.insertBefore(fresh,vbox);
   vbox.removeAttribute('id'); vbox.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
@@ -1480,17 +1497,71 @@ function slideViewIn(vbox,dir){
   vb.style.setProperty('--viewfill',Math.max(0,viewGhostBottom-rb.bottom)+'px');
   document.documentElement.classList.add('viewslide');
   vb.classList.add(dir>0?'pre-right':'pre-left');
-  /* Die Leiste fährt nicht, sie tauscht: ihr Inhalt fällt von oben
-     herein, während der Inhalt der alten im Geist nach unten
-     hinausfällt (css/components.css). */
-  if(bar) bar.classList.add('barin');
+  /* ── Die Leiste fährt nicht, sie tauscht ────────────────────
+     Erst das Alte nach oben hinaus, dann das Neue von oben herein.
+
+     **Der alte Inhalt zieht dafür in die neue Leiste um** (Lex,
+     9.9.26). Er blieb bis dahin im Geist der alten Ansicht liegen
+     und fuhr dort aus — nur liegt der Geist eine Stufe tiefer als
+     #view, und die neue Leiste bringt eine **deckende** Bahn mit:
+     zu sehen war davon also nichts, der alte Inhalt verschwand
+     einfach, und gleich darauf fiel der neue herein. Jetzt hängt
+     er als `.topghost` **in** der neuen Leiste, absolut gesetzt
+     über deren Inhalt, und fährt dort sichtbar nach oben weg. Er
+     ist nur noch Bild: keine Klicks, kein Fokus (`inert`), keine
+     Kennungen — die stehen längst am neuen Inhalt daneben.
+
+     Solange er fährt, wartet der neue Inhalt (`.barswap` verlängert
+     seine Wartezeit auf die 200 ms, die der alte braucht). Gibt es
+     nichts wegzufahren — aus der Prognose heraus, die keinen
+     Top-Bereich hat —, fängt der neue wie bisher nach 100 ms an:
+     eine Wartezeit ohne Grund läse sich als Hänger. */
+  const ob=viewGhostBar; viewGhostBar=null;
+  if(bar){
+    bar.classList.add('barin');
+    if(ob&&ob.firstChild){
+      const gh=document.createElement('div');
+      /* **Der Geist erbt die Klassen seiner alten Leiste** (Lex,
+         9.9.26). Die ganze Bahn ist über Nachfahren beschrieben —
+         `.anabar .filterbar` im Monat, `.yearbar .ybrow` im Jahr:
+         Grund, Mindesthöhe, die negativen Außenmaße, die Bauform
+         der Knöpfe. Hing der alte Inhalt im Wrapper der **anderen**
+         Ansicht, griff keine einzige davon, und die Knöpfe des
+         Jahres brachen im Monat in zwei Zeilen um (an Bildern des
+         Wechsels Jahr→Monat gesehen). `stickybar` und `viewtop`
+         bleiben weg: der Geist klebt nicht, er liegt absolut über
+         der neuen Bahn. */
+      gh.className='topghost '+[...ob.classList]
+        .filter(c=>c!=='stickybar'&&c!=='viewtop'&&c!=='barin'&&c!=='barswap').join(' ');
+      gh.setAttribute('inert','');
+      gh.setAttribute('aria-hidden','true');
+      while(ob.firstChild){
+        const n=ob.firstChild;
+        if(n.removeAttribute) n.removeAttribute('id');
+        if(n.querySelectorAll) n.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+        gh.appendChild(n);
+      }
+      bar.classList.add('barswap');
+      bar.appendChild(gh);
+      /* Wie jeder Geist räumt er sich selbst weg — per Uhr, denn
+         ohne Bewegung (prefers-reduced-motion) endet keine. */
+      setTimeout(()=>gh.remove(),BAR_OUT_MS+100);
+    }
+  }
+  /* Die Leiste räumt ihre Klassen selbst weg — später als die
+     Ansicht, siehe BAR_IN_MS. Per Uhr und nicht per animationend:
+     in der Leiste laufen mehrere Kinder, und ohne Bewegung
+     (prefers-reduced-motion) endet gar keine. */
+  clearTimeout(barSwapT);
+  if(bar) barSwapT=setTimeout(()=>{
+    if(bar.isConnected) bar.classList.remove('barin','barswap');
+  },BAR_OUT_MS+BAR_IN_MS+60);
   const g=viewGhost;
   const done=()=>{
     document.documentElement.classList.remove('viewslide');
     vbox.classList.remove('sliding');
     vb.classList.remove('in-left','in-right','pre-left','pre-right');
     vb.style.removeProperty('--viewgap'); vb.style.removeProperty('--viewfill');
-    if(bar) bar.classList.remove('barin');
     if(g&&g===viewGhost){ g.remove(); viewGhost=null; }
     restick(vbox);
   };

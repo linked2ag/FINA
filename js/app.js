@@ -138,6 +138,22 @@ function fitHeaderBtns(){
   if(dot) dot.hidden=wel||!((dirty&&!sOut)||(!srv.hidden&&!vOut));
 }
 
+/* ── Da, aber unsichtbar ───────────────────────────────────────
+   Ein Element, das die Kopfzeile hoch hält, auch wenn es gerade
+   nichts zu sagen hat (Lex, 9.9.26). `hidden` nähme es aus dem
+   Umbruch, und die Zeile wäre auf der Begrüßungsseite niedriger
+   als im geladenen Buch — die ganze Seite ruckte dann um die
+   Differenz, genau in dem Bild, in dem das Buch hereinfliegt.
+   Angeklickt und angesprungen werden kann es dabei nicht (`inert`),
+   und für die Vorlesehilfe ist es weg. */
+function keepSpace(el,away){
+  if(!el) return;
+  el.hidden=false;
+  el.style.visibility=away?'hidden':'';
+  el.toggleAttribute('inert',!!away);
+  if(away) el.setAttribute('aria-hidden','true'); else el.removeAttribute('aria-hidden');
+}
+
 function renderChrome(){
   document.documentElement.lang=LANG();
   document.querySelectorAll('[data-t]').forEach(el=>{ el.textContent=t(el.dataset.t); });
@@ -191,11 +207,25 @@ function renderChrome(){
      Datei öffnen wollte, musste erst schließen. Ein Buch mit
      ungespeicherter Arbeit fragt vorher (loadData in
      js/storage.js). */
+  /* Das Jahr steht nur im geladenen Buch — und es fährt beim
+     Aufgehen hinter dem Wortzeichen hervor (css/layout.css,
+     fina-yearin). Gefragt wird nicht `ui.enter`, sondern der
+     Knopf selbst: taucht er gerade auf, fährt er. So bewegt er
+     sich auf jedem Weg ins Buch und bei keinem bloßen
+     Neuzeichnen. */
+  const yWas=yl?yl.hidden:true;
   ['btnLoad','btnSave','btnBackup','btnUnlink','btnImportCsv','mNewOut',
    'btnSettings','filePath','btnGuide','yearLbl'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.hidden=wel;
   });
+  if(yl&&yWas&&!yl.hidden){
+    yl.classList.remove('yearin'); yl.getBoundingClientRect();
+    yl.classList.add('yearin');
+    const off=()=>yl.classList.remove('yearin');
+    yl.addEventListener('animationend',off,{once:true});
+    setTimeout(off,900);
+  }
 
   /* Der Umfrage-Knopf hängt nicht am geladenen Buch allein: es
      muss auch eine Umfrage geben, die noch offen ist. Beides fragt
@@ -220,7 +250,16 @@ function renderChrome(){
      dort gibt es ihn nicht. */
   const mb=document.getElementById('btnMenu');
   if(mb){
-    mb.hidden=wel;
+    /* **Er bleibt stehen und wird nur unsichtbar** — dieselbe
+       Behandlung wie die Reiter, und aus demselben Grund: der
+       Hamburger ist mit 26 px das **höchste** Stück der Toolbar,
+       höher noch als die Segmented Control mit 25 (nachgemessen).
+       Nahm man ihn heraus, war die Kopfzeile auf der
+       Begrüßungsseite 42 px hoch und im geladenen Buch 43 — ein
+       Pixel, um das die ganze Seite ruckte, während das Buch
+       hereinflog. Auf dem Telefon gilt dasselbe: dort gibt es die
+       Reiter oben gar nicht, und er allein hält die Höhe. */
+    keepSpace(mb,wel);
     mb.title=t('app.menu');
     mb.setAttribute('aria-label',t('app.menu'));
   }
@@ -255,8 +294,24 @@ function renderChrome(){
   vEl.setAttribute('aria-label',t('app.chooseView'));
   /* Auf dem Telefon entfallen die Reiter oben — dieselben stehen
      unten als .mtabs. Das Inline-display muss das wissen: es
-     gewänne sonst gegen jede Regel in css/mobile.css. */
-  vEl.style.display=(wel||isMobile())?'none':'flex';
+     gewänne sonst gegen jede Regel in css/mobile.css.
+
+     **Auf der Begrüßungsseite bleiben sie stehen und werden nur
+     unsichtbar** (Lex, 9.9.26). Sie sind das höchste Stück der
+     Toolbar: nahm man sie ganz heraus, war die Kopfzeile dort
+     37,9 px hoch und im geladenen Buch 43 (nachgemessen) — und
+     weil die Ansicht gerade hereinfliegt, ruckte in genau diesem
+     Bild die ganze Seite um die fünf Pixel nach unten. Mit
+     `visibility` steht die Zeile in beiden Fällen gleich hoch, und
+     zwar von selbst: wer die Reiter umbaut, muss kein Maß
+     nachtragen. Angeklickt und angesprungen werden können sie
+     dabei nicht (`inert`), und für die Vorlesehilfe sind sie weg.
+     Auf dem Telefon bleibt es bei `display:none` — dort gibt es
+     die Reiter oben in keiner Lage, die Kopfzeile ist also ohnehin
+     immer gleich hoch. */
+  const mob=isMobile();
+  keepSpace(vEl,wel);
+  vEl.style.display=mob?'none':'flex';
   /* Die ✓/?-Erklärung (.viewkey) stand bis 22.8.26 rechts neben
      den Reitern — dort stritt sie sich mit dem Dateinamen um den
      Platz und stand in drei Ansichten, in denen es die Zeichen gar
@@ -345,6 +400,26 @@ function syncStickyTops(){
      die Differenz zu hoch. */
   document.documentElement.style.setProperty('--barh',top+'px');
 
+  /* ── Und dasselbe für die Statusleiste unten (Lex, 9.9.26) ───
+     Sie klebt fest am unteren Rand (.status in css/layout.css), ist
+     also aus dem Fluss — die Seite muss sich ihren Platz selbst
+     freihalten (`.wrap`, padding-bottom). Gemessen und nicht
+     geraten: bei einem langen Dateinamen in einem schmalen Fenster
+     bricht sie um und wird höher. Null ist das Maß, wo sie gar
+     keinen Platz braucht: verborgen auf der Begrüßungsseite, und
+     auf dem Telefon, wo sie im Fluss steht (css/mobile.css) — dort
+     hält sich die Seite ihren Platz von selbst frei.
+
+     **Vor dem Messen der Flächen**: sizeMatrix() und sizeMonth()
+     rechnen ihre Höhe aus dem, was unter ihnen übersteht, und das
+     ist genau dieses Polster. */
+  const st=document.getElementById('storeStatus');
+  /* `statout` heißt: sie fährt gerade hinaus — dann braucht sie
+     schon jetzt keinen Platz mehr (showStatusBar in js/storage.js). */
+  const stFix=st&&!st.hidden&&!st.classList.contains('statout')
+    &&getComputedStyle(st).position==='fixed';
+  document.documentElement.style.setProperty('--statush',(stFix?st.offsetHeight:0)+'px');
+
   /* **Die Leisten stapeln sich** (seit 8.9.26): die Monatsansicht
      hat zwei — die Filterzeile als Top-Bereich, darunter
      Monatsleiste und Auswertung im Rumpf (anaBar in
@@ -379,13 +454,47 @@ function syncStickyTops(){
    bis zum Fensterrand bleibt; was darunter noch steht (Statuszeile,
    Polster), wird gemessen und abgezogen, damit die Seite selbst
    nichts zu rollen hat. */
+/* ── Wie hoch die Seite wirklich ist ──────────────────────────
+   (Lex, 9.9.26) Beide Flächen — Jahresmatrix und Monatsliste —
+   rechnen ihre Höhe aus dem, was unter ihnen noch übersteht:
+   Statuszeile und Polster. Gemessen wird das an
+   `documentElement.scrollHeight`, und genau dort log die Zahl,
+   solange eine Ansicht hereinfährt.
+
+   Der fahrende Rumpf trägt zwei **Deckstreifen** (die ::before/
+   ::after mit --viewgap und --viewfill in css/components.css). Sie
+   verdecken den Geist der alten Ansicht, sind absolut gesetzt und
+   hängen unter dem Rumpf — und sie zählen zur überrollbaren Höhe
+   der Seite. Beim Öffnen eines Buches waren das 160 px, die es gar
+   nicht gibt: die Fläche wurde um genau diese 160 px zu niedrig
+   und blieb es, bis irgendetwas anderes neu maß. Nachgemessen an
+   einem frisch angefangenen Buch: Unterkante 590 statt 750 bei
+   834 px Fensterhöhe — und ein zweiter Aufruf allein rückte sie
+   zurecht. Beim Aufklappen der Anleitung sprang sie deshalb.
+
+   Für die Dauer der Messung werden die beiden Streifen deshalb auf
+   null gesetzt. Zu sehen ist davon nichts: gemessen wird in
+   einem Zug, ohne dass dazwischen gemalt wird. */
+function pageOver(){
+  const vb=document.querySelector('#view>.viewbody');
+  const gap=vb?vb.style.getPropertyValue('--viewgap'):'';
+  const fill=vb?vb.style.getPropertyValue('--viewfill'):'';
+  if(vb&&(gap||fill)){ vb.style.setProperty('--viewgap','0px'); vb.style.setProperty('--viewfill','0px'); }
+  const over=document.documentElement.scrollHeight-window.innerHeight;
+  if(vb&&(gap||fill)){
+    if(gap) vb.style.setProperty('--viewgap',gap); else vb.style.removeProperty('--viewgap');
+    if(fill) vb.style.setProperty('--viewfill',fill); else vb.style.removeProperty('--viewfill');
+  }
+  return over;
+}
+
 function sizeMonth(){
   const box=document.getElementById('monthScroll'); if(!box) return;
   box.style.height='';
   const top=box.getBoundingClientRect().top+window.scrollY;
   let h=Math.max(240,window.innerHeight-top);
   box.style.height=h+'px';
-  const over=document.documentElement.scrollHeight-window.innerHeight;
+  const over=pageOver();
   if(over>0){ h=Math.max(240,h-over); box.style.height=h+'px'; }
 }
 
@@ -428,7 +537,7 @@ function sizeMatrix(){
      macht die Seite wieder rollbar. Es wird nicht geschätzt,
      sondern gemessen und abgezogen: ein Überstand von sieben Pixeln
      reicht, damit die ganze Fläche beim Rollen davonwandert. */
-  const over=document.documentElement.scrollHeight-window.innerHeight;
+  const over=pageOver();
   if(over>0){ h=Math.max(240,h-over); pane.style.height=h+'px'; box.style.height=h+'px'; }
   /* Und zum Schluss der Kniff: die Fläche wird um die Höhe ihres
      waagerechten Rollbalkens **höher** als der Rahmen, der sie
@@ -449,13 +558,23 @@ function sizeMatrix(){
   if(bar) box.style.height=(h+bar)+'px';
 }
 
-/* ── Passt die Filterzeile in eine Zeile? ─────────────────────
-   (8.9.26) Suchfeld · ✕ · Filteroptionen · Bereich · Fälligkeit ·
-   Zahlungsstatus — in einem schmalen Fenster bricht das um, und
-   eine Leiste, die oben klebt, kostet dann dauerhaft eine zweite
-   Zeile. Passt es nicht, rücken **alle** Filter in ein Menü
-   zusammen (fltMenuAll in js/views/monat.js): das ☰ tritt an die
-   Stelle des ✕, das Suchfeld bleibt stehen.
+/* ── Die Filter stehen im ☰, immer ───────────────────────────
+   (Lex, 9.9.26) Bis dahin hing es an der Breite: passte die Zeile,
+   standen Bereich, Fälligkeit und Zahlungsstand als Knöpfe
+   nebeneinander; passte sie nicht, rückten sie zusammen ins Menü.
+   Damit sah dieselbe Leiste in zwei Fenstern verschieden aus, und
+   wer sein Fenster zog, sah die Knöpfe verschwinden — man musste
+   erst lernen, dass sie im ☰ weiterleben.
+
+   Jetzt gibt es nur noch das eine Bild: **Suchfeld · ☰**, und im
+   Menü steht alles beieinander (fltMenuAll in js/views/monat.js) —
+   Filter zurücknehmen, die drei Gruppen und die Filteroptionen. In
+   der Jahresansicht bleiben die beiden Ausblenden-Knöpfe daneben
+   stehen; sie filtern nicht.
+
+   **Gemessen wird trotzdem weiter**, nur für etwas anderes: ob das
+   Suchfeld schrumpfen muss, damit die Zeile in eine Zeile passt
+   (siehe unten).
 
    **Gemessen, nicht geraten** — wie in der Kopfzeile
    (fitHeaderBtns): die Beschriftungen sind in beiden Sprachen
@@ -486,8 +605,29 @@ function st0(el){
 function fitFilterBar(){
   document.querySelectorAll('#view .fbrow').forEach(row=>{
     if(!row.querySelector('.fbmenu'))return;
-    row.classList.remove('fbnarrow');
-    const avail=row.clientWidth;
+    /* Das Suchfeld steht für die Messung auf seiner natürlichen
+       Breite — ein Feld, das schon gequetscht ist, ließe die Zeile
+       „passen", und sie käme nie wieder auf. `nofx` hält den
+       Übergang dabei an: dieser Sprung gehört nicht auf den Schirm. */
+    const fld=row.querySelector('.fltbox');
+    const was=fld?fld.style.width:'';
+    /* **Gesetzt werden beide Maße, `width` und `flex-basis`.** Das
+       Feld ist ein Flex-Element mit `flex:0 1 264px` — die Basis
+       gewinnt gegen `width`, ein `width:254px` allein blieb also
+       ohne jede Wirkung (nachgemessen: Inline-Maß 254, gerendert
+       weiter 264, und die Zeile brach trotzdem um). */
+    const setW=v=>{ fld.style.width=v; fld.style.flexBasis=v; };
+    if(fld){ fld.classList.add('nofx'); setW(''); }
+    /* Immer das Menü — siehe oben. */
+    row.classList.add('fbnarrow');
+    /* **Gebrochen gemessen, nicht auf ganze Pixel gerundet.** Hier
+       stand `row.clientWidth`, und der rundet: die Zeile brauchte
+       760,3 px, gemeldet wurden 760 — genau so viel, wie da war.
+       Der Überlauf von drei Zehnteln fiel damit unter den Tisch,
+       und der Browser brach trotzdem um (nachgemessen an der
+       Jahresleiste in einem 760 px breiten Fenster). Das Rechteck
+       liefert denselben Kasten mit Nachkommastellen. */
+    const avail=row.getBoundingClientRect().width;
     /* **Gemessen wird, was die Zeile wirklich braucht** — nicht,
        was sie gerade einnimmt: das Suchfeld darf schrumpfen
        (.fltbox.flttop, flex 0 1 230px bis hinunter auf 140), und
@@ -501,17 +641,46 @@ function fitFilterBar(){
        Das ☰ zählt dabei nicht mit: im breiten Zustand steht es auf
        display:none, und es tritt ohnehin an die Stelle des ✕, das
        dann verschwindet. */
-    const st=st0(row);
-    row.style.width='max-content';row.style.flexBasis='auto';
-    row.style.flexWrap='nowrap';row.style.flexShrink='0';row.style.maxWidth='none';
-    const need=row.getBoundingClientRect().width;
-    st(); /* zurück, bevor irgendetwas gemalt wird */
-    const narrow=need>avail+0.5;
-    row.classList.toggle('fbnarrow',narrow);
-    /* Wird das Fenster wieder breit, während das Menü offen steht,
-       ist es mit seinem Knopf verschwunden — dann soll es auch
-       nicht beim nächsten Zeichnen wieder aufgehen. */
-    if(!narrow&&ui.fltMenu==='all')ui.fltMenu=null;
+    const measure=()=>{
+      const st=st0(row);
+      row.style.width='max-content';row.style.flexBasis='auto';
+      row.style.flexWrap='nowrap';row.style.flexShrink='0';row.style.maxWidth='none';
+      const need=row.getBoundingClientRect().width;
+      const fw=fld?fld.getBoundingClientRect().width:0;
+      st(); /* zurück, bevor irgendetwas gemalt wird */
+      return {need,fw};
+    };
+    /* ── Und wenn auch das ☰ nicht reicht, schrumpft das Suchfeld ──
+       (Lex, 9.9.26) In der Zeile stehen das Suchfeld, das ☰ und —
+       in der Jahresansicht — die beiden Ausblenden-Knöpfe. Die sind
+       lang, und auf einem schmalen Fenster brach die Zeile trotz ☰
+       auf zwei Zeilen um. Als letzter Griff gibt das Suchfeld ab,
+       was fehlt, bis hinunter auf sein `min-width`.
+
+       Was übrig bleibt, geht vom Feld ab; wird der Platz wieder
+       frei, bekommt es alles zurück (das Inline-Maß fällt weg) —
+       beim Ziehen am Fenster, beim Auf- und Zuklappen der Anleitung
+       und beim Ansichtswechsel, denn dieselbe Funktion läuft in
+       allen drei Fällen. */
+    const m=measure();
+    if(fld){
+      let want='';
+      const over=m.need-avail;
+      /* Ein Pixel Luft und abgerundet: der Umbruch kommt bei jedem
+         noch so kleinen Überlauf, und aufgerundet stünde man wieder
+         genau davor. */
+      if(over>0.1){
+        const min=parseFloat(getComputedStyle(fld).minWidth)||140;
+        want=Math.max(min,Math.floor(m.fw-over-1))+'px';
+      }
+      /* Erst zurück auf das, was zu sehen war, und den Stil
+         festschreiben — sonst führe der Übergang von der
+         natürlichen Breite los, die es nur für die Messung gab. */
+      setW(was);
+      fld.getBoundingClientRect();
+      fld.classList.remove('nofx');
+      setW(want);
+    }
   });
 }
 
@@ -544,6 +713,15 @@ addEventListener('resize',()=>{ syncMatrixHead(); fitHeaderBtns(); });
 /* Ob das erste Bild schon stand. Sitzung, nicht Zustand: es geht
    um das Öffnen der Anwendung, nicht um das Öffnen eines Buches. */
 let firstPaint=true;
+/* Die Anleitung stellt sich erst dazu, wenn das Buch steht: eine
+   Sekunde nach dem Zeichnen, also gut eine halbe nach dem Ende der
+   Fahrt (VIEW_MS=460 in js/ui.js). Eine halbe Sekunde stand hier
+   für eine Runde und war Lex zu knapp (9.9.26): die Ansicht kam
+   gerade erst zur Ruhe, da fing schon das Nächste an. Der Merker
+   macht das abbestellbar — wer in dieser Sekunde die Datei wieder
+   schließt, soll keine Anleitung mehr bekommen. */
+let guideEnterT=0;
+const GUIDE_AFTER_ENTER=1000;
 
 function render(){
   /* ── Das erste Bild blendet ein ─────────────────────────────
@@ -592,8 +770,52 @@ function render(){
      **Auf dem Telefon von selbst nie.** Dort macht der Bereich die
      Seite nicht schmaler, sondern legt sich darüber
      (css/mobile.css) — aufgeschlagen stünde er vor dem Buch, das
-     man gerade geöffnet hat. Der Knopf im Menü bleibt, wie er ist. */
-  if(ui.enter>0&&!ui.welcome&&!isMobile()&&state&&state.guideOpen!==false&&!guideOpen()) openGuideSnap();
+     man gerade geöffnet hat. Der Knopf im Menü bleibt, wie er ist.
+
+     **Und sie kommt erst, wenn das Buch steht** (Lex, 9.9.26).
+     Bis dahin stand sie schon da, bevor gezeichnet wurde: die
+     Ansicht flog dann in eine Seite herein, die bereits schmal
+     war — man sah zuerst die Anleitung und dann einen Ruck. Jetzt
+     erst das eine, dann das andere: eine Sekunde nach dem
+     Zeichnen, also gut eine halbe nach dem Ende der Fahrt
+     (VIEW_MS=460), fährt sie von rechts herein und die Seite
+     schrumpft weich mit — dafür `openGuide()` und nicht mehr
+     `openGuideSnap()`, das den Übergang des Seitenpolsters
+     ausdrücklich überspringt. Vor dem Öffnen wird noch einmal
+     gefragt: wer inzwischen das Buch geschlossen oder die
+     Anleitung selbst aufgeschlagen hat, soll sie nicht doppelt
+     bekommen.
+
+     **Auf der Begrüßungsseite gibt es nie eine Anleitung** (Lex,
+     9.9.26). Sie erklärt das Führen eines Buches, und dort ist
+     keines offen; der Knopf dazu ist da ohnehin verborgen. Sie
+     blieb bis dahin beim Schließen einer Datei stehen — jetzt fährt
+     sie mit hinaus, und beim **nächsten** Betreten eines Buches
+     wird von neuem entschieden, was der Haken dieser Datei sagt.
+     Das ist zugleich die einfachere Regel: es gibt keinen Zustand
+     mehr, den die Begrüßung von einem vorigen Buch erbt.
+
+     **Ein Merker, beide Richtungen.** `want` sagt, ob die Anleitung
+     danach stehen soll — ohne Buch nie, mit Buch das, was in der
+     Datei steht. Steht sie schon so, passiert nichts; sonst fährt
+     sie herein oder hinaus, beides erst nach der Fahrt der Ansicht
+     und beides auf demselben Weg. Gefragt wird vor dem Umschalten
+     noch einmal: wer inzwischen selbst etwas getan hat, soll nicht
+     überfahren werden. */
+  clearTimeout(guideEnterT);
+  if(ui.enter){
+    /* Ohne Buch nie · auf dem Telefon so lassen, wie es steht (dort
+       stellt sie sich nie von selbst dazu, und wer sie von Hand
+       aufgeschlagen hat, soll sie behalten) · sonst das, was in der
+       Datei steht. */
+    const want=()=>ui.welcome?false:isMobile()?guideOpen():(!!state&&state.guideOpen!==false);
+    if(want()!==guideOpen())
+      guideEnterT=setTimeout(()=>{
+        const w=want();
+        if(w===guideOpen()) return;
+        if(w) openGuide(true); else closeGuide(true);
+      },GUIDE_AFTER_ENTER);
+  }
 
   const sx=window.scrollX, sy=window.scrollY;
   const ysOld=document.getElementById('yearScroll');
@@ -628,11 +850,24 @@ function render(){
      die Nachbarn nach dem Zeichnen an ihre neue Stelle und das
      Verschwundene klappt als Geist zu (foldSnap/foldPlay in js/ui.js). */
   const folds=ui.foldAnim?foldSnap(vbox):null; ui.foldAnim=false;
-  /* Die Filterzeile wird mit jedem Zeichnen neu gebaut — ihre Farbe
-     kann also nicht von selbst übergehen. Gemerkt wird, ob sie
-     leuchtete; steht sie danach anders da, fängt sie in der alten
-     Farbe an und geht über (.was-on/.was-off in css/layout.css). */
-  const fbOld=vbox.querySelector('.filterbar,.ybrow'), fbWasOn=fbOld?fbOld.classList.contains('on'):null;
+  /* ── Die Farbe der Filterzeile geht über ────────────────────
+     Die Zeile wird mit jedem Zeichnen neu gebaut — ihre Farbe kann
+     also nicht von selbst übergehen. Gemerkt wird deshalb die
+     Farbe, die **wirklich gerade zu sehen ist**, und die bekommt
+     das neue Element für ein Bild; danach fällt sie ab und der
+     Übergang läuft von selbst (css/layout.css).
+
+     **Der gemessene Wert und nicht bloß „an oder aus"** (Lex,
+     9.9.26): hier standen zwei Klassen für die beiden Endfarben.
+     Wer aber ein zweites Zeichen tippte, während die Farbe noch
+     unterwegs war, bekam ein neues Element in der Zielfarbe — und
+     der halbe Übergang war übersprungen. Seit er eine halbe Sekunde
+     dauert, sieht man das. Die Knöpfe darin gehen mit: ihr Grund
+     hängt am Zustand der Zeile. */
+  const fbOld=vbox.querySelector('.filterbar,.ybrow');
+  const fbFrom=fbOld?getComputedStyle(fbOld).backgroundColor:null;
+  const fbBtnOld=fbOld&&fbOld.querySelector('.btn:not([aria-pressed="true"])');
+  const fbBtnFrom=fbBtnOld?getComputedStyle(fbBtnOld).backgroundColor:null;
   /* Welche Ansicht gerade steht, trägt #view als Klasse — der
      Haken, an dem css/mobile.css die Monatszeilen umbaut, ohne
      die Tabellen der anderen Ansichten zu erwischen. */
@@ -648,10 +883,25 @@ function render(){
   if(slide) slideViewIn(vbox,slide);
   settleMenus(menus);
   if(folds) foldPlay(vbox,folds);
-  { const fb=vbox.querySelector('.filterbar,.ybrow');
-    if(fb&&fbWasOn!==null&&!slide&&fbWasOn!==fb.classList.contains('on')){
-      fb.classList.add(fbWasOn?'was-on':'was-off'); fb.getBoundingClientRect(); fb.classList.remove('was-on','was-off'); } }
-  wire(); renderStatus();
+  { const fb=fbFrom&&!slide?vbox.querySelector('.filterbar,.ybrow'):null;
+    if(fb&&getComputedStyle(fb).backgroundColor!==fbFrom){
+      const btns=fbBtnFrom?[...fb.querySelectorAll('.btn:not([aria-pressed="true"])')]:[];
+      fb.style.transition='none'; fb.style.backgroundColor=fbFrom;
+      btns.forEach(b=>{ b.style.transition='none'; b.style.backgroundColor=fbBtnFrom; });
+      /* Den Anfangszustand festschreiben, sonst gibt es nichts,
+         wovon der Übergang losführe. */
+      fb.getBoundingClientRect();
+      fb.style.transition=''; fb.style.backgroundColor='';
+      btns.forEach(b=>{ b.style.transition=''; b.style.backgroundColor=''; });
+    } }
+  /* **Erst die Statusleiste, dann verdrahten** (Lex, 9.9.26): sie
+     steht fest am unteren Rand, und wie hoch sie ist, hält sich die
+     Seite als Polster frei (--statush, gemessen in
+     syncStickyTops()). Das läuft in wire(), und dort muss die Zeile
+     schon stehen — sonst maßen die Flächen darüber gegen eine
+     Leiste von gestern. Beim Öffnen eines Buches war sie in diesem
+     Augenblick noch die verborgene der Begrüßungsseite. */
+  renderStatus(); wire();
 
   window.scrollTo(sx,sy);
   const ysNew=document.getElementById('yearScroll');

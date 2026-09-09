@@ -198,7 +198,7 @@ function fltMenuAll(){
   return `<span class="fltdrop fbmenu">
     <button class="btn small fbmenubtn" data-fltmenu="all" aria-expanded="${open}" aria-haspopup="menu"
       aria-label="${esc(t('flt.allFilters'))}" data-tip="${esc(t('flt.allFiltersTip'))}"
-      >&#9776;<span class="dirtydot"${anyOn?'':' hidden'}></span></button>
+      ><span class="fbmi" aria-hidden="true">&#9776;</span><span class="dirtydot"${anyOn?'':' hidden'}></span></button>
     ${open?`<span class="dropmenu${ui.menuDrawn==='all'?'':' popin'}" data-dm="all" role="menu">
       <button class="mi mi-sep" data-qclear="1"${anyOn?'':' disabled'}>${t('g.clearFilter')}</button>
       ${grp(t('month.fSec'),FLT_SEC(),'secfilter',ui.secFilter)}

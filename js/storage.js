@@ -249,17 +249,69 @@ function renderStatus(){
   /* Neben dem Hamburger oder in seinem Menü — das hängt am
      dirty-Flag und ändert sich damit genau hier. */
   if(typeof fitHeaderBtns==='function') fitHeaderBtns();
-  /* **Auf der Begrüßungsseite steht nur der eine Satz.** Was
-     danach kommt — „Alle Änderungen gespeichert", „Letzter
-     CSV-Import: noch keiner" — sind Auskünfte über ein Buch, und
-     dort ist keines offen: gespeichert ist nichts, weil es nichts
-     zu speichern gibt. Ein leeres Buch, das gerade angefangen
-     wurde, ist etwas anderes und behält die ganze Zeile. */
+  /* **Auf der Begrüßungsseite gibt es die Zeile gar nicht** (Lex,
+     9.9.26). Sie ist die Fußnote zu einem offenen Buch — Dateiname,
+     Speicherstand, letzter Import. Ohne Buch steht dort nur die
+     Auskunft, dass keines offen ist, und die sagt die Seite selbst
+     schon mit ihren beiden Knöpfen: „Öffne deine lokale Datenbank"
+     oder „Neu anfangen". Ein Satz darunter samt Trennlinie
+     wiederholte das nur und machte aus einer ruhigen Seite eine
+     mit Fußzeile.
+
+     Verborgen und nicht bloß geleert: die Linie darüber gehört zur
+     Zeile (.status, border-top in css/layout.css) und stünde sonst
+     allein da. Ein leeres Buch, das gerade angefangen wurde, ist
+     etwas anderes — dort bleibt die ganze Zeile. */
   const el=document.getElementById('storeStatus');
-  if(el) el.innerHTML=ui.welcome?t('store.noFile').trim()
-    :((fileName?t('store.loadedFrom',esc(fileName)):t('store.noFile'))
+  if(el){
+    if(!ui.welcome) el.innerHTML=(fileName?t('store.loadedFrom',esc(fileName)):t('store.noFile'))
       +(dirty?t('store.dirty'):t('store.clean'))
-      +' &nbsp;·&nbsp; '+t('store.lastImport',state.lastImport||t('store.never')));
+      +' &nbsp;·&nbsp; '+t('store.lastImport',state.lastImport||t('store.never'));
+    showStatusBar(el,!ui.welcome);
+  }
+}
+
+/* ── Die Leiste fährt mit dem Buch auf und zu ────────────────
+   (Lex, 9.9.26) Sie gehört zum Buch: geht eines auf, kommt sie von
+   unten herein; wird es geschlossen, fährt sie nach unten hinaus.
+   Bewegt wird allein `transform` (css/layout.css) — sie steht fest
+   am Fensterrand, es setzt also nichts neu.
+
+   **Nur beim Wechsel, nicht bei jedem Zeichnen.** `statShown` hält,
+   was zuletzt zu sehen war; `null` heißt „noch nie gezeichnet" —
+   das allererste Bild stellt sie ohne Bewegung hin, denn dort
+   blendet die ganze Seite ein (body.pagein in js/app.js). Ein
+   Speichern oder ein Tastendruck ändert den Wert nicht und bewegt
+   deshalb nichts.
+
+   **Auf dem Telefon ohne Umweg**: dort steht sie im Fluss der
+   Seite (css/mobile.css), und eine Verschiebung nach unten wäre
+   keine Leiste, die weggeht, sondern ein Absatz, der verrutscht.
+
+   Weggeräumt wird per Uhr und nicht per `animationend`: ohne
+   Bewegung — abgeschaltet oder auf dem Telefon — endet keine. */
+let statShown=null, statT=0;
+function showStatusBar(el,show){
+  const first=statShown===null, same=statShown===show;
+  statShown=show;
+  if(same) return;
+  clearTimeout(statT);
+  el.classList.remove('statin','statout');
+  if(first||(typeof isMobile==='function'&&isMobile())){ el.hidden=!show; return; }
+  if(show){
+    el.hidden=false;
+    el.classList.add('statin');
+    statT=setTimeout(()=>el.classList.remove('statin'),600);
+  }else{
+    /* Verborgen wird erst am Ende der Fahrt. `statout` sagt
+       syncStickyTops() schon jetzt, dass unten kein Platz mehr
+       freizuhalten ist (--statush). */
+    el.classList.add('statout');
+    statT=setTimeout(()=>{
+      el.classList.remove('statout');
+      if(!statShown) el.hidden=true;
+    },320);
+  }
 }
 
 /* ── Die Rückfrage vor dem Schließen ─────────────────────────
