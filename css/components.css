@@ -2476,13 +2476,44 @@ textarea.srvtext{width:100%;display:block}
    rollen. Die Anleitung rollt für sich und trägt `.guide`, damit
    ihre Absätze aussehen wie im Guide der Anwendung — nur eine
    Stufe kleiner, die Spalte ist schmal. */
-/* Das Viertel ist ein festes Maß (flex-basis 25 %), der Schritt nimmt
-   den Rest — so stimmt das Verhältnis auf den Pixel. Mit `flex:3`
-   und `flex:1` stünde das Polster der Anleitung obendrauf, und aus
-   dem Viertel würden 26 %. Der Abstand zum Schritt ist das linke
-   Polster der Anleitung, kein gap: der zählte sonst zum Rest. */
-.c2work{flex:1 1 auto;min-height:0;display:flex}
+/* **Sie teilt das Fenster nicht mehr, sie legt sich darüber**
+   (Lex, 9.9.26). Bis dahin war sie eine zweite Spalte in `.c2work`:
+   ging sie auf, wurde der Schritt daneben schlagartig ein Drittel
+   schmaler, ging sie zu, sprang er ebenso schlagartig auf die volle
+   Breite — und das schon im ersten Bild, während sie selbst noch
+   fuhr. Zwei Bewegungen zugleich, von denen eine gar keine war.
+
+   Jetzt bleibt `.c2main` immer so breit wie das Fenster, und die
+   Anleitung liegt als Feld darüber (absolut, rechte Kante). Beim
+   Auf- und Zugehen ändert sich am Schritt darunter **nichts**: er
+   wird nur zum Teil verdeckt. Was darunter liegt, holt man mit dem
+   Rollbalken hervor — dafür bekommen die Rollflächen darin so viel
+   Polster rechts, wie die Anleitung breit ist (--c2gw, siehe
+   unten). Deshalb braucht sie einen deckenden Grund (--paper-2, wie
+   das Fenster) und eine Stufe über den klebenden Köpfen der
+   Tabellen (die stehen auf z-index 3). */
+.c2work{flex:1 1 auto;min-height:0;display:flex;position:relative;--c2gw:0px}
 .c2main{flex:1 1 0;min-width:0;min-height:0;display:flex;flex-direction:column}
+/* **Der Scrollraum unter der Anleitung** (Lex, 9.9.26): „alle
+   Spalten sollen trotzdem erreichbar sein, seitlich wie
+   senkrecht". Es ist ein **Außenabstand der Tabelle** und kein
+   Polster der Rollfläche: ein Polster verkleinert deren
+   Inhaltsfläche, und die Tabellen mit `min-width:100%` — der
+   Zielbereich und die Spaltentabelle von Schritt 2 — würden dadurch
+   schmaler; genau der Sprung, der hier weg soll. Ein Außenabstand
+   zählt zum Rollbereich, ohne die Tabelle selbst anzufassen. Ohne
+   offene Anleitung ist --c2gw null, und die Regel tut nichts. */
+.c2work.guideon .c2main .c2scroll>*{margin-right:var(--c2gw)}
+/* **Bedient wird nur, was zu sehen ist.** Die Zeilen mit Knöpfen
+   und Feldern rollen nicht — was von ihnen unter der Anleitung
+   läge, wäre schlicht weg. Sie enden deshalb an ihrer Kante: die
+   Knopfzeile von Schritt 2, die Zuordnungsleiste und die Zeile des
+   Schnellfilters. Das ist der eine Sprung, der bleibt, und er ist
+   klein — die Knöpfe stehen links, nur die beiden rechten rücken
+   mit. Für die Leiste zählt das doppelt: c2FitBar() misst
+   `row.clientWidth`, und der ist damit von selbst die sichtbare
+   Breite. */
+.c2work.guideon .c2main :is(.c2bar,.c2howto,.c2meta,.c2mid,.c2qbar){padding-right:var(--c2gw)}
 /* **Seit dem 7.9.26 ein Drittel statt eines Viertels**, und die
    Breite lässt sich am Griff ziehen (c2GuideHandle, mindestens ein
    Drittel des Fensters). Das Feld ist eine Spalte: der Kopf mit
@@ -2500,7 +2531,8 @@ textarea.srvtext{width:100%;display:block}
 .c2gpanel.slidein{animation:fina-impin .92s cubic-bezier(.16,.7,.3,1)}
 .c2gghostwrap{position:fixed;z-index:50;overflow:hidden;pointer-events:none}
 .c2gghost{animation:fina-impout .22s ease-in forwards;background:var(--paper-2)}
-.c2gpanel{position:relative;display:flex;flex-direction:column;flex:0 0 33.34%;min-width:0;min-height:0;
+.c2gpanel{position:absolute;top:0;right:0;bottom:0;width:33.34%;z-index:20;
+  background:var(--paper-2);display:flex;flex-direction:column;min-width:0;min-height:0;
   /* Kante und Schatten links wie am Guide der Anwendung (.guidepanel;
      Lex, 7.9.26). **Und oben eine zweite Kante** (Lex, 9.9.26): über
      dem Feld steht die Knopfzeile des Wizards — Anleitung, ‹ Zurück,

@@ -1373,7 +1373,15 @@ function c2Render(swap){
   const build=()=>{
     W.box.classList.toggle('c2big',W.step>1);
     if(W.step===1)W.box.innerHTML=head+`<div class="swapfade">${c2Step1()}</div>`;
-    else W.box.innerHTML=head+`<div class="c2work swapfade"><div class="c2main">${W.step===2?c2Step2():c2Step3()}</div>${W.guide?c2GuidePanel():''}</div>`;
+    else{
+      /* Die Anleitung liegt über dem Schritt und nimmt ihm keinen
+         Platz weg (css: .c2gpanel). Wie breit sie ist, steht als
+         --c2gw an der Fläche — daraus holen sich die Rollflächen
+         darunter ihr Polster rechts, damit die verdeckten Spalten
+         erreichbar bleiben. */
+      const gw=W.guide?c2GuidePx():0;
+      W.box.innerHTML=head+`<div class="c2work swapfade${W.guide?' guideon':''}" style="--c2gw:${gw}px"><div class="c2main">${W.step===2?c2Step2():c2Step3()}</div>${W.guide?c2GuidePanel():''}</div>`;
+    }
   };
   /* `swap` erzwingt den Dreischritt auch ohne Schrittwechsel — beim
      Wählen der Datei in Schritt 1 wächst das Fenster um den Kasten
@@ -2640,6 +2648,10 @@ function c2FitBar(){
     }
     return w+Math.max(0,n-1)*gap;
   };
+  /* Gemessen wird gegen die Zeile — und die endet bei offener
+     Anleitung an deren Kante: `.c2mid` trägt dann ein Polster
+     rechts (css, --c2gw), `row.clientWidth` ist also von selbst die
+     sichtbare Breite. */
   for(const k of C2_FIT_ORDER){
     if(need()<=row.clientWidth+0.5)break;
     const b=btn(k);if(!b)continue;
@@ -4097,8 +4109,10 @@ function c2GuidePanel(){
       aria-pressed="${k===lang}">${k.toUpperCase()}</button>`).join('');
   /* Ohne gezogene Breite genau ein Drittel des Fensters — als Maß
      in px, denn ein Prozentwert bezöge sich auf die Fläche im
-     Fenster, und die ist um das Polster schmaler. */
-  const w=` style="flex-basis:${W.guideW||Math.round(window.innerWidth/3)}px"`;
+     Fenster, und die ist um das Polster schmaler. Seit dem 9.9.26
+     ist es die `width` eines Feldes, das über dem Schritt liegt,
+     und keine Flex-Basis mehr: es soll ihm keinen Platz wegnehmen. */
+  const w=` style="width:${c2GuidePx()}px"`;
   /* Herein fährt sie nur, wenn sie gerade geöffnet wurde (W.guideAnim,
      gesetzt am Knopf) — nicht bei jedem Neuzeichnen des Schritts. */
   const anim=W.guideAnim?' slidein':''; W.guideAnim=false;
@@ -4143,8 +4157,19 @@ function c2GuideWidth(w){
   const min=Math.round(window.innerWidth/3);
   const max=Math.max(min,Math.round(W.box.clientWidth*0.66));
   W.guideW=Math.min(Math.max(Math.round(w),min),max);
-  panel.style.flexBasis=W.guideW+'px';
+  panel.style.width=W.guideW+'px';
+  /* Dasselbe Maß an die Fläche: daraus rechnen die Rollflächen ihr
+     Polster rechts (css: --c2gw). */
+  const work=panel.parentElement;
+  if(work)work.style.setProperty('--c2gw',W.guideW+'px');
   c2FitBar();
+}
+/* Wie breit die Anleitung steht: das am Griff gezogene Maß, sonst
+   ein Drittel des Fensters (Lex, 7.9.26). Eine Stelle, denn drei
+   fragen danach — das Feld selbst, das Polster der Rollflächen und
+   die Zuordnungsleiste. */
+function c2GuidePx(){
+  return W.guideW||Math.round(window.innerWidth/3);
 }
 /* Der Griff: ziehen mit der Maus, Pfeiltasten in Schritten —
    dieselbe Mechanik wie bindGuideHandle in js/dialogs/guide.js.

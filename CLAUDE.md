@@ -3060,7 +3060,19 @@ und migriert wird beim Lesen (`migrate()`).
   importiert", Grau „schon im Buch" (siehe „Die Farbsprache"). Ein einzelner Buchstabe
   ohne Fokus geht in den Schnellfilter (`c2Keys()`).
 * **Die Anleitung daneben** (`C2_GUIDE`, Knopf „Anleitung" ganz links in Schritt 2 und 3)
-  teilt das Fenster; die Texte stehen in der Datei, nicht in `js/i18n.js`.
+  **liegt über dem Schritt, sie teilt das Fenster nicht mehr** (Lex, 9.9.26; bis dahin war
+  sie eine zweite Spalte in `.c2work`): ging sie auf, wurde der Schritt daneben
+  schlagartig ein Drittel schmaler, ging sie zu, sprang er ebenso schlagartig auf — und
+  das schon im ersten Bild, während sie selbst noch fuhr. `.c2main` bleibt jetzt immer so
+  breit wie das Fenster, `.c2gpanel` ist absolut an dessen rechter Kante (`css/components.css`).
+  **Was darunter liegt, holt man mit dem Rollbalken hervor:** `--c2gw` am `.c2work` sagt,
+  wie breit die Anleitung steht, und die Tabellen in den Rollflächen bekommen so viel
+  **Außenabstand** rechts — kein Polster der Rollfläche, das verkleinerte deren
+  Inhaltsfläche, und die Tabellen mit `min-width:100%` würden schmaler; genau der Sprung,
+  der weg soll. **Die Zeilen mit Knöpfen und Feldern enden dagegen an ihrer Kante**
+  (`.c2bar`, `.c2mid`, `.c2qbar` — sie rollen nicht, verdeckt wären sie schlicht weg);
+  weil `.c2mid` das Polster trägt, misst `c2FitBar()` mit `row.clientWidth` von selbst die
+  sichtbare Breite. Die Texte stehen in der Datei, nicht in `js/i18n.js`.
   **Aufgeschlagen fängt sie an** (seit 8.9.26), solange die Datei es sagt: `W.guide`
   kommt in `openCsvWizard()` aus `state.guideOpen` — derselbe Haken, der die Anleitung
   neben der Ansicht aufschlägt (Einstellungen → Darstellung). Zu sehen ist sie erst ab
