@@ -149,7 +149,52 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
    überall gleich: in den Ansichten, in der Prognose und in der
    Überschrift der Fenster. */
 .lamp.pos{margin-right:6px;vertical-align:-4px}
-:is(.modal,.modalghost,.boxslide) h3 .lamp.pos{vertical-align:-3px}
+/* ── Die Lampe im Kopf eines Fensters (Lex, 10.9.26) ─────────
+   Sie gehört zur **Bezeichnung**, nicht zu der gepunkteten Linie,
+   die den Knopf darunter abschließt: sie ist so hoch wie ein
+   Großbuchstabe und ihre Oberkante liegt auf dessen Oberkante.
+   Vorher hing sie an der Grundlinie und war kleiner — sie las sich
+   wie ein Anhängsel unter dem Wort.
+
+   **Und sie bleibt oben angedockt**, wenn die Bezeichnung über
+   zwei Zeilen läuft. Dafür ist die Überschrift eine Reihe
+   (`flex`, `align-items:flex-start`) und keine Zeile aus
+   Inline-Elementen: `vertical-align` kennt nur die Grundlinie der
+   **letzten** Zeile, die Lampe rutschte also mit nach unten.
+
+   Die drei Maße sind gemessen und nicht geschätzt (Zilla Slab 700,
+   19 px, Zeilenhöhe 1.15):
+     Versalhöhe            12.35 px = 0.65 em
+     das Zeichen füllt      0.842 seines viewBox (24er Raster,
+                            Glas von y=3 bis Sockel y=21, dazu die
+                            halbe Strichbreite von 1.1 an beiden
+                            Enden) — der Kasten muss also
+                            0.65 / 0.842 = 0.7723 em groß sein
+     Abstand oben          0.215 em, **an gerenderten Bildpunkten
+                            abgezählt** und nicht gerechnet.
+
+   Der letzte Wert lässt sich nicht ausrechnen: `fontBoundingBoxAscent`
+   der Schrift meldet 18 px, für den Zeilenkasten benutzt Chrome aber
+   16.08 px. Wer danach rechnet, setzt die Lampe 1.8 px zu tief —
+   genau der Fehler, der am 10.9.26 auffiel. Nachgemessen wurde mit
+   dreifachem Zoom an einem **flachen** Großbuchstaben (B, N, H): ein
+   A oder ein O ragt oben spitz bzw. rund über die Versalhöhe hinaus
+   und wäre der falsche Bezug.
+
+   In `em`, damit alles mitwächst, wenn die Überschrift größer wird.
+   Wer Schriftart, Größe oder Zeilenhöhe der Überschrift ändert, zählt
+   die Bildpunkte neu ab. */
+:is(.modal,.modalghost,.boxslide) h3:has(>.lamp.pos){display:flex;align-items:flex-start}
+:is(.modal,.modalghost,.boxslide) h3>.lamp.pos{
+  /* Ein <button> erbt die Schriftgröße nicht — ohne dies bezöge
+     sich jedes `em` hier auf die 13 px des Browsers statt auf die
+     19 px der Überschrift, und die Lampe bliebe zu klein. */
+  font-size:inherit;
+  flex:0 0 auto;width:.7723em;height:.7723em;margin-top:.215em;
+  /* Rückfall, falls :has() einmal nicht greift — in einer Reihe
+     wird vertical-align ohnehin nicht beachtet. */
+  vertical-align:-.06em}
+:is(.modal,.modalghost,.boxslide) h3>.lamp.pos svg{width:100%;height:100%}
 /* Das Kettensymbol ist mal ein Link (ein einziger Eintrag), mal ein
    Knopf (mehrere — dann öffnet er die Auswahl). Beide sehen gleich
    aus: welcher es ist, geht den Leser nichts an. */
@@ -306,6 +351,13 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .linklist.edit a{flex:1 1 auto}
 .linklist a:hover{color:var(--accent-2)}
+/* Ein Link, dessen Adressart nichts Öffenbares ist (linkSafe in
+   js/state.js): der Name steht da, aber nichts führt weg. Kein
+   Rot — es ist keine Warnung, sondern eine Auskunft; der
+   Durchstrich sagt, dass die Zeile nicht benutzbar ist. */
+.lnblocked{color:var(--ink-2);text-decoration:line-through;cursor:default}
+.linkicon.lnblocked{color:var(--rule);cursor:default}
+.linklist.edit .lnblocked{flex:1 1 auto}
 
 /* ── Die Zeile eines Links ────────────────────────────────────
    Von links: der Griff zum Sortieren, der Stift, dann der Link —
@@ -599,7 +651,13 @@ body.pagein{animation:fina-pagein .34s ease-out}
    Dauer der Fahrt an beiden. */
 @keyframes fina-barout{to{transform:translateY(-14px);opacity:0}}
 @keyframes fina-barin{from{transform:translateY(-14px);opacity:0}}
-.viewghost>.stickybar.viewtop>*{animation:fina-barout .2s ease-in forwards}
+/* **Der Geist blendet nichts mehr aus** (Lex, 10.9.26). Hier stand
+   `fina-barout` für den Fall, dass die neue Ansicht gar keinen
+   Top-Bereich hat (die Prognose) — die alte Leiste verblasste dann
+   für sich, obwohl gleich der ganze Rumpf darüberfährt. Die alte
+   Ansicht soll bis zuletzt unverändert stehen und nur überlagert
+   werden; deckt sie die neue Leiste dabei zu, fährt diese mit
+   (`.barride` weiter unten). */
 /* ── Die Bahn bleibt stehen, es fahren nur die Knöpfe (Lex, 9.9.26) ──
    Grund, Haarlinie und Farbe der Bahn sitzen **am Kind** (`.fbrow` —
    im Monat `.filterbar`, im Jahr `.ybrow`), nicht am klebenden
@@ -628,6 +686,21 @@ body.pagein{animation:fina-pagein .34s ease-out}
    sonst bliebe es bei den 100 ms: eine Wartezeit, hinter der nichts
    steht, liest sich als Hänger. */
 #view>.stickybar.viewtop.barin.barswap>.fbrow>*{animation-delay:.4s}
+/* ── Wenn die Leiste ausnahmsweise mitfährt (Lex, 10.9.26) ──────
+   Hat nur **eine** der beiden Ansichten einen Top-Bereich, gibt es
+   nichts zu tauschen: die neue Leiste bekommt dieselbe Fahrt wie der
+   Rumpf und kommt mit ihm als ein Stück herein (`.barride`, gesetzt
+   in slideViewIn). Sonst stünde sie vom ersten Bild an deckend über
+   der alten Ansicht — beim Wechsel Prognose → Jahr deckte sie genau
+   die Kennzahlenleiste zu.
+
+   Dieselbe Kurve und dieselbe Dauer wie beim Rumpf: die beiden
+   müssen nebeneinander laufen, sonst reißt die Ansicht auf. */
+#view>.stickybar.viewtop.barride{will-change:transform}
+#view>.stickybar.viewtop.barride.pre-right{transform:translateX(100%)}
+#view>.stickybar.viewtop.barride.pre-left{transform:translateX(-100%)}
+#view>.stickybar.viewtop.barride.in-right{animation:fina-inR .46s cubic-bezier(.75,0,.15,1)}
+#view>.stickybar.viewtop.barride.in-left{animation:fina-inL .46s cubic-bezier(.75,0,.15,1)}
 /* Solange die neue Ansicht von der Seite kommt, ragt sie über den
    rechten Rand: kein Rollbalken dafür (gesetzt in slideViewIn). */
 html.viewslide{overflow-x:hidden}
@@ -680,7 +753,9 @@ html{scrollbar-gutter:stable}
 @media (prefers-reduced-motion:reduce){
   .modal,.modal .box,.modalghost,.modalghost .box,.dropmenu.popin,.tools.open,.c2fpop,
   .viewbody.in-left,.viewbody.in-right,.foldin,.foldin-row{animation:none}
-  .viewghost>.stickybar.viewtop>*,#view>.stickybar.viewtop.barin>.fbrow>*{animation:none}
+  #view>.stickybar.viewtop.barin>.fbrow>*{animation:none}
+  #view>.stickybar.viewtop.barride.in-left,#view>.stickybar.viewtop.barride.in-right{animation:none}
+  #view>.stickybar.viewtop.barride.pre-left,#view>.stickybar.viewtop.barride.pre-right{transform:none}
   .viewbody.pre-left,.viewbody.pre-right{transform:none}
   body.pagein{animation:none}
   .brand .sub.yearin,.status.statin,.status.statout{animation:none}

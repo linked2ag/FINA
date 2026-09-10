@@ -21,7 +21,13 @@ const eur=n=>(n===0||n==null?'—':nf.format(n));
 const cls=n=>n<0?'neg':(n>0?'pos':'');
 
 const uid=()=>'i'+Math.random().toString(36).slice(2,9);
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* Auch das einfache Anführungszeichen wird kodiert. Heute steht
+   in FINA kein Attribut in einfachen Anführungszeichen — geprüft
+   am 10.9.26 —, und esc() landet ausnahmslos in HTML, wo `&#39;`
+   wieder als ' erscheint. Es ist also folgenlos und nimmt nur die
+   Falle weg, dass ein späteres `title='…'` sich aufbrechen lässt. */
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,
+  c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* „1.234,56" und „-1.234,56 €" werden zu Zahlen. */
 function parseGermanNumber(s){

@@ -118,28 +118,60 @@ async function writeHandle(){
   return true;
 }
 
+/* ── Wenn der Browser das Lesen verweigert ───────────────────
+   Chrome und Edge öffnen die Datei über die File System Access API
+   und können deshalb später in **dieselbe** Datei zurückschreiben.
+   In manchen Umgebungen geht der Auswahldialog durch, das Lesen
+   danach aber nicht: `getFile()` wirft `NotAllowedError`. Gesehen
+   am 9.9.26 auf einem Mac; **woran es dort lag, ist noch offen**
+   (siehe `_BusinessCenter/todo.md`) — bekannt sind Seiten, die
+   über `file://` laufen oder in einem fremden Rahmen stecken.
+
+   Dann fällt FINA auf die gewöhnliche Dateiauswahl zurück
+   (`#fileJson`): die bekommt den Inhalt direkt aus dem Dialog und
+   muss die Datei nicht ein zweites Mal öffnen. Der Preis ist, dass
+   FINA sich die Datei nicht merken kann — beim Speichern fragt es
+   dann, wohin.
+
+   **Abgeschaltet wird dabei nichts im Voraus.** Der Rückfall gilt
+   nur für diese Sitzung und erst, nachdem es der Browser wirklich
+   abgelehnt hat; wer FINA gewohnt benutzt, merkt nichts davon. Eine
+   Fassung, die die API auf dem Mac pauschal überging, gab es einen
+   Tag lang (9.9.26, nicht von uns) — sie nahm allen Mac-Nutzern das
+   Zurückschreiben in dieselbe Datei.
+
+   **Geklickt wird nicht von selbst.** Nach dem Warten auf den
+   Dialog ist die Klick-Erlaubnis des Nutzers abgelaufen; ein
+   `click()` auf die Dateiauswahl liefe ins Leere. Deshalb sagt die
+   Meldung, dass man es noch einmal versuchen soll — der nächste
+   Klick nimmt dann den anderen Weg. */
+let fsRefused=false;
+
 async function loadData(){
   /* Seit „Daten hochladen" wieder im Menü steht (30.8.26), kann
      das auch ein Buch mit ungespeicherter Arbeit treffen. Dieselbe
      Rückfrage wie beim Schließen — eine geladene Datei ersetzt den
      ganzen Zustand, und danach ist die alte Arbeit weg. */
   if(dirty && !confirm(t('store.loadAsk'))) return;
+  if(!canFS || fsRefused){ document.getElementById('fileJson').click(); return; }
   try{
-    if(canFS){
-      const [h]=await window.showOpenFilePicker({types:[{description:t('store.fileKind'),accept:{'application/json':['.json']}}]});
-      const f=await h.getFile(); const txt=await f.text();
-      if(!txt.trim()) throw new Error(t('store.empty'));
-      state=migrate(JSON.parse(txt));
-      fileHandle=h; fileName=h.name; dirty=false;
-      afterLoad(); ui.welcome=false;
-      /* Das Buch geht auf: die Ansicht fliegt von rechts herein
-         (ui.enter, verbraucht in render() — siehe js/app.js). */
-      ui.enter=1;
-      render(); toast(t('store.loaded',fileName)+oldNote());
-    } else {
-      document.getElementById('fileJson').click();
+    const [h]=await window.showOpenFilePicker({types:[{description:t('store.fileKind'),accept:{'application/json':['.json']}}]});
+    const f=await h.getFile(); const txt=await f.text();
+    if(!txt.trim()) throw new Error(t('store.empty'));
+    state=migrate(JSON.parse(txt));
+    fileHandle=h; fileName=h.name; dirty=false;
+    afterLoad(); ui.welcome=false;
+    /* Das Buch geht auf: die Ansicht fliegt von rechts herein
+       (ui.enter, verbraucht in render() — siehe js/app.js). */
+    ui.enter=1;
+    render(); toast(t('store.loaded',fileName)+oldNote());
+  }catch(e){
+    if(e.name==='AbortError') return;
+    if(e.name==='NotAllowedError'||e.name==='SecurityError'){
+      fsRefused=true; warn(t('store.loadRefused')); return;
     }
-  }catch(e){ if(e.name!=='AbortError') warn(t('store.loadFail',e.message)); }
+    warn(t('store.loadFail',e.message));
+  }
 }
 
 /* ── Eine Sicherung neben der laufenden Datei ────────────────

@@ -512,6 +512,23 @@ en:()=>`
 <p class="glead">The most important changes of the last versions — without technical
 details, and with what they mean for you.</p>
 <div class="gvers">
+${gver('26.9.10','Safer links, and a calm change of view',`
+<p>FINA now only opens addresses that really lead somewhere. And when you switch views, the
+one you are leaving stays exactly as it was until the new one has covered it.</p>
+<ul class="gcheck">
+  <li><b>Associated links open only web addresses</b> (http, https) and mailto. Anything else
+      — it can only come from a file someone else made — is still shown, but struck through
+      and without a target. When you enter one yourself, FINA says so right away.</li>
+  <li><b>Changing the view is calm.</b> The view you leave no longer changes while the new
+      one slides in: the month row stays where it is, and between Year and Forecast nothing
+      overlaps any more.</li>
+  <li>The four numbers of the analytics row <b>take longer to count</b> — you can follow
+      them while you filter instead of watching them jump.</li>
+  <li><b>If your browser refuses to open your local database</b>, FINA now offers the normal
+      file dialog instead of stopping at an error message.</li>
+  <li>Bug fixing and cosmetic touch-ups.</li>
+</ul>`,'Current version')}
+
 ${gver('26.9.8','Your own names in the import — and your file is a local database',`
 <p>Reference fields can carry the names you give them, and they keep them. The guide stands
 beside your table from the moment you open a file. In the CSV import every column you pick
@@ -552,7 +569,7 @@ database</b>.</p>
   <li>“Search by amount” in the ☰ of an entry now writes the amount into the quick filter.
       And step 1 of the import says it plainly: the CSV file needs a header row.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
-</ul>`,'Current version')}
+</ul>`)}
 
 ${gver('26.9.7','A guide you can read in half an hour',`
 <p>All three tabs of this guide are rebuilt: numbered steps with a picture each, cards for
@@ -777,6 +794,23 @@ de:()=>`
 <p class="glead">Die wichtigsten Änderungen der letzten Versionen — ohne technische Details
 und mit dem, was sie für dich bedeuten.</p>
 <div class="gvers">
+${gver('26.9.10','Sichere Links und ein ruhiger Ansichtswechsel',`
+<p>FINA öffnet nur noch Adressen, die wirklich irgendwohin führen. Und beim Wechsel der
+Ansicht bleibt die, die du verlässt, genau so stehen, bis die neue sie zugedeckt hat.</p>
+<ul class="gcheck">
+  <li><b>Zugehörige Links öffnen nur noch Webadressen</b> (http, https) und mailto. Alles
+      andere — es kann nur aus einer fremden Datei kommen — steht weiter da, aber
+      durchgestrichen und ohne Ziel. Tippst du selbst so etwas ein, sagt FINA es sofort.</li>
+  <li><b>Der Ansichtswechsel ist ruhig.</b> Die Ansicht, die du verlässt, verändert sich
+      nicht mehr, während die neue hereinfährt: die Monatsleiste bleibt stehen, und zwischen
+      Jahr und Prognose überlagert sich nichts mehr.</li>
+  <li>Die vier Zahlen der Auswertung <b>laufen länger</b> — man kann ihnen beim Filtern
+      zusehen, statt sie springen zu sehen.</li>
+  <li><b>Lässt dein Browser deine lokale Datenbank nicht öffnen</b>, bietet FINA jetzt den
+      gewöhnlichen Dateidialog an, statt mit einer Fehlermeldung stehenzubleiben.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>`,'Aktuelle Version')}
+
 ${gver('26.9.8','Eigene Namen im Import — und deine Datei ist eine lokale Datenbank',`
 <p>Referenzfelder dürfen die Namen tragen, die du ihnen gibst, und sie behalten sie. Die
 Anleitung steht neben deiner Tabelle, sobald du eine Datei öffnest. Im CSV-Import bekommt
@@ -821,7 +855,7 @@ sie ist deine <b>lokale Datenbank</b>.</p>
       Schnellfilter. Und Schritt 1 des Imports sagt es deutlich: die CSV-Datei braucht eine
       Kopfzeile.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
-</ul>`,'Aktuelle Version')}
+</ul>`)}
 
 ${gver('26.9.7','Eine Anleitung, die man in einer halben Stunde liest',`
 <p>Alle drei Reiter dieser Anleitung sind neu gebaut: nummerierte Schritte mit je einem

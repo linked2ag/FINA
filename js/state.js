@@ -86,6 +86,41 @@ const MAX_LINKS=10;
    das alte Feld `url` durfte ohne Schema gespeichert werden, weil
    der Knopf daneben es erst beim Öffnen ergänzte. */
 const linkUrl=u=>/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u;
+
+/* ── Welche Adressart ein Link tragen darf ───────────────────
+   Das Wort vor dem Doppelpunkt sagt dem Browser, was er mit dem
+   Rest tun soll: `https:` führt ins Netz, `mailto:` ins
+   Mailprogramm. `javascript:` heißt dagegen „führe das Folgende
+   als Befehl aus" — und der Befehl liefe im Namen von FINA. Er
+   könnte das ganze Buch lesen und wegschicken.
+
+   Der Weg dahin ist eine **fremde** lokale Datenbank: ein
+   geteiltes Buch, eine „Beispieldatei", ein Mailanhang. Ein Klick
+   auf das Kettensymbol genügte. Gerade in der Pilotphase werden
+   solche Dateien herumgereicht.
+
+   Erlaubt sind deshalb nur die drei Arten, die ein Beleglink
+   braucht. Alles andere **bleibt in der Datei stehen** — migrate()
+   wirft nichts weg, und wer eine Datei mit einer älteren Fassung
+   öffnet, soll nichts verlieren —, wird aber nirgends anklickbar:
+   js/ui.js zeigt es als Text (linkIcon, openLinkList, linkRows),
+   und editLink() nimmt es gar nicht erst an.
+
+   **Gefragt wird der Browser selbst**, nicht ein eigener
+   Ausdruck. `java&#9;script:` mit einem Tabulator mittendrin ist für
+   einen Ausdruck kein `javascript:` — für den Browser schon, denn
+   er wirft Steuerzeichen vorher heraus. `new URL()` ist derselbe
+   Leser, der später auch das `href` liest; damit kann beides gar
+   nicht auseinanderlaufen. linkUrl() läuft vorher, damit eine
+   Adresse ohne Schema („example.com") nicht als Datei-Adresse
+   gelesen wird — unter file:// wäre sie das sonst. */
+const LINK_SCHEMES=['http:','https:','mailto:'];
+function linkSafe(u){
+  const s=String(u==null?'':u).trim();
+  if(!s) return false;
+  try{ return LINK_SCHEMES.includes(new URL(linkUrl(s)).protocol); }
+  catch(e){ return false; }
+}
 function normLinks(o){
   let l=Array.isArray(o.links)?o.links:[];
   if(!l.length&&typeof o.url==='string'&&o.url.trim()) l=[{name:'',url:o.url.trim()}];

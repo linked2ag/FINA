@@ -273,6 +273,15 @@ const linkLabel=l=>((l&&l.name&&l.name.trim())?l.name.trim():((l&&l.url)||''));
    `kind` und `key` sagen, wessen Links gemeint sind: 'item' mit
    der Kennung, 'kak' mit dem Namen der Kategorie. Verdrahtet wird
    `data-links` einmal in wire() (js/app.js). */
+/* Ein Link als Textzeile — im Auswahlfenster am Kettensymbol und
+   in der Liste des Posten-Fensters. Erlaubt die Adressart nichts
+   zum Öffnen, steht der Name ohne Link da, und die Sprechblase
+   nennt den Grund statt der Adresse (siehe linkSafe in
+   js/state.js). */
+const linkText=x=>linkSafe(x.url)
+  ? `<a href="${esc(x.url)}" target="_blank" rel="noopener" data-tip="${esc(x.url)}">${esc(linkLabel(x))}</a>`
+  : `<span class="lnblocked" data-tip="${esc(t('link.blocked'))}">${esc(linkLabel(x))}</span>`;
+
 function linkIcon(links,kind,key){
   const l=(links||[]).filter(x=>x&&x.url);
   /* **Ohne Links ein Strich.** Eine leere Zelle sagt nur, dass hier
@@ -290,8 +299,18 @@ function linkIcon(links,kind,key){
      immer etwas. Die Adresse dahinter war eine zweite Zeile
      Kleingedrucktes über einem Symbol von 15 px — wer sie sehen
      will, sieht sie in der Statuszeile des Browsers. */
-  if(l.length===1) return `<a class="linkicon" href="${esc(l[0].url)}" target="_blank" rel="noopener"
-    data-tip="${esc(linkLabel(l[0]))}">${LINK_SVG}</a>`;
+  /* **Nur eine erlaubte Adressart wird zum Link** (linkSafe in
+     js/state.js). Sonst bleibt das Symbol stehen — es sagt ja
+     richtig, dass hier ein Link hinterlegt ist —, aber es führt
+     nirgendwohin, und die Sprechblase sagt, warum. Weggelassen
+     wird nichts: was in der Datei des Nutzers steht, soll er
+     sehen. */
+  if(l.length===1){
+    if(!linkSafe(l[0].url)) return `<span class="linkicon lnblocked"
+      data-tip="${esc(t('link.blocked'))}">${LINK_SVG}</span>`;
+    return `<a class="linkicon" href="${esc(l[0].url)}" target="_blank" rel="noopener"
+      data-tip="${esc(linkLabel(l[0]))}">${LINK_SVG}</a>`;
+  }
   return `<button type="button" class="linkicon" data-links="${esc(kind+':'+key)}"
     aria-label="${esc(t('link.pick'))}" data-tip="${esc(t('link.pickTip',l.length))}">${LINK_SVG}</button>`;
 }
@@ -310,8 +329,7 @@ function openLinkList(kind,key){
   box.innerHTML=`<div class="box narrow">
     <h3>${esc(t('link.title'))}</h3>
     <p class="subline">${esc(name)}</p>
-    <ul class="linklist">${l.map(x=>`<li><a href="${esc(x.url)}" target="_blank" rel="noopener"
-      data-tip="${esc(x.url)}">${esc(linkLabel(x))}</a></li>`).join('')}</ul>
+    <ul class="linklist">${l.map(x=>`<li>${linkText(x)}</li>`).join('')}</ul>
     <div class="row-end"><button class="btn" id="llClose">${t('g.close')}</button></div>
   </div>`;
   document.body.appendChild(box); tabThroughFields(box);
@@ -399,6 +417,14 @@ function editLink(cur,onOk){
     /* Ohne Adresse gibt es nichts zu öffnen — ein Link, der
        nirgendwohin führt, ist kein Eintrag, sondern ein Fehler. */
     if(!url){ err.textContent=t('link.urlEmpty'); err.hidden=false; ur.focus(); return; }
+    /* **Erlaubt sind nur Adressarten, die etwas öffnen** — http,
+       https, mailto (linkSafe in js/state.js). Geprüft wird schon
+       hier und nicht erst beim Anzeigen: sonst stünde im Buch ein
+       Eintrag, der nirgendwohin führt, und niemand wüsste warum.
+       Trifft vor allem Eingefügtes — von Hand tippt das niemand. */
+    if(!linkSafe(url)){
+      err.textContent=t('link.urlBad'); err.hidden=false; ur.focus(); ur.select(); return;
+    }
     /* Eingefügt und sofort mit Enter bestätigt: dann hat `oninput`
        zwar gefeuert, aber wer die Adresse per Tastatur einsetzt und
        gleich abschickt, soll den Namen trotzdem bekommen. */
@@ -467,7 +493,7 @@ function linkRows(links){
   return `<ul class="linklist edit">${links.map((x,i)=>`<li draggable="true" data-lnrow="${i}">
     <span class="grip" title="${esc(t('set.dragTip'))}">&#8942;&#8942;</span>
     <button type="button" class="pencil" data-lnedit="${i}" title="${esc(t('link.editTip'))}">&#9998;</button>
-    <a href="${esc(x.url)}" target="_blank" rel="noopener" data-tip="${esc(x.url)}">${esc(linkLabel(x))}</a>
+    ${linkText(x)}
     <button type="button" class="lndel" data-lndel="${i}"
       aria-label="${esc(t('link.del'))}" data-tip="${esc(t('link.delTip'))}">&#10005;</button>
   </li>`).join('')}</ul>`;
@@ -891,7 +917,11 @@ function openNote(kind,key,m,done){
    Änderung derselben Zahl, sondern eine andere Zahl — und die
    Ansicht fährt ohnehin gerade herein. Erkannt wird das an
    `numScope`. */
-const NUM_MS=360;
+/* 500 ms und nicht 360 (Lex, 10.9.26): beim Filtern soll man der
+   Zahl beim Kleinerwerden zusehen können. Bei 360 war der Lauf so
+   kurz, dass er wieder wie ein Sprung aussah; 720 war dann zu
+   gemächlich für eine Zahl, die beim Tippen mitläuft. */
+const NUM_MS=500;
 let numShown=Object.create(null),numScope='';
 function animNums(){
   const scope=(typeof ui==='undefined')?'':(ui.view+':'+ui.month+':'+(ui.welcome?'w':''));
@@ -1418,6 +1448,14 @@ function slideViewOut(vbox,dir){
      die neue auch einen, zieht slideViewIn seinen Inhalt dort
      hinüber — im Geist wäre er von der neuen Leiste zugedeckt. */
   viewGhostBar=viewTopBar(vbox);
+  /* **Die Leiste behält im Geist ihre Höhe** (Lex, 10.9.26). Ihr
+     Inhalt zieht gleich in die neue Leiste um (slideViewIn); was
+     zurückbleibt, fiele ohne Maß auf Höhe 0 zusammen — und der
+     ganze alte Inhalt spränge um diese Höhe nach oben. Im Monat
+     rutschte dadurch die Monatsleiste unter die neue, deckende
+     Leiste: sie „verschwand", noch bevor die Fahrt anfing.
+     Gemessen wird vor jeder Änderung am Kasten. */
+  if(viewGhostBar) viewGhostBar.style.height=viewGhostBar.getBoundingClientRect().height+'px';
   const fresh=document.createElement('div'); fresh.id='view';
   vbox.parentNode.insertBefore(fresh,vbox);
   vbox.removeAttribute('id'); vbox.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
@@ -1517,9 +1555,27 @@ function slideViewIn(vbox,dir){
      Top-Bereich hat —, fängt der neue wie bisher nach 100 ms an:
      eine Wartezeit ohne Grund läse sich als Hänger. */
   const ob=viewGhostBar; viewGhostBar=null;
-  if(bar){
+  /* **Getauscht wird nur, wenn beide Ansichten einen Top-Bereich
+     haben** (Lex, 10.9.26). „Die Leiste bleibt stehen" setzt
+     voraus, dass es auf beiden Seiten eine gibt. Die Prognose hat
+     keine — und dann log der Tausch:
+
+     * Prognose → Jahr: die neue Leiste stand sofort da, deckend,
+       und deckte die Kennzahlen der Prognose zu, bevor überhaupt
+       etwas fuhr. Der alte Inhalt änderte sich also, statt
+       überlagert zu werden.
+     * Jahr → Prognose: die alte Leiste blendete für sich aus,
+       obwohl gleich der ganze Rumpf darüberfährt.
+
+     Fehlt sie auf einer Seite, fährt die neue Leiste deshalb
+     **mit dem Rumpf mit** (`.barride`) — die neue Ansicht kommt
+     dann als ein Stück herein, und der Geist bleibt bis zuletzt
+     unverändert stehen. */
+  const swap=!!(bar&&ob&&ob.firstChild);
+  if(bar&&!swap) bar.classList.add('barride',dir>0?'pre-right':'pre-left');
+  if(swap){
     bar.classList.add('barin');
-    if(ob&&ob.firstChild){
+    {
       const gh=document.createElement('div');
       /* **Der Geist erbt die Klassen seiner alten Leiste** (Lex,
          9.9.26). Die ganze Bahn ist über Nachfahren beschrieben —
@@ -1553,7 +1609,7 @@ function slideViewIn(vbox,dir){
      in der Leiste laufen mehrere Kinder, und ohne Bewegung
      (prefers-reduced-motion) endet gar keine. */
   clearTimeout(barSwapT);
-  if(bar) barSwapT=setTimeout(()=>{
+  if(swap) barSwapT=setTimeout(()=>{
     if(bar.isConnected) bar.classList.remove('barin','barswap');
   },BAR_OUT_MS+BAR_IN_MS+60);
   const g=viewGhost;
@@ -1561,6 +1617,7 @@ function slideViewIn(vbox,dir){
     document.documentElement.classList.remove('viewslide');
     vbox.classList.remove('sliding');
     vb.classList.remove('in-left','in-right','pre-left','pre-right');
+    if(bar) bar.classList.remove('barride','in-left','in-right','pre-left','pre-right');
     vb.style.removeProperty('--viewgap'); vb.style.removeProperty('--viewfill');
     if(g&&g===viewGhost){ g.remove(); viewGhost=null; }
     restick(vbox);
@@ -1569,6 +1626,10 @@ function slideViewIn(vbox,dir){
     if(!vb.isConnected||!vb.classList.contains(dir>0?'pre-right':'pre-left')) return;
     vb.classList.remove('pre-left','pre-right');
     vb.classList.add(dir>0?'in-right':'in-left');
+    if(bar&&bar.classList.contains('barride')){
+      bar.classList.remove('pre-left','pre-right');
+      bar.classList.add(dir>0?'in-right':'in-left');
+    }
     clearTimeout(viewSlideT);
     viewSlideT=setTimeout(done,VIEW_MS+30);
   }));

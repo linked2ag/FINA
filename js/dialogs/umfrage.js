@@ -205,9 +205,22 @@ function srvText(v){
   if(typeof v==='string') s=v;
   else if(v&&typeof v==='object') s=String(v.default||v.en||v.de||'');
   if(s.indexOf('<')<0) return s;
-  const d=document.createElement('div');
-  d.innerHTML=s;
-  return (d.textContent||'').replace(/\s+/g,' ').trim();
+  /* **Gelesen, nicht eingesetzt.** Bis 10.9.26 stand hier ein
+     `div`, in das der fremde Text per `innerHTML` gesteckt wurde,
+     nur um gleich danach den nackten Text herauszulesen. Das ist
+     der klassische Fehler: beim Einsetzen baut der Browser die
+     Elemente wirklich, und ein `<img onerror=…>` läuft dabei
+     schon los — lange bevor die Zeile darunter den Text liest.
+
+     `DOMParser` benutzt denselben Leser, legt das Ergebnis aber in
+     ein totes Dokument: nichts wird geladen, nichts ausgeführt.
+     Umschriebene Zeichen (`&amp;`) kommen trotzdem richtig heraus,
+     was ein eigener Ausdruck über Spitzklammern nicht könnte.
+
+     Gebraucht wird das, weil der Text vom Umfrage-Dienst kommt und
+     nicht von uns — die einzige fremde Quelle im Browser. */
+  const doc=new DOMParser().parseFromString(s,'text/html');
+  return ((doc.body&&doc.body.textContent)||'').replace(/\s+/g,' ').trim();
 }
 
 /* ── Das Fenster ─────────────────────────────────────────────

@@ -421,6 +421,21 @@ trägt sie dort ein.
   `visibilitychange` bei den Menüs); zu sehen ist davon nichts, es bewegt sich nichts.
   Ein Rollstoß um ein Pixel täte dasselbe, wäre aber für ein Bild lang zu sehen. Wer
   eine weitere Rollfläche mit klebenden Zeilen baut, trägt ihre Klasse dort ein.
+* **Getauscht wird nur, wenn beide Ansichten einen Top-Bereich haben** (Lex, 10.9.26).
+  Alles Folgende setzt voraus, dass es auf **beiden** Seiten eine Filterzeile gibt. Die
+  Prognose hat keine — und dann log der Tausch: von der Prognose ins Jahr stand die neue
+  Leiste vom ersten Bild an deckend über den Kennzahlen der Prognose, und umgekehrt
+  blendete die alte Leiste für sich aus, obwohl gleich der ganze Rumpf darüberfährt. Fehlt
+  sie auf einer Seite, fährt die neue Leiste deshalb **mit dem Rumpf mit** (`.barride` in
+  `slideViewIn`, Regeln in `css/components.css`): die neue Ansicht kommt als ein Stück
+  herein. `swap` in `slideViewIn` sagt, welcher der beiden Fälle gilt.
+* **Die alte Ansicht bleibt unverändert stehen, bis sie zugedeckt ist** (Lex, 10.9.26).
+  Zwei Dinge verletzten das: (1) die Leiste des Geistes wurde leergeräumt — ihr Inhalt zieht
+  ja in die neue Leiste um — und fiel dabei auf Höhe 0 zusammen, worauf der ganze alte
+  Inhalt um ihre Höhe nach oben sprang; im Monat rutschte die Monatsleiste dabei unter die
+  neue Leiste und schien zu verschwinden. `slideViewOut` hält deshalb die gemessene Höhe
+  als Inline-Maß fest, **bevor** es irgendetwas am Kasten ändert. (2) Der Geist blendete
+  seine Leiste aus (`fina-barout` an `.viewghost>.stickybar.viewtop>*`); die Regel ist weg.
 * **Der Top-Bereich fährt nicht mit** (Lex, 8.9.26). **Der Top-Bereich ist die
   Filterzeile** — die Bahn, die an der Kopfzeile andockt und in Monat und Jahr dieselbe
   ist; sie trägt dafür die Klasse `viewtop`. Sie steht in beiden Ansichten an derselben
@@ -660,6 +675,11 @@ die drei alten in jeder Sprache auf Englisch (`INCOME`, `(no main category)`,
 Bildschirm geht, steht `esc(keyLabel(name))`; wo er als Wert, `data-…` oder Vergleich
 gebraucht wird, bleibt der rohe Name stehen.
 
+`esc()` (`js/format.js`) kodiert seit 10.9.26 auch das **einfache** Anführungszeichen.
+Heute ist das folgenlos — nachgesehen: FINA hat kein Attribut in einfachen
+Anführungszeichen, und `esc()` landet ausnahmslos in HTML, wo `&#39;` wieder als `'`
+erscheint. Es nimmt nur die Falle weg, dass ein späteres `title='…'` sich aufbrechen ließe.
+
 **4. Klassische Skripte, feste Reihenfolge.**
 Keine ES-Module und kein `fetch`, damit die Seite auch per Doppelklick über `file://`
 läuft. Neue Dateien in `fina-online.html` eintragen: `i18n.js` zuerst, dann Werkzeuge,
@@ -783,7 +803,15 @@ sagen konnte, warum.
 dafür, dass FINA außerhalb eines Browsers läuft: wohin fremde Links gehen
 (`setWindowOpenHandler` / `will-navigate` → `shell.openExternal`), dass `about:blank` — die
 ganzseitige Anleitung — als eigenes Fenster erlaubt bleibt, das Menü (ohne `editMenu` gäbe
-es auf dem Mac kein Cmd+C) und die Einzelinstanz. Wer an FINA etwas ändert, ändert es in
+es auf dem Mac kein Cmd+C) und die Einzelinstanz.
+
+**Nach draußen geht nur `http:` und `https:`** (seit 10.9.26) — in **beiden** Handlern
+gleich. `shell.openExternal` reicht die Adresse ans Betriebssystem weiter, und das macht je
+nach Adressart etwas ganz anderes daraus als eine Webseite: es öffnet ein fremdes Programm.
+Die Popup-Regel prüfte das längst, `will-navigate` gab dagegen jede Adresse weiter, die
+nicht mit `file://` anfing. Was nicht durchkommt, wird verworfen; das Fenster bleibt, wo es
+ist. **Und das Anleitungsfenster läuft im selben Sandkasten wie das Hauptfenster**
+(`sandbox: true`); geprüft, dass sich dadurch nichts an ihm ändert. Wer an FINA etwas ändert, ändert es in
 `js/` und `css/`.
 
 ## Die fünf Seiten außerhalb der Anwendung
@@ -1566,7 +1594,8 @@ Stücken liegen je 10 px — so viel, wie die Bereiche voneinander haben.
 **Die vier Zahlen zählen sich um, statt zu springen** (Lex, 8.9.26): wer tippt oder einen
 Bereich wählt, sieht dort andere Summen — 1.800,00 im einen Bild und 100,00 im nächsten
 sagte nicht, dass es dieselbe Zahl ist, die gerade kleiner wird. `animNums()` in `js/ui.js`
-(gerufen am Ende von `wire()`) dreht sie in 360 ms weich herunter; die Kachel trägt dafür
+(gerufen am Ende von `wire()`) dreht sie in 500 ms weich herunter (`NUM_MS`; bis 10.9.26
+360 ms — das las sich wieder wie ein Sprung); die Kachel trägt dafür
 `data-num` (ihre Geldart als Schlüssel) und `data-v` (den Zielwert), gesetzt in `cell()`
 und in `tile()` der mobilen Leiste. **Angefangen wird bei dem, was gerade dasteht** —
 `numShown` hält den angezeigten Stand und wird in jedem Bild nachgeführt: wer schnell
@@ -1959,8 +1988,18 @@ gedacht als Frist für neue Nutzer. Die Frist hängt jetzt am ersten Speichern u
 kein Datum; `migrate()` **löscht** das Feld deshalb, sonst schriebe `stateJson()` es bei
 jedem Speichern wieder hinaus (dieselbe Behandlung wie `hideSettled` und `flexCollapsed`).
 
-**Noch offen:** die eigenen Umfrage-Dateien auf `fina-app.de` und ein Absatz in der
-Datenschutzerklärung.
+**Der Text vom Dienst wird gelesen, nicht eingesetzt** (seit 10.9.26). `srvText()` steckte
+ihn bis dahin per `innerHTML` in ein `div`, nur um gleich darauf den nackten Text
+herauszulesen — dabei baut der Browser die Elemente wirklich, und ein `<img onerror=…>`
+liefe schon los, bevor die Zeile darunter den Text liest. Jetzt liest `DOMParser` ihn in ein
+totes Dokument: nichts wird geladen, nichts ausgeführt, umschriebene Zeichen (`&amp;`)
+kommen trotzdem richtig heraus. Es war die einzige Stelle im Code mit diesem Muster; wer
+fremden Text säubern will, nimmt denselben Weg.
+
+**Eigene Umfrage-Dateien auf `fina-app.de` braucht es nicht** (der Plan stand bis 10.9.26
+hier): FINA fragt direkt beim Dienst nach, welche Umfragen laufen — eine zweite Datei
+müsste gepflegt werden und liefe der Wirklichkeit hinterher. Der Absatz in der
+Datenschutzerklärung steht ebenfalls (dort Abschnitt 7, zweisprachig).
 
 ## Die Begrüßungsseite
 
@@ -2491,6 +2530,26 @@ sonst melden seine Lampen „gibt es nicht mehr".
 Jede Position trägt eine **Liste** von Links — Vertrag, Rechnung, Kundenkonto. Jeder Eintrag ist `{name,url}`; **höchstens zehn**
 (`MAX_LINKS`).
 
+**Erlaubt sind nur Adressarten, die etwas öffnen** (seit 10.9.26): `http:`, `https:`,
+`mailto:`. Das Wort vor dem Doppelpunkt sagt dem Browser, was er mit dem Rest tun soll —
+`javascript:` heißt „führe das Folgende als Befehl aus", und der Befehl liefe im Namen von
+FINA: er könnte das ganze Buch lesen und wegschicken. Der Weg dahin ist eine **fremde**
+lokale Datenbank (ein geteiltes Buch, eine „Beispieldatei", ein Mailanhang) und ein Klick
+aufs Kettensymbol.
+
+Entschieden wird das an **einer** Stelle: `linkSafe(url)` in `js/state.js`, daneben die
+Liste `LINK_SCHEMES`. Gefragt wird dabei **der Browser selbst** (`new URL()`) und kein
+eigener Ausdruck: `java⇥script:` mit einem Steuerzeichen mittendrin ist für einen Ausdruck
+kein `javascript:`, für den Browser schon — und weil `new URL()` derselbe Leser ist, der
+später auch das `href` liest, können die beiden nicht auseinanderlaufen.
+
+Gefragt wird an drei Stellen in `js/ui.js`: `linkIcon()` (bei genau einem Link),
+`linkText()` (der neue Helfer für die beiden Listen — Auswahlfenster und Posten-Fenster)
+und `editLink()` beim Übernehmen (`link.urlBad`). **Weggeworfen wird nichts**: ein
+gesperrter Link bleibt in der Datei und wird angezeigt, nur durchgestrichen und ohne Ziel
+(`.lnblocked`, Sprechblase `link.blocked`) — derselbe Grundsatz wie bei `migrate()`, wer
+eine Datei mit einer älteren Fassung öffnet, soll nichts verlieren.
+
 **Ohne Namen wird kein Link angelegt.** Der Name ist das Einzige, was der Link später zeigt
 — in der Liste, in der Auswahl und in der Sprechblase des Kettensymbols. Meistens merkt der
 Nutzer davon nichts, weil `siteName()` ihn aus der Adresse holt; kommt dabei nichts heraus,
@@ -2826,7 +2885,7 @@ Bereiche, Saldokorrektur; das frühere Beträge-Fenster der flexiblen Kategorien
 
 | | Block | worin |
 |---|---|---|
-| 1 | Bezeichnung | die Überschrift, sie ist der Knopf dazu (`.titlebtn`) |
+| 1 | Bezeichnung | die Überschrift, sie ist der Knopf dazu (`.titlebtn`), davor die Notizlampe |
 | 2 | Zuordnung | der Weg zu den Listen, Kategorie · Bank · Zahlungsart · Fälligkeit, letzte Zahlung |
 | 3 | Zugehörige Links | die Liste samt Plus |
 | 4 | Schnelleingabe | Rhythmus · ab wann · Betrag, **und der Schalter „geschätzt"** |
@@ -2837,6 +2896,22 @@ feine Kante und dieselbe 2-px-Rundung wie ein Knopf der Kopfzeile. **Überschrif
 die Blöcke nicht** — ihre Felder sind beschriftet, und ein Wort über jedem Block wäre genau
 der Text, der ein Fenster zumüllt (siehe „Erklärender Text steht in der Sprechblase").
 Getrennt wird über Abstand und Kante, nicht über Sprache.
+
+**Die Notizlampe steht auf der Oberkante der Bezeichnung** (Lex, 10.9.26). Sie gehört zum
+Namen und nicht zu der gepunkteten Linie darunter: so hoch wie ein Großbuchstabe, Oberkante
+auf Oberkante — und bei einem zweizeiligen Namen bleibt sie oben auf der ersten Zeile. Dafür
+ist die Überschrift eine Reihe (`flex`, `align-items:flex-start`); `vertical-align` kennt
+nur die Grundlinie der **letzten** Zeile und ließ die Lampe mitwandern.
+
+Drei Dinge, die man dabei wissen muss (alle drei standen am 10.9.26 als Fehler da):
+ein `<button>` **erbt die Schriftgröße nicht** — ohne `font-size:inherit` rechnet jedes `em`
+mit den 13 px des Browsers statt mit den 19 px der Überschrift; das Zeichen **füllt seinen
+Kasten nicht aus** (die Lampe belegt 0.842 ihres viewBox), der Kasten muss also größer sein
+als die Versalhöhe; und der Abstand nach oben lässt sich **nicht ausrechnen** — die Schrift
+meldet einen Ascender von 18 px, Chrome benutzt fürs Zeilenlayout 16.08 px. Er ist deshalb
+an gerenderten Bildpunkten abgezählt, bei dreifachem Zoom und an einem **flachen**
+Großbuchstaben (B, N, H; ein A ragt oben spitz hinaus). Die Zahlen und der Weg stehen im
+Kommentar in `css/components.css`.
 
 **Unter der Bezeichnung steht nichts mehr.** Dort stand eine Zeile über abgeschlossene
 Monate („bis Juli abgeschlossen", „alle Monate offen") — das sagen die gesperrten
@@ -3716,7 +3791,18 @@ nicht weiter (`<1`).
 ## Wie die Datei heißt
 
 Chrome und Edge schreiben über die File System Access API in **dieselbe** Datei zurück
-(`canFS` in `js/storage.js`); dort ist der Name keine Frage. Jeder andere Browser kann das
+(`canFS` in `js/storage.js`); dort ist der Name keine Frage.
+
+**Verweigert der Browser das Lesen, fällt FINA auf die gewöhnliche Dateiauswahl zurück**
+(seit 10.9.26). In manchen Umgebungen geht der Auswahldialog durch, `getFile()` wirft
+danach aber `NotAllowedError` — gesehen am 9.9.26 auf einem Mac, **woran es dort lag, ist
+noch offen** (`_BusinessCenter/todo.md`); bekannt sind Seiten über `file://` und Seiten in
+einem fremden Rahmen. Dann setzt `fsRefused` in `js/storage.js`, eine Meldung
+(`store.loadRefused`) bittet um einen zweiten Klick, und der nimmt `#fileJson`. **Vorab
+abgeschaltet wird nichts** — der Rückfall gilt nur für diese Sitzung und erst nach einer
+echten Ablehnung; eine Fassung, die die API auf dem Mac pauschal übersprang, nahm allen
+Mac-Nutzern das Zurückschreiben in dieselbe Datei. Geklickt wird auch nicht von selbst:
+nach dem Warten auf den Dialog ist die Klick-Erlaubnis des Nutzers abgelaufen. Jeder andere Browser kann das
 nicht und legt bei jedem Speichern eine neue Datei im Download-Ordner ab — und zwei Dateien
 desselben Namens werden dort zu „fina (1).json", „fina (2).json": eine Reihe, der man nicht
 ansieht, welche die neueste ist.

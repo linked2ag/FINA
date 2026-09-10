@@ -67,7 +67,11 @@ function fenster() {
       overrideBrowserWindowOptions: {
         width: 1100, height: 940, autoHideMenuBar: true,
         backgroundColor: '#E9EAE3',
-        webPreferences: {contextIsolation: true, nodeIntegration: false}
+        /* Dieselbe Abschottung wie beim Hauptfenster. `sandbox`
+           fehlte hier: das Fenster zeigt zwar nur, was FINA
+           selbst hineinschreibt, aber es gibt keinen Grund,
+           ihm mehr Rechte zu lassen als dem Fenster daneben. */
+        webPreferences: {sandbox: true, contextIsolation: true, nodeIntegration: false}
       }
     };
     if (/^https?:/.test(url)) shell.openExternal(url);
@@ -78,7 +82,16 @@ function fenster() {
      wegnavigieren — danach stünde FINA nicht mehr darin, und
      zurück käme man nur über einen Neustart. */
   win.webContents.on('will-navigate', (e, url) => {
-    if (!url.startsWith('file://')) { e.preventDefault(); shell.openExternal(url); }
+    if (url.startsWith('file://')) return;
+    e.preventDefault();
+    /* Nach draußen geht nur, was ein Browser auch öffnen würde —
+       dieselbe Regel wie oben bei den Popups. `shell.openExternal`
+       reicht die Adresse ans Betriebssystem weiter, und das macht
+       daraus je nach Wort vor dem Doppelpunkt etwas ganz anderes
+       als eine Webseite: es öffnet ein fremdes Programm. Was hier
+       nicht durchkommt, wird schlicht verworfen — das Fenster
+       bleibt, wo es ist. */
+    if (/^https?:/i.test(url)) shell.openExternal(url);
   });
 
   /* ── Ungespeicherte Änderungen ─────────────────────────────────
