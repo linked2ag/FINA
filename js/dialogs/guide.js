@@ -505,137 +505,79 @@ ${gfeat('Was FINA nicht ist','Ehrliche Grenzen',`
    größeren funktionalen bekommen einen eigenen Punkt, alles Kleine
    sammelt sich in „Bugfixing und kosmetische Anpassungen". Ein
    neuer Block entsteht mit jeder fertigen Fassung (VERSION in
-   js/config.js), nicht mit jedem Commit dazwischen. */
+   js/config.js), nicht mit jedem Commit dazwischen.
+
+   **Und die Punkte bleiben kurz und oberflächlich** (Lex,
+   11.9.26): ein Satz, was man jetzt tun kann — kein Wie, keine
+   Einzelheiten, kein Weg durch die Oberfläche. Die ausführliche
+   Beschreibung steht in „Schritt für Schritt" und „Was FINA kann",
+   und die Kopfzeile dieses Reiters sagt das auch. Drei Sorten
+   gehören gar nicht hierher: Kosmetik (Farben, Abstände,
+   Bewegung), Kleinigkeiten am Rand — und **alles, was beschreibt,
+   wie sicher FINA gebaut ist**. Was FINA gegen fremde Dateien tut
+   oder welche Adressen es nicht öffnet, geht den Leser nichts an;
+   eine Fassung, in der nur so etwas steckt, trägt hier nur
+   „Bugfixing und kosmetische Anpassungen" (so 26.9.10 und
+   26.8.30). */
 news:{
 
 en:()=>`
-<p class="glead">The most important changes of the last versions — without technical
-details, and with what they mean for you.</p>
+<p class="glead">The bigger changes of the last versions, in short. How each of them works is
+described in <b>${t('guide.tabSteps')}</b> and <b>${t('guide.tabProduct')}</b>.</p>
 <div class="gvers">
-${gver('26.9.10','Safer links, and a calm change of view',`
-<p>FINA now only opens addresses that really lead somewhere. And when you switch views, the
-one you are leaving stays exactly as it was until the new one has covered it.</p>
+${gver('26.9.10','Bug fixing',`
 <ul class="gcheck">
-  <li><b>Associated links open only web addresses</b> (http, https) and mailto. Anything else
-      — it can only come from a file someone else made — is still shown, but struck through
-      and without a target. When you enter one yourself, FINA says so right away.</li>
-  <li><b>Changing the view is calm.</b> The view you leave no longer changes while the new
-      one slides in: the month row stays where it is, and between Year and Forecast nothing
-      overlaps any more.</li>
-  <li>The four numbers of the analytics row <b>take longer to count</b> — you can follow
-      them while you filter instead of watching them jump.</li>
-  <li><b>If your browser refuses to open your local database</b>, FINA now offers the normal
-      file dialog instead of stopping at an error message.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`,'Current version')}
 
-${gver('26.9.8','Your own names in the import — and your file is a local database',`
-<p>Reference fields can carry the names you give them, and they keep them. The guide stands
-beside your table from the moment you open a file. In the CSV import every column you pick
-gets its field on the spot. And your JSON file has a name now: it is your <b>local
-database</b>.</p>
+${gver('26.9.8','Your own names in the import',`
+<p>Reference fields can carry the names you give them, and they keep them. And the guide
+stands beside your table from the moment you open a file.</p>
 <ul class="gcheck">
+  <li><b>Name your reference fields yourself.</b> “Reference 2” becomes “Payee”. The name is
+      remembered and used again next time, and rows already in your book keep the name they
+      came in with.</li>
+  <li>In step 2 of the import <b>every column you pick gets its field right away</b>, and the
+      usual ways of writing a date or an amount are read.</li>
   <li>New tick <b>“${t('set.guide')}”</b> under <b>${t('app.settings')}</b> →
-      <b>${t('set.navView')}</b>: the guide opens with every file and beside the steps of
-      the CSV import. Take the tick away and it only opens when you press the button.</li>
-  <li>In step 2 of the import, <b>every column you select gets a field right away</b>: dates
-      become Date, amounts become Amount, everything else takes the next free reference —
-      and a reference is free again as soon as you deselect its column.</li>
-  <li>The import reads the usual ways of writing a date (24.08.2026 · 2026-08-24 ·
-      08/24/2026 · 24 Aug 2026) and an amount (-73,25 · 1.234,56 · 1,234.56 · (73,25) ·
-      12,34 €). A plain number without decimals is not taken for an amount.</li>
-  <li>When a view changes, the filter row stays put and only swaps its buttons; the month
-      bar, the analytics and the table slide in beside it. Opening a file brings the month
-      in from the right.</li>
-  <li>A filter menu closes as soon as you choose something — what you chose stays on the
-      button.</li>
-  <li><b>Esc</b> now clears one thing at a time: an open menu, then the search field, then
-      the other filters. The <b>✕</b> still clears everything at once.</li>
-  <li>“${t('app.load')}” and “${t('menu.csv')}” say which kind of file they mean.</li>
-  <li><b>Give your reference fields a name.</b> The pencil beside the field in step 2 of the
-      import, or in front of a reference in the <b>CSV structure</b> window: “Reference 2”
-      becomes “Payee”. The name belongs to that import mapping, is remembered and used again
-      next time — and rows that are already in your book keep the name they came in with. So
-      two imports with different names stand side by side on the same entry, each with its
-      own labels.</li>
-  <li><b>Your file is your local database.</b> The menu opens and closes it under that name,
-      and <b>${t('menu.newOut')}</b> now sits between bringing numbers in and saving them —
-      plain, no longer black.</li>
-  <li>Is the window too narrow for the filter row? Then <b>all filters move into one ☰</b>
-      next to the search field, with a red dot while a filter is on. The row stays one line
-      high — with the guide open too.</li>
-  <li>The four numbers of the analytics row <b>count up and down</b> while you filter,
-      instead of jumping.</li>
-  <li>“Search by amount” in the ☰ of an entry now writes the amount into the quick filter.
-      And step 1 of the import says it plainly: the CSV file needs a header row.</li>
+      <b>${t('set.navView')}</b>: the guide opens with every file and beside the steps of the
+      CSV import.</li>
+  <li>Your file has a name of its own now: it is your <b>local database</b>.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
-${gver('26.9.7','A guide you can read in half an hour',`
-<p>All three tabs of this guide are rebuilt: numbered steps with a picture each, cards for
-the four areas, one block per function, and every version as a card like this one. The
-pictures show the current FINA.</p>
+${gver('26.9.7','Improvements to the guide',`
+<p>All three tabs of this guide are rebuilt, and the CSV import has a guide of its own beside
+its steps.</p>
 <ul class="gcheck">
-  <li>The guide beside the CSV import has the same head: EN · DE, a button for a full page,
-      and a handle to drag its width — at least a third of the window.</li>
-  <li>Both guides slide in from the right and out again.</li>
-  <li>The assignment bar of the import no longer scrolls: when the window is narrow, its
-      buttons move into the ☰ menu, except “${t('c2.assign')}” and “${t('c2.newAssign')}”.</li>
-  <li>The column that marks the header row is called HDR in both languages.</li>
-  <li>The tab “${t('view.kakeibo')}” is gone. Imported rows stay with their entry: open it
-      and press “${t('impv.show')}”.</li>
-  <li>Switching views runs smoothly now, without the jump at the start. The page shrinks
-      along with the guide instead of jumping.</li>
-  <li>In the settings only the section on the right scrolls; the menu on the left stays.</li>
+  <li>Numbered steps with a picture each, one block per function, every version as a card.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
-${gver('26.9.6','One kind of entry, a smarter import, and everything moves',`
+${gver('26.9.6','One kind of entry, and a smarter import',`
 <p>Flexible entries are now entries like any other: same window, same fields, one
-“${t('menu.newOut')}”. The import knows what it has already seen. And the whole interface
-moves.</p>
+“${t('menu.newOut')}”. And the import knows what it has already seen.</p>
 <ul class="gcheck">
-  <li>The category decides between income, flexible and regular. Each area keeps an “N/A”
-      category for entries without one.</li>
-  <li>Rows already in the book, and rows assigned in this run, stay in the file table, grey
-      with a cross in the column “X”. A button hides and shows them.</li>
-  <li>An import adds to a month instead of replacing it. A fifth reference field.</li>
-  <li>In step 3 the three area rows fold their block; “${t('c2.foldAllBtnShow')}” /
-      “${t('c2.foldAllBtnHide')}” does it for all at once.</li>
-  <li>A month with the blue arrow is locked until you delete the import data of the entry.</li>
-  <li>The year view has the three filter menus, struck-through completed months and the
-      scrollbar below the table.</li>
-  <li><b>${t('set.navImport')}</b> in the settings has three sections; a remembered CSV
-      structure opens as a window with its own delete button. The table import is gone.</li>
-  <li>Views slide in sideways, windows drop in from the top, menus unfold, cards and blocks
-      fold smoothly. One click folds. Switched off if your system asks for reduced motion.</li>
+  <li>The category decides between income, flexible and regular.</li>
+  <li>Rows that are already in your book stay visible in the file table and cannot be brought
+      in twice. An import adds to a month instead of replacing it.</li>
+  <li>Views, windows and menus move now — switched off if your system asks for reduced
+      motion.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
 ${gver('26.9.5','The import wizard in three clear steps',`
 <p>The CSV import now leads you through <b>${t('c2.steps1')}</b>,
-<b>${t('c2.steps2')}</b> and <b>${t('c2.steps3')}</b>. The help stands right next to the
-step.</p>
+<b>${t('c2.steps2')}</b> and <b>${t('c2.steps3')}</b>.</p>
 <ul class="gcheck">
   <li>FINA remembers the column structure of a recurring file export.</li>
-  <li>Matching rules are stored at the entry as its import criteria.</li>
-  <li>In the next matching import you apply the remembered rules on your command.</li>
-  <li>“${t('app.guide')}” in steps 2 and 3 explains the step beside the window.</li>
+  <li>Matching rules are kept at the entry as its import criteria, and you apply them on your
+      command in the next matching import.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
-${gver('26.8.30','Saving is easier to see',`
-<p>Unsaved changes now catch the eye. FINA still saves only when you say so.</p>
+${gver('26.8.30','Bug fixing',`
 <ul class="gcheck">
-  <li>“${t('app.save')}” steps out of the menu as soon as there is something to save, with a
-      red frame next to ☰. An open survey sits to its left.</li>
-  <li>When the header gets too narrow, a red dot on ☰ says that something inside is waiting.</li>
-  <li>“${t('app.load')}” and “${t('menu.csv')}” are their own group at the top of the menu.</li>
-  <li>The fourth box of the analytics line is the <b>${t('month.kpiSaldo')}</b> of the month —
-      the same number the year view calls <b>${t('year.totalRow')}</b>.</li>
-  <li>The forecast has a new column <b>SUM</b>; the balance column is now called <b>PROG</b>.</li>
-  <li>Under <b>${t('set.navView')}</b> you decide whether the month opens with its analytics and
-      whether the year opens with completed months hidden.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
@@ -656,17 +598,14 @@ ${gver('26.8.23','Free while we pilot, better filters, a reworked phone',`
   <li>An orange <b>${t('srv.open')}</b> button waits in the header while a survey is running.</li>
   <li>“${t('flt.options')}” leads straight to the new section <b>${t('set.navFilter')}</b> in
       the settings: names, notes, amounts, categories.</li>
-  <li>On the phone the view is chosen at the bottom, the filter menu works like on the
-      desktop, the year shows four coloured boxes per month.</li>
-  <li>The month view scrolls like the year view; filter row, month bar and analytics stay put.</li>
-  <li>Windows hold still while you scroll: name on top, buttons at the bottom.</li>
-  <li>The fourth tab is called “${t('view.kakeibo')}”, shortcut Ctrl/Cmd + Shift + I.</li>
+  <li>On the phone the view is chosen at the bottom, and the year shows four coloured boxes
+      per month.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
 ${gver('26.8.22','Mac style',`
 <ul class="gcheck">
-  <li>The whole interface in its new Mac look: toolbar, segmented control, white cards.</li>
+  <li>The whole interface in its new Mac look.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
@@ -676,10 +615,8 @@ ${gver('26.8.20','Bug fixing',`
 </ul>`)}
 
 ${gver('26.8.19','Faster through months and analytics',`
-<p>The month view is quicker to work in without losing the overview.</p>
 <ul class="gcheck">
   <li>Ctrl/Cmd + ← / → steps through the months in the month view.</li>
-  <li>Areas without a hit disappear while a filter is on.</li>
   <li>The analytics can be open when a book opens: a tick under <b>${t('set.navView')}</b>.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
@@ -690,15 +627,12 @@ ${gver('26.8.18','FINA on the phone',`
   <li>The month as a readable card list with large seals.</li>
   <li>Year and forecast are made for swiping and looking up.</li>
   <li>The views are switched at the bottom edge.</li>
-  <li>Your language is remembered on this computer; an open book decides for itself.</li>
-  <li>The timeline follows the due-date filter: only the chosen row keeps its numbers.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
 ${gver('26.8.16','Language on the welcome page',`
 <ul class="gcheck">
   <li>EN · DE at the top right of the first screen, before any file is open.</li>
-  <li>The word mark at the top left leads back to the FINA page.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
@@ -712,7 +646,6 @@ ${gver('26.8.13','Change the forecast where it stands',`
 <ul class="gcheck">
   <li>Double-click a month in <b>COR</b> and the balance correction opens at that month.</li>
   <li>Double-click the <b>${t('set.opening')}</b> row and the settings open with that field.</li>
-  <li>Every window shows the way to its lists; the settings open on top of it.</li>
   <li>A new book is really empty: no categories, no banks, no payment types.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
@@ -721,28 +654,25 @@ ${gver('26.8.11','Filtering adds up what you see',`
 <ul class="gcheck">
   <li>Block totals, category totals and the analytics line count the visible rows only.</li>
   <li><b>${t('year.totalRow')}</b> is the top row of the year table.</li>
-  <li>Both ways of importing live in the settings, section <b>${t('set.navImport')}</b>.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
-${gver('26.8.9','Links, a steadier year view, a guide of its own',`
+${gver('26.8.9','Links, a guide of its own, and backups',`
 <ul class="gcheck">
-  <li>Column names, total row and block rows stay put while you scroll.</li>
   <li>Every entry can carry several links, each with a name of its own.</li>
   <li>An estimated amount is no longer ticked off blindly: the seal opens the entry first.</li>
   <li>The guide has its own language and opens on a full page.</li>
   <li><b>${t('app.backup')}</b>: a dated copy in your downloads folder, in every browser.</li>
-  <li>Clicking a field selects what is in it, so typing replaces it.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
 ${gver('26.8.8','The opening balance, and shortcuts',`
 <ul class="gcheck">
   <li><b>${t('set.opening')}</b>: the balance your book starts from.</li>
-  <li>The year view folds like the month view. While you filter, every block stands open.</li>
-  <li>Just start typing to search; ✕ or Escape takes it all back.</li>
+  <li>The year view folds like the month view.</li>
+  <li>Just start typing to search; <b>${t('flt.fHidden')}</b> lets a search term beat the
+      other filters.</li>
   <li>A shortcut per view: Ctrl/Cmd + Shift + M · Y · F.</li>
-  <li><b>${t('flt.fHidden')}</b>: a search term beats the other filters.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
@@ -750,7 +680,6 @@ ${gver('26.8.7','Income categories and a rebuilt forecast',`
 <ul class="gcheck">
   <li>Income has categories of its own.</li>
   <li>The forecast is one table with a column that draws the balance through the year.</li>
-  <li>The name is the heading of the entry window.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
@@ -767,14 +696,12 @@ ${gver('26.8.5','The filter searches where you want',`
   <li>You choose what the search field looks through.</li>
   <li>The forecast only calculates; it no longer writes.</li>
   <li>Duplicate an entry: same window, copy inside.</li>
-  <li>The sign shows while you type; notes keep their line breaks.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
 ${gver('26.8.4','Double-click opens an entry',`
 <ul class="gcheck">
   <li>In every view, on the amount or on the name.</li>
-  <li>The search field holds the cursor while you tick things off.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
 
@@ -791,140 +718,63 @@ ${gver('26.7.30','The first complete version',`
 `,
 
 de:()=>`
-<p class="glead">Die wichtigsten Änderungen der letzten Versionen — ohne technische Details
-und mit dem, was sie für dich bedeuten.</p>
+<p class="glead">Die größeren Änderungen der letzten Versionen, kurz. Wie das alles im
+Einzelnen geht, steht in <b>${t('guide.tabSteps')}</b> und <b>${t('guide.tabProduct')}</b>.</p>
 <div class="gvers">
-${gver('26.9.10','Sichere Links und ein ruhiger Ansichtswechsel',`
-<p>FINA öffnet nur noch Adressen, die wirklich irgendwohin führen. Und beim Wechsel der
-Ansicht bleibt die, die du verlässt, genau so stehen, bis die neue sie zugedeckt hat.</p>
+${gver('26.9.10','Bugfixing',`
 <ul class="gcheck">
-  <li><b>Zugehörige Links öffnen nur noch Webadressen</b> (http, https) und mailto. Alles
-      andere — es kann nur aus einer fremden Datei kommen — steht weiter da, aber
-      durchgestrichen und ohne Ziel. Tippst du selbst so etwas ein, sagt FINA es sofort.</li>
-  <li><b>Der Ansichtswechsel ist ruhig.</b> Die Ansicht, die du verlässt, verändert sich
-      nicht mehr, während die neue hereinfährt: die Monatsleiste bleibt stehen, und zwischen
-      Jahr und Prognose überlagert sich nichts mehr.</li>
-  <li>Die vier Zahlen der Auswertung <b>laufen länger</b> — man kann ihnen beim Filtern
-      zusehen, statt sie springen zu sehen.</li>
-  <li><b>Lässt dein Browser deine lokale Datenbank nicht öffnen</b>, bietet FINA jetzt den
-      gewöhnlichen Dateidialog an, statt mit einer Fehlermeldung stehenzubleiben.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`,'Aktuelle Version')}
 
-${gver('26.9.8','Eigene Namen im Import — und deine Datei ist eine lokale Datenbank',`
-<p>Referenzfelder dürfen die Namen tragen, die du ihnen gibst, und sie behalten sie. Die
-Anleitung steht neben deiner Tabelle, sobald du eine Datei öffnest. Im CSV-Import bekommt
-jede Spalte, die du wählst, sofort ihr Feld. Und deine JSON-Datei hat jetzt einen Namen:
-sie ist deine <b>lokale Datenbank</b>.</p>
+${gver('26.9.8','Eigene Namen im Import',`
+<p>Referenzfelder dürfen die Namen tragen, die du ihnen gibst, und sie behalten sie. Und die
+Anleitung steht neben deiner Tabelle, sobald du eine Datei öffnest.</p>
 <ul class="gcheck">
+  <li><b>Benenne deine Referenzfelder selbst.</b> Aus „Referenz 2“ wird „Empfänger“. Der Name
+      wird gemerkt und beim nächsten Mal wieder verwendet — und was schon im Buch steht,
+      behält den Namen, unter dem es hereinkam.</li>
+  <li>In Schritt 2 des Imports bekommt <b>jede gewählte Spalte sofort ihr Feld</b>, und die
+      gängigen Schreibweisen für ein Datum oder einen Betrag werden gelesen.</li>
   <li>Neuer Haken <b>„${t('set.guide')}“</b> unter <b>${t('app.settings')}</b> →
-      <b>${t('set.navView')}</b>: die Anleitung geht mit jeder Datei auf und steht neben
-      den Schritten des CSV-Imports. Nimmst du den Haken weg, kommt sie nur noch auf
-      Knopfdruck.</li>
-  <li>In Schritt 2 des Imports bekommt <b>jede gewählte Spalte sofort ein Feld</b>:
-      Datumsangaben werden Datum, Beträge werden Betrag, alles andere bekommt die nächste
-      freie Referenz — und eine Referenz ist wieder frei, sobald du ihre Spalte
-      abwählst.</li>
-  <li>Der Import liest die gängigen Schreibweisen für ein Datum (24.08.2026 · 2026-08-24 ·
-      08/24/2026 · 24. Aug 2026) und für einen Betrag (-73,25 · 1.234,56 · 1,234.56 ·
-      (73,25) · 12,34 €). Eine glatte Zahl ohne Nachkommastellen hält FINA nicht für einen
-      Betrag.</li>
-  <li>Beim Ansichtswechsel bleibt die Filterzeile stehen und tauscht nur ihre Knöpfe;
-      Monatsleiste, Auswertung und Tabelle fahren daneben herein. Beim Öffnen einer Datei
-      kommt der Monat von rechts.</li>
-  <li>Ein Filtermenü geht zu, sobald du etwas wählst — was du gewählt hast, steht am
-      Knopf.</li>
-  <li><b>Esc</b> nimmt jetzt eins nach dem anderen zurück: ein offenes Menü, dann das
-      Suchfeld, dann die übrigen Filter. Das <b>✕</b> nimmt weiter alles auf einmal.</li>
-  <li>„${t('app.load')}“ und „${t('menu.csv')}“ sagen, welche Art von Datei sie meinen.</li>
-  <li><b>Benenne deine Referenzfelder selbst.</b> Der Stift neben dem Feld in Schritt 2 des
-      Imports oder vor einer Referenz im Fenster <b>CSV-Struktur</b>: aus „Referenz 2“ wird
-      „Empfänger“. Der Name gehört zu dieser Importzuordnung, wird gemerkt und beim nächsten
-      Mal wieder verwendet — und was schon im Buch steht, behält den Namen, unter dem es
-      hereinkam. Zwei Importe mit verschiedenen Namen stehen deshalb an demselben Posten
-      nebeneinander, jeder mit seiner Beschriftung.</li>
-  <li><b>Deine Datei ist deine lokale Datenbank.</b> Das Menü öffnet und schließt sie unter
-      diesem Namen, und <b>${t('menu.newOut')}</b> steht jetzt zwischen dem Hereinholen der
-      Zahlen und dem Speichern — schlicht, nicht mehr schwarz.</li>
-  <li>Ist das Fenster zu schmal für die Filterzeile? Dann rücken <b>alle Filter in ein
-      ☰</b> neben dem Suchfeld zusammen, mit rotem Punkt, solange ein Filter greift. Die
-      Zeile bleibt eine Zeile hoch — auch mit offener Anleitung.</li>
-  <li>Die vier Zahlen der Auswertung <b>zählen sich um</b>, während du filterst, statt zu
-      springen.</li>
-  <li>„Suchen nach Betrag“ im ☰ eines Postens schreibt den Betrag jetzt in den
-      Schnellfilter. Und Schritt 1 des Imports sagt es deutlich: die CSV-Datei braucht eine
-      Kopfzeile.</li>
+      <b>${t('set.navView')}</b>: die Anleitung geht mit jeder Datei auf und steht neben den
+      Schritten des CSV-Imports.</li>
+  <li>Deine Datei hat jetzt einen eigenen Namen: sie ist deine <b>lokale Datenbank</b>.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
-${gver('26.9.7','Eine Anleitung, die man in einer halben Stunde liest',`
-<p>Alle drei Reiter dieser Anleitung sind neu gebaut: nummerierte Schritte mit je einem
-Bild, Kärtchen für die vier Bereiche, je Funktion ein Block, und jede Version als Karte wie
-diese. Die Bilder zeigen das heutige FINA.</p>
+${gver('26.9.7','Verbesserungen an der Anleitung',`
+<p>Alle drei Reiter dieser Anleitung sind neu gebaut, und der CSV-Import hat eine eigene
+Anleitung neben seinen Schritten.</p>
 <ul class="gcheck">
-  <li>Die Anleitung neben dem CSV-Import hat denselben Kopf: EN · DE, ein Knopf für die
-      ganze Seite und ein Griff für die Breite — mindestens ein Drittel des Fensters.</li>
-  <li>Beide Anleitungen fahren von rechts herein und wieder hinaus.</li>
-  <li>Die Zuordnungsleiste des Imports rollt nicht mehr: ist das Fenster schmal, wandern ihre
-      Knöpfe ins ☰-Menü, außer „${t('c2.assign')}“ und „${t('c2.newAssign')}“.</li>
-  <li>Die Spalte, die die Beschriftungszeile markiert, heißt in beiden Sprachen HDR.</li>
-  <li>Der Reiter „${t('view.kakeibo')}“ ist weg. Importierte Zeilen bleiben bei ihrem
-      Eintrag: öffnen und „${t('impv.show')}“ drücken.</li>
-  <li>Der Ansichtswechsel läuft jetzt flüssig, ohne den Sprung am Anfang. Die Seite
-      schrumpft mit der Anleitung mit, statt zu springen.</li>
-  <li>In den Einstellungen rollt nur der Bereich rechts; das Menü links bleibt stehen.</li>
+  <li>Nummerierte Schritte mit je einem Bild, je Funktion ein Block, jede Version als
+      Karte.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
-${gver('26.9.6','Eine Art von Eintrag, ein klügerer Import, und alles bewegt sich',`
+${gver('26.9.6','Eine Art von Eintrag, und ein klügerer Import',`
 <p>Flexible Einträge sind jetzt Einträge wie alle anderen: dasselbe Fenster, dieselben Felder,
-ein „${t('menu.newOut')}“. Der Import weiß, was er schon kennt. Und die ganze Oberfläche
-bewegt sich.</p>
+ein „${t('menu.newOut')}“. Und der Import weiß, was er schon kennt.</p>
 <ul class="gcheck">
-  <li>Die Kategorie entscheidet zwischen Einnahme, flexibel und regulär. Jeder Bereich behält
-      eine Kategorie „N/A“ für Einträge ohne eigene.</li>
-  <li>Zeilen, die schon im Buch stehen, und Zeilen aus diesem Lauf bleiben in der Dateitabelle:
-      grau mit Kreuz in der Spalte „X“. Ein Knopf verbirgt und zeigt sie.</li>
-  <li>Ein Import ergänzt einen Monat, statt ihn zu ersetzen. Ein fünftes Referenzfeld.</li>
-  <li>In Schritt 3 klappen die drei Bereichszeilen ihren Block; „${t('c2.foldAllBtnShow')}“ /
-      „${t('c2.foldAllBtnHide')}“ tut es für alle auf einmal.</li>
-  <li>Ein Monat mit dem blauen Pfeil ist gesperrt, bis du die Importdaten des Eintrags
-      löschst.</li>
-  <li>Die Jahresansicht hat die drei Filtermenüs, durchgestrichene abgeschlossene Monate und
-      den Rollbalken unter der Tabelle.</li>
-  <li><b>${t('set.navImport')}</b> in den Einstellungen hat drei Abschnitte; eine gemerkte
-      CSV-Struktur öffnet sich als Fenster mit eigenem Löschknopf. Der Tabellenimport ist
-      weg.</li>
-  <li>Ansichten fahren seitwärts herein, Fenster fallen von oben ein, Menüs entfalten sich,
-      Karten und Blöcke klappen weich. Ein Klick klappt. Aus, wenn dein System weniger
-      Bewegung wünscht.</li>
+  <li>Die Kategorie entscheidet zwischen Einnahme, flexibel und regulär.</li>
+  <li>Zeilen, die schon im Buch stehen, bleiben in der Dateitabelle sichtbar und lassen sich
+      nicht zweimal hereinholen. Ein Import ergänzt einen Monat, statt ihn zu ersetzen.</li>
+  <li>Ansichten, Fenster und Menüs bewegen sich — aus, wenn dein System weniger Bewegung
+      wünscht.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
 ${gver('26.9.5','Der Import-Assistent in drei klaren Schritten',`
 <p>Der CSV-Import führt jetzt durch <b>${t('c2.steps1')}</b>, <b>${t('c2.steps2')}</b> und
-<b>${t('c2.steps3')}</b>. Die Hilfe steht direkt neben dem Schritt.</p>
+<b>${t('c2.steps3')}</b>.</p>
 <ul class="gcheck">
   <li>FINA merkt sich die Spaltenstruktur eines wiederkehrenden Datei-Exports.</li>
-  <li>Zuordnungsregeln werden am Eintrag als seine Importkriterien gespeichert.</li>
-  <li>Beim nächsten passenden Import wendest du die gemerkten Regeln auf dein Kommando an.</li>
-  <li>„${t('app.guide')}“ in Schritt 2 und 3 erklärt den Schritt neben dem Fenster.</li>
+  <li>Zuordnungsregeln bleiben am Eintrag als seine Importkriterien, und beim nächsten
+      passenden Import wendest du sie auf dein Kommando an.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
-${gver('26.8.30','Speichern ist besser zu sehen',`
-<p>Ungespeicherte Änderungen fallen jetzt auf. FINA speichert weiterhin nur, wenn du es
-sagst.</p>
+${gver('26.8.30','Bugfixing',`
 <ul class="gcheck">
-  <li>„${t('app.save')}“ tritt aus dem Menü heraus, sobald es etwas zu speichern gibt, mit
-      rotem Rahmen neben dem ☰. Eine offene Umfrage steht links daneben.</li>
-  <li>Wird die Kopfzeile zu eng, sagt ein roter Punkt am ☰, dass drinnen etwas wartet.</li>
-  <li>„${t('app.load')}“ und „${t('menu.csv')}“ stehen als eigene Gruppe oben im Menü.</li>
-  <li>Die vierte Kachel der Auswertung ist der <b>${t('month.kpiSaldo')}</b> des Monats —
-      dieselbe Zahl, die die Jahresansicht <b>${t('year.totalRow')}</b> nennt.</li>
-  <li>Die Prognose hat eine neue Spalte <b>SUM</b>; der Kontostand heißt jetzt <b>PROG</b>.</li>
-  <li>Unter <b>${t('set.navView')}</b> entscheidest du, ob der Monat mit aufgeklappter
-      Auswertung aufgeht und ob das Jahr die abgeschlossenen Monate versteckt.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
@@ -948,18 +798,14 @@ Meinung.</p>
       läuft.</li>
   <li>„${t('flt.options')}“ führt direkt in den neuen Bereich <b>${t('set.navFilter')}</b> der
       Einstellungen: Namen, Notizen, Beträge, Kategorien.</li>
-  <li>Auf dem Telefon wählst du die Ansicht unten, das Filtermenü arbeitet wie am Schreibtisch,
-      das Jahr zeigt je Monat vier farbige Kästchen.</li>
-  <li>Die Monatsansicht rollt wie die Jahresansicht; Filterzeile, Monatsleiste und Auswertung
-      bleiben stehen.</li>
-  <li>Die Fenster halten beim Scrollen still: Name oben, Knöpfe unten.</li>
-  <li>Der vierte Reiter heißt „${t('view.kakeibo')}“, Tastengriff Strg/Cmd + Umschalt + I.</li>
+  <li>Auf dem Telefon wählst du die Ansicht unten, und das Jahr zeigt je Monat vier farbige
+      Kästchen.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
 ${gver('26.8.22','Mac Style',`
 <ul class="gcheck">
-  <li>Die ganze Oberfläche im neuen Mac-Gewand: Toolbar, Ansichtswahl, weiße Karten.</li>
+  <li>Die ganze Oberfläche im neuen Mac-Gewand.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
@@ -969,10 +815,8 @@ ${gver('26.8.20','Bugfixing',`
 </ul>`)}
 
 ${gver('26.8.19','Schneller durch Monate und Auswertung',`
-<p>Die Monatsansicht lässt sich zügiger bedienen, ohne die Übersicht zu verlieren.</p>
 <ul class="gcheck">
   <li>Strg/Cmd + ← / → wechselt in der Monatsansicht den Monat.</li>
-  <li>Bereiche ohne Treffer verschwinden, solange ein Filter greift.</li>
   <li>Die Auswertung kann beim Öffnen eines Buchs schon aufgeklappt sein: ein Haken unter
       <b>${t('set.navView')}</b>.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
@@ -984,15 +828,12 @@ ${gver('26.8.18','FINA auf dem Telefon',`
   <li>Der Monat als gut lesbare Kartenliste mit großen Siegeln.</li>
   <li>Jahr und Prognose sind fürs Wischen und Nachsehen gemacht.</li>
   <li>Die Ansichten wechselst du am unteren Rand.</li>
-  <li>Deine Sprache bleibt auf diesem Rechner gemerkt; ein offenes Buch entscheidet selbst.</li>
-  <li>Der Zeitstrahl folgt dem Fälligkeitsfilter: nur die gewählte Zeile behält ihre Zahlen.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
 ${gver('26.8.16','Sprachwahl auf der Begrüßungsseite',`
 <ul class="gcheck">
   <li>EN · DE oben rechts auf der ersten Seite, noch bevor eine Datei offen ist.</li>
-  <li>Das Wortzeichen oben links führt zur FINA-Seite zurück.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
@@ -1007,7 +848,6 @@ ${gver('26.8.13','Die Prognose dort ändern, wo sie steht',`
   <li>Doppelklick auf einen Monat in <b>COR</b> öffnet die Saldokorrektur mit diesem Monat.</li>
   <li>Doppelklick auf die Zeile <b>${t('set.opening')}</b> öffnet die Einstellungen mit diesem
       Feld.</li>
-  <li>Jedes Fenster zeigt den Weg zu seinen Listen; die Einstellungen gehen darüber auf.</li>
   <li>Ein neues Buch ist wirklich leer: keine Kategorien, keine Banken, keine Zahlungsarten.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
@@ -1016,30 +856,26 @@ ${gver('26.8.11','Filtern rechnet über das, was du siehst',`
 <ul class="gcheck">
   <li>Bereichssummen, Kategoriesummen und die Auswertung zählen nur die sichtbaren Zeilen.</li>
   <li><b>${t('year.totalRow')}</b> ist die oberste Zeile der Jahrestabelle.</li>
-  <li>Beide Wege des Imports stehen in den Einstellungen, Bereich <b>${t('set.navImport')}</b>.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
-${gver('26.8.9','Links, eine ruhigere Jahresansicht, eine eigene Anleitung',`
+${gver('26.8.9','Links, eine eigene Anleitung und Sicherungen',`
 <ul class="gcheck">
-  <li>Spaltennamen, Gesamtzeile und Blockzeilen bleiben beim Scrollen stehen.</li>
   <li>Jeder Eintrag kann mehrere Links tragen, jeder mit eigenem Namen.</li>
   <li>Ein geschätzter Betrag wird nicht mehr blind abgehakt: das Siegel öffnet zuerst den
       Eintrag.</li>
   <li>Die Anleitung hat ihre eigene Sprache und geht über die ganze Seite auf.</li>
   <li><b>${t('app.backup')}</b>: eine datierte Kopie im Download-Ordner, in jedem Browser.</li>
-  <li>Ein Feld anklicken markiert seinen Inhalt, tippen ersetzt ihn.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
 ${gver('26.8.8','Der Anfangsbestand, und Tastengriffe',`
 <ul class="gcheck">
   <li><b>${t('set.opening')}</b>: der Stand, bei dem dein Buch anfängt.</li>
-  <li>Die Jahresansicht klappt wie die Monatsansicht. Solange du filterst, steht jeder Block
-      offen.</li>
-  <li>Einfach lostippen zum Suchen; ✕ oder Escape nimmt alles zurück.</li>
+  <li>Die Jahresansicht klappt wie die Monatsansicht.</li>
+  <li>Einfach lostippen zum Suchen; mit <b>${t('flt.fHidden')}</b> schlägt ein Suchbegriff die
+      übrigen Filter.</li>
   <li>Ein Tastengriff je Ansicht: Strg/Cmd + Umschalt + M · Y · F.</li>
-  <li><b>${t('flt.fHidden')}</b>: ein Suchbegriff schlägt die übrigen Filter.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
@@ -1048,7 +884,6 @@ ${gver('26.8.7','Einnahme-Kategorien und eine neue Prognose',`
   <li>Einnahmen haben eigene Kategorien.</li>
   <li>Die Prognose ist eine Tabelle mit einer Spalte, die den Kontostand durch das Jahr
       zeichnet.</li>
-  <li>Der Name ist die Überschrift des Fensters.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
@@ -1065,14 +900,12 @@ ${gver('26.8.5','Der Filter sucht dort, wo du es willst',`
   <li>Du wählst, worin das Suchfeld sucht.</li>
   <li>Die Prognose rechnet nur noch; sie schreibt nicht mehr.</li>
   <li>Einträge duplizieren: dasselbe Fenster, eine Kopie darin.</li>
-  <li>Das Vorzeichen zeigt sich beim Tippen; Notizen behalten ihre Zeilen.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 
 ${gver('26.8.4','Doppelklick öffnet den Eintrag',`
 <ul class="gcheck">
   <li>In jeder Ansicht, auf Betrag oder Bezeichnung.</li>
-  <li>Das Suchfeld hält die Schreibmarke, während du abhakst.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>
 </ul>`)}
 

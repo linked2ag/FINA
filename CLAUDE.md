@@ -3378,6 +3378,17 @@ Aufzählung von Einzelheiten. Alles Übrige — Kosmetik, kleine Anpassungen, be
 wird zu **einem** Punkt am Ende zusammengefasst: „Bugfixing und kosmetische Anpassungen."
 Eine Versionsliste wird gelesen, solange sie sich überfliegen lässt.
 
+**Kurz und oberflächlich** (Lex, 11.9.26, gilt für **alle** Versionen, nicht nur die
+oberste): ein Punkt sagt in einem Satz, was man jetzt tun kann — kein Weg durch die
+Oberfläche, keine Einzelheiten, kein Warum. Wie es genau geht, steht in „Schritt für
+Schritt" und „Was FINA kann"; darauf zeigt seit 11.9.26 auch die Kopfzeile des Reiters
+(`.glead`). Drei Sorten gehören gar nicht in die Liste: **Kosmetik** (Farben, Abstände,
+Bewegung, Beschriftungen), **Kleinigkeiten am Rand** — und **alles über die Sicherheit**:
+was FINA gegen eine fremde Datei tut, welche Adressen es nicht öffnet, wie gut etwas
+abgedeckt ist. Ein Kassenbuch wirbt nicht mit seinen Schlössern. Eine Fassung, in der nur
+solches steckt, trägt deshalb nur die eine Zeile „Bugfixing und kosmetische Anpassungen" —
+so 26.9.10, 26.8.30 und 26.8.20.
+
 **Die neueste Fassung ist gelb** (`.gver.cur`, `--amber`): Rahmen und Grund der Karte, und
 die Marke „Aktuelle Version" / „Current version" (`.pill`) neben der Nummer — das vierte
 Argument von `gver`, nur die oberste trägt es. Rot wäre eine Warnung, Grün eine Bestätigung
