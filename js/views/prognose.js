@@ -144,7 +144,7 @@ function viewPrognose(){
      `position:sticky` hält die erste Spalte, und zwei klebende
      Spalten brauchten ein zweites, von Hand gepflegtes left-Maß.
      Die Grafik dahinter scrollt waagerecht; ihr Rasterfeld ist
-     schmaler (--progleadw in css/mobile.css), damit mindestens
+     schmaler (--progcellw in css/mobile.css), damit mindestens
      drei Felder zugleich im Bild stehen. Achse, Raster, Balken und
      Farberklärung sind dieselben wie am Schreibtisch — eine zweite
      Rechnung liefe früher oder später neben der ersten her. */
@@ -317,7 +317,7 @@ function viewPrognose(){
      Wie viele Felder die Achse hat, weiß nur diese Rechnung — die
      Spanne geteilt durch die Schrittweite. Die Zahl geht als
      `--flowcells` an die Tabelle, die Breite selbst steht als
-     `--progleadw` in css/ledger.css. Reicht das Fenster nicht,
+     `--progcellw` in css/ledger.css. Reicht das Fenster nicht,
      scrollt die Tabelle waagerecht; die Monatsspalte bleibt
      stehen. */
   const cells=Math.max(1,sc.span/step);
@@ -404,12 +404,15 @@ function viewPrognose(){
     const track=`<td class="flowcell">${rails}<span class="ttrack ytrack two"
         ><span class="tsum yopen solo${fade}" style="left:${l}%;width:${r-l}%"></span
         ><span class="tmark" style="left:${Math.max(0,Math.min(100,pos(op)))}%"></span></span></td>`;
+    /* Der Name steht auf zwei Zeilen — „Last year" / „balance";
+       der Umbruch steht im Wörterbuch (`prog.openRow`). */
+    const openName=esc(t('prog.openRow')).replace('\n','<br>');
     /* Mobil trägt die klebende Zelle beides — Name und Betrag —
        und mit ihnen den Doppelklick in die Einstellungen. */
     if(mob) return `<tr class="openrow"><td class="mlead" data-opening="1"
-        data-tip="${esc(t('prog.openEdit'))}"><span class="mm">${t('set.opening')}</span
+        data-tip="${esc(t('prog.openEdit'))}"><span class="mm">${openName}</span
         ><span class="me num">${eur(op)}</span></td>${track}</tr>`;
-    return `<tr class="openrow"><td>${t('set.opening')}</td>
+    return `<tr class="openrow"><td>${openName}</td>
       <td class="num"></td><td class="num incol"></td><td class="num outcol"></td><td class="num flexcol"></td>
       <td class="num balcol${corEmpty?' mid':''}"></td>
       <!-- SUM bleibt leer: der Anfangsbestand ist keine Bewegung
@@ -429,15 +432,17 @@ function viewPrognose(){
        Grafik nicht auseinanderlaufen können. */
     const start=cum;
     cum+=s;
-    /* Blass werden nur die Zahlenspalten (siehe css/ledger.css):
-       der Verlauf behält seine Farbe. Er ist eine Kurve über das
-       ganze Jahr — ein Stück davon auszubleichen unterbräche sie
-       genau dort, wo man sie am ehesten liest. */
-    if(mob) return `<tr${m<CUR?' class="past"':(m===CUR?' class="now"':'')}>
+    /* Vergangene Monate stehen genauso kräftig da wie die
+       kommenden (Lex, 3.10.26; bis dahin waren ihre Zahlen blass).
+       Wo man steht, sagen die beiden roten Linien des laufenden
+       Monats — eine zweite Marke dafür nahm den Zahlen davor nur
+       die Lesbarkeit. */
+    const rowCls=m===CUR?' class="now"':'';
+    if(mob) return `<tr${rowCls}>
       <td class="mlead"><span class="mm">${name}</span
         ><span class="me num ${cls(cum)}">${eur(cum)}</span></td>
       <td class="flowcell">${rails}${yearTrack(flow[i],pos,sc.cut)}</td></tr>`;
-    return `<tr${m<CUR?' class="past"':(m===CUR?' class="now"':'')}>
+    return `<tr${rowCls}>
       <td>${name}</td>
       <td class="num ${cls(start)}">${eur(start)}</td>
       <td class="num incol pos">${eur(income(m))}</td>

@@ -1198,7 +1198,7 @@ Grund aus demselben Grund.
 
 **Zwei Spalten bleiben beim seitlichen Rollen stehen.** Die Monatsspalte klebt am linken
 Rand (`td:first-child`, `left:0`) — eine Zahl ohne ihren Monat ist keine Zeile mehr. Und
-**PROG klebt daneben**, sobald es dort ankommt (`left:calc(var(--progleadw) - 1px)`, also die
+**PROG klebt daneben**, sobald es dort ankommt (`left:calc(var(--progmonw) - 1px)`, also die
 Breite der Monatsspalte **minus ein Pixel**): der Stand zum Monatsende ist die Zahl, gegen die man den Balken daneben
 liest, und beim Rollen nach rechts wanderte sie als erste aus dem Bild. Weil `position:sticky`
 erst greift, wenn die Zelle diese Stelle erreicht, **löst sie sich beim Zurückrollen von
@@ -1235,7 +1235,7 @@ wechselt man die Ansicht, um etwas zu ändern, das man gerade ansieht.
   `corEdit(m)` (`js/views/prognose.js`): `dblItem(state.balance.id)` **an der Zelle**, dazu
   `data-m` — verdrahtet ist das schon (siehe die Ausnahme unter Regel 1). Die COR-Zelle der
   Anfangsbestandszeile bleibt außen vor: sie gehört keinem Monat.
-* **Spalte PROG, die Zeile „Anfangsbestand"** → das Einstellungsfenster, Bereich
+* **Spalte PROG, die Zeile „Saldo Vorjahr"** (der Anfangsbestand) → das Einstellungsfenster, Bereich
   „Allgemein", mit der Schreibmarke in `#sOpen` und dem Wert markiert. Das Merkmal ist
   `data-opening`, verdrahtet in `wire()`; es öffnet `openSettings('sOpen')`. Der
   Anfangsbestand ist eine Einstellung und hat kein eigenes Fenster (siehe „Der
@@ -1285,13 +1285,20 @@ Gerechnet wird in `yearFlow()` (`js/calc.js`), gebaut in `yearTrack()`
 (`js/views/prognose.js`), die Spalte selbst ist `.flowcell` in `css/ledger.css`.
 
 **Die Untergrenze gilt dem einzelnen Rasterfeld, nicht der Spalte.** Der Abstand von einer
-Linie zur nächsten ist mindestens so breit wie die Monatsspalte daneben (`--progleadw` an
-`.progtable`, 120 px): zwei Linien im Abstand von 40 px sind kein Maß mehr, an dem sich etwas
-ablesen ließe, und die Beträge darüber schöben sich ineinander.
+Linie zur nächsten ist mindestens 120 px (`--progcellw` an `.progtable`, auf dem Telefon
+78 px): zwei Linien im Abstand von 40 px sind kein Maß mehr, an dem sich etwas ablesen ließe,
+und die Beträge darüber schöben sich ineinander.
+
+**Die Monatsspalte hat ihr eigenes Maß** (`--progmonw`, 88 px, Lex 3.10.26; bis dahin hieß
+die Variable `--progleadw` und galt mit 120 px für Monatsspalte **und** Rasterfeld). Sie
+braucht nur so viel wie ihr breitester Inhalt — „LAST YEAR" über dem Januar, gut 82 px samt
+Polster. **Das Maß muss darüber liegen**: PROG klebt genau an dieser Breite, und eine
+Monatsspalte, die ihr Inhalt breiter drückt als `--progmonw`, schöbe PROG beim Rollen unter
+den Monatsnamen. Wer dort einen längeren Text hinstellt, misst nach.
 
 Wie viele Felder die Achse hat, weiß nur die Rechnung — Spanne durch Schrittweite. Sie geht
 als `--flowcells` an die Tabelle (`viewPrognose()`), die Breite kommt aus dem Stylesheet:
-`min-width:calc(var(--progleadw) * var(--flowcells))`. **Wer an `step` oder an `yearScale()`
+`min-width:calc(var(--progcellw) * var(--flowcells))`. **Wer an `step` oder an `yearScale()`
 dreht, ändert damit auch die Mindestbreite der Spalte.**
 
 Reicht das Fenster dafür nicht, **scrollt die Tabelle waagerecht** in ihrem `.scroll`-Rahmen,
@@ -1299,9 +1306,9 @@ und die Monatsspalte bleibt stehen (`position:sticky` an `td/th:first-child`) �
 ohne ihren Monat ist keine Zeile mehr.
 
 **Gerollt wird frei** — die Tabelle rastet nirgends ein (siehe „Waagerecht scrollen" weiter
-unten). Die klebende Monatsspalte braucht dafür einen **deckenden** Grund; deshalb tritt sie
-in vergangenen Monaten mit ihrer *Schriftfarbe* zurück und nicht mit der Deckkraft
-(`opacity` färbte auch den Hintergrund durchsichtig).
+unten). Die klebende Monatsspalte braucht dafür einen **deckenden** Grund; wer dort etwas
+zurücktreten lässt, nimmt die *Schriftfarbe* und nicht die Deckkraft (`opacity` färbte auch
+den Hintergrund durchsichtig).
 
 **Drei Dinge teilen sich die beiden Grafiken, und keins davon darf auseinanderlaufen:**
 
@@ -1341,6 +1348,12 @@ Und er bekommt eine **eigene Zeile über dem Januar** (`openRow` in `viewPrognos
 Bewegung eines Monats, sondern der Stand, auf dem das Jahr aufsetzt. Im Januarbalken sähe er
 aus wie etwas, das der Januar bewegt hätte. Zahlen stehen darin nur zwei — der Name und
 derselbe Betrag in „Kumuliert"; die Spalten dazwischen beschreiben Bewegungen.
+
+**Die Zeile heißt „Last year balance" / „Saldo Vorjahr"** (Lex, 3.10.26; vorher wie das Feld
+in den Einstellungen „Opening balance" / „Anfangsbestand") — auf **zwei Zeilen**, der Umbruch
+steht im Wörterbuch (`prog.openRow`, `\n` wird in `viewPrognose()` zu `<br>`). Eng gesetzt
+(`line-height:1.15`, 4 px Polster), damit die Zeile nicht höher wird als vorher. **Nur die
+Zeile** heißt so: das Feld in den Einstellungen und die Anleitung bleiben bei `set.opening`.
 
 Die Zeile ist **so hoch wie jede andere** (`two` an ihrem `.ttrack`, der Balken darin
 `solo`) und endet mit demselben schwarzen Strich (`.tmark`) wie die Monatszeilen — er
@@ -1412,9 +1425,11 @@ Die Fläche trägt denselben Grund wie der Zeitstrahl — links der Null rot, re
 Balken, sonst hörten sie nach 19 px auf.
 
 Die Farberklärung steht als `.thint` unter der Tabelle — dieselben Marken wie im Zeitstrahl,
-und bei beschnittener Achse ihr Maßstab dazu. **Vergangene Monate bleiben blass**
-(`opacity:.42` an der Zeile): das gilt für die Zahlen wie für den Balken, Ist und Plan
-sollen unterscheidbar bleiben.
+und bei beschnittener Achse ihr Maßstab dazu. **Vergangene Monate stehen genauso kräftig da
+wie die kommenden** (Lex, 3.10.26): bis dahin waren ihre Zahlen blass (`tr.past`,
+`opacity:.42`), und die Hälfte der Tabelle war schlecht zu lesen. Wo man im Jahr steht, sagen
+allein die beiden roten Linien des laufenden Monats (`tr.now`). Wer die Blässe zurückbauen
+will, weiß jetzt, warum sie weg ist.
 
 ## In der Jahresmatrix steht jede Position, auch die ohne einen einzigen Betrag
 
@@ -2780,9 +2795,10 @@ einen Balken, aber nicht für ein Wort und nicht für eine Zahl. Der Betrag beko
 **nicht** die Vorzeichenfarbe der Monate darunter — ein grünes „5.530,00" läse sich wie eine
 Einnahme des Januars. Die drei gehören zusammen und sollen zusammen ins Auge fallen.
 
-**Sein Betrag ist dabei blass** (`opacity:.42`, dieselbe Deckkraft wie die abgerechneten
-Monate): er ist geschehen, bevor das Jahr anfing, und keine Bewegung, die noch aussteht. Die
-Beschriftung bleibt kräftig — sie sagt, was die Zeile ist.
+**Sein Betrag steht so kräftig da wie die Monate darunter** (Lex, 3.10.26). Bis dahin war er
+blass (`opacity:.42`, in der klebenden PROG-Zelle über die Farbe) — er sei geschehen, bevor
+das Jahr anfing. Mit der Blässe der vergangenen Monate ist auch diese weg: in der Prognose
+tritt keine Zahl mehr zurück.
 
 **Der laufende Monat trägt dagegen keine Fläche**, sondern zwei feine rote Linien über und
 unter seiner Zeile und seinen Namen in Rot (`.progtable tr.now`). Das ist dieselbe Marke wie

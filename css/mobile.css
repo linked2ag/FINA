@@ -366,9 +366,9 @@ body.mobile .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:4
    Die klebende Spalte trägt Monat und END zusammen (.mlead), die
    Grafik dahinter scrollt. Das Rasterfeld ist schmaler als am
    Schreibtisch, damit mindestens drei Felder zugleich im Bild
-   stehen (--progleadw gilt hier je Feld UND als Mindestbreite der
-   ersten Spalte — deshalb bekommt die ihr eigenes Maß). */
-body.mobile .progtable{--progleadw:78px}
+   stehen (--progcellw gilt je Feld; die erste Spalte trägt hier
+   Monat und END und hat ihr eigenes Maß). */
+body.mobile .progtable{--progcellw:78px}
 .mprog td:first-child,.mprog th:first-child{min-width:112px}
 .mprog td.mlead,.mprog th.mlead{display:flex;align-items:center;justify-content:space-between;
   gap:6px;padding:7px 8px 7px 6px}
@@ -377,9 +377,8 @@ body.mobile .progtable{--progleadw:78px}
   font-variant-numeric:tabular-nums;white-space:nowrap}
 .mprog th.mlead .mm,.mprog th.mlead .me{font-size:9px;font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-2)}
-/* Der Anfangsbestand in Violett, der Betrag blass wie am
-   Schreibtisch; vergangene Monate bleichen nur ihren END-Betrag —
-   die klebende Spalte selbst bleibt deckend und lesbar.
+/* Der Anfangsbestand in Violett, so kräftig wie die Monate
+   darunter — wie am Schreibtisch (seit 3.10.26).
 
    Sein Name steht ÜBER dem Betrag, nicht daneben: nebeneinander
    zwängen die beiden die klebende Spalte auf gut 200 px auf, und
@@ -388,8 +387,7 @@ body.mobile .progtable{--progleadw:78px}
 .mprog tr.openrow td.mlead{display:block}
 .mprog tr.openrow .mm{display:block;color:var(--ink-sal);font-size:9px;
   letter-spacing:.06em;line-height:1.2;text-transform:uppercase;white-space:normal}
-.mprog tr.openrow .me{display:block;color:var(--ink-sal);opacity:.42;margin-top:1px}
-.mprog tr.past .me{opacity:.45}
+.mprog tr.openrow .me{display:block;color:var(--ink-sal);margin-top:1px}
 
 /* ── Fast Budget Details ──────────────────────────────────────
    Kein Teil des mobilen Designs: die Ansicht behält ihr Bild,

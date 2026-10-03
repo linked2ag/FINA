@@ -267,20 +267,27 @@
    sobald eine Spalte leer bleibt — und die Korrekturspalte ist es
    meistens. */
 /* Die Untergrenze gilt dem **einzelnen Rasterfeld**, nicht der
-   Spalte: der Abstand von einer Linie zur nächsten ist so breit
-   wie die Monatsspalte daneben und keinen Schritt schmaler. Zwei
-   Linien im Abstand von 40 px sind kein Maß mehr, an dem man
-   etwas abliest.
+   Spalte: der Abstand von einer Linie zur nächsten ist mindestens
+   120 px (--progcellw). Zwei Linien im Abstand von 40 px sind kein
+   Maß mehr, an dem man etwas abliest.
+
+   Die Monatsspalte hat ihr **eigenes** Maß (--progmonw, seit
+   3.10.26; bis dahin dieselben 120 px wie ein Rasterfeld). Sie
+   braucht nur so viel, wie ihr breitester Inhalt — „LAST YEAR"
+   über dem Januar, gut 82 px samt Polster. Das Maß muss darüber
+   liegen: die PROG-Spalte klebt genau an dieser Breite, und wäre
+   die Spalte breiter als ihr Maß, schöbe PROG sich beim Rollen
+   unter den Monatsnamen.
 
    Wie viele Felder es sind, weiß erst die Ansicht — sie steht als
    `--flowcells` an der Tabelle (siehe viewPrognose in
    js/views/prognose.js). Reicht das Fenster für die Spalte nicht,
    scrollt die Tabelle (siehe unten). */
-:root{--progleadw:120px}
+:root{--progcellw:120px;--progmonw:88px}
 .progtable td,.progtable th{width:1%;white-space:nowrap}
-.progtable td:first-child,.progtable th:first-child{min-width:var(--progleadw)}
+.progtable td:first-child,.progtable th:first-child{min-width:var(--progmonw)}
 .progtable td.flowcell,.progtable th.flowcell{width:100%;
-  min-width:calc(var(--progleadw) * var(--flowcells,1))}
+  min-width:calc(var(--progcellw) * var(--flowcells,1))}
 /* ── Die Monatsspalte bleibt stehen ──────────────────────────
    Wird es zu eng, scrollt die Tabelle in ihrem `.scroll`-Rahmen
    nach rechts — nur die Beschriftung bleibt, wie die festen
@@ -294,7 +301,7 @@
    daneben liest — beim Scrollen nach rechts wanderte sie als erste
    aus dem Bild, und übrig blieb eine Grafik ohne ihr Ergebnis.
    Sie klebt deshalb an der Monatsspalte: `left` ist genau deren
-   Breite (--progleadw), und weil `position:sticky` erst greift, wenn
+   Breite (--progmonw), und weil `position:sticky` erst greift, wenn
    die Zelle diese Stelle erreicht, löst sie sich beim Zurückscrollen
    von selbst wieder ab und steht wieder in ihrer Reihe. Zwischen
    START und COR schiebt sich alles darunter hinweg — deshalb ein
@@ -310,7 +317,7 @@
    Pixel **unter** die Monatsspalte: die liegt eine Stufe höher
    (z-index 2 gegen 1) und deckt es zu. */
 .progtable td.endcol,.progtable th.endcol{position:sticky;
-  left:calc(var(--progleadw) - 1px);z-index:1}
+  left:calc(var(--progmonw) - 1px);z-index:1}
 /* Senkrechte Linien durch die **ganze** Tabelle, nicht nur in der
    Grafik: das Raster der letzten Spalte wäre sonst ein Fremdkörper
    zwischen Zahlenspalten ohne Trennung. Die letzte Spalte bekommt
@@ -423,28 +430,6 @@
    zwei Monaten wie jede andere Spalte der Tabelle. */
 .progtable td.flowcell>.tgrid,.progtable td.flowcell>.tzero{bottom:-1px}
 .ledger td.flowcell{vertical-align:middle}
-/* Vergangene Monate treten zurück — aber nur mit ihren Zahlen.
-   Der Verlauf behält seine Farbe: er ist eine Kurve über das ganze
-   Jahr, und ein ausgebleichtes Stück unterbräche sie genau dort,
-   wo man sie am ehesten liest. */
-.ledger tr.past td:not(.flowcell){opacity:.42}
-/* Die Monatsspalte tritt mit ihrer Schriftfarbe zurück und nicht
-   mit der Deckkraft: sie bleibt beim seitlichen Scrollen stehen,
-   und eine durchsichtige Zelle ließe die Zahlen darunter
-   durchscheinen. */
-.progtable tr.past td:first-child{opacity:1;color:var(--ink-2)}
-/* **Dasselbe gilt der END-Spalte**, seit sie neben der Monatsspalte
-   stehen bleibt: eine Zelle mit `opacity` ist samt ihrem Grund
-   durchsichtig, und die Zahlen der Spalten darunter zögen beim
-   Rollen sichtbar hindurch. Sie tritt deshalb ebenfalls mit der
-   **Schriftfarbe** zurück. Die Vorzeichenfarbe bleibt dabei
-   erhalten, nur gedämpft — in dieser Spalte steht der Kontostand,
-   und ob er im Plus oder im Minus liegt, ist ihre ganze Aussage.
-   Kennt der Browser `color-mix` nicht, greift die Zeile darüber:
-   dann ist die Zahl grau wie der Monatsname daneben. */
-.progtable tr.past td.endcol{opacity:1;color:var(--ink-2)}
-.progtable tr.past td.endcol.pos{color:color-mix(in srgb,var(--ok) 55%,var(--paper-2))}
-.progtable tr.past td.endcol.neg{color:color-mix(in srgb,var(--seal) 55%,var(--paper-2))}
 /* ── Der laufende Monat ───────────────────────────────────────
    Dieselbe Marke wie in der Jahresmatrix, nur um 90° gedreht: dort
    fassen zwei feine rote Linien die Spalte des laufenden Monats
@@ -452,7 +437,7 @@
    Zeile ein. Rot heißt in dieser Anwendung überall „jetzt" — auch
    die Marke im Zeitstrahl (`.tnow`) trägt es.
 
-   **Keine Fläche.** Eine getönte Zeile mitten in zwölf blassen
+   **Keine Fläche.** Eine getönte Zeile mitten in den zwölf
    legte einen Balken quer über die Tabelle und zog das Auge auf
    den Grund statt auf die Zahlen; und sie hätte mit dem Violett
    des Anfangsbestands zwei Farben um dieselbe Aufmerksamkeit
@@ -479,9 +464,8 @@
   background:linear-gradient(var(--seal),var(--seal)) top left/100% 1px no-repeat,
              linear-gradient(var(--seal),var(--seal)) bottom left/100% 1px no-repeat}
 /* Die Zeile des Anfangsbestands steht über dem Januar und gehört
-   zu keinem Monat: sie tritt zurück wie die abgerechneten Monate
-   und trennt sich mit einer kräftigeren Linie vom Jahr darunter —
-   ab dort wird gerechnet. */
+   zu keinem Monat: sie trennt sich mit einer kräftigeren Linie
+   vom Jahr darunter — ab dort wird gerechnet. */
 .progtable tr.openrow td{color:var(--ink-2);border-bottom:1px solid var(--rule-strong);
   vertical-align:middle}
 /* Beschriftung **und** Betrag stehen in Violett: die Zeile ist kein
@@ -491,17 +475,16 @@
    „5.530,00" läse sich wie eine Einnahme des Januars.
    Mittig steht die Zeile, weil sie so hoch ist wie zwei: oben
    angeschlagen sähe der Name aus, als stünde er über dem Balken. */
+/* Der Name steht auf zwei Zeilen („Last year" / „balance", seit
+   3.10.26) — eng gesetzt, damit die Zeile nicht höher wird als ein
+   Monat. */
 .progtable tr.openrow td:first-child{font-family:var(--font-data);font-size:10px;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-sal)}
-/* Der Betrag tritt dabei zurück wie die abgerechneten Monate
-   (`tr.past`, dieselbe Deckkraft): er ist schon geschehen, bevor
-   das Jahr anfing, und keine Bewegung, die noch aussteht. Die
-   Beschriftung bleibt kräftig — sie sagt, was die Zeile ist. */
-/* Auch hier nicht über die Deckkraft, wo die Zelle klebt: die
-   END-Zelle des Anfangsbestands trägt ihre Blässe in der Farbe. */
-.progtable tr.openrow td.num{color:var(--ink-sal);opacity:.42}
-.progtable tr.openrow td.num.endcol{opacity:1;
-  color:color-mix(in srgb,var(--ink-sal) 45%,var(--paper-2))}
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-sal);line-height:1.15;
+  padding-top:4px;padding-bottom:4px}
+/* Der Betrag steht so kräftig da wie die Monate darunter (Lex,
+   3.10.26; bis dahin war er blass, wie damals die abgerechneten
+   Monate). */
+.progtable tr.openrow td.num{color:var(--ink-sal)}
 
 /* ── Die Prognose-Karte nach Mock 4b ──────────────────────────
    Die Überschrift ist eine Titelzeile der Karte: über die volle

@@ -717,8 +717,8 @@ const STR={
    FLEX · COR · END, in beiden Sprachen gleich). Was sie bedeuten,
    sagt die Sprechblase: voller Name aus den col*-Schlüsseln, dann
    dieser Satz. */
-'prog.tipMonth':{en:'the twelve months of the file; months before the current one are shown pale.',
-  de:'die zwölf Monate der Datei; die Monate vor dem laufenden stehen blass.'},
+'prog.tipMonth':{en:'the twelve months of the file; the current one is framed in red.',
+  de:'die zwölf Monate der Datei; der laufende ist rot eingefasst.'},
 'prog.tipIncome':{en:'everything that comes in this month.',
   de:'alles, was in diesem Monat hereinkommt.'},
 'prog.tipFixed':{en:'the regular costs of the month — bills that repeat.',
@@ -739,6 +739,10 @@ const STR={
    anfassbar ist. */
 'prog.openEdit':{en:'The balance before January. It lives in the settings, because it belongs to no month — double-click to change it there.',
   de:'Der Kontostand vor dem Januar. Er steht in den Einstellungen, weil er zu keinem Monat gehört — ein Doppelklick öffnet ihn dort.'},
+/* Der Name der Zeile über dem Januar — zwei Zeilen, getrennt am
+   Zeilenumbruch (Lex, 3.10.26). In den Einstellungen heißt dieselbe
+   Zahl weiter `set.opening`. */
+'prog.openRow':{en:'Last year\nbalance',de:'Saldo\nVorjahr'},
 'prog.colFlowTip':{en:'How the balance moves through the year: each month starts at the previous month’s balance and ends at its own. The colours are the kinds of money.',
   de:'Wie sich der Kontostand durch das Jahr bewegt: jeder Monat fängt beim Stand des Monats davor an und endet bei seinem eigenen. Die Farben sind die Geldarten.'},
 'prog.card':{en:'Flexible: assumption per month',de:'Flexibel: Annahme je Monat'},

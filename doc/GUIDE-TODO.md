@@ -12,7 +12,11 @@ bleiben dabei liegen: neue werden nur gemacht, wenn ausdrücklich darum gebeten 
 
 ---
 
-*(leer — Stand 6.9.26 spät, siehe „Zuletzt eingearbeitet")*
+- ⚠ **Die Zeile über dem Januar in der Prognose heißt jetzt „Last year balance" / „Saldo
+  Vorjahr"** (3.10.26, `prog.openRow`). Die Anleitung nennt sie noch mit `set.opening`
+  („Double-click the Opening balance row" / „Doppelklick auf die Zeile Anfangsbestand",
+  `js/dialogs/guide.js` in „Was FINA kann", EN und DE). Das Feld in den Einstellungen heißt
+  weiter so — nur der Satz über die **Zeile** muss den neuen Namen nennen.
 
 **Der Reiter „Was ist neu" läuft nicht über diese Liste.** Eine neue Version bekommt
 ihren Eintrag automatisch, sobald ein Stand fertig ist — nicht erst auf Zuruf (siehe
