@@ -1167,8 +1167,9 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 
    Deshalb verbergen die beiden Tabellen ihren eigenen Balken und
    bekommen einen eigenen daneben gesetzt (scrollRail in js/ui.js) —
-   die Prognose über ihre Tabelle, die Jahresmatrix seit 6.9.26
-   **unter** ihre Fläche (bis dahin oben in der Knopfleiste). Er ist
+   beide **unter** die Tabelle — die Jahresmatrix seit 6.9.26 (bis
+   dahin oben in der Knopfleiste), die Prognose seit 3.10.26 (bis
+   dahin darüber). Er ist
    ein gewöhnlicher Rollrahmen mit einem Streifen darin, der so
    breit ist wie die Tabelle — mehr braucht ein Rollbalken nicht.
 
@@ -1194,8 +1195,11 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    zwischen Filterzeile und Spaltenkopf trägt die Knopfleiste
    allein (.yearbar, 10 px Polster). */
 .yearpane+.scrollrail{margin:8px 0 0}
-/* In der Prognose steht sie in der Karte, direkt über der Tabelle. */
-.progscroll+.scrollrail,.scrollrail+.progscroll{margin-top:6px}
+/* In der Prognose steht sie in der Karte, direkt unter der Tabelle
+   und über der Farberklärung — mit demselben Abstand wie unter der
+   Jahresmatrix, und ebenso viel Luft zur Linie der Farberklärung
+   darunter (seit 3.10.26; bis dahin über der Tabelle). */
+.progscroll+.scrollrail{margin:8px 0}
 /* Und die Tabellen selbst zeigen unten **keinen** waagerechten
    Balken: dafür ist die eigene Leiste da, zwei wären einer zu viel.
 

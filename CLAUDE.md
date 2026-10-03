@@ -3829,7 +3829,8 @@ Tabellen ihren waagerechten und bekommen einen eigenen: `scrollRail(id)` / `bind
 so breit ist wie die Tabelle. In der Matrix steht er seit 6.9.26 **unter der Fläche**
 (`.yearpane+.scrollrail`; bis dahin in der Knopfleiste) — `sizeMatrix()` zieht ihn bei der
 Höhe der Fläche mit ab, und `syncMatrixHead()` ruft davor `fitRails()`, damit feststeht, ob
-er da ist —, in der Prognose in der Karte direkt über der Tabelle. Er wird ausdrücklich
+er da ist —, in der Prognose seit 3.10.26 ebenso **unter** der Tabelle (in der Karte, vor der
+Farberklärung; bis dahin darüber). Er wird ausdrücklich
 **gestaltet**, damit er dauerhaft zu sehen ist: hier ist er der Weg zum Rollen und nicht
 dessen Anzeige. Passt eine Tabelle ins Fenster, verschwindet er (`.off`).
 
