@@ -13,8 +13,9 @@
 
   DIE SEITE IST BEWUSST LEICHT (seit 23.8.26): ein Satz, was
   FINA ist; ein echtes Bild je Ansicht; die Pilotphase als EIN
-  Kasten ohne Knöpfe; „Wo es FINA gibt" sagt klar, dass zur Zeit
-  NUR DER BROWSER läuft. Alle Einzelheiten wohnen auf
+  Kasten ohne Knöpfe; „Wo es FINA gibt" sagt, dass FINA im
+  Browser läuft, ohne Installation — und die dritte Kachel, dass
+  Mac und Windows in Arbeit sind. Alle Einzelheiten wohnen auf
   features.html, compare.html und guide.html — wer hier einen
   Absatz ergänzen will, prüft zuerst, ob er nicht dorthin
   gehört. Die Akzentfarbe (Orange) tragen nur die
@@ -69,9 +70,24 @@
   die Rückmeldung ist die Umfrage IM PROGRAMM
   (js/dialogs/umfrage.js), nicht ein Formular auf dieser Seite.
 
+  DER TON DER SEITE (3.10.26, Lex): nichts, das abweisend klingt.
+  Keine Warnung vor späteren Preisen — das Wort „Pilotphase" trägt
+  den Hinweis allein (die Zusage im Kasten heißt „Deine Daten
+  bleiben deine"); nichts, das nach „unfertig" klingt („wir fangen
+  gerade erst an", „es wird noch gebaut", „zur Zeit"); kein
+  „Arbeit" und kein „die eigentliche Arbeit gehört an den Rechner".
+  Und ALLES FÜHRT ZUR DEMO: der zweite Knopf im Kopf, der Link
+  unter Monat und Prognose und die zweiten Knöpfe der Unterseiten
+  öffnen fina-online.html?demo — das erfundene Buch, sofort
+  (Block „Start" in js/app.js). Der Menüpunkt „Pilotphase" ist aus
+  der Kopfzeile heraus (Fußzeile und Sprungmenü behalten ihn): ein
+  Menüpunkt ist ein Schild an der Tür, und „Pilotphase" ist das
+  Beta-Schild.
+
   DOWNLOADS GIBT ES NOCH KEINE (#apps, früher #downloads): zur
   Zeit läuft FINA nur im Browser, und der Abschnitt sagt genau
-  das — die Überschrift heißt „Zur Zeit: im Browser.", darunter
+  das — die Überschrift heißt „Im Browser. Ohne Installation." (seit
+  3.10.26; bis dahin „Zur Zeit: im Browser."), darunter
   drei Kacheln: Browser (führt in die Anwendung), Telefon (zum
   Nachsehen, siehe css/mobile.css) und Mac/Windows als
   .gcard.soon, ein <div> und KEIN <a>, denn ein Knopf, der
@@ -92,7 +108,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="copyright" content="Copyright (c) 2026 Alex (github.com/linked2ag). Alle Rechte vorbehalten.">
-<meta name="description" content="FINA Book — your whole household year in advance. Every rent, every subscription, every loan — plus everyday spending. Ticked off when paid. Free while we pilot: everything unlocked, no sign-up.">
+<meta name="description" content="FINA Book — your whole household year in advance. Every rent, every subscription, every loan — plus everyday spending. Ticked off when paid. Free while we pilot: everything unlocked, no sign-up. Try it first with demo data.">
 <title data-en="FINA Book — your year ahead" data-de="FINA Buch — dein Jahr im Voraus">FINA Book — your year ahead</title>
 <link rel="icon" href="icon.png" sizes="any">
 <link rel="stylesheet" href="css/tokens.css">
@@ -109,7 +125,6 @@
       <a href="features.html"><span data-l="de" hidden>Funktionen</span><span data-l="en">Features</span></a>
       <a href="compare.html"><span data-l="de" hidden>Vergleich</span><span data-l="en">Comparison</span></a>
       <a href="guide.html"><span data-l="de" hidden>Anleitung</span><span data-l="en">Guide</span></a>
-      <a href="#pilot"><span data-l="de" hidden>Pilotphase</span><span data-l="en">Pilot</span></a>
       <a href="#apps">Apps</a>
     </nav>
     <!-- Der Sprachschalter: Englisch ist der Grundzustand, die
@@ -133,11 +148,11 @@
     <p class="hero-what reveal"><span data-l="de" hidden>FINA ist ein <b>Haushaltsbuch für ein ganzes Jahr</b>: alle Einnahmen, alle Kosten, Monat für Monat im Voraus geplant.</span><span data-l="en">FINA is a <b>household book for a whole year</b>: all your income, all your costs, planned ahead month by month.</span></p>
     <h1 id="hero-title" class="reveal" style="--d:.1s"><span data-l="de" hidden>Andere zeigen dir, was war.<br><em>FINA zeigt dir, was kommt.</em></span><span data-l="en">Others show you what was.<br><em>FINA shows you what comes.</em></span></h1>
     <p class="hero-sub reveal" style="--d:.2s"><span data-l="de" hidden>Jede Miete. Jedes Abo. Jede Rate. Und der Alltag dazu.<br><b>Das ganze Jahr im Blick — abgehakt, was bezahlt ist.</b></span><span data-l="en">Every rent. Every subscription. Every loan. Plus everyday spending.<br><b>The whole year at a glance — ticked off when paid.</b></span></p>
-    <p class="hero-model pilot reveal" style="--d:.3s"><span data-l="de" hidden>Pilotphase: gerade vollständig und kostenlos.</span><span data-l="en">Pilot phase: complete and free right now.</span></p>
+    <p class="hero-model pilot reveal" style="--d:.3s"><span data-l="de" hidden>Pilotphase: vollständig und kostenlos.</span><span data-l="en">Pilot phase: complete and free.</span></p>
 
     <div class="hero-actions reveal" style="--d:.4s">
       <a class="button button-primary" href="fina-online.html"><span data-l="de" hidden>Direkt im Browser öffnen</span><span data-l="en">Open right in the browser</span> <span aria-hidden="true">→</span></a>
-      <a class="button button-quiet" href="#pilot"><span data-l="de" hidden>Was die Pilotphase heißt</span><span data-l="en">What the pilot means</span></a>
+      <a class="button button-quiet" href="fina-online.html?demo"><span data-l="de" hidden>Erst mal reinschauen — mit Demo-Daten</span><span data-l="en">Have a look first — with demo data</span></a>
     </div>
 
     <!-- Die Vertrauensfrage fällt am Knopf — die Antworten stehen
@@ -145,8 +160,8 @@
     <ul class="trust reveal" style="--d:.5s">
       <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Keine Anmeldung</span><span data-l="en">No sign-up</span></li>
       <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>In der Pilotphase kostenlos</span><span data-l="en">Free while we pilot</span></li>
-      <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Keine Bankverbindung</span><span data-l="en">No bank connection</span></li>
-      <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Deine Daten bleiben auf deinem Rechner</span><span data-l="en">Your data stays on your computer</span></li>
+      <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Kein Bankzugang nötig</span><span data-l="en">No bank access needed</span></li>
+      <li><span class="ck" aria-hidden="true">✓</span><span data-l="de" hidden>Deine Daten bleiben bei dir</span><span data-l="en">Your data stays with you</span></li>
     </ul>
 
     <!-- Die Jahresansicht: das Verkaufsargument als Bild — ein
@@ -187,8 +202,8 @@
   <section class="showcase wrap" id="ansichten">
     <div class="section-heading reveal">
       <p class="eyebrow"><span data-l="de" hidden>ABHAKEN. VORAUSSCHAUEN.</span><span data-l="en">TICK OFF. LOOK AHEAD.</span></p>
-      <h2><span data-l="de" hidden>Im Monat arbeitest du.<br>Die Prognose belohnt dich.</span><span data-l="en">The month is where you work.<br>The forecast is your reward.</span></h2>
-      <p><span data-l="de" hidden>Was bezahlt ist, hakst du ab — und jeder Haken hebt die Jahresbilanz. Geschätzte Beträge stehen orange, bis die echte Zahl da ist.</span><span data-l="en">When something is paid, you tick it off — and every tick lifts the year’s balance. Estimates stay orange until the real number arrives.</span></p>
+      <h2><span data-l="de" hidden>Im Monat ein paar Haken.<br>In der Prognose das Ergebnis.</span><span data-l="en">A few ticks a month.<br>The result in the forecast.</span></h2>
+      <p><span data-l="de" hidden>Einmal eingerichtet, kostet dich ein Monat ein paar Minuten: Was bezahlt ist, hakst du ab — und jeder Haken hebt die Jahresbilanz. Geschätzte Beträge stehen orange, bis die echte Zahl da ist.</span><span data-l="en">Once set up, a month takes you a few minutes: you tick off what is paid — and every tick lifts the year’s balance. Estimates stay orange until the real number arrives.</span></p>
     </div>
     <div class="showduo">
       <div class="mini narrow reveal">
@@ -209,7 +224,7 @@
         <p class="minicap"><span data-l="de" hidden>Kredit und Abos laufen aus — und die Treppe zieht an. Genau das zeigt dir die Prognose.</span><span data-l="en">The loan and subscriptions run out — and the staircase picks up. That’s what the forecast shows you.</span></p>
       </div>
     </div>
-    <p class="morelink reveal"><a href="guide.html"><span data-l="de" hidden>Alle Ansichten mit Bildern — die Anleitung</span><span data-l="en">Every view with pictures — the guide</span> →</a></p>
+    <p class="morelink reveal"><a href="fina-online.html?demo"><span data-l="de" hidden>Mit Demo-Daten selbst durchklicken</span><span data-l="en">Click through it yourself with demo data</span> →</a><span aria-hidden="true"> · </span><a href="guide.html"><span data-l="de" hidden>Alle Ansichten mit Bildern — die Anleitung</span><span data-l="en">Every view with pictures — the guide</span> →</a></p>
   </section>
 
   <!-- ══ Was du siehst ══════════════════════════════════════ -->
@@ -249,17 +264,17 @@
        ihre Regeln (.plans, .plan) bleiben in css/landing.css. -->
   <section class="pricing wrap" id="pilot">
     <div class="section-heading reveal">
-      <p class="eyebrow"><span data-l="de" hidden>WIR FANGEN GERADE ERST AN</span><span data-l="en">WE ARE ONLY JUST STARTING</span></p>
+      <p class="eyebrow"><span data-l="de" hidden>DU BIST FRÜH DRAN</span><span data-l="en">YOU ARE EARLY</span></p>
       <h2><span data-l="de" hidden>In der Pilotphase:<br>alles offen und kostenlos.</span><span data-l="en">While we pilot:<br>everything open and free.</span></h2>
-      <p><span data-l="de" hidden>FINA ist in der Pilotphase: alles ist freigeschaltet, und nichts davon kostet etwas. Dafür wünschen wir uns deine Rückmeldung — FINA fragt dich selbst, mit ein paar kurzen Fragen im Programm.</span><span data-l="en">FINA is in its pilot phase: everything is unlocked, and none of it costs anything. In return we ask for your feedback — FINA asks you itself, with a few short questions inside the program.</span></p>
+      <p><span data-l="de" hidden>FINA ist in der Pilotphase: alles ist freigeschaltet, und nichts davon kostet etwas. Was wir uns wünschen, ist deine Meinung — FINA fragt dich selbst, ein paar kurze Fragen im Programm, und du antwortest, wann es dir passt.</span><span data-l="en">FINA is in its pilot phase: everything is unlocked, and none of it costs anything. What we hope for is your opinion — FINA asks you itself, a few short questions inside the program, and you answer whenever it suits you.</span></p>
     </div>
 
     <div class="rules reveal">
-      <h3><span data-l="de" hidden>Was die Pilotphase heißt</span><span data-l="en">What the pilot means</span></h3>
+      <h3><span data-l="de" hidden>Was das für dich heißt</span><span data-l="en">What that means for you</span></h3>
       <ul>
-        <li><span data-l="de" hidden><b>Vollständig, nicht beschnitten.</b> Keine gesperrte Funktion, keine Testfrist, keine Anmeldung.</span><span data-l="en"><b>Complete, not cut down.</b> No locked features, no trial running out, no sign-up.</span></li>
-        <li><span data-l="de" hidden><b>Preise kommen später — wir sagen es vorher.</b> Deine Datei bleibt deine: dein Ordner, dein Format, kein Konto, das jemand sperren könnte.</span><span data-l="en"><b>Prices come later — and you will hear it first.</b> Your file stays yours: your folder, your format, no account anyone could ever lock.</span></li>
-        <li><span data-l="de" hidden><b>Es wird noch gebaut.</b> Leg zwischendurch eine Sicherung ab — der Knopf dafür steht im Menü.</span><span data-l="en"><b>It is still being built.</b> Put a backup aside now and then — the button sits in the menu.</span></li>
+        <li><span data-l="de" hidden><b>Alles drin.</b> Keine gesperrte Funktion, keine Testfrist, keine Anmeldung.</span><span data-l="en"><b>Everything included.</b> No locked features, no trial running out, no sign-up.</span></li>
+        <li><span data-l="de" hidden><b>Deine Daten bleiben deine.</b> Deine Datei, dein Ordner, dein Format — kein Konto, das jemand sperren könnte.</span><span data-l="en"><b>Your data stays yours.</b> Your file, your folder, your format — no account anyone could lock.</span></li>
+        <li><span data-l="de" hidden><b>FINA wächst weiter.</b> Was du heute einträgst, öffnet jede spätere Fassung — und eine Sicherung ist ein Klick im Menü.</span><span data-l="en"><b>FINA keeps growing.</b> Whatever you enter today opens in every later version — and a backup is one click in the menu.</span></li>
       </ul>
     </div>
   </section>
@@ -275,20 +290,20 @@
   <section class="getit wrap" id="apps">
     <div class="section-heading reveal">
       <p class="eyebrow"><span data-l="de" hidden>WO ES FINA GIBT</span><span data-l="en">WHERE TO FIND FINA</span></p>
-      <h2><span data-l="de" hidden>Zur Zeit: im Browser.</span><span data-l="en">Right now: in the browser.</span></h2>
-      <p><span data-l="de" hidden>FINA läuft zur Zeit im Browser — vollständig, direkt unter dieser Adresse.</span><span data-l="en">Right now FINA runs in the browser — complete, right at this address.</span></p>
+      <h2><span data-l="de" hidden>Im Browser. Ohne Installation.</span><span data-l="en">In the browser. Nothing to install.</span></h2>
+      <p><span data-l="de" hidden>FINA läuft vollständig im Browser, direkt unter dieser Adresse — nichts installieren, nichts anmelden. Chrome und Edge speichern sogar direkt in deine Datei zurück.</span><span data-l="en">FINA runs complete in the browser, right at this address — nothing to install, nothing to sign up for. Chrome and Edge even save straight back into your file.</span></p>
     </div>
     <div class="gcards">
       <a class="gcard first reveal" href="fina-online.html">
         <span class="ic" aria-hidden="true">▶</span>
         <h3><span data-l="de" hidden>Im Browser</span><span data-l="en">In the browser</span></h3>
-        <p><span data-l="de" hidden>Nichts installieren, nichts anmelden. Hier wird gearbeitet.</span><span data-l="en">Nothing to install, nothing to sign up for. This is where you work.</span></p>
+        <p><span data-l="de" hidden>Nichts installieren, nichts anmelden. Öffnen und loslegen.</span><span data-l="en">Nothing to install, nothing to sign up for. Open it and go.</span></p>
         <span class="go"><span data-l="de" hidden>Direkt öffnen</span><span data-l="en">Open now</span> →</span>
       </a>
       <a class="gcard reveal" style="--d:.14s" href="fina-online.html">
         <span class="ic" aria-hidden="true"><span class="phone"></span></span>
         <h3><span data-l="de" hidden>Auf dem Telefon</span><span data-l="en">On your phone</span></h3>
-        <p><span data-l="de" hidden>Dieselbe Adresse, eigenes Layout — zum Nachsehen. Die eigentliche Arbeit gehört an den Rechner.</span><span data-l="en">Same address, its own layout — for looking things up. The real work belongs at the computer.</span></p>
+        <p><span data-l="de" hidden>Dieselbe Adresse, eigenes Layout. Unterwegs nachsehen, was offen ist und wo du stehst — eingetragen wird am Rechner.</span><span data-l="en">Same address, its own layout. Check on the go what is open and where you stand — entering is done at the computer.</span></p>
         <span class="go"><span data-l="de" hidden>Ansehen</span><span data-l="en">Take a look</span> →</span>
       </a>
       <div class="gcard soon reveal" style="--d:.28s">

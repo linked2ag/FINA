@@ -468,7 +468,7 @@ const C2_GUIDE={
         <li>A column of plain numbers without decimals — a document number, an account number — is not taken for an amount. It gets a reference.</li>
         <li>Two date columns? The second one gets a reference: a field lives in one column only.</li>
         <li>Next time you upload such a file, <b>“Prepare CSV structure automatically”</b> fills this step in for you.</li>
-        <li>The ✕ at the top closes the wizard. Nothing is written to your book before the last step.</li>
+        <li>The ✕ at the top closes the import. Nothing is written to your book before the last step — until then you can stop at any time and nothing changes.</li>
         <li>This guide opens by itself. The tick <b>“Open the guide alongside”</b> in the settings, under <b>Appearance</b>, turns that off.</li>
       </ul>`,
     de:`<h4>Kurz erklärt</h4>
@@ -502,7 +502,7 @@ const C2_GUIDE={
         <li>Eine Spalte aus glatten Zahlen ohne Nachkommastellen — eine Belegnummer, eine Kontonummer — hält FINA nicht für einen Betrag. Sie bekommt eine Referenz.</li>
         <li>Zwei Datumsspalten? Die zweite bekommt eine Referenz: ein Feld wohnt nur in einer Spalte.</li>
         <li>Beim nächsten Mal füllt <b>„Automatisch CSV-Datenstruktur vorbereiten“</b> diesen Schritt für dich aus.</li>
-        <li>Das ✕ oben schließt den Wizard. Ins Buch geschrieben wird erst im letzten Schritt.</li>
+        <li>Das ✕ oben schließt den Import. Ins Buch geschrieben wird erst im letzten Schritt — bis dahin kannst du jederzeit abbrechen, ohne dass sich etwas ändert.</li>
         <li>Diese Anleitung geht von selbst auf. Der Haken <b>„Anleitung mit aufschlagen“</b> in den Einstellungen, unter <b>Darstellung</b>, schaltet das ab.</li>
       </ul>`},
   3:{
@@ -563,7 +563,7 @@ const C2_GUIDE={
       <h4>Finish or cancel</h4>
       <ul>
         <li><b>“Finish”</b> writes every assignment into your book and stores the new rules.</li>
-        <li><b>✕</b> closes the wizard without taking over the current assignments.</li>
+        <li><b>✕</b> closes the import without taking over the current assignments — your book stays as it was.</li>
       </ul>
       <p>Save your file afterwards, so the changes stay.</p>
       <p>This guide opens by itself with every import. The tick <b>“Open the guide alongside”</b> in the settings, under <b>Appearance</b>, turns that off.</p>`,
@@ -624,7 +624,7 @@ const C2_GUIDE={
       <h4>Abschließen oder abbrechen</h4>
       <ul>
         <li><b>„Fertig“</b> übernimmt alle Zuordnungen ins Buch und speichert die neuen Regeln.</li>
-        <li><b>✕</b> schließt den Wizard, ohne die aktuellen Zuordnungen zu übernehmen.</li>
+        <li><b>✕</b> schließt den Import, ohne die aktuellen Zuordnungen zu übernehmen — dein Buch bleibt, wie es war.</li>
       </ul>
       <p>Speichere danach deine Datei, damit die Änderungen bleiben.</p>
       <p>Diese Anleitung geht bei jedem Import von selbst auf. Der Haken <b>„Anleitung mit aufschlagen“</b> in den Einstellungen, unter <b>Darstellung</b>, schaltet das ab.</p>`}

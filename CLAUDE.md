@@ -841,8 +841,9 @@ später nur nach unten korrigieren, ohne dass es schlecht aussieht. **Wer wieder
 einbaut, tut es erst, wenn die Stufen stehen.**
 
 An seiner Stelle steht `#pilot`, seit dem Abend des 23.8.26 als **ein** Kasten:
-Überschrift, drei Sätze, darunter `.rules` mit den drei Zusagen — vollständig · Preise
-kommen später · es wird noch gebaut. **Kein einziger Knopf**: die drei Plan-Karten mit
+Überschrift, drei Sätze, darunter `.rules` mit den drei Zusagen — seit 3.10.26 **Alles drin** · **Deine Daten
+bleiben deine** · **FINA wächst weiter** (bis dahin: vollständig · Preise kommen später · es
+wird noch gebaut; warum, steht unter „Der Ton der Seite"). **Kein einziger Knopf**: die drei Plan-Karten mit
 drei Knöpfen (`.plans`, `.plan.nop`) sahen aus wie eine Preistabelle und sind heraus;
 ihre Regeln bleiben in `css/landing.css` für den Tag, an dem wirklich Preise
 angekündigt werden. Der Weg für die Rückmeldung ist **die Umfrage im Programm**
@@ -850,8 +851,10 @@ angekündigt werden. Der Weg für die Rückmeldung ist **die Umfrage im Programm
 die Seite verspricht auch keine.
 
 **Downloads gibt es zur Zeit keine.** Aus `#downloads` wurde `#apps`: die Überschrift
-sagt **„Zur Zeit: im Browser."**, darunter drei Kacheln — Browser (führt in die
-Anwendung), Telefon (dieselbe Adresse, eigenes Layout, **zum Nachsehen**) und
+sagt seit 3.10.26 **„Im Browser. Ohne Installation."** (bis dahin „Zur Zeit: im Browser." —
+„zur Zeit" entschuldigte sich für einen Vorteil), darunter drei Kacheln — Browser („Öffnen und
+loslegen", führt in die Anwendung), Telefon (dieselbe Adresse, eigenes Layout: unterwegs
+nachsehen, eingetragen wird am Rechner) und
 Mac/Windows als `.gcard.soon`, ein `<div>` und **kein** `<a>`, denn ein Knopf, der
 nichts tut, ist schlimmer als kein Knopf.
 Der Anker `#apps` bleibt: `download/` leitet als Stub darauf, und der Update-Hinweis
@@ -879,6 +882,69 @@ Pilot-Marke im Kopf sind seither grau bzw. ruhig (`css/landing.css`). Alle
 Einzelheiten wohnen auf den anderen Seiten. Die Überschrift von `#pilot` bindet die
 Zusage an die Pilotphase („In der Pilotphase: alles offen und kostenlos") — ein
 uneingeschränktes „kostenlos" wäre ein Versprechen über die Pilotphase hinaus.
+
+### Der Ton der Seite (3.10.26)
+
+**Nichts auf der Seite darf abweisend klingen.** Lex hat alle fünf Seiten am 3.10.26 „zwischen
+den Zeilen" lesen lassen — als Besucher, der einen Grund sucht, nicht anzufangen — und 24
+Stellen ändern lassen. Daraus folgen Regeln, die für jeden neuen Satz gelten:
+
+* **Keine Warnung vor späteren Preisen.** „Preise kommen später — wir sagen es vorher" (Kasten
+  der Pilotphase) und „Was später kostet, sagen wir vorher" (Vergleichstabelle) sind heraus.
+  Das Wort **„Pilotphase"** trägt den Hinweis allein — in Überschrift, Vertrauenszeile und
+  Vergleich. Die Planung (`_BusinessCenter/Marketing und Preise.md`, Risiken) wollte „danach
+  kostenpflichtig" ausdrücklich dabei haben; Lex hat diesen Haken gelesen und so entschieden.
+  Über Preise wird mit Leuten gesprochen, die FINA schon benutzen: in der Umfrage im Programm,
+  nicht auf der Tür.
+* **Nichts, das nach „unfertig" klingt.** „Wir fangen gerade erst an" → „Du bist früh dran";
+  „Es wird noch gebaut. Leg zwischendurch eine Sicherung ab" → „FINA wächst weiter. Was du
+  heute einträgst, öffnet jede spätere Fassung" (das stimmt: `migrate()` überführt still);
+  „Zur Zeit: im Browser." → „Im Browser. Ohne Installation." Die dritte Kachel sagt weiter,
+  dass Mac und Windows in Arbeit sind; „gerade" im Pilot-Satz des Kopfes ist weg.
+* **Kein „Arbeit".** „Im Monat arbeitest du" → „Im Monat ein paar Haken" (der Satz darunter
+  nennt, was die Anleitung verspricht: einmal eingerichtet, ein paar Minuten im Monat); „Hier
+  wird gearbeitet" → „Öffnen und loslegen"; und die Wendung „die eigentliche Arbeit gehört an
+  den Rechner" (viermal, auf allen vier Seiten) → „unterwegs nachsehen, was offen ist —
+  eingetragen wird am Rechner". Die Tatsache bleibt, der Ton der Zurechtweisung nicht.
+* **Niemand wird weggeschickt.** „Ist mit einem Programm besser bedient" (Vergleich) → „Mach
+  weiter damit — FINA liest ihren CSV-Export und rechnet nach vorn."
+* **„Braucht kein Internet" ist falsch** (Lex, 3.10.26) — FINA ist eine Webseite. Gemeint
+  ist: **deine Zahlen gehen nie ins Netz.** So steht es jetzt auf der Guide-Seite („FINA lädt
+  nichts hoch — deine Zahlen gehen nie ins Netz"), auf `features.html` heißt der Punkt „Nichts
+  geht ins Netz", und wo das Rechnen ohne Verbindung erwähnt wird (Vergleich, Funktionen),
+  steht dabei, dass die Seite dafür einmal geladen sein muss.
+* **In Überschriften „Daten", nicht „Datei"** (Lex, 3.10.26): „Deine Daten, deine Regeln"
+  (Guide-Seite), „Deine Daten" (Funktionen, Sprungmenüs), „Deine Daten gehören dir" (Anleitung
+  im Programm). Die Datei ist, wie es auf der Platte liegt; die Daten sind, was dem Nutzer
+  gehört. Im Satz darf „Datei" stehen, wo es um das Speichern geht.
+* **Auch die Guide-Seite sagt nicht „hier arbeitest du"**: „Die Monatsansicht: hier hakst du
+  ab"; auf `features.html` „Hier hakst du ab — ein Monat, drei Karten, ein Klick je Zahlung";
+  in der Anleitung im Programm „Neben der Tabelle" statt „Neben deiner Arbeit".
+* **Alles führt zur Demo.** Der zweite Knopf im Kopf der Startseite („Erst mal reinschauen —
+  mit Demo-Daten"), der Link unter Monat und Prognose, die zweiten Knöpfe von Funktionen,
+  Vergleich und Anleitung („Mit Demo-Daten ansehen"), die Zeile „Anfangen" der
+  Vergleichstabelle und Schritt 1 der Guide-Seite führen zu `fina-online.html?demo` (siehe
+  „Die Demo-Daten"). Der frühere zweite Knopf „Was die Pilotphase heißt" führte zu Bedingungen,
+  bevor jemand das Programm gesehen hatte.
+* **Der Menüpunkt „Pilotphase" ist aus der Kopfzeile heraus** (Fußzeile und Sprungmenü behalten
+  ihn): ein Menüpunkt ist ein Schild an der Tür, und „Pilotphase" ist das Beta-Schild. Die
+  Kopfzeile hat vier Punkte.
+* **Nur, was es gibt — auch auf `features.html`.** Drei Punkte beschrieben den Stand von vor dem
+  6.9.26 (Herkunftsmarken aus „Import Details", Fast-Budget-Import mit „Probe", Durchschnitt
+  neben der Annahme) und sind durch das ersetzt, was es gibt: der blaue Pfeil samt Quellzeilen
+  im Posten-Fenster, der CSV-Import jeder Bank mit gemerkter Struktur und Kriterien,
+  „Importiert bleibt importiert" (`impLock`). Die drei Bereiche heißen dort wie im Programm
+  Einnahmen · Flexibel · Regulär („Flexible Ausgaben" als Blocküberschrift).
+* **Die Zeile „Was es kostet" im Vergleich spottet nicht mehr über Abos** — der Browser soll
+  laut Plan später selbst eins werden. Der dauerhafte Unterschied ist die Datei: „Deine Zahlen
+  liegen in deiner Datei — die nimmst du immer mit, mit oder ohne FINA."
+* **Der Kasten „Was FINA nicht ist" bleibt** — nur ohne „nur" und „gehört".
+* **Die Zielgruppe ist ausdrücklich nicht angefasst** (Lex, 3.10.26): „die Lücke", „Reicht es
+  bis Dezember?", „Jede Rate" bleiben, bis die Zielgruppen-Frage (Notiz vom 30.8.) besprochen
+  ist.
+
+Dieselben Regeln gelten der Anleitung im Programm (siehe „Und nichts, das erschreckt" unter
+„Die Anleitung ist ein Bereich, kein Fenster").
 
 ### `datenschutz.html`
 
@@ -2055,6 +2121,11 @@ Umfrage fragt erst nach einem echten Speichern, siehe `srvSaved()`); **im Monat*
 entscheidet das am Dateinamen, den die Demo nicht hat). Jedes Öffnen nimmt eine frische Kopie
 (`structuredClone`).
 
+**Die Webseite öffnet die Demo direkt** (3.10.26): `fina-online.html?demo` — der Block „Start"
+in `js/app.js` ruft nach dem ersten Bild `openDemo()` und bereinigt die Adresse per
+`history.replaceState`, damit ein Neuladen wieder die Begrüßung zeigt. In der App und unter
+`file://` ohne Parameter tut die Zeile nichts.
+
 **Wer die Demo ändert, ändert `demo/fina-demo-en.js`.** Ursprung ist `fina-demo-en.json` auf
 Google Drive (`# MDA/Finanzen/FINA Tabellen/`, dieselbe Datei, aus der `doc/make-shots.py`
 die Bildschirmfotos macht — dort noch im alten Format); der Kopfkommentar der Datei sagt, was
@@ -2869,6 +2940,12 @@ Kategorien. Stattdessen:
 * Gezeigt wird sie wie eine Kategorie: in der Monatsansicht als eigene Karte `.sec-bal`,
   in der Jahresmatrix über `mrow(…,{asCat:true, cls:'sec r-bal'})`, in der Prognose als
   Spalte `.balcol`. Die Farbe kommt aus `--bg-bal` / `--bg-bal-2` / `--edge-bal`.
+* **Sie heißt überall, wie `bal.row` sie nennt** — „Balance Correction", seit 3.10.26 auf
+  Deutsch „Saldokorrektur" (Lex): in den Karten und Zeilen beider Ansichten, im Titel ihres
+  Fensters (dort kein Knopf, nicht umbenennbar — `isBal` in `js/dialogs/item.js`) und an der
+  Notizlampe (`js/ui.js`). `state.balance.name` steht zwar in der Datei (`blankBalance()`
+  schreibt „Balance Correction" hinein), wird aber nirgends gezeigt und beim Speichern nicht
+  angefasst.
 
 ## Der laufende Monat
 
@@ -3393,7 +3470,7 @@ Seitenbereich ein **Knopf**, der `.gbody` rollt, denn ein Anker rollte dort die 
 dahinter und nicht den Text. Im Seitenbereich zeigt er sich erst ab 200 px Rollweg: ein
 Knopf, der nichts täte, soll auch nicht dastehen.
 
-**„Schritt für Schritt" ist kurz und bleibt kurz.** Acht Schritte, je zwei bis vier Sätze:
+**„Schritt für Schritt" ist kurz und bleibt kurz.** Sieben Schritte, je zwei bis vier Sätze:
 was einer braucht, um sein Buch zum Laufen zu bringen, und nichts darüber hinaus. Jede
 Ausnahme, jede Nebenwirkung, jeder zweite Weg gehört in **„Was FINA kann"** — der Reiter
 endet auch mit diesem Verweis. Wer hier etwas ergänzt, prüft zuerst, ob es wirklich zum
@@ -3406,6 +3483,22 @@ drei Einschüben wird deshalb zu drei Sätzen; Gedankenstriche, die einen Nebens
 werden zu Punkten. Das gilt für **alle drei Reiter** und für **beide Sprachen** — wer einen
 Absatz ergänzt, schreibt ihn in diesem Ton, sonst fällt er auf.
 
+**Und nichts, das erschreckt** (Lex, 3.10.26): Die Anleitung soll kurz, wirkungsvoll und
+leicht zu lesen sein — und den Leser dazu bringen, weiter auszuprobieren und sein eigenes Buch
+anzufangen, weil er sich abgeholt fühlt. Deshalb fängt „Schritt für Schritt" mit dem Merksatz
+„Erst mal umsehen?" an (die Demo-Daten), Schritt 1 sagt, wie man aus der Demo zurück auf die
+erste Seite kommt (`app.unlink`), Schritt 6 schickt nach dem Abhaken in die Prognose, und „Was
+FINA kann" endet mit dem Satz, der zur Demo und zu „Deine neue FINA-Datenbank anlegen" schickt.
+Gestrichen sind die Wendungen, die auf der Webseite auch gestrichen sind (siehe „Der Ton der
+Seite"): „Deine Arbeitsansicht" → „Abhaken, nachsehen, fertig", „Wichtig: Speichern passiert
+nie automatisch" → „Deine Datei gehört dir", „Nicht fertig" → „In der Pilotphase … und FINA
+wächst weiter", „Um Kopien kümmerst du dich" → „Eine Sicherung ist ein Klick", „Speichern gibt
+es dort nicht" → „eingetragen und gespeichert wird am Rechner — eine Sicherung geht auch dort".
+Der Hinweis, dass die Anleitung von selbst aufgeht und wie man das abschaltet, steht als
+letzter Satz des ersten Reiters und nicht mehr als Kasten ganz oben: ein Kasten, der sich als
+Erstes entschuldigt, ist der falsche Anfang. Die Import-Anleitung (`C2_GUIDE`) sagt „Import"
+statt „Wizard" und beim ✕, dass bis zum letzten Schritt nichts geschrieben wird.
+
 **Die Bausteine der Anleitung** (seit 7.9.26, nach der Vorlage
 `_BusinessCenter/DESIGN/260907 Guide für FINA (von GPT).html`): `gcall` (der Merksatz mit
 oranger Kante), `gstep` (nummerierter Schritt mit Kreis), `gcard` (Kärtchen eines Bereichs
@@ -3414,8 +3507,10 @@ Unterzeile, dann Text — auf der ganzen Seite nebeneinander, im Bereich unterei
 `gver` (eine Version als Karte). Die Regeln stehen in `css/components.css` unter „Die
 Bausteine der Anleitung"; die Wizard-Anleitung nutzt `.gcall` und `.gtab` mit. „Schritt
 für Schritt" hat sieben Schritte mit je einem Bild — nur „Speichern" ohne —, darüber
-„In etwa 30 Minuten startklar" und „Die einfache Regel"; „Was FINA kann" fängt mit den
-drei Fragen an, dann vier Kärtchen, dann die Blöcke, am Ende „Was FINA nicht ist".
+„In etwa 30 Minuten startklar", der Merksatz „Erst mal umsehen?" (die Demo, seit 3.10.26) und
+„Die einfache Regel"; „Was FINA kann" fängt mit den
+drei Fragen an, dann vier Kärtchen, dann die Blöcke, am Ende „Was FINA nicht ist" und ein
+Schlusssatz, der zur Demo und zum eigenen Buch schickt (3.10.26).
 **„Import Details" kommt dort nicht mehr vor** (Lex, 7.9.26: den Reiter soll es so nicht
 mehr geben), und von den Mac-/Windows-Apps steht in keinem Reiter mehr etwas.
 
@@ -3481,7 +3576,13 @@ Ein neuer `<h4>`-Block entsteht dabei nur zu einem tatsächlichen Versionswechse
 **Bilder.** `gshot('dateiname','Bildunterschrift')` setzt ein Bild aus `doc/img/`; der Klick
 öffnet es in voller Größe in einem neuen Reiter, weil im schmalen Bereich sonst nichts zu
 erkennen wäre. Die Bilder entstehen mit `doc/make-shots.py` (baut aus `fina-online.html` eine
-Wegwerfseite, lädt eine Beispieldatei hinein, fotografiert mit Chrome ohne Fenster).
+Wegwerfseite, lädt die Demo-Daten hinein, fotografiert mit Chrome ohne Fenster). **Fotografiert
+werden seit 3.10.26 die Demo-Daten aus `demo/fina-demo-en.js`** — dieselben, die der Knopf
+„Demo-Daten öffnen" lädt; Bilder und Demo zeigen dasselbe Buch (bis dahin eine Beispieldatei
+von Google Drive; `FINA_DEMO=…` überschreibt weiterhin, mit einer JSON- oder einer solchen
+JS-Datei). Die Beispiel-CSV für das Import-Bild baut `demo_csv()` aus den Quellzeilen der
+flexiblen Posten (`impRows`). Zuletzt neu gemacht am 3.10.26: die 15 Bilder, die Anleitung,
+Webseite und README benutzen.
 
 **Drei Dinge muss wissen, wer das Skript anfasst** (alle drei am 23.8.26 nachgezogen, als
 die Bilder das erste Mal nach dem Mac-Redesign entstanden):
@@ -3498,6 +3599,10 @@ die Bilder das erste Mal nach dem Mac-Redesign entstanden):
   `ui.hideSettled=false`. Die Beispieldatei kann beides gesetzt haben, und ein Abzug, der
   zwölf Monate zeigen soll, zeigte sonst fünf. (Bis 23.8.26 setzte der Schalter
   `ui.showAll`, das es nicht mehr gibt.)
+* **Die Karte der Prognose gibt im Ausschnitt ihre Mindesthöhe frei** (3.10.26): `sizeProg()`
+  zieht sie bis an den unteren Fensterrand, damit ihr Rollbalken dort steht, wo er im Jahr
+  steht — im Abzug wäre das eine leere Fläche unter der Tabelle. Und ein hängender Chrome
+  bricht nach zwei Minuten ab, statt den Lauf anzuhalten.
 
 **Das Skript wird nicht von selbst aufgerufen.** Bildschirmfotos macht nur, wer
 ausdrücklich darum gebeten wird — die Bilder in `doc/img/` altern also gegenüber der

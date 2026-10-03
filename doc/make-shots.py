@@ -11,7 +11,8 @@ Fenster.
     python3 doc/make-shots.py            # alle Bilder
     python3 doc/make-shots.py set-lists  # nur diese
 
-Die Beispieldatei (fina-demo-en.json) enthält erfundene Zahlen und keine
+Die Beispieldatei (demo/fina-demo-en.js — dieselben Demo-Daten, die der
+Knopf „Demo-Daten öffnen" lädt) enthält erfundene Zahlen und keine
 persönlichen Daten; im Code der Anwendung stehen ohnehin keine. Die Wegwerfseite wird am Ende gelöscht.
 """
 
@@ -21,11 +22,23 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT  = os.path.join(ROOT, 'doc', 'img')
 PAGE = os.path.join(ROOT, '_shot.html')
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-# Welche Beispieldatei fotografiert wird, lässt sich überschreiben:
+# Fotografiert werden seit 3.10.26 die Demo-Daten aus dem Projekt
+# (demo/fina-demo-en.js) — dieselben, die der Knopf „Demo-Daten öffnen"
+# auf der Begrüßungsseite lädt: Bilder und Demo sollen dasselbe Buch
+# zeigen. Überschreiben lässt sich das weiterhin, mit einer JSON- oder
+# einer solchen JS-Datei:
 #     FINA_DEMO=/pfad/zur/datei.json python3 doc/make-shots.py
-DEMO = os.environ.get('FINA_DEMO') or os.path.expanduser(
-    '~/Library/CloudStorage/GoogleDrive-lex2keeper@gmail.com/My Drive/'
-    '# MDA/Finanzen/FINA Tabellen/fina-demo-en.json')
+DEMO = os.environ.get('FINA_DEMO') or os.path.join(ROOT, 'demo', 'fina-demo-en.js')
+
+
+def load_demo():
+    """Die Demo-Daten als Objekt — aus der JS-Datei (window.FINA_DEMO_EN=…;)
+    oder aus einer gewöhnlichen JSON-Datei."""
+    txt = open(DEMO, encoding='utf-8').read()
+    if DEMO.endswith('.js'):
+        i = txt.index('window.FINA_DEMO_EN=')
+        txt = txt[i + len('window.FINA_DEMO_EN='):].strip().rstrip(';')
+    return json.loads(txt)
 
 # Die Wegwerfseite: dieselben Skripte wie fina-online.html, dazu ein Aufsatz, der
 # die Beispieldatei einsetzt und die Ansicht so herrichtet, wie es der
@@ -147,6 +160,12 @@ if(only){
     frame.querySelectorAll('#monthScroll,.yearscroll').forEach(x=>{
       x.style.height='auto'; x.style.maxHeight='none'; x.style.overflow='visible';
     });
+    /* Die Karte der Prognose reicht seit 3.10.26 bis an den unteren
+       Fensterrand (sizeProg in js/app.js), damit ihr Rollbalken dort
+       steht, wo er im Jahr steht. Im Ausschnitt ist das nur eine
+       leere Fläche unter der Tabelle — sie darf hier so hoch sein
+       wie ihr Inhalt. */
+    frame.querySelectorAll('.progcard').forEach(x=>{ x.style.minHeight='0'; });
   }
 }
 /* Die Höhe des Abzugs ist die Höhe dessen, was zu sehen sein soll —
@@ -219,43 +238,67 @@ def chrome(url, size, shot=None):
            '--force-device-scale-factor=1', '--window-size=%d,%d' % size,
            '--virtual-time-budget=3000']
     cmd += ['--screenshot=' + shot] if shot else ['--dump-dom']
-    out = subprocess.run(cmd + [url], capture_output=True, text=True).stdout
+    # Ein hängender Chrome soll den Lauf nicht anhalten (gesehen am
+    # 3.10.26): nach zwei Minuten wird abgebrochen und weitergemacht.
+    try:
+        out = subprocess.run(cmd + [url], capture_output=True, text=True, timeout=120).stdout
+    except subprocess.TimeoutExpired:
+        out = ''
     return out
 
 
 def demo_csv(demo):
     """Eine Beispiel-CSV für den Abzug des Imports, aus den Zahlen der
-    Beispieldatei: die Buchungen des letzten importierten Monats (sie
-    stehen schon im Buch und tragen im Wizard das Kreuz) und dazu ein
+    Demo-Daten: die Quellzeilen des letzten importierten Monats (sie
+    stehen schon im Buch und tragen im Import das Kreuz) und dazu ein
     erfundener Folgemonat — dieselben Zeilen, einen Monat weiter, die
-    Beträge leicht verschoben — samt den regulären Posten dieses Monats."""
-    tx = demo.get('tx') or []
-    last = max((x['m'] for x in tx), default=0)
-    nxt = last + 1
-    rows = []
-    def add(y, m, d, v, cat, sub, acc, note):
-        rows.append('%02d.%02d.%d;%s;%s;%s;%s;%s' % (
-            d, m, y, ('%.2f' % v).replace('.', ','), cat, sub, acc, note))
-    for x in tx:
-        if x['m'] == last:
-            add(x['y'], x['m'], x['d'], x['v'], x['main'], x['cat'], x['acc'], x['note'])
-    for i, x in enumerate(t for t in tx if t['m'] == last):
-        add(x['y'], nxt, min(x['d'], 28), round(x['v'] * (1 + ((i % 7) - 3) / 40.0), 2),
-            x['main'], x['cat'], x['acc'], x['note'])
+    Beträge leicht verschoben — samt den regulären Posten dieses Monats.
+    Die Quellzeilen hängen seit 6.9.26 an den flexiblen Posten
+    (`impRows`, je Monat eine Liste von {d, v, x} — Tag, Betrag,
+    Unterkategorie); die Kategorie-Spalte der CSV ist der Name des
+    Posten, so wie es die Import-Kriterien erwarten."""
+    flex_groups = demo.get('flexGroups') or []
     banks = {b['code']: b['label'] for b in demo.get('banks', [])}
+    year = demo.get('year', 2026)
+    rows = []  # (y, m, d, v, cat, sub, acc, note)
     for it in demo.get('fixed', []):
-        v = (it.get('amounts') or [0] * 12)[nxt - 1] if nxt <= 12 else 0
-        if not v:
+        if it.get('group') not in flex_groups:
             continue
-        d = int(it.get('dueDay') or 1)
-        add(demo.get('year', 2026), nxt, d, v, it.get('group', ''), it['name'],
-            banks.get(it.get('bank'), ''), '%s %02d/%d' % (it['name'], nxt, demo.get('year', 2026)))
-    rows.sort(key=lambda r: (r[6:10], r[3:5], r[0:2]))
-    return 'Date;Amount;Category;Subcategory;Account;Note\n' + '\n'.join(rows) + '\n'
+        for m, lst in (it.get('impRows') or {}).items():
+            for r in lst or []:
+                head = str(r.get('d', '')).split('.')[0]
+                day = int(head) if head.isdigit() else 1
+                sub = r.get('x') or ((r.get('r') or [''])[0]) or ''
+                rows.append((year, int(m), day, float(r.get('v') or 0), it['name'], sub,
+                             banks.get(it.get('bank'), 'Main account'), ''))
+    last = max((r[1] for r in rows), default=0)
+    nxt = last + 1
+    out = []
+    def add(y, m, d, v, cat, sub, acc, note):
+        out.append('%02d.%02d.%d;%s;%s;%s;%s;%s' % (
+            d, m, y, ('%.2f' % v).replace('.', ','), cat, sub, acc, note))
+    lastrows = [r for r in rows if r[1] == last]
+    for r in lastrows:
+        add(*r)
+    if nxt <= 12:
+        for i, r in enumerate(lastrows):
+            y, m, d, v, cat, sub, acc, note = r
+            add(y, nxt, min(d, 28), round(v * (1 + ((i % 7) - 3) / 40.0), 2), cat, sub, acc, note)
+        for it in demo.get('fixed', []):
+            if it.get('group') in flex_groups:
+                continue
+            v = (it.get('amounts') or [0] * 12)[nxt - 1]
+            if not v:
+                continue
+            d = int(it.get('dueDay') or 1)
+            add(year, nxt, d, v, it.get('group', ''), it['name'],
+                banks.get(it.get('bank'), ''), '%s %02d/%d' % (it['name'], nxt, year))
+    out.sort(key=lambda r: (r[6:10], r[3:5], r[0:2]))
+    return 'Date;Amount;Category;Subcategory;Account;Note\n' + '\n'.join(out) + '\n'
 
 
 def build_page():
-    demo = json.load(open(DEMO, encoding='utf-8'))
+    demo = load_demo()
     src = open(os.path.join(ROOT, 'fina-online.html'), encoding='utf-8').read()
     body = HARNESS.replace('__DEMO__', json.dumps(demo, ensure_ascii=False))
     body = body.replace('__CSV__', json.dumps(demo_csv(demo), ensure_ascii=False))

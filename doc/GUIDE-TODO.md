@@ -12,20 +12,7 @@ bleiben dabei liegen: neue werden nur gemacht, wenn ausdrücklich darum gebeten 
 
 ---
 
-- ⚠ **Die Begrüßungsseite hat drei Knöpfe** (3.10.26): oben über die ganze Breite „Open your
-  local FINA database" (`wel.open`, bis 3.10.26 „Open your local database" / „Lokale Datenbank
-  öffnen"), darunter nebeneinander „Create your new FINA database" (`wel.new`, bis
-  3.10.26 „Start from scratch" / „Neu anfangen") und „Open demo data (EN)" (`wel.demo`) — ein
-  erfundenes Buch zum Ausprobieren, auf Englisch. Die beiden Sätze, die `wel.new` zitieren
-  („<b>…</b> begins an empty book" / „beginnt ein leeres Buch"), lesen sich mit dem neuen,
-  längeren Namen holprig und gehören umformuliert. „Schritt für Schritt" sagt noch „zwei
-  Knöpfe" („you see two buttons" / „siehst du zwei Knöpfe", `js/dialogs/guide.js`), und
-  „Was FINA kann" nennt nur öffnen oder neu anfangen. Das Bild `welcome.png` zeigt zwei.
-- ⚠ **Die Zeile über dem Januar in der Prognose heißt jetzt „Last year balance" / „Saldo
-  Vorjahr"** (3.10.26, `prog.openRow`). Die Anleitung nennt sie noch mit `set.opening`
-  („Double-click the Opening balance row" / „Doppelklick auf die Zeile Anfangsbestand",
-  `js/dialogs/guide.js` in „Was FINA kann", EN und DE). Das Feld in den Einstellungen heißt
-  weiter so — nur der Satz über die **Zeile** muss den neuen Namen nennen.
+*(leer — Stand 3.10.26, siehe „Zuletzt eingearbeitet")*
 
 **Der Reiter „Was ist neu" läuft nicht über diese Liste.** Eine neue Version bekommt
 ihren Eintrag automatisch, sobald ein Stand fertig ist — nicht erst auf Zuruf (siehe
@@ -35,8 +22,9 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
 
 ## Offen, aber keine Textstelle
 
-- **Die Bildschirmfotos in `doc/img/` sind vom 7. September 2026** und zeigen den Stand
-  26.9.6 (Mac-Chrome, ein Fenster für alle Posten, Wizard-Schritt 3). Die Anleitung zeigt
+- **Die Bildschirmfotos in `doc/img/` sind vom 3. Oktober 2026** und zeigen den Stand
+  26.10.3 — aus den Demo-Daten `demo/fina-demo-en.js`, denselben, die der Knopf „Demo-Daten
+  öffnen" lädt (die 15 Bilder in Gebrauch; die ungenutzten darunter sind älter). Die Anleitung zeigt
   `welcome`, `set-general`, `set-groups`, `item-dialog`, `item-flex`, `month-page`,
   `month-slim`, `year-left`, `forecast`, `item-months`, `csv-step3`,
   `ui-filter`; `legend` (alt, nicht mehr in `SHOTS`), `set-lists`, `month`, `month-in`,
@@ -47,6 +35,15 @@ kann" ihn noch nicht kennen — das steht dann direkt beim Punkt.
   FINA kann", Abschnitt „Speichern und Sicherheit", neben der Datenschutzerklärung.
 
 ## Zuletzt eingearbeitet
+
+Am 3. Oktober 2026, **„Schritt für Schritt" und „Was FINA kann" zwischen den Zeilen gelesen
+und neu geschrieben**, beide Sprachen, nach denselben Regeln wie die Webseite (CLAUDE.md,
+„Der Ton der Seite"): kurz, wirkungsvoll, nichts, das erschreckt — und alles führt zur Demo
+und zum eigenen Buch. Neu: der Merksatz „Erst mal umsehen?" (Demo-Daten) ganz oben, Schritt 1
+mit den drei Knöpfen der Begrüßungsseite und dem Weg aus der Demo zurück, Schritt 6 schickt in
+die Prognose, der Schlusssatz von „Was FINA kann" schickt zur Demo. Die Zeile über dem Januar
+heißt in „Was ist neu" jetzt mit `prog.openRow`. Damit sind beide ⚠-Punkte vom 3.10.26
+abgearbeitet.
 
 Am 7. September 2026, **alle drei Reiter und die Wizard-Anleitung neu gebaut** nach den
 beiden Vorlagen in `_BusinessCenter/DESIGN/260907 Guide für FINA (von GPT).html` und

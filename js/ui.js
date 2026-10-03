@@ -854,7 +854,7 @@ function openNote(kind,key,m,done){
   /* Ein Entwurf hat noch keinen Namen im Zustand — der steht im
      Namensfeld des Fensters, das ihn angemeldet hat. */
   const draft=draftOf(kind,key);
-  const name=draft?draft.label():target.name;
+  const name=draft?draft.label():(isBalanceItem(target)?t('bal.row'):target.name);
   const box=document.createElement('div');
   box.className='modal'; box.style.zIndex=70;
   box.innerHTML=`<div class="box" style="max-width:680px">

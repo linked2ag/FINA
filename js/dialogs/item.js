@@ -114,7 +114,13 @@ function editItem(item,group,copyOf,focusMonth){
      Posten, sie beschreibt ihn nicht. Bis zum Speichern lebt sie
      nur hier; ein Feld, aus dem man sie lesen könnte, gibt es
      nicht mehr. Dasselbe wie im Fenster der Flexible Payments. */
-  let name=it.name||'';
+  /* Die Saldokorrektur heißt überall so, wie das Wörterbuch sie
+     nennt (`bal.row`, auf Deutsch „Saldokorrektur" — Lex, 3.10.26):
+     in den Ansichten wie hier im Titel. Der gespeicherte Name
+     (`state.balance.name`, von blankBalance „Balance Correction")
+     wird nirgends gezeigt und hier auch nicht angefasst — umbenennen
+     ließe sie sich nur in diesem Fenster, und man sähe es nirgends. */
+  let name=isBal?t('bal.row'):(it.name||'');
 
   /* Ein Weg je Auswahlliste, in der Reihenfolge der Felder darunter:
      Kategorie, Bank, Zahlungsart. Banken und Zahlungsarten stehen in
@@ -320,7 +326,8 @@ function editItem(item,group,copyOf,focusMonth){
      Namen von Posten sind keine Schlüssel — zwei dürfen gleich
      heißen —, deshalb prüft askName() hier auf nichts. */
   const title=box.querySelector('#fTitle');
-  bindTitle(title,()=>name,v=>{name=v;},
+  if(isBal){ title.textContent=name; title.disabled=true; title.removeAttribute('title'); }
+  else bindTitle(title,()=>name,v=>{name=v;},
     {title:t('item.nameTitle'),sub:t('item.nameSub'),
      ph:t('item.namePh'),pick:t('item.namePick')},null);
 
@@ -491,7 +498,7 @@ function editItem(item,group,copyOf,focusMonth){
      stehen ausdrücklich nicht darin: das Duplikat fängt ohne sie
      an, und „Speichern" holt die Haken gleich von den Siegeln. */
   const collect=o=>{
-    o.name=name;
+    if(!isBal) o.name=name;
     const gEl=box.querySelector('#fGroup');
     if(gEl) o.group=gEl.value;
     o.bank=box.querySelector('#fBank').value; o.pay=box.querySelector('#fPay').value;

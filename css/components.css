@@ -68,6 +68,9 @@ button{font-family:var(--font-ui);font-size:13px;cursor:pointer}
 /* Noch ohne Bezeichnung: die Überschrift ist dann eine
    Aufforderung und keine Angabe — sie tritt zurück. */
 .titlebtn.empty{color:var(--ink-2);font-style:italic}
+/* Der Titel der Saldokorrektur ist kein Knopf: er heißt, wie das
+   Wörterbuch sie nennt, und lässt sich nicht umbenennen (item.js). */
+.titlebtn:disabled{cursor:default;color:inherit;border-bottom-color:transparent}
 /* Ein Fenster, das genau eine Sache fragt, ist so breit wie diese
    eine Sache. Ohne das nähme es die 1080 px von :is(.modal,.modalghost,.boxslide) .box und
    stünde mit einem Feld darin verloren da. */

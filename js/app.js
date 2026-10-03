@@ -1750,3 +1750,16 @@ try{
 }catch(e){/* file:// ohne Speicher: englischer Start wie bisher */}
 afterLoad();
 render();
+/* Der Demo-Weg von der Webseite (3.10.26): `fina-online.html?demo`
+   öffnet das erfundene Buch sofort — dorthin führen der zweite Knopf
+   der Startseite („Erst mal reinschauen — mit Demo-Daten") und die
+   zweiten Knöpfe der Unterseiten. Erst das gewöhnliche erste Bild
+   (die Begrüßung), dann fliegt die Demo herein wie nach einem Klick
+   auf ihren Knopf. Die Adresse wird dabei bereinigt: ein Neuladen
+   soll die Begrüßung zeigen und nicht noch einmal die Demo. In der
+   App und unter file:// gibt es den Parameter nicht — die Zeile tut
+   dort nichts. */
+if(/[?&]demo(=|&|$)/.test(location.search)){
+  try{ history.replaceState(null,'',location.pathname+location.hash); }catch(e){}
+  openDemo();
+}

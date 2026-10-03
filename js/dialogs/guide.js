@@ -63,144 +63,154 @@ steps:{
 
 en:()=>`
 <h3 class="gtitle">Up and running in about 30 minutes</h3>
-<p class="glead">You need no prior knowledge. Set up your year once. After that you keep your
-book in a few minutes a month. Everything else is in <b>${t('guide.tabProduct')}</b>.</p>
-${gcall('This guide opened by itself',`<p>You can switch that off: <b>☰ → ${t('app.settings')}
-→ ${t('set.navView')}</b>, the tick <b>${t('set.guide')}</b>.</p>
-<p>That choice is kept in your <b>local database</b> — the JSON file that holds your book,
-together with everything else you set. Whenever you open that local database, FINA follows
-what stands in it.</p>`)}
+<p class="glead">No prior knowledge needed. Set up your year once; after that a month takes a
+few minutes. Everything else is in <b>${t('guide.tabProduct')}</b>.</p>
+${gcall('Want to look around first?',`<p>On the first screen press <b>${t('wel.demo')}</b>: a
+finished year with made-up numbers. Click through <b>${t('view.monat')}</b>,
+<b>${t('view.jahr')}</b> and <b>${t('view.prognose')}</b>, tick something off, open an entry —
+nothing you do there touches a file of yours. Like what you see? Your own book takes a couple
+of minutes: step 1.</p>`)}
 ${gcall('The simple rule',`<p>A contract is <b>regular</b>. What you spend day to day is
-<b>flexible</b>. Money that comes in is <b>income</b>. The category you pick decides which
-of the three an entry belongs to.</p>`)}
+<b>flexible</b>. Money that comes in is <b>income</b>. The category you pick decides which of
+the three an entry belongs to.</p>`)}
 
 <div class="gsteps">
-${gstep(1,'Start a book',`
-<p>With no file open you see two buttons. <b>${t('wel.new')}</b> begins an empty book. Do you
-already have a FINA local database? Then press <b>${t('wel.open')}</b>. Top right you choose the
-language. One book holds exactly one calendar year.</p>
-${gshot('welcome','The first screen: open your local database, or start from scratch')}`)}
+${gstep(1,'Start your book',`
+<p>On the first screen press <b>${t('wel.new')}</b>. Already have one? Then
+<b>${t('wel.open')}</b>. The language sits at the top right. One book holds one calendar
+year.</p>
+<p>Still inside the demo? <b>☰ → ${t('app.unlink')}</b> brings you back to the first
+screen.</p>
+${gshot('welcome','The first screen: open your database, create a new one — or look at the demo')}`)}
 
-${gstep(2,'Year, language and opening balance',`
-<p>Open the menu <b>☰</b> at the top right and press <b>${t('app.settings')}</b>. In
-<b>${t('set.navGeneral')}</b> choose the language and the year. Under
-<b>${t('set.opening')}</b> type what was in your account before January. Leave it empty and
-FINA starts at zero.</p>
+${gstep(2,'Year, language, opening balance',`
+<p>Open <b>☰</b> at the top right, then <b>${t('app.settings')}</b>. Under
+<b>${t('set.navGeneral')}</b> choose the language and the year. <b>${t('set.opening')}</b> is
+what was in your account before January — leave it empty and FINA starts at zero.</p>
 ${gshot('set-general','Settings, section General')}`)}
 
-${gstep(3,'Accounts, payment types and categories',`
-<p>Still in the settings. Under <b>${t('set.navBanks')}</b> name your accounts, for example
-“Current account”, and how you pay, for example “Direct debit”. Each gets a short code.</p>
-<p>Under <b>${t('set.groups')}</b> stand three lists: income, flexible, regular. A few per
-list are plenty, say “Groceries”, “Car” and “Leisure”. A name may appear only once across the
-three lists. Press <b>${t('g.save')}</b> in the window.</p>
+${gstep(3,'Accounts, payment types, categories',`
+<p>Still in the settings. Under <b>${t('set.navBanks')}</b> name your accounts, say “Current
+account”, and how you pay, say “Direct debit”. Each gets a short code.</p>
+<p>Under <b>${t('set.groups')}</b> are three lists: income, flexible, regular. A few names per
+list are plenty — “Groceries”, “Car”, “Leisure”. A name fits in one list only. Press
+<b>${t('g.save')}</b>.</p>
 ${gshot('set-groups','Settings, section Categories: three lists, one per area')}`)}
 
-${gstep(4,'Enter your salary and your fixed bills',`
-<p>Open the menu and press <b>${t('menu.newOut')}</b>. Give the entry a name, a category, an
-account, a payment type and a due day. Then the amounts: twelve boxes, one per month.
-<b>An expense gets a minus</b>, for example “-49,90”. The same amount every month? Type it once
-in <b>${t('item.quick')}</b> and press <b>${t('item.apply')}</b>.</p>
-<p>Press <b>${t('g.save')}</b>. Repeat for every income and every contract.</p>
+${gstep(4,'Salary and the fixed bills',`
+<p>Open the menu and press <b>${t('menu.newOut')}</b>. Name, category, account, payment type,
+due day — then the amounts, twelve boxes, one per month. <b>An expense gets a minus</b>, like
+“-49,90”. Same amount every month? Type it once into <b>${t('item.quick')}</b> and press
+<b>${t('item.apply')}</b>. Then <b>${t('g.save')}</b>.</p>
+<p>Repeat for every income and every contract: rent, salary, insurance, subscriptions — once,
+for the whole year.</p>
 ${gshot('item-dialog','Menu → New entry: name, assignment, twelve months')}`)}
 
 ${gstep(5,'Plan your everyday spending',`
-<p>Same window, same button. Pick a category from the <b>${t('g.flex')}</b> group, for
-example “Groceries”. Estimate an amount per month and switch on <b>${t('g.estimated')}</b>.
-It then shows in yellow with a question mark.</p>
-<p>Later you replace the estimate with the real number. Or you let FINA read it from your bank
-statement with a CSV import.</p>
+<p>Same window, same button. Pick a category from <b>${t('g.flex')}</b>, say “Groceries”.
+Estimate an amount per month and switch on <b>${t('g.estimated')}</b> — it shows with a
+question mark. Later you replace the estimate with the real number, or FINA reads it from
+your bank’s CSV file.</p>
 ${gshot('item-flex','A flexible entry: one estimate per month, the past months settled')}`)}
 
-${gstep(6,'Update once a month',`
-<p>Open the tab <b>${t('view.monat')}</b>. Click the circle in front of a row as soon as the
-payment has left your account. Correct a different amount with a double-click on the amount
-or the name. Estimated amounts are never ticked off in passing: their circle opens the entry
-first, so you check the number.</p>
-<p>Want to find something? Just start typing. The first letter goes into the search field.</p>
+${gstep(6,'Once a month: tick off',`
+<p>Open <b>${t('view.monat')}</b>. Click the circle in front of a row as soon as the payment
+has left your account. A different amount? Double-click the amount or the name. An estimate
+opens the entry first, so a guess never becomes a fact by accident. Looking for something?
+Just start typing.</p>
+<p>Then glance at <b>${t('view.prognose')}</b>: it shows where your account lands in December
+— and every tick moves it.</p>
 ${gshot('month-page','The month view. Green: paid · Blue: from a CSV import · Question mark: estimated')}`)}
 
-${gstep(7,'Save and back up',`
-<p>Press <b>${t('app.save')}</b> to write your changes into the file. As soon as there is
-something to save, the button steps out of the menu and stands next to ☰ with a red frame.</p>
-<p><b>${t('app.backup')}</b> puts a dated copy in your downloads folder. Make one before a big
-change or an import. Nothing is ever saved by itself.</p>`)}
+${gstep(7,'Save — and a backup now and then',`
+<p>Press <b>${t('app.save')}</b> to write your changes into your file. As soon as there is
+something to save, the button steps out of the menu and stands next to ☰ with a red frame.
+Your file changes only when you say so.</p>
+<p><b>${t('app.backup')}</b> puts a dated copy into your downloads folder — one click, good
+before an import.</p>`)}
 </div>
 
-<p class="gend">That is the whole book. Everything else — the year table, the forecast, the
-filters, the CSV import — is in <b>${t('guide.tabProduct')}</b>.</p>
+<p class="gend">That is the whole book. The year table, the forecast, the filters, the CSV
+import — all in <b>${t('guide.tabProduct')}</b>.</p>
+<p class="gend">This guide opens by itself with every file. Rather open it yourself? Take the
+tick <b>${t('set.guide')}</b> away under <b>${t('app.settings')}</b> →
+<b>${t('set.navView')}</b>.</p>
 `,
 
 de:()=>`
 <h3 class="gtitle">In etwa 30 Minuten startklar</h3>
-<p class="glead">Du brauchst kein Vorwissen. Richte dein Jahr einmal ein. Danach pflegst du
-dein Buch in wenigen Minuten pro Monat. Alles Weitere steht in
-<b>${t('guide.tabProduct')}</b>.</p>
-${gcall('Diese Anleitung ging von selbst auf',`<p>Das lässt sich abschalten: <b>☰ →
-${t('app.settings')} → ${t('set.navView')}</b>, der Haken <b>${t('set.guide')}</b>.</p>
-<p>Diese Wahl steht in deiner <b>lokalen Datenbank</b> — der JSON-Datei, in der dein Buch
-liegt, zusammen mit allem anderen, was du einstellst. Wann immer du diese lokale Datenbank
-öffnest, richtet sich FINA nach dem, was darin steht.</p>`)}
+<p class="glead">Du brauchst kein Vorwissen. Richte dein Jahr einmal ein; danach kostet dich
+ein Monat ein paar Minuten. Alles Weitere steht in <b>${t('guide.tabProduct')}</b>.</p>
+${gcall('Erst mal umsehen?',`<p>Drücke auf der ersten Seite <b>${t('wel.demo')}</b>: ein
+fertiges Jahr mit erfundenen Zahlen. Klick dich durch <b>${t('view.monat')}</b>,
+<b>${t('view.jahr')}</b> und <b>${t('view.prognose')}</b>, hak etwas ab, öffne einen Eintrag —
+nichts davon berührt eine Datei von dir. Gefällt dir, was du siehst? Dein eigenes Buch ist in
+ein paar Minuten angelegt: Schritt 1.</p>`)}
 ${gcall('Die einfache Regel',`<p>Ein Vertrag ist <b>regulär</b>. Was du im Alltag ausgibst,
 ist <b>flexibel</b>. Geld, das hereinkommt, ist eine <b>Einnahme</b>. Die Kategorie, die du
 wählst, entscheidet, zu welchem der drei Bereiche ein Eintrag gehört.</p>`)}
 
 <div class="gsteps">
-${gstep(1,'Ein Buch anfangen',`
-<p>Ohne Datei siehst du zwei Knöpfe. <b>${t('wel.new')}</b> beginnt ein leeres Buch. Hast du
-schon eine lokale FINA-Datenbank? Dann wähle <b>${t('wel.open')}</b>. Oben rechts wählst du die Sprache.
-Ein Buch steht immer für genau ein Kalenderjahr.</p>
-${gshot('welcome','Die erste Seite: lokale Datenbank öffnen oder neu anfangen')}`)}
+${gstep(1,'Dein Buch anlegen',`
+<p>Drücke auf der ersten Seite <b>${t('wel.new')}</b>. Du hast schon eins? Dann
+<b>${t('wel.open')}</b>. Die Sprache steht oben rechts. Ein Buch ist genau ein
+Kalenderjahr.</p>
+<p>Du bist noch in der Demo? <b>☰ → ${t('app.unlink')}</b> bringt dich zurück auf die erste
+Seite.</p>
+${gshot('welcome','Die erste Seite: Datenbank öffnen, neu anlegen — oder die Demo ansehen')}`)}
 
-${gstep(2,'Jahr, Sprache und Anfangsbestand',`
-<p>Öffne das Menü <b>☰</b> oben rechts und drücke <b>${t('app.settings')}</b>. Unter
-<b>${t('set.navGeneral')}</b> wählst du Sprache und Jahr. Trage beim
-<b>${t('set.opening')}</b> ein, was vor Januar auf deinem Konto war. Ohne Wert fängt FINA bei
-null an.</p>
+${gstep(2,'Jahr, Sprache, Anfangsbestand',`
+<p>Öffne <b>☰</b> oben rechts, dann <b>${t('app.settings')}</b>. Unter
+<b>${t('set.navGeneral')}</b> wählst du Sprache und Jahr. Der <b>${t('set.opening')}</b> ist,
+was vor Januar auf deinem Konto war — leer gelassen fängt FINA bei null an.</p>
 ${gshot('set-general','Die Einstellungen, Bereich Allgemein')}`)}
 
-${gstep(3,'Konten, Zahlungsarten und Kategorien',`
+${gstep(3,'Konten, Zahlungsarten, Kategorien',`
 <p>Noch in den Einstellungen. Unter <b>${t('set.navBanks')}</b> nennst du deine Konten, etwa
 „Girokonto“, und wie du zahlst, etwa „Lastschrift“. Jedes bekommt ein Kürzel.</p>
 <p>Unter <b>${t('set.groups')}</b> stehen drei Listen: Einnahmen, Flexibel, Regulär. Wenige
-je Liste genügen, etwa „Lebensmittel“, „Auto“ und „Freizeit“. Ein Name darf über alle drei
-Listen nur einmal vorkommen. Drücke <b>${t('g.save')}</b> im Fenster.</p>
+Namen je Liste genügen — „Lebensmittel“, „Auto“, „Freizeit“. Ein Name passt in genau eine
+Liste. Drücke <b>${t('g.save')}</b>.</p>
 ${gshot('set-groups','Die Einstellungen, Bereich Kategorien: drei Listen, eine je Bereich')}`)}
 
-${gstep(4,'Gehalt und feste Rechnungen eintragen',`
-<p>Öffne das Menü und drücke <b>${t('menu.newOut')}</b>. Gib dem Eintrag einen Namen, eine
-Kategorie, Konto, Zahlungsart und Fälligkeit. Dann die Beträge: zwölf Kästchen, eins je Monat.
-<b>Eine Ausgabe bekommt ein Minus</b>, zum Beispiel „-49,90“. Jeden Monat derselbe Betrag?
-Tipp ihn einmal in die <b>${t('item.quick')}</b> und drücke <b>${t('item.apply')}</b>.</p>
-<p>Drücke <b>${t('g.save')}</b>. Wiederhole das für jede Einnahme und jeden Vertrag.</p>
+${gstep(4,'Gehalt und die festen Rechnungen',`
+<p>Öffne das Menü und drücke <b>${t('menu.newOut')}</b>. Name, Kategorie, Konto, Zahlungsart,
+Fälligkeit — dann die Beträge, zwölf Kästchen, eins je Monat. <b>Eine Ausgabe bekommt ein
+Minus</b>, etwa „-49,90“. Jeden Monat derselbe Betrag? Tipp ihn einmal in die
+<b>${t('item.quick')}</b> und drücke <b>${t('item.apply')}</b>. Dann <b>${t('g.save')}</b>.</p>
+<p>Wiederhole das für jede Einnahme und jeden Vertrag: Miete, Gehalt, Versicherung, Abos —
+einmal, fürs ganze Jahr.</p>
 ${gshot('item-dialog','Menü → Neuer Eintrag: Name, Zuordnung, zwölf Monate')}`)}
 
 ${gstep(5,'Alltagsausgaben planen',`
-<p>Dasselbe Fenster, derselbe Knopf. Wähle eine Kategorie aus dem Bereich
-<b>${t('g.flex')}</b>, etwa „Lebensmittel“. Schätze einen Betrag je Monat und schalte
-<b>${t('g.estimated')}</b> ein. Er steht dann gelb mit einem Fragezeichen.</p>
-<p>Später ersetzt du die Schätzung durch den tatsächlichen Wert. Oder du lässt FINA ihn per
-CSV-Import aus deinem Kontoauszug lesen.</p>
+<p>Dasselbe Fenster, derselbe Knopf. Wähle eine Kategorie aus <b>${t('g.flex')}</b>, etwa
+„Lebensmittel“. Schätze einen Betrag je Monat und schalte <b>${t('g.estimated')}</b> ein — er
+steht dann mit einem Fragezeichen da. Später ersetzt du die Schätzung durch den echten Betrag,
+oder FINA liest ihn aus der CSV-Datei deiner Bank.</p>
 ${gshot('item-flex','Ein flexibler Eintrag: je Monat eine Schätzung, die vergangenen Monate abgeschlossen')}`)}
 
-${gstep(6,'Einmal im Monat aktualisieren',`
-<p>Öffne den Reiter <b>${t('view.monat')}</b>. Klicke den Kreis vor einer Zeile an, sobald die
-Zahlung vom Konto abgegangen ist. Einen abweichenden Betrag korrigierst du per Doppelklick auf
-Betrag oder Namen. Geschätzte Beträge werden nie nebenbei abgehakt: ihr Kreis öffnet zuerst den
-Eintrag, damit du die Zahl prüfst.</p>
-<p>Du suchst etwas? Einfach lostippen. Der erste Buchstabe landet im Suchfeld.</p>
+${gstep(6,'Einmal im Monat: abhaken',`
+<p>Öffne <b>${t('view.monat')}</b>. Klicke den Kreis vor einer Zeile an, sobald die Zahlung
+vom Konto ist. Ein anderer Betrag? Doppelklick auf Betrag oder Namen. Eine Schätzung öffnet
+zuerst den Eintrag — so wird aus einer Vermutung nicht aus Versehen eine Tatsache. Du suchst
+etwas? Einfach lostippen.</p>
+<p>Dann ein Blick in die <b>${t('view.prognose')}</b>: Da steht, wo dein Konto im Dezember
+landet — und jeder Haken bewegt es.</p>
 ${gshot('month-page','Die Monatsansicht. Grün: bezahlt · Blau: aus dem CSV-Import · Fragezeichen: geschätzt')}`)}
 
-${gstep(7,'Speichern und sichern',`
-<p>Drücke <b>${t('app.save')}</b>, um deine Änderungen in die Datei zu schreiben. Sobald es
+${gstep(7,'Speichern — und ab und zu eine Sicherung',`
+<p>Drücke <b>${t('app.save')}</b>, um deine Änderungen in deine Datei zu schreiben. Sobald es
 etwas zu speichern gibt, tritt der Knopf aus dem Menü heraus und steht mit rotem Rahmen neben
-dem ☰.</p>
-<p><b>${t('app.backup')}</b> legt eine datierte Kopie in deinen Download-Ordner. Mach eine vor
-einer großen Änderung oder einem Import. Von selbst wird nie gespeichert.</p>`)}
+dem ☰. Deine Datei ändert sich nur, wenn du es sagst.</p>
+<p><b>${t('app.backup')}</b> legt eine datierte Kopie in deinen Download-Ordner — ein Klick,
+gut vor einem Import.</p>`)}
 </div>
 
-<p class="gend">Das ist das ganze Buch. Alles Weitere — die Jahrestabelle, die Prognose, die
-Filter, der CSV-Import — steht in <b>${t('guide.tabProduct')}</b>.</p>
+<p class="gend">Das ist das ganze Buch. Die Jahrestabelle, die Prognose, die Filter, der
+CSV-Import — alles in <b>${t('guide.tabProduct')}</b>.</p>
+<p class="gend">Diese Anleitung geht mit jeder Datei von selbst auf. Lieber selbst
+aufschlagen? Nimm unter <b>${t('app.settings')}</b> → <b>${t('set.navView')}</b> den Haken
+<b>${t('set.guide')}</b> weg.</p>
 `},
 
 /* ── Reiter 2: Was FINA kann ───────────────────────────────── */
@@ -209,281 +219,287 @@ product:{
 en:()=>`
 <p class="glead">FINA answers three practical questions: What is still due? Where does my
 money go? And how does my balance develop until the end of the year?</p>
-${gcall('Amounts come in two ways',`<p>You type payments yourself, check them and tick them
-off. Or you import transactions from a CSV file and let FINA take over the matching values.
-The import starts under <b>☰ → ${t('menu.csv')}</b>.</p>`)}
+${gcall('Amounts come in two ways',`<p>You type a payment and tick it off. Or you import the
+CSV file of your bank and let FINA pick up the matching rows: <b>☰ → ${t('menu.csv')}</b>.</p>`)}
 
 <div class="gcards">
-${gcard('t-in',t('g.income'),'Salary, refunds and every positive amount.')}
+${gcard('t-in',t('g.income'),'Salary, refunds, every positive amount.')}
 ${gcard('t-out',t('g.fixed'),'Contracts that repeat: rent, insurance, subscriptions.')}
 ${gcard('t-flex',t('g.flex'),'Everyday spending: groceries, fuel, going out.')}
-${gcard('t-bal',t('bal.row'),'For a difference you cannot explain. Type it, and the balance is right again.')}
+${gcard('t-bal',t('bal.row'),'For a difference you cannot explain. Type it in, and the balance is right again.')}
 </div>
-<p>Everything lives in <b>one file on your own computer</b>. No account, no cloud, no server.
+<p>Everything lives in <b>one file</b>, wherever you keep it. No account, no cloud, no server.
 FINA writes to that file only when you press <b>${t('app.save')}</b>.</p>
 
-${gfeat(t('view.monat'),'Your working view',`
-<p>Open the tab <b>${t('view.monat')}</b> at the top. This is where you do the running work
-of one month.</p>
+${gfeat(t('view.monat'),'Tick off, check, done',`
+<p>The tab <b>${t('view.monat')}</b> is where a month happens.</p>
 <ul>
-  <li>Pick the month in the bar at the top. The current month has a red ring.</li>
+  <li>Pick the month in the bar at the top; the current one has a red ring.</li>
   <li>Tick off payments once they have left your account.</li>
-  <li>Use search and filters to find open, estimated or due entries quickly.</li>
+  <li>Search and filter to find what is open, estimated or due.</li>
   <li>The analytics line shows income, flexible, regular and <b>${t('month.kpiSaldo')}</b>.
-      Click it and the timeline of the month opens: five rows, one waterfall, your balance
-      as the scale.</li>
+      Click it and the month’s timeline opens: five rows, one waterfall, your balance as the
+      scale.</li>
   <li>A click on a card heading folds the card. A double-click on an amount or a name opens
       the entry.</li>
 </ul>
 ${gshot('month-slim','The month view with the analytics opened')}`)}
 
-${gfeat(t('view.jahr'),'Plan and keep the overview',`
-<p>Open the tab <b>${t('view.jahr')}</b>. The year table shows every entry as a row and every
-month as a column.</p>
+${gfeat(t('view.jahr'),'The whole year on one screen',`
+<p>The tab <b>${t('view.jahr')}</b> shows every entry as a row and every month as a column.</p>
 <ul>
-  <li>Spot the gaps and check the plan for the whole year.</li>
-  <li>The narrow columns on the left carry the codes: <b>B</b> bank, <b>PT</b> payment type,
-      <b>DD</b> due day, <b>LP</b> last payment. The colour of LP says how long a contract
-      still runs.</li>
-  <li><b>${t('year.totalRow')}</b> at the top is what that month brings in and costs. The
-      three blocks below break it down.</li>
-  <li>Click a month name to jump into that month.</li>
-  <li>Hide completed months or finished entries when you need the room. Both buttons are for
-      this session only.</li>
-  <li>Double-click an amount or a name to open the entry. A click on a block row folds the
+  <li>See which month gets expensive, and check the plan for the whole year.</li>
+  <li>The narrow columns carry the codes: <b>B</b> bank, <b>PT</b> payment type, <b>DD</b>
+      due day, <b>LP</b> last payment. The colour of LP says how long a contract still runs —
+      green means it ends this month.</li>
+  <li><b>${t('year.totalRow')}</b> at the top is what the month brings in and costs; the three
+      blocks below break it down.</li>
+  <li>Click a month name to jump into that month. Hide completed months or finished entries
+      when you need the room — for this session only.</li>
+  <li>Double-click an amount or a name to open the entry; a click on a block row folds the
       block.</li>
 </ul>
 ${gshot('year-left','The year table with the code columns B, PT, DD and LP')}`)}
 
-${gfeat(t('view.prognose'),'Look ahead to the year end',`
-<p>Open the tab <b>${t('view.prognose')}</b>. It adds up everything planned and entered and
-shows how your balance develops month by month.</p>
+${gfeat(t('view.prognose'),'Where you land in December',`
+<p>The tab <b>${t('view.prognose')}</b> adds up everything planned and entered and shows how
+your balance develops, month by month.</p>
 <ul>
-  <li><b>START</b> is the balance the month begins with.</li>
-  <li><b>SUM</b> is the total of all movements in the month.</li>
-  <li><b>PROG</b> is the expected balance after this month. Read down the column, it is the
-      course of your finances over the year. The chart on the right draws the same.</li>
-  <li>Change the amounts in the entry; the forecast recalculates by itself. Double-click a
-      month in <b>COR</b> and the balance correction opens at that month.</li>
+  <li><b>START</b> is the balance the month begins with, <b>SUM</b> the total of its
+      movements, <b>PROG</b> the balance after it. Read down the PROG column and you have your
+      year; the chart next to it draws the same.</li>
+  <li>The row above January, <b>${t('prog.openRow').replace('\n',' ')}</b>, is your opening
+      balance — double-click it to change it in the settings. Double-click a month in
+      <b>COR</b> and the balance correction opens at that month.</li>
+  <li>Change an amount in its entry; the forecast recalculates by itself.</li>
 </ul>
 ${gshot('forecast','The forecast: every month up to the year-end balance')}`)}
 
 ${gfeat('The entry window','One window for everything',`
-<p>The pencil next to a row opens it, and so does a double-click. The window is the same for
-income, regular and flexible entries, built in blocks from top to bottom:</p>
+<p>The pencil next to a row opens it, so does a double-click. Income, regular and flexible
+entries share the same window, built in blocks:</p>
 <ol>
-  <li><b>The name</b> as heading. Click it to change it.</li>
+  <li><b>The name</b> as heading — click it to change it.</li>
   <li><b>Assignment:</b> category, bank, payment type, due day, and the last payment if the
-      contract ends. Above the fields a link per list opens the settings on top of the window.</li>
-  <li><b>${t('item.links')}:</b> contract, invoice, customer account. Paste an address and the
+      contract ends. Missing something in a list? The links above the fields open the
+      settings right on top of the window.</li>
+  <li><b>${t('item.links')}:</b> contract, invoice, customer account. Paste an address, the
       name fills itself in.</li>
   <li><b>${t('item.quick')}:</b> one amount, how often it repeats, from which month.
-      <b>${t('g.estimated')}</b> marks all amounts as guesses.</li>
-  <li><b>The twelve months</b> with a tick each. A ticked month locks its amount. A month with
-      the blue arrow came from a CSV and stays locked until you delete the import data of the
-      entry.</li>
+      <b>${t('g.estimated')}</b> marks the amounts as guesses.</li>
+  <li><b>The twelve months</b>, a tick each. A ticked month keeps its amount. A month with the
+      blue arrow came from a CSV file and stays as imported until you remove the import data
+      of the entry.</li>
 </ol>
 <p><b>${t('item.dup')}</b> opens a copy of what is typed, without ticks and notes.</p>
 ${gshot('item-months','The twelve months: amount, tick, note lamp')}`)}
 
-${gfeat('Search, filter, notes','Try without risk',`
-<p>Filters never change your file. They only decide which rows you see. Search by name, amount,
-category or payment state. While a filter is on, the filter row is yellow, and every number on
-screen follows what is shown: card totals, category rows, the analytics line.</p>
-<p><b>${t('flt.options')}</b> next to the search field says where the search looks. The
-<b>✕</b> or Escape takes every filter back.</p>
-<p>The small lamp is a note. Next to a name it belongs to the entry, inside a month to that
-month only. A lit lamp has a note; point at it to read it.</p>
-${gshot('ui-filter','A filter at work: the row turns yellow, the cards show only the hits')}`)}
+${gfeat('Search, filter, notes','Try things without risk',`
+<p>Filters never change your file; they only decide which rows you see. Search by name,
+amount, category or payment state. While a filter is on, the filter row is yellow and every
+number on screen follows what is shown — card totals, category rows, the analytics line.
+<b>${t('flt.options')}</b> says where the search looks; <b>✕</b> or Escape takes every filter
+back.</p>
+<p>The small lamp is a note: next to a name it belongs to the entry, inside a month to that
+month only. A lit lamp has something to read — point at it.</p>
+${gshot('ui-filter','A filter in action: the row turns yellow, the cards show only the hits')}`)}
 
-${gfeat('CSV import','Take over transactions faster',`
-<p>Open <b>☰ → ${t('menu.csv')}</b>. The import wizard leads you through three steps:
-<b>${t('c2.steps1')}</b>, <b>${t('c2.steps2')}</b> and <b>${t('c2.steps3')}</b>.</p>
+${gfeat('CSV import','Your bank’s numbers, matched in minutes',`
+<p><b>☰ → ${t('menu.csv')}</b> leads through three steps: <b>${t('c2.steps1')}</b>,
+<b>${t('c2.steps2')}</b>, <b>${t('c2.steps3')}</b>. FINA reads the CSV file of any bank, app
+or spreadsheet.</p>
 <ul>
-  <li>Recurring matches can be remembered. FINA stores the criteria at the entry and applies
-      them on your command in the next import.</li>
-  <li>One-off transactions you assign by hand, without a rule.</li>
+  <li>Match the columns once; FINA remembers the structure for this kind of file.</li>
+  <li>Recurring matches can be remembered at the entry and applied at the press of a button
+      next time. One-off rows you assign by hand.</li>
   <li>Rows already in the book are recognised and never imported twice. An import adds to a
       month; it never replaces what is there.</li>
-  <li>The exact step-by-step guide is inside the wizard: in steps 2 and 3 press
-      <b>${t('app.guide')}</b>.</li>
+  <li>The step-by-step guide is inside the import itself: press <b>${t('app.guide')}</b> in
+      steps 2 and 3.</li>
 </ul>
-<p>What FINA has learned, structures and criteria, is under <b>${t('app.settings')}</b> →
+<p>What FINA has learned — structures and criteria — is under <b>${t('app.settings')}</b> →
 <b>${t('set.navImport')}</b>.</p>
 ${gshot('csv-step3','Step 3 of the import: entries above, file rows below, the guide beside it')}`)}
 
-${gfeat('This guide','Beside your work, or off',`
-<p>The guide stands beside the table and stays there while you work. <b>${t('app.guide')}</b>
-in the ☰ menu opens and closes it. Drag its left edge to make it wider. EN · DE switches its
-own language, and the arrow in its head opens it as a full page in a new tab.</p>
-<p>It <b>opens by itself</b>: with every file you open, and beside the steps of the CSV
-import. If you would rather open it yourself, take the tick <b>${t('set.guide')}</b> away
-under <b>${t('app.settings')}</b> → <b>${t('set.navView')}</b>. Then it stays closed until
-you press the button.</p>`)}
+${gfeat('This guide','Beside the table',`
+<p>The guide stays beside the table while you carry on. <b>${t('app.guide')}</b> in the ☰ menu
+opens and closes it; drag its left edge to make it wider. EN · DE switches its language, the
+arrow in its head opens it as a full page.</p>
+<p>It opens by itself with every file and beside the CSV import. Rather open it yourself?
+Take the tick <b>${t('set.guide')}</b> away under <b>${t('app.settings')}</b> →
+<b>${t('set.navView')}</b>.</p>`)}
 
 ${gfeat('On the phone','For looking things up',`
-<p>Below 700 px FINA builds a layout of its own: the month as a card list with large circles,
-the year as twelve month cards, the forecast with its chart to swipe. The view is chosen at
-the bottom. Saving is not available there, only <b>${t('app.backup')}</b>.</p>`)}
+<p>On a small screen FINA builds its own layout: the month as a card list with big circles,
+the year as twelve month cards, the forecast with its chart to swipe. Check on the go what is
+open and where you stand; entering and saving is done at the computer — a backup works there
+too.</p>`)}
 
-${gcall('Important: saving never happens by itself.',`<p>Your data stays in a file on your
-computer. Only <b>${t('app.save')}</b> writes changes into it. Chrome and Edge write back into
-the same file; other browsers put a dated copy in your downloads folder.</p>`)}
+${gcall('Your data is yours',`<p>FINA writes into your file only when you press
+<b>${t('app.save')}</b> — never on its own. Chrome and Edge write back into the same file;
+other browsers put a dated copy into your downloads folder.</p>`)}
 
-${gfeat('What FINA is not','Honest limits',`
+${gfeat('What FINA is not','So you know what to expect',`
 <ul>
-  <li><b>Not a bank connection.</b> FINA never talks to your bank. You type, or you import a
-      CSV file you exported yourself.</li>
-  <li><b>Not a cloud.</b> One file, on your computer. You take care of copies.</li>
-  <li><b>Not a multi-year book.</b> One file holds one year. Start a new file for the next
-      year and give it last year's closing balance as its opening balance.</li>
-  <li><b>Not finished.</b> FINA is in its pilot phase: everything is unlocked and free.
-      Instead of a price we ask for your opinion — an orange <b>${t('srv.open')}</b> button
-      in the header when a survey is running.</li>
+  <li><b>No bank access.</b> FINA never talks to your bank. You type, or you import a CSV
+      file you exported yourself — so FINA never needs a password for your account.</li>
+  <li><b>No cloud of its own.</b> One file, wherever you keep it: your desktop, your own cloud
+      folder, a stick. A backup is one click.</li>
+  <li><b>One book is one year.</b> Next year is the next file; give it this year’s closing
+      balance as its opening balance. Every year stays exactly as you closed it.</li>
+  <li><b>In its pilot phase.</b> Everything is unlocked and free, and FINA keeps growing. What
+      we hope for instead of a price is your opinion: an orange <b>${t('srv.open')}</b>
+      button in the header while a survey is running.</li>
 </ul>`)}
+
+<p class="gend">No book of your own yet? The first screen has the demo data to look around —
+and <b>${t('wel.new')}</b> to start yours. <b>${t('guide.tabSteps')}</b> walks you through
+it.</p>
 `,
 
 de:()=>`
 <p class="glead">FINA beantwortet drei praktische Fragen: Was ist noch fällig? Wofür geht mein
 Geld weg? Und wie entwickelt sich mein Kontostand bis zum Jahresende?</p>
-${gcall('Beträge auf zwei Arten erfassen',`<p>Du trägst Zahlungen selbst ein, prüfst sie und
-hakst sie ab. Oder du importierst Umsätze aus einer CSV-Datei und lässt FINA die passenden
-Werte übernehmen. Den Import startest du über <b>☰ → ${t('menu.csv')}</b>.</p>`)}
+${gcall('Beträge kommen auf zwei Wegen',`<p>Du trägst eine Zahlung ein und hakst sie ab. Oder
+du importierst die CSV-Datei deiner Bank und lässt FINA die passenden Zeilen übernehmen:
+<b>☰ → ${t('menu.csv')}</b>.</p>`)}
 
 <div class="gcards">
-${gcard('t-in',t('g.income'),'Gehalt, Rückzahlungen und alle positiven Beträge.')}
-${gcard('t-out',t('g.fixed'),'Wiederkehrende Verträge wie Miete, Versicherung oder Abos.')}
-${gcard('t-flex',t('g.flex'),'Alltagsausgaben wie Lebensmittel, Tanken oder Freizeit.')}
+${gcard('t-in',t('g.income'),'Gehalt, Rückzahlungen, alle positiven Beträge.')}
+${gcard('t-out',t('g.fixed'),'Wiederkehrende Verträge: Miete, Versicherung, Abos.')}
+${gcard('t-flex',t('g.flex'),'Alltagsausgaben: Lebensmittel, Tanken, Ausgehen.')}
 ${gcard('t-bal',t('bal.row'),'Für eine Differenz, die du nicht erklären kannst. Eintragen, und der Saldo stimmt wieder.')}
 </div>
-<p>Alles steht in <b>einer Datei auf deinem eigenen Rechner</b>. Kein Konto, keine Cloud, kein
+<p>Alles steht in <b>einer Datei</b>, wo immer du sie hinlegst. Kein Konto, keine Cloud, kein
 Server. FINA schreibt in diese Datei nur, wenn du <b>${t('app.save')}</b> drückst.</p>
 
-${gfeat(t('view.monat'),'Deine Arbeitsansicht',`
-<p>Öffne oben den Reiter <b>${t('view.monat')}</b>. Hier erledigst du die laufende Arbeit eines
-Monats.</p>
+${gfeat(t('view.monat'),'Abhaken, nachsehen, fertig',`
+<p>Im Reiter <b>${t('view.monat')}</b> passiert der Monat.</p>
 <ul>
-  <li>Wähle den Monat in der Leiste oben. Der laufende Monat trägt einen roten Ring.</li>
+  <li>Wähle den Monat in der Leiste oben; der laufende trägt einen roten Ring.</li>
   <li>Hake Zahlungen ab, sobald sie vom Konto abgegangen sind.</li>
-  <li>Nutze Suche und Filter, um offene, geschätzte oder fällige Einträge schnell zu finden.</li>
+  <li>Suche und filtere, um Offenes, Geschätztes oder Fälliges zu finden.</li>
   <li>Die Auswertungszeile zeigt Einnahmen, Flexibel, Regulär und den
       <b>${t('month.kpiSaldo')}</b>. Ein Klick darauf öffnet den Zeitstrahl des Monats: fünf
       Zeilen, ein Wasserfall, dein Kontostand als Maßstab.</li>
-  <li>Ein Klick auf einen Kartenkopf klappt die Karte zu. Ein Doppelklick auf Betrag oder Namen
-      öffnet den Eintrag.</li>
+  <li>Ein Klick auf einen Kartenkopf klappt die Karte zu. Ein Doppelklick auf Betrag oder
+      Namen öffnet den Eintrag.</li>
 </ul>
 ${gshot('month-slim','Die Monatsansicht mit aufgeklappter Auswertung')}`)}
 
-${gfeat(t('view.jahr'),'Planen und Überblick behalten',`
-<p>Öffne den Reiter <b>${t('view.jahr')}</b>. Die Jahrestabelle zeigt jeden Eintrag als Zeile
-und jeden Monat als Spalte.</p>
+${gfeat(t('view.jahr'),'Das ganze Jahr auf einem Schirm',`
+<p>Der Reiter <b>${t('view.jahr')}</b> zeigt jeden Eintrag als Zeile und jeden Monat als
+Spalte.</p>
 <ul>
-  <li>Erkenne Lücken und prüfe die Planung des ganzen Jahres.</li>
-  <li>Die schmalen Spalten links tragen die Kürzel: <b>B</b> Bank, <b>PT</b> Zahlungsart,
+  <li>Sieh, welcher Monat teuer wird, und prüfe die Planung des ganzen Jahres.</li>
+  <li>Die schmalen Spalten tragen die Kürzel: <b>B</b> Bank, <b>PT</b> Zahlungsart,
       <b>DD</b> Fälligkeit, <b>LP</b> letzte Zahlung. Die Farbe von LP sagt, wie lange ein
-      Vertrag noch läuft.</li>
-  <li><b>${t('year.totalRow')}</b> ganz oben ist, was dieser Monat bringt und kostet. Die drei
+      Vertrag noch läuft — grün heißt: diesen Monat ist Schluss.</li>
+  <li><b>${t('year.totalRow')}</b> ganz oben ist, was der Monat bringt und kostet; die drei
       Blöcke darunter schlüsseln es auf.</li>
-  <li>Klicke auf einen Monatsnamen, um in diesen Monat zu springen.</li>
-  <li>Blende abgeschlossene Monate oder erledigte Einträge aus, wenn du Platz brauchst. Beide
-      Knöpfe gelten nur für diese Sitzung.</li>
-  <li>Doppelklicke auf Betrag oder Namen, um den Eintrag zu öffnen. Ein Klick auf eine
-      Blockzeile klappt den Block zu.</li>
+  <li>Klicke auf einen Monatsnamen, um in diesen Monat zu springen. Blende abgeschlossene
+      Monate oder erledigte Einträge aus, wenn du Platz brauchst — nur für diese Sitzung.</li>
+  <li>Doppelklick auf Betrag oder Namen öffnet den Eintrag; ein Klick auf eine Blockzeile
+      klappt den Block zu.</li>
 </ul>
 ${gshot('year-left','Die Jahrestabelle mit den Kürzelspalten B, PT, DD und LP')}`)}
 
-${gfeat(t('view.prognose'),'Bis zum Jahresende vorausblicken',`
-<p>Öffne den Reiter <b>${t('view.prognose')}</b>. Sie rechnet alles Geplante und Eingetragene
-zusammen und zeigt, wie sich dein Kontostand Monat für Monat entwickelt.</p>
+${gfeat(t('view.prognose'),'Wo du im Dezember landest',`
+<p>Der Reiter <b>${t('view.prognose')}</b> rechnet alles Geplante und Eingetragene zusammen
+und zeigt, wie sich dein Kontostand Monat für Monat entwickelt.</p>
 <ul>
-  <li><b>START</b> ist der Kontostand zu Monatsbeginn.</li>
-  <li><b>SUM</b> ist die Summe aller Bewegungen im Monat.</li>
-  <li><b>PROG</b> ist der erwartete Stand nach diesem Monat. Von oben nach unten gelesen ist
-      die Spalte der Verlauf deiner Finanzen über das Jahr. Die Grafik rechts zeichnet
-      dasselbe.</li>
-  <li>Ändere die Beträge im jeweiligen Eintrag; die Prognose rechnet von selbst neu. Ein
-      Doppelklick auf einen Monat in <b>COR</b> öffnet die Saldokorrektur mit diesem
-      Monat.</li>
+  <li><b>START</b> ist der Stand zu Monatsbeginn, <b>SUM</b> die Summe seiner Bewegungen,
+      <b>PROG</b> der Stand danach. Lies die Spalte PROG von oben nach unten, und du hast dein
+      Jahr; die Grafik daneben zeichnet dasselbe.</li>
+  <li>Die Zeile über dem Januar, <b>${t('prog.openRow').replace('\n',' ')}</b>, ist dein
+      Anfangsbestand — ein Doppelklick darauf ändert ihn in den Einstellungen. Ein Doppelklick
+      auf einen Monat in <b>COR</b> öffnet die Saldokorrektur mit diesem Monat.</li>
+  <li>Ändere einen Betrag in seinem Eintrag; die Prognose rechnet von selbst neu.</li>
 </ul>
 ${gshot('forecast','Die Prognose: jeder Monat bis zum Saldo am Jahresende')}`)}
 
 ${gfeat('Das Fenster eines Eintrags','Ein Fenster für alles',`
-<p>Der Stift neben einer Zeile öffnet es, ein Doppelklick ebenso. Das Fenster ist für
-Einnahmen, reguläre und flexible Einträge dasselbe, in Blöcken von oben nach unten:</p>
+<p>Der Stift neben einer Zeile öffnet es, ein Doppelklick ebenso. Einnahmen, reguläre und
+flexible Einträge teilen sich dasselbe Fenster, in Blöcken:</p>
 <ol>
-  <li><b>Der Name</b> als Überschrift. Klick darauf, um ihn zu ändern.</li>
+  <li><b>Der Name</b> als Überschrift — klick darauf, um ihn zu ändern.</li>
   <li><b>Zuordnung:</b> Kategorie, Bank, Zahlungsart, Fälligkeit und die letzte Zahlung, wenn
-      der Vertrag endet. Über den Feldern öffnet ein Weg je Liste die Einstellungen über dem
-      Fenster.</li>
+      der Vertrag endet. Fehlt etwas in einer Liste? Die Wege über den Feldern öffnen die
+      Einstellungen direkt über dem Fenster.</li>
   <li><b>${t('item.links')}:</b> Vertrag, Rechnung, Kundenkonto. Adresse einfügen, der Name
       füllt sich von selbst.</li>
   <li><b>${t('item.quick')}:</b> ein Betrag, wie oft er sich wiederholt, ab welchem Monat.
-      <b>${t('g.estimated')}</b> markiert alle Beträge als Schätzung.</li>
-  <li><b>Die zwölf Monate</b> mit je einem Haken. Ein abgehakter Monat sperrt seinen Betrag.
-      Ein Monat mit dem blauen Pfeil kam aus einer CSV und bleibt gesperrt, bis du die
-      Importdaten des Eintrags löschst.</li>
+      <b>${t('g.estimated')}</b> markiert die Beträge als Schätzung.</li>
+  <li><b>Die zwölf Monate</b>, je ein Haken. Ein abgehakter Monat behält seinen Betrag. Ein
+      Monat mit dem blauen Pfeil kam aus einer CSV-Datei und bleibt so, wie er importiert
+      wurde, bis du die Importdaten des Eintrags löschst.</li>
 </ol>
 <p><b>${t('item.dup')}</b> öffnet eine Kopie des Getippten, ohne Haken und Notizen.</p>
 ${gshot('item-months','Die zwölf Monate: Betrag, Haken, Notizlampe')}`)}
 
 ${gfeat('Suchen, filtern, Notizen','Ohne Risiko ausprobieren',`
-<p>Filter ändern nie deine Datei. Sie entscheiden nur, welche Zeilen du siehst. Suche nach Name,
-Betrag, Kategorie oder Zahlungsstatus. Solange ein Filter greift, ist die Filterzeile gelb, und
-jede Zahl auf dem Schirm folgt dem, was gezeigt wird: Kartensummen, Kategoriezeilen, die
-Auswertungszeile.</p>
-<p><b>${t('flt.options')}</b> neben dem Suchfeld sagt, worin die Suche sucht. Das <b>✕</b>
-oder Escape nimmt jeden Filter zurück.</p>
-<p>Die kleine Lampe ist eine Notiz. Neben einem Namen gehört sie zum Eintrag, in einem Monat nur
-zu diesem Monat. Eine leuchtende Lampe hat eine Notiz; zeig darauf, um sie zu lesen.</p>
+<p>Filter ändern nie deine Datei; sie entscheiden nur, welche Zeilen du siehst. Suche nach
+Name, Betrag, Kategorie oder Zahlungsstatus. Solange ein Filter greift, ist die Filterzeile
+gelb, und jede Zahl auf dem Schirm folgt dem, was gezeigt wird — Kartensummen,
+Kategoriezeilen, die Auswertungszeile. <b>${t('flt.options')}</b> sagt, worin die Suche
+sucht; <b>✕</b> oder Escape nimmt jeden Filter zurück.</p>
+<p>Die kleine Lampe ist eine Notiz: neben einem Namen gehört sie zum Eintrag, in einem Monat
+nur zu diesem Monat. Eine leuchtende Lampe hat etwas zu lesen — zeig darauf.</p>
 ${gshot('ui-filter','Ein Filter greift: die Zeile wird gelb, die Karten zeigen nur die Treffer')}`)}
 
-${gfeat('CSV-Import','Umsätze schneller übernehmen',`
-<p>Öffne <b>☰ → ${t('menu.csv')}</b>. Der Import-Assistent führt dich durch drei Schritte:
-<b>${t('c2.steps1')}</b>, <b>${t('c2.steps2')}</b> und <b>${t('c2.steps3')}</b>.</p>
+${gfeat('CSV-Import','Die Zahlen deiner Bank, in Minuten zugeordnet',`
+<p><b>☰ → ${t('menu.csv')}</b> führt durch drei Schritte: <b>${t('c2.steps1')}</b>,
+<b>${t('c2.steps2')}</b>, <b>${t('c2.steps3')}</b>. FINA liest die CSV-Datei jeder Bank, App
+oder Tabelle.</p>
 <ul>
-  <li>Wiederkehrende Zuordnungen kannst du merken lassen. FINA speichert die Kriterien am
-      Eintrag und wendet sie beim nächsten Import auf dein Kommando an.</li>
-  <li>Einmalige Umsätze ordnest du von Hand zu, ohne Regel.</li>
-  <li>Bereits importierte Zeilen erkennt FINA und importiert sie nicht doppelt. Ein Import
-      ergänzt einen Monat; er ersetzt nie, was schon da ist.</li>
-  <li>Die genaue Schritt-für-Schritt-Anleitung steht im Assistenten selbst: in Schritt 2 und
-      3 über den Knopf <b>${t('app.guide')}</b>.</li>
+  <li>Ordne die Spalten einmal zu; FINA merkt sich die Struktur für diese Art von Datei.</li>
+  <li>Wiederkehrende Zuordnungen lässt du am Eintrag merken und beim nächsten Mal auf
+      Knopfdruck anwenden. Einmalige Zeilen ordnest du von Hand zu.</li>
+  <li>Zeilen, die schon im Buch stehen, erkennt FINA und importiert sie nie doppelt. Ein
+      Import ergänzt einen Monat; er ersetzt nie, was schon da ist.</li>
+  <li>Die Schritt-für-Schritt-Anleitung steht im Import selbst: drücke in Schritt 2 und 3
+      auf <b>${t('app.guide')}</b>.</li>
 </ul>
-<p>Was FINA gelernt hat, Strukturen und Kriterien, steht unter <b>${t('app.settings')}</b> →
+<p>Was FINA gelernt hat — Strukturen und Kriterien — steht unter <b>${t('app.settings')}</b> →
 <b>${t('set.navImport')}</b>.</p>
 ${gshot('csv-step3','Schritt 3 des Imports: oben die Einträge, unten die Dateizeilen, daneben die Anleitung')}`)}
 
-${gfeat('Diese Anleitung','Neben der Arbeit — oder aus',`
-<p>Die Anleitung steht neben der Tabelle und bleibt dort, während du weiterarbeitest.
-<b>${t('app.guide')}</b> im ☰-Menü klappt sie auf und zu. An ihrer linken Kante ziehst du sie
-breiter. EN · DE schaltet ihre eigene Sprache um, und der Pfeil im Kopf öffnet sie als ganze
-Seite in einem neuen Reiter.</p>
-<p>Sie geht <b>von selbst auf</b>: bei jeder Datei, die du öffnest, und neben den Schritten
-des CSV-Imports. Wenn du sie lieber selbst aufschlägst, nimm unter
-<b>${t('app.settings')}</b> → <b>${t('set.navView')}</b> den Haken <b>${t('set.guide')}</b>
-weg. Dann bleibt sie zu, bis du den Knopf drückst.</p>`)}
+${gfeat('Diese Anleitung','Neben der Tabelle',`
+<p>Die Anleitung bleibt neben der Tabelle stehen, während du weitermachst. <b>${t('app.guide')}</b>
+im ☰-Menü klappt sie auf und zu; an ihrer linken Kante ziehst du sie breiter. EN · DE
+schaltet ihre Sprache um, der Pfeil im Kopf öffnet sie als ganze Seite.</p>
+<p>Sie geht mit jeder Datei und neben dem CSV-Import von selbst auf. Lieber selbst
+aufschlagen? Nimm unter <b>${t('app.settings')}</b> → <b>${t('set.navView')}</b> den Haken
+<b>${t('set.guide')}</b> weg.</p>`)}
 
 ${gfeat('Auf dem Telefon','Zum Nachsehen',`
-<p>Unter 700 px baut FINA ein eigenes Layout: der Monat als Kartenliste mit großen Kreisen, das
-Jahr als zwölf Monatskarten, die Prognose mit ihrer Grafik zum Wischen. Die Ansicht wählst du
-unten. Speichern gibt es dort nicht, nur <b>${t('app.backup')}</b>.</p>`)}
+<p>Auf dem kleinen Bildschirm baut FINA ein eigenes Layout: der Monat als Kartenliste mit
+großen Kreisen, das Jahr als zwölf Monatskarten, die Prognose mit ihrer Grafik zum Wischen.
+Unterwegs siehst du nach, was offen ist und wo du stehst; eingetragen und gespeichert wird am
+Rechner — eine Sicherung geht auch dort.</p>`)}
 
-${gcall('Wichtig: Speichern passiert nie automatisch.',`<p>Deine Daten bleiben in einer
-Datei auf deinem Rechner. Erst <b>${t('app.save')}</b> schreibt Änderungen hinein. Chrome und
-Edge schreiben in dieselbe Datei zurück; andere Browser legen eine datierte Kopie in den
-Download-Ordner.</p>`)}
+${gcall('Deine Daten gehören dir',`<p>FINA schreibt nur in deine Datei, wenn du
+<b>${t('app.save')}</b> drückst — nie von selbst. Chrome und Edge schreiben in dieselbe Datei
+zurück; andere Browser legen eine datierte Kopie in den Download-Ordner.</p>`)}
 
-${gfeat('Was FINA nicht ist','Ehrliche Grenzen',`
+${gfeat('Was FINA nicht ist','Damit du weißt, was dich erwartet',`
 <ul>
-  <li><b>Keine Bankverbindung.</b> FINA redet nie mit deiner Bank. Du tippst, oder du
-      importierst eine CSV-Datei, die du selbst exportiert hast.</li>
-  <li><b>Keine Cloud.</b> Eine Datei, auf deinem Rechner. Um Kopien kümmerst du dich.</li>
-  <li><b>Kein Mehrjahresbuch.</b> Eine Datei fasst ein Jahr. Fürs nächste Jahr fängst du eine
-      neue Datei an und gibst ihr den Endstand des alten als Anfangsbestand.</li>
-  <li><b>Nicht fertig.</b> FINA ist in der Pilotphase: alles ist freigeschaltet und kostenlos.
-      Statt eines Preises fragen wir nach deiner Meinung — ein oranger Knopf
+  <li><b>Kein Bankzugang.</b> FINA redet nie mit deiner Bank. Du tippst, oder du importierst
+      eine CSV-Datei, die du selbst exportiert hast — FINA braucht deshalb nie ein Passwort
+      für dein Konto.</li>
+  <li><b>Keine eigene Cloud.</b> Eine Datei, wo immer du sie hinlegst: auf dem Schreibtisch,
+      im eigenen Cloud-Ordner, auf einem Stick. Eine Sicherung ist ein Klick.</li>
+  <li><b>Ein Buch ist ein Jahr.</b> Das nächste Jahr ist die nächste Datei; gib ihr den
+      Endstand dieses Jahres als Anfangsbestand. Jedes Jahr bleibt so, wie du es
+      abgeschlossen hast.</li>
+  <li><b>In der Pilotphase.</b> Alles ist freigeschaltet und kostenlos, und FINA wächst
+      weiter. Was wir uns statt eines Preises wünschen, ist deine Meinung: ein oranger Knopf
       <b>${t('srv.open')}</b> in der Kopfzeile, solange eine Umfrage läuft.</li>
 </ul>`)}
+
+<p class="gend">Noch kein eigenes Buch? Auf der ersten Seite warten die Demo-Daten zum
+Umsehen — und <b>${t('wel.new')}</b> für deins. <b>${t('guide.tabSteps')}</b> führt dich
+hindurch.</p>
 `},
 
 /* ── Reiter 3: Was ist neu ─────────────────────────────────────
@@ -649,7 +665,7 @@ ${gver('26.8.15','FINA is now FINA Book',`
 ${gver('26.8.13','Change the forecast where it stands',`
 <ul class="gcheck">
   <li>Double-click a month in <b>COR</b> and the balance correction opens at that month.</li>
-  <li>Double-click the <b>${t('set.opening')}</b> row and the settings open with that field.</li>
+  <li>Double-click the <b>${t('prog.openRow').replace('\n',' ')}</b> row and the settings open with that field.</li>
   <li>A new book is really empty: no categories, no banks, no payment types.</li>
   <li>Bug fixing and cosmetic touch-ups.</li>
 </ul>`)}
@@ -854,7 +870,7 @@ ${gver('26.8.15','FINA heißt jetzt FINA Book',`
 ${gver('26.8.13','Die Prognose dort ändern, wo sie steht',`
 <ul class="gcheck">
   <li>Doppelklick auf einen Monat in <b>COR</b> öffnet die Saldokorrektur mit diesem Monat.</li>
-  <li>Doppelklick auf die Zeile <b>${t('set.opening')}</b> öffnet die Einstellungen mit diesem
+  <li>Doppelklick auf die Zeile <b>${t('prog.openRow').replace('\n',' ')}</b> öffnet die Einstellungen mit diesem
       Feld.</li>
   <li>Ein neues Buch ist wirklich leer: keine Kategorien, keine Banken, keine Zahlungsarten.</li>
   <li>Bugfixing und kosmetische Anpassungen.</li>

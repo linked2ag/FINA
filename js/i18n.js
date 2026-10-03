@@ -630,10 +630,14 @@ const STR={
    Eine einzige, feste Zeile über den Einnahmen. Sie wird wie ein
    regelmäßiger Posten gepflegt, aber wie eine Kategorie gezeigt
    und lässt sich nicht löschen. */
-'bal.row':{en:'Balance Correction',de:'Balance Correction'},
+/* Auf Deutsch „Saldokorrektur" (Lex, 3.10.26) — bis dahin stand in
+   beiden Sprachen „Balance Correction", als wäre es ein Kürzel wie
+   B · PT · DD · LP. Es ist keins: die Zeile ist eine Beschriftung
+   wie „Einnahmen" und wechselt mit der Sprache. */
+'bal.row':{en:'Balance Correction',de:'Saldokorrektur'},
 'bal.tip':{en:'Manual correction of the balance — for inaccuracies that crept in somewhere over the months',
   de:'Manuelle Korrektur des Saldos — für Ungenauigkeiten, die sich über die Monate eingeschlichen haben'},
-'bal.editTip':{en:'Edit balance correction',de:'Balance Correction ändern'},
+'bal.editTip':{en:'Edit balance correction',de:'Saldokorrektur ändern'},
 
 /* ── Flexible (früher Kakeibo) ───────────────────── */
 'kak.empty':{en:'No transactions imported yet.',de:'Noch keine Transaktionen importiert.'},
