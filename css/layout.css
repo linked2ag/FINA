@@ -512,7 +512,12 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    keine Kennzahl. Einen festen Pfeil trägt sie nicht — ob die
    Auswertung offen ist, sagt der Zeitstrahl darunter; erst beim
    Überfahren fährt einer heraus (.anaarrow, weiter unten). */
-.anahead{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.anahead{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left}
+/* Die Hand nur dort, wo ein Klick etwas tut: im Monat klappt die
+   Leiste den Zeitstrahl auf (data-ana). Die Kennzahlen der Prognose
+   tragen dieselbe Bauform, klappen aber nichts — dort sah die Leiste
+   anklickbar aus und tat nichts (Lex, 3.10.26). */
+.anahead[data-ana]{cursor:pointer}
 /* Sie ist das letzte Stück der Leiste — über den Karten, die sie
    zusammenfasst. Der Abstand nach oben ist derselbe, den die
    Bereiche voneinander haben. */
