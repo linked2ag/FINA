@@ -522,13 +522,17 @@ ${gfeat('Was FINA nicht ist','Ehrliche Grenzen',`
 news:{
 
 en:()=>`
-<p class="glead">The bigger changes of the last versions, in short. How each of them works is
-described in <b>${t('guide.tabSteps')}</b> and <b>${t('guide.tabProduct')}</b>.</p>
 <div class="gvers">
+${gver('26.10.3','Try FINA with demo data',`
+<ul class="gcheck">
+  <li>A book with demo data to try things out.</li>
+  <li>Bug fixing and cosmetic touch-ups.</li>
+</ul>`,'Current version')}
+
 ${gver('26.9.10','Bug fixing',`
 <ul class="gcheck">
   <li>Bug fixing and cosmetic touch-ups.</li>
-</ul>`,'Current version')}
+</ul>`)}
 
 ${gver('26.9.8','Your own names in the import',`
 <p>Reference fields can carry the names you give them, and they keep them. And the guide
@@ -718,13 +722,17 @@ ${gver('26.7.30','The first complete version',`
 `,
 
 de:()=>`
-<p class="glead">Die größeren Änderungen der letzten Versionen, kurz. Wie das alles im
-Einzelnen geht, steht in <b>${t('guide.tabSteps')}</b> und <b>${t('guide.tabProduct')}</b>.</p>
 <div class="gvers">
+${gver('26.10.3','FINA mit Demo-Daten ausprobieren',`
+<ul class="gcheck">
+  <li>Ein Buch mit Demo-Daten zum Ausprobieren.</li>
+  <li>Bugfixing und kosmetische Anpassungen.</li>
+</ul>`,'Aktuelle Version')}
+
 ${gver('26.9.10','Bugfixing',`
 <ul class="gcheck">
   <li>Bugfixing und kosmetische Anpassungen.</li>
-</ul>`,'Aktuelle Version')}
+</ul>`)}
 
 ${gver('26.9.8','Eigene Namen im Import',`
 <p>Referenzfelder dürfen die Namen tragen, die du ihnen gibst, und sie behalten sie. Und die

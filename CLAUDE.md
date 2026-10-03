@@ -3439,8 +3439,9 @@ Eine Versionsliste wird gelesen, solange sie sich überfliegen lässt.
 **Kurz und oberflächlich** (Lex, 11.9.26, gilt für **alle** Versionen, nicht nur die
 oberste): ein Punkt sagt in einem Satz, was man jetzt tun kann — kein Weg durch die
 Oberfläche, keine Einzelheiten, kein Warum. Wie es genau geht, steht in „Schritt für
-Schritt" und „Was FINA kann"; darauf zeigt seit 11.9.26 auch die Kopfzeile des Reiters
-(`.glead`). Drei Sorten gehören gar nicht in die Liste: **Kosmetik** (Farben, Abstände,
+Schritt" und „Was FINA kann". **Über der ersten Karte steht kein Satz** (Lex, 3.10.26; vom
+11.9.26 bis dahin eine `.glead`-Zeile, die auf die beiden Reiter zeigte): was „Was ist neu"
+bedeutet, weiß jeder, der den Reiter öffnet. Drei Sorten gehören gar nicht in die Liste: **Kosmetik** (Farben, Abstände,
 Bewegung, Beschriftungen), **Kleinigkeiten am Rand** — und **alles über die Sicherheit**:
 was FINA gegen eine fremde Datei tut, welche Adressen es nicht öffnet, wie gut etwas
 abgedeckt ist. Ein Kassenbuch wirbt nicht mit seinen Schlössern. Eine Fassung, in der nur
