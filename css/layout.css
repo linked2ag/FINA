@@ -1195,11 +1195,18 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
    zwischen Filterzeile und Spaltenkopf trägt die Knopfleiste
    allein (.yearbar, 10 px Polster). */
 .yearpane+.scrollrail{margin:8px 0 0}
-/* In der Prognose steht sie in der Karte, direkt unter der Tabelle
-   und über der Farberklärung — mit demselben Abstand wie unter der
-   Jahresmatrix, und ebenso viel Luft zur Linie der Farberklärung
-   darunter (seit 3.10.26; bis dahin über der Tabelle). */
-.progscroll+.scrollrail{margin:8px 0}
+/* **In der Prognose steht sie ganz unten, wie im Jahr** (Lex,
+   3.10.26; bis dahin über der Tabelle): unter der Karte, mit
+   demselben Abstand wie unter der Matrix — die Karte trägt 16 px
+   Außenabstand, die Leiste nimmt die Hälfte zurück. Die Karte
+   reicht dafür bis an den unteren Fensterrand (sizeProg in
+   js/app.js), ihre Farberklärung bleibt ihr unterer Abschluss
+   (margin-top:auto an .progcard .thint, css/ledger.css). Ist das
+   Fenster so niedrig, dass die Seite doch rollt, klebt die Leiste
+   über der Statuszeile und bleibt im Bild — wie im Jahr, wo die
+   Fläche selbst rollt. */
+.progcard{display:flex;flex-direction:column}
+.progcard+.scrollrail{margin:-8px 0 0;position:sticky;bottom:calc(var(--statush,0px) + 6px);z-index:3}
 /* Und die Tabellen selbst zeigen unten **keinen** waagerechten
    Balken: dafür ist die eigene Leiste da, zwei wären einer zu viel.
 

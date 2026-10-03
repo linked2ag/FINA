@@ -84,8 +84,9 @@ function closeModal(box){
    und sizeMatrix() zieht die Leiste dabei mit ab. Damit das Maß
    stimmt, muss vorher feststehen, ob die Leiste überhaupt da ist
    (.off): syncMatrixHead() ruft deshalb fitRails() vor
-   sizeMatrix(). In der Prognose steht sie ebenfalls darunter, in
-   der Karte zwischen Tabelle und Farberklärung (seit 3.10.26).
+   sizeMatrix(). In der Prognose steht sie genauso ganz unten
+   (seit 3.10.26): unter der Karte, die bis an den unteren Rand
+   reicht (sizeProg in js/app.js).
 
    Beide Richtungen werden verdrahtet. Nach einem Zug an der Leiste
    wird sie 180 ms lang **nicht** nachgeführt: eine Tabelle, die

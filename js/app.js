@@ -488,6 +488,27 @@ function pageOver(){
   return over;
 }
 
+/* ── Die Prognose reicht bis unten (3.10.26) ──────────────────
+   Ihr waagerechter Rollbalken steht wie im Jahr ganz unten über der
+   Statuszeile (scrollRail nach der Karte, js/views/prognose.js).
+   Dafür wird die Karte so hoch, dass sie den Platz bis zum unteren
+   Fensterrand füllt — gemessen wie in sizeMatrix(): erst bis an den
+   Rand, dann den Überstand darunter abziehen. **Nie kleiner als ihr
+   Inhalt**: passt die Tabelle nicht ins Fenster, rollt die Seite
+   wie bisher, und die Leiste klebt unten (css/layout.css). Auf dem
+   Telefon nichts davon — dort gibt es die Leiste nicht. */
+function sizeProg(){
+  const card=document.querySelector('#view .progcard'); if(!card) return;
+  card.style.minHeight='';
+  if(isMobile()) return;
+  const nat=card.offsetHeight;
+  const top=card.getBoundingClientRect().top+window.scrollY;
+  const h=Math.max(nat,window.innerHeight-top);
+  card.style.minHeight=h+'px';
+  const over=pageOver();
+  if(over>0) card.style.minHeight=Math.max(nat,h-over)+'px';
+}
+
 function sizeMonth(){
   const box=document.getElementById('monthScroll'); if(!box) return;
   box.style.height='';
@@ -697,6 +718,7 @@ function syncMatrixHead(){
   fitRails();
   sizeMatrix();
   sizeMonth();
+  sizeProg();
 }
 
 /* Beim Scrollen ist nichts zu tun: beide Tabellen rollen frei wie

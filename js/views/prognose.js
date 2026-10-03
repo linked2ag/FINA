@@ -558,11 +558,13 @@ function viewPrognose(){
         <th class="flowcell axishead"
           data-tip="${esc(t('prog.colFlow')+' — '+t('prog.colFlowTip'))}">${axis.join('')}</th></tr>
       ${openRow}${rows}</table></div>
-    <!-- Der waagerechte Rollbalken steht **unter** der Tabelle, wie
-         in der Jahresansicht (Lex, 3.10.26; bis dahin darüber) —
-         außerhalb von ihr: in ihr läge er quer über der letzten
-         Zeile. Bei zu schmalem Fenster erscheint er von selbst
-         (bindRails in js/ui.js), sonst steht dort nichts. -->
-    ${scrollRail('progScroll')}
-    <div class="thint">${chips}</div></div>`;
+    <div class="thint">${chips}</div></div>
+  <!-- Der waagerechte Rollbalken steht **ganz unten**, wie in der
+       Jahresansicht (Lex, 3.10.26; bis dahin über der Tabelle):
+       unter der Karte, und die Karte reicht bis an den unteren
+       Fensterrand (sizeProg in js/app.js). Außerhalb der Tabelle,
+       denn in ihr läge er quer über der letzten Zeile. Bei zu
+       schmalem Fenster erscheint er von selbst (bindRails in
+       js/ui.js), sonst steht dort nichts. -->
+  ${scrollRail('progScroll')}`;
 }
