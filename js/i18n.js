@@ -378,6 +378,9 @@ const STR={
 'store.loadAsk':{en:'There are unsaved changes. Open another file anyway? The current one will be lost.',
   de:'Es gibt ungespeicherte Änderungen. Trotzdem eine andere Datei öffnen? Der jetzige Stand geht dabei verloren.'},
 'store.started':{en:'Empty book started — save it when you are ready.',de:'Leeres Buch angelegt — speichern, wenn du so weit bist.'},
+'store.demoOpened':{en:'Demo data opened. Saving turns it into a local database of your own.',
+  de:'Demo-Daten geöffnet. Beim Speichern wird daraus deine eigene lokale Datenbank.'},
+'store.demoFail':{en:'The demo data could not be loaded.',de:'Die Demo-Daten ließen sich nicht laden.'},
 'store.unlinked':{en:'Local database closed. Use “Open local database” to open one.',
   de:'Verbindung getrennt. Über „Öffne lokale Datenbank" kannst du eine öffnen.'},
 'store.readFail':{en:'The file could not be read.',de:'Datei konnte nicht gelesen werden.'},
@@ -462,13 +465,29 @@ const STR={
    allein klang nach einer Einschränkung, die es gar nicht gibt. */
 'wel.lead':{en:'No account. No cloud. Your data stays on your computer — or wherever you choose to keep it.',
   de:'Kein Konto. Keine Cloud. Deine Daten bleiben auf deinem Rechner — oder wo auch immer du sie hinlegst.'},
-'wel.open':{en:'Open your local database',de:'Lokale Datenbank öffnen'},
+/* Mit „FINA" und „deine" (Lex, 3.10.26) — gleich gebaut wie der
+   Knopf darunter, „Deine neue FINA-Datenbank anlegen". Der Eintrag
+   im ☰-Menü bleibt `app.load` („Lokale Datenbank öffnen (JSON-Datei)"). */
+'wel.open':{en:'Open your local FINA database',de:'Deine lokale FINA-Datenbank öffnen'},
 'wel.openHint':{en:'Pick your saved FINA local database and carry on.',
   de:'Deine gespeicherte lokale FINA-Datenbank wählen und weitermachen.'},
-'wel.new':{en:'Start from scratch',de:'Neu anfangen'},
-'wel.privacy':{en:'Privacy',de:'Datenschutz'},
+/* „Neu anfangen" sagte nicht, WAS neu angefangen wird (Lex,
+   3.10.26) — jetzt nennt der Knopf das Ergebnis: die eigene
+   Datenbank, wie „Lokale Datenbank öffnen" daneben. */
+/* Der Bindestrich in „FINA\u2011Datenbank" bricht nicht um (U+2011):
+   in der halben Breite der Karte stand sonst „Deine neue FINA-" /
+   „Datenbank anlegen". Archivo trägt das Zeichen, es sieht aus wie
+   ein gewöhnlicher Bindestrich (nachgemessen: gleich breit). */
+'wel.new':{en:'Create your new FINA database',de:'Deine neue FINA\u2011Datenbank anlegen'},
+'wel.privacy':{en:'Privacy policy',de:'Datenschutzerklärung'},
 'wel.newHint':{en:'An empty book. Pick the year, off you go.',
   de:'Ein leeres Buch. Jahr wählen, loslegen.'},
+/* Der dritte Weg (3.10.26): ein erfundenes Buch zum Ausprobieren.
+   „(EN)" steht in beiden Sprachen dran — die Demo-Daten gibt es nur
+   auf Englisch, und die Anwendung schaltet beim Öffnen dorthin. */
+'wel.demo':{en:'Open demo data (EN)',de:'Demo-Daten öffnen (EN)'},
+'wel.demoHint':{en:'A made-up household book to look around and try things out — in English.',
+  de:'Ein erfundenes Haushaltsbuch zum Umsehen und Ausprobieren — auf Englisch.'},
 
 /* ── Monatsansicht ────────────────────────────────────────── */
 /* Ohne Monatsnamen: welcher Monat gemeint ist, sagen die

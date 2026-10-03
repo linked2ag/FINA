@@ -48,6 +48,7 @@ ganze Projekt zu lesen.
 | Notizlampe, Tooltip, Kurzmeldung, Fenster schließen, Entwürfe, Vorzeichenfarbe — **und die Bewegung**: Geister, Fenster-Übergänge, Klappen, Menüs (siehe „Bewegung") | `js/ui.js` |
 | Inhalt einer Ansicht | `js/views/jahr·monat·prognose·kakeibo.js` |
 | Begrüßungsseite (ohne Datei) | `js/views/willkommen.js` |
+| Die Demo-Daten hinter dem dritten Knopf der Begrüßungsseite | `demo/fina-demo-en.js` (geöffnet von `openDemo()` in `js/storage.js`) |
 | Inhalt eines Fensters | `js/dialogs/item·settings.js` (Posten, Einstellungen); die Fenster des Imports in `csv2-wizard.js` |
 | Die Umfrage — Knopf, Fenster, Absenden | `js/dialogs/umfrage.js` |
 | Text der Anleitung und der Bereich rechts | `js/dialogs/guide.js` |
@@ -569,7 +570,7 @@ Bestehende Attribute: `paid` (Siegel) · `filter` `duefilter` `secfilter` `tpart
 zuklappen — Pfeil und Kartenkopf) · `yfold` `blkfold` (einen Block der Jahresmatrix
 zuklappen — Pfeil und Blockzeile) · `qclear` (Filter
 zurücknehmen) ·
-`wload` `wnew` (Begrüßungsseite) · `opening` (Anfangsbestand in den Einstellungen öffnen) ·
+`wload` `wnew` `wdemo` (Begrüßungsseite) · `opening` (Anfangsbestand in den Einstellungen öffnen) ·
 `kpick` `ktop` `kmonth` (Flexible Payments: rechte Spalte, Zeitraum) · `txlist` (die
 Buchungen als Fenster, mobile Transactions-Ansicht) · `goto` `kview`
 (Sprünge in eine andere Ansicht) · `mtab` (Monatsleiste unter der Filterzeile) ·
@@ -2020,8 +2021,45 @@ Datenschutzerklärung steht ebenfalls (dort Abschnitt 7, zweisprachig).
 
 `ui.welcome` entscheidet, ob statt einer Ansicht `viewWelcome()` (`js/views/willkommen.js`)
 im `#view` steht: beim Start und wieder nach `unlinkData()`. Sie sagt zuerst, worum es geht,
-und bietet dann die beiden einzigen Wege an — `data-wload` öffnet eine Datei (`loadData()`),
-`data-wnew` fängt leer an (`startEmpty()` in `js/storage.js`).
+und bietet dann drei Wege an (seit 3.10.26): oben über die ganze Breite und orange
+`data-wload` — die eigene Datei öffnen (`loadData()`), der gewöhnliche Weg —, darunter gleich
+groß nebeneinander `data-wnew` (leer anfangen, `startEmpty()` in `js/storage.js`) und
+`data-wdemo` (ein erfundenes Buch zum Ausprobieren, `openDemo()`).
+
+**Kein Knopfname bricht um, und der Satz unter der Überschrift auch nicht** (Lex, 3.10.26).
+Der Kasten ist deshalb 850 px breit (`.wbox`, vorher 720): der deutsche Satz (`wel.lead`)
+braucht 742 px, innen bleiben 762 — in einem schmaleren Fenster bricht er wieder um. Eine Karte ist mindestens 344 px breit (`.wpick`, `auto-fit`): der längste
+Name, „Deine neue FINA‑Datenbank anlegen", braucht 288 px. Passen zwei nicht nebeneinander,
+rutschen sie untereinander. Auf dem Telefon wird die Schrift der Namen mit der Breite kleiner
+(`min(17px,3.9vw)`, nachgemessen bis 320 px). Der Bindestrich in „FINA‑Datenbank" ist dort
+ein nicht umbrechender (U+2011). **Wer einen Namen verlängert, misst nach** und setzt die
+Maße hoch.
+
+### Die Demo-Daten
+
+**Der Knopf „Open demo data (EN)"** (`.wcard.demo`, rechts unten, im Grau des Knopfes daneben)
+öffnet `demo/fina-demo-en.js` — ein Haushaltsbuch mit erfundenen Namen und Zahlen, im
+aktuellen Format, so wie „Daten speichern" es schreibt. **Eine Skriptdatei und keine
+JSON-Datei**: `fetch` scheiterte unter `file://` und damit in den Apps (Regel 4); ein
+`<script>` lädt überall. Eingehängt wird es **erst beim Klick** (`demoData()`), nicht mit der
+Seite — und es ist keine fremde Adresse, die Datei liegt neben der Anwendung. Deshalb kommt
+`demo/` mit auf die Seite (der Pages-Workflow prüft es) **und** in die Apps (`NIMM` in
+`desktop/sync.mjs`).
+
+`openDemo()` behandelt die Demo wie **ein leeres Buch mit Inhalt**: kein Dateiname, kein
+Dateigriff — wer speichert, legt eine eigene Datei an. Dazu drei Abweichungen vom Laden:
+**Englisch** (die Daten gibt es nur so; die Sprache davor merkt sich `ui.demoLang`, und
+`unlinkData()` bringt die Begrüßung in ihr zurück — `afterLoad()` setzt den Merker zurück);
+**ohne `state.v` und mit `fileVersion=null`** (keine Meldung über ein älteres Format, und die
+Umfrage fragt erst nach einem echten Speichern, siehe `srvSaved()`); **im Monat** (afterLoad
+entscheidet das am Dateinamen, den die Demo nicht hat). Jedes Öffnen nimmt eine frische Kopie
+(`structuredClone`).
+
+**Wer die Demo ändert, ändert `demo/fina-demo-en.js`.** Ursprung ist `fina-demo-en.json` auf
+Google Drive (`# MDA/Finanzen/FINA Tabellen/`, dieselbe Datei, aus der `doc/make-shots.py`
+die Bildschirmfotos macht — dort noch im alten Format); der Kopfkommentar der Datei sagt, was
+beim Überführen geändert wurde. Sie läuft beim Öffnen trotzdem durch `migrate()`, eine
+ältere Fassung bliebe also lesbar.
 
 **Oben rechts steht die Sprachwahl** (`.wlangs`, `data-wlang`, verdrahtet in `wire()`): das
 Einstellungsfenster gibt es erst im geladenen Buch, und ohne diesen Weg säße, wer ohne die
@@ -2041,7 +2079,8 @@ leeres Buch (`startEmpty`) ist keine Begrüßung mehr, obwohl `fileName` noch le
 
 ### Ein neues Buch weiß nichts
 
-„Neu anfangen" heißt leer: **keine** Kategorien — weder Einnahmen noch Kosten noch Flexible
+„Neu anfangen" (der Knopf heißt seit 3.10.26 „Create your new FINA database" / „Deine neue
+FINA-Datenbank anlegen", `wel.new`) heißt leer: **keine** Kategorien — weder Einnahmen noch Kosten noch Flexible
 Payments —, **keine** Banken, **keine** Zahlungsarten. Der Nutzer richtet sich selbst ein,
 und die Begrüßungsseite verspricht genau das (`wel.newSub`).
 
@@ -3174,9 +3213,12 @@ und migriert wird beim Lesen (`migrate()`).
   ebenso schlagartig auf — und das schon im ersten Bild, während sie selbst noch fuhr.
   Jetzt hängt `.c2gpanel` absolut an der **Box** (`top:0;right:0;bottom:0`), und nichts
   darunter ändert dabei seine Breite.
-  **Ein ✕ trägt sie nicht mehr:** auf und zu geht sie allein über den Knopf „Anleitung"
-  in der Kopfzeile, und der sagt, woran er ist — zu ist sie, steht er weiß mit oranger
-  Schrift, offen trägt er die Farbe gefüllt (`.c2gbtn`).
+  **Auf und zu geht sie über den Knopf „Anleitung" in der Kopfzeile**, und der sagt, woran
+  er ist — zu ist sie, steht er weiß mit oranger Schrift, offen trägt er die Farbe gefüllt
+  (`.c2gbtn`). **Und seit 3.10.26 wieder über ihr eigenes ✕** ganz rechts im Kopf, hinter
+  dem Pfeil in den eigenen Reiter — wie im Guide der Anwendung (Lex; vom 9.9.26 bis dahin
+  gab es keins). Es ruft dasselbe `c2GuideToggle()` und ist so groß wie der Pfeil daneben
+  (`.c2gpanel .gclose`).
   **Ein Maß trägt alles: `--c2gw` an der Box.** Kopfzeile und Bedienzeilen hängen mit
   ihrem Polster daran (`.c2head`, `.c2bar`, `.c2guideto`, `.c2avail`, `.c2mid`,
   `.c2qbar` — sie rollen nicht, verdeckt wären sie schlicht weg), die Tabellen in den

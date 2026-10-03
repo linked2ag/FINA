@@ -215,7 +215,13 @@ async function saveData(){
 function unlinkData(){
   if(dirty && !confirm(t('store.unlinkAsk'))) return;
   fileHandle=null; fileName=''; dirty=false;
-  state=emptyState(); afterLoad();
+  /* War es die Demo, kommt die Begrüßung in der Sprache zurück, in
+     der man sie verlassen hat — die Demo schaltet ja auf Englisch
+     (siehe openDemo). Gelesen vor afterLoad(), das den Merker
+     zurücksetzt. */
+  const back=ui.demoLang;
+  state=emptyState(); if(back) state.lang=back;
+  afterLoad();
   /* Getrennt heißt: zurück auf Anfang. Die Begrüßung ist dann die
      einzige Seite, die es zu sehen gibt — sonst stünde man wieder
      vor einer leeren Matrix. */
@@ -237,6 +243,54 @@ function startEmpty(){
   ui.enter=1;
   render();
   toast(t('store.started'));
+}
+
+/* ── Mit den Demo-Daten anfangen ─────────────────────────────
+   Der dritte Weg der Begrüßungsseite (3.10.26): ein erfundenes Buch
+   zum Ausprobieren, aus demo/fina-demo-en.js. **Geladen wird es
+   über ein <script> und erst beim Klick** — `fetch` scheiterte
+   unter file://, und so laufen die Mac- und die Windows-App
+   (Regel 4 in CLAUDE.md). Es ist keine fremde Adresse: die Datei
+   liegt neben der Anwendung, auf der Webseite wie in der App.
+
+   Behandelt wird es wie ein **leeres Buch mit Inhalt**: keine Datei,
+   kein Name — wer speichert, legt eine eigene an, und die Demo
+   bleibt, wie sie ist. Drei Dinge sind anders als beim Laden einer
+   Datei:
+   * **Die Sprache ist Englisch**, die Demo-Daten gibt es nur so.
+     Welche vorher galt, merkt sich `ui.demoLang` für den Rückweg
+     (unlinkData).
+   * **`state.v` fällt weg** und `fileVersion` steht auf null: die
+     Demo ist unsere Datei, ihr Format geht den Besucher nichts an
+     (kein „liegt in einem älteren Format vor"), und die Umfrage
+     fragt erst, wenn wirklich gespeichert wurde (srvSaved()).
+   * **Es geht im Monat auf**, wie eine geladene Datei — afterLoad()
+     entscheidet das am Dateinamen, und den hat die Demo nicht.
+   Jedes Öffnen bekommt eine frische Kopie (structuredClone): der
+   Zustand wird beim Arbeiten verändert, die geladenen Daten nicht. */
+const DEMO_SRC='demo/fina-demo-en.js';
+function demoData(){
+  if(window.FINA_DEMO_EN) return Promise.resolve(window.FINA_DEMO_EN);
+  return new Promise((ok,fail)=>{
+    const s=document.createElement('script');
+    s.src=DEMO_SRC;
+    s.onload=()=>window.FINA_DEMO_EN?ok(window.FINA_DEMO_EN):fail(new Error('empty'));
+    s.onerror=()=>{ s.remove(); fail(new Error('load')); };
+    document.head.appendChild(s);
+  });
+}
+async function openDemo(){
+  if(dirty && !confirm(t('store.loadAsk'))) return;
+  let data;
+  try{ data=await demoData(); }catch(e){ warn(t('store.demoFail')); return; }
+  const back=LANG();
+  fileHandle=null; fileName=''; dirty=false;
+  state=migrate(structuredClone(data));
+  state.lang='en'; delete state.v; fileVersion=null;
+  afterLoad();
+  ui.view='monat'; ui.demoLang=back;
+  ui.welcome=false; ui.enter=1;
+  render(); toast(t('store.demoOpened'));
 }
 
 /* Dateiname und Speicherstand in Kopf- und Fußzeile. Ungespeichert

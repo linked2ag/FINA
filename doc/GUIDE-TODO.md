@@ -12,6 +12,15 @@ bleiben dabei liegen: neue werden nur gemacht, wenn ausdrücklich darum gebeten 
 
 ---
 
+- ⚠ **Die Begrüßungsseite hat drei Knöpfe** (3.10.26): oben über die ganze Breite „Open your
+  local FINA database" (`wel.open`, bis 3.10.26 „Open your local database" / „Lokale Datenbank
+  öffnen"), darunter nebeneinander „Create your new FINA database" (`wel.new`, bis
+  3.10.26 „Start from scratch" / „Neu anfangen") und „Open demo data (EN)" (`wel.demo`) — ein
+  erfundenes Buch zum Ausprobieren, auf Englisch. Die beiden Sätze, die `wel.new` zitieren
+  („<b>…</b> begins an empty book" / „beginnt ein leeres Buch"), lesen sich mit dem neuen,
+  längeren Namen holprig und gehören umformuliert. „Schritt für Schritt" sagt noch „zwei
+  Knöpfe" („you see two buttons" / „siehst du zwei Knöpfe", `js/dialogs/guide.js`), und
+  „Was FINA kann" nennt nur öffnen oder neu anfangen. Das Bild `welcome.png` zeigt zwei.
 - ⚠ **Die Zeile über dem Januar in der Prognose heißt jetzt „Last year balance" / „Saldo
   Vorjahr"** (3.10.26, `prog.openRow`). Die Anleitung nennt sie noch mit `set.opening`
   („Double-click the Opening balance row" / „Doppelklick auf die Zeile Anfangsbestand",

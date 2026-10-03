@@ -41,8 +41,11 @@ function viewWelcome(){
       <h2>${t('wel.title')}</h2>
       <p class="wlead">${t('wel.lead')}</p>
 
-      <!-- Zwei Wege, gleich groß nebeneinander: der erste ist der
-           gewöhnliche, deshalb steht er vorn und trägt die Farbe. -->
+      <!-- Drei Wege (3.10.26). Oben über die ganze Breite der
+           gewöhnliche: die eigene lokale Datenbank öffnen — er trägt
+           die Farbe. Darunter gleich groß nebeneinander die beiden
+           Anfänge ohne eigene Datei: ein leeres Buch und ein
+           erfundenes zum Ausprobieren (openDemo in js/storage.js). -->
       <div class="wpick">
         <button class="wcard primary" data-wload="1">
           <span class="wt">${t('wel.open')}</span>
@@ -50,6 +53,9 @@ function viewWelcome(){
         <button class="wcard" data-wnew="1">
           <span class="wt">${t('wel.new')}</span>
           <span class="wd">${t('wel.newHint')}</span></button>
+        <button class="wcard demo" data-wdemo="1">
+          <span class="wt">${t('wel.demo')}</span>
+          <span class="wd">${t('wel.demoHint')}</span></button>
       </div>
 
       <!-- Erreichbar sein muss die Datenschutzerklärung von

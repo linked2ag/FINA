@@ -32,9 +32,13 @@ const dst  = join(here, 'app');
    lädt (gshot() in js/dialogs/guide.js). Alles Übrige aus doc/
    nicht — GUIDE-TODO.md und make-shots.py sind Arbeitsdateien.
 
+   `demo/` trägt die Demo-Daten für den dritten Knopf der
+   Begrüßungsseite (openDemo() in js/storage.js) — ohne sie liefe
+   der Knopf in der App ins Leere.
+
    `LICENSE` liegt bei, weil eine ausgelieferte Anwendung sagen
    muss, unter welchen Bedingungen sie benutzt werden darf. */
-const NIMM = ['css', 'js', 'icon.png', 'LICENSE', join('doc', 'img')];
+const NIMM = ['css', 'js', 'demo', 'icon.png', 'LICENSE', join('doc', 'img')];
 
 rmSync(dst, {recursive: true, force: true});
 for (const p of NIMM) cpSync(join(src, p), join(dst, p), {recursive: true});

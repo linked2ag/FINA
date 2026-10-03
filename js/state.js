@@ -441,6 +441,10 @@ function afterLoad(){
      Das Filtermenü der mobilen Monatsansicht fängt immer zu an. */
   ui.ana=!!(state&&state.anaOpen);
   ui.mFilters=false;
+  /* Die Sprache vor der Demo gilt nur für die Demo selbst: jedes
+     andere Buch, das danach aufgeht, hat seine eigene (openDemo,
+     unlinkData in js/storage.js). */
+  ui.demoLang=null;
 }
 
 /* ── In welcher Fassung die geladene Datei geschrieben wurde ──

@@ -1302,7 +1302,13 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .wbg i:nth-child(1){width:420px;height:420px;background:var(--bg-in-2);top:-120px;right:6%}
 .wbg i:nth-child(2){width:360px;height:360px;background:var(--bg-sal-2);top:30%;left:-140px}
 .wbg i:nth-child(3){width:380px;height:380px;background:var(--bg-flex-2);bottom:-160px;right:18%}
-.wbox{position:relative;width:min(720px,100%);background:var(--paper-2);
+/* 850 px und nicht mehr 720 (Lex, 3.10.26): der Satz unter der
+   Überschrift soll in einer Zeile stehen, in beiden Sprachen — der
+   deutsche ist der längere und braucht 742 px, innen bleiben 762.
+   Damit haben auch die Knopfnamen in der halben Karte Platz (siehe
+   .wpick). Ist das Fenster schmaler, bricht der Satz wieder um;
+   dafür gibt es keinen Ausweg, der lesbar bliebe. */
+.wbox{position:relative;width:min(850px,100%);background:var(--paper-2);
   border:1px solid var(--rule-strong);border-radius:16px;
   box-shadow:0 2px 6px rgba(27,35,32,.08),0 22px 48px rgba(27,35,32,.15);
   padding:38px 44px 36px}
@@ -1334,20 +1340,33 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .wlist{margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.6;color:var(--ink)}
 .wlist li{margin-bottom:3px}
 .wlist li b{font-weight:600}
-/* Zwei Wege, gleich groß nebeneinander — beides sind Angebote, nur
-   eines ist das gewöhnliche: es trägt das Orange der Startseite
-   (deren .button-primary) und hebt sich beim Überfahren wie die
-   Karten dort. */
-.wpick{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0 6px}
+/* Drei Wege — alles Angebote, nur eines ist das gewöhnliche: die
+   eigene lokale Datenbank öffnen. Es steht oben über die ganze
+   Breite und trägt das Orange der Startseite (deren
+   .button-primary); darunter gleich groß nebeneinander „Neu
+   anfangen" und die Demo-Daten (seit 3.10.26). Alle heben sich beim
+   Überfahren wie die Karten der Startseite. */
+/* **Kein Knopfname bricht um** (Lex, 3.10.26). Eine Karte ist deshalb
+   mindestens 344 px breit: der längste Name, „Deine neue
+   FINA‑Datenbank anlegen", braucht 288 px, dazu 2 × 22 px Polster,
+   2 × 1 px Rand und etwas Luft. Reicht der Platz für zwei davon
+   nebeneinander nicht, rutschen sie untereinander (auto-fit) — dann
+   hat jede die volle Breite. Wer einen längeren Namen einsetzt,
+   misst nach und setzt das Maß hier und an .wbox hoch. */
+.wpick{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(344px,100%),1fr));
+  gap:14px;margin:24px 0 6px}
 .wcard{display:grid;align-content:start;gap:6px;text-align:left;padding:20px 22px;cursor:pointer;
   background:var(--paper);border:1px solid var(--rule-strong);border-radius:14px;color:var(--ink);
   box-shadow:0 1px 2px rgba(27,35,32,.05),0 10px 28px rgba(27,35,32,.08);
   transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}
 .wcard:hover{transform:translateY(-2px);border-color:var(--ink);
   box-shadow:0 2px 6px rgba(27,35,32,.08),0 22px 48px rgba(27,35,32,.15)}
-.wcard .wt{font-family:var(--font-ui);font-size:17px;font-weight:600}
+/* Ein Titel, der umbricht, bricht ausgeglichen — in der halben
+   Breite stand sonst ein einzelnes Wort in der zweiten Zeile
+   (3.10.26). */
+.wcard .wt{font-family:var(--font-ui);font-size:17px;font-weight:600;text-wrap:balance}
 .wcard .wd{font-size:13px;line-height:1.55;color:var(--ink-2)}
-.wcard.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.wcard.primary{grid-column:1/-1;background:var(--accent);border-color:var(--accent);color:#fff}
 .wcard.primary:hover{background:var(--accent-2);border-color:var(--accent-2)}
 .wcard.primary .wd{color:rgba(255,255,255,.85)}
 /* Der Weg zur Datenschutzerklärung, klein und unter den beiden
@@ -1371,6 +1390,13 @@ header{position:sticky;top:0;z-index:40;margin:0 -24px;padding:0;background:var(
 .wfoot.wapp{border-top:1px solid var(--rule);padding-top:9px;margin-top:13px}
 .wfoot.wapp a{color:var(--ink)}
 @media(max-width:620px){
-  .wbox{padding:26px 20px 24px}
+  .wbox{padding:26px 16px 24px}
   .wpick{grid-template-columns:1fr}
+  /* Auch auf dem Telefon bricht kein Knopfname um (3.10.26): der
+     längste braucht bei 17 px 288 px, und so breit ist eine Karte
+     erst ab gut 410 px Bildschirm. Darunter wird die Schrift mit der
+     Breite kleiner — 3,9 vw reicht bis hinunter zu 320 px
+     (nachgemessen), ab 436 px gilt wieder die volle Größe. */
+  .wcard{padding:18px 16px}
+  .wcard .wt{font-size:min(17px,3.9vw)}
 }

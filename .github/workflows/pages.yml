@@ -107,6 +107,9 @@ jobs:
           test -d _site/css/fonts     || { echo "FEHLER: css/fonts fehlt — die Seite holte die Schriften wieder von Google"; exit 1; }
           test -f _site/css/fonts/OFL.txt || { echo "FEHLER: css/fonts/OFL.txt fehlt — die Lizenz muss mit"; exit 1; }
           test -f _site/version.json  || { echo "FEHLER: version.json fehlt — die Apps fragen sie ab"; exit 1; }
+          # Die Demo-Daten für den dritten Knopf der Begrüßungsseite
+          # (openDemo() in js/storage.js) — ohne sie liefe er ins Leere.
+          test -f _site/demo/fina-demo-en.js || { echo "FEHLER: demo/fina-demo-en.js fehlt — der Demo-Knopf braucht sie"; exit 1; }
           # Dasselbe Bild, das die Apps als Symbol tragen: die Seite
           # zeigt es im Reiter (link rel=icon in index.html).
           test -f _site/icon.png      || { echo "FEHLER: icon.png fehlt — die Seite stünde ohne Zeichen im Reiter"; exit 1; }

@@ -1225,9 +1225,10 @@ function wire(){
     if(sel) mEl.scrollLeft=sel.offsetLeft-(mEl.clientWidth-sel.offsetWidth)/2;
   }
 
-  /* Die beiden Wege der Begrüßungsseite. */
+  /* Die drei Wege der Begrüßungsseite. */
   document.querySelectorAll('[data-wload]').forEach(b=>b.onclick=()=>loadData());
   document.querySelectorAll('[data-wnew]').forEach(b=>b.onclick=()=>startEmpty());
+  document.querySelectorAll('[data-wdemo]').forEach(b=>b.onclick=()=>openDemo());
   /* Die Sprachwahl der Begrüßungsseite — die einzige in der
      Anwendung: mit offenem Buch entscheidet die Datei, und geändert
      wird das im Einstellungsfenster. Hier gibt es noch keine Datei,
