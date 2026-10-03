@@ -3518,7 +3518,7 @@ function c2WireNav(){
   if(W.step>1){
     on('guide',c2GuideToggle);
     /* Der Kopf der Anleitung (c2GuidePanel): Sprache, eigener
-       Reiter, Griff. Der neue Reiter wird im Klick geöffnet, sonst
+       Reiter, ✕, Griff. Der neue Reiter wird im Klick geöffnet, sonst
        hielte der Browser ihn für ungefragt; hält er ihn trotzdem
        auf, bleibt die Anleitung stehen. */
     box.querySelectorAll('[data-c2="glang"]').forEach(b=>{b.onclick=()=>{W.gLang=b.dataset.l==='de'?'de':'en';c2Render();};});
@@ -3529,6 +3529,7 @@ function c2WireNav(){
       w.document.open();w.document.write(html);w.document.close();
       c2GuideToggle();
     });
+    on('gclose',c2GuideToggle);
     c2GuideHandle(box.querySelector('[data-c2="ghandle"]'));
   }
 }
@@ -4147,6 +4148,12 @@ function c2GuidePanel(){
           data-tip="${esc(t('guide.lang'))}">${langs}</span>
         <button class="btn small gfull" data-c2="gfull" aria-label="${esc(t('guide.full'))}"
           data-tip="${esc(t('guide.fullTip'))}">${EXPAND_SVG}</button>
+        <!-- Das ✕ ganz rechts, wie im Guide der Anwendung (Lex,
+             3.10.26; vom 9.9.26 bis dahin ging die Anleitung nur
+             über den Knopf „Guide" in der Kopfzeile zu). Es tut
+             dasselbe wie dieser Knopf: c2GuideToggle. -->
+        <button class="btn small gclose" data-c2="gclose" title="${esc(t('g.close'))}"
+          aria-label="${esc(t('g.close'))}">&#10005;</button>
       </span></div>
     <div class="c2gbody">${g[lang]}</div></aside>`;
 }
@@ -4169,8 +4176,9 @@ function c2GuideGhost(){
   g.addEventListener('animationend',done); setTimeout(done,C2_GUIDE_MS+500);
 }
 /* ── Auf und zu, und alles fährt mit ────────────────────────
-   (Lex, 9.9.26) Die Anleitung geht nur noch über den Knopf in der
-   Kopfzeile auf und zu — ein eigenes ✕ trägt sie nicht mehr. Beim
+   (Lex, 9.9.26) Die Anleitung geht über den Knopf in der Kopfzeile
+   auf und zu — und seit 3.10.26 wieder auch über ihr eigenes ✕
+   (wie der Guide der Anwendung), beides über diese Funktion. Beim
    Auf- und Zugehen sollen die Knöpfe rechts oben **mitfahren**,
    und die Tabelle darunter ebenso: steht sie ganz rechts, hat sie
    ihre letzten Spalten unter der Anleitung hervorgeholt, und die
